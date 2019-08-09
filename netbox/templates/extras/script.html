@@ -21,6 +21,9 @@
         <li role="presentation" class="active">
             <a href="#run" role="tab" data-toggle="tab" class="active">Run</a>
         </li>
+        <li role="presentation"{% if not output %} class="disabled"{% endif %}>
+            <a href="#output" role="tab" data-toggle="tab">Output</a>
+        </li>
         <li role="presentation">
             <a href="#source" role="tab" data-toggle="tab">Source</a>
         </li>
@@ -68,6 +71,9 @@
                     </form>
                 </div>
             </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="output">
+            <pre>{{ output }}</pre>
         </div>
         <div role="tabpanel" class="tab-pane" id="source">
             <strong>{{ script.filename }}</strong>

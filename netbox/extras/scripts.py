@@ -4,9 +4,14 @@ import pkgutil
 
 from django import forms
 from django.conf import settings
+from django.core.validators import RegexValidator
 
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
 from .forms import ScriptForm
+
+
+class OptionalBooleanField(forms.BooleanField):
+    required = False
 
 
 #
@@ -14,17 +19,22 @@ from .forms import ScriptForm
 #
 
 class ScriptVariable:
+    """
+    Base model for script variables
+    """
     form_field = forms.CharField
 
-    def __init__(self, label='', description=''):
+    def __init__(self, label='', description='', default=None, required=True):
 
         # Default field attributes
-        if not hasattr(self, 'field_attrs'):
-            self.field_attrs = {}
+        self.field_attrs = {
+            'help_text': description,
+            'required': required
+        }
         if label:
             self.field_attrs['label'] = label
-        if description:
-            self.field_attrs['help_text'] = description
+        if default:
+            self.field_attrs['initial'] = default
 
     def as_field(self):
         """
@@ -34,26 +44,62 @@ class ScriptVariable:
 
 
 class StringVar(ScriptVariable):
-    pass
+    """
+    Character string representation. Can enforce minimum/maximum length and/or regex validation.
+    """
+    def __init__(self, min_length=None, max_length=None, regex=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Optional minimum/maximum lengths
+        if min_length:
+            self.field_attrs['min_length'] = min_length
+        if max_length:
+            self.field_attrs['max_length'] = max_length
+
+        # Optional regular expression validation
+        if regex:
+            self.field_attrs['validators'] = [
+                RegexValidator(
+                    regex=regex,
+                    message='Invalid value. Must match regex: {}'.format(regex),
+                    code='invalid'
+                )
+            ]
 
 
 class IntegerVar(ScriptVariable):
+    """
+    Integer representation. Can enforce minimum/maximum values.
+    """
     form_field = forms.IntegerField
+
+    def __init__(self, min_value=None, max_value=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Optional minimum/maximum values
+        if min_value:
+            self.field_attrs['min_value'] = min_value
+        if max_value:
+            self.field_attrs['max_value'] = max_value
 
 
 class BooleanVar(ScriptVariable):
-    form_field = forms.BooleanField
-    field_attrs = {
-        'required': False
-    }
+    """
+    Boolean representation (true/false). Renders as a checkbox.
+    """
+    form_field = OptionalBooleanField
 
 
 class ObjectVar(ScriptVariable):
+    """
+    NetBox object representation. The provided QuerySet will determine the choices available.
+    """
     form_field = forms.ModelChoiceField
 
     def __init__(self, queryset, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Queryset for field choices
         self.field_attrs['queryset'] = queryset
 
 
@@ -61,7 +107,6 @@ class Script:
     """
     Custom scripts inherit this object.
     """
-
     def __init__(self):
 
         # Initiate the log
@@ -80,7 +125,7 @@ class Script:
         # TODO: This should preserve var ordering
         return inspect.getmembers(self, is_variable)
 
-    def run(self, context):
+    def run(self, data):
         raise NotImplementedError("The script must define a run() method.")
 
     def as_form(self, data=None):

@@ -396,14 +396,16 @@ class ScriptView(LoginRequiredMixin, View):
 
         script = self._get_script(module, name)
         form = script.as_form(request.POST)
+        output = None
 
         if form.is_valid():
 
             with transaction.atomic():
-                script.run(form.cleaned_data)
+                output = script.run(form.cleaned_data)
 
         return render(request, 'extras/script.html', {
             'module': module,
             'script': script,
             'form': form,
+            'output': output,
         })
