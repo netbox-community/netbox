@@ -19,10 +19,6 @@ __all__ = [
 ]
 
 
-class OptionalBooleanField(forms.BooleanField):
-    required = False
-
-
 #
 # Script variables
 #
@@ -96,7 +92,13 @@ class BooleanVar(ScriptVariable):
     """
     Boolean representation (true/false). Renders as a checkbox.
     """
-    form_field = OptionalBooleanField
+    form_field = forms.BooleanField
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Boolean fields cannot be required
+        self.field_attrs['required'] = False
 
 
 class ObjectVar(ScriptVariable):
