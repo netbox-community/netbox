@@ -165,4 +165,18 @@ class NewBranchScript(Script):
             )
             switch.save()
             self.log_success("Created new switch: {}".format(switch))
+
+        # Generate a CSV table of new devices
+        output = [
+            'name,make,model'
+        ]
+        for switch in Device.objects.filter(site=site):
+            attrs = [
+                switch.name,
+                switch.device_type.manufacturer.name,
+                switch.device_type.model
+            ]
+            output.append(','.join(attrs))
+
+        return '\n'.join(output)
 ```
