@@ -31,6 +31,12 @@ class ComponentTemplateModel(models.Model):
     class Meta:
         abstract = True
 
+    def instantiate(self, device):
+        """
+        Instantiate a new component on the specified Device.
+        """
+        raise NotImplementedError()
+
     def log_change(self, user, request_id, action):
         """
         Log an ObjectChange including the parent DeviceType.
@@ -1010,6 +1016,12 @@ class ConsolePortTemplate(ComponentTemplateModel):
     def __str__(self):
         return self.name
 
+    def instantiate(self, device):
+        return ConsolePort(
+            device=device,
+            name=self.name
+        )
+
 
 class ConsoleServerPortTemplate(ComponentTemplateModel):
     """
@@ -1032,6 +1044,12 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
 
     def __str__(self):
         return self.name
+
+    def instantiate(self, device):
+        return ConsoleServerPort(
+            device=device,
+            name=self.name
+        )
 
 
 class PowerPortTemplate(ComponentTemplateModel):
@@ -1067,6 +1085,14 @@ class PowerPortTemplate(ComponentTemplateModel):
 
     def __str__(self):
         return self.name
+
+    def instantiate(self, device):
+        return PowerPort(
+            device=device,
+            name=self.name,
+            maximum_draw=self.maximum_draw,
+            allocated_draw=self.allocated_draw
+        )
 
 
 class PowerOutletTemplate(ComponentTemplateModel):
@@ -1111,6 +1137,18 @@ class PowerOutletTemplate(ComponentTemplateModel):
             raise ValidationError(
                 "Parent power port ({}) must belong to the same device type".format(self.power_port)
             )
+
+    def instantiate(self, device):
+        if self.power_port:
+            power_port = PowerPort.objects.get(device=device, name=self.power_port.name)
+        else:
+            power_port = None
+        return PowerOutlet(
+            device=device,
+            name=self.name,
+            power_port=power_port,
+            feed_leg=self.feed_leg
+        )
 
 
 class InterfaceTemplate(ComponentTemplateModel):
@@ -1158,6 +1196,14 @@ class InterfaceTemplate(ComponentTemplateModel):
         Backward-compatibility for form_factor
         """
         self.type = value
+
+    def instantiate(self, device):
+        return Interface(
+            device=device,
+            name=self.name,
+            type=self.type,
+            mgmt_only=self.mgmt_only
+        )
 
 
 class FrontPortTemplate(ComponentTemplateModel):
@@ -1213,6 +1259,19 @@ class FrontPortTemplate(ComponentTemplateModel):
                 )
             )
 
+    def instantiate(self, device):
+        if self.rear_port:
+            rear_port = RearPort.objects.get(device=device, name=self.rear_port.name)
+        else:
+            rear_port = None
+        return FrontPort(
+            device=device,
+            name=self.name,
+            type=self.type,
+            rear_port=rear_port,
+            rear_port_position=self.rear_port_position
+        )
+
 
 class RearPortTemplate(ComponentTemplateModel):
     """
@@ -1243,6 +1302,14 @@ class RearPortTemplate(ComponentTemplateModel):
     def __str__(self):
         return self.name
 
+    def instantiate(self, device):
+        return RearPort(
+            device=device,
+            name=self.name,
+            type=self.type,
+            positions=self.positions
+        )
+
 
 class DeviceBayTemplate(ComponentTemplateModel):
     """
@@ -1265,6 +1332,12 @@ class DeviceBayTemplate(ComponentTemplateModel):
 
     def __str__(self):
         return self.name
+
+    def instantiate(self, device):
+        return DeviceBay(
+            device=device,
+            name=self.name
+        )
 
 
 #
@@ -1640,45 +1713,28 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # If this is a new Device, instantiate all of the related components per the DeviceType definition
         if is_new:
             ConsolePort.objects.bulk_create(
-                [ConsolePort(device=self, name=template.name) for template in
-                 self.device_type.consoleport_templates.all()]
+                [x.instantiate(self) for x in self.device_type.consoleport_templates.all()]
             )
             ConsoleServerPort.objects.bulk_create(
-                [ConsoleServerPort(device=self, name=template.name) for template in
-                 self.device_type.consoleserverport_templates.all()]
+                [x.instantiate(self) for x in self.device_type.consoleserverport_templates.all()]
             )
             PowerPort.objects.bulk_create(
-                [PowerPort(device=self, name=template.name) for template in
-                 self.device_type.powerport_templates.all()]
+                [x.instantiate(self) for x in self.device_type.powerport_templates.all()]
             )
             PowerOutlet.objects.bulk_create(
-                [PowerOutlet(device=self, name=template.name) for template in
-                 self.device_type.poweroutlet_templates.all()]
+                [x.instantiate(self) for x in self.device_type.poweroutlet_templates.all()]
             )
             Interface.objects.bulk_create(
-                [Interface(device=self, name=template.name, type=template.type,
-                           mgmt_only=template.mgmt_only) for template in self.device_type.interface_templates.all()]
+                [x.instantiate(self) for x in self.device_type.interface_templates.all()]
             )
-            RearPort.objects.bulk_create([
-                RearPort(
-                    device=self,
-                    name=template.name,
-                    type=template.type,
-                    positions=template.positions
-                ) for template in self.device_type.rearport_templates.all()
-            ])
-            FrontPort.objects.bulk_create([
-                FrontPort(
-                    device=self,
-                    name=template.name,
-                    type=template.type,
-                    rear_port=RearPort.objects.get(device=self, name=template.rear_port.name),
-                    rear_port_position=template.rear_port_position,
-                ) for template in self.device_type.frontport_templates.all()
-            ])
+            RearPort.objects.bulk_create(
+                [x.instantiate(self) for x in self.device_type.rearport_templates.all()]
+            )
+            FrontPort.objects.bulk_create(
+                [x.instantiate(self) for x in self.device_type.frontport_templates.all()]
+            )
             DeviceBay.objects.bulk_create(
-                [DeviceBay(device=self, name=template.name) for template in
-                 self.device_type.device_bay_templates.all()]
+                [x.instantiate(self) for x in self.device_type.device_bay_templates.all()]
             )
 
         # Update Site and Rack assignment for any child Devices
