@@ -120,7 +120,7 @@ from django.utils.text import slugify
 
 from dcim.constants import *
 from dcim.models import Device, DeviceRole, DeviceType, Site
-from extras.scripts import Script, IntegerVar, ObjectVar, StringVar
+from extras.scripts import *
 
 
 class NewBranchScript(Script):
