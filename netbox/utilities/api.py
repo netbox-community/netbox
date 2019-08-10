@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from collections.abc import Hashable
 
 import pytz
 from django.conf import settings
@@ -101,7 +102,7 @@ class ChoiceField(Field):
                 except ValueError:
                     pass
 
-        if data not in self._choices:
+        if not isinstance(data, Hashable) or data not in self._choices:
             raise ValidationError("{} is not a valid choice.".format(data))
 
         return data
