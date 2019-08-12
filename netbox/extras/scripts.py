@@ -5,6 +5,7 @@ import pkgutil
 from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator
+from django.db import transaction
 
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
 from .forms import ScriptForm
@@ -194,6 +195,23 @@ def is_variable(obj):
     Returns True if the object is a ScriptVariable.
     """
     return isinstance(obj, ScriptVariable)
+
+
+def run_script(script, data=None):
+    """
+    A wrapper for calling Script.run(). This performs error handling. It exists outside of the Script class to ensure
+    it cannot be overridden by a script author.
+    """
+    try:
+        with transaction.atomic():
+            return script.run(data)
+    except Exception as e:
+        script.log_failure(
+            "An exception occurred: {}".format(e)
+        )
+        script.log_info(
+            "Database changes have been reverted automatically."
+        )
 
 
 def get_scripts():

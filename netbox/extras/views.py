@@ -3,7 +3,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
-from django.db import transaction
 from django.db.models import Count, Q
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
@@ -21,7 +20,7 @@ from .forms import (
 )
 from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult, Tag, TaggedItem
 from .reports import get_report, get_reports
-from .scripts import get_scripts
+from .scripts import get_scripts, run_script
 from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemTable
 
 
@@ -405,9 +404,7 @@ class ScriptView(PermissionRequiredMixin, View):
         output = None
 
         if form.is_valid():
-
-            with transaction.atomic():
-                output = script.run(form.cleaned_data)
+            run_script(script)
 
         return render(request, 'extras/script.html', {
             'module': module,
