@@ -404,7 +404,8 @@ class ScriptView(PermissionRequiredMixin, View):
         output = None
 
         if form.is_valid():
-            run_script(script)
+            commit = form.cleaned_data.pop('_commit')
+            run_script(script, form.cleaned_data, commit)
 
         return render(request, 'extras/script.html', {
             'module': module,

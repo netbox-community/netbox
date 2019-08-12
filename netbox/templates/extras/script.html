@@ -56,7 +56,7 @@
                 </div>
             {% endif %}
             <div class="row">
-                <div class="col-md-8 col-md-offset-2">
+                <div class="col-md-6 col-md-offset-3">
                     {% if not perms.extras.run_script %}
                         <div class="alert alert-warning">
                             <i class="fa fa-warning"></i>
@@ -82,7 +82,7 @@
             <pre>{{ output }}</pre>
         </div>
         <div role="tabpanel" class="tab-pane" id="source">
-            <strong>{{ script.filename }}</strong>
+            <p><code>{{ script.filename }}</code></p>
             <pre>{{ script.source }}</pre>
         </div>
     </div>

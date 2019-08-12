@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
 
+from utilities.exceptions import AbortTransaction
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
 from .forms import ScriptForm
 
@@ -197,21 +198,32 @@ def is_variable(obj):
     return isinstance(obj, ScriptVariable)
 
 
-def run_script(script, data=None):
+def run_script(script, data, commit=True):
     """
-    A wrapper for calling Script.run(). This performs error handling. It exists outside of the Script class to ensure
-    it cannot be overridden by a script author.
+    A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
+    exists outside of the Script class to ensure it cannot be overridden by a script author.
     """
+    output = None
+
     try:
         with transaction.atomic():
-            return script.run(data)
+            output = script.run(data)
+            if not commit:
+                raise AbortTransaction()
+    except AbortTransaction:
+        pass
     except Exception as e:
         script.log_failure(
-            "An exception occurred: {}".format(e)
+            "An exception occurred. {}: {}".format(type(e).__name__, e)
         )
-        script.log_info(
-            "Database changes have been reverted automatically."
-        )
+        commit = False
+    finally:
+        if not commit:
+            script.log_info(
+                "Database changes have been reverted automatically."
+            )
+
+    return output
 
 
 def get_scripts():
