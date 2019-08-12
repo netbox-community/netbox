@@ -118,6 +118,9 @@ class Script:
     """
     Custom scripts inherit this object.
     """
+    class Meta:
+        pass
+
     def __init__(self):
 
         # Initiate the log
@@ -128,17 +131,15 @@ class Script:
         self.source = inspect.getsource(self.__class__)
 
     def __str__(self):
-        if hasattr(self, 'script_name'):
-            return self.script_name
-        return self.__class__.__name__
+        return getattr(self.Meta, 'name', self.__class__.__name__)
 
     def _get_vars(self):
         vars = OrderedDict()
 
-        # Infer order from script_fields (Python 3.5 and lower)
-        if hasattr(self, 'script_fields'):
-            for name in self.script_fields:
-                vars[name] = getattr(self, name)
+        # Infer order from Meta.fields (Python 3.5 and lower)
+        fields = getattr(self.Meta, 'fields')
+        for name in fields:
+            vars[name] = getattr(self, name)
 
         # Default to order of declaration on class
         for name, attr in self.__class__.__dict__.items():
