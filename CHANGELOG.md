@@ -2,6 +2,10 @@ v2.6.3 (FUTURE)
 
 ## Bug Fixes
 
+* [#3420](https://github.com/netbox-community/netbox/issues/3420) - Serial number filter for racks, devices, and inventory items is now case-insensitive
+
+## Enhancements
+
 * [#3405](https://github.com/netbox-community/netbox/issues/3405) - Fix population of power port/outlet details on device creation
 * [#3422](https://github.com/netbox-community/netbox/issues/3422) - Prevent navigation menu from overlapping page content
 
