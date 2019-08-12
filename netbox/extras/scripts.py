@@ -139,7 +139,7 @@ class Script:
         vars = OrderedDict()
 
         # Infer order from Meta.fields (Python 3.5 and lower)
-        fields = getattr(self.Meta, 'fields')
+        fields = getattr(self.Meta, 'fields', [])
         for name in fields:
             vars[name] = getattr(self, name)
 
