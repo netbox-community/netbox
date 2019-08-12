@@ -57,6 +57,12 @@
             {% endif %}
             <div class="row">
                 <div class="col-md-8 col-md-offset-2">
+                    {% if not perms.extras.run_script %}
+                        <div class="alert alert-warning">
+                            <i class="fa fa-warning"></i>
+                            You do not have permission to run scripts.
+                        </div>
+                    {% endif %}
                     <form action="" method="post">
                     {% csrf_token %}
                         {% if form %}
@@ -65,7 +71,7 @@
                             <p>This script does not require any input to run.</p>
                         {% endif %}
                         <div class="pull-right">
-                            <button type="submit" name="_run" class="btn btn-primary"><i class="fa fa-play"></i> Run Script</button>
+                            <button type="submit" name="_run" class="btn btn-primary"{% if not perms.extras.run_script %} disabled="disabled"{% endif %}><i class="fa fa-play"></i> Run Script</button>
                             <a href="{% url 'extras:script_list' %}" class="btn btn-default">Cancel</a>
                         </div>
                     </form>

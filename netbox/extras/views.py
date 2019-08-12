@@ -1,11 +1,11 @@
 from django import template
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import Count, Q
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
 from django.views.generic import View
@@ -363,7 +363,8 @@ class ReportRunView(PermissionRequiredMixin, View):
 # Scripts
 #
 
-class ScriptListView(LoginRequiredMixin, View):
+class ScriptListView(PermissionRequiredMixin, View):
+    permission_required = 'extras.view_script'
 
     def get(self, request):
 
@@ -372,7 +373,8 @@ class ScriptListView(LoginRequiredMixin, View):
         })
 
 
-class ScriptView(LoginRequiredMixin, View):
+class ScriptView(PermissionRequiredMixin, View):
+    permission_required = 'extras.view_script'
 
     def _get_script(self, module, name):
         scripts = get_scripts()
@@ -393,6 +395,10 @@ class ScriptView(LoginRequiredMixin, View):
         })
 
     def post(self, request, module, name):
+
+        # Permissions check
+        if not request.user.has_perm('extras.run_script'):
+            return HttpResponseForbidden()
 
         script = self._get_script(module, name)
         form = script.as_form(request.POST)
