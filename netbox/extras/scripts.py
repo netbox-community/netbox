@@ -233,6 +233,8 @@ def get_scripts():
     # defined.
     for importer, module_name, _ in pkgutil.iter_modules([settings.SCRIPTS_ROOT]):
         module = importer.find_module(module_name).load_module(module_name)
+        if hasattr(module, 'name'):
+            module_name = module.name
         module_scripts = OrderedDict()
         for name, cls in inspect.getmembers(module, is_script):
             module_scripts[name] = cls
