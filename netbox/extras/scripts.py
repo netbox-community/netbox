@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
 
+from ipam.formfields import IPFormField
 from utilities.exceptions import AbortTransaction
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
 from .forms import ScriptForm
@@ -18,6 +19,7 @@ __all__ = [
     'IntegerVar',
     'BooleanVar',
     'ObjectVar',
+    'IPNetworkVar',
 ]
 
 
@@ -115,6 +117,17 @@ class ObjectVar(ScriptVariable):
         # Queryset for field choices
         self.field_attrs['queryset'] = queryset
 
+
+class IPNetworkVar(ScriptVariable):
+    """
+    An IPv4 or IPv6 prefix.
+    """
+    form_field = IPFormField
+
+
+#
+# Scripts
+#
 
 class Script:
     """
