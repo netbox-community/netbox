@@ -402,14 +402,16 @@ class ScriptView(PermissionRequiredMixin, View):
         script = self._get_script(module, name)
         form = script.as_form(request.POST)
         output = None
+        execution_time = None
 
         if form.is_valid():
             commit = form.cleaned_data.pop('_commit')
-            run_script(script, form.cleaned_data, commit)
+            output, execution_time = run_script(script, form.cleaned_data, commit)
 
         return render(request, 'extras/script.html', {
             'module': module,
             'script': script,
             'form': form,
             'output': output,
+            'execution_time': execution_time,
         })

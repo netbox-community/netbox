@@ -30,12 +30,12 @@
     </ul>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="run">
-            {% if script.log %}
+            {% if execution_time %}
                 <div class="row">
                     <div class="col-md-12">
                         <div class="panel panel-default">
                             <div class="panel-heading">
-                                <strong>Script Output</strong>
+                                <strong>Script Log</strong>
                             </div>
                             <table class="table table-hover panel-body">
                                 <tr>
@@ -49,8 +49,17 @@
                                         <td>{% log_level level %}</td>
                                         <td>{{ message }}</td>
                                     </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">
+                                            No log output
+                                        </td>
+                                    </tr>
                                 {% endfor %}
                             </table>
+                            <div class="panel-footer text-right text-muted">
+                                <small>Exec time: {{ execution_time|floatformat:3 }}s</small>
+                            </div>
                         </div>
                     </div>
                 </div>

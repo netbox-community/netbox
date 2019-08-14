@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import inspect
 import pkgutil
+import time
 
 from django import forms
 from django.conf import settings
@@ -220,10 +221,14 @@ def run_script(script, data, commit=True):
     exists outside of the Script class to ensure it cannot be overridden by a script author.
     """
     output = None
+    start_time = None
+    end_time = None
 
     try:
         with transaction.atomic():
+            start_time = time.time()
             output = script.run(data)
+            end_time = time.time()
             if not commit:
                 raise AbortTransaction()
     except AbortTransaction:
@@ -239,7 +244,13 @@ def run_script(script, data, commit=True):
                 "Database changes have been reverted automatically."
             )
 
-    return output
+    # Calculate execution time
+    if end_time is not None:
+        execution_time = end_time - start_time
+    else:
+        execution_time = None
+
+    return output, execution_time
 
 
 def get_scripts():
