@@ -404,3 +404,10 @@ class ScriptForm(BootstrapMixin, forms.Form):
 
         # Move _commit to the end of the form
         self.fields.move_to_end('_commit', True)
+
+    @property
+    def requires_input(self):
+        """
+        A boolean indicating whether the form requires user input (ignore the _commit field).
+        """
+        return bool(len(self.fields) > 1)
