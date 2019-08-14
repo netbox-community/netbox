@@ -3,7 +3,9 @@ import inspect
 import json
 import os
 import pkgutil
+import sys
 import time
+import traceback
 import yaml
 
 from django import forms
@@ -265,8 +267,9 @@ def run_script(script, data, commit=True):
     except AbortTransaction:
         pass
     except Exception as e:
+        stacktrace = traceback.format_exc()
         script.log_failure(
-            "An exception occurred. {}: {}".format(type(e).__name__, e)
+            "An exception occurred. {}: {}\n```{}```".format(type(e).__name__, e, stacktrace)
         )
         commit = False
     finally:
