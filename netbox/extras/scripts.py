@@ -10,6 +10,8 @@ from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
+from mptt.forms import TreeNodeChoiceField
+from mptt.models import MPTTModel
 
 from ipam.formfields import IPFormField
 from utilities.exceptions import AbortTransaction
@@ -123,6 +125,10 @@ class ObjectVar(ScriptVariable):
 
         # Queryset for field choices
         self.field_attrs['queryset'] = queryset
+
+        # Update form field for MPTT (nested) objects
+        if issubclass(queryset.model, MPTTModel):
+            self.form_field = TreeNodeChoiceField
 
 
 class IPNetworkVar(ScriptVariable):
