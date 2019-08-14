@@ -63,7 +63,7 @@
                             You do not have permission to run scripts.
                         </div>
                     {% endif %}
-                    <form action="" method="post">
+                    <form action="" method="post" class="form form-horizontal">
                     {% csrf_token %}
                         {% if form %}
                             {% render_form form %}
