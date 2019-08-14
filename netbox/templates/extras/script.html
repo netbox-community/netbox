@@ -47,7 +47,7 @@
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
                                         <td>{% log_level level %}</td>
-                                        <td>{{ message }}</td>
+                                        <td class="rendered-markdown">{{ message|gfm }}</td>
                                     </tr>
                                 {% empty %}
                                     <tr>

@@ -269,7 +269,7 @@ def run_script(script, data, commit=True):
     except Exception as e:
         stacktrace = traceback.format_exc()
         script.log_failure(
-            "An exception occurred. {}: {}\n```{}```".format(type(e).__name__, e, stacktrace)
+            "An exception occurred: `{}: {}`\n```\n{}\n```".format(type(e).__name__, e, stacktrace)
         )
         commit = False
     finally:
