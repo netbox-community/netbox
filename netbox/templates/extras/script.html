@@ -30,7 +30,7 @@
     </ul>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="run">
-            {% if execution_time %}
+            {% if execution_time or script.log %}
                 <div class="row">
                     <div class="col-md-12">
                         <div class="panel panel-default">
