@@ -1,7 +1,10 @@
 from collections import OrderedDict
 import inspect
+import json
+import os
 import pkgutil
 import time
+import yaml
 
 from django import forms
 from django.conf import settings
@@ -195,6 +198,28 @@ class Script:
 
     def log_failure(self, message):
         self.log.append((LOG_FAILURE, message))
+
+    # Convenience functions
+
+    def load_yaml(self, filename):
+        """
+        Return data from a YAML file
+        """
+        file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
+        with open(file_path, 'r') as datafile:
+            data = yaml.load(datafile)
+
+        return data
+
+    def load_json(self, filename):
+        """
+        Return data from a JSON file
+        """
+        file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
+        with open(file_path, 'r') as datafile:
+            data = json.load(datafile)
+
+        return data
 
 
 #
