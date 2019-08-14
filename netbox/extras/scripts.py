@@ -3,7 +3,6 @@ import inspect
 import json
 import os
 import pkgutil
-import sys
 import time
 import traceback
 import yaml
@@ -24,6 +23,7 @@ from .forms import ScriptForm
 __all__ = [
     'Script',
     'StringVar',
+    'TextVar',
     'IntegerVar',
     'BooleanVar',
     'ObjectVar',
@@ -85,6 +85,18 @@ class StringVar(ScriptVariable):
                     code='invalid'
                 )
             ]
+
+
+class TextVar(ScriptVariable):
+    """
+    Free-form text data. Renders as a <textarea>.
+    """
+    form_field = forms.CharField
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.field_attrs['widget'] = forms.Textarea
 
 
 class IntegerVar(ScriptVariable):
