@@ -63,6 +63,15 @@ The order in which the variable fields should appear. This is optional, however 
 fields = ['var1', 'var2', 'var3']
 ```
 
+## Reading Data from Files
+
+The Script class provides two convenience methods for reading data from files:
+
+* `load_yaml`
+* `load_json`
+
+These two methods will load data in YAML or JSON format, respectively, from files within the local path (i.e. `SCRIPTS_ROOT`).
+
 ## Logging
 
 The Script object provides a set of convenient functions for recording messages at different severity levels:
@@ -73,7 +82,7 @@ The Script object provides a set of convenient functions for recording messages 
 * `log_warning`
 * `log_failure`
 
-Log messages are returned to the user upon execution of the script.
+Log messages are returned to the user upon execution of the script. Markdown rendering is supported for log messages.
 
 ## Variable Reference
 
@@ -86,6 +95,10 @@ Stores a string of characters (i.e. a line of text). Options include:
 * `regex` - A regular expression against which the provided value must match
 
 Note: `min_length` and `max_length` can be set to the same number to effect a fixed-length field.
+
+### TextVar
+
+Arbitrary text of any length. Renders as multi-line text input field.
 
 ### IntegerVar
 
