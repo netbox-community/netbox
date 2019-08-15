@@ -1,3 +1,11 @@
+v2.7.0 (FUTURE)
+
+## Housekeeping
+
+* [#3407](https://github.com/netbox-community/netbox/issues/3407) - Added code coverage reporting to the CI pipeline
+
+---
+
 v2.6.3 (FUTURE)
 
 ## Bug Fixes

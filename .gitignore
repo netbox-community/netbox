@@ -12,3 +12,4 @@ fabfile.py
 gunicorn_config.py
 .DS_Store
 .vscode
+.coverage
