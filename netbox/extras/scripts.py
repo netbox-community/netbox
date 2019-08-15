@@ -178,9 +178,9 @@ class Script:
     def _get_vars(self):
         vars = OrderedDict()
 
-        # Infer order from Meta.fields (Python 3.5 and lower)
-        fields = getattr(self.Meta, 'fields', [])
-        for name in fields:
+        # Infer order from Meta.field_order (Python 3.5 and lower)
+        field_order = getattr(self.Meta, 'field_order', [])
+        for name in field_order:
             vars[name] = getattr(self, name)
 
         # Default to order of declaration on class

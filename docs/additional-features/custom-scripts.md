@@ -55,12 +55,12 @@ This is the human-friendly names of your script. If omitted, the class name will
 
 A human-friendly description of what your script does.
 
-### `fields`
+### `field_order`
 
-The order in which the variable fields should appear. This is optional, however on Python 3.5 and earlier the fields will appear in random order. (Declarative ordering is preserved on Python 3.6 and above.) For example:
+A list of field names indicating the order in which the form fields should appear. This is optional, however on Python 3.5 and earlier the fields will appear in random order. (Declarative ordering is preserved on Python 3.6 and above.) For example:
 
 ```
-fields = ['var1', 'var2', 'var3']
+field_order = ['var1', 'var2', 'var3']
 ```
 
 ## Reading Data from Files
