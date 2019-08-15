@@ -8,6 +8,7 @@ v2.6.3 (FUTURE)
 ## Enhancements
 
 * [#3386](https://github.com/netbox-community/netbox/issues/3386) - Add `mac_address` filter for virtual machines
+* [#3391](https://github.com/netbox-community/netbox/issues/3391) - Update Bootstrap CSS to v3.4.1
 * [#3405](https://github.com/netbox-community/netbox/issues/3405) - Fix population of power port/outlet details on device creation
 * [#3422](https://github.com/netbox-community/netbox/issues/3422) - Prevent navigation menu from overlapping page content
 
