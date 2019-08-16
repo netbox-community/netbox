@@ -239,7 +239,7 @@
                         <td>Platform</td>
                         <td>
                             {% if device.platform %}
-                                <span>{{ device.platform }}</span>
+                                <a href="{% url 'dcim:device_list' %}?platform={{ device.platform.slug }}">{{ device.platform }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}
