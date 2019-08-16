@@ -297,6 +297,8 @@ The choices available for fixed choice fields such as `status` are exposed in th
 ],
 ```
 
+A full list of non-fixed field filters can be found in the netbox source in `filters.py` in the subdirectory for the desired module, for example, `dcim` or `ipam`.
+
 For most fields, when a filter is passed multiple times, objects matching _any_ of the provided values will be returned. For example, `GET /api/dcim/sites/?name=Foo&name=Bar` will return all sites named "Foo" _or_ "Bar". The exception to this rule is ManyToManyFields which may have multiple values assigned. Tags are the most common example of a ManyToManyField. For example, `GET /api/dcim/sites/?tag=foo&tag=bar` will return only sites tagged with both "foo" _and_ "bar".
 
 ## Custom Fields
