@@ -21,13 +21,14 @@ from .forms import ScriptForm
 
 
 __all__ = [
+    'BooleanVar',
+    'FileVar',
+    'IntegerVar',
+    'IPNetworkVar',
+    'ObjectVar',
     'Script',
     'StringVar',
     'TextVar',
-    'IntegerVar',
-    'BooleanVar',
-    'ObjectVar',
-    'IPNetworkVar',
 ]
 
 
@@ -145,6 +146,13 @@ class ObjectVar(ScriptVariable):
             self.form_field = TreeNodeChoiceField
 
 
+class FileVar(ScriptVariable):
+    """
+    An uploaded file.
+    """
+    form_field = forms.FileField
+
+
 class IPNetworkVar(ScriptVariable):
     """
     An IPv4 or IPv6 prefix.
@@ -193,12 +201,12 @@ class Script:
     def run(self, data):
         raise NotImplementedError("The script must define a run() method.")
 
-    def as_form(self, data=None):
+    def as_form(self, data=None, files=None):
         """
         Return a Django form suitable for populating the context data required to run this Script.
         """
         vars = self._get_vars()
-        form = ScriptForm(vars, data)
+        form = ScriptForm(vars, data, files)
 
         return form
 
@@ -260,7 +268,7 @@ def is_variable(obj):
     return isinstance(obj, ScriptVariable)
 
 
-def run_script(script, data, commit=True):
+def run_script(script, data, files, commit=True):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
     exists outside of the Script class to ensure it cannot be overridden by a script author.
@@ -268,6 +276,10 @@ def run_script(script, data, commit=True):
     output = None
     start_time = None
     end_time = None
+
+    # Add files to form data
+    for field_name, fileobj in files.items():
+        data[field_name] = fileobj
 
     try:
         with transaction.atomic():

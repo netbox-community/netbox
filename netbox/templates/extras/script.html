@@ -57,9 +57,11 @@
                                     </tr>
                                 {% endfor %}
                             </table>
-                            <div class="panel-footer text-right text-muted">
-                                <small>Exec time: {{ execution_time|floatformat:3 }}s</small>
-                            </div>
+                            {% if execution_time %}
+                                <div class="panel-footer text-right text-muted">
+                                    <small>Exec time: {{ execution_time|floatformat:3 }}s</small>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -72,7 +74,7 @@
                             You do not have permission to run scripts.
                         </div>
                     {% endif %}
-                    <form action="" method="post" class="form form-horizontal">
+                    <form action="" method="post" enctype="multipart/form-data" class="form form-horizontal">
                     {% csrf_token %}
                         {% if not form.requires_input %}
                             <div class="alert alert-info">

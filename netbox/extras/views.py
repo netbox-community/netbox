@@ -400,13 +400,13 @@ class ScriptView(PermissionRequiredMixin, View):
             return HttpResponseForbidden()
 
         script = self._get_script(module, name)
-        form = script.as_form(request.POST)
+        form = script.as_form(request.POST, request.FILES)
         output = None
         execution_time = None
 
         if form.is_valid():
             commit = form.cleaned_data.pop('_commit')
-            output, execution_time = run_script(script, form.cleaned_data, commit)
+            output, execution_time = run_script(script, form.cleaned_data, request.FILES, commit)
 
         return render(request, 'extras/script.html', {
             'module': module,
