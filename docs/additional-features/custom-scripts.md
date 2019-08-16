@@ -117,6 +117,14 @@ A NetBox object. The list of available objects is defined by the queryset parame
 
 * `queryset` - A [Django queryset](https://docs.djangoproject.com/en/stable/topics/db/queries/)
 
+### FileVar
+
+An uploaded file. Note that uploaded files are present in memory only for the duration of the script's execution: They will not be save for future use.
+
+### IPNetworkVar
+
+An IPv4 or IPv6 network with a mask.
+
 ### Default Options
 
 All variables support the following default options:
