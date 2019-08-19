@@ -2215,7 +2215,6 @@ class VirtualChassisRemoveMemberView(PermissionRequiredMixin, GetReturnURLMixin,
                 vc_priority=None
             )
 
-
             msg = 'Removed {} from virtual chassis {}'.format(device, device.virtual_chassis)
             messages.success(request, msg)
 
