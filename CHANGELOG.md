@@ -12,6 +12,7 @@ v2.6.3 (FUTURE)
 * [#3391](https://github.com/netbox-community/netbox/issues/3391) - Update Bootstrap CSS to v3.4.1
 * [#3405](https://github.com/netbox-community/netbox/issues/3405) - Fix population of power port/outlet details on device creation
 * [#3422](https://github.com/netbox-community/netbox/issues/3422) - Prevent navigation menu from overlapping page content
+* [#3430](https://github.com/netbox-community/netbox/issues/3430) - Linkify platform field on device view
 
 ---
 
