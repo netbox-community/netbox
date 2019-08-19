@@ -21,6 +21,7 @@ from .forms import ScriptForm
 
 
 __all__ = [
+    'BaseScript',
     'BooleanVar',
     'FileVar',
     'IntegerVar',
@@ -164,9 +165,10 @@ class IPNetworkVar(ScriptVariable):
 # Scripts
 #
 
-class Script:
+class BaseScript:
     """
-    Custom scripts inherit this object.
+    Base model for custom scripts. User classes should inherit from this model if they want to extend Script
+    functionality for use in other subclasses.
     """
     class Meta:
         pass
@@ -250,6 +252,13 @@ class Script:
         return data
 
 
+class Script(BaseScript):
+    """
+    Classes which inherit this model will appear in the list of available scripts.
+    """
+    pass
+
+
 #
 # Functions
 #
@@ -258,7 +267,10 @@ def is_script(obj):
     """
     Returns True if the object is a Script.
     """
-    return obj in Script.__subclasses__()
+    try:
+        return issubclass(obj, Script) and obj != Script
+    except TypeError:
+        return False
 
 
 def is_variable(obj):
