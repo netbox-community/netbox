@@ -442,11 +442,11 @@ class VirtualChassisTestCase(TestCase):
 
         # Create three VirtualChassis with two members each
         vc1 = VirtualChassis.objects.create(master=device1, domain='test-domain-1')
-        Device.objects.filter(pk=device2.pk).update(virtual_chassis=vc1, vc_position=2)
+        Device.objects.filter(pk=device2.pk).invalidated_update(virtual_chassis=vc1, vc_position=2)
         vc2 = VirtualChassis.objects.create(master=device3, domain='test-domain-2')
-        Device.objects.filter(pk=device4.pk).update(virtual_chassis=vc2, vc_position=2)
+        Device.objects.filter(pk=device4.pk).invalidated_update(virtual_chassis=vc2, vc_position=2)
         vc3 = VirtualChassis.objects.create(master=device5, domain='test-domain-3')
-        Device.objects.filter(pk=device6.pk).update(virtual_chassis=vc3, vc_position=2)
+        Device.objects.filter(pk=device6.pk).invalidated_update(virtual_chassis=vc3, vc_position=2)
 
     def test_virtualchassis_list(self):
 

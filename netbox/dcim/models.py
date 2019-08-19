@@ -607,7 +607,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         # Update racked devices if the assigned Site has been changed.
         if _site_id is not None and self.site_id != _site_id:
-            Device.objects.filter(rack=self).update(site_id=self.site.pk)
+            Device.objects.filter(rack=self).invalidated_update(site_id=self.site.pk)
 
     def to_csv(self):
         return (
@@ -664,7 +664,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         # Add devices to rack units list
         if self.pk:
-            for device in Device.objects.select_related('device_type__manufacturer', 'device_role')\
+            for device in Device.objects.prefetch_related('device_type__manufacturer', 'device_role')\
                     .annotate(devicebay_count=Count('device_bays'))\
                     .exclude(pk=exclude)\
                     .filter(rack=self, position__gt=0)\
@@ -697,7 +697,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         """
 
         # Gather all devices which consume U space within the rack
-        devices = self.devices.select_related('device_type').filter(position__gte=1).exclude(pk__in=exclude)
+        devices = self.devices.prefetch_related('device_type').filter(position__gte=1).exclude(pk__in=exclude)
 
         # Initialize the rack unit skeleton
         units = list(range(1, self.u_height + 1))
@@ -1738,7 +1738,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
             )
 
         # Update Site and Rack assignment for any child Devices
-        Device.objects.filter(parent_bay__device=self).update(site=self.site, rack=self.rack)
+        Device.objects.filter(parent_bay__device=self).invalidated_update(site=self.site, rack=self.rack)
 
     def to_csv(self):
         return (

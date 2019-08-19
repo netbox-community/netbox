@@ -10,4 +10,4 @@ def update_circuit(instance, **kwargs):
     """
     When a CircuitTermination has been modified, update the last_updated time of its parent Circuit.
     """
-    Circuit.objects.filter(pk=instance.circuit_id).update(last_updated=timezone.now())
+    Circuit.objects.filter(pk=instance.circuit_id).invalidated_update(last_updated=timezone.now())

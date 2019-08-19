@@ -120,7 +120,7 @@ class ExportTemplateViewSet(ModelViewSet):
 #
 
 class TopologyMapViewSet(ModelViewSet):
-    queryset = TopologyMap.objects.select_related('site')
+    queryset = TopologyMap.objects.prefetch_related('site')
     serializer_class = serializers.TopologyMapSerializer
     filterset_class = filters.TopologyMapFilter
 
@@ -260,6 +260,6 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     """
     Retrieve a list of recent changes.
     """
-    queryset = ObjectChange.objects.select_related('user')
+    queryset = ObjectChange.objects.prefetch_related('user')
     serializer_class = serializers.ObjectChangeSerializer
     filterset_class = filters.ObjectChangeFilter
