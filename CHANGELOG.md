@@ -3,6 +3,7 @@ v2.6.3 (FUTURE)
 ## Bug Fixes
 
 * [#3420](https://github.com/netbox-community/netbox/issues/3420) - Serial number filter for racks, devices, and inventory items is now case-insensitive
+* [#3421](https://github.com/netbox-community/netbox/issues/3421) - Fix exception when ordering power connections list by PDU
 * [#3424](https://github.com/netbox-community/netbox/issues/3424) - Fix tag coloring for non-linked tags
 * [#3426](https://github.com/netbox-community/netbox/issues/3426) - Improve API error handling for ChoiceFields
 
