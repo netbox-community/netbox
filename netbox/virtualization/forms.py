@@ -525,7 +525,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
     model = VirtualMachine
     field_order = [
         'q', 'cluster_group', 'cluster_type', 'cluster_id', 'status', 'role', 'region', 'site', 'tenant_group',
-        'tenant', 'platform',
+        'tenant', 'platform', 'mac_address',
     ]
     q = forms.CharField(
         required=False,
@@ -605,6 +605,10 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
             value_field="slug",
             null_option=True,
         )
+    )
+    mac_address = forms.CharField(
+        required=False,
+        label='MAC address'
     )
 
 

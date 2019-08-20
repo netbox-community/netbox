@@ -5,6 +5,7 @@ import sys
 from django import get_version
 from django.apps import apps
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
 APPS = ['circuits', 'dcim', 'extras', 'ipam', 'secrets', 'tenancy', 'users', 'virtualization']
@@ -49,6 +50,9 @@ class Command(BaseCommand):
                     namespace[name] = getattr(app_constants, name)
             except KeyError:
                 pass
+
+        # Additional objects to include
+        namespace['User'] = User
 
         # Load convenience commands
         namespace.update({

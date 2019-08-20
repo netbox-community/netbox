@@ -85,9 +85,9 @@ class ChoiceField(Field):
 
     def to_internal_value(self, data):
 
-        # Provide an explicit error message if the request is trying to write a dict
-        if type(data) is dict:
-            raise ValidationError('Value must be passed directly (e.g. "foo": 123); do not use a dictionary.')
+        # Provide an explicit error message if the request is trying to write a dict or list
+        if isinstance(data, (dict, list)):
+            raise ValidationError('Value must be passed directly (e.g. "foo": 123); do not use a dictionary or list.')
 
         # Check for string representations of boolean/integer values
         if hasattr(data, 'lower'):
@@ -101,10 +101,13 @@ class ChoiceField(Field):
                 except ValueError:
                     pass
 
-        if data not in self._choices:
-            raise ValidationError("{} is not a valid choice.".format(data))
+        try:
+            if data in self._choices:
+                return data
+        except TypeError:  # Input is an unhashable type
+            pass
 
-        return data
+        raise ValidationError("{} is not a valid choice.".format(data))
 
     @property
     def choices(self):
