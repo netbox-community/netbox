@@ -24,9 +24,9 @@ def clear_virtualchassis_members(instance, **kwargs):
     """
     devices = Device.objects.filter(virtual_chassis=instance.pk)
     for device in devices:
-            device.vc_position = None
-            device.vc_priority = None
-            device.save()
+        device.vc_position = None
+        device.vc_priority = None
+        device.save()
 
 
 @receiver(post_save, sender=Cable)
