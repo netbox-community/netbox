@@ -3430,11 +3430,11 @@ class VirtualChassisTest(APITestCase):
 
         # Create two VirtualChassis with three members each
         self.vc1 = VirtualChassis.objects.create(master=self.device1, domain='test-domain-1')
-        Device.objects.filter(pk=self.device2.pk).invalidated_update(virtual_chassis=self.vc1, vc_position=2)
-        Device.objects.filter(pk=self.device3.pk).invalidated_update(virtual_chassis=self.vc1, vc_position=3)
+        Device.objects.filter(pk=self.device2.pk).update(virtual_chassis=self.vc1, vc_position=2)
+        Device.objects.filter(pk=self.device3.pk).update(virtual_chassis=self.vc1, vc_position=3)
         self.vc2 = VirtualChassis.objects.create(master=self.device4, domain='test-domain-2')
-        Device.objects.filter(pk=self.device5.pk).invalidated_update(virtual_chassis=self.vc2, vc_position=2)
-        Device.objects.filter(pk=self.device6.pk).invalidated_update(virtual_chassis=self.vc2, vc_position=3)
+        Device.objects.filter(pk=self.device5.pk).update(virtual_chassis=self.vc2, vc_position=2)
+        Device.objects.filter(pk=self.device6.pk).update(virtual_chassis=self.vc2, vc_position=3)
 
     def test_get_virtualchassis(self):
 

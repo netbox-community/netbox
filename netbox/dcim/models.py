@@ -607,7 +607,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         # Update racked devices if the assigned Site has been changed.
         if _site_id is not None and self.site_id != _site_id:
-            Device.objects.filter(rack=self).invalidated_update(site_id=self.site.pk)
+            devices = Device.objects.filter(rack=self)
+            for device in devices:
+                device.site = self.site
+                device.save()
 
     def to_csv(self):
         return (
@@ -1738,7 +1741,11 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
             )
 
         # Update Site and Rack assignment for any child Devices
-        Device.objects.filter(parent_bay__device=self).invalidated_update(site=self.site, rack=self.rack)
+        devices = Device.objects.filter(parent_bay__device=self)
+        for device in devices:
+            device.site = self.site
+            device.rack = self.rack
+            device.save()
 
     def to_csv(self):
         return (

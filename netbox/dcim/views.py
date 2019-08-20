@@ -2108,7 +2108,10 @@ class VirtualChassisEditView(PermissionRequiredMixin, GetReturnURLMixin, View):
                 # Nullify the vc_position of each member first to allow reordering without raising an IntegrityError on
                 # duplicate positions. Then save each member instance.
                 members = formset.save(commit=False)
-                Device.objects.filter(pk__in=[m.pk for m in members]).invalidated_update(vc_position=None)
+                devices = Device.objects.filter(pk__in=[m.pk for m in members])
+                for device in devices:
+                    device.vc_position = None
+                    device.save()
                 for member in members:
                     member.save()
 
@@ -2209,11 +2212,12 @@ class VirtualChassisRemoveMemberView(PermissionRequiredMixin, GetReturnURLMixin,
 
         if form.is_valid():
 
-            Device.objects.filter(pk=device.pk).invalidated_update(
-                virtual_chassis=None,
-                vc_position=None,
-                vc_priority=None
-            )
+            devices = Device.objects.filter(pk=device.pk)
+            for device in devices:
+                device.virtual_chassis = None
+                device.vc_position = None
+                device.vc_priority = None
+                device.save()
 
             msg = 'Removed {} from virtual chassis {}'.format(device, device.virtual_chassis)
             messages.success(request, msg)
