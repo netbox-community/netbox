@@ -35,10 +35,8 @@ class TenantGroupViewSet(ModelViewSet):
 #
 
 class TenantViewSet(CustomFieldModelViewSet):
-    queryset = Tenant.objects.select_related(
-        'group'
-    ).prefetch_related(
-        'tags'
+    queryset = Tenant.objects.prefetch_related(
+        'group', 'tags'
     ).annotate(
         circuit_count=get_subquery(Circuit, 'tenant'),
         device_count=get_subquery(Device, 'tenant'),

@@ -43,7 +43,7 @@ class DeviceConnectionsReport(Report):
     def test_console_connection(self):
 
         # Check that every console port for every active device has a connection defined.
-        for console_port in ConsolePort.objects.select_related('device').filter(device__status=DEVICE_STATUS_ACTIVE):
+        for console_port in ConsolePort.objects.prefetch_related('device').filter(device__status=DEVICE_STATUS_ACTIVE):
             if console_port.connected_endpoint is None:
                 self.log_failure(
                     console_port.device,

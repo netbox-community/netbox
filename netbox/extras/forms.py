@@ -111,8 +111,10 @@ class CustomFieldForm(forms.ModelForm):
 
         # If editing an existing object, initialize values for all custom fields
         if self.instance.pk:
-            existing_values = CustomFieldValue.objects.filter(obj_type=self.obj_type, obj_id=self.instance.pk)\
-                .select_related('field')
+            existing_values = CustomFieldValue.objects.filter(
+                obj_type=self.obj_type,
+                obj_id=self.instance.pk
+            ).prefetch_related('field')
             for cfv in existing_values:
                 self.initial['cf_{}'.format(str(cfv.field.name))] = cfv.serialized_value
 
@@ -120,9 +122,11 @@ class CustomFieldForm(forms.ModelForm):
 
         for field_name in self.custom_fields:
             try:
-                cfv = CustomFieldValue.objects.select_related('field').get(field=self.fields[field_name].model,
-                                                                           obj_type=self.obj_type,
-                                                                           obj_id=self.instance.pk)
+                cfv = CustomFieldValue.objects.prefetch_related('field').get(
+                    field=self.fields[field_name].model,
+                    obj_type=self.obj_type,
+                    obj_id=self.instance.pk
+                )
             except CustomFieldValue.DoesNotExist:
                 # Skip this field if none exists already and its value is empty
                 if self.cleaned_data[field_name] in [None, '']:

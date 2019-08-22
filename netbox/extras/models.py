@@ -569,7 +569,7 @@ class TopologyMap(models.Model):
             # Add each device to the graph
             devices = []
             for query in device_set.strip(';').split(';'):  # Split regexes on semicolons
-                devices += Device.objects.filter(name__regex=query).select_related('device_role')
+                devices += Device.objects.filter(name__regex=query).prefetch_related('device_role')
             # Remove duplicate devices
             devices = [d for d in devices if d.id not in seen]
             seen.update([d.id for d in devices])
@@ -607,7 +607,7 @@ class TopologyMap(models.Model):
         from dcim.models import Interface
 
         # Add all interface connections to the graph
-        connected_interfaces = Interface.objects.select_related(
+        connected_interfaces = Interface.objects.prefetch_related(
             '_connected_interface__device'
         ).filter(
             Q(device__in=devices) | Q(_connected_interface__device__in=devices),

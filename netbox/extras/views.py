@@ -47,10 +47,8 @@ class TagView(View):
         tag = get_object_or_404(Tag, slug=slug)
         tagged_items = TaggedItem.objects.filter(
             tag=tag
-        ).select_related(
-            'content_type'
         ).prefetch_related(
-            'content_object'
+            'content_type', 'content_object'
         )
 
         # Generate a table of all items tagged with this Tag
@@ -178,7 +176,7 @@ class ObjectConfigContextView(View):
 
 class ObjectChangeListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'extras.view_objectchange'
-    queryset = ObjectChange.objects.select_related('user', 'changed_object_type')
+    queryset = ObjectChange.objects.prefetch_related('user', 'changed_object_type')
     filter = filters.ObjectChangeFilter
     filter_form = ObjectChangeFilterForm
     table = ObjectChangeTable
@@ -217,7 +215,7 @@ class ObjectChangeLogView(View):
 
         # Gather all changes for this object (and its related objects)
         content_type = ContentType.objects.get_for_model(model)
-        objectchanges = ObjectChange.objects.select_related(
+        objectchanges = ObjectChange.objects.prefetch_related(
             'user', 'changed_object_type'
         ).filter(
             Q(changed_object_type=content_type, changed_object_id=obj.pk) |

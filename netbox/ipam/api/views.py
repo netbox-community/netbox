@@ -33,7 +33,7 @@ class IPAMFieldChoicesViewSet(FieldChoicesViewSet):
 #
 
 class VRFViewSet(CustomFieldModelViewSet):
-    queryset = VRF.objects.select_related('tenant').prefetch_related('tags').annotate(
+    queryset = VRF.objects.prefetch_related('tenant').prefetch_related('tags').annotate(
         ipaddress_count=get_subquery(IPAddress, 'vrf'),
         prefix_count=get_subquery(Prefix, 'vrf')
     )
@@ -58,7 +58,7 @@ class RIRViewSet(ModelViewSet):
 #
 
 class AggregateViewSet(CustomFieldModelViewSet):
-    queryset = Aggregate.objects.select_related('rir').prefetch_related('tags')
+    queryset = Aggregate.objects.prefetch_related('rir').prefetch_related('tags')
     serializer_class = serializers.AggregateSerializer
     filterset_class = filters.AggregateFilter
 
@@ -81,11 +81,7 @@ class RoleViewSet(ModelViewSet):
 #
 
 class PrefixViewSet(CustomFieldModelViewSet):
-    queryset = Prefix.objects.select_related(
-        'site', 'vrf__tenant', 'tenant', 'vlan', 'role'
-    ).prefetch_related(
-        'tags'
-    )
+    queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role', 'tags')
     serializer_class = serializers.PrefixSerializer
     filterset_class = filters.PrefixFilter
 
@@ -263,9 +259,8 @@ class PrefixViewSet(CustomFieldModelViewSet):
 #
 
 class IPAddressViewSet(CustomFieldModelViewSet):
-    queryset = IPAddress.objects.select_related(
-        'vrf__tenant', 'tenant', 'nat_inside', 'interface__device__device_type', 'interface__virtual_machine'
-    ).prefetch_related(
+    queryset = IPAddress.objects.prefetch_related(
+        'vrf__tenant', 'tenant', 'nat_inside', 'interface__device__device_type', 'interface__virtual_machine',
         'nat_outside', 'tags',
     )
     serializer_class = serializers.IPAddressSerializer
@@ -277,7 +272,7 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 #
 
 class VLANGroupViewSet(ModelViewSet):
-    queryset = VLANGroup.objects.select_related('site').annotate(
+    queryset = VLANGroup.objects.prefetch_related('site').annotate(
         vlan_count=Count('vlans')
     )
     serializer_class = serializers.VLANGroupSerializer
@@ -289,10 +284,8 @@ class VLANGroupViewSet(ModelViewSet):
 #
 
 class VLANViewSet(CustomFieldModelViewSet):
-    queryset = VLAN.objects.select_related(
-        'site', 'group', 'tenant', 'role'
-    ).prefetch_related(
-        'tags'
+    queryset = VLAN.objects.prefetch_related(
+        'site', 'group', 'tenant', 'role', 'tags'
     ).annotate(
         prefix_count=get_subquery(Prefix, 'role')
     )
@@ -305,6 +298,6 @@ class VLANViewSet(CustomFieldModelViewSet):
 #
 
 class ServiceViewSet(ModelViewSet):
-    queryset = Service.objects.select_related('device').prefetch_related('tags')
+    queryset = Service.objects.prefetch_related('device').prefetch_related('tags')
     serializer_class = serializers.ServiceSerializer
     filterset_class = filters.ServiceFilter
