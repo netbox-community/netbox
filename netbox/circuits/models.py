@@ -295,6 +295,6 @@ class CircuitTermination(CableTermination):
     def get_peer_termination(self):
         peer_side = 'Z' if self.term_side == 'A' else 'A'
         try:
-            return CircuitTermination.objects.select_related('site').get(circuit=self.circuit, term_side=peer_side)
+            return CircuitTermination.objects.prefetch_related('site').get(circuit=self.circuit, term_side=peer_side)
         except CircuitTermination.DoesNotExist:
             return None

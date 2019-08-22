@@ -38,7 +38,7 @@ Add the name of the new field to `csv_headers` and included a CSV-friendly repre
 
 ### 4. Update relevant querysets
 
-If you're adding a relational field (e.g. `ForeignKey`) and intend to include the data when retreiving a list of objects, be sure to include the field using `select_related()` or `prefetch_related()` as appropriate. This will optimize the view and avoid excessive database lookups.
+If you're adding a relational field (e.g. `ForeignKey`) and intend to include the data when retreiving a list of objects, be sure to include the field using `prefetch_related()` as appropriate. This will optimize the view and avoid excessive database lookups.
 
 ### 5. Update API serializer
 

@@ -1,13 +1,45 @@
-v2.6.2 (FUTURE)
+v2.6.3 (FUTURE)
+
+## Bug Fixes
+
+* [#3420](https://github.com/netbox-community/netbox/issues/3420) - Serial number filter for racks, devices, and inventory items is now case-insensitive
+* [#3428](https://github.com/netbox-community/netbox/issues/3428) - Fixed cache invalidation issues ([#3300](https://github.com/netbox-community/netbox/issues/3300), [#3363](https://github.com/netbox-community/netbox/issues/3363), [#3379](https://github.com/netbox-community/netbox/issues/3379), [#3382](https://github.com/netbox-community/netbox/issues/3382)) by switching to `prefetch_related()` instead of `select_related()` and removing use of `update()`
+* [#3421](https://github.com/netbox-community/netbox/issues/3421) - Fix exception when ordering power connections list by PDU
+* [#3424](https://github.com/netbox-community/netbox/issues/3424) - Fix tag coloring for non-linked tags
+* [#3426](https://github.com/netbox-community/netbox/issues/3426) - Improve API error handling for ChoiceFields
+
+## Enhancements
+
+* [#3386](https://github.com/netbox-community/netbox/issues/3386) - Add `mac_address` filter for virtual machineså
+* [#3391](https://github.com/netbox-community/netbox/issues/3391) - Update Bootstrap CSS to v3.4.1
+* [#3405](https://github.com/netbox-community/netbox/issues/3405) - Fix population of power port/outlet details on device creation
+* [#3422](https://github.com/netbox-community/netbox/issues/3422) - Prevent navigation menu from overlapping page content
+* [#3430](https://github.com/netbox-community/netbox/issues/3430) - Linkify platform field on device view
+
+---
+
+v2.6.2 (2019-08-02)
 
 ## Enhancements
 
 * [#984](https://github.com/netbox-community/netbox/issues/984) - Allow ordering circuits by A/Z side
+* [#3307](https://github.com/netbox-community/netbox/issues/3307) - Add power panels count to home page
+* [#3314](https://github.com/netbox-community/netbox/issues/3314) - Paginate object changelog entries
+* [#3367](https://github.com/netbox-community/netbox/issues/3367) - Add BNC port type and coaxial cable type
+* [#3368](https://github.com/netbox-community/netbox/issues/3368) - Indicate indefinite changelog retention when applicable
+* [#3370](https://github.com/netbox-community/netbox/issues/3370) - Add filter class to VirtualChassis API
 
 ## Bug Fixes
 
+* [#3018](https://github.com/netbox-community/netbox/issues/3018) - Components connected via a cable must have an equal number of positions
+* [#3289](https://github.com/netbox-community/netbox/issues/3289) - Prevent position from being nullified when moving a device to a new rack
+* [#3293](https://github.com/netbox-community/netbox/issues/3293) - Enable filtering device components by multiple device IDs
+* [#3315](https://github.com/netbox-community/netbox/issues/3315) - Enable filtering devices/interfaces by multiple MAC addresses
 * [#3317](https://github.com/netbox-community/netbox/issues/3317) - Fix permissions for ConfigContextBulkDeleteView
+* [#3323](https://github.com/netbox-community/netbox/issues/3323) - Fix permission evaluation for interface connections view
 * [#3342](https://github.com/netbox-community/netbox/issues/3342) - Fix cluster delete button
+* [#3384](https://github.com/netbox-community/netbox/issues/3384) - Maximum and allocated draw fields should be included on power port template creation form
+* [#3385](https://github.com/netbox-community/netbox/issues/3385) - Fix power panels list when bulk editing power feeds
 
 ---
 

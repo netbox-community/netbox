@@ -115,6 +115,16 @@
                     {% endif %}
                     <p class="list-group-item-text text-muted">Electrical circuits delivering power from panels</p>
                 </div>
+                <div class="list-group-item">
+                    {% if perms.dcim.view_powerpanel %}
+                        <span class="badge pull-right">{{ stats.powerpanel_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'dcim:powerpanel_list' %}">Power Panels</a></h4>
+                    {% else %}
+                        <span class="badge pull-right"><i class="fa fa-lock"></i></span>
+                        <h4 class="list-group-item-heading">Power Panels</h4>
+                    {% endif %}
+                    <p class="list-group-item-text text-muted">Electrical panels receiving utility power</p>
+                </div>
             </div>
         </div>
         <div class="panel panel-default">

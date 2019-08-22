@@ -47,10 +47,8 @@ class TagView(View):
         tag = get_object_or_404(Tag, slug=slug)
         tagged_items = TaggedItem.objects.filter(
             tag=tag
-        ).select_related(
-            'content_type'
         ).prefetch_related(
-            'content_object'
+            'content_type', 'content_object'
         )
 
         # Generate a table of all items tagged with this Tag
@@ -178,7 +176,7 @@ class ObjectConfigContextView(View):
 
 class ObjectChangeListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'extras.view_objectchange'
-    queryset = ObjectChange.objects.select_related('user', 'changed_object_type')
+    queryset = ObjectChange.objects.prefetch_related('user', 'changed_object_type')
     filter = filters.ObjectChangeFilter
     filter_form = ObjectChangeFilterForm
     table = ObjectChangeTable
@@ -217,7 +215,7 @@ class ObjectChangeLogView(View):
 
         # Gather all changes for this object (and its related objects)
         content_type = ContentType.objects.get_for_model(model)
-        objectchanges = ObjectChange.objects.select_related(
+        objectchanges = ObjectChange.objects.prefetch_related(
             'user', 'changed_object_type'
         ).filter(
             Q(changed_object_type=content_type, changed_object_id=obj.pk) |
@@ -227,6 +225,13 @@ class ObjectChangeLogView(View):
             data=objectchanges,
             orderable=False
         )
+
+        # Apply the request context
+        paginate = {
+            'paginator_class': EnhancedPaginator,
+            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+        }
+        RequestConfig(request, paginate).configure(objectchanges_table)
 
         # Check whether a header template exists for this model
         base_template = '{}/{}.html'.format(model._meta.app_label, model._meta.model_name)
@@ -239,7 +244,7 @@ class ObjectChangeLogView(View):
 
         return render(request, 'extras/object_changelog.html', {
             object_var: obj,
-            'objectchanges_table': objectchanges_table,
+            'table': objectchanges_table,
             'base_template': base_template,
             'active_tab': 'changelog',
         })
