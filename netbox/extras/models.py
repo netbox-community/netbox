@@ -953,8 +953,10 @@ class ObjectChange(models.Model):
     def save(self, *args, **kwargs):
 
         # Record the user's name and the object's representation as static strings
-        self.user_name = self.user.username
-        self.object_repr = str(self.changed_object)
+        if not self.user_name:
+            self.user_name = self.user.username
+        if not self.object_repr:
+            self.object_repr = str(self.changed_object)
 
         return super().save(*args, **kwargs)
 
