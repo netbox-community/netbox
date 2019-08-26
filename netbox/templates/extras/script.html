@@ -75,22 +75,19 @@
                         </div>
                     {% endif %}
                     <form action="" method="post" enctype="multipart/form-data" class="form form-horizontal">
-                    {% csrf_token %}
-                        {% if not form.requires_input %}
-                            <div class="alert alert-info">
-                                <i class="fa fa-exclamation-circle"></i>
-                                This script does not require any input to run.
+                        {% csrf_token %}
+                        <div class="alert alert-info">
+                            <i class="fa fa-exclamation-circle"></i>
+                            This script does not require any input to run.
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <strong>Script Data</strong>
                             </div>
-                        {% else %}
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <strong>Script Data</strong>
-                                </div>
-                                <div class="panel-body">
-                                    {% render_form form %}
-                                </div>
+                            <div class="panel-body">
+                                {% render_form form %}
                             </div>
-                        {% endif %}
+                        </div>
                         <div class="pull-right">
                             <button type="submit" name="_run" class="btn btn-primary"{% if not perms.extras.run_script %} disabled="disabled"{% endif %}><i class="fa fa-play"></i> Run Script</button>
                             <a href="{% url 'extras:script_list' %}" class="btn btn-default">Cancel</a>
