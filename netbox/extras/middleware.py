@@ -9,11 +9,12 @@ from django.utils import timezone
 from django.utils.functional import curry
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
-from extras.webhooks import enqueue_webhooks
 from .constants import (
     OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE,
 )
 from .models import ObjectChange
+from .signals import purge_changelog
+from .webhooks import enqueue_webhooks
 
 _thread_locals = threading.local()
 
@@ -30,6 +31,10 @@ def cache_changed_object(instance, **kwargs):
 
 def _record_object_deleted(request, instance, **kwargs):
 
+    # TODO: Can we cache deletions for later processing like we do for saves? Currently this will trigger an exception
+    # when trying to serialize ManyToMany relations after the object has been deleted. This should be doable if we alter
+    # log_change() to return ObjectChanges to be saved rather than saving them directly.
+
     # Record that the object was deleted
     if hasattr(instance, 'log_change'):
         instance.log_change(request.user, request.id, OBJECTCHANGE_ACTION_DELETE)
@@ -39,6 +44,13 @@ def _record_object_deleted(request, instance, **kwargs):
 
     # Increment metric counters
     model_deletes.labels(instance._meta.model_name).inc()
+
+
+def purge_objectchange_cache(sender, **kwargs):
+    """
+    Delete any queued object changes waiting to be written.
+    """
+    _thread_locals.changed_objects = None
 
 
 class ObjectChangeMiddleware(object):
@@ -74,8 +86,20 @@ class ObjectChangeMiddleware(object):
         post_save.connect(cache_changed_object, dispatch_uid='record_object_saved')
         post_delete.connect(record_object_deleted, dispatch_uid='record_object_deleted')
 
+        # Provide a hook for purging the change cache
+        purge_changelog.connect(purge_objectchange_cache)
+
         # Process the request
         response = self.get_response(request)
+
+        # If the change cache has been purged (e.g. due to an exception) abort the logging of all changes resulting from
+        # this request.
+        if _thread_locals.changed_objects is None:
+
+            # Delete ObjectChanges representing deletions, since these have already been written
+            ObjectChange.objects.filter(request_id=request.id).delete()
+
+            return response
 
         # Create records for any cached objects that were created/updated.
         for obj, action in _thread_locals.changed_objects:

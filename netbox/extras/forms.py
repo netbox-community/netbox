@@ -384,3 +384,34 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         widget=ContentTypeSelect(),
         label='Object Type'
     )
+
+
+#
+# Scripts
+#
+
+class ScriptForm(BootstrapMixin, forms.Form):
+    _commit = forms.BooleanField(
+        required=False,
+        initial=True,
+        label="Commit changes",
+        help_text="Commit changes to the database (uncheck for a dry-run)"
+    )
+
+    def __init__(self, vars, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        # Dynamically populate fields for variables
+        for name, var in vars.items():
+            self.fields[name] = var.as_field()
+
+        # Move _commit to the end of the form
+        self.fields.move_to_end('_commit', True)
+
+    @property
+    def requires_input(self):
+        """
+        A boolean indicating whether the form requires user input (ignore the _commit field).
+        """
+        return bool(len(self.fields) > 1)

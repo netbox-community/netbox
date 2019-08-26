@@ -1,6 +1,11 @@
 from cacheops.signals import cache_invalidated, cache_read
+from django.dispatch import Signal
 from prometheus_client import Counter
 
+
+#
+# Caching
+#
 
 cacheops_cache_hit = Counter('cacheops_cache_hit', 'Number of cache hits')
 cacheops_cache_miss = Counter('cacheops_cache_miss', 'Number of cache misses')
@@ -20,3 +25,10 @@ def cache_invalidated_collector(sender, obj_dict, **kwargs):
 
 cache_read.connect(cache_read_collector)
 cache_invalidated.connect(cache_invalidated_collector)
+
+
+#
+# Change logging
+#
+
+purge_changelog = Signal()

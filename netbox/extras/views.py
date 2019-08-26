@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
 from django.views.generic import View
@@ -20,6 +20,7 @@ from .forms import (
 )
 from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult, Tag, TaggedItem
 from .reports import get_report, get_reports
+from .scripts import get_scripts, run_script
 from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemTable
 
 
@@ -353,3 +354,62 @@ class ReportRunView(PermissionRequiredMixin, View):
             messages.success(request, mark_safe(msg))
 
         return redirect('extras:report', name=report.full_name)
+
+
+#
+# Scripts
+#
+
+class ScriptListView(PermissionRequiredMixin, View):
+    permission_required = 'extras.view_script'
+
+    def get(self, request):
+
+        return render(request, 'extras/script_list.html', {
+            'scripts': get_scripts(),
+        })
+
+
+class ScriptView(PermissionRequiredMixin, View):
+    permission_required = 'extras.view_script'
+
+    def _get_script(self, module, name):
+        scripts = get_scripts()
+        try:
+            return scripts[module][name]()
+        except KeyError:
+            raise Http404
+
+    def get(self, request, module, name):
+
+        script = self._get_script(module, name)
+        form = script.as_form()
+
+        return render(request, 'extras/script.html', {
+            'module': module,
+            'script': script,
+            'form': form,
+        })
+
+    def post(self, request, module, name):
+
+        # Permissions check
+        if not request.user.has_perm('extras.run_script'):
+            return HttpResponseForbidden()
+
+        script = self._get_script(module, name)
+        form = script.as_form(request.POST, request.FILES)
+        output = None
+        execution_time = None
+
+        if form.is_valid():
+            commit = form.cleaned_data.pop('_commit')
+            output, execution_time = run_script(script, form.cleaned_data, request.FILES, commit)
+
+        return render(request, 'extras/script.html', {
+            'module': module,
+            'script': script,
+            'form': form,
+            'output': output,
+            'execution_time': execution_time,
+        })

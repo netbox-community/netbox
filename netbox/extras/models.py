@@ -827,6 +827,21 @@ class ConfigContextModel(models.Model):
 
 
 #
+# Custom scripts
+#
+
+class Script(models.Model):
+    """
+    Dummy model used to generate permissions for custom scripts. Does not exist in the database.
+    """
+    class Meta:
+        managed = False
+        permissions = (
+            ('run_script', 'Can run script'),
+        )
+
+
+#
 # Report results
 #
 

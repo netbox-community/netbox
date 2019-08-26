@@ -529,6 +529,9 @@ table.report th a {
     border-top: 1px solid #dddddd;
     padding: 8px;
 }
+.rendered-markdown :last-child {
+    margin-bottom: 0;
+}
 
 /* AJAX loader */
 .loading {
