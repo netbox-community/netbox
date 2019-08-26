@@ -18,6 +18,7 @@ from ipam.formfields import IPFormField
 from utilities.exceptions import AbortTransaction
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
 from .forms import ScriptForm
+from .signals import purge_changelog
 
 
 __all__ = [
@@ -310,6 +311,8 @@ def run_script(script, data, files, commit=True):
         commit = False
     finally:
         if not commit:
+            # Delete all pending changelog entries
+            purge_changelog.send(Script)
             script.log_info(
                 "Database changes have been reverted automatically."
             )
