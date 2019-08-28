@@ -16,6 +16,7 @@ v2.6.3 (FUTURE)
 * [#3405](https://github.com/netbox-community/netbox/issues/3405) - Fix population of power port/outlet details on device creation
 * [#3422](https://github.com/netbox-community/netbox/issues/3422) - Prevent navigation menu from overlapping page content
 * [#3430](https://github.com/netbox-community/netbox/issues/3430) - Linkify platform field on device view
+* [#3454](https://github.com/netbox-community/netbox/issues/3454) - Enable filtering circuits by region
 * [#3456](https://github.com/netbox-community/netbox/issues/3456) - Enable bulk editing of tag color
 
 ---

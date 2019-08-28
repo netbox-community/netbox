@@ -1,10 +1,10 @@
 import django_filters
 from django.db.models import Q
 
-from dcim.models import Site
+from dcim.models import Region, Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.filtersets import TenancyFilterSet
-from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
+from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
 from .constants import CIRCUIT_STATUS_CHOICES
 from .models import Provider, Circuit, CircuitTermination, CircuitType
 
@@ -97,6 +97,17 @@ class CircuitFilter(CustomFieldFilterSet, TenancyFilterSet):
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
+    )
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='terminations__site__region__in',
+        label='Region (ID)',
+    )
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='terminations__site__region__in',
+        to_field_name='slug',
+        label='Region (slug)',
     )
     tag = TagFilter()
 
