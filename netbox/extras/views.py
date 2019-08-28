@@ -13,11 +13,7 @@ from django_tables2 import RequestConfig
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import BulkDeleteView, BulkEditView, ObjectDeleteView, ObjectEditView, ObjectListView
-from . import filters
-from .forms import (
-    ConfigContextForm, ConfigContextBulkEditForm, ConfigContextFilterForm, ImageAttachmentForm, ObjectChangeFilterForm,
-    TagFilterForm, TagForm,
-)
+from . import filters, forms
 from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult, Tag, TaggedItem
 from .reports import get_report, get_reports
 from .scripts import get_scripts, run_script
@@ -36,7 +32,7 @@ class TagListView(PermissionRequiredMixin, ObjectListView):
         'name'
     )
     filter = filters.TagFilter
-    filter_form = TagFilterForm
+    filter_form = forms.TagFilterForm
     table = TagTable
     template_name = 'extras/tag_list.html'
 
@@ -70,7 +66,7 @@ class TagView(View):
 class TagEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'extras.change_tag'
     model = Tag
-    model_form = TagForm
+    model_form = forms.TagForm
     default_return_url = 'extras:tag_list'
     template_name = 'extras/tag_edit.html'
 
@@ -79,6 +75,19 @@ class TagDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'extras.delete_tag'
     model = Tag
     default_return_url = 'extras:tag_list'
+
+
+class TagBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'extras.change_tag'
+    queryset = Tag.objects.annotate(
+        items=Count('extras_taggeditem_items', distinct=True)
+    ).order_by(
+        'name'
+    )
+    # filter = filters.ProviderFilter
+    table = TagTable
+    form = forms.TagBulkEditForm
+    default_return_url = 'circuits:provider_list'
 
 
 class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -100,7 +109,7 @@ class ConfigContextListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'extras.view_configcontext'
     queryset = ConfigContext.objects.all()
     filter = filters.ConfigContextFilter
-    filter_form = ConfigContextFilterForm
+    filter_form = forms.ConfigContextFilterForm
     table = ConfigContextTable
     template_name = 'extras/configcontext_list.html'
 
@@ -120,7 +129,7 @@ class ConfigContextView(PermissionRequiredMixin, View):
 class ConfigContextCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'extras.add_configcontext'
     model = ConfigContext
-    model_form = ConfigContextForm
+    model_form = forms.ConfigContextForm
     default_return_url = 'extras:configcontext_list'
     template_name = 'extras/configcontext_edit.html'
 
@@ -134,7 +143,7 @@ class ConfigContextBulkEditView(PermissionRequiredMixin, BulkEditView):
     queryset = ConfigContext.objects.all()
     filter = filters.ConfigContextFilter
     table = ConfigContextTable
-    form = ConfigContextBulkEditForm
+    form = forms.ConfigContextBulkEditForm
     default_return_url = 'extras:configcontext_list'
 
 
@@ -179,7 +188,7 @@ class ObjectChangeListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'extras.view_objectchange'
     queryset = ObjectChange.objects.prefetch_related('user', 'changed_object_type')
     filter = filters.ObjectChangeFilter
-    filter_form = ObjectChangeFilterForm
+    filter_form = forms.ObjectChangeFilterForm
     table = ObjectChangeTable
     template_name = 'extras/objectchange_list.html'
 
@@ -258,7 +267,7 @@ class ObjectChangeLogView(View):
 class ImageAttachmentEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'extras.change_imageattachment'
     model = ImageAttachment
-    model_form = ImageAttachmentForm
+    model_form = forms.ImageAttachmentForm
 
     def alter_obj(self, imageattachment, request, args, kwargs):
         if not imageattachment.pk:
