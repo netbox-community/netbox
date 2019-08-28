@@ -882,7 +882,8 @@ class ObjectChange(models.Model):
     """
     time = models.DateTimeField(
         auto_now_add=True,
-        editable=False
+        editable=False,
+        db_index=True
     )
     user = models.ForeignKey(
         to=User,

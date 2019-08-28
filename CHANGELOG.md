@@ -2,6 +2,7 @@ v2.6.3 (FUTURE)
 
 ## Bug Fixes
 
+* [#3392](https://github.com/netbox-community/netbox/issues/3392) - Add database index for ObjectChange time
 * [#3420](https://github.com/netbox-community/netbox/issues/3420) - Serial number filter for racks, devices, and inventory items is now case-insensitive
 * [#3428](https://github.com/netbox-community/netbox/issues/3428) - Fixed cache invalidation issues ([#3300](https://github.com/netbox-community/netbox/issues/3300), [#3363](https://github.com/netbox-community/netbox/issues/3363), [#3379](https://github.com/netbox-community/netbox/issues/3379), [#3382](https://github.com/netbox-community/netbox/issues/3382)) by switching to `prefetch_related()` instead of `select_related()` and removing use of `update()`
 * [#3421](https://github.com/netbox-community/netbox/issues/3421) - Fix exception when ordering power connections list by PDU
