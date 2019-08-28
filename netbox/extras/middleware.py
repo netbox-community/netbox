@@ -45,7 +45,7 @@ def purge_objectchange_cache(sender, **kwargs):
     """
     Delete any queued object changes waiting to be written.
     """
-    _thread_locals.changed_objects = None
+    _thread_locals.changed_objects = []
 
 
 class ObjectChangeMiddleware(object):
@@ -84,9 +84,8 @@ class ObjectChangeMiddleware(object):
         # Process the request
         response = self.get_response(request)
 
-        # If the change cache has been purged (e.g. due to an exception) abort the logging of all changes resulting from
-        # this request.
-        if _thread_locals.changed_objects is None:
+        # If the change cache is empty, there's nothing more we need to do.
+        if not _thread_locals.changed_objects:
             return response
 
         # Create records for any cached objects that were created/updated.
@@ -108,8 +107,9 @@ class ObjectChangeMiddleware(object):
             elif objectchange.action == OBJECTCHANGE_ACTION_DELETE:
                 model_deletes.labels(obj._meta.model_name).inc()
 
-        # Housekeeping: 1% chance of clearing out expired ObjectChanges
-        if _thread_locals.changed_objects and settings.CHANGELOG_RETENTION and random.randint(1, 100) == 1:
+        # Housekeeping: 1% chance of clearing out expired ObjectChanges. This applies only to requests which result in
+        # one or more changes being logged.
+        if settings.CHANGELOG_RETENTION and random.randint(1, 100) == 1:
             cutoff = timezone.now() - timedelta(days=settings.CHANGELOG_RETENTION)
             purged_count, _ = ObjectChange.objects.filter(
                 time__lt=cutoff
