@@ -1,6 +1,6 @@
 # Custom Scripts
 
-Custom scripting was introduced in NetBox v2.7 to provide a way for users to execute custom logic from within the NetBox UI. Custom scripts enable the user to directly and conveniently manipulate NetBox data in a prescribed fashion. They can be used to accomplish myriad tasks, such as:
+Custom scripting was introduced to provide a way for users to execute custom logic from within the NetBox UI. Custom scripts enable the user to directly and conveniently manipulate NetBox data in a prescribed fashion. They can be used to accomplish myriad tasks, such as:
 
 * Automatically populate new devices and cables in preparation for a new site deployment
 * Create a range of new reserved prefixes or IP addresses
