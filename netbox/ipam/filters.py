@@ -360,7 +360,7 @@ class IPAddressFilter(TenancyFilterSet, CustomFieldFilterSet):
 
     def filter_device(self, queryset, name, value):
         try:
-            device = Device.objects.select_related('device_type').get(**{name: value})
+            device = Device.objects.prefetch_related('device_type').get(**{name: value})
             vc_interface_ids = [i['id'] for i in device.vc_interfaces.values('id')]
             return queryset.filter(interface_id__in=vc_interface_ids)
         except Device.DoesNotExist:

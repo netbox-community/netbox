@@ -1,3 +1,34 @@
+v2.6.3 (2019-09-04)
+
+## New Features
+
+### Custom Scripts ([#3415](https://github.com/netbox-community/netbox/issues/3415))
+
+Custom scripts allow for the execution of arbitrary code via the NetBox UI. They can be used to automatically create, manipulate, or clean up objects or perform other tasks within NetBox. Scripts are defined as Python files which contain one or more subclasses of `extras.scripts.Script`. Variable fields can be defined within scripts, which render as form fields within the web UI to prompt the user for input data. Scripts are executed and information is logged via the web UI. Please see [the docs](https://netbox.readthedocs.io/en/stable/additional-features/custom-scripts/) for more detail.
+
+Note: There are currently no API endpoints for this feature. These are planned for the upcoming v2.7 release.
+
+## Bug Fixes
+
+* [#3392](https://github.com/netbox-community/netbox/issues/3392) - Add database index for ObjectChange time
+* [#3420](https://github.com/netbox-community/netbox/issues/3420) - Serial number filter for racks, devices, and inventory items is now case-insensitive
+* [#3428](https://github.com/netbox-community/netbox/issues/3428) - Fixed cache invalidation issues ([#3300](https://github.com/netbox-community/netbox/issues/3300), [#3363](https://github.com/netbox-community/netbox/issues/3363), [#3379](https://github.com/netbox-community/netbox/issues/3379), [#3382](https://github.com/netbox-community/netbox/issues/3382)) by switching to `prefetch_related()` instead of `select_related()` and removing use of `update()`
+* [#3421](https://github.com/netbox-community/netbox/issues/3421) - Fix exception when ordering power connections list by PDU
+* [#3424](https://github.com/netbox-community/netbox/issues/3424) - Fix tag coloring for non-linked tags
+* [#3426](https://github.com/netbox-community/netbox/issues/3426) - Improve API error handling for ChoiceFields
+
+## Enhancements
+
+* [#3386](https://github.com/netbox-community/netbox/issues/3386) - Add `mac_address` filter for virtual machines
+* [#3391](https://github.com/netbox-community/netbox/issues/3391) - Update Bootstrap CSS to v3.4.1
+* [#3405](https://github.com/netbox-community/netbox/issues/3405) - Fix population of power port/outlet details on device creation
+* [#3422](https://github.com/netbox-community/netbox/issues/3422) - Prevent navigation menu from overlapping page content
+* [#3430](https://github.com/netbox-community/netbox/issues/3430) - Linkify platform field on device view
+* [#3454](https://github.com/netbox-community/netbox/issues/3454) - Enable filtering circuits by region
+* [#3456](https://github.com/netbox-community/netbox/issues/3456) - Enable bulk editing of tag color
+
+---
+
 v2.6.2 (2019-08-02)
 
 ## Enhancements

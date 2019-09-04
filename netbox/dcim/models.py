@@ -31,18 +31,20 @@ class ComponentTemplateModel(models.Model):
     class Meta:
         abstract = True
 
-    def log_change(self, user, request_id, action):
+    def instantiate(self, device):
         """
-        Log an ObjectChange including the parent DeviceType.
+        Instantiate a new component on the specified Device.
         """
-        ObjectChange(
-            user=user,
-            request_id=request_id,
+        raise NotImplementedError()
+
+    def to_objectchange(self, action):
+        return ObjectChange(
             changed_object=self,
-            related_object=self.device_type,
+            object_repr=str(self),
             action=action,
+            related_object=self.device_type,
             object_data=serialize_object(self)
-        ).save()
+        )
 
 
 class ComponentModel(models.Model):
@@ -54,23 +56,21 @@ class ComponentModel(models.Model):
     class Meta:
         abstract = True
 
-    def log_change(self, user, request_id, action):
-        """
-        Log an ObjectChange including the parent Device/VM.
-        """
+    def to_objectchange(self, action):
+        # Annotate the parent Device/VM
         try:
             parent = getattr(self, 'device', None) or getattr(self, 'virtual_machine', None)
         except ObjectDoesNotExist:
             # The parent device/VM has already been deleted
             parent = None
-        ObjectChange(
-            user=user,
-            request_id=request_id,
+
+        return ObjectChange(
             changed_object=self,
-            related_object=parent,
+            object_repr=str(self),
             action=action,
+            related_object=parent,
             object_data=serialize_object(self)
-        ).save()
+        )
 
     @property
     def parent(self):
@@ -601,7 +601,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         # Update racked devices if the assigned Site has been changed.
         if _site_id is not None and self.site_id != _site_id:
-            Device.objects.filter(rack=self).update(site_id=self.site.pk)
+            devices = Device.objects.filter(rack=self)
+            for device in devices:
+                device.site = self.site
+                device.save()
 
     def to_csv(self):
         return (
@@ -658,7 +661,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         # Add devices to rack units list
         if self.pk:
-            for device in Device.objects.select_related('device_type__manufacturer', 'device_role')\
+            for device in Device.objects.prefetch_related('device_type__manufacturer', 'device_role')\
                     .annotate(devicebay_count=Count('device_bays'))\
                     .exclude(pk=exclude)\
                     .filter(rack=self, position__gt=0)\
@@ -691,7 +694,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         """
 
         # Gather all devices which consume U space within the rack
-        devices = self.devices.select_related('device_type').filter(position__gte=1).exclude(pk__in=exclude)
+        devices = self.devices.prefetch_related('device_type').filter(position__gte=1).exclude(pk__in=exclude)
 
         # Initialize the rack unit skeleton
         units = list(range(1, self.u_height + 1))
@@ -1010,6 +1013,12 @@ class ConsolePortTemplate(ComponentTemplateModel):
     def __str__(self):
         return self.name
 
+    def instantiate(self, device):
+        return ConsolePort(
+            device=device,
+            name=self.name
+        )
+
 
 class ConsoleServerPortTemplate(ComponentTemplateModel):
     """
@@ -1032,6 +1041,12 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
 
     def __str__(self):
         return self.name
+
+    def instantiate(self, device):
+        return ConsoleServerPort(
+            device=device,
+            name=self.name
+        )
 
 
 class PowerPortTemplate(ComponentTemplateModel):
@@ -1067,6 +1082,14 @@ class PowerPortTemplate(ComponentTemplateModel):
 
     def __str__(self):
         return self.name
+
+    def instantiate(self, device):
+        return PowerPort(
+            device=device,
+            name=self.name,
+            maximum_draw=self.maximum_draw,
+            allocated_draw=self.allocated_draw
+        )
 
 
 class PowerOutletTemplate(ComponentTemplateModel):
@@ -1111,6 +1134,18 @@ class PowerOutletTemplate(ComponentTemplateModel):
             raise ValidationError(
                 "Parent power port ({}) must belong to the same device type".format(self.power_port)
             )
+
+    def instantiate(self, device):
+        if self.power_port:
+            power_port = PowerPort.objects.get(device=device, name=self.power_port.name)
+        else:
+            power_port = None
+        return PowerOutlet(
+            device=device,
+            name=self.name,
+            power_port=power_port,
+            feed_leg=self.feed_leg
+        )
 
 
 class InterfaceTemplate(ComponentTemplateModel):
@@ -1158,6 +1193,14 @@ class InterfaceTemplate(ComponentTemplateModel):
         Backward-compatibility for form_factor
         """
         self.type = value
+
+    def instantiate(self, device):
+        return Interface(
+            device=device,
+            name=self.name,
+            type=self.type,
+            mgmt_only=self.mgmt_only
+        )
 
 
 class FrontPortTemplate(ComponentTemplateModel):
@@ -1213,6 +1256,19 @@ class FrontPortTemplate(ComponentTemplateModel):
                 )
             )
 
+    def instantiate(self, device):
+        if self.rear_port:
+            rear_port = RearPort.objects.get(device=device, name=self.rear_port.name)
+        else:
+            rear_port = None
+        return FrontPort(
+            device=device,
+            name=self.name,
+            type=self.type,
+            rear_port=rear_port,
+            rear_port_position=self.rear_port_position
+        )
+
 
 class RearPortTemplate(ComponentTemplateModel):
     """
@@ -1243,6 +1299,14 @@ class RearPortTemplate(ComponentTemplateModel):
     def __str__(self):
         return self.name
 
+    def instantiate(self, device):
+        return RearPort(
+            device=device,
+            name=self.name,
+            type=self.type,
+            positions=self.positions
+        )
+
 
 class DeviceBayTemplate(ComponentTemplateModel):
     """
@@ -1265,6 +1329,12 @@ class DeviceBayTemplate(ComponentTemplateModel):
 
     def __str__(self):
         return self.name
+
+    def instantiate(self, device):
+        return DeviceBay(
+            device=device,
+            name=self.name
+        )
 
 
 #
@@ -1640,49 +1710,36 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # If this is a new Device, instantiate all of the related components per the DeviceType definition
         if is_new:
             ConsolePort.objects.bulk_create(
-                [ConsolePort(device=self, name=template.name) for template in
-                 self.device_type.consoleport_templates.all()]
+                [x.instantiate(self) for x in self.device_type.consoleport_templates.all()]
             )
             ConsoleServerPort.objects.bulk_create(
-                [ConsoleServerPort(device=self, name=template.name) for template in
-                 self.device_type.consoleserverport_templates.all()]
+                [x.instantiate(self) for x in self.device_type.consoleserverport_templates.all()]
             )
             PowerPort.objects.bulk_create(
-                [PowerPort(device=self, name=template.name) for template in
-                 self.device_type.powerport_templates.all()]
+                [x.instantiate(self) for x in self.device_type.powerport_templates.all()]
             )
             PowerOutlet.objects.bulk_create(
-                [PowerOutlet(device=self, name=template.name) for template in
-                 self.device_type.poweroutlet_templates.all()]
+                [x.instantiate(self) for x in self.device_type.poweroutlet_templates.all()]
             )
             Interface.objects.bulk_create(
-                [Interface(device=self, name=template.name, type=template.type,
-                           mgmt_only=template.mgmt_only) for template in self.device_type.interface_templates.all()]
+                [x.instantiate(self) for x in self.device_type.interface_templates.all()]
             )
-            RearPort.objects.bulk_create([
-                RearPort(
-                    device=self,
-                    name=template.name,
-                    type=template.type,
-                    positions=template.positions
-                ) for template in self.device_type.rearport_templates.all()
-            ])
-            FrontPort.objects.bulk_create([
-                FrontPort(
-                    device=self,
-                    name=template.name,
-                    type=template.type,
-                    rear_port=RearPort.objects.get(device=self, name=template.rear_port.name),
-                    rear_port_position=template.rear_port_position,
-                ) for template in self.device_type.frontport_templates.all()
-            ])
+            RearPort.objects.bulk_create(
+                [x.instantiate(self) for x in self.device_type.rearport_templates.all()]
+            )
+            FrontPort.objects.bulk_create(
+                [x.instantiate(self) for x in self.device_type.frontport_templates.all()]
+            )
             DeviceBay.objects.bulk_create(
-                [DeviceBay(device=self, name=template.name) for template in
-                 self.device_type.device_bay_templates.all()]
+                [x.instantiate(self) for x in self.device_type.device_bay_templates.all()]
             )
 
         # Update Site and Rack assignment for any child Devices
-        Device.objects.filter(parent_bay__device=self).update(site=self.site, rack=self.rack)
+        devices = Device.objects.filter(parent_bay__device=self)
+        for device in devices:
+            device.site = self.site
+            device.rack = self.rack
+            device.save()
 
     def to_csv(self):
         return (
@@ -2264,27 +2321,20 @@ class Interface(CableTermination, ComponentModel):
 
         return super().save(*args, **kwargs)
 
-    def log_change(self, user, request_id, action):
-        """
-        Include the connected Interface (if any).
-        """
-
-        # It's possible that an Interface can be deleted _after_ its parent Device/VM, in which case trying to resolve
-        # the component parent will raise DoesNotExist. For more discussion, see
-        # https://github.com/netbox-community/netbox/issues/2323
+    def to_objectchange(self, action):
+        # Annotate the parent Device/VM
         try:
             parent_obj = self.device or self.virtual_machine
         except ObjectDoesNotExist:
             parent_obj = None
 
-        ObjectChange(
-            user=user,
-            request_id=request_id,
+        return ObjectChange(
             changed_object=self,
-            related_object=parent_obj,
+            object_repr=str(self),
             action=action,
+            related_object=parent_obj,
             object_data=serialize_object(self)
-        ).save()
+        )
 
     # TODO: Remove in v2.7
     @property

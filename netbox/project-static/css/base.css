@@ -42,8 +42,8 @@ footer p {
     }
 }
 
-/* Hide the search bar in the navigation menu on displays less than 1200px wide */
-@media (max-width: 1199px) {
+/* Hide the search bar in the navigation menu on displays less than 1250px wide */
+@media (max-width: 1249px) {
     #navbar_search {
         display: none;
     }
@@ -62,8 +62,8 @@ footer p {
     }
 }
 
-/* Collapse the nav menu on displays less than 960px wide */
-@media (max-width: 959px) {
+/* Collapse the nav menu on displays less than 980px wide */
+@media (max-width: 979px) {
     .navbar-header {
         float: none;
     }
@@ -528,6 +528,9 @@ table.report th a {
 .rendered-markdown td {
     border-top: 1px solid #dddddd;
     padding: 8px;
+}
+.rendered-markdown :last-child {
+    margin-bottom: 0;
 }
 
 /* AJAX loader */

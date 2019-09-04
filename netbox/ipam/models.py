@@ -647,26 +647,20 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
 
         super().save(*args, **kwargs)
 
-    def log_change(self, user, request_id, action):
-        """
-        Include the connected Interface (if any).
-        """
-
-        # It's possible that an IPAddress can be deleted _after_ its parent Interface, in which case trying to resolve
-        # the interface will raise DoesNotExist.
+    def to_objectchange(self, action):
+        # Annotate the assigned Interface (if any)
         try:
             parent_obj = self.interface
         except ObjectDoesNotExist:
             parent_obj = None
 
-        ObjectChange(
-            user=user,
-            request_id=request_id,
+        return ObjectChange(
             changed_object=self,
-            related_object=parent_obj,
+            object_repr=str(self),
             action=action,
+            related_object=parent_obj,
             object_data=serialize_object(self)
-        ).save()
+        )
 
     def to_csv(self):
 

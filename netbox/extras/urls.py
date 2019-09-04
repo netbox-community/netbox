@@ -9,6 +9,7 @@ urlpatterns = [
 
     # Tags
     path(r'tags/', views.TagListView.as_view(), name='tag_list'),
+    path(r'tags/edit/', views.TagBulkEditView.as_view(), name='tag_bulk_edit'),
     path(r'tags/delete/', views.TagBulkDeleteView.as_view(), name='tag_bulk_delete'),
     path(r'tags/<slug:slug>/', views.TagView.as_view(), name='tag'),
     path(r'tags/<slug:slug>/edit/', views.TagEditView.as_view(), name='tag_edit'),
@@ -28,13 +29,17 @@ urlpatterns = [
     path(r'image-attachments/<int:pk>/edit/', views.ImageAttachmentEditView.as_view(), name='imageattachment_edit'),
     path(r'image-attachments/<int:pk>/delete/', views.ImageAttachmentDeleteView.as_view(), name='imageattachment_delete'),
 
+    # Change logging
+    path(r'changelog/', views.ObjectChangeListView.as_view(), name='objectchange_list'),
+    path(r'changelog/<int:pk>/', views.ObjectChangeView.as_view(), name='objectchange'),
+
     # Reports
     path(r'reports/', views.ReportListView.as_view(), name='report_list'),
     path(r'reports/<str:name>/', views.ReportView.as_view(), name='report'),
     path(r'reports/<str:name>/run/', views.ReportRunView.as_view(), name='report_run'),
 
-    # Change logging
-    path(r'changelog/', views.ObjectChangeListView.as_view(), name='objectchange_list'),
-    path(r'changelog/<int:pk>/', views.ObjectChangeView.as_view(), name='objectchange'),
+    # Scripts
+    path(r'scripts/', views.ScriptListView.as_view(), name='script_list'),
+    path(r'scripts/<str:module>/<str:name>/', views.ScriptView.as_view(), name='script'),
 
 ]
