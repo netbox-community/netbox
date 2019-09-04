@@ -37,18 +37,14 @@ class ComponentTemplateModel(models.Model):
         """
         raise NotImplementedError()
 
-    def log_change(self, user, request_id, action):
-        """
-        Log an ObjectChange including the parent DeviceType.
-        """
-        ObjectChange(
-            user=user,
-            request_id=request_id,
+    def to_objectchange(self, action):
+        return ObjectChange(
             changed_object=self,
-            related_object=self.device_type,
+            object_repr=str(self),
             action=action,
+            related_object=self.device_type,
             object_data=serialize_object(self)
-        ).save()
+        )
 
 
 class ComponentModel(models.Model):
@@ -60,23 +56,21 @@ class ComponentModel(models.Model):
     class Meta:
         abstract = True
 
-    def log_change(self, user, request_id, action):
-        """
-        Log an ObjectChange including the parent Device/VM.
-        """
+    def to_objectchange(self, action):
+        # Annotate the parent Device/VM
         try:
             parent = getattr(self, 'device', None) or getattr(self, 'virtual_machine', None)
         except ObjectDoesNotExist:
             # The parent device/VM has already been deleted
             parent = None
-        ObjectChange(
-            user=user,
-            request_id=request_id,
+
+        return ObjectChange(
             changed_object=self,
-            related_object=parent,
+            object_repr=str(self),
             action=action,
+            related_object=parent,
             object_data=serialize_object(self)
-        ).save()
+        )
 
     @property
     def parent(self):
@@ -607,7 +601,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         # Update racked devices if the assigned Site has been changed.
         if _site_id is not None and self.site_id != _site_id:
-            Device.objects.filter(rack=self).update(site_id=self.site.pk)
+            devices = Device.objects.filter(rack=self)
+            for device in devices:
+                device.site = self.site
+                device.save()
 
     def to_csv(self):
         return (
@@ -664,7 +661,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         # Add devices to rack units list
         if self.pk:
-            for device in Device.objects.select_related('device_type__manufacturer', 'device_role')\
+            for device in Device.objects.prefetch_related('device_type__manufacturer', 'device_role')\
                     .annotate(devicebay_count=Count('device_bays'))\
                     .exclude(pk=exclude)\
                     .filter(rack=self, position__gt=0)\
@@ -697,7 +694,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         """
 
         # Gather all devices which consume U space within the rack
-        devices = self.devices.select_related('device_type').filter(position__gte=1).exclude(pk__in=exclude)
+        devices = self.devices.prefetch_related('device_type').filter(position__gte=1).exclude(pk__in=exclude)
 
         # Initialize the rack unit skeleton
         units = list(range(1, self.u_height + 1))
@@ -1722,7 +1719,11 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
             )
 
         # Update Site and Rack assignment for any child Devices
-        Device.objects.filter(parent_bay__device=self).update(site=self.site, rack=self.rack)
+        devices = Device.objects.filter(parent_bay__device=self)
+        for device in devices:
+            device.site = self.site
+            device.rack = self.rack
+            device.save()
 
     def to_csv(self):
         return (
@@ -2304,27 +2305,20 @@ class Interface(CableTermination, ComponentModel):
 
         return super().save(*args, **kwargs)
 
-    def log_change(self, user, request_id, action):
-        """
-        Include the connected Interface (if any).
-        """
-
-        # It's possible that an Interface can be deleted _after_ its parent Device/VM, in which case trying to resolve
-        # the component parent will raise DoesNotExist. For more discussion, see
-        # https://github.com/netbox-community/netbox/issues/2323
+    def to_objectchange(self, action):
+        # Annotate the parent Device/VM
         try:
             parent_obj = self.device or self.virtual_machine
         except ObjectDoesNotExist:
             parent_obj = None
 
-        ObjectChange(
-            user=user,
-            request_id=request_id,
+        return ObjectChange(
             changed_object=self,
-            related_object=parent_obj,
+            object_repr=str(self),
             action=action,
+            related_object=parent_obj,
             object_data=serialize_object(self)
-        ).save()
+        )
 
     @property
     def connected_endpoint(self):

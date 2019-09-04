@@ -676,6 +676,21 @@ class ConfigContextModel(models.Model):
 
 
 #
+# Custom scripts
+#
+
+class Script(models.Model):
+    """
+    Dummy model used to generate permissions for custom scripts. Does not exist in the database.
+    """
+    class Meta:
+        managed = False
+        permissions = (
+            ('run_script', 'Can run script'),
+        )
+
+
+#
 # Report results
 #
 
@@ -716,7 +731,8 @@ class ObjectChange(models.Model):
     """
     time = models.DateTimeField(
         auto_now_add=True,
-        editable=False
+        editable=False,
+        db_index=True
     )
     user = models.ForeignKey(
         to=User,
@@ -787,8 +803,10 @@ class ObjectChange(models.Model):
     def save(self, *args, **kwargs):
 
         # Record the user's name and the object's representation as static strings
-        self.user_name = self.user.username
-        self.object_repr = str(self.changed_object)
+        if not self.user_name:
+            self.user_name = self.user.username
+        if not self.object_repr:
+            self.object_repr = str(self.changed_object)
 
         return super().save(*args, **kwargs)
 

@@ -230,6 +230,6 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     """
     Retrieve a list of recent changes.
     """
-    queryset = ObjectChange.objects.select_related('user')
+    queryset = ObjectChange.objects.prefetch_related('user')
     serializer_class = serializers.ObjectChangeSerializer
     filterset_class = filters.ObjectChangeFilter

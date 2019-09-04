@@ -23,15 +23,14 @@ class ChangeLoggedModel(models.Model):
     class Meta:
         abstract = True
 
-    def log_change(self, user, request_id, action):
+    def to_objectchange(self, action):
         """
-        Create a new ObjectChange representing a change made to this object. This will typically be called automatically
+        Return a new ObjectChange representing a change made to this object. This will typically be called automatically
         by extras.middleware.ChangeLoggingMiddleware.
         """
-        ObjectChange(
-            user=user,
-            request_id=request_id,
+        return ObjectChange(
             changed_object=self,
+            object_repr=str(self),
             action=action,
             object_data=serialize_object(self)
-        ).save()
+        )

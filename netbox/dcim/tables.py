@@ -729,6 +729,7 @@ class PowerConnectionTable(BaseTable):
         viewname='dcim:device',
         accessor=Accessor('connected_endpoint.device'),
         args=[Accessor('connected_endpoint.device.pk')],
+        order_by='_connected_poweroutlet__device',
         verbose_name='PDU'
     )
     outlet = tables.Column(

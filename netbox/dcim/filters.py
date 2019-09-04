@@ -160,12 +160,15 @@ class RackFilter(TenancyFilterSet, CustomFieldFilterSet):
         to_field_name='slug',
         label='Role (slug)',
     )
+    serial = django_filters.CharFilter(
+        lookup_expr='iexact'
+    )
     tag = TagFilter()
 
     class Meta:
         model = Rack
         fields = [
-            'id', 'name', 'facility_id', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units',
+            'id', 'name', 'facility_id', 'asset_tag', 'type', 'width', 'u_height', 'desc_units',
             'outer_width', 'outer_depth', 'outer_unit',
         ]
 
@@ -519,6 +522,9 @@ class DeviceFilter(TenancyFilterSet, CustomFieldFilterSet):
         field_name='interfaces__mac_address',
         label='MAC address',
     )
+    serial = django_filters.CharFilter(
+        lookup_expr='iexact'
+    )
     has_primary_ip = django_filters.BooleanFilter(
         method='_has_primary_ip',
         label='Has a primary IP',
@@ -560,7 +566,7 @@ class DeviceFilter(TenancyFilterSet, CustomFieldFilterSet):
 
     class Meta:
         model = Device
-        fields = ['id', 'name', 'serial', 'asset_tag', 'face', 'position', 'vc_position', 'vc_priority']
+        fields = ['id', 'name', 'asset_tag', 'face', 'position', 'vc_position', 'vc_priority']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -847,10 +853,13 @@ class InventoryItemFilter(DeviceComponentFilterSet):
         to_field_name='slug',
         label='Manufacturer (slug)',
     )
+    serial = django_filters.CharFilter(
+        lookup_expr='iexact'
+    )
 
     class Meta:
         model = InventoryItem
-        fields = ['id', 'name', 'part_id', 'serial', 'asset_tag', 'discovered']
+        fields = ['id', 'name', 'part_id', 'asset_tag', 'discovered']
 
     def search(self, queryset, name, value):
         if not value.strip():
