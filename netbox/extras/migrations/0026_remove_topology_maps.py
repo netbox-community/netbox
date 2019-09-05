@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0023_fix_tag_sequences'),
+        ('extras', '0025_objectchange_time_index'),
     ]
 
     operations = [
