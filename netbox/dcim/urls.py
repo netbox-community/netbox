@@ -82,7 +82,8 @@ urlpatterns = [
     # Device types
     path(r'device-types/', views.DeviceTypeListView.as_view(), name='devicetype_list'),
     path(r'device-types/add/', views.DeviceTypeCreateView.as_view(), name='devicetype_add'),
-    path(r'device-types/import/', views.DeviceTypeBulkImportView.as_view(), name='devicetype_import'),
+    # path(r'device-types/import/', views.DeviceTypeBulkImportView.as_view(), name='devicetype_import'),
+    path(r'device-types/import/', views.DeviceTypeImportView.as_view(), name='devicetype_import'),
     path(r'device-types/edit/', views.DeviceTypeBulkEditView.as_view(), name='devicetype_bulk_edit'),
     path(r'device-types/delete/', views.DeviceTypeBulkDeleteView.as_view(), name='devicetype_bulk_delete'),
     path(r'device-types/<int:pk>/', views.DeviceTypeView.as_view(), name='devicetype'),

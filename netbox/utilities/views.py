@@ -1,4 +1,6 @@
+import json
 import sys
+import yaml
 from copy import deepcopy
 
 from django.conf import settings
@@ -26,7 +28,7 @@ from extras.querysets import CustomFieldQueryset
 from utilities.forms import BootstrapMixin, CSVDataField
 from utilities.utils import csv_format
 from .error_handlers import handle_protectederror
-from .forms import ConfirmationForm
+from .forms import ConfirmationForm, ImportForm
 from .paginator import EnhancedPaginator
 
 
@@ -393,6 +395,62 @@ class BulkCreateView(GetReturnURLMixin, View):
         })
 
 
+class ObjectImportView(GetReturnURLMixin, View):
+    """
+    Import a single object (YAML or JSON format).
+    """
+    model = None
+    model_form = None
+    template_name = 'utilities/obj_import.html'
+
+    def create_object(self, data):
+        raise NotImplementedError("View must implement object creation logic")
+
+    def get(self, request):
+
+        form = ImportForm()
+
+        return render(request, self.template_name, {
+            'form': form,
+            'obj_type': self.model._meta.verbose_name,
+            'return_url': self.get_return_url(request),
+        })
+
+    def post(self, request):
+
+        form = ImportForm(request.POST)
+
+        if form.is_valid():
+
+            # Process object data
+            if form.cleaned_data['format'] == 'json':
+                data = json.loads(form.cleaned_data['data'])
+            else:
+                data = yaml.load(form.cleaned_data['data'])
+
+            # Initialize model form
+            model_form = self.model_form(data)
+
+            if model_form.is_valid():
+
+                obj = model_form.save(commit=False)
+                # assert False, model_form.cleaned_data['interfaces']
+
+                messages.success(request, "Imported object: {}".format(obj))
+                return redirect(self.get_return_url(request))
+
+            else:
+                # Replicate model form errors for display
+                for field, err in model_form.errors.items():
+                    form.add_error(None, "{}: {}".format(field, err))
+
+        return render(request, self.template_name, {
+            'form': form,
+            'obj_type': self.model._meta.verbose_name,
+            'return_url': self.get_return_url(request),
+        })
+
+
 class BulkImportView(GetReturnURLMixin, View):
     """
     Import objects in bulk (CSV format).
@@ -404,7 +462,7 @@ class BulkImportView(GetReturnURLMixin, View):
     """
     model_form = None
     table = None
-    template_name = 'utilities/obj_import.html'
+    template_name = 'utilities/obj_bulk_import.html'
     widget_attrs = {}
 
     def _import_form(self, *args, **kwargs):

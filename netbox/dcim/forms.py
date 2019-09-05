@@ -22,7 +22,8 @@ from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField, ComponentForm,
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, JSONField,
-    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES
+    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, MultiObjectField,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .constants import *
@@ -829,6 +830,36 @@ class DeviceTypeCSVForm(forms.ModelForm):
             'model': 'Model name',
             'slug': 'URL-friendly slug',
         }
+
+
+class InterfaceTemplateImportForm(BootstrapMixin, forms.ModelForm):
+    name_pattern = ExpandableNameField(
+        label='Name'
+    )
+
+    class Meta:
+        model = InterfaceTemplate
+        fields = [
+            'type', 'mgmt_only',
+        ]
+
+
+class DeviceTypeImportForm(forms.ModelForm):
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        to_field_name='name'
+    )
+    interfaces = MultiObjectField(
+        form=InterfaceTemplateImportForm,
+        required=False
+    )
+
+    class Meta:
+        model = DeviceType
+        fields = [
+            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'interfaces',
+        ]
 
 
 class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):

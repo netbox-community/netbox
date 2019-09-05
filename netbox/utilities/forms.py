@@ -6,8 +6,7 @@ from io import StringIO
 from django import forms
 from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
-from django.db.models import Count
-from django.urls import reverse_lazy
+from django.utils.html import mark_safe
 from mptt.forms import TreeNodeMultipleChoiceField
 
 from .constants import *
@@ -554,6 +553,24 @@ class SlugField(forms.SlugField):
         self.widget.attrs['slug-source'] = slug_source
 
 
+class MultiObjectField(forms.Field):
+    """
+    Use this field to relay data to another form for validation. Useful when importing data via JSON/YAML.
+    """
+    def __init__(self, form, *args, **kwargs):
+        self.form = form
+        super().__init__(*args, **kwargs)
+
+    def clean(self, value):
+
+        for obj in value:
+            subform = self.form(obj)
+            if not subform.is_valid():
+                raise forms.ValidationError(mark_safe(subform.errors.items()))
+
+        return value
+
+
 class FilterChoiceIterator(forms.models.ModelChoiceIterator):
 
     def __iter__(self):
@@ -721,3 +738,19 @@ class BulkEditForm(forms.Form):
         # Copy any nullable fields defined in Meta
         if hasattr(self.Meta, 'nullable_fields'):
             self.nullable_fields = self.Meta.nullable_fields
+
+
+class ImportForm(BootstrapMixin, forms.Form):
+    """
+    Generic form for creating an object from JSON/YAML data
+    """
+    data = forms.CharField(
+        widget=forms.Textarea
+    )
+    format = forms.ChoiceField(
+        choices=(
+            ('json', 'JSON'),
+            ('yaml', 'YAML')
+        ),
+        initial='yaml'
+    )

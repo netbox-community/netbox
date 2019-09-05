@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
+from django.utils.text import slugify
 from django.views.generic import View
 
 from circuits.models import Circuit
@@ -25,7 +26,7 @@ from utilities.paginator import EnhancedPaginator
 from utilities.utils import csv_format
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, GetReturnURLMixin,
-    ObjectDeleteView, ObjectEditView, ObjectListView,
+    ObjectImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
@@ -652,6 +653,13 @@ class DeviceTypeDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_devicetype'
     model = DeviceType
     default_return_url = 'dcim:devicetype_list'
+
+
+class DeviceTypeImportView(PermissionRequiredMixin, ObjectImportView):
+    permission_required = 'dcim.add_devicetype'
+    model = DeviceType
+    model_form = forms.DeviceTypeImportForm
+    default_return_url = 'dcim:devicetype_import'
 
 
 class DeviceTypeBulkImportView(PermissionRequiredMixin, BulkImportView):
