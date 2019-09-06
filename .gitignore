@@ -12,6 +12,9 @@
 fabfile.py
 *.swp
 gunicorn_config.py
+gunicorn.conf
+netbox.log
+netbox.pid
 .DS_Store
 .vscode
 .coverage
