@@ -1,3 +1,12 @@
+v2.6.4 (FUTURE)
+
+## Enhancements
+
+* [#2160](https://github.com/netbox-community/netbox/issues/2160) - Add Bulk Interface Vlan Editing
+* [#3027](https://github.com/netbox-community/netbox/issues/3028) - Add filter for has local context data
+* [#3318](https://github.com/netbox-community/netbox/issues/3318) - Increase length of platform name and slug to 64 characters
+* [#3341](https://github.com/netbox-community/netbox/issues/3341) - Add Inline Vlan Editing
+
 v2.6.3 (2019-09-04)
 
 ## New Features
