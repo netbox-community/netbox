@@ -196,6 +196,7 @@ $(document).ready(function() {
 
             processResults: function (data) {
                 var element = this.$element[0];
+                $(element).children('option').attr('disabled', false);
                 var results = data.results;
 
                 results = results.reduce((results,record) => {
