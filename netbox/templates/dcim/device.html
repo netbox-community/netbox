@@ -239,7 +239,7 @@
                         <td>Platform</td>
                         <td>
                             {% if device.platform %}
-                                <span>{{ device.platform }}</span>
+                               <a href="{{ device.platform.get_absolute_url }}">{{ device.platform }}</a>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}

@@ -15,7 +15,6 @@ schema_view = get_schema_view(
         default_version='v2',
         description="API to access NetBox",
         terms_of_service="https://github.com/netbox-community/netbox",
-        contact=openapi.Contact(email="netbox@digitalocean.com"),
         license=openapi.License(name="Apache v2 License"),
     ),
     validators=['flex', 'ssv'],

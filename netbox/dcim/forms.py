@@ -7,6 +7,8 @@ from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from mptt.forms import TreeNodeChoiceField
+from netaddr import EUI
+from netaddr.core import AddrFormatError
 from taggit.forms import TagField
 from timezone_field import TimeZoneFormField
 
@@ -93,6 +95,28 @@ class BulkRenameForm(forms.Form):
                 raise forms.ValidationError({
                     'find': "Invalid regular expression"
                 })
+
+
+#
+# Fields
+#
+
+class MACAddressField(forms.Field):
+    widget = forms.CharField
+    default_error_messages = {
+        'invalid': 'MAC address must be in EUI-48 format',
+    }
+
+    def to_python(self, value):
+        value = super().to_python(value)
+
+        # Validate MAC address format
+        try:
+            value = EUI(value.strip())
+        except AddrFormatError:
+            raise forms.ValidationError(self.error_messages['invalid'], code='invalid')
+
+        return value
 
 
 #
@@ -627,7 +651,7 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     )
     group_id = ChainedModelChoiceField(
         label='Rack group',
-        queryset=RackGroup.objects.select_related('site'),
+        queryset=RackGroup.objects.prefetch_related('site'),
         chains=(
             ('site', 'site'),
         ),
@@ -740,7 +764,7 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
         )
     )
     group_id = FilterChoiceField(
-        queryset=RackGroup.objects.select_related('site'),
+        queryset=RackGroup.objects.prefetch_related('site'),
         label='Rack group',
         null_label='-- None --',
         widget=APISelectMultiple(
@@ -972,6 +996,16 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
 class PowerPortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    maximum_draw = forms.IntegerField(
+        min_value=1,
+        required=False,
+        help_text="Maximum current draw (watts)"
+    )
+    allocated_draw = forms.IntegerField(
+        min_value=1,
+        required=False,
+        help_text="Allocated current draw (watts)"
     )
 
 
@@ -1263,7 +1297,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         required=False,
         widget=APISelect(
             api_url='/api/dcim/racks/',
-            display_field='display_name',
+            display_field='display_name'
         )
     )
     position = forms.TypedChoiceField(
@@ -1376,14 +1410,14 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
                 interface_ids = self.instance.vc_interfaces.values('pk')
 
                 # Collect interface IPs
-                interface_ips = IPAddress.objects.select_related('interface').filter(
+                interface_ips = IPAddress.objects.prefetch_related('interface').filter(
                     family=family, interface_id__in=interface_ids
                 )
                 if interface_ips:
                     ip_list = [(ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips]
                     ip_choices.append(('Interface IPs', ip_list))
                 # Collect NAT IPs
-                nat_ips = IPAddress.objects.select_related('nat_inside').filter(
+                nat_ips = IPAddress.objects.prefetch_related('nat_inside').filter(
                     family=family, nat_inside__interface__in=interface_ids
                 )
                 if nat_ips:
@@ -1695,7 +1729,7 @@ class DeviceFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         )
     )
     rack_group_id = FilterChoiceField(
-        queryset=RackGroup.objects.select_related(
+        queryset=RackGroup.objects.prefetch_related(
             'site'
         ),
         label='Rack group',
@@ -1734,7 +1768,7 @@ class DeviceFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         )
     )
     device_type_id = FilterChoiceField(
-        queryset=DeviceType.objects.select_related(
+        queryset=DeviceType.objects.prefetch_related(
             'manufacturer'
         ),
         label='Model',
@@ -3584,7 +3618,7 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         queryset=PowerPanel.objects.all(),
         required=False,
         widget=APISelect(
-            api_url="/api/dcim/sites",
+            api_url="/api/dcim/power-panels/",
             filter_for={
                 'rackgroup': 'site_id',
             }
