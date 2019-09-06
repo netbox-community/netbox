@@ -11,7 +11,7 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.constants import COLOR_CHOICES
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
-    CommentField, ContentTypeSelect, FilterChoiceField, LaxURLField, JSONField, SlugField,StaticSelect2,
+    CommentField, ContentTypeSelect, FilterChoiceField, LaxURLField, JSONField, SlugField, StaticSelect2,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
 from .constants import (
