@@ -13,9 +13,11 @@ from django.template import Template, Context
 from django.urls import reverse
 import graphviz
 from jinja2 import Environment
+from taggit.models import TagBase, GenericTaggedItemBase
 
 from dcim.constants import CONNECTION_STATUS_CONNECTED
-from utilities.utils import deepmerge, foreground_color
+from utilities.fields import ColorField
+from utilities.utils import deepmerge, foreground_color, model_names_to_filter_dict
 from .constants import *
 from .querysets import ConfigContextQuerySet
 
@@ -23,6 +25,10 @@ from .querysets import ConfigContextQuerySet
 #
 # Webhooks
 #
+
+def get_webhook_models():
+    return model_names_to_filter_dict(WEBHOOK_MODELS)
+
 
 class Webhook(models.Model):
     """
@@ -35,7 +41,7 @@ class Webhook(models.Model):
         to=ContentType,
         related_name='webhooks',
         verbose_name='Object types',
-        limit_choices_to={'model__in': WEBHOOK_MODELS},
+        limit_choices_to=get_webhook_models,
         help_text="The object(s) to which this Webhook applies."
     )
     name = models.CharField(
@@ -137,12 +143,16 @@ class CustomFieldModel(models.Model):
             return OrderedDict([(field, None) for field in fields])
 
 
+def get_custom_field_models():
+    return model_names_to_filter_dict(CUSTOMFIELD_MODELS)
+
+
 class CustomField(models.Model):
     obj_type = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
         verbose_name='Object(s)',
-        limit_choices_to={'model__in': CUSTOMFIELD_MODELS},
+        limit_choices_to=get_custom_field_models,
         help_text='The object(s) to which this field applies.'
     )
     type = models.PositiveSmallIntegerField(
@@ -304,6 +314,62 @@ class CustomFieldChoice(models.Model):
 
 
 #
+# Custom links
+#
+
+def get_custom_link_models():
+    return model_names_to_filter_dict(CUSTOMLINK_MODELS)
+
+
+class CustomLink(models.Model):
+    """
+    A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
+    code to be rendered with an object as context.
+    """
+    content_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to=get_custom_link_models
+    )
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    text = models.CharField(
+        max_length=500,
+        help_text="Jinja2 template code for link text"
+    )
+    url = models.CharField(
+        max_length=500,
+        verbose_name='URL',
+        help_text="Jinja2 template code for link URL"
+    )
+    weight = models.PositiveSmallIntegerField(
+        default=100
+    )
+    group_name = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Links with the same group will appear as a dropdown menu"
+    )
+    button_class = models.CharField(
+        max_length=30,
+        choices=BUTTON_CLASS_CHOICES,
+        default=BUTTON_CLASS_DEFAULT,
+        help_text="The class of the first link in a group will be used for the dropdown button"
+    )
+    new_window = models.BooleanField(
+        help_text="Force link to open in a new window"
+    )
+
+    class Meta:
+        ordering = ['group_name', 'weight', 'name']
+
+    def __str__(self):
+        return self.name
+
+
+#
 # Graphs
 #
 
@@ -348,11 +414,15 @@ class Graph(models.Model):
 # Export templates
 #
 
+def get_export_template_models():
+    return model_names_to_filter_dict(EXPORTTEMPLATE_MODELS)
+
+
 class ExportTemplate(models.Model):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to={'model__in': EXPORTTEMPLATE_MODELS}
+        limit_choices_to=get_export_template_models
     )
     name = models.CharField(
         max_length=100
@@ -499,7 +569,7 @@ class TopologyMap(models.Model):
             # Add each device to the graph
             devices = []
             for query in device_set.strip(';').split(';'):  # Split regexes on semicolons
-                devices += Device.objects.filter(name__regex=query).select_related('device_role')
+                devices += Device.objects.filter(name__regex=query).prefetch_related('device_role')
             # Remove duplicate devices
             devices = [d for d in devices if d.id not in seen]
             seen.update([d.id for d in devices])
@@ -537,7 +607,7 @@ class TopologyMap(models.Model):
         from dcim.models import Interface
 
         # Add all interface connections to the graph
-        connected_interfaces = Interface.objects.select_related(
+        connected_interfaces = Interface.objects.prefetch_related(
             '_connected_interface__device'
         ).filter(
             Q(device__in=devices) | Q(_connected_interface__device__in=devices),
@@ -569,7 +639,7 @@ class TopologyMap(models.Model):
         from dcim.models import PowerPort
 
         # Add all power connections to the graph
-        for pp in PowerPort.objects.filter(device__in=devices, connected_endpoint__device__in=devices):
+        for pp in PowerPort.objects.filter(device__in=devices, _connected_poweroutlet__device__in=devices):
             style = 'solid' if pp.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
             self.graph.edge(pp.connected_endpoint.device.name, pp.device.name, style=style)
 
@@ -757,6 +827,21 @@ class ConfigContextModel(models.Model):
 
 
 #
+# Custom scripts
+#
+
+class Script(models.Model):
+    """
+    Dummy model used to generate permissions for custom scripts. Does not exist in the database.
+    """
+    class Meta:
+        managed = False
+        permissions = (
+            ('run_script', 'Can run script'),
+        )
+
+
+#
 # Report results
 #
 
@@ -797,7 +882,8 @@ class ObjectChange(models.Model):
     """
     time = models.DateTimeField(
         auto_now_add=True,
-        editable=False
+        editable=False,
+        db_index=True
     )
     user = models.ForeignKey(
         to=User,
@@ -868,8 +954,10 @@ class ObjectChange(models.Model):
     def save(self, *args, **kwargs):
 
         # Record the user's name and the object's representation as static strings
-        self.user_name = self.user.username
-        self.object_repr = str(self.changed_object)
+        if not self.user_name:
+            self.user_name = self.user.username
+        if not self.object_repr:
+            self.object_repr = str(self.changed_object)
 
         return super().save(*args, **kwargs)
 
@@ -889,4 +977,38 @@ class ObjectChange(models.Model):
             self.related_object_id,
             self.object_repr,
             self.object_data,
+        )
+
+
+#
+# Tags
+#
+
+# TODO: figure out a way around this circular import for ObjectChange
+from utilities.models import ChangeLoggedModel  # noqa: E402
+
+
+class Tag(TagBase, ChangeLoggedModel):
+    color = ColorField(
+        default='9e9e9e'
+    )
+    comments = models.TextField(
+        blank=True,
+        default=''
+    )
+
+    def get_absolute_url(self):
+        return reverse('extras:tag', args=[self.slug])
+
+
+class TaggedItem(GenericTaggedItemBase):
+    tag = models.ForeignKey(
+        to=Tag,
+        related_name="%(app_label)s_%(class)s_items",
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        index_together = (
+            ("content_type", "object_id")
         )

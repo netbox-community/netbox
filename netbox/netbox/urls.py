@@ -14,8 +14,7 @@ schema_view = get_schema_view(
         title="NetBox API",
         default_version='v2',
         description="API to access NetBox",
-        terms_of_service="https://github.com/digitalocean/netbox",
-        contact=openapi.Contact(email="netbox@digitalocean.com"),
+        terms_of_service="https://github.com/netbox-community/netbox",
         license=openapi.License(name="Apache v2 License"),
     ),
     validators=['flex', 'ssv'],
@@ -72,6 +71,11 @@ if settings.DEBUG:
     import debug_toolbar
     _patterns += [
         path(r'__debug__/', include(debug_toolbar.urls)),
+    ]
+
+if settings.METRICS_ENABLED:
+    _patterns += [
+        path('', include('django_prometheus.urls')),
     ]
 
 # Prepend BASE_PATH

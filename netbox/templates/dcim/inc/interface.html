@@ -10,7 +10,7 @@
 
     {# Icon and name #}
     <td class="text-nowrap">
-        <span title="{{ iface.get_form_factor_display }}">
+        <span title="{{ iface.get_type_display }}">
             <i class="fa fa-fw fa-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}align-justify{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}exchange{% endif %}"></i>
             <a href="{{ iface.get_absolute_url }}">{{ iface }}</a>
         </span>
@@ -52,7 +52,7 @@
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
         {% else %}
-            &mdash;
+            <span class="text-muted">&mdash;</span>
         {% endif %}
     </td>
 
@@ -81,7 +81,7 @@
         </td>
         <td>
             <a href="{% url 'dcim:interface' pk=iface.connected_endpoint.pk %}">
-                <span title="{{ iface.connected_endpoint.get_form_factor_display }}">
+                <span title="{{ iface.connected_endpoint.get_type_display }}">
                     {{ iface.connected_endpoint }}
                 </span>
             </a>
@@ -151,9 +151,17 @@
             {% if iface.cable %}
                 {% include 'dcim/inc/cable_toggle_buttons.html' with cable=iface.cable %}
             {% elif iface.is_connectable and perms.dcim.add_cable %}
-                <a href="{% url 'dcim:interface_connect' termination_a_id=iface.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-success btn-xs" title="Connect">
-                    <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
-                </a>
+                <span class="dropdown">
+                    <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=iface.pk termination_b_type='interface' %}?return_url={{ device.get_absolute_url }}">Interface</a></li>
+                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=iface.pk termination_b_type='front-port' %}?return_url={{ device.get_absolute_url }}">Front Port</a></li>
+                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=iface.pk termination_b_type='rear-port' %}?return_url={{ device.get_absolute_url }}">Rear Port</a></li>
+                        <li><a href="{% url 'dcim:interface_connect' termination_a_id=iface.pk termination_b_type='circuit-termination' %}?return_url={{ device.get_absolute_url }}">Circuit Termination</a></li>
+                    </ul>
+                </span>
             {% endif %}
             <a href="{% if iface.device_id %}{% url 'dcim:interface_edit' pk=iface.pk %}{% else %}{% url 'virtualization:interface_edit' pk=iface.pk %}{% endif %}?return_url={{ device.get_absolute_url }}" class="btn btn-info btn-xs" title="Edit interface">
                 <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>

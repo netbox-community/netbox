@@ -4,23 +4,19 @@ from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 from django_tables2 import RequestConfig
-from taggit.models import Tag, TaggedItem
 
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import BulkDeleteView, BulkEditView, ObjectDeleteView, ObjectEditView, ObjectListView
-from . import filters
-from .forms import (
-    ConfigContextForm, ConfigContextBulkEditForm, ConfigContextFilterForm, ImageAttachmentForm, ObjectChangeFilterForm,
-    TagFilterForm, TagForm,
-)
-from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult
+from . import filters, forms
+from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult, Tag, TaggedItem
 from .reports import get_report, get_reports
+from .scripts import get_scripts, run_script
 from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemTable
 
 
@@ -28,14 +24,15 @@ from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemT
 # Tags
 #
 
-class TagListView(ObjectListView):
+class TagListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'extras.view_tag'
     queryset = Tag.objects.annotate(
-        items=Count('taggit_taggeditem_items', distinct=True)
+        items=Count('extras_taggeditem_items', distinct=True)
     ).order_by(
         'name'
     )
     filter = filters.TagFilter
-    filter_form = TagFilterForm
+    filter_form = forms.TagFilterForm
     table = TagTable
     template_name = 'extras/tag_list.html'
 
@@ -47,10 +44,8 @@ class TagView(View):
         tag = get_object_or_404(Tag, slug=slug)
         tagged_items = TaggedItem.objects.filter(
             tag=tag
-        ).select_related(
-            'content_type'
         ).prefetch_related(
-            'content_object'
+            'content_type', 'content_object'
         )
 
         # Generate a table of all items tagged with this Tag
@@ -69,22 +64,36 @@ class TagView(View):
 
 
 class TagEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'taggit.change_tag'
+    permission_required = 'extras.change_tag'
     model = Tag
-    model_form = TagForm
+    model_form = forms.TagForm
     default_return_url = 'extras:tag_list'
+    template_name = 'extras/tag_edit.html'
 
 
 class TagDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'taggit.delete_tag'
+    permission_required = 'extras.delete_tag'
     model = Tag
     default_return_url = 'extras:tag_list'
 
 
-class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'taggit.delete_tag'
+class TagBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'extras.change_tag'
     queryset = Tag.objects.annotate(
-        items=Count('taggit_taggeditem_items')
+        items=Count('extras_taggeditem_items', distinct=True)
+    ).order_by(
+        'name'
+    )
+    # filter = filters.ProviderFilter
+    table = TagTable
+    form = forms.TagBulkEditForm
+    default_return_url = 'circuits:provider_list'
+
+
+class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'extras.delete_tag'
+    queryset = Tag.objects.annotate(
+        items=Count('extras_taggeditem_items')
     ).order_by(
         'name'
     )
@@ -96,15 +105,17 @@ class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Config contexts
 #
 
-class ConfigContextListView(ObjectListView):
+class ConfigContextListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'extras.view_configcontext'
     queryset = ConfigContext.objects.all()
     filter = filters.ConfigContextFilter
-    filter_form = ConfigContextFilterForm
+    filter_form = forms.ConfigContextFilterForm
     table = ConfigContextTable
     template_name = 'extras/configcontext_list.html'
 
 
-class ConfigContextView(View):
+class ConfigContextView(PermissionRequiredMixin, View):
+    permission_required = 'extras.view_configcontext'
 
     def get(self, request, pk):
 
@@ -118,7 +129,7 @@ class ConfigContextView(View):
 class ConfigContextCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'extras.add_configcontext'
     model = ConfigContext
-    model_form = ConfigContextForm
+    model_form = forms.ConfigContextForm
     default_return_url = 'extras:configcontext_list'
     template_name = 'extras/configcontext_edit.html'
 
@@ -132,7 +143,7 @@ class ConfigContextBulkEditView(PermissionRequiredMixin, BulkEditView):
     queryset = ConfigContext.objects.all()
     filter = filters.ConfigContextFilter
     table = ConfigContextTable
-    form = ConfigContextBulkEditForm
+    form = forms.ConfigContextBulkEditForm
     default_return_url = 'extras:configcontext_list'
 
 
@@ -143,7 +154,7 @@ class ConfigContextDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 
 class ConfigContextBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'extras.delete_cconfigcontext'
+    permission_required = 'extras.delete_configcontext'
     queryset = ConfigContext.objects.all()
     table = ConfigContextTable
     default_return_url = 'extras:configcontext_list'
@@ -173,15 +184,17 @@ class ObjectConfigContextView(View):
 # Change logging
 #
 
-class ObjectChangeListView(ObjectListView):
-    queryset = ObjectChange.objects.select_related('user', 'changed_object_type')
+class ObjectChangeListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'extras.view_objectchange'
+    queryset = ObjectChange.objects.prefetch_related('user', 'changed_object_type')
     filter = filters.ObjectChangeFilter
-    filter_form = ObjectChangeFilterForm
+    filter_form = forms.ObjectChangeFilterForm
     table = ObjectChangeTable
     template_name = 'extras/objectchange_list.html'
 
 
-class ObjectChangeView(View):
+class ObjectChangeView(PermissionRequiredMixin, View):
+    permission_required = 'extras.view_objectchange'
 
     def get(self, request, pk):
 
@@ -212,7 +225,7 @@ class ObjectChangeLogView(View):
 
         # Gather all changes for this object (and its related objects)
         content_type = ContentType.objects.get_for_model(model)
-        objectchanges = ObjectChange.objects.select_related(
+        objectchanges = ObjectChange.objects.prefetch_related(
             'user', 'changed_object_type'
         ).filter(
             Q(changed_object_type=content_type, changed_object_id=obj.pk) |
@@ -222,6 +235,13 @@ class ObjectChangeLogView(View):
             data=objectchanges,
             orderable=False
         )
+
+        # Apply the request context
+        paginate = {
+            'paginator_class': EnhancedPaginator,
+            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+        }
+        RequestConfig(request, paginate).configure(objectchanges_table)
 
         # Check whether a header template exists for this model
         base_template = '{}/{}.html'.format(model._meta.app_label, model._meta.model_name)
@@ -234,7 +254,7 @@ class ObjectChangeLogView(View):
 
         return render(request, 'extras/object_changelog.html', {
             object_var: obj,
-            'objectchanges_table': objectchanges_table,
+            'table': objectchanges_table,
             'base_template': base_template,
             'active_tab': 'changelog',
         })
@@ -247,7 +267,7 @@ class ObjectChangeLogView(View):
 class ImageAttachmentEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'extras.change_imageattachment'
     model = ImageAttachment
-    model_form = ImageAttachmentForm
+    model_form = forms.ImageAttachmentForm
 
     def alter_obj(self, imageattachment, request, args, kwargs):
         if not imageattachment.pk:
@@ -272,10 +292,11 @@ class ImageAttachmentDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 # Reports
 #
 
-class ReportListView(View):
+class ReportListView(PermissionRequiredMixin, View):
     """
     Retrieve all of the available reports from disk and the recorded ReportResult (if any) for each.
     """
+    permission_required = 'extras.view_reportresult'
 
     def get(self, request):
 
@@ -295,10 +316,11 @@ class ReportListView(View):
         })
 
 
-class ReportView(View):
+class ReportView(PermissionRequiredMixin, View):
     """
     Display a single Report and its associated ReportResult (if any).
     """
+    permission_required = 'extras.view_reportresult'
 
     def get(self, request, name):
 
@@ -341,3 +363,62 @@ class ReportRunView(PermissionRequiredMixin, View):
             messages.success(request, mark_safe(msg))
 
         return redirect('extras:report', name=report.full_name)
+
+
+#
+# Scripts
+#
+
+class ScriptListView(PermissionRequiredMixin, View):
+    permission_required = 'extras.view_script'
+
+    def get(self, request):
+
+        return render(request, 'extras/script_list.html', {
+            'scripts': get_scripts(),
+        })
+
+
+class ScriptView(PermissionRequiredMixin, View):
+    permission_required = 'extras.view_script'
+
+    def _get_script(self, module, name):
+        scripts = get_scripts()
+        try:
+            return scripts[module][name]()
+        except KeyError:
+            raise Http404
+
+    def get(self, request, module, name):
+
+        script = self._get_script(module, name)
+        form = script.as_form()
+
+        return render(request, 'extras/script.html', {
+            'module': module,
+            'script': script,
+            'form': form,
+        })
+
+    def post(self, request, module, name):
+
+        # Permissions check
+        if not request.user.has_perm('extras.run_script'):
+            return HttpResponseForbidden()
+
+        script = self._get_script(module, name)
+        form = script.as_form(request.POST, request.FILES)
+        output = None
+        execution_time = None
+
+        if form.is_valid():
+            commit = form.cleaned_data.pop('_commit')
+            output, execution_time = run_script(script, form.cleaned_data, request.FILES, commit)
+
+        return render(request, 'extras/script.html', {
+            'module': module,
+            'script': script,
+            'form': form,
+            'output': output,
+            'execution_time': execution_time,
+        })

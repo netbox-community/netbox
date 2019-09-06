@@ -6,7 +6,7 @@ from taggit.managers import TaggableManager
 from dcim.constants import CONNECTION_STATUS_CHOICES, STATUS_CLASSES
 from dcim.fields import ASNField
 from dcim.models import CableTermination
-from extras.models import CustomFieldModel, ObjectChange
+from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
 from .constants import CIRCUIT_STATUS_ACTIVE, CIRCUIT_STATUS_CHOICES, TERM_SIDE_CHOICES
@@ -55,7 +55,7 @@ class Provider(ChangeLoggedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
 
@@ -165,7 +165,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
@@ -270,23 +270,21 @@ class CircuitTermination(CableTermination):
     def __str__(self):
         return 'Side {}'.format(self.get_term_side_display())
 
-    def log_change(self, user, request_id, action):
-        """
-        Reference the parent circuit when recording the change.
-        """
+    def to_objectchange(self, action):
+        # Annotate the parent Circuit
         try:
             related_object = self.circuit
         except Circuit.DoesNotExist:
             # Parent circuit has been deleted
             related_object = None
-        ObjectChange(
-            user=user,
-            request_id=request_id,
+
+        return ObjectChange(
             changed_object=self,
-            related_object=related_object,
+            object_repr=str(self),
             action=action,
+            related_object=related_object,
             object_data=serialize_object(self)
-        ).save()
+        )
 
     @property
     def parent(self):
@@ -295,6 +293,6 @@ class CircuitTermination(CableTermination):
     def get_peer_termination(self):
         peer_side = 'Z' if self.term_side == 'A' else 'A'
         try:
-            return CircuitTermination.objects.select_related('site').get(circuit=self.circuit, term_side=peer_side)
+            return CircuitTermination.objects.prefetch_related('site').get(circuit=self.circuit, term_side=peer_side)
         except CircuitTermination.DoesNotExist:
             return None

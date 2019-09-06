@@ -1,3 +1,5 @@
+{% load helpers %}
+
 <tr class="poweroutlet{% if po.cable.status %} success{% elif po.cable %} info{% endif %}">
 
     {# Checkbox #}
@@ -12,25 +14,53 @@
         <i class="fa fa-fw fa-bolt"></i> {{ po }}
     </td>
 
-    {# Cable #}
+    {# Input/leg #}
     <td>
+        {% if po.power_port %}
+            {{ po.power_port }}{% if po.feed_leg %} / {{ po.get_feed_leg_display }}{% endif %}
+        {% elif po.feed_leg %}
+            {{ po.get_feed_leg_display }}
+        {% else %}
+            <span class="text-warning">None</span>
+        {% endif %}
+    </td>
+
+    {# Description #}
+    <td>
+        {{ po.description|placeholder }}
+    </td>
+
+    {# Cable #}
+    <td class="text-nowrap">
         {% if po.cable %}
             <a href="{{ po.cable.get_absolute_url }}">{{ po.cable }}</a>
+            <a href="{% url 'dcim:poweroutlet_trace' pk=po.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
         {% else %}
-            &mdash;
+            <span class="text-muted">&mdash;</span>
         {% endif %}
     </td>
 
     {# Connection #}
     {% if po.connected_endpoint %}
-        <td>
-            <a href="{% url 'dcim:device' pk=po.connected_endpoint.device.pk %}">{{ po.connected_endpoint.device }}</a>
-        </td>
-        <td>
-            {{ po.connected_endpoint }}
-        </td>
+        {% with pp=po.connected_endpoint %}
+            <td>
+                <a href="{% url 'dcim:device' pk=pp.device.pk %}">{{ pp.device }}</a>
+            </td>
+            <td>
+                {{ pp }}
+            </td>
+            <td>
+                {% if pp.allocated_draw %}
+                    {{ pp.allocated_draw }}W{% if pp.maximum_draw %} ({{ pp.maximum_draw }}W max){% endif %}
+                {% elif pp.maximum_draw %}
+                    {{ pp.maximum_draw }}W
+                {% endif %}
+            </td>
+        {% endwith %}
     {% else %}
-        <td colspan="2">
+        <td colspan="3">
             <span class="text-muted">Not connected</span>
         </td>
     {% endif %}
@@ -40,7 +70,7 @@
         {% if po.cable %}
             {% include 'dcim/inc/cable_toggle_buttons.html' with cable=po.cable %}
         {% elif perms.dcim.add_cable %}
-            <a href="{% url 'dcim:poweroutlet_connect' termination_a_id=po.pk %}?return_url={{ device.get_absolute_url }}" title="Connect" class="btn btn-success btn-xs">
+            <a href="{% url 'dcim:poweroutlet_connect' termination_a_id=po.pk termination_b_type='power-port' %}?return_url={{ device.get_absolute_url }}" title="Connect" class="btn btn-success btn-xs">
                 <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
             </a>
         {% endif %}

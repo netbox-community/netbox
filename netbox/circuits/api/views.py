@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -27,7 +28,9 @@ class CircuitsFieldChoicesViewSet(FieldChoicesViewSet):
 #
 
 class ProviderViewSet(CustomFieldModelViewSet):
-    queryset = Provider.objects.prefetch_related('tags')
+    queryset = Provider.objects.prefetch_related('tags').annotate(
+        circuit_count=Count('circuits')
+    )
     serializer_class = serializers.ProviderSerializer
     filterset_class = filters.ProviderFilter
 
@@ -47,7 +50,9 @@ class ProviderViewSet(CustomFieldModelViewSet):
 #
 
 class CircuitTypeViewSet(ModelViewSet):
-    queryset = CircuitType.objects.all()
+    queryset = CircuitType.objects.annotate(
+        circuit_count=Count('circuits')
+    )
     serializer_class = serializers.CircuitTypeSerializer
     filterset_class = filters.CircuitTypeFilter
 
@@ -57,7 +62,7 @@ class CircuitTypeViewSet(ModelViewSet):
 #
 
 class CircuitViewSet(CustomFieldModelViewSet):
-    queryset = Circuit.objects.select_related('type', 'tenant', 'provider').prefetch_related('tags')
+    queryset = Circuit.objects.prefetch_related('type', 'tenant', 'provider').prefetch_related('tags')
     serializer_class = serializers.CircuitSerializer
     filterset_class = filters.CircuitFilter
 
@@ -67,7 +72,7 @@ class CircuitViewSet(CustomFieldModelViewSet):
 #
 
 class CircuitTerminationViewSet(ModelViewSet):
-    queryset = CircuitTermination.objects.select_related(
+    queryset = CircuitTermination.objects.prefetch_related(
         'circuit', 'site', 'connected_endpoint__device', 'cable'
     )
     serializer_class = serializers.CircuitTerminationSerializer

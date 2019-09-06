@@ -6,7 +6,9 @@ from netaddr.core import AddrFormatError
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.filtersets import TenancyFilterSet
-from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import (
+    MultiValueMACAddressFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
+)
 from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -15,14 +17,14 @@ class ClusterTypeFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterType
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
 class ClusterGroupFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterGroup
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
 class ClusterFilter(CustomFieldFilterSet):
@@ -160,11 +162,15 @@ class VirtualMachineFilter(TenancyFilterSet, CustomFieldFilterSet):
         to_field_name='slug',
         label='Platform (slug)',
     )
+    mac_address = MultiValueMACAddressFilter(
+        field_name='interfaces__mac_address',
+        label='MAC address',
+    )
     tag = TagFilter()
 
     class Meta:
         model = VirtualMachine
-        fields = ['name', 'cluster']
+        fields = ['id', 'name', 'cluster', 'vcpus', 'memory', 'disk']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -198,7 +204,7 @@ class InterfaceFilter(django_filters.FilterSet):
 
     class Meta:
         model = Interface
-        fields = ['name', 'enabled', 'mtu']
+        fields = ['id', 'name', 'enabled', 'mtu']
 
     def _mac_address(self, queryset, name, value):
         value = value.strip()

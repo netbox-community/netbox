@@ -183,7 +183,7 @@ $(document).ready(function() {
                 // Additional query params
                 $.each(element.attributes, function(index, attr){
                     if (attr.name.includes("data-additional-query-param-")){
-                        var param_name = attr.name.split("data-additional-query-param-")[1]
+                        var param_name = attr.name.split("data-additional-query-param-")[1];
                         parameters[param_name] = attr.value;
                     }
                 });
@@ -194,6 +194,8 @@ $(document).ready(function() {
 
             processResults: function (data) {
                 var element = this.$element[0];
+                // Clear any disabled options
+                $(element).children('option').attr('disabled', false);
                 var results = $.map(data.results, function (obj) {
                     obj.text = obj[element.getAttribute('display-field')] || obj.name;
                     obj.id = obj[element.getAttribute('value-field')] || obj.id;
@@ -207,7 +209,7 @@ $(document).ready(function() {
 
                 // Handle the null option, but only add it once
                 if (element.getAttribute('data-null-option') && data.previous === null) {
-                    var null_option = $(element).children()[0]
+                    var null_option = $(element).children()[0];
                     results.unshift({
                         id: null_option.value,
                         text: null_option.text

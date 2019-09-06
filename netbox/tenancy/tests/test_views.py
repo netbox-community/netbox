@@ -4,13 +4,15 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from tenancy.models import Tenant, TenantGroup
+from utilities.testing import create_test_user
 
 
 class TenantGroupTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['tenancy.view_tenantgroup'])
         self.client = Client()
+        self.client.force_login(user)
 
         TenantGroup.objects.bulk_create([
             TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
@@ -29,8 +31,9 @@ class TenantGroupTestCase(TestCase):
 class TenantTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['tenancy.view_tenant'])
         self.client = Client()
+        self.client.force_login(user)
 
         tenantgroup = TenantGroup(name='Tenant Group 1', slug='tenant-group-1')
         tenantgroup.save()

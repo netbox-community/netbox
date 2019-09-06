@@ -1,18 +1,18 @@
 # Installation
 
-This section of the documentation discusses installing and configuring the NetBox application.
+This section of the documentation discusses installing and configuring the NetBox application. Begin by installing all system packages required by NetBox and its dependencies:
 
 **Ubuntu**
 
 ```no-highlight
-# apt-get install -y python3 python3-pip python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev zlib1g-dev
+# apt-get install -y python3 python3-pip python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev redis-server zlib1g-dev
 ```
 
 **CentOS**
 
 ```no-highlight
 # yum install -y epel-release
-# yum install -y gcc python36 python36-devel python36-setuptools libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel redhat-rpm-config
+# yum install -y gcc python36 python36-devel python36-setuptools libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel redhat-rpm-config redis
 # easy_install-3.6 pip
 # ln -s /usr/bin/python36 /usr/bin/python3
 ```
@@ -21,10 +21,10 @@ You may opt to install NetBox either from a numbered release or by cloning the m
 
 ## Option A: Download a Release
 
-Download the [latest stable release](https://github.com/digitalocean/netbox/releases) from GitHub as a tarball or ZIP archive and extract it to your desired path. In this example, we'll use `/opt/netbox`.
+Download the [latest stable release](https://github.com/netbox-community/netbox/releases) from GitHub as a tarball or ZIP archive and extract it to your desired path. In this example, we'll use `/opt/netbox`.
 
 ```no-highlight
-# wget https://github.com/digitalocean/netbox/archive/vX.Y.Z.tar.gz
+# wget https://github.com/netbox-community/netbox/archive/vX.Y.Z.tar.gz
 # tar -xzf vX.Y.Z.tar.gz -C /opt
 # cd /opt/
 # ln -s netbox-X.Y.Z/ netbox
@@ -56,7 +56,7 @@ If `git` is not already installed, install it:
 Next, clone the **master** branch of the NetBox GitHub repository into the current directory:
 
 ```no-highlight
-# git clone -b master https://github.com/digitalocean/netbox.git .
+# git clone -b master https://github.com/netbox-community/netbox.git .
 Cloning into '.'...
 remote: Counting objects: 1994, done.
 remote: Compressing objects: 100% (150/150), done.
@@ -88,28 +88,6 @@ NetBox supports integration with the [NAPALM automation](https://napalm-automati
 
 ```no-highlight
 # pip3 install napalm
-```
-
-## Webhooks (Optional)
-
-[Webhooks](../data-model/extras/#webhooks) allow NetBox to integrate with external services by pushing out a notification each time a relevant object is created, updated, or deleted. Enabling the webhooks feature requires [Redis](https://redis.io/), a lightweight in-memory database. You may opt to install a Redis sevice locally (see below) or connect to an external one.
-
-**Ubuntu**
-
-```no-highlight
-# apt-get install -y redis-server
-```
-
-**CentOS**
-
-```no-highlight
-# yum install -y redis
-```
-
-Enabling webhooks also requires installing the [`django-rq`](https://github.com/ui/django-rq) package. This allows NetBox to use the Redis database as a queue for outgoing webhooks.
-
-```no-highlight
-# pip3 install django-rq
 ```
 
 # Configuration

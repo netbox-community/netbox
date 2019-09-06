@@ -4,17 +4,19 @@ import uuid
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.urls import reverse
-from taggit.models import Tag
 
 from dcim.models import Site
-from extras.models import ConfigContext, ObjectChange
+from extras.constants import OBJECTCHANGE_ACTION_UPDATE
+from extras.models import ConfigContext, ObjectChange, Tag
+from utilities.testing import create_test_user
 
 
 class TagTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['extras.view_tag'])
         self.client = Client()
+        self.client.force_login(user)
 
         Tag.objects.bulk_create([
             Tag(name='Tag 1', slug='tag-1'),
@@ -36,8 +38,9 @@ class TagTestCase(TestCase):
 class ConfigContextTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['extras.view_configcontext'])
         self.client = Client()
+        self.client.force_login(user)
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -71,22 +74,19 @@ class ConfigContextTestCase(TestCase):
 class ObjectChangeTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['extras.view_objectchange'])
         self.client = Client()
-
-        user = User(username='testuser', email='testuser@example.com')
-        user.save()
+        self.client.force_login(user)
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
 
         # Create three ObjectChanges
         for i in range(1, 4):
-            site.log_change(
-                user=user,
-                request_id=uuid.uuid4(),
-                action=2
-            )
+            oc = site.to_objectchange(action=OBJECTCHANGE_ACTION_UPDATE)
+            oc.user = user
+            oc.request_id = uuid.uuid4()
+            oc.save()
 
     def test_objectchange_list(self):
 

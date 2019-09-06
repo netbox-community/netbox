@@ -32,9 +32,11 @@
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ interface.get_absolute_url }}">Interface</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'dcim:interface_changelog' pk=interface.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:interface_changelog' pk=interface.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 
@@ -58,7 +60,7 @@
                 </tr>
                 <tr>
                     <td>Type</td>
-                    <td>{{ interface.get_form_factor_display }}</td>
+                    <td>{{ interface.get_type_display }}</td>
                 </tr>
                 <tr>
                     <td>Enabled</td>
@@ -123,7 +125,7 @@
                             </tr>
                             <tr>
                                 <td>Type</td>
-                                <td>{{ connected_interface.get_form_factor_display }}</td>
+                                <td>{{ connected_interface.get_type_display }}</td>
                             </tr>
                             <tr>
                                 <td>Enabled</td>
@@ -225,7 +227,7 @@
                                     <a href="{{ member.get_absolute_url }}">{{ member }}</a>
                                 </td>
                                 <td>
-                                    {{ member.get_form_factor_display }}
+                                    {{ member.get_type_display }}
                                 </td>
                             </tr>
                         {% empty %}

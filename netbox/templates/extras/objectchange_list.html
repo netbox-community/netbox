@@ -9,6 +9,11 @@
 <div class="row">
 	<div class="col-md-9">
         {% include 'utilities/obj_table.html' %}
+        {% if settings.CHANGELOG_RETENTION %}
+            <div class="pull-right text-muted">
+                Changelog retention: {% if settings.CHANGELOG_RETENTION == 0 %}Indefinite{% else %}{{ settings.CHANGELOG_RETENTION }} days{% endif %}
+            </div>
+        {% endif %}
     </div>
     <div class="col-md-3 noprint">
 		{% include 'inc/search_panel.html' %}

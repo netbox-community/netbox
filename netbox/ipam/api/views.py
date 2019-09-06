@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import action
@@ -9,6 +10,7 @@ from extras.api.views import CustomFieldModelViewSet
 from ipam import filters
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from utilities.api import FieldChoicesViewSet, ModelViewSet
+from utilities.utils import get_subquery
 from . import serializers
 
 
@@ -31,7 +33,10 @@ class IPAMFieldChoicesViewSet(FieldChoicesViewSet):
 #
 
 class VRFViewSet(CustomFieldModelViewSet):
-    queryset = VRF.objects.select_related('tenant').prefetch_related('tags')
+    queryset = VRF.objects.prefetch_related('tenant').prefetch_related('tags').annotate(
+        ipaddress_count=get_subquery(IPAddress, 'vrf'),
+        prefix_count=get_subquery(Prefix, 'vrf')
+    )
     serializer_class = serializers.VRFSerializer
     filterset_class = filters.VRFFilter
 
@@ -41,7 +46,9 @@ class VRFViewSet(CustomFieldModelViewSet):
 #
 
 class RIRViewSet(ModelViewSet):
-    queryset = RIR.objects.all()
+    queryset = RIR.objects.annotate(
+        aggregate_count=Count('aggregates')
+    )
     serializer_class = serializers.RIRSerializer
     filterset_class = filters.RIRFilter
 
@@ -51,7 +58,7 @@ class RIRViewSet(ModelViewSet):
 #
 
 class AggregateViewSet(CustomFieldModelViewSet):
-    queryset = Aggregate.objects.select_related('rir').prefetch_related('tags')
+    queryset = Aggregate.objects.prefetch_related('rir').prefetch_related('tags')
     serializer_class = serializers.AggregateSerializer
     filterset_class = filters.AggregateFilter
 
@@ -61,7 +68,10 @@ class AggregateViewSet(CustomFieldModelViewSet):
 #
 
 class RoleViewSet(ModelViewSet):
-    queryset = Role.objects.all()
+    queryset = Role.objects.annotate(
+        prefix_count=get_subquery(Prefix, 'role'),
+        vlan_count=get_subquery(VLAN, 'role')
+    )
     serializer_class = serializers.RoleSerializer
     filterset_class = filters.RoleFilter
 
@@ -71,7 +81,7 @@ class RoleViewSet(ModelViewSet):
 #
 
 class PrefixViewSet(CustomFieldModelViewSet):
-    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role').prefetch_related('tags')
+    queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role', 'tags')
     serializer_class = serializers.PrefixSerializer
     filterset_class = filters.PrefixFilter
 
@@ -249,9 +259,8 @@ class PrefixViewSet(CustomFieldModelViewSet):
 #
 
 class IPAddressViewSet(CustomFieldModelViewSet):
-    queryset = IPAddress.objects.select_related(
-        'vrf__tenant', 'tenant', 'nat_inside', 'interface__device__device_type', 'interface__virtual_machine'
-    ).prefetch_related(
+    queryset = IPAddress.objects.prefetch_related(
+        'vrf__tenant', 'tenant', 'nat_inside', 'interface__device__device_type', 'interface__virtual_machine',
         'nat_outside', 'tags',
     )
     serializer_class = serializers.IPAddressSerializer
@@ -263,7 +272,9 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 #
 
 class VLANGroupViewSet(ModelViewSet):
-    queryset = VLANGroup.objects.select_related('site')
+    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+        vlan_count=Count('vlans')
+    )
     serializer_class = serializers.VLANGroupSerializer
     filterset_class = filters.VLANGroupFilter
 
@@ -273,7 +284,11 @@ class VLANGroupViewSet(ModelViewSet):
 #
 
 class VLANViewSet(CustomFieldModelViewSet):
-    queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role').prefetch_related('tags')
+    queryset = VLAN.objects.prefetch_related(
+        'site', 'group', 'tenant', 'role', 'tags'
+    ).annotate(
+        prefix_count=get_subquery(Prefix, 'role')
+    )
     serializer_class = serializers.VLANSerializer
     filterset_class = filters.VLANFilter
 
@@ -283,6 +298,6 @@ class VLANViewSet(CustomFieldModelViewSet):
 #
 
 class ServiceViewSet(ModelViewSet):
-    queryset = Service.objects.select_related('device').prefetch_related('tags')
+    queryset = Service.objects.prefetch_related('device').prefetch_related('tags')
     serializer_class = serializers.ServiceSerializer
     filterset_class = filters.ServiceFilter

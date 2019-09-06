@@ -1,11 +1,13 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
-from taggit.models import Tag, TaggedItem
 
-from utilities.tables import BaseTable, BooleanColumn, ToggleColumn
-from .models import ConfigContext, ObjectChange
+from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ToggleColumn
+from .models import ConfigContext, ObjectChange, Tag, TaggedItem
 
 TAG_ACTIONS = """
+<a href="{% url 'extras:tag_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
+    <i class="fa fa-history"></i>
+</a>
 {% if perms.taggit.change_tag %}
     <a href="{% url 'extras:tag_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
@@ -71,10 +73,11 @@ class TagTable(BaseTable):
         attrs={'td': {'class': 'text-right noprint'}},
         verbose_name=''
     )
+    color = ColorColumn()
 
     class Meta(BaseTable.Meta):
         model = Tag
-        fields = ('pk', 'name', 'items', 'slug', 'actions')
+        fields = ('pk', 'name', 'items', 'slug', 'color', 'actions')
 
 
 class TaggedItemTable(BaseTable):

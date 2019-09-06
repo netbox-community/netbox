@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block header %}
@@ -40,16 +41,23 @@
     </div>
     <h1>{% block title %}{{ virtualmachine }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=virtualmachine %}
+    <div class="pull-right noprint">
+        {% custom_links virtualmachine %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ virtualmachine.get_absolute_url }}">Virtual Machine</a>
         </li>
-        <li role="presentation"{% if active_tab == 'config-context' %} class="active"{% endif %}>
-            <a href="{% url 'virtualization:virtualmachine_configcontext' pk=virtualmachine.pk %}">Config Context</a>
-        </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'virtualization:virtualmachine_changelog' pk=virtualmachine.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_configcontext %}
+            <li role="presentation"{% if active_tab == 'config-context' %} class="active"{% endif %}>
+                <a href="{% url 'virtualization:virtualmachine_configcontext' pk=virtualmachine.pk %}">Config Context</a>
+            </li>
+        {% endif %}
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'virtualization:virtualmachine_changelog' pk=virtualmachine.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

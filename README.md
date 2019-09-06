@@ -7,7 +7,7 @@ to address the needs of network and infrastructure engineers.
 
 NetBox runs as a web application atop the [Django](https://www.djangoproject.com/)
 Python framework with a [PostgreSQL](http://www.postgresql.org/) database. For a
-complete list of requirements, see `requirements.txt`. The code is available [on GitHub](https://github.com/digitalocean/netbox).
+complete list of requirements, see `requirements.txt`. The code is available [on GitHub](https://github.com/netbox-community/netbox).
 
 The complete documentation for NetBox can be found at [Read the Docs](http://netbox.readthedocs.io/en/stable/).
 
@@ -32,7 +32,7 @@ or join us in the #netbox Slack channel on [NetworkToCode](https://networktocode
 # Installation
 
 Please see [the documentation](http://netbox.readthedocs.io/en/stable/) for
-instructions on installing NetBox. To upgrade NetBox, please download the [latest release](https://github.com/digitalocean/netbox/releases)
+instructions on installing NetBox. To upgrade NetBox, please download the [latest release](https://github.com/netbox-community/netbox/releases)
 and run `upgrade.sh`.
 
 ## Alternative Installations

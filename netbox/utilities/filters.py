@@ -1,7 +1,61 @@
 import django_filters
+from django import forms
 from django.conf import settings
-from django.db.models import Q
-from taggit.models import Tag
+from django.db import models
+
+from dcim.forms import MACAddressField
+from extras.models import Tag
+
+
+def multivalue_field_factory(field_class):
+    """
+    Given a form field class, return a subclass capable of accepting multiple values. This allows us to OR on multiple
+    filter values while maintaining the field's built-in validation. Example: GET /api/dcim/devices/?name=foo&name=bar
+    """
+    class NewField(field_class):
+        widget = forms.SelectMultiple
+
+        def to_python(self, value):
+            if not value:
+                return []
+            return [
+                # Only append non-empty values (this avoids e.g. trying to cast '' as an integer)
+                super(field_class, self).to_python(v) for v in value if v
+            ]
+
+    return type('MultiValue{}'.format(field_class.__name__), (NewField,), dict())
+
+
+#
+# Filters
+#
+
+class MultiValueCharFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(forms.CharField)
+
+
+class MultiValueDateFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(forms.DateField)
+
+
+class MultiValueDateTimeFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(forms.DateTimeField)
+
+
+class MultiValueNumberFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(forms.IntegerField)
+
+
+class MultiValueTimeFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(forms.TimeField)
+
+
+class MACAddressFilter(django_filters.CharFilter):
+    field_class = MACAddressField
+
+
+class MultiValueMACAddressFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(MACAddressField)
 
 
 class TreeNodeMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
@@ -47,6 +101,10 @@ class TagFilter(django_filters.ModelMultipleChoiceFilter):
         super().__init__(*args, **kwargs)
 
 
+#
+# FilterSets
+#
+
 class NameSlugSearchFilterSet(django_filters.FilterSet):
     """
     A base class for adding the search method to models which only expose the `name` and `slug` fields
@@ -60,6 +118,57 @@ class NameSlugSearchFilterSet(django_filters.FilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(name__icontains=value) |
-            Q(slug__icontains=value)
+            models.Q(name__icontains=value) |
+            models.Q(slug__icontains=value)
         )
+
+
+#
+# Update default filters
+#
+
+FILTER_DEFAULTS = django_filters.filterset.FILTER_FOR_DBFIELD_DEFAULTS
+FILTER_DEFAULTS.update({
+    models.AutoField: {
+        'filter_class': MultiValueNumberFilter
+    },
+    models.CharField: {
+        'filter_class': MultiValueCharFilter
+    },
+    models.DateField: {
+        'filter_class': MultiValueDateFilter
+    },
+    models.DateTimeField: {
+        'filter_class': MultiValueDateTimeFilter
+    },
+    models.DecimalField: {
+        'filter_class': MultiValueNumberFilter
+    },
+    models.EmailField: {
+        'filter_class': MultiValueCharFilter
+    },
+    models.FloatField: {
+        'filter_class': MultiValueNumberFilter
+    },
+    models.IntegerField: {
+        'filter_class': MultiValueNumberFilter
+    },
+    models.PositiveIntegerField: {
+        'filter_class': MultiValueNumberFilter
+    },
+    models.PositiveSmallIntegerField: {
+        'filter_class': MultiValueNumberFilter
+    },
+    models.SlugField: {
+        'filter_class': MultiValueCharFilter
+    },
+    models.SmallIntegerField: {
+        'filter_class': MultiValueNumberFilter
+    },
+    models.TimeField: {
+        'filter_class': MultiValueTimeFilter
+    },
+    models.URLField: {
+        'filter_class': MultiValueCharFilter
+    },
+})

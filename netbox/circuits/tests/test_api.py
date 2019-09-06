@@ -61,7 +61,7 @@ class ProviderTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['circuit_count', 'id', 'name', 'slug', 'url']
         )
 
     def test_create_provider(self):
@@ -162,7 +162,7 @@ class CircuitTypeTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['circuit_count', 'id', 'name', 'slug', 'url']
         )
 
     def test_create_circuittype(self):

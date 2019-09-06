@@ -40,10 +40,11 @@ urlpatterns = [
     path(r'circuits/<int:pk>/terminations/swap/', views.circuit_terminations_swap, name='circuit_terminations_swap'),
 
     # Circuit terminations
+
     path(r'circuits/<int:circuit>/terminations/add/', views.CircuitTerminationCreateView.as_view(), name='circuittermination_add'),
     path(r'circuit-terminations/<int:pk>/edit/', views.CircuitTerminationEditView.as_view(), name='circuittermination_edit'),
     path(r'circuit-terminations/<int:pk>/delete/', views.CircuitTerminationDeleteView.as_view(), name='circuittermination_delete'),
-    path(r'circuit-terminations/<int:termination_a_id>/connect/', CableCreateView.as_view(), name='circuittermination_connect', kwargs={'termination_a_type': CircuitTermination}),
+    path(r'circuit-terminations/<int:termination_a_id>/connect/<str:termination_b_type>/', CableCreateView.as_view(), name='circuittermination_connect', kwargs={'termination_a_type': CircuitTermination}),
     path(r'circuit-terminations/<int:pk>/trace/', CableTraceView.as_view(), name='circuittermination_trace', kwargs={'model': CircuitTermination}),
 
 ]

@@ -1,11 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework import status
-from taggit.models import Tag
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Region, Site
 from extras.constants import GRAPH_TYPE_SITE
-from extras.models import ConfigContext, Graph, ExportTemplate
+from extras.models import ConfigContext, Graph, ExportTemplate, Tag
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import APITestCase
 

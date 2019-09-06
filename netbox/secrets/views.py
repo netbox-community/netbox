@@ -1,12 +1,11 @@
 import base64
 
 from django.contrib import messages
-from django.contrib.auth.decorators import permission_required, login_required
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils.decorators import method_decorator
 from django.views.generic import View
 
 from dcim.models import Device
@@ -32,7 +31,8 @@ def get_session_key(request):
 # Secret roles
 #
 
-class SecretRoleListView(ObjectListView):
+class SecretRoleListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'secrets.view_secretrole'
     queryset = SecretRole.objects.annotate(secret_count=Count('secrets'))
     table = tables.SecretRoleTable
     template_name = 'secrets/secretrole_list.html'
@@ -67,17 +67,17 @@ class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Secrets
 #
 
-@method_decorator(login_required, name='dispatch')
-class SecretListView(ObjectListView):
-    queryset = Secret.objects.select_related('role', 'device')
+class SecretListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'secrets.view_secret'
+    queryset = Secret.objects.prefetch_related('role', 'device')
     filter = filters.SecretFilter
     filter_form = forms.SecretFilterForm
     table = tables.SecretTable
     template_name = 'secrets/secret_list.html'
 
 
-@method_decorator(login_required, name='dispatch')
-class SecretView(View):
+class SecretView(PermissionRequiredMixin, View):
+    permission_required = 'secrets.view_secret'
 
     def get(self, request, pk):
 
@@ -198,7 +198,7 @@ class SecretDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 
 class SecretBulkImportView(BulkImportView):
-    permission_required = 'ipam.add_vlan'
+    permission_required = 'secrets.add_secret'
     model_form = forms.SecretCSVForm
     table = tables.SecretTable
     template_name = 'secrets/secret_import.html'
@@ -247,7 +247,7 @@ class SecretBulkImportView(BulkImportView):
 
 class SecretBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'secrets.change_secret'
-    queryset = Secret.objects.select_related('role', 'device')
+    queryset = Secret.objects.prefetch_related('role', 'device')
     filter = filters.SecretFilter
     table = tables.SecretTable
     form = forms.SecretBulkEditForm
@@ -256,7 +256,7 @@ class SecretBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class SecretBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'secrets.delete_secret'
-    queryset = Secret.objects.select_related('role', 'device')
+    queryset = Secret.objects.prefetch_related('role', 'device')
     filter = filters.SecretFilter
     table = tables.SecretTable
     default_return_url = 'secrets:secret_list'
