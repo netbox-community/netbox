@@ -6,6 +6,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from dcim.models import Site
+from extras.constants import OBJECTCHANGE_ACTION_UPDATE
 from extras.models import ConfigContext, ObjectChange, Tag
 from utilities.testing import create_test_user
 
@@ -82,11 +83,10 @@ class ObjectChangeTestCase(TestCase):
 
         # Create three ObjectChanges
         for i in range(1, 4):
-            site.log_change(
-                user=user,
-                request_id=uuid.uuid4(),
-                action=2
-            )
+            oc = site.to_objectchange(action=OBJECTCHANGE_ACTION_UPDATE)
+            oc.user = user
+            oc.request_id = uuid.uuid4()
+            oc.save()
 
     def test_objectchange_list(self):
 

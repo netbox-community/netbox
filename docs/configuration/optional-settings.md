@@ -277,6 +277,14 @@ The file path to the location where custom reports will be kept. By default, thi
 
 ---
 
+## SCRIPTS_ROOT
+
+Default: $BASE_DIR/netbox/scripts/
+
+The file path to the location where custom scripts will be kept. By default, this is the `netbox/scripts/` directory within the base NetBox installation path.
+
+---
+
 ## SESSION_FILE_PATH
 
 Default: None

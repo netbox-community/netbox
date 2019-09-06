@@ -1,0 +1,38 @@
+{% extends '_base.html' %}
+{% load helpers %}
+
+{% block content %}
+    <h1>{% block title %}Scripts{% endblock %}</h1>
+    <div class="row">
+        <div class="col-md-12">
+            {% if scripts %}
+                {% for module, module_scripts in scripts.items %}
+                    <h3><a name="module.{{ module }}"></a>{{ module|bettertitle }}</h3>
+                    <table class="table table-hover table-headings reports">
+                        <thead>
+                            <tr>
+                                <th class="col-md-3">Name</th>
+                                <th class="col-md-9">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for class_name, script in module_scripts.items %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'extras:script' module=module name=class_name %}" name="script.{{ class_name }}"><strong>{{ script }}</strong></a>
+                                    </td>
+                                    <td>{{ script.Meta.description }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info">
+                    <p><strong>No scripts found.</strong></p>
+                    <p>Scripts should be saved to <code>{{ settings.SCRIPTS_ROOT }}</code>. (This path can be changed by setting <code>SCRIPTS_ROOT</code> in NetBox's configuration.)</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

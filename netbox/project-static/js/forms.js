@@ -144,10 +144,12 @@ $(document).ready(function() {
                 // Base query params
                 var parameters = {
                     q: params.term,
-                    brief: 1,
                     limit: 50,
                     offset: offset,
                 };
+
+                // Allow for controlling the brief setting from within APISelect
+                parameters.brief = ( $('#id_untagged_vlan').is('[data-full]') ? undefined : true );
 
                 // filter-for fields from a chain
                 var attr_name = "data-filter-for-" + $(element).attr("name");
@@ -184,7 +186,7 @@ $(document).ready(function() {
                 // Additional query params
                 $.each(element.attributes, function(index, attr){
                     if (attr.name.includes("data-additional-query-param-")){
-                        var param_name = attr.name.split("data-additional-query-param-")[1]
+                        var param_name = attr.name.split("data-additional-query-param-")[1];
                         parameters[param_name] = attr.value;
                     }
                 });
@@ -195,20 +197,45 @@ $(document).ready(function() {
 
             processResults: function (data) {
                 var element = this.$element[0];
-                var results = $.map(data.results, function (obj) {
-                    obj.text = obj[element.getAttribute('display-field')] || obj.name;
-                    obj.id = obj[element.getAttribute('value-field')] || obj.id;
+                $(element).children('option').attr('disabled', false);
+                var results = data.results;
 
-                    if(element.getAttribute('disabled-indicator') && obj[element.getAttribute('disabled-indicator')]) {
+                results = results.reduce((results,record) => {
+                    record.text = record[element.getAttribute('display-field')] || record.name;
+                    record.id = record[element.getAttribute('value-field')] || record.id;
+                    if(element.getAttribute('disabled-indicator') && record[element.getAttribute('disabled-indicator')]) {
                         // The disabled-indicator equated to true, so we disable this option
-                        obj.disabled = true;
+                        record.disabled = true;
                     }
-                    return obj;
-                });
+
+                    if( record.group !== undefined && record.group !== null && record.site !== undefined && record.site !== null ) {
+                        results[record.site.name + ":" + record.group.name] = results[record.site.name + ":" + record.group.name] || { text: record.site.name + " / " + record.group.name, children: [] }
+                        results[record.site.name + ":" + record.group.name].children.push(record);
+                    }
+                    else if( record.group !== undefined && record.group !== null ) {
+                        results[record.group.name] = results[record.group.name] || { text: record.group.name, children: [] }
+                        results[record.group.name].children.push(record);
+                    }
+                    else if( record.site !== undefined && record.site !== null ) {
+                        results[record.site.name] = results[record.site.name] || { text: record.site.name, children: [] }
+                        results[record.site.name].children.push(record);
+                    }
+                    else if ( (record.group !== undefined || record.group == null) && (record.site !== undefined || record.site === null) ) {
+                        results['global'] = results['global'] || { text: 'Global', children: [] }
+                        results['global'].children.push(record);
+                    }
+                    else {
+                        results[record.id] = record
+                    }
+
+                    return results;
+                },Object.create(null));
+
+                results = Object.values(results);
 
                 // Handle the null option, but only add it once
                 if (element.getAttribute('data-null-option') && data.previous === null) {
-                    var null_option = $(element).children()[0]
+                    var null_option = $(element).children()[0];
                     results.unshift({
                         id: null_option.value,
                         text: null_option.text
@@ -299,4 +326,34 @@ $(document).ready(function() {
             $('#id_tags').append(option).trigger('change');
         }
     });
+
+    if( $('select#id_mode').length > 0 ) {
+        $('select#id_mode').on('change', function () {
+            if ($(this).val() == '') {
+                $('select#id_untagged_vlan').val();
+                $('select#id_untagged_vlan').trigger('change');
+                $('select#id_tagged_vlans').val([]);
+                $('select#id_tagged_vlans').trigger('change');
+                $('select#id_untagged_vlan').parent().parent().hide();
+                $('select#id_tagged_vlans').parent().parent().hide();
+            }
+            else if ($(this).val() == 100) {
+                $('select#id_tagged_vlans').val([]);
+                $('select#id_tagged_vlans').trigger('change');
+                $('select#id_untagged_vlan').parent().parent().show();
+                $('select#id_tagged_vlans').parent().parent().hide();
+            }
+            else if ($(this).val() == 200) {
+                $('select#id_untagged_vlan').parent().parent().show();
+                $('select#id_tagged_vlans').parent().parent().show();
+            }
+            else if ($(this).val() == 300) {
+                $('select#id_tagged_vlans').val([]);
+                $('select#id_tagged_vlans').trigger('change');
+                $('select#id_untagged_vlan').parent().parent().show();
+                $('select#id_tagged_vlans').parent().parent().hide();
+            }
+        });
+        $('select#id_mode').trigger('change');
+    }
 });

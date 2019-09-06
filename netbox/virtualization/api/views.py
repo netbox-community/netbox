@@ -40,10 +40,8 @@ class ClusterGroupViewSet(ModelViewSet):
 
 
 class ClusterViewSet(CustomFieldModelViewSet):
-    queryset = Cluster.objects.select_related(
-        'type', 'group', 'site',
-    ).prefetch_related(
-        'tags'
+    queryset = Cluster.objects.prefetch_related(
+        'type', 'group', 'site', 'tags'
     ).annotate(
         device_count=get_subquery(Device, 'cluster'),
         virtualmachine_count=get_subquery(VirtualMachine, 'cluster')
@@ -57,9 +55,9 @@ class ClusterViewSet(CustomFieldModelViewSet):
 #
 
 class VirtualMachineViewSet(CustomFieldModelViewSet):
-    queryset = VirtualMachine.objects.select_related(
-        'cluster__site', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6'
-    ).prefetch_related('tags')
+    queryset = VirtualMachine.objects.prefetch_related(
+        'cluster__site', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'tags'
+    )
     filterset_class = filters.VirtualMachineFilter
 
     def get_serializer_class(self):
@@ -86,7 +84,9 @@ class VirtualMachineViewSet(CustomFieldModelViewSet):
 class InterfaceViewSet(ModelViewSet):
     queryset = Interface.objects.filter(
         virtual_machine__isnull=False
-    ).select_related('virtual_machine').prefetch_related('tags')
+    ).prefetch_related(
+        'virtual_machine', 'tags'
+    )
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filters.InterfaceFilter
 

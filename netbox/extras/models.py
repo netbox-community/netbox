@@ -569,7 +569,7 @@ class TopologyMap(models.Model):
             # Add each device to the graph
             devices = []
             for query in device_set.strip(';').split(';'):  # Split regexes on semicolons
-                devices += Device.objects.filter(name__regex=query).select_related('device_role')
+                devices += Device.objects.filter(name__regex=query).prefetch_related('device_role')
             # Remove duplicate devices
             devices = [d for d in devices if d.id not in seen]
             seen.update([d.id for d in devices])
@@ -607,7 +607,7 @@ class TopologyMap(models.Model):
         from dcim.models import Interface
 
         # Add all interface connections to the graph
-        connected_interfaces = Interface.objects.select_related(
+        connected_interfaces = Interface.objects.prefetch_related(
             '_connected_interface__device'
         ).filter(
             Q(device__in=devices) | Q(_connected_interface__device__in=devices),
@@ -827,6 +827,21 @@ class ConfigContextModel(models.Model):
 
 
 #
+# Custom scripts
+#
+
+class Script(models.Model):
+    """
+    Dummy model used to generate permissions for custom scripts. Does not exist in the database.
+    """
+    class Meta:
+        managed = False
+        permissions = (
+            ('run_script', 'Can run script'),
+        )
+
+
+#
 # Report results
 #
 
@@ -867,7 +882,8 @@ class ObjectChange(models.Model):
     """
     time = models.DateTimeField(
         auto_now_add=True,
-        editable=False
+        editable=False,
+        db_index=True
     )
     user = models.ForeignKey(
         to=User,
@@ -938,8 +954,10 @@ class ObjectChange(models.Model):
     def save(self, *args, **kwargs):
 
         # Record the user's name and the object's representation as static strings
-        self.user_name = self.user.username
-        self.object_repr = str(self.changed_object)
+        if not self.user_name:
+            self.user_name = self.user.username
+        if not self.object_repr:
+            self.object_repr = str(self.changed_object)
 
         return super().save(*args, **kwargs)
 
