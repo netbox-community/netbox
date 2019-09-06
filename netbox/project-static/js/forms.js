@@ -47,9 +47,10 @@ $(document).ready(function() {
     });
     if (slug_field) {
         var slug_source = $('#id_' + slug_field.attr('slug-source'));
+        var slug_length = slug_field.attr('maxlength');
         slug_source.on('keyup change', function() {
             if (slug_field && !slug_field.attr('_changed')) {
-                slug_field.val(slugify($(this).val(), 50));
+                slug_field.val(slugify($(this).val(), (slug_length ? slug_length : 50)));
             }
         })
     }
