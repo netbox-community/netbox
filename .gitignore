@@ -3,6 +3,8 @@
 /netbox/netbox/ldap_config.py
 /netbox/reports/*
 !/netbox/reports/__init__.py
+/netbox/scripts/*
+!/netbox/scripts/__init__.py
 /netbox/static
 .idea
 /*.sh
@@ -15,3 +17,4 @@ netbox.log
 netbox.pid
 .DS_Store
 .vscode
+.coverage

@@ -3,7 +3,7 @@ from django.contrib import admin
 
 from netbox.admin import admin_site
 from utilities.forms import LaxURLField
-from .models import CustomField, CustomFieldChoice, CustomLink, Graph, ExportTemplate, TopologyMap, Webhook
+from .models import CustomField, CustomFieldChoice, CustomLink, Graph, ExportTemplate, Webhook
 
 
 def order_content_types(field):
@@ -137,15 +137,3 @@ class ExportTemplateForm(forms.ModelForm):
 class ExportTemplateAdmin(admin.ModelAdmin):
     list_display = ['name', 'content_type', 'description', 'mime_type', 'file_extension']
     form = ExportTemplateForm
-
-
-#
-# Topology maps
-#
-
-@admin.register(TopologyMap, site=admin_site)
-class TopologyMapAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug', 'site']
-    prepopulated_fields = {
-        'slug': ['name'],
-    }

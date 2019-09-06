@@ -10,8 +10,7 @@ from dcim.api.nested_serializers import (
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
 from extras.constants import *
 from extras.models import (
-    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
-    Tag
+    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, Tag,
 )
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
@@ -67,18 +66,6 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
             'id', 'content_type', 'name', 'description', 'template_language', 'template_code', 'mime_type',
             'file_extension',
         ]
-
-
-#
-# Topology maps
-#
-
-class TopologyMapSerializer(ValidatedModelSerializer):
-    site = NestedSiteSerializer()
-
-    class Meta:
-        model = TopologyMap
-        fields = ['id', 'name', 'slug', 'site', 'device_patterns', 'description']
 
 
 #

@@ -376,7 +376,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             for family in [4, 6]:
                 ip_choices = [(None, '---------')]
                 # Collect interface IPs
-                interface_ips = IPAddress.objects.select_related('interface').filter(
+                interface_ips = IPAddress.objects.prefetch_related('interface').filter(
                     family=family, interface__virtual_machine=self.instance
                 )
                 if interface_ips:
@@ -386,7 +386,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
                         ])
                     )
                 # Collect NAT IPs
-                nat_ips = IPAddress.objects.select_related('nat_inside').filter(
+                nat_ips = IPAddress.objects.prefetch_related('nat_inside').filter(
                     family=family, nat_inside__interface__virtual_machine=self.instance
                 )
                 if nat_ips:
@@ -525,7 +525,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
     model = VirtualMachine
     field_order = [
         'q', 'cluster_group', 'cluster_type', 'cluster_id', 'status', 'role', 'region', 'site', 'tenant_group',
-        'tenant', 'platform',
+        'tenant', 'platform', 'mac_address',
     ]
     q = forms.CharField(
         required=False,
@@ -605,6 +605,10 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
             value_field="slug",
             null_option=True,
         )
+    )
+    mac_address = forms.CharField(
+        required=False,
+        label='MAC address'
     )
 
 
