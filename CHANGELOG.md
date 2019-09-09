@@ -7,6 +7,10 @@ v2.6.4 (FUTURE)
 * [#3318](https://github.com/netbox-community/netbox/issues/3318) - Increase length of platform name and slug to 64 characters
 * [#3341](https://github.com/netbox-community/netbox/issues/3341) - Add Inline Vlan Editing
 
+## Bug Fixes
+
+* [#3489](https://github.com/netbox-community/netbox/issues/3489) - Prevent exception triggered by webhook upon object deletion
+
 v2.6.3 (2019-09-04)
 
 ## New Features
