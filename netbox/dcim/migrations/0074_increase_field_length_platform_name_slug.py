@@ -13,11 +13,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='platform',
             name='name',
-            field=models.CharField(max_length=64, unique=True),
+            field=models.CharField(max_length=100, unique=True),
         ),
         migrations.AlterField(
             model_name='platform',
             name='slug',
-            field=models.SlugField(max_length=64, unique=True),
+            field=models.SlugField(max_length=100, unique=True),
         ),
     ]
