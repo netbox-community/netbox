@@ -75,7 +75,7 @@ $(document).ready(function() {
         var rendered_url = url;
         var filter_field;
         while (match = filter_regex.exec(url)) {
-            filter_field = $('#id_' + match[1]);
+            filter_field = $('#id_' + match[1]);untagged
             var custom_attr = $('option:selected', filter_field).attr('api-value');
             if (custom_attr) {
                 rendered_url = rendered_url.replace(match[0], custom_attr);
@@ -149,7 +149,7 @@ $(document).ready(function() {
                 };
 
                 // Allow for controlling the brief setting from within APISelect
-                parameters.brief = ( $('#id_untagged_vlan').is('[data-full]') ? undefined : true );
+                parameters.brief = ( $(element).is('[data-full]') ? undefined : true );
 
                 // filter-for fields from a chain
                 var attr_name = "data-filter-for-" + $(element).attr("name");
