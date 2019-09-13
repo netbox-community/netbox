@@ -61,7 +61,8 @@ class ScriptVariable:
         Render the variable as a Django form field.
         """
         form_field = self.form_field(**self.field_attrs)
-        form_field.widget.attrs['class'] = 'form-control'
+        if not isinstance(form_field.widget, forms.CheckboxInput):
+            form_field.widget.attrs['class'] = 'form-control'
 
         return form_field
 
