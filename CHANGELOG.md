@@ -6,6 +6,7 @@ v2.6.4 (FUTURE)
 * [#3027](https://github.com/netbox-community/netbox/issues/3028) - Add `local_context_data` boolean filter for devices
 * [#3318](https://github.com/netbox-community/netbox/issues/3318) - Increase length of platform name and slug to 100 characters
 * [#3341](https://github.com/netbox-community/netbox/issues/3341) - Enable inline VLAN assignment while editing an interface
+* [#3510](https://github.com/netbox-community/netbox/issues/3510) - Add minimum/maximum prefix length enforcement for `IPNetworkVar`
 
 ## Bug Fixes
 

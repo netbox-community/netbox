@@ -16,6 +16,7 @@ from mptt.models import MPTTModel
 
 from ipam.formfields import IPFormField
 from utilities.exceptions import AbortTransaction
+from utilities.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
 from .forms import ScriptForm
 from .signals import purge_changelog
@@ -161,6 +162,21 @@ class IPNetworkVar(ScriptVariable):
     An IPv4 or IPv6 prefix.
     """
     form_field = IPFormField
+
+    def __init__(self, min_prefix_length=None, max_prefix_length=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.field_attrs['validators'] = list()
+
+        # Optional minimum/maximum prefix lengths
+        if min_prefix_length is not None:
+            self.field_attrs['validators'].append(
+                MinPrefixLengthValidator(min_prefix_length)
+            )
+        if max_prefix_length is not None:
+            self.field_attrs['validators'].append(
+                MaxPrefixLengthValidator(max_prefix_length)
+            )
 
 
 #
