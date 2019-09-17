@@ -2330,7 +2330,6 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
         self.fields['tagged_vlans'].choices = vlan_choices
 
 
-
 class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Interface.objects.all(),
