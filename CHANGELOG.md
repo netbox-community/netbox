@@ -14,6 +14,7 @@ v2.6.4 (FUTURE)
 * [#3501](https://github.com/netbox-community/netbox/issues/3501) - Fix rendering of checkboxes on custom script forms
 * [#3511](https://github.com/netbox-community/netbox/issues/3511) - Correct API URL for nested device bays
 * [#3513](https://github.com/netbox-community/netbox/issues/3513) - Fix assignment of tags when creating front/rear ports
+* [#3514](https://github.com/netbox-community/netbox/issues/3514) - Label TextVar fields when rendering custom script forms
 
 v2.6.3 (2019-09-04)
 

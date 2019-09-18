@@ -809,6 +809,7 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
     slug = SlugField(
         slug_source='model'
     )
+    comments = CommentField()
     tags = TagField(
         required=False
     )
@@ -1358,7 +1359,10 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     )
     comments = CommentField()
     tags = TagField(required=False)
-    local_context_data = JSONField(required=False)
+    local_context_data = JSONField(
+        required=False,
+        label=''
+    )
 
     class Meta:
         model = Device

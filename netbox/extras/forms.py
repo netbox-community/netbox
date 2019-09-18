@@ -241,7 +241,9 @@ class TagBulkEditForm(BootstrapMixin, BulkEditForm):
 #
 
 class ConfigContextForm(BootstrapMixin, forms.ModelForm):
-    data = JSONField()
+    data = JSONField(
+        label=''
+    )
 
     class Meta:
         model = ConfigContext

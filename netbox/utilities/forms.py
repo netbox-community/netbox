@@ -384,7 +384,7 @@ class CSVDataField(forms.CharField):
 
         self.strip = False
         if not self.label:
-            self.label = 'CSV Data'
+            self.label = ''
         if not self.initial:
             self.initial = ','.join(required_fields) + '\n'
         if not self.help_text:
@@ -484,7 +484,7 @@ class CommentField(forms.CharField):
     A textarea with support for GitHub-Flavored Markdown. Exists mostly just to add a standard help_text.
     """
     widget = forms.Textarea
-    default_label = 'Comments'
+    default_label = ''
     # TODO: Port GFM syntax cheat sheet to internal documentation
     default_helptext = '<i class="fa fa-info-circle"></i> '\
                        '<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">'\
