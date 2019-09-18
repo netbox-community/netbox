@@ -1,5 +1,3 @@
-NetBox v2.0 and later includes a full-featured REST API that allows its data model to be read and manipulated externally.
-
 # What is a REST API?
 
 REST stands for [representational state transfer](https://en.wikipedia.org/wiki/Representational_state_transfer). It's a particular type of API which employs HTTP to create, retrieve, update, and delete objects from a database. (This set of operations is commonly referred to as CRUD.) Each type of operation is associated with a particular HTTP verb:
@@ -33,6 +31,10 @@ $ curl -s http://localhost:8000/api/ipam/ip-addresses/2954/ | jq '.'
 ```
 
 Each attribute of the NetBox object is expressed as a field in the dictionary. Fields may include their own nested objects, as in the case of the `status` field above. Every object includes a primary key named `id` which uniquely identifies it in the database.
+
+# Interactive Documentation
+
+Comprehensive, interactive documentation of all API endpoints is available on a running NetBox instance at `/api/docs/`. This interface provides a convenient sandbox for researching and experimenting with NetBox's various API endpoints and different request types.
 
 # URL Hierarchy
 
