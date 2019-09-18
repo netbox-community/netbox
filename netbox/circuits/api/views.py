@@ -35,7 +35,7 @@ class ProviderViewSet(CustomFieldModelViewSet):
     filterset_class = filters.ProviderFilter
 
     @action(detail=True)
-    def graphs(self, request, pk=None):
+    def graphs(self, request, pk):
         """
         A convenience method for rendering graphs for a particular provider.
         """
