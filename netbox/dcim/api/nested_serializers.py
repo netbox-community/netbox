@@ -228,7 +228,7 @@ class NestedFrontPortSerializer(WritableNestedSerializer):
 
 
 class NestedDeviceBaySerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rearport-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicebay-detail')
     device = NestedDeviceSerializer(read_only=True)
 
     class Meta:
