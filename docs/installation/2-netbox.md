@@ -101,9 +101,10 @@ Move into the NetBox configuration directory and make a copy of `configuration.e
 
 Open `configuration.py` with your preferred editor and set the following variables:
 
-* ALLOWED_HOSTS
-* DATABASE
-* SECRET_KEY
+* `ALLOWED_HOSTS`
+* `DATABASE`
+* `REDIS`
+* `SECRET_KEY`
 
 ## ALLOWED_HOSTS
 
@@ -117,7 +118,7 @@ ALLOWED_HOSTS = ['netbox.example.com', '192.0.2.123']
 
 ## DATABASE
 
-This parameter holds the database configuration details. You must define the username and password used when you configured PostgreSQL. If the service is running on a remote host, replace `localhost` with its address.
+This parameter holds the database configuration details. You must define the username and password used when you configured PostgreSQL. If the service is running on a remote host, replace `localhost` with its address. See the [configuration documentation](../configuration/required-settings/#database) for more detail on individual parameters.
 
 Example:
 
@@ -131,6 +132,22 @@ DATABASE = {
 }
 ```
 
+## REDIS
+
+Redis is a in-memory key-value store required as part of the NetBox installation. It is used for features such as webhooks and caching. Redis typically requires minimal configuration; the values below should suffice for most installations. See the [configuration documentation](../configuration/required-settings/#redis) for more detail on individual parameters.
+
+```python
+REDIS = {
+    'HOST': 'localhost',
+    'PORT': 6379,
+    'PASSWORD': '',
+    'DATABASE': 0,
+    'CACHE_DATABASE': 1,
+    'DEFAULT_TIMEOUT': 300,
+    'SSL': False,
+}
+```
+
 ## SECRET_KEY
 
 Generate a random secret key of at least 50 alphanumeric characters. This key must be unique to this installation and must not be shared outside the local system.
@@ -139,21 +156,6 @@ You may use the script located at `netbox/generate_secret_key.py` to generate a 
 
 !!! note
     In the case of a highly available installation with multiple web servers, `SECRET_KEY` must be identical among all servers in order to maintain a persistent user session state.
-
-## Webhooks Configuration
-
-If you have opted to enable the webhooks, set `WEBHOOKS_ENABLED = True` and define the relevant `REDIS` database parameters. Below is an example:
-
-```python
-WEBHOOKS_ENABLED = True
-REDIS = {
-    'HOST': 'localhost',
-    'PORT': 6379,
-    'PASSWORD': '',
-    'DATABASE': 0,
-    'DEFAULT_TIMEOUT': 300,
-}
-```
 
 # Run Database Migrations
 
