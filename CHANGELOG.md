@@ -1,3 +1,22 @@
+v2.6.4 (2019-09-19)
+
+## Enhancements
+
+* [#2160](https://github.com/netbox-community/netbox/issues/2160) - Add bulk editing for interface VLAN assignment
+* [#3027](https://github.com/netbox-community/netbox/issues/3028) - Add `local_context_data` boolean filter for devices
+* [#3318](https://github.com/netbox-community/netbox/issues/3318) - Increase length of platform name and slug to 100 characters
+* [#3341](https://github.com/netbox-community/netbox/issues/3341) - Enable inline VLAN assignment while editing an interface
+* [#3485](https://github.com/netbox-community/netbox/issues/3485) - Enable embedded graphs for devices
+* [#3510](https://github.com/netbox-community/netbox/issues/3510) - Add minimum/maximum prefix length enforcement for `IPNetworkVar`
+
+## Bug Fixes
+
+* [#3489](https://github.com/netbox-community/netbox/issues/3489) - Prevent exception triggered by webhook upon object deletion
+* [#3501](https://github.com/netbox-community/netbox/issues/3501) - Fix rendering of checkboxes on custom script forms
+* [#3511](https://github.com/netbox-community/netbox/issues/3511) - Correct API URL for nested device bays
+* [#3513](https://github.com/netbox-community/netbox/issues/3513) - Fix assignment of tags when creating front/rear ports
+* [#3514](https://github.com/netbox-community/netbox/issues/3514) - Label TextVar fields when rendering custom script forms
+
 v2.6.3 (2019-09-04)
 
 ## New Features
@@ -8,15 +27,6 @@ Custom scripts allow for the execution of arbitrary code via the NetBox UI. They
 
 Note: There are currently no API endpoints for this feature. These are planned for the upcoming v2.7 release.
 
-## Bug Fixes
-
-* [#3392](https://github.com/netbox-community/netbox/issues/3392) - Add database index for ObjectChange time
-* [#3420](https://github.com/netbox-community/netbox/issues/3420) - Serial number filter for racks, devices, and inventory items is now case-insensitive
-* [#3428](https://github.com/netbox-community/netbox/issues/3428) - Fixed cache invalidation issues ([#3300](https://github.com/netbox-community/netbox/issues/3300), [#3363](https://github.com/netbox-community/netbox/issues/3363), [#3379](https://github.com/netbox-community/netbox/issues/3379), [#3382](https://github.com/netbox-community/netbox/issues/3382)) by switching to `prefetch_related()` instead of `select_related()` and removing use of `update()`
-* [#3421](https://github.com/netbox-community/netbox/issues/3421) - Fix exception when ordering power connections list by PDU
-* [#3424](https://github.com/netbox-community/netbox/issues/3424) - Fix tag coloring for non-linked tags
-* [#3426](https://github.com/netbox-community/netbox/issues/3426) - Improve API error handling for ChoiceFields
-
 ## Enhancements
 
 * [#3386](https://github.com/netbox-community/netbox/issues/3386) - Add `mac_address` filter for virtual machines
@@ -26,6 +36,15 @@ Note: There are currently no API endpoints for this feature. These are planned f
 * [#3430](https://github.com/netbox-community/netbox/issues/3430) - Linkify platform field on device view
 * [#3454](https://github.com/netbox-community/netbox/issues/3454) - Enable filtering circuits by region
 * [#3456](https://github.com/netbox-community/netbox/issues/3456) - Enable bulk editing of tag color
+
+## Bug Fixes
+
+* [#3392](https://github.com/netbox-community/netbox/issues/3392) - Add database index for ObjectChange time
+* [#3420](https://github.com/netbox-community/netbox/issues/3420) - Serial number filter for racks, devices, and inventory items is now case-insensitive
+* [#3428](https://github.com/netbox-community/netbox/issues/3428) - Fixed cache invalidation issues ([#3300](https://github.com/netbox-community/netbox/issues/3300), [#3363](https://github.com/netbox-community/netbox/issues/3363), [#3379](https://github.com/netbox-community/netbox/issues/3379), [#3382](https://github.com/netbox-community/netbox/issues/3382)) by switching to `prefetch_related()` instead of `select_related()` and removing use of `update()`
+* [#3421](https://github.com/netbox-community/netbox/issues/3421) - Fix exception when ordering power connections list by PDU
+* [#3424](https://github.com/netbox-community/netbox/issues/3424) - Fix tag coloring for non-linked tags
+* [#3426](https://github.com/netbox-community/netbox/issues/3426) - Improve API error handling for ChoiceFields
 
 ---
 

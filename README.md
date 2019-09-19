@@ -43,15 +43,4 @@ and run `upgrade.sh`.
 
 # Related projects
 
-## Supported SDK
-
-- [pynetbox](https://github.com/digitalocean/pynetbox) - A Python API client library for Netbox
-
-## Community SDK
-
-- [netbox-client-ruby](https://github.com/ninech/netbox-client-ruby) - A Ruby client library for Netbox
-- [powerbox](https://github.com/BatmanAMA/powerbox) - A PowerShell library for Netbox
-
-## Ansible Inventory
-
-- [netbox-as-ansible-inventory](https://github.com/AAbouZaid/netbox-as-ansible-inventory) - Ansible dynamic inventory script for Netbox
+Please see [our wiki](https://github.com/netbox-community/netbox/wiki/Community-Contributions) for a list of relevant community projects.

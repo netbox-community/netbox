@@ -24,7 +24,7 @@
                 </ul>
             {% endif %}
         </div>
-    {% elif field|widget_type == 'textarea' %}
+    {% elif field|widget_type == 'textarea' and not field.label %}
         <div class="col-md-12">
             {{ field }}
             {% if bulk_nullable %}
