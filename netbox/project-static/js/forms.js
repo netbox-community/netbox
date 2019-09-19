@@ -75,7 +75,7 @@ $(document).ready(function() {
         var rendered_url = url;
         var filter_field;
         while (match = filter_regex.exec(url)) {
-            filter_field = $('#id_' + match[1]);untagged
+            filter_field = $('#id_' + match[1]);
             var custom_attr = $('option:selected', filter_field).attr('api-value');
             if (custom_attr) {
                 rendered_url = rendered_url.replace(match[0], custom_attr);
