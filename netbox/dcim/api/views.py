@@ -23,7 +23,8 @@ from dcim.models import (
 )
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
-from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
+from extras.constants import GRAPH_TYPE_DEVICE, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
+from extras.models import Graph
 from ipam.models import Prefix, VLAN
 from utilities.api import (
     get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, FieldChoicesViewSet, ModelViewSet, ServiceUnavailable,
@@ -123,7 +124,7 @@ class SiteViewSet(CustomFieldModelViewSet):
     filterset_class = filters.SiteFilter
 
     @action(detail=True)
-    def graphs(self, request, pk=None):
+    def graphs(self, request, pk):
         """
         A convenience method for rendering graphs for a particular site.
         """
@@ -346,6 +347,17 @@ class DeviceViewSet(CustomFieldModelViewSet):
 
         return serializers.DeviceWithConfigContextSerializer
 
+    @action(detail=True)
+    def graphs(self, request, pk):
+        """
+        A convenience method for rendering graphs for a particular Device.
+        """
+        device = get_object_or_404(Device, pk=pk)
+        queryset = Graph.objects.filter(type=GRAPH_TYPE_DEVICE)
+        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': device})
+
+        return Response(serializer.data)
+
     @action(detail=True, url_path='napalm')
     def napalm(self, request, pk):
         """
@@ -458,7 +470,7 @@ class InterfaceViewSet(CableTraceMixin, ModelViewSet):
     filterset_class = filters.InterfaceFilter
 
     @action(detail=True)
-    def graphs(self, request, pk=None):
+    def graphs(self, request, pk):
         """
         A convenience method for rendering graphs for a particular interface.
         """

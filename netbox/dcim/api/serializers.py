@@ -476,7 +476,7 @@ class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
         return super().validate(data)
 
 
-class RearPortSerializer(ValidatedModelSerializer):
+class RearPortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=PORT_TYPE_CHOICES)
     cable = NestedCableSerializer(read_only=True)
@@ -498,7 +498,7 @@ class FrontPortRearPortSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'name']
 
 
-class FrontPortSerializer(ValidatedModelSerializer):
+class FrontPortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=PORT_TYPE_CHOICES)
     rear_port = FrontPortRearPortSerializer()

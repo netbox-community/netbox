@@ -24,10 +24,18 @@ Only links which render with non-empty text are included on the page. You can em
 For example, if you only want to display a link for active devices, you could set the link text to
 
 ```
-{% if device.status == 1 %}View NMS{% endif %}
+{% if obj.status == 1 %}View NMS{% endif %}
 ```
 
 The link will not appear when viewing a device with any status other than "active."
+
+Another example, if you want to only show an object of a certain manufacturer, you could set the link text to:
+
+```
+{% if obj.device_type.manufacturer.name == 'Cisco' %}View NMS {% endif %}
+```
+
+The link will only appear when viewing a device with a manufacturer name of "Cisco."
 
 ## Link Groups
 

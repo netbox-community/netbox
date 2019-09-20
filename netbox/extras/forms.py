@@ -11,7 +11,8 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.constants import COLOR_CHOICES
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
-    CommentField, ContentTypeSelect, FilterChoiceField, LaxURLField, JSONField, SlugField,
+    CommentField, ContentTypeSelect, FilterChoiceField, LaxURLField, JSONField, SlugField, StaticSelect2,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from .constants import (
     CF_FILTER_DISABLED, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL,
@@ -240,7 +241,9 @@ class TagBulkEditForm(BootstrapMixin, BulkEditForm):
 #
 
 class ConfigContextForm(BootstrapMixin, forms.ModelForm):
-    data = JSONField()
+    data = JSONField(
+        label=''
+    )
 
     class Meta:
         model = ConfigContext
@@ -345,6 +348,20 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenants/",
             value_field="slug",
+        )
+    )
+
+
+#
+# Filter form for local config context data
+#
+
+class LocalConfigContextFilterForm(forms.Form):
+    local_context_data = forms.NullBooleanField(
+        required=False,
+        label='Has local config context data',
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
 
