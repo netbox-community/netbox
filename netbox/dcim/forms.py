@@ -919,6 +919,11 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
 
 
 class FrontPortTemplateImportForm(ComponentTemplateImportForm):
+    power_port = forms.ModelChoiceField(
+        queryset=RearPortTemplate.objects.all(),
+        to_field_name='name',
+        required=False
+    )
 
     class Meta:
         model = FrontPortTemplate

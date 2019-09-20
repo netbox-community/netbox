@@ -437,7 +437,9 @@ class ObjectImportView(GetReturnURLMixin, View):
                 with transaction.atomic():
                     obj = model_form.save()
 
-                messages.success(request, "Imported object: {}".format(obj))
+                messages.success(request, mark_safe('Imported object: <a href="{}">{}</a>'.format(
+                    obj.get_absolute_url(), obj
+                )))
                 return redirect(self.get_return_url(request))
 
             else:
