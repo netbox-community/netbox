@@ -966,12 +966,12 @@ class DeviceTypeImportForm(forms.ModelForm):
         form=InterfaceTemplateImportForm,
         required=False
     )
-    front_ports = MultiObjectField(
-        form=FrontPortTemplateImportForm,
-        required=False
-    )
     rear_ports = MultiObjectField(
         form=RearPortTemplateImportForm,
+        required=False
+    )
+    front_ports = MultiObjectField(
+        form=FrontPortTemplateImportForm,
         required=False
     )
 
@@ -994,7 +994,6 @@ class DeviceTypeImportForm(forms.ModelForm):
                         data.update({
                             'device_type': instance.pk
                         })
-                        print(data)
                         form = field.form(data)
                         if form.is_valid():
                             form.save()
