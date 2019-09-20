@@ -17,7 +17,8 @@ from django.utils.text import slugify
 from django.views.generic import View
 
 from circuits.models import Circuit
-from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
+from extras.constants import GRAPH_TYPE_DEVICE, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
+from extras.models import Graph, TopologyMap
 from extras.views import ObjectConfigContextView
 from ipam.models import Prefix, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
@@ -980,9 +981,6 @@ class DeviceView(PermissionRequiredMixin, View):
             'rack', 'device_type__manufacturer'
         )[:10]
 
-        # Show graph button on interfaces only if at least one graph has been created.
-        show_graphs = Graph.objects.filter(type=GRAPH_TYPE_INTERFACE).exists()
-
         return render(request, 'dcim/device.html', {
             'device': device,
             'console_ports': console_ports,
@@ -997,7 +995,8 @@ class DeviceView(PermissionRequiredMixin, View):
             'secrets': secrets,
             'vc_members': vc_members,
             'related_devices': related_devices,
-            'show_graphs': show_graphs,
+            'show_graphs': Graph.objects.filter(type=GRAPH_TYPE_DEVICE).exists(),
+            'show_interface_graphs': Graph.objects.filter(type=GRAPH_TYPE_INTERFACE).exists(),
         })
 
 
@@ -1354,12 +1353,6 @@ class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
     model = Interface
     model_form = forms.InterfaceForm
     template_name = 'dcim/interface_edit.html'
-
-
-class InterfaceAssignVLANsView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_interface'
-    model = Interface
-    model_form = forms.InterfaceAssignVLANsForm
 
 
 class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):

@@ -79,9 +79,7 @@ class ClusterGroupCSVForm(forms.ModelForm):
 #
 
 class ClusterForm(BootstrapMixin, CustomFieldForm):
-    comments = CommentField(
-        widget=SmallTextarea()
-    )
+    comments = CommentField()
     tags = TagField(
         required=False
     )
@@ -331,7 +329,8 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         required=False
     )
     local_context_data = JSONField(
-        required=False
+        required=False,
+        label=''
     )
 
     class Meta:

@@ -210,7 +210,6 @@ urlpatterns = [
     path(r'interfaces/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='interface_connect', kwargs={'termination_a_type': Interface}),
     path(r'interfaces/<int:pk>/', views.InterfaceView.as_view(), name='interface'),
     path(r'interfaces/<int:pk>/edit/', views.InterfaceEditView.as_view(), name='interface_edit'),
-    path(r'interfaces/<int:pk>/assign-vlans/', views.InterfaceAssignVLANsView.as_view(), name='interface_assign_vlans'),
     path(r'interfaces/<int:pk>/delete/', views.InterfaceDeleteView.as_view(), name='interface_delete'),
     path(r'interfaces/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='interface_changelog', kwargs={'model': Interface}),
     path(r'interfaces/<int:pk>/trace/', views.CableTraceView.as_view(), name='interface_trace', kwargs={'model': Interface}),

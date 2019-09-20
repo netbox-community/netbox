@@ -14,6 +14,8 @@
             {% render_field form.mgmt_only %}
             {% render_field form.description %}
             {% render_field form.mode %}
+            {% render_field form.untagged_vlan %}
+            {% render_field form.tagged_vlans %}
         </div>
     </div>
     <div class="panel panel-default">
@@ -21,21 +23,6 @@
         <div class="panel-body">
             {% render_field form.tags %}
         </div>
-    </div>
-    <div class="panel panel-default" id="vlans_panel">
-        <div class="panel-heading"><strong>802.1Q VLANs</strong></div>
-        {% if obj.mode %}
-            {% include 'dcim/inc/interface_vlans_table.html' %}
-            <div class="panel-footer text-right">
-                <a href="{% url 'dcim:interface_assign_vlans' pk=obj.pk %}?return_url={% url 'dcim:interface_edit' pk=obj.pk %}" class="btn btn-primary btn-xs{% if form.instance.mode == 100 and form.instance.untagged_vlan %} disabled{% endif %}">
-                    <i class="glyphicon glyphicon-plus"></i> Add VLANs
-                </a>
-            </div>
-        {% else %}
-            <div class="panel-body text-center text-muted">
-                <p>802.1Q mode not set</p>
-            </div>
-        {% endif %}
     </div>
 {% endblock %}
 
@@ -48,19 +35,4 @@
         <button type="submit" name="_addanother" class="btn btn-primary">Create and Add Another</button>
     {% endif %}
     <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
-{% endblock %}
-
-{% block javascript %}
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('#clear_untagged_vlan').click(function () {
-                $('input[name="untagged_vlan"]').prop("checked", false);
-                return false;
-            });
-            $('#clear_tagged_vlans').click(function () {
-                $('input[name="tagged_vlans"]').prop("checked", false);
-                return false;
-            });
-        });
-    </script>
 {% endblock %}

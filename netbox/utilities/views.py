@@ -9,6 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import Count, ProtectedError
+from django.db.models.query import QuerySet
 from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
 from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
@@ -433,8 +434,8 @@ class ObjectImportView(GetReturnURLMixin, View):
 
             if model_form.is_valid():
 
-                obj = model_form.save(commit=False)
-                # assert False, model_form.cleaned_data['interfaces']
+                with transaction.atomic():
+                    obj = model_form.save()
 
                 messages.success(request, "Imported object: {}".format(obj))
                 return redirect(self.get_return_url(request))
@@ -588,9 +589,13 @@ class BulkEditView(GetReturnURLMixin, View):
 
                             # Update standard fields. If a field is listed in _nullify, delete its value.
                             for name in standard_fields:
-                                if name in form.nullable_fields and name in nullified_fields:
+                                if name in form.nullable_fields and name in nullified_fields and isinstance(form.cleaned_data[name], QuerySet):
+                                    getattr(obj, name).set([])
+                                elif name in form.nullable_fields and name in nullified_fields:
                                     setattr(obj, name, '' if isinstance(form.fields[name], CharField) else None)
-                                elif form.cleaned_data[name] not in (None, ''):
+                                elif isinstance(form.cleaned_data[name], QuerySet) and form.cleaned_data[name]:
+                                    getattr(obj, name).set(form.cleaned_data[name])
+                                elif form.cleaned_data[name] not in (None, '') and not isinstance(form.cleaned_data[name], QuerySet):
                                     setattr(obj, name, form.cleaned_data[name])
                             obj.full_clean()
                             obj.save()

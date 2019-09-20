@@ -199,6 +199,9 @@ class UserKeyForm(BootstrapMixin, forms.ModelForm):
             'public_key': "Enter your public RSA key. Keep the private one with you; you'll need it for decryption. "
                           "Please note that passphrase-protected keys are not supported.",
         }
+        labels = {
+            'public_key': ''
+        }
 
     def clean_public_key(self):
         key = self.cleaned_data['public_key']

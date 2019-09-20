@@ -1385,11 +1385,12 @@ class Platform(ChangeLoggedModel):
     specifying a NAPALM driver.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
-        unique=True
+        unique=True,
+        max_length=100
     )
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',
