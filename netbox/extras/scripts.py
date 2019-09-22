@@ -201,13 +201,13 @@ class BaseScript:
         self.source = inspect.getsource(self.__class__)
 
     def __str__(self):
-        return getattr(self.Meta, 'name', self.__class__.__name__)
+        return getattr(self, 'name', self.__class__.__name__)
 
     def _get_vars(self):
         vars = OrderedDict()
 
-        # Infer order from Meta.field_order (Python 3.5 and lower)
-        field_order = getattr(self.Meta, 'field_order', [])
+        # Infer order from self.field_order (Python 3.5 and lower)
+        field_order = getattr(self, 'field_order', [])
         for name in field_order:
             vars[name] = getattr(self, name)
 
