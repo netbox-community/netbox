@@ -1,3 +1,9 @@
+v2.6.5 (FUTURE)
+
+## Bug Fixes
+
+* [#3521](https://github.com/netbox-community/netbox/issues/3521) -  Fixed error in parseURL related to {{variables}} in API url
+
 v2.6.4 (2019-09-19)
 
 ## Enhancements
