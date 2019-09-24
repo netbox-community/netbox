@@ -440,7 +440,15 @@ class ObjectImportView(GetReturnURLMixin, View):
                 messages.success(request, mark_safe('Imported object: <a href="{}">{}</a>'.format(
                     obj.get_absolute_url(), obj
                 )))
-                return redirect(self.get_return_url(request))
+
+                if '_addanother' in request.POST:
+                    return redirect(request.get_full_path())
+
+                return_url = form.cleaned_data.get('return_url')
+                if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
+                    return redirect(return_url)
+                else:
+                    return redirect(self.get_return_url(request, obj))
 
             else:
                 # Replicate model form errors for display

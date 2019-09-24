@@ -941,7 +941,7 @@ class RearPortTemplateImportForm(ComponentTemplateImportForm):
         ]
 
 
-class DeviceTypeImportForm(forms.ModelForm):
+class DeviceTypeImportForm(BootstrapMixin, forms.ModelForm):
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='name'

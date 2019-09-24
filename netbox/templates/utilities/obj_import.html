@@ -15,12 +15,13 @@
                 </div>
             </div>
         {% endif %}
-		<form action="" method="post" class="form">
+		<form action="" method="post" class="form form-horizontal">
 		    {% csrf_token %}
 		    {% render_form form %}
             <div class="form-group">
                 <div class="col-md-12 text-right">
-		            <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" name="_create" class="btn btn-primary">Submit</button>
+                    <button type="submit" name="_addanother" class="btn btn-primary">Submit and Import Another</button>
 		            {% if return_url %}
                         <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
                     {% endif %}
