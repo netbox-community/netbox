@@ -848,7 +848,7 @@ class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = ConsolePortTemplate
         fields = [
-            'device_type', 'name',
+            'name',
         ]
 
 
@@ -857,7 +857,7 @@ class ConsoleServerPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
-            'device_type', 'name',
+            'name',
         ]
 
 
@@ -866,7 +866,7 @@ class PowerPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = PowerPortTemplate
         fields = [
-            'device_type', 'name', 'maximum_draw', 'allocated_draw',
+            'name', 'maximum_draw', 'allocated_draw',
         ]
 
 
@@ -880,7 +880,7 @@ class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'device_type', 'name', 'power_port', 'feed_leg',
+            'name', 'power_port', 'feed_leg',
         ]
 
 
@@ -889,7 +889,7 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'name', 'type', 'mgmt_only',
+            'name', 'type', 'mgmt_only',
         ]
 
 
@@ -903,7 +903,7 @@ class FrontPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'device_type', 'name', 'type', 'rear_port', 'rear_port_position',
+            'name', 'type', 'rear_port', 'rear_port_position',
         ]
 
 
@@ -912,7 +912,7 @@ class RearPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = RearPortTemplate
         fields = [
-            'device_type', 'name', 'type', 'positions',
+            'name', 'type', 'positions',
         ]
 
 
@@ -966,12 +966,11 @@ class DeviceTypeImportForm(BootstrapMixin, forms.ModelForm):
             for field_name, field in self.fields.items():
                 if isinstance(field, MultiObjectField):
                     for data in self.cleaned_data[field_name]:
-                        data.update({
-                            'device_type': instance.pk
-                        })
                         form = field.form(data)
                         if form.is_valid():
-                            form.save()
+                            component = form.save(commit=False)
+                            component.device_type = instance
+                            component.save()
 
         return instance
 

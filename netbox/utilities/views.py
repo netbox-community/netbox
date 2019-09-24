@@ -443,9 +443,14 @@ class ObjectImportView(GetReturnURLMixin, View):
                     return redirect(self.get_return_url(request, obj))
 
             else:
+
                 # Replicate model form errors for display
-                for field, err in model_form.errors.items():
-                    form.add_error(None, "{}: {}".format(field, err))
+                for field, errors in model_form.errors.items():
+                    for err in errors:
+                        if field == '__all__':
+                            form.add_error(None, err)
+                        else:
+                            form.add_error(None, "{}: {}".format(field, err))
 
         return render(request, self.template_name, {
             'form': form,

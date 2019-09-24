@@ -570,6 +570,14 @@ class MultiObjectField(forms.Field):
         if value is None:
             return list()
 
+        for i, obj_data in enumerate(value, start=1):
+            form = self.form(obj_data)
+            if not form.is_valid():
+                errors = [
+                   "Object {} {}: {}".format(i, field, errors) for field, errors in form.errors.items()
+                ]
+                raise forms.ValidationError(errors)
+
         return value
 
 
