@@ -2,6 +2,7 @@ v2.6.5 (FUTURE)
 
 ## Bug Fixes
 
+* [#3464](https://github.com/netbox-community/netbox/issues/3464) -  Fix foreground text color on color picker fields
 * [#3519](https://github.com/netbox-community/netbox/issues/3519) -  Prevent cables from being terminated to virtual/wireless interfaces via API
 * [#3521](https://github.com/netbox-community/netbox/issues/3521) -  Fix error in `parseURL` related to variables in API URL
 
