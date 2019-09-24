@@ -2817,6 +2817,20 @@ class Cable(ChangeLoggedModel):
         type_a = self.termination_a_type.model
         type_b = self.termination_b_type.model
 
+        # Validate interface types
+        if type_a == 'interface' and self.termination_a.type in NONCONNECTABLE_IFACE_TYPES:
+            raise ValidationError({
+                'termination_a_id': 'Cables cannot be terminated to {} interfaces'.format(
+                    self.termination_a.get_type_display()
+                )
+            })
+        if type_b == 'interface' and self.termination_b.type in NONCONNECTABLE_IFACE_TYPES:
+            raise ValidationError({
+                'termination_b_id': 'Cables cannot be terminated to {} interfaces'.format(
+                    self.termination_b.get_type_display()
+                )
+            })
+
         # Check that termination types are compatible
         if type_b not in COMPATIBLE_TERMINATION_TYPES.get(type_a):
             raise ValidationError("Incompatible termination types: {} and {}".format(
@@ -2857,20 +2871,6 @@ class Cable(ChangeLoggedModel):
             raise ValidationError("{} already has a cable attached (#{})".format(
                 self.termination_b, self.termination_b.cable_id
             ))
-
-        # Virtual interfaces cannot be connected
-        endpoint_a, endpoint_b, _ = self.get_path_endpoints()
-        if (
-            (
-                isinstance(endpoint_a, Interface) and
-                endpoint_a.type == IFACE_TYPE_VIRTUAL
-            ) or
-            (
-                isinstance(endpoint_b, Interface) and
-                endpoint_b.type == IFACE_TYPE_VIRTUAL
-            )
-        ):
-            raise ValidationError("Cannot connect to a virtual interface")
 
         # Validate length and length_unit
         if self.length is not None and self.length_unit is None:
