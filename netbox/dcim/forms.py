@@ -829,31 +829,6 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
         }
 
 
-class DeviceTypeCSVForm(forms.ModelForm):
-    manufacturer = forms.ModelChoiceField(
-        queryset=Manufacturer.objects.all(),
-        required=True,
-        to_field_name='name',
-        help_text='Manufacturer name',
-        error_messages={
-            'invalid_choice': 'Manufacturer not found.',
-        }
-    )
-    subdevice_role = CSVChoiceField(
-        choices=SUBDEVICE_ROLE_CHOICES,
-        required=False,
-        help_text='Parent/child status'
-    )
-
-    class Meta:
-        model = DeviceType
-        fields = DeviceType.csv_headers
-        help_texts = {
-            'model': 'Model name',
-            'slug': 'URL-friendly slug',
-        }
-
-
 class ComponentTemplateImportForm(BootstrapMixin, forms.ModelForm):
 
     def clean_device_type(self):

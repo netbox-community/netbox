@@ -663,13 +663,6 @@ class DeviceTypeImportView(PermissionRequiredMixin, ObjectImportView):
     default_return_url = 'dcim:devicetype_import'
 
 
-class DeviceTypeBulkImportView(PermissionRequiredMixin, BulkImportView):
-    permission_required = 'dcim.add_devicetype'
-    model_form = forms.DeviceTypeCSVForm
-    table = tables.DeviceTypeTable
-    default_return_url = 'dcim:devicetype_list'
-
-
 class DeviceTypeBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_devicetype'
     queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances'))
