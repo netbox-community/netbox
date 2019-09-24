@@ -1,5 +1,9 @@
 v2.6.5 (FUTURE)
 
+## Enhancements
+
+* [#3524](https://github.com/netbox-community/netbox/issues/3524) -  Enable bulk editing of power outlet/power port associations
+
 ## Bug Fixes
 
 * [#3464](https://github.com/netbox-community/netbox/issues/3464) -  Fix foreground text color on color picker fields
