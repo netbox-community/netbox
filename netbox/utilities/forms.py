@@ -2,11 +2,11 @@ import csv
 import json
 import re
 from io import StringIO
+import yaml
 
 from django import forms
 from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
-from django.utils.html import mark_safe
 from mptt.forms import TreeNodeMultipleChoiceField
 
 from .constants import *
@@ -747,7 +747,8 @@ class ImportForm(BootstrapMixin, forms.Form):
     Generic form for creating an object from JSON/YAML data
     """
     data = forms.CharField(
-        widget=forms.Textarea
+        widget=forms.Textarea,
+        help_text="Enter object data in JSON or YAML format."
     )
     format = forms.ChoiceField(
         choices=(
@@ -756,3 +757,24 @@ class ImportForm(BootstrapMixin, forms.Form):
         ),
         initial='yaml'
     )
+
+    def clean(self):
+
+        data = self.cleaned_data['data']
+        format = self.cleaned_data['format']
+
+        # Process JSON/YAML data
+        if format == 'json':
+            try:
+                self.cleaned_data['data'] = json.loads(data)
+            except json.decoder.JSONDecodeError as err:
+                raise forms.ValidationError({
+                    'data': "Invalid JSON data: {}".format(err)
+                })
+        else:
+            try:
+                self.cleaned_data['data'] = yaml.load(data)
+            except yaml.scanner.ScannerError as err:
+                raise forms.ValidationError({
+                    'data': "Invalid YAML data: {}".format(err)
+                })

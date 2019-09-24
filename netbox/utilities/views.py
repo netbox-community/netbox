@@ -420,18 +420,10 @@ class ObjectImportView(GetReturnURLMixin, View):
     def post(self, request):
 
         form = ImportForm(request.POST)
-
         if form.is_valid():
 
-            # Process object data
-            if form.cleaned_data['format'] == 'json':
-                data = json.loads(form.cleaned_data['data'])
-            else:
-                data = yaml.load(form.cleaned_data['data'])
-
             # Initialize model form
-            model_form = self.model_form(data)
-
+            model_form = self.model_form(form.cleaned_data['data'])
             if model_form.is_valid():
 
                 with transaction.atomic():
