@@ -2220,7 +2220,7 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
                     [(vlan.pk, vlan) for vlan in site_group_vlans]
                 ))
 
-        self.fields['untagged_vlan'].choices = vlan_choices
+        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
         self.fields['tagged_vlans'].choices = vlan_choices
 
 
@@ -2330,7 +2330,7 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
                     [(vlan.pk, vlan) for vlan in site_group_vlans]
                 ))
 
-        self.fields['untagged_vlan'].choices = vlan_choices
+        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
         self.fields['tagged_vlans'].choices = vlan_choices
 
 
@@ -2442,7 +2442,7 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
                         [(vlan.pk, vlan) for vlan in site_group_vlans]
                     ))
 
-        self.fields['untagged_vlan'].choices = vlan_choices
+        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
         self.fields['tagged_vlans'].choices = vlan_choices
 
 
