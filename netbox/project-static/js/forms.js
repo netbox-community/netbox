@@ -197,7 +197,7 @@ $(document).ready(function() {
                 $(element).children('option').attr('disabled', false);
                 var results = data.results;
 
-                results = results.reduce((results,record) => {
+                results = results.reduce((results,record,idx) => {
                     record.text = record[element.getAttribute('display-field')] || record.name;
                     record.id = record[element.getAttribute('value-field')] || record.id;
                     if(element.getAttribute('disabled-indicator') && record[element.getAttribute('disabled-indicator')]) {
@@ -222,7 +222,7 @@ $(document).ready(function() {
                         results['global'].children.push(record);
                     }
                     else {
-                        results[record.id] = record
+                        results[idx] = record
                     }
 
                     return results;
