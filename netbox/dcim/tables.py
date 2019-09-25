@@ -74,7 +74,8 @@ RACKROLE_ACTIONS = """
 
 RACK_ROLE = """
 {% if record.role %}
-    <label class="label" style="background-color: #{{ record.role.color }}">{{ value }}</label>
+    {% load helpers %}
+    <label class="label" style="color: {{ record.role.color|fgcolor }}; background-color: #{{ record.role.color }}">{{ value }}</label>
 {% else %}
     &mdash;
 {% endif %}

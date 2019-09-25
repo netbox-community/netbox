@@ -75,7 +75,7 @@ $(document).ready(function() {
         var rendered_url = url;
         var filter_field;
         while (match = filter_regex.exec(url)) {
-            filter_field = $('#id_' + match[1]);untagged
+            filter_field = $('#id_' + match[1]);
             var custom_attr = $('option:selected', filter_field).attr('api-value');
             if (custom_attr) {
                 rendered_url = rendered_url.replace(match[0], custom_attr);
@@ -91,11 +91,8 @@ $(document).ready(function() {
     // Assign color picker selection classes
     function colorPickerClassCopy(data, container) {
         if (data.element) {
-            // Remove any existing color-selection classes
-            $(container).attr('class', function(i, c) {
-                return c.replace(/(^|\s)color-selection-\S+/g, '');
-            });
-            $(container).addClass($(data.element).attr("class"));
+            // Swap the style
+            $(container).attr('style', $(data.element).attr("style"));
         }
         return data.text;
     }
@@ -200,7 +197,7 @@ $(document).ready(function() {
                 $(element).children('option').attr('disabled', false);
                 var results = data.results;
 
-                results = results.reduce((results,record) => {
+                results = results.reduce((results,record,idx) => {
                     record.text = record[element.getAttribute('display-field')] || record.name;
                     record.id = record[element.getAttribute('value-field')] || record.id;
                     if(element.getAttribute('disabled-indicator') && record[element.getAttribute('disabled-indicator')]) {
@@ -225,7 +222,7 @@ $(document).ready(function() {
                         results['global'].children.push(record);
                     }
                     else {
-                        results[record.id] = record
+                        results[idx] = record
                     }
 
                     return results;

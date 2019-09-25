@@ -40,6 +40,7 @@ and run `upgrade.sh`.
 * [Docker container](https://github.com/netbox-community/netbox-docker) (via [@cimnine](https://github.com/cimnine))
 * [Vagrant deployment](https://github.com/ryanmerolle/netbox-vagrant) (via [@ryanmerolle](https://github.com/ryanmerolle))
 * [Ansible deployment](https://github.com/lae/ansible-role-netbox) (via [@lae](https://github.com/lae))
+* [Kubernetes deployment](https://github.com/CENGN/netbox-kubernetes) (via [@CENGN](https://github.com/CENGN))
 
 # Related projects
 

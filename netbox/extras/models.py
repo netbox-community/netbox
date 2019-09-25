@@ -435,14 +435,19 @@ class ExportTemplate(models.Model):
         choices=TEMPLATE_LANGUAGE_CHOICES,
         default=TEMPLATE_LANGUAGE_JINJA2
     )
-    template_code = models.TextField()
+    template_code = models.TextField(
+        help_text='The list of objects being exported is passed as a context variable named <code>queryset</code>.'
+    )
     mime_type = models.CharField(
         max_length=50,
-        blank=True
+        blank=True,
+        verbose_name='MIME type',
+        help_text='Defaults to <code>text/plain</code>'
     )
     file_extension = models.CharField(
         max_length=15,
-        blank=True
+        blank=True,
+        help_text='Extension to append to the rendered filename'
     )
 
     class Meta:

@@ -1,7 +1,7 @@
 from django import forms
 from taggit.forms import TagField
 
-from dcim.models import Site
+from dcim.models import Region, Site
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
 from tenancy.forms import TenancyFilterForm
@@ -268,7 +268,9 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
 
 class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Circuit
-    field_order = ['q', 'type', 'provider', 'status', 'site', 'tenant_group', 'tenant', 'commit_rate']
+    field_order = [
+        'q', 'type', 'provider', 'status', 'region', 'site', 'tenant_group', 'tenant', 'commit_rate',
+    ]
     q = forms.CharField(
         required=False,
         label='Search'
@@ -293,6 +295,15 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         choices=CIRCUIT_STATUS_CHOICES,
         required=False,
         widget=StaticSelect2Multiple()
+    )
+    region = forms.ModelMultipleChoiceField(
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/dcim/regions/",
+            value_field="slug",
+        )
     )
     site = FilterChoiceField(
         queryset=Site.objects.all(),
