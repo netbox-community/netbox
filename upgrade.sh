@@ -25,6 +25,11 @@ COMMAND="${PYTHON} netbox/manage.py migrate"
 echo "Applying database migrations ($COMMAND)..."
 eval $COMMAND
 
+# Delete any stale content types
+COMMAND="${PYTHON} netbox/manage.py remove_stale_contenttypes --no-input"
+echo "Removing stale content types ($COMMAND)..."
+eval $COMMAND
+
 # Collect static files
 COMMAND="${PYTHON} netbox/manage.py collectstatic --no-input"
 echo "Collecting static files ($COMMAND)..."

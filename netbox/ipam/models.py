@@ -382,7 +382,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     def to_csv(self):
         return (
             self.prefix,
-            self.vrf.rd if self.vrf else None,
+            self.vrf.name if self.vrf else None,
             self.tenant.name if self.tenant else None,
             self.site.name if self.site else None,
             self.vlan.group.name if self.vlan and self.vlan.group else None,
@@ -674,7 +674,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
 
         return (
             self.address,
-            self.vrf.rd if self.vrf else None,
+            self.vrf.name if self.vrf else None,
             self.tenant.name if self.tenant else None,
             self.get_status_display(),
             self.get_role_display(),
