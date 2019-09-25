@@ -343,7 +343,7 @@ class CableTestCase(TestCase):
 
     def test_cable_validates_compatibale_types(self):
         """
-        The clean method should have a check to ensure only compatiable port types can be connected by a cable
+        The clean method should have a check to ensure only compatible port types can be connected by a cable
         """
         # An interface cannot be connected to a power port
         cable = Cable(termination_a=self.interface1, termination_b=self.power_port1)
@@ -360,27 +360,36 @@ class CableTestCase(TestCase):
 
     def test_cable_front_port_cannot_connect_to_corresponding_rear_port(self):
         """
-        A cable cannot connect a front port to its sorresponding rear port
+        A cable cannot connect a front port to its corresponding rear port
         """
         cable = Cable(termination_a=self.front_port, termination_b=self.rear_port)
         with self.assertRaises(ValidationError):
             cable.clean()
 
-    def test_cable_cannot_be_connected_to_an_existing_connection(self):
+    def test_cable_cannot_terminate_to_an_existing_connection(self):
         """
-        Either side of a cable cannot be terminated when that side aready has a connection
+        Either side of a cable cannot be terminated when that side already has a connection
         """
         # Try to create a cable with the same interface terminations
         cable = Cable(termination_a=self.interface2, termination_b=self.interface1)
         with self.assertRaises(ValidationError):
             cable.clean()
 
-    def test_cable_cannot_connect_to_a_virtual_inteface(self):
+    def test_cable_cannot_terminate_to_a_virtual_inteface(self):
         """
-        A cable connection cannot include a virtual interface
+        A cable cannot terminate to a virtual interface
         """
-        virtual_interface = Interface(device=self.device1, name="V1", type=0)
+        virtual_interface = Interface(device=self.device1, name="V1", type=IFACE_TYPE_VIRTUAL)
         cable = Cable(termination_a=self.interface2, termination_b=virtual_interface)
+        with self.assertRaises(ValidationError):
+            cable.clean()
+
+    def test_cable_cannot_terminate_to_a_wireless_inteface(self):
+        """
+        A cable cannot terminate to a wireless interface
+        """
+        wireless_interface = Interface(device=self.device1, name="W1", type=IFACE_TYPE_80211A)
+        cable = Cable(termination_a=self.interface2, termination_b=wireless_interface)
         with self.assertRaises(ValidationError):
             cable.clean()
 

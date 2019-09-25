@@ -2228,6 +2228,10 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         choices=add_blank_choice(POWERFEED_LEG_CHOICES),
         required=False,
     )
+    power_port = forms.ModelChoiceField(
+        queryset=PowerPort.objects.all(),
+        required=False
+    )
     description = forms.CharField(
         max_length=100,
         required=False
@@ -2235,8 +2239,14 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
 
     class Meta:
         nullable_fields = [
-            'feed_leg', 'description',
+            'feed_leg', 'power_port', 'description',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit power_port queryset to PowerPorts which belong to the parent Device
+        self.fields['power_port'].queryset = PowerPort.objects.filter(device=self.parent_obj)
 
 
 class PowerOutletBulkRenameForm(BulkRenameForm):
@@ -2342,7 +2352,7 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
                     [(vlan.pk, vlan) for vlan in site_group_vlans]
                 ))
 
-        self.fields['untagged_vlan'].choices = vlan_choices
+        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
         self.fields['tagged_vlans'].choices = vlan_choices
 
 
@@ -2452,7 +2462,7 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
                     [(vlan.pk, vlan) for vlan in site_group_vlans]
                 ))
 
-        self.fields['untagged_vlan'].choices = vlan_choices
+        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
         self.fields['tagged_vlans'].choices = vlan_choices
 
 
@@ -2564,7 +2574,7 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
                         [(vlan.pk, vlan) for vlan in site_group_vlans]
                     ))
 
-        self.fields['untagged_vlan'].choices = vlan_choices
+        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
         self.fields['tagged_vlans'].choices = vlan_choices
 
 

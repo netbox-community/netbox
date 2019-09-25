@@ -230,7 +230,9 @@ class ObjectChangeFilter(django_filters.FilterSet):
 
     class Meta:
         model = ObjectChange
-        fields = ['user', 'user_name', 'request_id', 'action', 'changed_object_type', 'object_repr']
+        fields = [
+            'user', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object_id', 'object_repr',
+        ]
 
     def search(self, queryset, name, value):
         if not value.strip():

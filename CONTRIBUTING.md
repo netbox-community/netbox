@@ -117,3 +117,25 @@ Only comment on an issue if you are sharing a relevant idea or constructive
 feedback. **Do not** comment on an issue just to show your support (give the
 top post a :+1: instead) or ask for an ETA. These comments will be deleted to
 reduce noise in the discussion.
+
+## Maintainer Guidance
+
+* Maintainers are expected to contribute at least four hours per week to the
+  project on average. This can be employer-sponsored or individual time, with
+  the understanding that all contributions are submitted under the Apache 2.0
+  license and that your employer may not make claim to any contributions.
+  Contributions include code work, issue management, and community support. All
+  development must be in accordance with our [development guidance](https://netbox.readthedocs.io/en/stable/development/).
+
+* Maintainers are expected to attend (where feasible) our biweekly ~30-minute
+  sync to review agenda items. This meeting provides opportunity to present and
+  discuss pressing topics. Meetings are held as virtual audio/video conferences.
+
+* Official channels for communication include:
+
+    * GitHub issues/pull requests
+    * The [netbox-discuss](https://groups.google.com/forum/#!forum/netbox-discuss) mailing list
+    * The **#netbox** channel on [NetworkToCode Slack](https://networktocode.slack.com/)
+
+* Maintainers with no substantial recorded activity in a 60-day period will be
+  removed from the project.
