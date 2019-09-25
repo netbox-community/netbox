@@ -92,7 +92,7 @@ class DeviceTypeImportTestCase(TestCase):
         self.assertTrue(iface1.mgmt_only)
 
         self.assertEqual(dt.rearport_templates.count(), 3)
-        rp1 = FrontPortTemplate.objects.first()
+        rp1 = RearPortTemplate.objects.first()
         self.assertEqual(rp1.name, 'Rear Port 1')
 
         self.assertEqual(dt.frontport_templates.count(), 3)
