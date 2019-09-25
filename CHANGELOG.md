@@ -3,6 +3,7 @@ v2.6.5 (FUTURE)
 ## Enhancements
 
 * [#3524](https://github.com/netbox-community/netbox/issues/3524) -  Enable bulk editing of power outlet/power port associations
+* [#3529](https://github.com/netbox-community/netbox/issues/3529) -  Enable filtering circuits list by region
 
 ## Bug Fixes
 
@@ -10,8 +11,7 @@ v2.6.5 (FUTURE)
 * [#3519](https://github.com/netbox-community/netbox/issues/3519) -  Prevent cables from being terminated to virtual/wireless interfaces via API
 * [#3521](https://github.com/netbox-community/netbox/issues/3521) -  Fix error in `parseURL` related to variables in API URL
 * [#3531](https://github.com/netbox-community/netbox/issues/3531) -  Fixed rack role foreground color
-* [#3532](https://github.com/netbox-community/netbox/issues/3532) -  Added "device" to graph documentation under "type" field
-* [#3534](https://github.com/netbox-community/netbox/issues/3534) -  Added blank option for untagged vlans
+* [#3534](https://github.com/netbox-community/netbox/issues/3534) -  Added blank option for untagged VLANs
 
 v2.6.4 (2019-09-19)
 
