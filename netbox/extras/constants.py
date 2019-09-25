@@ -107,6 +107,7 @@ EXPORTTEMPLATE_MODELS = [
     'dcim.device',
     'dcim.devicetype',
     'dcim.interface',
+    'dcim.inventoryitem',
     'dcim.manufacturer',
     'dcim.powerpanel',
     'dcim.powerport',
