@@ -17,6 +17,7 @@ v2.6.5 (FUTURE)
 * [#3531](https://github.com/netbox-community/netbox/issues/3531) -  Fixed rack role foreground color
 * [#3534](https://github.com/netbox-community/netbox/issues/3534) -  Added blank option for untagged VLANs
 * [#3540](https://github.com/netbox-community/netbox/issues/3540) -  Fixed virtual machine interface edit with new inline vlan edit fields
+* [#3543](https://github.com/netbox-community/netbox/issues/3543) -  Added inline VLAN editing to virtual machine interfaces
 
 v2.6.4 (2019-09-19)
 

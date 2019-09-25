@@ -2,11 +2,11 @@ from django import forms
 from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
-from dcim.constants import IFACE_TYPE_VIRTUAL, IFACE_MODE_ACCESS, IFACE_MODE_TAGGED_ALL
+from dcim.constants import IFACE_TYPE_VIRTUAL, IFACE_MODE_ACCESS, IFACE_MODE_TAGGED_ALL, IFACE_MODE_CHOICES
 from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
 from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
-from ipam.models import IPAddress
+from ipam.models import IPAddress, VLANGroup, VLAN
 from tenancy.forms import TenancyForm
 from tenancy.forms import TenancyFilterForm
 from tenancy.models import Tenant
@@ -616,6 +616,24 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
 #
 
 class InterfaceForm(BootstrapMixin, forms.ModelForm):
+    untagged_vlan = forms.ModelChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/ipam/vlans/",
+            display_field='display_name',
+            full=True
+        )
+    )
+    tagged_vlans = forms.ModelMultipleChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/ipam/vlans/",
+            display_field='display_name',
+            full=True
+        )
+    )
     tags = TagField(
         required=False
     )
@@ -637,6 +655,39 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         help_texts = {
             'mode': INTERFACE_MODE_HELP_TEXT,
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit VLan choices to those in: global vlans, global groups, the current site's group, the current site
+        vlan_choices = []
+        global_vlans = VLAN.objects.filter(site=None, group=None)
+        vlan_choices.append(
+            ('Global', [(vlan.pk, vlan) for vlan in global_vlans])
+        )
+        for group in VLANGroup.objects.filter(site=None):
+            global_group_vlans = VLAN.objects.filter(group=group)
+            vlan_choices.append(
+                (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
+            )
+
+        site = getattr(self.instance.device, 'site', None)
+        if site is not None:
+
+            # Add non-grouped site VLANs
+            site_vlans = VLAN.objects.filter(site=site, group=None)
+            vlan_choices.append((site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
+
+            # Add grouped site VLANs
+            for group in VLANGroup.objects.filter(site=site):
+                site_group_vlans = VLAN.objects.filter(group=group)
+                vlan_choices.append((
+                    '{} / {}'.format(group.site.name, group.name),
+                    [(vlan.pk, vlan) for vlan in site_group_vlans]
+                ))
+
+        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
+        self.fields['tagged_vlans'].choices = vlan_choices
 
     def clean(self):
         super().clean()
@@ -681,6 +732,29 @@ class InterfaceCreateForm(ComponentForm):
         max_length=100,
         required=False
     )
+    mode = forms.ChoiceField(
+        choices=add_blank_choice(IFACE_MODE_CHOICES),
+        required=False,
+        widget=StaticSelect2(),
+    )
+    untagged_vlan = forms.ModelChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/ipam/vlans/",
+            display_field='display_name',
+            full=True
+        )
+    )
+    tagged_vlans = forms.ModelMultipleChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/ipam/vlans/",
+            display_field='display_name',
+            full=True
+        )
+    )
     tags = TagField(
         required=False
     )
@@ -692,6 +766,36 @@ class InterfaceCreateForm(ComponentForm):
         kwargs['initial'].update({'enabled': True})
 
         super().__init__(*args, **kwargs)
+
+        # Limit VLan choices to those in: global vlans, global groups, the current site's group, the current site
+        vlan_choices = []
+        global_vlans = VLAN.objects.filter(site=None, group=None)
+        vlan_choices.append(
+            ('Global', [(vlan.pk, vlan) for vlan in global_vlans])
+        )
+        for group in VLANGroup.objects.filter(site=None):
+            global_group_vlans = VLAN.objects.filter(group=group)
+            vlan_choices.append(
+                (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
+            )
+
+        site = getattr(self.parent.cluster, 'site', None)
+        if site is not None:
+
+            # Add non-grouped site VLANs
+            site_vlans = VLAN.objects.filter(site=site, group=None)
+            vlan_choices.append((site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
+
+            # Add grouped site VLANs
+            for group in VLANGroup.objects.filter(site=site):
+                site_group_vlans = VLAN.objects.filter(group=group)
+                vlan_choices.append((
+                    '{} / {}'.format(group.site.name, group.name),
+                    [(vlan.pk, vlan) for vlan in site_group_vlans]
+                ))
+
+        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
+        self.fields['tagged_vlans'].choices = vlan_choices
 
 
 class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -713,11 +817,67 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         max_length=100,
         required=False
     )
+    mode = forms.ChoiceField(
+        choices=add_blank_choice(IFACE_MODE_CHOICES),
+        required=False,
+        widget=StaticSelect2()
+    )
+    untagged_vlan = forms.ModelChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/ipam/vlans/",
+            display_field='display_name',
+            full=True
+        )
+    )
+    tagged_vlans = forms.ModelMultipleChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/ipam/vlans/",
+            display_field='display_name',
+            full=True
+        )
+    )
 
     class Meta:
         nullable_fields = [
             'mtu', 'description',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit VLan choices to those in: global vlans, global groups, the current site's group, the current site
+        vlan_choices = []
+        global_vlans = VLAN.objects.filter(site=None, group=None)
+        vlan_choices.append(
+            ('Global', [(vlan.pk, vlan) for vlan in global_vlans])
+        )
+        for group in VLANGroup.objects.filter(site=None):
+            global_group_vlans = VLAN.objects.filter(group=group)
+            vlan_choices.append(
+                (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
+            )
+        if self.parent_obj.cluster is not None:
+            site = getattr(self.parent_obj.cluster, 'site', None)
+            if site is not None:
+
+                # Add non-grouped site VLANs
+                site_vlans = VLAN.objects.filter(site=site, group=None)
+                vlan_choices.append((site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
+
+                # Add grouped site VLANs
+                for group in VLANGroup.objects.filter(site=site):
+                    site_group_vlans = VLAN.objects.filter(group=group)
+                    vlan_choices.append((
+                        '{} / {}'.format(group.site.name, group.name),
+                        [(vlan.pk, vlan) for vlan in site_group_vlans]
+                    ))
+
+        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
+        self.fields['tagged_vlans'].choices = vlan_choices
 
 
 #
