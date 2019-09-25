@@ -571,7 +571,15 @@ class MultiObjectField(forms.Field):
             return list()
 
         for i, obj_data in enumerate(value, start=1):
+
+            # Bind object data to form
             form = self.form(obj_data)
+
+            # Assign default values for required fields that have not been defined
+            for field_name, field in form.fields.items():
+                if field_name not in obj_data and hasattr(field, 'initial'):
+                    form.data[field_name] = field.initial
+
             if not form.is_valid():
                 errors = [
                    "Object {} {}: {}".format(i, field, errors) for field, errors in form.errors.items()
