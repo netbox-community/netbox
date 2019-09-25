@@ -423,7 +423,17 @@ class ObjectImportView(GetReturnURLMixin, View):
         if form.is_valid():
 
             # Initialize model form
-            model_form = self.model_form(form.cleaned_data['data'])
+            data = form.cleaned_data['data']
+            model_form = self.model_form(data)
+
+            # Assign default values for any fields which were not specified. We have to do this manually because passing
+            # 'initial=' to the form on initialization merely sets default values for the widgets. Since widgets are not
+            # used for YAML/JSON import, we first bind the imported data normally, then update the form's data with the
+            # applicable field defaults as needed prior to form validation.
+            for field_name, field in model_form.fields.items():
+                if field_name not in data and hasattr(field, 'initial'):
+                    model_form.data[field_name] = field.initial
+
             if model_form.is_valid():
 
                 with transaction.atomic():
