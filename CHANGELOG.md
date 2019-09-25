@@ -2,6 +2,7 @@ v2.6.5 (FUTURE)
 
 ## Enhancements
 
+* [#3297](https://github.com/netbox-community/netbox/issues/3297) -  Include reserved units when calculating rack utilization
 * [#3347](https://github.com/netbox-community/netbox/issues/3347) -  Extend upgrade script to automatically remove stale content types
 * [#3352](https://github.com/netbox-community/netbox/issues/3352) -  Enable filtering changelog API by `changed_object_id`
 * [#3524](https://github.com/netbox-community/netbox/issues/3524) -  Enable bulk editing of power outlet/power port associations

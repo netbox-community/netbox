@@ -732,10 +732,21 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
     def get_utilization(self):
         """
-        Determine the utilization rate of the rack and return it as a percentage.
+        Determine the utilization rate of the rack and return it as a percentage. Occupied and reserved units both count
+        as utilized.
         """
-        u_available = len(self.get_available_units())
-        return int(float(self.u_height - u_available) / self.u_height * 100)
+        # Determine unoccupied units
+        available_units = self.get_available_units()
+
+        # Remove reserved units
+        for u in self.get_reserved_units():
+            if u in available_units:
+                available_units.remove(u)
+
+        occupied_unit_count = self.u_height - len(available_units)
+        percentage = int(float(occupied_unit_count) / self.u_height * 100)
+
+        return percentage
 
     def get_power_utilization(self):
         """
