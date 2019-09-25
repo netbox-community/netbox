@@ -15,6 +15,7 @@ v2.6.5 (FUTURE)
 * [#3521](https://github.com/netbox-community/netbox/issues/3521) -  Fix error in `parseURL` related to variables in API URL
 * [#3531](https://github.com/netbox-community/netbox/issues/3531) -  Fixed rack role foreground color
 * [#3534](https://github.com/netbox-community/netbox/issues/3534) -  Added blank option for untagged VLANs
+* [#3540](https://github.com/netbox-community/netbox/issues/3540) -  Fixed virtual machine interface edit with new inline vlan edit fields
 
 v2.6.4 (2019-09-19)
 
