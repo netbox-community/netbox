@@ -951,7 +951,7 @@ class CableFilter(django_filters.FilterSet):
     )
     site = MultiValueNumberFilter(
         method='filter_device',
-        field_name='device__site__name'
+        field_name='device__site__slug'
     )
 
     class Meta:
