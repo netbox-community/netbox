@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import re
 
 from django.conf import settings
@@ -13,7 +14,6 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
-from django.utils.text import slugify
 from django.views.generic import View
 
 from circuits.models import Circuit
@@ -660,6 +660,16 @@ class DeviceTypeImportView(PermissionRequiredMixin, ObjectImportView):
     permission_required = 'dcim.add_devicetype'
     model = DeviceType
     model_form = forms.DeviceTypeImportForm
+    related_object_forms = OrderedDict((
+        ('console-ports', forms.ConsolePortTemplateImportForm),
+        ('console-server-ports', forms.ConsoleServerPortTemplateImportForm),
+        ('power-ports', forms.PowerPortTemplateImportForm),
+        ('power-outlets', forms.PowerOutletTemplateImportForm),
+        ('interfaces', forms.InterfaceTemplateImportForm),
+        ('rear-ports', forms.RearPortTemplateImportForm),
+        ('front-ports', forms.FrontPortTemplateImportForm),
+        ('device-bays', forms.DeviceBayTemplateImportForm),
+    ))
     default_return_url = 'dcim:devicetype_import'
 
 

@@ -24,8 +24,7 @@ from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField, ComponentForm,
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, JSONField,
-    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, MultiObjectField,
-    BOOLEAN_WITH_BLANK_CHOICES,
+    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .constants import *
@@ -829,125 +828,10 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
         }
 
 
-class ComponentTemplateImportForm(BootstrapMixin, forms.ModelForm):
-
-    def clean_device_type(self):
-
-        data = self.cleaned_data['device_type']
-
-        # Limit fields referencing other components to the parent DeviceType
-        for field_name, field in self.fields.items():
-            if isinstance(field, forms.ModelChoiceField) and not field_name == 'device_type':
-                field.queryset = field.queryset.filter(device_type=data)
-
-        return data
-
-
-class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
-
-    class Meta:
-        model = ConsolePortTemplate
-        fields = [
-            'name',
-        ]
-
-
-class ConsoleServerPortTemplateImportForm(ComponentTemplateImportForm):
-
-    class Meta:
-        model = ConsoleServerPortTemplate
-        fields = [
-            'name',
-        ]
-
-
-class PowerPortTemplateImportForm(ComponentTemplateImportForm):
-
-    class Meta:
-        model = PowerPortTemplate
-        fields = [
-            'name', 'maximum_draw', 'allocated_draw',
-        ]
-
-
-class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
-    power_port = forms.ModelChoiceField(
-        queryset=PowerPortTemplate.objects.all(),
-        to_field_name='name',
-        required=False
-    )
-
-    class Meta:
-        model = PowerOutletTemplate
-        fields = [
-            'name', 'power_port', 'feed_leg',
-        ]
-
-
-class InterfaceTemplateImportForm(ComponentTemplateImportForm):
-
-    class Meta:
-        model = InterfaceTemplate
-        fields = [
-            'name', 'type', 'mgmt_only',
-        ]
-
-
-class FrontPortTemplateImportForm(ComponentTemplateImportForm):
-    power_port = forms.ModelChoiceField(
-        queryset=RearPortTemplate.objects.all(),
-        to_field_name='name',
-        required=False
-    )
-
-    class Meta:
-        model = FrontPortTemplate
-        fields = [
-            'name', 'type', 'rear_port', 'rear_port_position',
-        ]
-
-
-class RearPortTemplateImportForm(ComponentTemplateImportForm):
-
-    class Meta:
-        model = RearPortTemplate
-        fields = [
-            'name', 'type', 'positions',
-        ]
-
-
 class DeviceTypeImportForm(BootstrapMixin, forms.ModelForm):
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='name'
-    )
-    console_ports = MultiObjectField(
-        form=ConsolePortTemplateImportForm,
-        required=False
-    )
-    console_server_ports = MultiObjectField(
-        form=ConsoleServerPortTemplateImportForm,
-        required=False
-    )
-    power_ports = MultiObjectField(
-        form=PowerPortTemplateImportForm,
-        required=False
-    )
-    power_outlets = MultiObjectField(
-        form=PowerOutletTemplateImportForm,
-        required=False
-    )
-    interfaces = MultiObjectField(
-        form=InterfaceTemplateImportForm,
-        required=False
-    )
-    rear_ports = MultiObjectField(
-        form=RearPortTemplateImportForm,
-        required=False
-    )
-    front_ports = MultiObjectField(
-        form=FrontPortTemplateImportForm,
-        required=False
     )
 
     class Meta:
@@ -955,24 +839,6 @@ class DeviceTypeImportForm(BootstrapMixin, forms.ModelForm):
         fields = [
             'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
         ]
-
-    def save(self, commit=True):
-
-        instance = super().save(commit)
-
-        if commit:
-
-            # Save related components
-            for field_name, field in self.fields.items():
-                if isinstance(field, MultiObjectField):
-                    for data in self.cleaned_data[field_name]:
-                        form = field.form(data)
-                        if form.is_valid():
-                            component = form.save(commit=False)
-                            component.device_type = instance
-                            component.save()
-
-        return instance
 
 
 class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -1332,6 +1198,116 @@ class DeviceBayTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+
+
+#
+# Component template import forms
+#
+
+class ComponentTemplateImportForm(BootstrapMixin, forms.ModelForm):
+
+    def __init__(self, device_type, data=None, *args, **kwargs):
+
+        # Must pass the parent DeviceType on form initialization
+        data.update({
+            'device_type': device_type.pk,
+        })
+        print(data)
+
+        super().__init__(data, *args, **kwargs)
+
+    def clean_device_type(self):
+
+        data = self.cleaned_data['device_type']
+
+        # Limit fields referencing other components to the parent DeviceType
+        for field_name, field in self.fields.items():
+            if isinstance(field, forms.ModelChoiceField) and field_name != 'device_type':
+                field.queryset = field.queryset.filter(device_type=data)
+
+        return data
+
+
+class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
+
+    class Meta:
+        model = ConsolePortTemplate
+        fields = [
+            'device_type', 'name',
+        ]
+
+
+class ConsoleServerPortTemplateImportForm(ComponentTemplateImportForm):
+
+    class Meta:
+        model = ConsoleServerPortTemplate
+        fields = [
+            'device_type', 'name',
+        ]
+
+
+class PowerPortTemplateImportForm(ComponentTemplateImportForm):
+
+    class Meta:
+        model = PowerPortTemplate
+        fields = [
+            'device_type', 'name', 'maximum_draw', 'allocated_draw',
+        ]
+
+
+class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
+    power_port = forms.ModelChoiceField(
+        queryset=PowerPortTemplate.objects.all(),
+        to_field_name='name',
+        required=False
+    )
+
+    class Meta:
+        model = PowerOutletTemplate
+        fields = [
+            'device_type', 'name', 'power_port', 'feed_leg',
+        ]
+
+
+class InterfaceTemplateImportForm(ComponentTemplateImportForm):
+
+    class Meta:
+        model = InterfaceTemplate
+        fields = [
+            'device_type', 'name', 'type', 'mgmt_only',
+        ]
+
+
+class FrontPortTemplateImportForm(ComponentTemplateImportForm):
+    power_port = forms.ModelChoiceField(
+        queryset=RearPortTemplate.objects.all(),
+        to_field_name='name',
+        required=False
+    )
+
+    class Meta:
+        model = FrontPortTemplate
+        fields = [
+            'device_type', 'name', 'type', 'rear_port', 'rear_port_position',
+        ]
+
+
+class RearPortTemplateImportForm(ComponentTemplateImportForm):
+
+    class Meta:
+        model = RearPortTemplate
+        fields = [
+            'device_type', 'name', 'type', 'positions',
+        ]
+
+
+class DeviceBayTemplateImportForm(ComponentTemplateImportForm):
+
+    class Meta:
+        model = DeviceBayTemplate
+        fields = [
+            'device_type', 'name',
+        ]
 
 
 #

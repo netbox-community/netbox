@@ -26,6 +26,7 @@ from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
+from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField
 from utilities.utils import csv_format
 from .error_handlers import handle_protectederror
@@ -402,6 +403,7 @@ class ObjectImportView(GetReturnURLMixin, View):
     """
     model = None
     model_form = None
+    related_object_forms = dict()
     template_name = 'utilities/obj_import.html'
 
     def create_object(self, data):
@@ -436,8 +438,32 @@ class ObjectImportView(GetReturnURLMixin, View):
 
             if model_form.is_valid():
 
-                with transaction.atomic():
-                    obj = model_form.save()
+                try:
+                    with transaction.atomic():
+
+                        # Save the primary object
+                        obj = model_form.save()
+
+                        # Iterate through the related object forms (if any), validating and saving each instance.
+                        for field, related_object_form in self.related_object_forms.items():
+
+                            for i, rel_obj_data in enumerate(data.get(field, list())):
+
+                                f = related_object_form(obj, rel_obj_data)
+                                if f.is_valid():
+                                    f.save()
+                                else:
+                                    # Replicate errors on the related object form to the primary form for display
+                                    for field_name, errors in f.errors.items():
+                                        for err in errors:
+                                            err_msg = "{}[{}] {}: {}".format(field, i, field_name, err)
+                                            model_form.add_error(None, err_msg)
+                                    raise AbortTransaction()
+
+                except AbortTransaction:
+                    pass
+
+            if not model_form.errors:
 
                 messages.success(request, mark_safe('Imported object: <a href="{}">{}</a>'.format(
                     obj.get_absolute_url(), obj

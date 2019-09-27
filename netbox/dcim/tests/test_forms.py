@@ -13,22 +13,22 @@ DEVICETYPE_DATA = {
     'model': 'TEST-1000',
     'slug': 'test-1000',
     'u_height': 2,
-    'console_ports': [
+    'console-ports': [
         {'name': 'Console Port 1'},
         {'name': 'Console Port 2'},
         {'name': 'Console Port 3'},
     ],
-    'console_server_ports': [
+    'console-server-ports': [
         {'name': 'Console Server Port 1'},
         {'name': 'Console Server Port 2'},
         {'name': 'Console Server Port 3'},
     ],
-    'power_ports': [
+    'power-ports': [
         {'name': 'Power Port 1'},
         {'name': 'Power Port 2'},
         {'name': 'Power Port 3'},
     ],
-    'power_outlets': [
+    'power-outlets': [
         {'name': 'Power Outlet 1', 'power_port': 'Power Port 1', 'feed_leg': POWERFEED_LEG_A},
         {'name': 'Power Outlet 2', 'power_port': 'Power Port 1', 'feed_leg': POWERFEED_LEG_A},
         {'name': 'Power Outlet 3', 'power_port': 'Power Port 1', 'feed_leg': POWERFEED_LEG_A},
@@ -38,16 +38,21 @@ DEVICETYPE_DATA = {
         {'name': 'Interface 2', 'type': IFACE_TYPE_1GE_FIXED},
         {'name': 'Interface 3', 'type': IFACE_TYPE_1GE_FIXED},
     ],
-    'rear_ports': [
+    'rear-ports': [
         {'name': 'Rear Port 1', 'type': PORT_TYPE_8P8C},
         {'name': 'Rear Port 2', 'type': PORT_TYPE_8P8C},
         {'name': 'Rear Port 3', 'type': PORT_TYPE_8P8C},
     ],
-    'front_ports': [
+    'front-ports': [
         {'name': 'Front Port 1', 'type': PORT_TYPE_8P8C, 'rear_port': 'Rear Port 1'},
         {'name': 'Front Port 2', 'type': PORT_TYPE_8P8C, 'rear_port': 'Rear Port 2'},
         {'name': 'Front Port 3', 'type': PORT_TYPE_8P8C, 'rear_port': 'Rear Port 3'},
-    ]
+    ],
+    'device-bays': [
+        {'name': 'Device Bay 1'},
+        {'name': 'Device Bay 2'},
+        {'name': 'Device Bay 3'},
+    ],
 }
 
 
@@ -67,6 +72,7 @@ class DeviceTypeImportTestCase(TestCase):
         dt = DeviceType.objects.get(model='TEST-1000')
 
         # Verify all of the components were created
+        # TODO: The creation of components now occurs in the view rather than the form
         self.assertEqual(dt.consoleport_templates.count(), 3)
         cp1 = ConsolePortTemplate.objects.first()
         self.assertEqual(cp1.name, 'Console Port 1')
@@ -100,6 +106,10 @@ class DeviceTypeImportTestCase(TestCase):
         self.assertEqual(fp1.name, 'Front Port 1')
         self.assertEqual(fp1.rear_port, rp1)
         self.assertEqual(fp1.rear_port_position, 1)
+
+        self.assertEqual(dt.devicebay_templates.count(), 3)
+        db1 = DeviceBayTemplate.objects.first()
+        self.assertEqual(db1.name, 'Device Bay 1')
 
 
 class DeviceTestCase(TestCase):
