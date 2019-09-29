@@ -293,7 +293,7 @@ class RIRBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class AggregateListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'ipam.view_aggregate'
     queryset = Aggregate.objects.prefetch_related('rir').annotate(
-      child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
+        child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
     )
 
     filter = filters.AggregateFilter
