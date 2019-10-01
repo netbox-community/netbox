@@ -406,9 +406,6 @@ class ObjectImportView(GetReturnURLMixin, View):
     related_object_forms = dict()
     template_name = 'utilities/obj_import.html'
 
-    def create_object(self, data):
-        raise NotImplementedError("View must implement object creation logic")
-
     def get(self, request):
 
         form = ImportForm()

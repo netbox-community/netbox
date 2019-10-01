@@ -305,6 +305,7 @@ device-bays:
             'format': 'yaml'
         }
         response = self.client.post(reverse('dcim:devicetype_import'), data=form_data, follow=True)
+        self.assertEqual(response.status_code, 200)
 
         dt = DeviceType.objects.get(model='TEST-1000')
 

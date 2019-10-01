@@ -657,7 +657,17 @@ class DeviceTypeDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 
 class DeviceTypeImportView(PermissionRequiredMixin, ObjectImportView):
-    permission_required = 'dcim.add_devicetype'
+    permission_required = [
+        'dcim.add_devicetype',
+        'dcim.add_consoleporttemplate',
+        'dcim.add_consoleserverporttemplate',
+        'dcim.add_powerporttemplate',
+        'dcim.add_poweroutlettemplate',
+        'dcim.add_interfacetemplate',
+        'dcim.add_frontporttemplate',
+        'dcim.add_rearporttemplate',
+        'dcim.add_devicebaytemplate',
+    ]
     model = DeviceType
     model_form = forms.DeviceTypeImportForm
     related_object_forms = OrderedDict((
