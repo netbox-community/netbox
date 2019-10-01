@@ -349,7 +349,6 @@ device-bays:
         self.assertEqual(db1.name, 'Device Bay 1')
 
 
-
 class DeviceRoleTestCase(TestCase):
 
     def setUp(self):
