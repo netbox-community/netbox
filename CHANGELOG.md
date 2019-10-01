@@ -1,24 +1,34 @@
+v2.6.6 (FUTURE)
+
+## Enhancements
+
+* [#3259](https://github.com/netbox-community/netbox/issues/3259) - Add `rack` and `site` filters for cables
+
+---
+
 v2.6.5 (2019-09-25)
 
 ## Enhancements
 
-* [#3297](https://github.com/netbox-community/netbox/issues/3297) -  Include reserved units when calculating rack utilization
-* [#3347](https://github.com/netbox-community/netbox/issues/3347) -  Extend upgrade script to automatically remove stale content types
-* [#3352](https://github.com/netbox-community/netbox/issues/3352) -  Enable filtering changelog API by `changed_object_id`
-* [#3515](https://github.com/netbox-community/netbox/issues/3515) -  Enable export templates for inventory items
-* [#3524](https://github.com/netbox-community/netbox/issues/3524) -  Enable bulk editing of power outlet/power port associations
-* [#3529](https://github.com/netbox-community/netbox/issues/3529) -  Enable filtering circuits list by region
+* [#3297](https://github.com/netbox-community/netbox/issues/3297) - Include reserved units when calculating rack utilization
+* [#3347](https://github.com/netbox-community/netbox/issues/3347) - Extend upgrade script to automatically remove stale content types
+* [#3352](https://github.com/netbox-community/netbox/issues/3352) - Enable filtering changelog API by `changed_object_id`
+* [#3515](https://github.com/netbox-community/netbox/issues/3515) - Enable export templates for inventory items
+* [#3524](https://github.com/netbox-community/netbox/issues/3524) - Enable bulk editing of power outlet/power port associations
+* [#3529](https://github.com/netbox-community/netbox/issues/3529) - Enable filtering circuits list by region
 
 ## Bug Fixes
 
-* [#3435](https://github.com/netbox-community/netbox/issues/3435) -  Change IP/prefix CSV export to reference VRF name instead of RD
-* [#3464](https://github.com/netbox-community/netbox/issues/3464) -  Fix foreground text color on color picker fields
-* [#3519](https://github.com/netbox-community/netbox/issues/3519) -  Prevent cables from being terminated to virtual/wireless interfaces via API
-* [#3521](https://github.com/netbox-community/netbox/issues/3521) -  Fix error in `parseURL` related to variables in API URL
-* [#3531](https://github.com/netbox-community/netbox/issues/3531) -  Fixed rack role foreground color
-* [#3534](https://github.com/netbox-community/netbox/issues/3534) -  Added blank option for untagged VLANs
-* [#3540](https://github.com/netbox-community/netbox/issues/3540) -  Fixed virtual machine interface edit with new inline vlan edit fields
-* [#3543](https://github.com/netbox-community/netbox/issues/3543) -  Added inline VLAN editing to virtual machine interfaces
+* [#3435](https://github.com/netbox-community/netbox/issues/3435) - Change IP/prefix CSV export to reference VRF name instead of RD
+* [#3464](https://github.com/netbox-community/netbox/issues/3464) - Fix foreground text color on color picker fields
+* [#3519](https://github.com/netbox-community/netbox/issues/3519) - Prevent cables from being terminated to virtual/wireless interfaces via API
+* [#3521](https://github.com/netbox-community/netbox/issues/3521) - Fix error in `parseURL` related to variables in API URL
+* [#3531](https://github.com/netbox-community/netbox/issues/3531) - Fixed rack role foreground color
+* [#3534](https://github.com/netbox-community/netbox/issues/3534) - Added blank option for untagged VLANs
+* [#3540](https://github.com/netbox-community/netbox/issues/3540) - Fixed virtual machine interface edit with new inline vlan edit fields
+* [#3543](https://github.com/netbox-community/netbox/issues/3543) - Added inline VLAN editing to virtual machine interfaces
+
+---
 
 v2.6.4 (2019-09-19)
 
@@ -38,6 +48,8 @@ v2.6.4 (2019-09-19)
 * [#3511](https://github.com/netbox-community/netbox/issues/3511) - Correct API URL for nested device bays
 * [#3513](https://github.com/netbox-community/netbox/issues/3513) - Fix assignment of tags when creating front/rear ports
 * [#3514](https://github.com/netbox-community/netbox/issues/3514) - Label TextVar fields when rendering custom script forms
+
+---
 
 v2.6.3 (2019-09-04)
 

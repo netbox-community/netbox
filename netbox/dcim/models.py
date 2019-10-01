@@ -2781,6 +2781,22 @@ class Cable(ChangeLoggedModel):
         blank=True,
         null=True
     )
+    # Cache the associated device (where applicable) for the A and B terminations. This enables filtering of Cables by
+    # their associated Devices.
+    _termination_a_device = models.ForeignKey(
+        to=Device,
+        on_delete=models.CASCADE,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    _termination_b_device = models.ForeignKey(
+        to=Device,
+        on_delete=models.CASCADE,
+        related_name='+',
+        blank=True,
+        null=True
+    )
 
     csv_headers = [
         'termination_a_type', 'termination_a_id', 'termination_b_type', 'termination_b_id', 'type', 'status', 'label',
@@ -2894,6 +2910,12 @@ class Cable(ChangeLoggedModel):
         # Store the given length (if any) in meters for use in database ordering
         if self.length and self.length_unit:
             self._abs_length = to_meters(self.length, self.length_unit)
+
+        # Store the parent Device for the A and B terminations (if applicable) to enable filtering
+        if hasattr(self.termination_a, 'device'):
+            self._termination_a_device = self.termination_a.device
+        if hasattr(self.termination_b, 'device'):
+            self._termination_b_device = self.termination_b.device
 
         super().save(*args, **kwargs)
 
