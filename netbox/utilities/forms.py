@@ -756,7 +756,7 @@ class ImportForm(BootstrapMixin, forms.Form):
                 })
         else:
             try:
-                self.cleaned_data['data'] = yaml.load(data)
+                self.cleaned_data['data'] = yaml.load(data, Loader=yaml.SafeLoader)
             except yaml.scanner.ScannerError as err:
                 raise forms.ValidationError({
                     'data': "Invalid YAML data: {}".format(err)
