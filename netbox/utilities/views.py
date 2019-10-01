@@ -445,18 +445,23 @@ class ObjectImportView(GetReturnURLMixin, View):
                         obj = model_form.save()
 
                         # Iterate through the related object forms (if any), validating and saving each instance.
-                        for field, related_object_form in self.related_object_forms.items():
+                        for field_name, related_object_form in self.related_object_forms.items():
 
-                            for i, rel_obj_data in enumerate(data.get(field, list())):
+                            for i, rel_obj_data in enumerate(data.get(field_name, list())):
 
                                 f = related_object_form(obj, rel_obj_data)
+
+                                for subfield_name, field in f.fields.items():
+                                    if subfield_name not in rel_obj_data and hasattr(field, 'initial'):
+                                        f.data[subfield_name] = field.initial
+
                                 if f.is_valid():
                                     f.save()
                                 else:
                                     # Replicate errors on the related object form to the primary form for display
-                                    for field_name, errors in f.errors.items():
+                                    for subfield_name, errors in f.errors.items():
                                         for err in errors:
-                                            err_msg = "{}[{}] {}: {}".format(field, i, field_name, err)
+                                            err_msg = "{}[{}] {}: {}".format(field_name, i, subfield_name, err)
                                             model_form.add_error(None, err_msg)
                                     raise AbortTransaction()
 

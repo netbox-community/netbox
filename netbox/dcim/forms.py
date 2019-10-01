@@ -1212,7 +1212,6 @@ class ComponentTemplateImportForm(BootstrapMixin, forms.ModelForm):
         data.update({
             'device_type': device_type.pk,
         })
-        print(data)
 
         super().__init__(data, *args, **kwargs)
 
@@ -1279,7 +1278,7 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
 
 
 class FrontPortTemplateImportForm(ComponentTemplateImportForm):
-    power_port = forms.ModelChoiceField(
+    rear_port = forms.ModelChoiceField(
         queryset=RearPortTemplate.objects.all(),
         to_field_name='name',
         required=False
