@@ -58,14 +58,6 @@ SUBDEVICE_ROLE_CHOICES = (
     (SUBDEVICE_ROLE_CHILD, 'Child'),
 )
 
-# Interface ordering schemes (for device types)
-IFACE_ORDERING_POSITION = 1
-IFACE_ORDERING_NAME = 2
-IFACE_ORDERING_CHOICES = [
-    [IFACE_ORDERING_POSITION, 'Slot/position'],
-    [IFACE_ORDERING_NAME, 'Name (alphabetically)']
-]
-
 # Interface types
 # Virtual
 IFACE_TYPE_VIRTUAL = 0
