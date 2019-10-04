@@ -17,8 +17,7 @@ from extras.forms import (
     AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm, LocalConfigContextFilterForm
 )
 from ipam.models import IPAddress, VLAN, VLANGroup
-from tenancy.forms import TenancyForm
-from tenancy.forms import TenancyFilterForm
+from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
@@ -57,6 +56,7 @@ def get_device_by_name_or_pk(name):
 
 
 class InterfaceCommonForm:
+
     def clean(self):
 
         super().clean()

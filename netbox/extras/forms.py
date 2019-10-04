@@ -8,16 +8,12 @@ from taggit.forms import TagField
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
-from utilities.constants import COLOR_CHOICES
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
     CommentField, ContentTypeSelect, FilterChoiceField, LaxURLField, JSONField, SlugField, StaticSelect2,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
-from .constants import (
-    CF_FILTER_DISABLED, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL,
-    OBJECTCHANGE_ACTION_CHOICES,
-)
+from .constants import *
 from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachment, ObjectChange, Tag
 
 

@@ -6,7 +6,7 @@ from collections import OrderedDict
 from django.conf import settings
 from django.utils import timezone
 
-from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_LEVEL_CODES, LOG_SUCCESS, LOG_WARNING
+from .constants import *
 from .models import ReportResult
 
 

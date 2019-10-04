@@ -9,9 +9,7 @@ from django.utils import timezone
 from django.utils.functional import curry
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
-from .constants import (
-    OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE,
-)
+from .constants import *
 from .models import ObjectChange
 from .signals import purge_changelog
 from .webhooks import enqueue_webhooks

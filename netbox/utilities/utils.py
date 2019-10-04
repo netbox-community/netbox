@@ -1,7 +1,6 @@
-from collections import OrderedDict
-
 import datetime
 import json
+from collections import OrderedDict
 
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery

@@ -13,7 +13,7 @@ from utilities.views import (
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
-from .constants import IPADDRESS_ROLE_ANYCAST, PREFIX_STATUS_ACTIVE, PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED
+from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 
@@ -291,6 +291,7 @@ class RIRBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class AggregateListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'ipam.view_aggregate'
+    # TODO: Replace raw SQL
     queryset = Aggregate.objects.prefetch_related('rir').extra(select={
         'child_count': 'SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix',
     })

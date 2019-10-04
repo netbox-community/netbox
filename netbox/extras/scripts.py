@@ -1,12 +1,12 @@
-from collections import OrderedDict
 import inspect
 import json
 import os
 import pkgutil
 import time
 import traceback
-import yaml
+from collections import OrderedDict
 
+import yaml
 from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator
@@ -20,7 +20,6 @@ from utilities.validators import MaxPrefixLengthValidator, MinPrefixLengthValida
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
 from .forms import ScriptForm
 from .signals import purge_changelog
-
 
 __all__ = [
     'BaseScript',

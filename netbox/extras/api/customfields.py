@@ -5,7 +5,7 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from extras.constants import CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT
+from extras.constants import *
 from extras.models import CustomField, CustomFieldChoice, CustomFieldValue
 from utilities.api import ValidatedModelSerializer
 

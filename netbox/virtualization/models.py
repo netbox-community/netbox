@@ -8,7 +8,7 @@ from taggit.managers import TaggableManager
 from dcim.models import Device
 from extras.models import ConfigContextModel, CustomFieldModel, TaggedItem
 from utilities.models import ChangeLoggedModel
-from .constants import DEVICE_STATUS_ACTIVE, VM_STATUS_CHOICES, VM_STATUS_CLASSES
+from .constants import *
 
 
 #

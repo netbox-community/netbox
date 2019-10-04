@@ -3,14 +3,13 @@ from taggit.forms import TagField
 
 from dcim.models import Region, Site
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from tenancy.forms import TenancyForm
-from tenancy.forms import TenancyFilterForm
+from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField,
     FilterChoiceField, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple
 )
-from .constants import CIRCUIT_STATUS_CHOICES
+from .constants import *
 from .models import Circuit, CircuitTermination, CircuitType, Provider
 
 

@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from datetime import date
 
+import graphviz
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -11,7 +12,6 @@ from django.db.models import F, Q
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.urls import reverse
-import graphviz
 from jinja2 import Environment
 from taggit.models import TagBase, GenericTaggedItemBase
 
