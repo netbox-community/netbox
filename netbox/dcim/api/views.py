@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, F
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
@@ -462,7 +463,7 @@ class PowerOutletViewSet(CableTraceMixin, ModelViewSet):
 
 class InterfaceViewSet(CableTraceMixin, ModelViewSet):
     queryset = Interface.objects.prefetch_related(
-        'device', '_connected_interface', '_connected_circuittermination', 'cable', 'ip_addresses', 'tags'
+        'device', 'connected_endpoint', 'cable', 'ip_addresses', 'tags'
     ).filter(
         device__isnull=False
     )
@@ -530,11 +531,13 @@ class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
 
 class InterfaceConnectionViewSet(ListModelMixin, GenericViewSet):
     queryset = Interface.objects.prefetch_related(
-        'device', '_connected_interface__device'
+        'device', 'connected_endpoint__device'
     ).filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
-        _connected_interface__isnull=False,
-        pk__lt=F('_connected_interface')
+        connected_endpoint_type=ContentType.objects.get_for_model(Interface),
+        pk__lt=F('connected_endpoint_id')
+    ).order_by(
+        'device'
     )
     serializer_class = serializers.InterfaceConnectionSerializer
     filterset_class = filters.InterfaceConnectionFilter
@@ -634,9 +637,9 @@ class ConnectedDeviceViewSet(ViewSet):
 
         # Determine local interface from peer interface's connection
         peer_interface = get_object_or_404(Interface, device__name=peer_device_name, name=peer_interface_name)
-        local_interface = peer_interface._connected_interface
+        local_interface = peer_interface.connected_endpoint
 
-        if local_interface is None:
+        if not isinstance(local_interface, Interface):
             return Response()
 
         return Response(serializers.DeviceSerializer(local_interface.device, context={'request': request}).data)

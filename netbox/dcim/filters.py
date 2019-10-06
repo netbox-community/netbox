@@ -1046,7 +1046,7 @@ class InterfaceConnectionFilter(django_filters.FilterSet):
             return queryset
         return queryset.filter(
             Q(device__site__slug=value) |
-            Q(_connected_interface__device__site__slug=value)
+            Q(connected_interface__device__site__slug=value)
         )
 
     def filter_device(self, queryset, name, value):
@@ -1054,7 +1054,7 @@ class InterfaceConnectionFilter(django_filters.FilterSet):
             return queryset
         return queryset.filter(
             Q(device__name__icontains=value) |
-            Q(_connected_interface__device__name__icontains=value)
+            Q(connected_interface__device__name__icontains=value)
         )
 
 

@@ -993,7 +993,7 @@ class DeviceView(PermissionRequiredMixin, View):
 
         # Interfaces
         interfaces = device.vc_interfaces.prefetch_related(
-            'lag', '_connected_interface__device', '_connected_circuittermination__circuit', 'cable',
+            'lag', 'connected_endpoint', 'cable',
             'cable__termination_a', 'cable__termination_b', 'ip_addresses', 'tags'
         )
 
@@ -1079,7 +1079,7 @@ class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
 
         device = get_object_or_404(Device, pk=pk)
         interfaces = device.vc_interfaces.connectable().prefetch_related(
-            '_connected_interface__device'
+            'connected_endpoint'
         )
 
         return render(request, 'dcim/device_lldp_neighbors.html', {
@@ -1371,8 +1371,7 @@ class InterfaceView(PermissionRequiredMixin, View):
 
         return render(request, 'dcim/interface.html', {
             'interface': interface,
-            'connected_interface': interface._connected_interface,
-            'connected_circuittermination': interface._connected_circuittermination,
+            'connected_endpoint': interface.connected_endpoint,
             'ipaddress_table': ipaddress_table,
             'vlan_table': vlan_table,
         })
@@ -1940,11 +1939,11 @@ class PowerConnectionsListView(PermissionRequiredMixin, ObjectListView):
 class InterfaceConnectionsListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_interface'
     queryset = Interface.objects.prefetch_related(
-        'device', 'cable', '_connected_interface__device'
+        'device', 'cable', 'connected_endpoint__device'
     ).filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
-        _connected_interface__isnull=False,
-        pk__lt=F('_connected_interface')
+        connected_endpoint_type=ContentType.objects.get_for_model(Interface),
+        pk__lt=F('connected_endpoint_id')
     ).order_by(
         'device'
     )

@@ -638,22 +638,15 @@ class TopologyMap(models.Model):
 
         # Add all interface connections to the graph
         connected_interfaces = Interface.objects.prefetch_related(
-            '_connected_interface__device'
+            'connected_endpoint__device'
         ).filter(
-            Q(device__in=devices) | Q(_connected_interface__device__in=devices),
-            _connected_interface__isnull=False,
-            pk__lt=F('_connected_interface')
+            Q(device__in=devices) | Q(connected_interface__device__in=devices),
+            connected_endpoint_type=ContentType.objects.get_for_model(Interface),
+            pk__lt=F('connected_endpoint_id')
         )
         for interface in connected_interfaces:
             style = 'solid' if interface.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
             self.graph.edge(interface.device.name, interface.connected_endpoint.device.name, style=style)
-
-        # Add all circuits to the graph
-        for termination in CircuitTermination.objects.filter(term_side='A', connected_endpoint__device__in=devices):
-            peer_termination = termination.get_peer_termination()
-            if (peer_termination is not None and peer_termination.interface is not None and
-                    peer_termination.interface.device in devices):
-                self.graph.edge(termination.interface.device.name, peer_termination.interface.device.name, color='blue')
 
     def add_console_connections(self, devices):
 

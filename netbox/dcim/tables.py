@@ -822,18 +822,18 @@ class InterfaceConnectionTable(BaseTable):
     )
     device_b = tables.LinkColumn(
         viewname='dcim:device',
-        accessor=Accessor('_connected_interface.device'),
-        args=[Accessor('_connected_interface.device.pk')],
+        accessor=Accessor('connected_endpoint.device'),
+        args=[Accessor('connected_endpoint.device.pk')],
         verbose_name='Device B'
     )
     interface_b = tables.LinkColumn(
         viewname='dcim:interface',
-        accessor=Accessor('_connected_interface'),
-        args=[Accessor('_connected_interface.pk')],
+        accessor=Accessor('connected_endpoint'),
+        args=[Accessor('connected_endpoint.pk')],
         verbose_name='Interface B'
     )
     description_b = tables.Column(
-        accessor=Accessor('_connected_interface.description'),
+        accessor=Accessor('connected_endpoint.description'),
         verbose_name='Description'
     )
 

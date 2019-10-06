@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, F
 from django.shortcuts import render
 from django.views.generic import View
@@ -200,8 +201,8 @@ class HomeView(View):
             _connected_poweroutlet__isnull=False
         )
         connected_interfaces = Interface.objects.filter(
-            _connected_interface__isnull=False,
-            pk__lt=F('_connected_interface')
+            connected_endpoint_type=ContentType.objects.get_for_model(Interface),
+            pk__lt=F('connected_endpoint_id')
         )
         cables = Cable.objects.all()
 

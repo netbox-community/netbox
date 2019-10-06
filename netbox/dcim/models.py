@@ -2169,20 +2169,30 @@ class Interface(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=64
     )
-    _connected_interface = models.OneToOneField(
+
+    connected_endpoint_type = models.ForeignKey(
+        to=ContentType,
+        limit_choices_to={'model__in': CABLE_TERMINATION_TYPES},
+        on_delete=models.PROTECT,
+        related_name='+',
+        blank = True,
+        null = True
+    )
+    connected_endpoint_id = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+    connected_endpoint = GenericForeignKey(
+        ct_field='connected_endpoint_type',
+        fk_field='connected_endpoint_id'
+    )
+
+    connected_interface = GenericRelation(
         to='self',
-        on_delete=models.SET_NULL,
-        related_name='+',
-        blank=True,
-        null=True
+        object_id_field='connected_endpoint_id',
+        content_type_field='connected_endpoint_type',
     )
-    _connected_circuittermination = models.OneToOneField(
-        to='circuits.CircuitTermination',
-        on_delete=models.SET_NULL,
-        related_name='+',
-        blank=True,
-        null=True
-    )
+
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,
         blank=True
@@ -2365,30 +2375,6 @@ class Interface(CableTermination, ComponentModel):
         Backward-compatibility for form_factor
         """
         self.type = value
-
-    @property
-    def connected_endpoint(self):
-        if self._connected_interface:
-            return self._connected_interface
-        return self._connected_circuittermination
-
-    @connected_endpoint.setter
-    def connected_endpoint(self, value):
-        from circuits.models import CircuitTermination
-
-        if value is None:
-            self._connected_interface = None
-            self._connected_circuittermination = None
-        elif isinstance(value, Interface):
-            self._connected_interface = value
-            self._connected_circuittermination = None
-        elif isinstance(value, CircuitTermination):
-            self._connected_interface = None
-            self._connected_circuittermination = value
-        else:
-            raise ValueError(
-                "Connected endpoint must be an Interface or CircuitTermination, not {}.".format(type(value))
-            )
 
     @property
     def parent(self):
