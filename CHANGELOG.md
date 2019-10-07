@@ -2,6 +2,7 @@ v2.6.6 (FUTURE)
 
 ## Bug Fixes
 
+* [#3571](https://github.com/netbox-community/netbox/issues/3571) - Prevent erroneous redirects when editing tags
 * [#3573](https://github.com/netbox-community/netbox/issues/3573) - Ensure consistent display of changelog retention period
 * [#3574](https://github.com/netbox-community/netbox/issues/3574) - Change `device` to `parent` in interface editing VLAN filtering logic
 * [#3575](https://github.com/netbox-community/netbox/issues/3575) - Restore label for comments field when bulk editing circuits
