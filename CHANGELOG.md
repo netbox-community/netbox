@@ -1,5 +1,9 @@
 v2.6.6 (FUTURE)
 
+## Bug Fixes
+
+* [#3574](https://github.com/netbox-community/netbox/issues/3574) - Change `device` to `parent` in interface editing vlan filtering logic
+
 ## Enhancements
 
 * [#3259](https://github.com/netbox-community/netbox/issues/3259) - Add `rack` and `site` filters for cables

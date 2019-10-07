@@ -670,7 +670,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
                 (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
             )
 
-        site = getattr(self.instance.device, 'site', None)
+        site = getattr(self.instance.parent, 'site', None)
         if site is not None:
 
             # Add non-grouped site VLANs
