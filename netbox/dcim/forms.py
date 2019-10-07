@@ -1023,6 +1023,16 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
             'device_type': forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        # Limit power_port choices to current DeviceType
+        if hasattr(self.instance, 'device_type'):
+            self.fields['power_port'].queryset = PowerPortTemplate.objects.filter(
+                device_type=self.instance.device_type
+            )
+
 
 class PowerOutletTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
@@ -1106,6 +1116,16 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
             'device_type': forms.HiddenInput(),
             'rear_port': StaticSelect2(),
         }
+
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        # Limit rear_port choices to current DeviceType
+        if hasattr(self.instance, 'device_type'):
+            self.fields['rear_port'].queryset = RearPortTemplate.objects.filter(
+                device_type=self.instance.device_type
+            )
 
 
 class FrontPortTemplateCreateForm(ComponentForm):

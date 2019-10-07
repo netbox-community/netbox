@@ -11,6 +11,7 @@ v2.6.6 (FUTURE)
 
 * [#1941](https://github.com/netbox-community/netbox/issues/1941) - Add InfiniBand interface types
 * [#3259](https://github.com/netbox-community/netbox/issues/3259) - Add `rack` and `site` filters for cables
+* [#3563](https://github.com/netbox-community/netbox/issues/3563) - Enable editing of individual DeviceType components
 
 ---
 
