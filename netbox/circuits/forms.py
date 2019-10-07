@@ -256,7 +256,8 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         required=False
     )
     comments = CommentField(
-        widget=SmallTextarea
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     class Meta:
