@@ -9,6 +9,7 @@ v2.6.6 (FUTURE)
 
 ## Enhancements
 
+* [#1941](https://github.com/netbox-community/netbox/issues/1941) - Add InfiniBand interface types
 * [#3259](https://github.com/netbox-community/netbox/issues/3259) - Add `rack` and `site` filters for cables
 
 ---
