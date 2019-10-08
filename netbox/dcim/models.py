@@ -101,7 +101,10 @@ class CableTermination(models.Model):
     class Meta:
         abstract = True
 
-    def trace(self, position=1, follow_circuits=False, cable_history=None):
+    def get_peer_port(self):
+        return None
+
+    def trace(self, cable_history=None):
         """
         Return a list representing a complete cable path, with each individual segment represented as a three-tuple:
             [
@@ -110,39 +113,6 @@ class CableTermination(models.Model):
                 (termination E, cable, termination F)
             ]
         """
-        def get_peer_port(termination, position=1, follow_circuits=False):
-            from circuits.models import CircuitTermination
-
-            # Map a front port to its corresponding rear port
-            if isinstance(termination, FrontPort):
-                return termination.rear_port, termination.rear_port_position
-
-            # Map a rear port/position to its corresponding front port
-            elif isinstance(termination, RearPort):
-                if position not in range(1, termination.positions + 1):
-                    raise Exception("Invalid position for {} ({} positions): {})".format(
-                        termination, termination.positions, position
-                    ))
-                try:
-                    peer_port = FrontPort.objects.get(
-                        rear_port=termination,
-                        rear_port_position=position,
-                    )
-                    return peer_port, 1
-                except ObjectDoesNotExist:
-                    return None, None
-
-            # Follow a circuit to its other termination
-            elif isinstance(termination, CircuitTermination) and follow_circuits:
-                peer_termination = termination.get_peer_termination()
-                if peer_termination is None:
-                    return None, None
-                return peer_termination, position
-
-            # Termination is not a pass-through port
-            else:
-                return None, None
-
         if not self.cable:
             return [(self, None, None)]
 
@@ -153,22 +123,33 @@ class CableTermination(models.Model):
             raise LoopDetected()
         cable_history.append(self.cable)
 
-        far_end = self.cable.termination_b if self.cable.termination_a == self else self.cable.termination_a
+        far_end = self.cable.termination_b if self._cabled_as_a.exists() else self.cable.termination_a
         path = [(self, self.cable, far_end)]
 
-        peer_port, position = get_peer_port(far_end, position, follow_circuits)
-        if peer_port is None:
+        peer_port = far_end.get_peer_port()
+
+        if isinstance(far_end, RearPort) and far_end.positions > 1:
+            # We don't want to start tracing from a front port here, that is handled separately (see below)
             return path
 
-        try:
-            next_segment = peer_port.trace(position, follow_circuits, cable_history)
-        except LoopDetected:
-            return path
+        while peer_port:
+            path += peer_port.trace(cable_history)
 
-        if next_segment is None:
-            return path + [(peer_port, None, None)]
+            if isinstance(far_end, FrontPort) and isinstance(peer_port, RearPort) and peer_port.positions > 1:
+                # Trace the rear port separately, then continue with the corresponding front port
+                saved_rear_port_position = far_end.rear_port_position
 
-        return path + next_segment
+                far_end = path[-1][2]
+                peer_port = None
+                if isinstance(far_end, RearPort):
+                    # The trace ends with a rear port, find the corresponding front port
+                    peer_port = far_end.get_peer_port(saved_rear_port_position)
+
+            else:
+                # Everything else has already been handled by simple recursion
+                peer_port = None
+
+        return path
 
     def get_cable_peer(self):
         if self.cable is None:
@@ -2471,6 +2452,9 @@ class FrontPort(CableTermination, ComponentModel):
                 )
             )
 
+    def get_peer_port(self):
+        return self.rear_port
+
 
 class RearPort(CableTermination, ComponentModel):
     """
@@ -2512,6 +2496,21 @@ class RearPort(CableTermination, ComponentModel):
             self.positions,
             self.description,
         )
+
+    def get_peer_port(self, position=1):
+        if position not in range(1, self.positions + 1):
+            raise Exception("Invalid position for {} ({} positions): {})".format(
+                self, self.positions, position
+            ))
+
+        try:
+            peer_port = FrontPort.objects.get(
+                rear_port=self,
+                rear_port_position=position,
+            )
+            return peer_port
+        except ObjectDoesNotExist:
+            return None
 
 
 #
@@ -2853,14 +2852,15 @@ class Cable(ChangeLoggedModel):
             ))
 
         # A component with multiple positions must be connected to a component with an equal number of positions
-        term_a_positions = getattr(self.termination_a, 'positions', 1)
-        term_b_positions = getattr(self.termination_b, 'positions', 1)
-        if term_a_positions != term_b_positions:
-            raise ValidationError(
-                "{} has {} positions and {} has {}. Both terminations must have the same number of positions.".format(
-                    self.termination_a, term_a_positions, self.termination_b, term_b_positions
-                )
-            )
+        # FIXME SJMS not really, they can be connected through a chain of links
+        # term_a_positions = getattr(self.termination_a, 'positions', 1)
+        # term_b_positions = getattr(self.termination_b, 'positions', 1)
+        # if term_a_positions != term_b_positions:
+        #     raise ValidationError(
+        #         "{} has {} positions and {} has {}. Both terminations must have the same number of positions.".format(
+        #             self.termination_a, term_a_positions, self.termination_b, term_b_positions
+        #         )
+        #     )
 
         # A termination point cannot be connected to itself
         if self.termination_a == self.termination_b:

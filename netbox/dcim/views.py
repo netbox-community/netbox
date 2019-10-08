@@ -1752,7 +1752,7 @@ class CableTraceView(PermissionRequiredMixin, View):
 
         return render(request, 'dcim/cable_trace.html', {
             'obj': obj,
-            'trace': obj.trace(follow_circuits=True),
+            'trace': obj.trace(),
         })
 
 
