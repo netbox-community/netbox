@@ -129,7 +129,8 @@ class CableTermination(models.Model):
         peer_port = far_end.get_peer_port()
 
         if isinstance(far_end, RearPort) and far_end.positions > 1:
-            # We don't want to start tracing from a front port here, that is handled separately (see below)
+            # When we end up here we have a rear port with multiple front ports, and we don't know which front port
+            # to continue with. So this is the end of the line
             return path
 
         while peer_port:
@@ -2937,6 +2938,9 @@ class Cable(ChangeLoggedModel):
         Traverse both ends of a cable path and return its connected endpoints. Note that one or both endpoints may be
         None.
         """
+        # Termination points trace from themselves, through the cable and beyond. Tracing from the B termination
+        # therefore traces in the direction of A [(termination_b, cable, termination_a), (...)] and vice versa.
+        # Every path therefore also has at least one segment (the current cable).
         a_path = self.termination_b.trace()
         b_path = self.termination_a.trace()
 
