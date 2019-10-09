@@ -2156,8 +2156,8 @@ class Interface(CableTermination, ComponentModel):
         limit_choices_to={'model__in': CABLE_TERMINATION_TYPES},
         on_delete=models.PROTECT,
         related_name='+',
-        blank = True,
-        null = True
+        blank=True,
+        null=True
     )
     connected_endpoint_id = models.PositiveIntegerField(
         blank=True,
