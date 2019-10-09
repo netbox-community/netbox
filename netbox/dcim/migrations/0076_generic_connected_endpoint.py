@@ -30,7 +30,7 @@ def connected_circuittermination_to_endpoint(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('dcim', '0074_increase_field_length_platform_name_slug'),
+        ('dcim', '0075_cable_devices'),
     ]
 
     operations = [
