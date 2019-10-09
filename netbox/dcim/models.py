@@ -2852,15 +2852,15 @@ class Cable(ChangeLoggedModel):
             ))
 
         # A component with multiple positions must be connected to a component with an equal number of positions
-        # FIXME SJMS not really, they can be connected through a chain of links
-        # term_a_positions = getattr(self.termination_a, 'positions', 1)
-        # term_b_positions = getattr(self.termination_b, 'positions', 1)
-        # if term_a_positions != term_b_positions:
-        #     raise ValidationError(
-        #         "{} has {} positions and {} has {}. Both terminations must have the same number of positions.".format(
-        #             self.termination_a, term_a_positions, self.termination_b, term_b_positions
-        #         )
-        #     )
+        # but components with one position can be carriers for multiplexed channels
+        term_a_positions = getattr(self.termination_a, 'positions', 1)
+        term_b_positions = getattr(self.termination_b, 'positions', 1)
+        if term_a_positions != term_b_positions and term_a_positions > 1 and term_b_positions > 1:
+            raise ValidationError(
+                "{} has {} positions and {} has {}. Both terminations must have the same number of positions.".format(
+                    self.termination_a, term_a_positions, self.termination_b, term_b_positions
+                )
+            )
 
         # A termination point cannot be connected to itself
         if self.termination_a == self.termination_b:
