@@ -2,6 +2,7 @@ v2.6.6 (FUTURE)
 
 ## Bug Fixes
 
+* [#3458](https://github.com/netbox-community/netbox/issues/3458) - Prevent primary IP address for a device/VM from being reassigned
 * [#3463](https://github.com/netbox-community/netbox/issues/3463) - Correct CSV headers for exported power feeds
 * [#3474](https://github.com/netbox-community/netbox/issues/3474) - Fix device status page loading when NAPALM call fails
 * [#3571](https://github.com/netbox-community/netbox/issues/3571) - Prevent erroneous redirects when editing tags
