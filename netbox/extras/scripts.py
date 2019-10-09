@@ -243,7 +243,7 @@ class BaseScript:
         Return a Django form suitable for populating the context data required to run this Script.
         """
         vars = self._get_vars()
-        form = ScriptForm(vars, data, files)
+        form = ScriptForm(vars, data, files, commit_default=getattr(self.Meta, 'commit_default', True))
 
         return form
 

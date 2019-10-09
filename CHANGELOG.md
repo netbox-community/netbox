@@ -15,6 +15,7 @@ v2.6.6 (FUTURE)
 * [#3545](https://github.com/netbox-community/netbox/issues/3545) - Add `MultiObjectVar` for custom scripts
 * [#3563](https://github.com/netbox-community/netbox/issues/3563) - Enable editing of individual DeviceType components
 * [#3580](https://github.com/netbox-community/netbox/issues/3580) - Render text and URL fields as textareas in the custom link form
+* [#3581](https://github.com/netbox-community/netbox/issues/3581) - Introduce `commit_default` custom script attribute to not commit changes by default
 
 ---
 
