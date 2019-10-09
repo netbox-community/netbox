@@ -11,7 +11,7 @@ from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
-from mptt.forms import TreeNodeChoiceField
+from mptt.forms import TreeNodeChoiceField, TreeNodeMultipleChoiceField
 from mptt.models import MPTTModel
 
 from ipam.formfields import IPFormField
@@ -27,6 +27,7 @@ __all__ = [
     'FileVar',
     'IntegerVar',
     'IPNetworkVar',
+    'MultiObjectVar',
     'ObjectVar',
     'Script',
     'StringVar',
@@ -147,6 +148,23 @@ class ObjectVar(ScriptVariable):
         # Update form field for MPTT (nested) objects
         if issubclass(queryset.model, MPTTModel):
             self.form_field = TreeNodeChoiceField
+
+
+class MultiObjectVar(ScriptVariable):
+    """
+    Like ObjectVar, but can represent one or more objects.
+    """
+    form_field = forms.ModelMultipleChoiceField
+
+    def __init__(self, queryset, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Queryset for field choices
+        self.field_attrs['queryset'] = queryset
+
+        # Update form field for MPTT (nested) objects
+        if issubclass(queryset.model, MPTTModel):
+            self.form_field = TreeNodeMultipleChoiceField
 
 
 class FileVar(ScriptVariable):

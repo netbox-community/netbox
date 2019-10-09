@@ -12,6 +12,7 @@ v2.6.6 (FUTURE)
 * [#1941](https://github.com/netbox-community/netbox/issues/1941) - Add InfiniBand interface types
 * [#3259](https://github.com/netbox-community/netbox/issues/3259) - Add `rack` and `site` filters for cables
 * [#3471](https://github.com/netbox-community/netbox/issues/3471) - Disallow raw HTML in Markdown-rendered fields
+* [#3545](https://github.com/netbox-community/netbox/issues/3545) - Add `MultiObjectVar` for custom scripts
 * [#3563](https://github.com/netbox-community/netbox/issues/3563) - Enable editing of individual DeviceType components
 * [#3580](https://github.com/netbox-community/netbox/issues/3580) - Render text and URL fields as textareas in the custom link form
 
