@@ -26,6 +26,12 @@ class ToggleColumn(tables.CheckBoxColumn):
     def __init__(self, *args, **kwargs):
         default = kwargs.pop('default', '')
         visible = kwargs.pop('visible', False)
+        if 'attrs' not in kwargs:
+            kwargs['attrs'] = {
+                'td': {
+                    'class': 'min-width'
+                }
+            }
         super().__init__(*args, default=default, visible=visible, **kwargs)
 
     @property

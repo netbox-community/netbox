@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 from netbox.admin import admin_site
 from .models import Token
 
-
 # Unregister the built-in UserAdmin so that we can use our custom admin view below
 admin_site.unregister(User)
 

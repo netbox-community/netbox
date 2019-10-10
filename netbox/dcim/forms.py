@@ -17,8 +17,7 @@ from extras.forms import (
     AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm, LocalConfigContextFilterForm
 )
 from ipam.models import IPAddress, VLAN, VLANGroup
-from tenancy.forms import TenancyForm
-from tenancy.forms import TenancyFilterForm
+from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
@@ -57,6 +56,7 @@ def get_device_by_name_or_pk(name):
 
 
 class InterfaceCommonForm:
+
     def clean(self):
 
         super().clean()
@@ -1023,6 +1023,16 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
             'device_type': forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        # Limit power_port choices to current DeviceType
+        if hasattr(self.instance, 'device_type'):
+            self.fields['power_port'].queryset = PowerPortTemplate.objects.filter(
+                device_type=self.instance.device_type
+            )
+
 
 class PowerOutletTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
@@ -1106,6 +1116,16 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
             'device_type': forms.HiddenInput(),
             'rear_port': StaticSelect2(),
         }
+
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        # Limit rear_port choices to current DeviceType
+        if hasattr(self.instance, 'device_type'):
+            self.fields['rear_port'].queryset = RearPortTemplate.objects.filter(
+                device_type=self.instance.device_type
+            )
 
 
 class FrontPortTemplateCreateForm(ComponentForm):
@@ -2215,7 +2235,7 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
                 (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
             )
 
-        site = getattr(self.instance.device, 'site', None)
+        site = getattr(self.instance.parent, 'site', None)
         if site is not None:
 
             # Add non-grouped site VLANs
@@ -3111,6 +3131,26 @@ class CableFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(
         required=False,
         label='Search'
+    )
+    site = FilterChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field="slug",
+            filter_for={
+                'rack_id': 'site',
+            }
+        )
+    )
+    rack_id = FilterChoiceField(
+        queryset=Rack.objects.all(),
+        label='Rack',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/racks/",
+            null_option=True,
+        )
     )
     type = forms.MultipleChoiceField(
         choices=add_blank_choice(CABLE_TYPE_CHOICES),

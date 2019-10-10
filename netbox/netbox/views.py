@@ -40,43 +40,54 @@ SEARCH_MAX_RESULTS = 15
 SEARCH_TYPES = OrderedDict((
     # Circuits
     ('provider', {
+        'permission': 'circuits.view_provider',
         'queryset': Provider.objects.all(),
         'filter': ProviderFilter,
         'table': ProviderTable,
         'url': 'circuits:provider_list',
     }),
     ('circuit', {
-        'queryset': Circuit.objects.prefetch_related('type', 'provider', 'tenant').prefetch_related('terminations__site'),
+        'permission': 'circuits.view_circuit',
+        'queryset': Circuit.objects.prefetch_related(
+            'type', 'provider', 'tenant'
+        ).prefetch_related(
+            'terminations__site'
+        ),
         'filter': CircuitFilter,
         'table': CircuitTable,
         'url': 'circuits:circuit_list',
     }),
     # DCIM
     ('site', {
+        'permission': 'dcim.view_site',
         'queryset': Site.objects.prefetch_related('region', 'tenant'),
         'filter': SiteFilter,
         'table': SiteTable,
         'url': 'dcim:site_list',
     }),
     ('rack', {
+        'permission': 'dcim.view_rack',
         'queryset': Rack.objects.prefetch_related('site', 'group', 'tenant', 'role'),
         'filter': RackFilter,
         'table': RackTable,
         'url': 'dcim:rack_list',
     }),
     ('rackgroup', {
+        'permission': 'dcim.view_rackgroup',
         'queryset': RackGroup.objects.prefetch_related('site').annotate(rack_count=Count('racks')),
         'filter': RackGroupFilter,
         'table': RackGroupTable,
         'url': 'dcim:rackgroup_list',
     }),
     ('devicetype', {
+        'permission': 'dcim.view_devicetype',
         'queryset': DeviceType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances')),
         'filter': DeviceTypeFilter,
         'table': DeviceTypeTable,
         'url': 'dcim:devicetype_list',
     }),
     ('device', {
+        'permission': 'dcim.view_device',
         'queryset': Device.objects.prefetch_related(
             'device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack', 'primary_ip4', 'primary_ip6',
         ),
@@ -85,18 +96,21 @@ SEARCH_TYPES = OrderedDict((
         'url': 'dcim:device_list',
     }),
     ('virtualchassis', {
+        'permission': 'dcim.view_virtualchassis',
         'queryset': VirtualChassis.objects.prefetch_related('master').annotate(member_count=Count('members')),
         'filter': VirtualChassisFilter,
         'table': VirtualChassisTable,
         'url': 'dcim:virtualchassis_list',
     }),
     ('cable', {
+        'permission': 'dcim.view_cable',
         'queryset': Cable.objects.all(),
         'filter': CableFilter,
         'table': CableTable,
         'url': 'dcim:cable_list',
     }),
     ('powerfeed', {
+        'permission': 'dcim.view_powerfeed',
         'queryset': PowerFeed.objects.all(),
         'filter': PowerFeedFilter,
         'table': PowerFeedTable,
@@ -104,30 +118,35 @@ SEARCH_TYPES = OrderedDict((
     }),
     # IPAM
     ('vrf', {
+        'permission': 'ipam.view_vrf',
         'queryset': VRF.objects.prefetch_related('tenant'),
         'filter': VRFFilter,
         'table': VRFTable,
         'url': 'ipam:vrf_list',
     }),
     ('aggregate', {
+        'permission': 'ipam.view_aggregate',
         'queryset': Aggregate.objects.prefetch_related('rir'),
         'filter': AggregateFilter,
         'table': AggregateTable,
         'url': 'ipam:aggregate_list',
     }),
     ('prefix', {
+        'permission': 'ipam.view_prefix',
         'queryset': Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role'),
         'filter': PrefixFilter,
         'table': PrefixTable,
         'url': 'ipam:prefix_list',
     }),
     ('ipaddress', {
+        'permission': 'ipam.view_ipaddress',
         'queryset': IPAddress.objects.prefetch_related('vrf__tenant', 'tenant'),
         'filter': IPAddressFilter,
         'table': IPAddressTable,
         'url': 'ipam:ipaddress_list',
     }),
     ('vlan', {
+        'permission': 'ipam.view_vlan',
         'queryset': VLAN.objects.prefetch_related('site', 'group', 'tenant', 'role'),
         'filter': VLANFilter,
         'table': VLANTable,
@@ -135,6 +154,7 @@ SEARCH_TYPES = OrderedDict((
     }),
     # Secrets
     ('secret', {
+        'permission': 'secrets.view_secret',
         'queryset': Secret.objects.prefetch_related('role', 'device'),
         'filter': SecretFilter,
         'table': SecretTable,
@@ -142,6 +162,7 @@ SEARCH_TYPES = OrderedDict((
     }),
     # Tenancy
     ('tenant', {
+        'permission': 'tenancy.view_tenant',
         'queryset': Tenant.objects.prefetch_related('group'),
         'filter': TenantFilter,
         'table': TenantTable,
@@ -149,12 +170,14 @@ SEARCH_TYPES = OrderedDict((
     }),
     # Virtualization
     ('cluster', {
+        'permission': 'virtualization.view_cluster',
         'queryset': Cluster.objects.prefetch_related('type', 'group'),
         'filter': ClusterFilter,
         'table': ClusterTable,
         'url': 'virtualization:cluster_list',
     }),
     ('virtualmachine', {
+        'permission': 'virtualization.view_virtualmachine',
         'queryset': VirtualMachine.objects.prefetch_related(
             'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
         ),
@@ -243,11 +266,16 @@ class SearchView(View):
         if form.is_valid():
 
             # Searching for a single type of object
+            obj_types = []
             if form.cleaned_data['obj_type']:
-                obj_types = [form.cleaned_data['obj_type']]
+                obj_type = form.cleaned_data['obj_type']
+                if request.user.has_perm(SEARCH_TYPES[obj_type]['permission']):
+                    obj_types.append(form.cleaned_data['obj_type'])
             # Searching all object types
             else:
-                obj_types = SEARCH_TYPES.keys()
+                for obj_type in SEARCH_TYPES.keys():
+                    if request.user.has_perm(SEARCH_TYPES[obj_type]['permission']):
+                        obj_types.append(obj_type)
 
             for obj_type in obj_types:
 

@@ -94,8 +94,11 @@ $(document).ready(function() {
                     var row="<tr><td>" + name + "</td><td>" + obj['%usage'] + "%</td></tr>";
                     $("#cpu").after(row)
                 });
-                $('#memory').after("<tr><td>Used</td><td>" + json['get_environment']['memory']['used_ram'] + "</td></tr>");
-                $('#memory').after("<tr><td>Available</td><td>" + json['get_environment']['memory']['available_ram'] + "</td></tr>");
+                if (json['get_environment']['memory']) {
+                    var memory = $('#memory');
+                    memory.after("<tr><td>Used</td><td>" + json['get_environment']['memory']['used_ram'] + "</td></tr>");
+                    memory.after("<tr><td>Available</td><td>" + json['get_environment']['memory']['available_ram'] + "</td></tr>");
+                }
                 $.each(json['get_environment']['temperature'], function(name, obj) {
                     var style = "success";
                     if (obj['is_alert']) {

@@ -6,8 +6,6 @@ from io import StringIO
 from django import forms
 from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
-from django.db.models import Count
-from django.urls import reverse_lazy
 from mptt.forms import TreeNodeMultipleChoiceField
 
 from .constants import *

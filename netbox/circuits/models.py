@@ -9,7 +9,7 @@ from dcim.models import CableTermination
 from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
-from .constants import CIRCUIT_STATUS_ACTIVE, CIRCUIT_STATUS_CHOICES, TERM_SIDE_CHOICES
+from .constants import *
 
 
 class Provider(ChangeLoggedModel, CustomFieldModel):

@@ -18,8 +18,8 @@ or join us in the #netbox Slack channel on [NetworkToCode](https://networktocode
 
 |             | status |
 |-------------|------------|
-| **master** | [![Build Status](https://travis-ci.org/digitalocean/netbox.svg?branch=master)](https://travis-ci.org/digitalocean/netbox) |
-| **develop** | [![Build Status](https://travis-ci.org/digitalocean/netbox.svg?branch=develop)](https://travis-ci.org/digitalocean/netbox) |
+| **master** | [![Build Status](https://travis-ci.org/netbox-community/netbox.svg?branch=master)](https://travis-ci.com/netbox-community/netbox/) |
+| **develop** | [![Build Status](https://travis-ci.org/netbox-community/netbox.svg?branch=develop)](https://travis-ci.com/netbox-community/netbox/) |
 
 ## Screenshots
 

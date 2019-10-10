@@ -5,8 +5,8 @@ from dcim.models import Region, Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
-from .constants import CIRCUIT_STATUS_CHOICES
-from .models import Provider, Circuit, CircuitTermination, CircuitType
+from .constants import *
+from .models import Circuit, CircuitTermination, CircuitType, Provider
 
 
 class ProviderFilter(CustomFieldFilterSet):

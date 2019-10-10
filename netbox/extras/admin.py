@@ -86,6 +86,10 @@ class CustomLinkForm(forms.ModelForm):
     class Meta:
         model = CustomLink
         exclude = []
+        widgets = {
+            'text': forms.Textarea,
+            'url': forms.Textarea,
+        }
         help_texts = {
             'text': 'Jinja2 template code for the link text. Reference the object as <code>{{ obj }}</code>. Links '
                     'which render as empty text will not be displayed.',

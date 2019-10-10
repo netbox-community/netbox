@@ -207,7 +207,7 @@ The file path to the location where media files (such as image attachments) are 
 
 Default: False
 
-Toggle exposing Prometheus metrics at `/metrics`. See the [Prometheus Metrics](../additional-features/prometheus-metrics/) documentation for more details.
+Toggle exposing Prometheus metrics at `/metrics`. See the [Prometheus Metrics](../../additional-features/prometheus-metrics/) documentation for more details.
 
 ---
 
@@ -305,7 +305,7 @@ The time zone NetBox will use when dealing with dates and times. It is recommend
 
 Default: False
 
-Enable this option to run the webhook backend. See the docs section on the webhook backend [here](../additional-features/webhooks/) for more information on setup and use.
+Enable this option to run the webhook backend. See the docs section on the webhook backend [here](../../additional-features/webhooks/) for more information on setup and use.
 
 ---
 

@@ -63,6 +63,14 @@ A list of field names indicating the order in which the form fields should appea
 field_order = ['var1', 'var2', 'var3']
 ```
 
+### `commit_default`
+
+The checkbox to commit database changes when executing a script is checked by default. Set `commit_default` to False under the script's Meta class to leave this option unchecked by default.
+
+```
+commit_default = False
+```
+
 ## Reading Data from Files
 
 The Script class provides two convenience methods for reading data from files:
