@@ -1,4 +1,5 @@
 from django.db.models import Manager
+from django.db.models.expressions import RawSQL
 
 NAT1 = r"CAST(SUBSTRING({}.{} FROM '^(\d{{1,9}})') AS integer)"
 NAT2 = r"SUBSTRING({}.{} FROM '^\d*(.*?)\d*$')"
@@ -21,11 +22,11 @@ class NaturalOrderingManager(Manager):
         db_field = self.natural_order_field
 
         # Append the three subfields derived from the designated natural ordering field
-        queryset = queryset.extra(select={
-            '_nat1': NAT1.format(db_table, db_field),
-            '_nat2': NAT2.format(db_table, db_field),
-            '_nat3': NAT3.format(db_table, db_field),
-        })
+        queryset = (
+            queryset.annotate(_nat1=RawSQL(NAT1.format(db_table, db_field), ()))
+            .annotate(_nat2=RawSQL(NAT2.format(db_table, db_field), ()))
+            .annotate(_nat3=RawSQL(NAT3.format(db_table, db_field), ()))
+        )
 
         # Replace any instance of the designated natural ordering field with its three subfields
         ordering = []

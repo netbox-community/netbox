@@ -5,10 +5,8 @@
 {% block content %}
     {% if obj %}<h1>{{ obj }}</h1>{% endif %}
     {% include 'panel_table.html' %}
-        {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
-    {% if settings.CHANGELOG_RETENTION %}
-        <div class="text-muted">
-            Changelog retention: {% if settings.CHANGELOG_RETENTION == 0 %}Indefinite{% else %}{{ settings.CHANGELOG_RETENTION }} days{% endif %}
-        </div>
-    {% endif %}
+    {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+    <div class="text-muted">
+        Changelog retention: {% if settings.CHANGELOG_RETENTION %}{{ settings.CHANGELOG_RETENTION }} days{% else %}Indefinite{% endif %}
+    </div>
 {% endblock %}

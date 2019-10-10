@@ -1,4 +1,3 @@
-
 # IP address families
 AF_CHOICES = (
     (4, 'IPv4'),

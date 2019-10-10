@@ -1,4 +1,3 @@
-
 # Models which support custom fields
 CUSTOMFIELD_MODELS = [
     'circuits.circuit',

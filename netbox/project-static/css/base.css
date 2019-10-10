@@ -149,6 +149,9 @@ table.attr-table td:nth-child(1) {
 .table-headings th {
     background-color: #f5f5f5;
 }
+td.min-width {
+    width: 1%;
+}
 
 /* Paginator */
 div.paginator {

@@ -3,6 +3,7 @@ import json
 import re
 
 from django import template
+from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
@@ -58,7 +59,12 @@ def gfm(value):
     """
     Render text as GitHub-Flavored Markdown
     """
+    # Strip HTML tags
+    value = strip_tags(value)
+
+    # Render Markdown with GFM extension
     html = markdown(value, extensions=['mdx_gfm'])
+
     return mark_safe(html)
 
 

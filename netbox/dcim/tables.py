@@ -195,6 +195,16 @@ POWERPANEL_POWERFEED_COUNT = """
 """
 
 
+def get_component_template_actions(model_name):
+    return """
+        {{% if perms.dcim.change_{model_name} %}}
+            <a href="{{% url 'dcim:{model_name}_edit' pk=record.pk %}}?return_url={{{{ request.path }}}}" class="btn btn-xs btn-warning">
+                <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+            </a>
+        {{% endif %}}
+    """.format(model_name=model_name).strip()
+
+
 #
 # Regions
 #
@@ -404,74 +414,117 @@ class DeviceTypeTable(BaseTable):
 
 class ConsolePortTemplateTable(BaseTable):
     pk = ToggleColumn()
+    actions = tables.TemplateColumn(
+        template_code=get_component_template_actions('consoleporttemplate'),
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = ConsolePortTemplate
-        fields = ('pk', 'name')
+        fields = ('pk', 'name', 'actions')
         empty_text = "None"
 
 
 class ConsoleServerPortTemplateTable(BaseTable):
     pk = ToggleColumn()
+    actions = tables.TemplateColumn(
+        template_code=get_component_template_actions('consoleserverporttemplate'),
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = ConsoleServerPortTemplate
-        fields = ('pk', 'name')
+        fields = ('pk', 'name', 'actions')
         empty_text = "None"
 
 
 class PowerPortTemplateTable(BaseTable):
     pk = ToggleColumn()
+    actions = tables.TemplateColumn(
+        template_code=get_component_template_actions('powerporttemplate'),
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = PowerPortTemplate
-        fields = ('pk', 'name', 'maximum_draw', 'allocated_draw')
+        fields = ('pk', 'name', 'maximum_draw', 'allocated_draw', 'actions')
         empty_text = "None"
 
 
 class PowerOutletTemplateTable(BaseTable):
     pk = ToggleColumn()
+    actions = tables.TemplateColumn(
+        template_code=get_component_template_actions('poweroutlettemplate'),
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = PowerOutletTemplate
-        fields = ('pk', 'name', 'power_port', 'feed_leg')
+        fields = ('pk', 'name', 'power_port', 'feed_leg', 'actions')
         empty_text = "None"
 
 
 class InterfaceTemplateTable(BaseTable):
     pk = ToggleColumn()
     mgmt_only = tables.TemplateColumn("{% if value %}OOB Management{% endif %}")
+    actions = tables.TemplateColumn(
+        template_code=get_component_template_actions('interfacetemplate'),
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = InterfaceTemplate
-        fields = ('pk', 'name', 'mgmt_only', 'type')
+        fields = ('pk', 'name', 'mgmt_only', 'type', 'actions')
         empty_text = "None"
 
 
 class FrontPortTemplateTable(BaseTable):
     pk = ToggleColumn()
+    rear_port_position = tables.Column(
+        verbose_name='Position'
+    )
+    actions = tables.TemplateColumn(
+        template_code=get_component_template_actions('frontporttemplate'),
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = FrontPortTemplate
-        fields = ('pk', 'name', 'type', 'rear_port', 'rear_port_position')
+        fields = ('pk', 'name', 'type', 'rear_port', 'rear_port_position', 'actions')
         empty_text = "None"
 
 
 class RearPortTemplateTable(BaseTable):
     pk = ToggleColumn()
+    actions = tables.TemplateColumn(
+        template_code=get_component_template_actions('rearporttemplate'),
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = RearPortTemplate
-        fields = ('pk', 'name', 'type', 'positions')
+        fields = ('pk', 'name', 'type', 'positions', 'actions')
         empty_text = "None"
 
 
 class DeviceBayTemplateTable(BaseTable):
     pk = ToggleColumn()
+    actions = tables.TemplateColumn(
+        template_code=get_component_template_actions('devicebaytemplate'),
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = DeviceBayTemplate
-        fields = ('pk', 'name')
+        fields = ('pk', 'name', 'actions')
         empty_text = "None"
 
 

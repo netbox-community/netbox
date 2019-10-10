@@ -9,7 +9,7 @@ from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import (
     MultiValueMACAddressFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
 )
-from .constants import VM_STATUS_CHOICES
+from .constants import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 

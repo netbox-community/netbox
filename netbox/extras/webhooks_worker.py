@@ -6,7 +6,7 @@ import requests
 from django_rq import job
 from rest_framework.utils.encoders import JSONEncoder
 
-from extras.constants import WEBHOOK_CT_JSON, WEBHOOK_CT_X_WWW_FORM_ENCODED, OBJECTCHANGE_ACTION_CHOICES
+from .constants import *
 
 
 @job('default')
