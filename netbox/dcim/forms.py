@@ -3132,6 +3132,26 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Search'
     )
+    site = FilterChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field="slug",
+            filter_for={
+                'rack_id': 'site',
+            }
+        )
+    )
+    rack_id = FilterChoiceField(
+        queryset=Rack.objects.all(),
+        label='Rack',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/racks/",
+            null_option=True,
+        )
+    )
     type = forms.MultipleChoiceField(
         choices=add_blank_choice(CABLE_TYPE_CHOICES),
         required=False,
