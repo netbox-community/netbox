@@ -10,6 +10,7 @@
 * [#3574](https://github.com/netbox-community/netbox/issues/3574) - Change `device` to `parent` in interface editing VLAN filtering logic
 * [#3575](https://github.com/netbox-community/netbox/issues/3575) - Restore label for comments field when bulk editing circuits
 * [#3582](https://github.com/netbox-community/netbox/issues/3582) - Enforce view permissions on global search results
+* [#3588](https://github.com/netbox-community/netbox/issues/3588) - Enforce object-form JSON for local context data on devices and VMs
 
 ## Enhancements
 

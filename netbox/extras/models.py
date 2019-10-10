@@ -805,7 +805,10 @@ class ConfigContext(models.Model):
 
 
 class ConfigContextModel(models.Model):
-
+    """
+    A model which includes local configuration context data. This local data will override any inherited data from
+    ConfigContexts.
+    """
     local_context_data = JSONField(
         blank=True,
         null=True,
@@ -829,6 +832,16 @@ class ConfigContextModel(models.Model):
             data = deepmerge(data, self.local_context_data)
 
         return data
+
+    def clean(self):
+
+        super().clean()
+
+        # Verify that JSON data is provided as an object
+        if self.local_context_data and type(self.local_context_data) is not dict:
+            raise ValidationError(
+                {'local_context_data': 'JSON data must be in object form. Example: {"foo": 123}'}
+            )
 
 
 #

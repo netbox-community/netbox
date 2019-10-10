@@ -255,6 +255,8 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 
     def clean(self):
 
+        super().clean()
+
         # Validate primary IP addresses
         interfaces = self.interfaces.all()
         for field in ['primary_ip4', 'primary_ip6']:

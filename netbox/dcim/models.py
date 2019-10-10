@@ -1609,6 +1609,8 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 
     def clean(self):
 
+        super().clean()
+
         # Validate site/rack combination
         if self.rack and self.site != self.rack.site:
             raise ValidationError({
