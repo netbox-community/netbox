@@ -2,9 +2,17 @@
 
 ## Notes
 
-* This release includes a migration which automatically updates all existing cables to enable filtering by site/rack
-(see [#3259](https://github.com/netbox-community/netbox/issues/3259)). This migration may take several minutes to
-complete on installations with tens of thousands of cables defined.
+* This release includes a migration which automatically updates all existing cables to enable filtering by site/rack (see [#3259](https://github.com/netbox-community/netbox/issues/3259)). This migration may take several minutes to complete on installations with tens of thousands of cables defined.
+
+## Enhancements
+
+* [#1941](https://github.com/netbox-community/netbox/issues/1941) - Add InfiniBand interface types
+* [#3259](https://github.com/netbox-community/netbox/issues/3259) - Add `rack` and `site` filters for cables
+* [#3471](https://github.com/netbox-community/netbox/issues/3471) - Disallow raw HTML in Markdown-rendered fields
+* [#3545](https://github.com/netbox-community/netbox/issues/3545) - Add `MultiObjectVar` for custom scripts
+* [#3563](https://github.com/netbox-community/netbox/issues/3563) - Enable editing of individual DeviceType components
+* [#3580](https://github.com/netbox-community/netbox/issues/3580) - Render text and URL fields as textareas in the custom link form
+* [#3581](https://github.com/netbox-community/netbox/issues/3581) - Introduce `commit_default` custom script attribute to not commit changes by default
 
 ## Bug Fixes
 
@@ -17,16 +25,6 @@ complete on installations with tens of thousands of cables defined.
 * [#3575](https://github.com/netbox-community/netbox/issues/3575) - Restore label for comments field when bulk editing circuits
 * [#3582](https://github.com/netbox-community/netbox/issues/3582) - Enforce view permissions on global search results
 * [#3588](https://github.com/netbox-community/netbox/issues/3588) - Enforce object-form JSON for local context data on devices and VMs
-
-## Enhancements
-
-* [#1941](https://github.com/netbox-community/netbox/issues/1941) - Add InfiniBand interface types
-* [#3259](https://github.com/netbox-community/netbox/issues/3259) - Add `rack` and `site` filters for cables
-* [#3471](https://github.com/netbox-community/netbox/issues/3471) - Disallow raw HTML in Markdown-rendered fields
-* [#3545](https://github.com/netbox-community/netbox/issues/3545) - Add `MultiObjectVar` for custom scripts
-* [#3563](https://github.com/netbox-community/netbox/issues/3563) - Enable editing of individual DeviceType components
-* [#3580](https://github.com/netbox-community/netbox/issues/3580) - Render text and URL fields as textareas in the custom link form
-* [#3581](https://github.com/netbox-community/netbox/issues/3581) - Introduce `commit_default` custom script attribute to not commit changes by default
 
 ---
 
