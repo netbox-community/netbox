@@ -9,10 +9,11 @@ from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
-from dcim.models import Interface
+from dcim.models import Device, Interface
 from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
+from virtualization.models import VirtualMachine
 from .constants import *
 from .fields import IPNetworkField, IPAddressField
 from .querysets import PrefixQuerySet
@@ -633,6 +634,34 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
                         'address': "Duplicate IP address found in {}: {}".format(
                             "VRF {}".format(self.vrf) if self.vrf else "global table",
                             duplicate_ips.first(),
+                        )
+                    })
+
+        if self.pk:
+
+            # Check for primary IP assignment that doesn't match the assigned device/VM
+            device = Device.objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
+            if device:
+                if self.interface is None:
+                    raise ValidationError({
+                        'interface': "IP address is primary for device {} but not assigned".format(device)
+                    })
+                elif (device.primary_ip4 == self or device.primary_ip6 == self) and self.interface.device != device:
+                    raise ValidationError({
+                        'interface': "IP address is primary for device {} but assigned to {} ({})".format(
+                            device, self.interface.device, self.interface
+                        )
+                    })
+            vm = VirtualMachine.objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
+            if vm:
+                if self.interface is None:
+                    raise ValidationError({
+                        'interface': "IP address is primary for virtual machine {} but not assigned".format(vm)
+                    })
+                elif (vm.primary_ip4 == self or vm.primary_ip6 == self) and self.interface.virtual_machine != vm:
+                    raise ValidationError({
+                        'interface': "IP address is primary for virtual machine {} but assigned to {} ({})".format(
+                            vm, self.interface.virtual_machine, self.interface
                         )
                     })
 

@@ -9,7 +9,7 @@ from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Case, Count, Q, Sum, When, F, Subquery, OuterRef
+from django.db.models import Count, Q, Sum
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
@@ -1609,6 +1609,8 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 
     def clean(self):
 
+        super().clean()
+
         # Validate site/rack combination
         if self.rack and self.site != self.rack.site:
             raise ValidationError({
@@ -2781,6 +2783,22 @@ class Cable(ChangeLoggedModel):
         blank=True,
         null=True
     )
+    # Cache the associated device (where applicable) for the A and B terminations. This enables filtering of Cables by
+    # their associated Devices.
+    _termination_a_device = models.ForeignKey(
+        to=Device,
+        on_delete=models.CASCADE,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    _termination_b_device = models.ForeignKey(
+        to=Device,
+        on_delete=models.CASCADE,
+        related_name='+',
+        blank=True,
+        null=True
+    )
 
     csv_headers = [
         'termination_a_type', 'termination_a_id', 'termination_b_type', 'termination_b_id', 'type', 'status', 'label',
@@ -2894,6 +2912,12 @@ class Cable(ChangeLoggedModel):
         # Store the given length (if any) in meters for use in database ordering
         if self.length and self.length_unit:
             self._abs_length = to_meters(self.length, self.length_unit)
+
+        # Store the parent Device for the A and B terminations (if applicable) to enable filtering
+        if hasattr(self.termination_a, 'device'):
+            self._termination_a_device = self.termination_a.device
+        if hasattr(self.termination_b, 'device'):
+            self._termination_b_device = self.termination_b.device
 
         super().save(*args, **kwargs)
 
@@ -3086,6 +3110,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
 
     def to_csv(self):
         return (
+            self.power_panel.site.name,
             self.power_panel.name,
             self.rack.name if self.rack else None,
             self.name,

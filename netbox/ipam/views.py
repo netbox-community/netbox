@@ -2,6 +2,7 @@ import netaddr
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count, Q
+from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
 from django_tables2 import RequestConfig
@@ -13,7 +14,7 @@ from utilities.views import (
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
-from .constants import IPADDRESS_ROLE_ANYCAST, PREFIX_STATUS_ACTIVE, PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED
+from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 
@@ -291,9 +292,10 @@ class RIRBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class AggregateListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'ipam.view_aggregate'
-    queryset = Aggregate.objects.prefetch_related('rir').extra(select={
-        'child_count': 'SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix',
-    })
+    queryset = Aggregate.objects.prefetch_related('rir').annotate(
+        child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
+    )
+
     filter = filters.AggregateFilter
     filter_form = forms.AggregateFilterForm
     table = tables.AggregateDetailTable

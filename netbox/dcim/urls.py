@@ -93,35 +93,43 @@ urlpatterns = [
     # Console port templates
     path(r'device-types/<int:pk>/console-ports/add/', views.ConsolePortTemplateCreateView.as_view(), name='devicetype_add_consoleport'),
     path(r'device-types/<int:pk>/console-ports/delete/', views.ConsolePortTemplateBulkDeleteView.as_view(), name='devicetype_delete_consoleport'),
+    path(r'console-port-templates/<int:pk>/edit/', views.ConsolePortTemplateEditView.as_view(), name='consoleporttemplate_edit'),
 
     # Console server port templates
     path(r'device-types/<int:pk>/console-server-ports/add/', views.ConsoleServerPortTemplateCreateView.as_view(), name='devicetype_add_consoleserverport'),
     path(r'device-types/<int:pk>/console-server-ports/delete/', views.ConsoleServerPortTemplateBulkDeleteView.as_view(), name='devicetype_delete_consoleserverport'),
+    path(r'console-server-port-templates/<int:pk>/edit/', views.ConsoleServerPortTemplateEditView.as_view(), name='consoleserverporttemplate_edit'),
 
     # Power port templates
     path(r'device-types/<int:pk>/power-ports/add/', views.PowerPortTemplateCreateView.as_view(), name='devicetype_add_powerport'),
     path(r'device-types/<int:pk>/power-ports/delete/', views.PowerPortTemplateBulkDeleteView.as_view(), name='devicetype_delete_powerport'),
+    path(r'power-port-templates/<int:pk>/edit/', views.PowerPortTemplateEditView.as_view(), name='powerporttemplate_edit'),
 
     # Power outlet templates
     path(r'device-types/<int:pk>/power-outlets/add/', views.PowerOutletTemplateCreateView.as_view(), name='devicetype_add_poweroutlet'),
     path(r'device-types/<int:pk>/power-outlets/delete/', views.PowerOutletTemplateBulkDeleteView.as_view(), name='devicetype_delete_poweroutlet'),
+    path(r'power-outlet-templates/<int:pk>/edit/', views.PowerOutletTemplateEditView.as_view(), name='poweroutlettemplate_edit'),
 
     # Interface templates
     path(r'device-types/<int:pk>/interfaces/add/', views.InterfaceTemplateCreateView.as_view(), name='devicetype_add_interface'),
     path(r'device-types/<int:pk>/interfaces/edit/', views.InterfaceTemplateBulkEditView.as_view(), name='devicetype_bulkedit_interface'),
     path(r'device-types/<int:pk>/interfaces/delete/', views.InterfaceTemplateBulkDeleteView.as_view(), name='devicetype_delete_interface'),
+    path(r'interface-templates/<int:pk>/edit/', views.InterfaceTemplateEditView.as_view(), name='interfacetemplate_edit'),
 
     # Front port templates
     path(r'device-types/<int:pk>/front-ports/add/', views.FrontPortTemplateCreateView.as_view(), name='devicetype_add_frontport'),
     path(r'device-types/<int:pk>/front-ports/delete/', views.FrontPortTemplateBulkDeleteView.as_view(), name='devicetype_delete_frontport'),
+    path(r'front-port-templates/<int:pk>/edit/', views.FrontPortTemplateEditView.as_view(), name='frontporttemplate_edit'),
 
     # Rear port templates
     path(r'device-types/<int:pk>/rear-ports/add/', views.RearPortTemplateCreateView.as_view(), name='devicetype_add_rearport'),
     path(r'device-types/<int:pk>/rear-ports/delete/', views.RearPortTemplateBulkDeleteView.as_view(), name='devicetype_delete_rearport'),
+    path(r'rear-port-templates/<int:pk>/edit/', views.RearPortTemplateEditView.as_view(), name='rearporttemplate_edit'),
 
     # Device bay templates
     path(r'device-types/<int:pk>/device-bays/add/', views.DeviceBayTemplateCreateView.as_view(), name='devicetype_add_devicebay'),
     path(r'device-types/<int:pk>/device-bays/delete/', views.DeviceBayTemplateBulkDeleteView.as_view(), name='devicetype_delete_devicebay'),
+    path(r'device-bay-templates/<int:pk>/edit/', views.DeviceBayTemplateEditView.as_view(), name='devicebaytemplate_edit'),
 
     # Device roles
     path(r'device-roles/', views.DeviceRoleListView.as_view(), name='devicerole_list'),

@@ -8,16 +8,12 @@ from taggit.forms import TagField
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
-from utilities.constants import COLOR_CHOICES
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
     CommentField, ContentTypeSelect, FilterChoiceField, LaxURLField, JSONField, SlugField, StaticSelect2,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
-from .constants import (
-    CF_FILTER_DISABLED, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL,
-    OBJECTCHANGE_ACTION_CHOICES,
-)
+from .constants import *
 from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachment, ObjectChange, Tag
 
 
@@ -431,13 +427,17 @@ class ScriptForm(BootstrapMixin, forms.Form):
         help_text="Commit changes to the database (uncheck for a dry-run)"
     )
 
-    def __init__(self, vars, *args, **kwargs):
+    def __init__(self, vars, *args, commit_default=True, **kwargs):
 
         super().__init__(*args, **kwargs)
 
         # Dynamically populate fields for variables
         for name, var in vars.items():
             self.fields[name] = var.as_field()
+
+        # Toggle default commit behavior based on Meta option
+        if not commit_default:
+            self.fields['_commit'].initial = False
 
         # Move _commit to the end of the form
         self.fields.move_to_end('_commit', True)

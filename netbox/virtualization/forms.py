@@ -7,8 +7,7 @@ from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
 from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
 from ipam.models import IPAddress, VLANGroup, VLAN
-from tenancy.forms import TenancyForm
-from tenancy.forms import TenancyFilterForm
+from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
@@ -16,7 +15,7 @@ from utilities.forms import (
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField,
     SmallTextarea, StaticSelect2, StaticSelect2Multiple
 )
-from .constants import VM_STATUS_CHOICES
+from .constants import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 VIFACE_TYPE_CHOICES = (
@@ -671,7 +670,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
                 (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
             )
 
-        site = getattr(self.instance.device, 'site', None)
+        site = getattr(self.instance.parent, 'site', None)
         if site is not None:
 
             # Add non-grouped site VLANs

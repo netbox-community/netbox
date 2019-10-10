@@ -3,10 +3,9 @@ import datetime
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
-from extras.constants import OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
 from extras.models import Webhook
 from utilities.api import get_serializer_for_model
-from .constants import WEBHOOK_MODELS
+from .constants import *
 
 
 def enqueue_webhooks(instance, user, request_id, action):
