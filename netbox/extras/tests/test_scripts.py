@@ -120,6 +120,29 @@ class ScriptVariablesTest(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data['var1'].pk, data['var1'])
 
+    def test_multiobjectvar(self):
+
+        class TestScript(Script):
+
+            var1 = MultiObjectVar(
+                queryset=DeviceRole.objects.all()
+            )
+
+        # Populate some objects
+        for i in range(1, 6):
+            DeviceRole(
+                name='Device Role {}'.format(i),
+                slug='device-role-{}'.format(i)
+            ).save()
+
+        # Validate valid data
+        data = {'var1': [role.pk for role in DeviceRole.objects.all()[:3]]}
+        form = TestScript().as_form(data, None)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['var1'][0].pk, data['var1'][0])
+        self.assertEqual(form.cleaned_data['var1'][1].pk, data['var1'][1])
+        self.assertEqual(form.cleaned_data['var1'][2].pk, data['var1'][2])
+
     def test_filevar(self):
 
         class TestScript(Script):

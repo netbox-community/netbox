@@ -3108,6 +3108,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
 
     def to_csv(self):
         return (
+            self.power_panel.site.name,
             self.power_panel.name,
             self.rack.name if self.rack else None,
             self.name,

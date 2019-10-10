@@ -2,17 +2,24 @@
 
 ## Bug Fixes
 
+* [#3458](https://github.com/netbox-community/netbox/issues/3458) - Prevent primary IP address for a device/VM from being reassigned
+* [#3463](https://github.com/netbox-community/netbox/issues/3463) - Correct CSV headers for exported power feeds
+* [#3474](https://github.com/netbox-community/netbox/issues/3474) - Fix device status page loading when NAPALM call fails
 * [#3571](https://github.com/netbox-community/netbox/issues/3571) - Prevent erroneous redirects when editing tags
 * [#3573](https://github.com/netbox-community/netbox/issues/3573) - Ensure consistent display of changelog retention period
 * [#3574](https://github.com/netbox-community/netbox/issues/3574) - Change `device` to `parent` in interface editing VLAN filtering logic
 * [#3575](https://github.com/netbox-community/netbox/issues/3575) - Restore label for comments field when bulk editing circuits
+* [#3582](https://github.com/netbox-community/netbox/issues/3582) - Enforce view permissions on global search results
 
 ## Enhancements
 
 * [#1941](https://github.com/netbox-community/netbox/issues/1941) - Add InfiniBand interface types
 * [#3259](https://github.com/netbox-community/netbox/issues/3259) - Add `rack` and `site` filters for cables
+* [#3471](https://github.com/netbox-community/netbox/issues/3471) - Disallow raw HTML in Markdown-rendered fields
+* [#3545](https://github.com/netbox-community/netbox/issues/3545) - Add `MultiObjectVar` for custom scripts
 * [#3563](https://github.com/netbox-community/netbox/issues/3563) - Enable editing of individual DeviceType components
 * [#3580](https://github.com/netbox-community/netbox/issues/3580) - Render text and URL fields as textareas in the custom link form
+* [#3581](https://github.com/netbox-community/netbox/issues/3581) - Introduce `commit_default` custom script attribute to not commit changes by default
 
 ---
 
