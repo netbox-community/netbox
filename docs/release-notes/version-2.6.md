@@ -1,4 +1,10 @@
-# v2.6.6 (FUTURE)
+# v2.6.6 (2019-10-10)
+
+## Notes
+
+* This release includes a migration which automatically updates all existing cables to enable filtering by site/rack
+(see [#3259](https://github.com/netbox-community/netbox/issues/3259)). This migration may take several minutes to
+complete on installations with tens of thousands of cables defined.
 
 ## Bug Fixes
 

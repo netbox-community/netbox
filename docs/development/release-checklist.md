@@ -55,7 +55,7 @@ Ensure that continuous integration testing on the `develop` branch is completing
 
 ## Update Version and Changelog
 
-Update the `VERSION` constant in `settings.py` to the new release version and add the current date to the release notes in `CHANGELOG.md`.
+Update the `VERSION` constant in `settings.py` to the new release version and annotate the current data in the release notes for the new version.
 
 ## Submit a Pull Request
 
