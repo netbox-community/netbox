@@ -33,6 +33,10 @@ Update the following static libraries to their most recent stable release:
 * jQuery
 * jQuery UI
 
+## Create a new Release Notes Page
+
+Create a file at `/docs/release-notes/X.Y.md` to establish the release notes for the new release. Add the file to the table of contents within `mkdocs.yml`.
+
 ## Manually Perform a New Install
 
 Create a new installation of NetBox by following [the current documentation](http://netbox.readthedocs.io/en/latest/). This should be a manual process, so that issues with the documentation can be identified and corrected.
