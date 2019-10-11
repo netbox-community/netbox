@@ -1289,6 +1289,9 @@ class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
 
 
 class InterfaceTemplateImportForm(ComponentTemplateImportForm):
+    type = forms.ChoiceField(
+        choices=InterfaceTypes.as_choices()
+    )
 
     class Meta:
         model = InterfaceTemplate
@@ -1296,8 +1299,16 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
             'device_type', 'name', 'type', 'mgmt_only',
         ]
 
+    def clean_type(self):
+        # Convert slug value to field integer value
+        slug = self.cleaned_data['type']
+        return InterfaceTypes.slug_to_integer(slug)
+
 
 class FrontPortTemplateImportForm(ComponentTemplateImportForm):
+    type = forms.ChoiceField(
+        choices=PortTypes.as_choices()
+    )
     rear_port = forms.ModelChoiceField(
         queryset=RearPortTemplate.objects.all(),
         to_field_name='name',
@@ -1310,14 +1321,27 @@ class FrontPortTemplateImportForm(ComponentTemplateImportForm):
             'device_type', 'name', 'type', 'rear_port', 'rear_port_position',
         ]
 
+    def clean_type(self):
+        # Convert slug value to field integer value
+        slug = self.cleaned_data['type']
+        return PortTypes.slug_to_integer(slug)
+
 
 class RearPortTemplateImportForm(ComponentTemplateImportForm):
+    type = forms.ChoiceField(
+        choices=PortTypes.as_choices()
+    )
 
     class Meta:
         model = RearPortTemplate
         fields = [
             'device_type', 'name', 'type', 'positions',
         ]
+
+    def clean_type(self):
+        # Convert slug value to field integer value
+        slug = self.cleaned_data['type']
+        return PortTypes.slug_to_integer(slug)
 
 
 class DeviceBayTemplateImportForm(ComponentTemplateImportForm):

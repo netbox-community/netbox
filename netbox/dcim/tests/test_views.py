@@ -253,28 +253,28 @@ power-outlets:
     feed_leg: 1
 interfaces:
   - name: Interface 1
-    type: 1000
+    type: 1000base-t
     mgmt_only: true
   - name: Interface 2
-    type: 1000
+    type: 1000base-t
   - name: Interface 3
-    type: 1000
+    type: 1000base-t
 rear-ports:
   - name: Rear Port 1
-    type: 1000
+    type: 8p8c
   - name: Rear Port 2
-    type: 1000
+    type: 8p8c
   - name: Rear Port 3
-    type: 1000
+    type: 8p8c
 front-ports:
   - name: Front Port 1
-    type: 1000
+    type: 8p8c
     rear_port: Rear Port 1
   - name: Front Port 2
-    type: 1000
+    type: 8p8c
     rear_port: Rear Port 2
   - name: Front Port 3
-    type: 1000
+    type: 8p8c
     rear_port: Rear Port 3
 device-bays:
   - name: Device Bay 1
