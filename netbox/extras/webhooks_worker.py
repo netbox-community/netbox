@@ -49,6 +49,8 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
 
     with requests.Session() as session:
         session.verify = webhook.ssl_verification
+        if webhook.ca_file_path:
+            session.verify = webhook.ca_file_path
         response = session.send(prepared_request)
 
     if response.status_code >= 200 and response.status_code <= 299:
