@@ -25,6 +25,9 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
     headers = {
         'Content-Type': webhook.get_http_content_type_display(),
     }
+    if webhook.additional_headers:
+        headers.update(webhook.additional_headers)
+
     params = {
         'method': 'POST',
         'url': webhook.payload_url,

@@ -2,11 +2,10 @@
 
 ## Enhancements
 
+* [#3445](https://github.com/netbox-community/netbox/issues/3445) - Add support for additional user defined headers to be added to webhook requests
 * [#3499](https://github.com/netbox-community/netbox/issues/3499) - Add `ca_file_path` to Webhook model to support user supplied CA certificate verification of webhook requests
 
 ## Bug Fixes
-
-
 
 ---
 
