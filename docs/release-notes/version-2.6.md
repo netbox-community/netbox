@@ -2,7 +2,7 @@
 
 ## Enhancements
 
-* [#3499](https://github.com/netbox-community/netbox/issues/3499) - Add `ca_file_path` to Webhook model to support user supplied CA certificate verrification of webhook requests
+* [#3499](https://github.com/netbox-community/netbox/issues/3499) - Add `ca_file_path` to Webhook model to support user supplied CA certificate verification of webhook requests
 
 ## Bug Fixes
 
