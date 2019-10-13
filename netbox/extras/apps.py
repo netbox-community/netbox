@@ -21,11 +21,11 @@ class ExtrasConfig(AppConfig):
                 )
             try:
                 rs = redis.Redis(
-                    host=settings.REDIS_HOST,
-                    port=settings.REDIS_PORT,
-                    db=settings.REDIS_DATABASE,
-                    password=settings.REDIS_PASSWORD or None,
-                    ssl=settings.REDIS_SSL,
+                    host=settings.WEBHOOKS_REDIS_HOST,
+                    port=settings.WEBHOOKS_REDIS_PORT,
+                    db=settings.WEBHOOKS_REDIS_DATABASE,
+                    password=settings.WEBHOOKS_REDIS_PASSWORD or None,
+                    ssl=settings.WEBHOOKS_REDIS_SSL,
                 )
                 rs.ping()
             except redis.exceptions.ConnectionError:

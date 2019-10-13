@@ -26,14 +26,25 @@ DATABASE = {
 SECRET_KEY = ''
 
 # Redis database settings. The Redis database is used for caching and background processing such as webhooks
+# Seperate sections for webhooks and caching allow for connecting to seperate Redis instances/datbases if desired.
+# Full connection details are required in both sections, even if they are the same.
 REDIS = {
-    'HOST': 'localhost',
-    'PORT': 6379,
-    'PASSWORD': '',
-    'DATABASE': 0,
-    'CACHE_DATABASE': 1,
-    'DEFAULT_TIMEOUT': 300,
-    'SSL': False,
+    'webhooks': {
+        'HOST': 'redis.example.com',
+        'PORT': 1234,
+        'PASSWORD': 'foobar',
+        'DATABASE': 0,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    },
+    'caching': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'PASSWORD': '',
+        'DATABASE': 1,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    }
 }
 
 
