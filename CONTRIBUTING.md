@@ -118,6 +118,29 @@ feedback. **Do not** comment on an issue just to show your support (give the
 top post a :+1: instead) or ask for an ETA. These comments will be deleted to
 reduce noise in the discussion.
 
+## Issue Lifecycle
+
+When a correctly formatted issue is submitted it is evaluated by a moderator
+who may elect to immediately label the issue as accepted in addition to another
+issue type label. In other cases, the issue may be labeled as "status: gathering feedback"
+which will often be accompanied by a comment from a moderator asking for further dialog from the community.
+If an issue is labeled as "status: revisions needed" a moderator has identified a problem with
+the issue itself and is asking for the submitter himself to update the original post with
+the requested information. If the original post is not updated in a reasonable amount of time,
+the issue will be closed as invalid.
+ 
+The core maintainers group has chosen to make use of the GitHub Stale bot to aid in issue management.
+ 
+* Issues will be marked as stale after 14 days of no activity.
+ 
+* Then after 7 more days of inactivity, the issue will be closed.
+ 
+* Any issue with either the "status: accepted" or "status: gathering feedback" labels applied will be exempt from all Stale bot actions.
+ 
+It is natural that some new issues get more attention than others. Often this is a metric of an issues's
+overall usefulness to the project. In other cases in which issues merely get lost in the shuffle,
+notifications from Stale bot can bring renewed attention to potentially meaningful issues.
+
 ## Maintainer Guidance
 
 * Maintainers are expected to contribute at least four hours per week to the
