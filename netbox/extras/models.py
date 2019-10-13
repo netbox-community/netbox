@@ -86,6 +86,14 @@ class Webhook(models.Model):
         verbose_name='SSL verification',
         help_text="Enable SSL certificate verification. Disable with caution!"
     )
+    ca_file_path = models.CharField(
+        max_length=4096,
+        null=True,
+        blank=True,
+        verbose_name='CA File Path',
+        help_text='The specific CA certificate file to use for SSL verification. '
+                  'Leave blank to use the system defaults.'
+    )
 
     class Meta:
         unique_together = ('payload_url', 'type_create', 'type_update', 'type_delete',)
@@ -101,6 +109,11 @@ class Webhook(models.Model):
             raise ValidationError(
                 "You must select at least one type: create, update, and/or delete."
             )
+
+        if not self.ssl_verification and self.ca_file_path:
+            raise ValidationError({
+                'ca_file_path': 'Do not specify a CA certificate file if SSL verification is dissabled.'
+            })
 
 
 #
