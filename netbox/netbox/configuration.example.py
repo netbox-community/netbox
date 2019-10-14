@@ -154,6 +154,10 @@ PREFER_IPV4 = False
 # this setting is derived from the installed location.
 # REPORTS_ROOT = '/opt/netbox/netbox/reports'
 
+# The file path where custom scripts will be stored. A trailing slash is not needed. Note that the default value of
+# this setting is derived from the installed location.
+# SCRIPTS_ROOT = '/opt/netbox/netbox/scripts'
+
 # By default, NetBox will store session data in the database. Alternatively, a file path can be specified here to use
 # local file storage instead. (This can be useful for enabling authentication on a standby instance with read-only
 # database access.) Note that the user as which NetBox runs must have read and write permissions to this path.
