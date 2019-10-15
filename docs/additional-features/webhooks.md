@@ -11,8 +11,10 @@ The webhook POST request is structured as so (assuming `application/json` as the
 ```no-highlight
 {
     "event": "created",
-    "signal_received_timestamp": 1508769597,
-    "model": "Site"
+    "timestamp": "2019-10-12 12:51:29.746944",
+    "username": "admin",
+    "model": "site",
+    "request_id": "43d8e212-94c7-4f67-b544-0dcde4fc0f43",
     "data": {
         ...
     }
@@ -24,8 +26,10 @@ The webhook POST request is structured as so (assuming `application/json` as the
 ```no-highlight
 {
     "event": "deleted",
-    "signal_received_timestamp": 1508781858.544069,
-    "model": "Site",
+    "timestamp": "2019-10-12 12:55:44.030750",
+    "username": "johnsmith",
+    "model": "site",
+    "request_id": "e9bb83b2-ebe4-4346-b13f-07144b1a00b4",
     "data": {
         "asn": None,
         "comments": "",
