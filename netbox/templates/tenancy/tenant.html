@@ -143,7 +143,7 @@
                     <p>Virtual machines</p>
                 </div>
                 <div class="col-md-4 text-center">
-                    <h2><a href="{% url 'virtualization:cluster_list' %}?tenant={{ tenant.slug }}" class="btn {% if stats.cluser_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.cluster_count }}</a></h2>
+                    <h2><a href="{% url 'virtualization:cluster_list' %}?tenant={{ tenant.slug }}" class="btn {% if stats.cluster_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.cluster_count }}</a></h2>
                     <p>Clusters</p>
                 </div>
             </div>
