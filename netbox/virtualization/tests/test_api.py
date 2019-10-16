@@ -3,7 +3,7 @@ from netaddr import IPNetwork
 from rest_framework import status
 
 from dcim.constants import IFACE_TYPE_VIRTUAL, IFACE_MODE_TAGGED
-from dcim.models import Interface
+from dcim.models import Interface, Region, Site
 from ipam.models import IPAddress, VLAN
 from utilities.testing import APITestCase
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -330,9 +330,14 @@ class VirtualMachineTest(APITestCase):
 
         super().setUp()
 
+        region = Region.objects.create(name='Test Region 1', slug='test-region-1')
+        site1 = Site.objects.create(region=region, name='Test Site 1', slug='test-site-1')
+        site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
+
         cluster_type = ClusterType.objects.create(name='Test Cluster Type 1', slug='test-cluster-type-1')
         cluster_group = ClusterGroup.objects.create(name='Test Cluster Group 1', slug='test-cluster-group-1')
-        self.cluster1 = Cluster.objects.create(name='Test Cluster 1', type=cluster_type, group=cluster_group)
+        self.cluster1 = Cluster.objects.create(name='Test Cluster 1', type=cluster_type, group=cluster_group, site=site1)
+        self.cluster2 = Cluster.objects.create(name='Test Cluster 2', type=cluster_type, group=cluster_group, site=site2)
 
         self.virtualmachine1 = VirtualMachine.objects.create(name='Test Virtual Machine 1', cluster=self.cluster1)
         self.virtualmachine2 = VirtualMachine.objects.create(name='Test Virtual Machine 2', cluster=self.cluster1)
@@ -369,6 +374,15 @@ class VirtualMachineTest(APITestCase):
             sorted(response.data['results'][0]),
             ['id', 'name', 'url']
         )
+
+    def test_list_virtualmachines_null_region(self):
+
+        VirtualMachine.objects.create(name='Test Virtual Machine Null Region', cluster=self.cluster2)
+
+        url = reverse('virtualization-api:virtualmachine-list')
+        response = self.client.get('{}?region=null'.format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 1)
 
     def test_create_virtualmachine(self):
 
@@ -430,14 +444,9 @@ class VirtualMachineTest(APITestCase):
         ip4_address = IPAddress.objects.create(address=IPNetwork('192.0.2.1/24'), interface=interface)
         ip6_address = IPAddress.objects.create(address=IPNetwork('2001:db8::1/64'), interface=interface)
 
-        cluster2 = Cluster.objects.create(
-            name='Test Cluster 2',
-            type=ClusterType.objects.first(),
-            group=ClusterGroup.objects.first()
-        )
         data = {
             'name': 'Test Virtual Machine X',
-            'cluster': cluster2.pk,
+            'cluster': self.cluster2.pk,
             'primary_ip4': ip4_address.pk,
             'primary_ip6': ip6_address.pk,
         }

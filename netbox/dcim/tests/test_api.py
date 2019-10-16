@@ -174,6 +174,16 @@ class SiteTest(APITestCase):
             ['id', 'name', 'slug', 'url']
         )
 
+    def test_list_sites_null_region(self):
+
+        Site.objects.create(name='Test Site Null Region1', slug='test-site-no-region1')
+        Site.objects.create(name='Test Site Null Region2', slug='test-site-no-region2')
+
+        url = reverse('dcim-api:site-list')
+        response = self.client.get('{}?region=null'.format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 2)
+
     def test_create_site(self):
 
         data = {
@@ -1753,7 +1763,8 @@ class DeviceTest(APITestCase):
 
         super().setUp()
 
-        self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        region = Region.objects.create(name='Test Region', slug='test-region')
+        self.site1 = Site.objects.create(region=region, name='Test Site 1', slug='test-site-1')
         self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype1 = DeviceType.objects.create(
@@ -1827,6 +1838,21 @@ class DeviceTest(APITestCase):
             sorted(response.data['results'][0]),
             ['display_name', 'id', 'name', 'url']
         )
+
+    def test_list_device_null_region(self):
+
+        Device.objects.create(
+            device_type=self.devicetype1,
+            device_role=self.devicerole1,
+            name='Test Device Null Region',
+            site=self.site2,
+            cluster=self.cluster1
+        )
+
+        url = reverse('dcim-api:device-list')
+        response = self.client.get('{}?region=null'.format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 1)
 
     def test_create_device(self):
 
