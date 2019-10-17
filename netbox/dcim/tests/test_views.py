@@ -3,10 +3,11 @@ import urllib.parse
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from dcim.constants import CABLE_TYPE_CAT6, IFACE_TYPE_1GE_FIXED
+from dcim.constants import *
 from dcim.models import (
-    Cable, Device, DeviceRole, DeviceType, Interface, InventoryItem, Manufacturer, Platform, Rack, RackGroup,
-    RackReservation, RackRole, Site, Region, VirtualChassis,
+    Cable, ConsolePortTemplate, ConsoleServerPortTemplate, Device, DeviceBayTemplate, DeviceRole, DeviceType,
+    FrontPortTemplate, Interface, InterfaceTemplate, InventoryItem, Manufacturer, Platform, PowerPortTemplate,
+    PowerOutletTemplate, Rack, RackGroup, RackReservation, RackRole, RearPortTemplate, Site, Region, VirtualChassis,
 )
 from utilities.testing import create_test_user
 
@@ -220,6 +221,132 @@ class DeviceTypeTestCase(TestCase):
         devicetype = DeviceType.objects.first()
         response = self.client.get(devicetype.get_absolute_url())
         self.assertEqual(response.status_code, 200)
+
+    def test_devicetype_import(self):
+
+        IMPORT_DATA = """
+manufacturer: Generic
+model: TEST-1000
+slug: test-1000
+u_height: 2
+console-ports:
+  - name: Console Port 1
+  - name: Console Port 2
+  - name: Console Port 3
+console-server-ports:
+  - name: Console Server Port 1
+  - name: Console Server Port 2
+  - name: Console Server Port 3
+power-ports:
+  - name: Power Port 1
+  - name: Power Port 2
+  - name: Power Port 3
+power-outlets:
+  - name: Power Outlet 1
+    power_port: Power Port 1
+    feed_leg: 1
+  - name: Power Outlet 2
+    power_port: Power Port 1
+    feed_leg: 1
+  - name: Power Outlet 3
+    power_port: Power Port 1
+    feed_leg: 1
+interfaces:
+  - name: Interface 1
+    type: 1000base-t
+    mgmt_only: true
+  - name: Interface 2
+    type: 1000base-t
+  - name: Interface 3
+    type: 1000base-t
+rear-ports:
+  - name: Rear Port 1
+    type: 8p8c
+  - name: Rear Port 2
+    type: 8p8c
+  - name: Rear Port 3
+    type: 8p8c
+front-ports:
+  - name: Front Port 1
+    type: 8p8c
+    rear_port: Rear Port 1
+  - name: Front Port 2
+    type: 8p8c
+    rear_port: Rear Port 2
+  - name: Front Port 3
+    type: 8p8c
+    rear_port: Rear Port 3
+device-bays:
+  - name: Device Bay 1
+  - name: Device Bay 2
+  - name: Device Bay 3
+"""
+
+        # Create the manufacturer
+        Manufacturer(name='Generic', slug='generic').save()
+
+        # Authenticate as user with necessary permissions
+        user = create_test_user(username='testuser2', permissions=[
+            'dcim.view_devicetype',
+            'dcim.add_devicetype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_devicebaytemplate',
+        ])
+        self.client.force_login(user)
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('dcim:devicetype_import'), data=form_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        dt = DeviceType.objects.get(model='TEST-1000')
+
+        # Verify all of the components were created
+        self.assertEqual(dt.consoleport_templates.count(), 3)
+        cp1 = ConsolePortTemplate.objects.first()
+        self.assertEqual(cp1.name, 'Console Port 1')
+
+        self.assertEqual(dt.consoleserverport_templates.count(), 3)
+        csp1 = ConsoleServerPortTemplate.objects.first()
+        self.assertEqual(csp1.name, 'Console Server Port 1')
+
+        self.assertEqual(dt.powerport_templates.count(), 3)
+        pp1 = PowerPortTemplate.objects.first()
+        self.assertEqual(pp1.name, 'Power Port 1')
+
+        self.assertEqual(dt.poweroutlet_templates.count(), 3)
+        po1 = PowerOutletTemplate.objects.first()
+        self.assertEqual(po1.name, 'Power Outlet 1')
+        self.assertEqual(po1.power_port, pp1)
+        self.assertEqual(po1.feed_leg, POWERFEED_LEG_A)
+
+        self.assertEqual(dt.interface_templates.count(), 3)
+        iface1 = InterfaceTemplate.objects.first()
+        self.assertEqual(iface1.name, 'Interface 1')
+        self.assertEqual(iface1.type, IFACE_TYPE_1GE_FIXED)
+        self.assertTrue(iface1.mgmt_only)
+
+        self.assertEqual(dt.rearport_templates.count(), 3)
+        rp1 = RearPortTemplate.objects.first()
+        self.assertEqual(rp1.name, 'Rear Port 1')
+
+        self.assertEqual(dt.frontport_templates.count(), 3)
+        fp1 = FrontPortTemplate.objects.first()
+        self.assertEqual(fp1.name, 'Front Port 1')
+        self.assertEqual(fp1.rear_port, rp1)
+        self.assertEqual(fp1.rear_port_position, 1)
+
+        self.assertEqual(dt.device_bay_templates.count(), 3)
+        db1 = DeviceBayTemplate.objects.first()
+        self.assertEqual(db1.name, 'Device Bay 1')
 
 
 class DeviceRoleTestCase(TestCase):

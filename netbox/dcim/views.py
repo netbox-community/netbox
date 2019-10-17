@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import re
 
 from django.conf import settings
@@ -26,7 +27,7 @@ from utilities.paginator import EnhancedPaginator
 from utilities.utils import csv_format
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, GetReturnURLMixin,
-    ObjectDeleteView, ObjectEditView, ObjectListView,
+    ObjectImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
@@ -653,11 +654,31 @@ class DeviceTypeDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'dcim:devicetype_list'
 
 
-class DeviceTypeBulkImportView(PermissionRequiredMixin, BulkImportView):
-    permission_required = 'dcim.add_devicetype'
-    model_form = forms.DeviceTypeCSVForm
-    table = tables.DeviceTypeTable
-    default_return_url = 'dcim:devicetype_list'
+class DeviceTypeImportView(PermissionRequiredMixin, ObjectImportView):
+    permission_required = [
+        'dcim.add_devicetype',
+        'dcim.add_consoleporttemplate',
+        'dcim.add_consoleserverporttemplate',
+        'dcim.add_powerporttemplate',
+        'dcim.add_poweroutlettemplate',
+        'dcim.add_interfacetemplate',
+        'dcim.add_frontporttemplate',
+        'dcim.add_rearporttemplate',
+        'dcim.add_devicebaytemplate',
+    ]
+    model = DeviceType
+    model_form = forms.DeviceTypeImportForm
+    related_object_forms = OrderedDict((
+        ('console-ports', forms.ConsolePortTemplateImportForm),
+        ('console-server-ports', forms.ConsoleServerPortTemplateImportForm),
+        ('power-ports', forms.PowerPortTemplateImportForm),
+        ('power-outlets', forms.PowerOutletTemplateImportForm),
+        ('interfaces', forms.InterfaceTemplateImportForm),
+        ('rear-ports', forms.RearPortTemplateImportForm),
+        ('front-ports', forms.FrontPortTemplateImportForm),
+        ('device-bays', forms.DeviceBayTemplateImportForm),
+    ))
+    default_return_url = 'dcim:devicetype_import'
 
 
 class DeviceTypeBulkEditView(PermissionRequiredMixin, BulkEditView):

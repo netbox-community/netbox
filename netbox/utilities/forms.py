@@ -2,6 +2,7 @@ import csv
 import json
 import re
 from io import StringIO
+import yaml
 
 from django import forms
 from django.conf import settings
@@ -722,3 +723,41 @@ class BulkEditForm(forms.Form):
         # Copy any nullable fields defined in Meta
         if hasattr(self.Meta, 'nullable_fields'):
             self.nullable_fields = self.Meta.nullable_fields
+
+
+class ImportForm(BootstrapMixin, forms.Form):
+    """
+    Generic form for creating an object from JSON/YAML data
+    """
+    data = forms.CharField(
+        widget=forms.Textarea,
+        help_text="Enter object data in JSON or YAML format."
+    )
+    format = forms.ChoiceField(
+        choices=(
+            ('json', 'JSON'),
+            ('yaml', 'YAML')
+        ),
+        initial='yaml'
+    )
+
+    def clean(self):
+
+        data = self.cleaned_data['data']
+        format = self.cleaned_data['format']
+
+        # Process JSON/YAML data
+        if format == 'json':
+            try:
+                self.cleaned_data['data'] = json.loads(data)
+            except json.decoder.JSONDecodeError as err:
+                raise forms.ValidationError({
+                    'data': "Invalid JSON data: {}".format(err)
+                })
+        else:
+            try:
+                self.cleaned_data['data'] = yaml.load(data, Loader=yaml.SafeLoader)
+            except yaml.scanner.ScannerError as err:
+                raise forms.ValidationError({
+                    'data': "Invalid YAML data: {}".format(err)
+                })

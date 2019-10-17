@@ -1,4 +1,6 @@
+import json
 import sys
+import yaml
 from copy import deepcopy
 
 from django.conf import settings
@@ -24,10 +26,11 @@ from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
+from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField
 from utilities.utils import csv_format
 from .error_handlers import handle_protectederror
-from .forms import ConfirmationForm
+from .forms import ConfirmationForm, ImportForm
 from .paginator import EnhancedPaginator
 
 
@@ -394,6 +397,106 @@ class BulkCreateView(GetReturnURLMixin, View):
         })
 
 
+class ObjectImportView(GetReturnURLMixin, View):
+    """
+    Import a single object (YAML or JSON format).
+    """
+    model = None
+    model_form = None
+    related_object_forms = dict()
+    template_name = 'utilities/obj_import.html'
+
+    def get(self, request):
+
+        form = ImportForm()
+
+        return render(request, self.template_name, {
+            'form': form,
+            'obj_type': self.model._meta.verbose_name,
+            'return_url': self.get_return_url(request),
+        })
+
+    def post(self, request):
+
+        form = ImportForm(request.POST)
+        if form.is_valid():
+
+            # Initialize model form
+            data = form.cleaned_data['data']
+            model_form = self.model_form(data)
+
+            # Assign default values for any fields which were not specified. We have to do this manually because passing
+            # 'initial=' to the form on initialization merely sets default values for the widgets. Since widgets are not
+            # used for YAML/JSON import, we first bind the imported data normally, then update the form's data with the
+            # applicable field defaults as needed prior to form validation.
+            for field_name, field in model_form.fields.items():
+                if field_name not in data and hasattr(field, 'initial'):
+                    model_form.data[field_name] = field.initial
+
+            if model_form.is_valid():
+
+                try:
+                    with transaction.atomic():
+
+                        # Save the primary object
+                        obj = model_form.save()
+
+                        # Iterate through the related object forms (if any), validating and saving each instance.
+                        for field_name, related_object_form in self.related_object_forms.items():
+
+                            for i, rel_obj_data in enumerate(data.get(field_name, list())):
+
+                                f = related_object_form(obj, rel_obj_data)
+
+                                for subfield_name, field in f.fields.items():
+                                    if subfield_name not in rel_obj_data and hasattr(field, 'initial'):
+                                        f.data[subfield_name] = field.initial
+
+                                if f.is_valid():
+                                    f.save()
+                                else:
+                                    # Replicate errors on the related object form to the primary form for display
+                                    for subfield_name, errors in f.errors.items():
+                                        for err in errors:
+                                            err_msg = "{}[{}] {}: {}".format(field_name, i, subfield_name, err)
+                                            model_form.add_error(None, err_msg)
+                                    raise AbortTransaction()
+
+                except AbortTransaction:
+                    pass
+
+            if not model_form.errors:
+
+                messages.success(request, mark_safe('Imported object: <a href="{}">{}</a>'.format(
+                    obj.get_absolute_url(), obj
+                )))
+
+                if '_addanother' in request.POST:
+                    return redirect(request.get_full_path())
+
+                return_url = form.cleaned_data.get('return_url')
+                if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
+                    return redirect(return_url)
+                else:
+                    return redirect(self.get_return_url(request, obj))
+
+            else:
+
+                # Replicate model form errors for display
+                for field, errors in model_form.errors.items():
+                    for err in errors:
+                        if field == '__all__':
+                            form.add_error(None, err)
+                        else:
+                            form.add_error(None, "{}: {}".format(field, err))
+
+        return render(request, self.template_name, {
+            'form': form,
+            'obj_type': self.model._meta.verbose_name,
+            'return_url': self.get_return_url(request),
+        })
+
+
 class BulkImportView(GetReturnURLMixin, View):
     """
     Import objects in bulk (CSV format).
@@ -405,7 +508,7 @@ class BulkImportView(GetReturnURLMixin, View):
     """
     model_form = None
     table = None
-    template_name = 'utilities/obj_import.html'
+    template_name = 'utilities/obj_bulk_import.html'
     widget_attrs = {}
 
     def _import_form(self, *args, **kwargs):
