@@ -24,7 +24,7 @@ NetBox requires access to a PostgreSQL database service to store data. This serv
 
 Example:
 
-```
+```python
 DATABASE = {
     'NAME': 'netbox',               # Database name
     'USER': 'netbox',               # PostgreSQL username
@@ -40,40 +40,48 @@ DATABASE = {
 
 [Redis](https://redis.io/) is an in-memory data store similar to memcached. While Redis has been an optional component of
 NetBox since the introduction of webhooks in version 2.4, it is required starting in 2.6 to support NetBox's caching
-functionality (as well as other planned features).
+functionality (as well as other planned features). In 2.7, the connection settings were broken down into two sections for
+webhooks and caching, allowing the user to connect to different Redis instances/databases per feature.
 
-Redis is configured using a configuration setting similar to `DATABASE`:
+Redis is configured using a configuration setting similar to `DATABASE` and these settings are the same for both of the `webhooks` and `caching` subsections:
 
 * `HOST` - Name or IP address of the Redis server (use `localhost` if running locally)
 * `PORT` - TCP port of the Redis service; leave blank for default port (6379)
 * `PASSWORD` - Redis password (if set)
-* `DATABASE` - Numeric database ID for webhooks
-* `CACHE_DATABASE` - Numeric database ID for caching
+* `DATABASE` - Numeric database ID
 * `DEFAULT_TIMEOUT` - Connection timeout in seconds
 * `SSL` - Use SSL connection to Redis
 
 Example:
 
-```
+```python
 REDIS = {
-    'HOST': 'localhost',
-    'PORT': 6379,
-    'PASSWORD': '',
-    'DATABASE': 0,
-    'CACHE_DATABASE': 1,
-    'DEFAULT_TIMEOUT': 300,
-    'SSL': False,
+    'webhooks': {
+        'HOST': 'redis.example.com',
+        'PORT': 1234,
+        'PASSWORD': 'foobar',
+        'DATABASE': 0,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    },
+    'caching': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'PASSWORD': '',
+        'DATABASE': 1,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    }
 }
 ```
 
 !!! note:
-    If you were using these settings in a prior release with webhooks, the `DATABASE` setting remains the same but
-    an additional `CACHE_DATABASE` setting has been added with a default value of 1 to support the caching backend. The
-    `DATABASE` setting will be renamed in a future release of NetBox to better relay the meaning of the setting. 
+    If you are upgrading from a version prior to v2.7, please note that the Redis connection configuration settings have
+    changed. Manual modification to bring the `REDIS` section inline with the above specification is necessary
 
 !!! warning:
-    It is highly recommended to keep the webhook and cache databases seperate. Using the same database number for both may result in webhook
-    processing data being lost in cache flushing events.
+    It is highly recommended to keep the webhook and cache databases seperate. Using the same database number on the
+    same Redis instance for both may result in webhook processing data being lost during cache flushing events.
 
 ---
 
