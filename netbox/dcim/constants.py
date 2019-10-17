@@ -613,135 +613,133 @@ class InterfaceTypes:
     # Other
     TYPE_OTHER = 'other'
 
-    @classmethod
-    def as_choices(cls):
-        return (
+    TYPE_CHOICES = (
+        (
+            'Virtual interfaces',
             (
-                'Virtual interfaces',
-                (
-                    (cls.TYPE_VIRTUAL, 'Virtual'),
-                    (cls.TYPE_LAG, 'Link Aggregation Group (LAG)'),
-                ),
+                (TYPE_VIRTUAL, 'Virtual'),
+                (TYPE_LAG, 'Link Aggregation Group (LAG)'),
             ),
+        ),
+        (
+            'Ethernet (fixed)',
             (
-                'Ethernet (fixed)',
-                (
-                    (cls.TYPE_100ME_FIXED, '100BASE-TX (10/100ME)'),
-                    (cls.TYPE_1GE_FIXED, '1000BASE-T (1GE)'),
-                    (cls.TYPE_2GE_FIXED, '2.5GBASE-T (2.5GE)'),
-                    (cls.TYPE_5GE_FIXED, '5GBASE-T (5GE)'),
-                    (cls.TYPE_10GE_FIXED, '10GBASE-T (10GE)'),
-                    (cls.TYPE_10GE_CX4, '10GBASE-CX4 (10GE)'),
-                )
-            ),
+                (TYPE_100ME_FIXED, '100BASE-TX (10/100ME)'),
+                (TYPE_1GE_FIXED, '1000BASE-T (1GE)'),
+                (TYPE_2GE_FIXED, '2.5GBASE-T (2.5GE)'),
+                (TYPE_5GE_FIXED, '5GBASE-T (5GE)'),
+                (TYPE_10GE_FIXED, '10GBASE-T (10GE)'),
+                (TYPE_10GE_CX4, '10GBASE-CX4 (10GE)'),
+            )
+        ),
+        (
+            'Ethernet (modular)',
             (
-                'Ethernet (modular)',
-                (
-                    (cls.TYPE_1GE_GBIC, 'GBIC (1GE)'),
-                    (cls.TYPE_1GE_SFP, 'SFP (1GE)'),
-                    (cls.TYPE_10GE_SFP_PLUS, 'SFP+ (10GE)'),
-                    (cls.TYPE_10GE_XFP, 'XFP (10GE)'),
-                    (cls.TYPE_10GE_XENPAK, 'XENPAK (10GE)'),
-                    (cls.TYPE_10GE_X2, 'X2 (10GE)'),
-                    (cls.TYPE_25GE_SFP28, 'SFP28 (25GE)'),
-                    (cls.TYPE_40GE_QSFP_PLUS, 'QSFP+ (40GE)'),
-                    (cls.TYPE_50GE_QSFP28, 'QSFP28 (50GE)'),
-                    (cls.TYPE_100GE_CFP, 'CFP (100GE)'),
-                    (cls.TYPE_100GE_CFP2, 'CFP2 (100GE)'),
-                    (cls.TYPE_200GE_CFP2, 'CFP2 (200GE)'),
-                    (cls.TYPE_100GE_CFP4, 'CFP4 (100GE)'),
-                    (cls.TYPE_100GE_CPAK, 'Cisco CPAK (100GE)'),
-                    (cls.TYPE_100GE_QSFP28, 'QSFP28 (100GE)'),
-                    (cls.TYPE_200GE_QSFP56, 'QSFP56 (200GE)'),
-                    (cls.TYPE_400GE_QSFP_DD, 'QSFP-DD (400GE)'),
-                )
-            ),
+                (TYPE_1GE_GBIC, 'GBIC (1GE)'),
+                (TYPE_1GE_SFP, 'SFP (1GE)'),
+                (TYPE_10GE_SFP_PLUS, 'SFP+ (10GE)'),
+                (TYPE_10GE_XFP, 'XFP (10GE)'),
+                (TYPE_10GE_XENPAK, 'XENPAK (10GE)'),
+                (TYPE_10GE_X2, 'X2 (10GE)'),
+                (TYPE_25GE_SFP28, 'SFP28 (25GE)'),
+                (TYPE_40GE_QSFP_PLUS, 'QSFP+ (40GE)'),
+                (TYPE_50GE_QSFP28, 'QSFP28 (50GE)'),
+                (TYPE_100GE_CFP, 'CFP (100GE)'),
+                (TYPE_100GE_CFP2, 'CFP2 (100GE)'),
+                (TYPE_200GE_CFP2, 'CFP2 (200GE)'),
+                (TYPE_100GE_CFP4, 'CFP4 (100GE)'),
+                (TYPE_100GE_CPAK, 'Cisco CPAK (100GE)'),
+                (TYPE_100GE_QSFP28, 'QSFP28 (100GE)'),
+                (TYPE_200GE_QSFP56, 'QSFP56 (200GE)'),
+                (TYPE_400GE_QSFP_DD, 'QSFP-DD (400GE)'),
+            )
+        ),
+        (
+            'Wireless',
             (
-                'Wireless',
-                (
-                    (cls.TYPE_80211A, 'IEEE 802.11a'),
-                    (cls.TYPE_80211G, 'IEEE 802.11b/g'),
-                    (cls.TYPE_80211N, 'IEEE 802.11n'),
-                    (cls.TYPE_80211AC, 'IEEE 802.11ac'),
-                    (cls.TYPE_80211AD, 'IEEE 802.11ad'),
-                )
-            ),
+                (TYPE_80211A, 'IEEE 802.11a'),
+                (TYPE_80211G, 'IEEE 802.11b/g'),
+                (TYPE_80211N, 'IEEE 802.11n'),
+                (TYPE_80211AC, 'IEEE 802.11ac'),
+                (TYPE_80211AD, 'IEEE 802.11ad'),
+            )
+        ),
+        (
+            'Cellular',
             (
-                'Cellular',
-                (
-                    (cls.TYPE_GSM, 'GSM'),
-                    (cls.TYPE_CDMA, 'CDMA'),
-                    (cls.TYPE_LTE, 'LTE'),
-                )
-            ),
+                (TYPE_GSM, 'GSM'),
+                (TYPE_CDMA, 'CDMA'),
+                (TYPE_LTE, 'LTE'),
+            )
+        ),
+        (
+            'SONET',
             (
-                'SONET',
-                (
-                    (cls.TYPE_SONET_OC3, 'OC-3/STM-1'),
-                    (cls.TYPE_SONET_OC12, 'OC-12/STM-4'),
-                    (cls.TYPE_SONET_OC48, 'OC-48/STM-16'),
-                    (cls.TYPE_SONET_OC192, 'OC-192/STM-64'),
-                    (cls.TYPE_SONET_OC768, 'OC-768/STM-256'),
-                    (cls.TYPE_SONET_OC1920, 'OC-1920/STM-640'),
-                    (cls.TYPE_SONET_OC3840, 'OC-3840/STM-1234'),
-                )
-            ),
+                (TYPE_SONET_OC3, 'OC-3/STM-1'),
+                (TYPE_SONET_OC12, 'OC-12/STM-4'),
+                (TYPE_SONET_OC48, 'OC-48/STM-16'),
+                (TYPE_SONET_OC192, 'OC-192/STM-64'),
+                (TYPE_SONET_OC768, 'OC-768/STM-256'),
+                (TYPE_SONET_OC1920, 'OC-1920/STM-640'),
+                (TYPE_SONET_OC3840, 'OC-3840/STM-1234'),
+            )
+        ),
+        (
+            'FibreChannel',
             (
-                'FibreChannel',
-                (
-                    (cls.TYPE_1GFC_SFP, 'SFP (1GFC)'),
-                    (cls.TYPE_2GFC_SFP, 'SFP (2GFC)'),
-                    (cls.TYPE_4GFC_SFP, 'SFP (4GFC)'),
-                    (cls.TYPE_8GFC_SFP_PLUS, 'SFP+ (8GFC)'),
-                    (cls.TYPE_16GFC_SFP_PLUS, 'SFP+ (16GFC)'),
-                    (cls.TYPE_32GFC_SFP28, 'SFP28 (32GFC)'),
-                    (cls.TYPE_128GFC_QSFP28, 'QSFP28 (128GFC)'),
-                )
-            ),
+                (TYPE_1GFC_SFP, 'SFP (1GFC)'),
+                (TYPE_2GFC_SFP, 'SFP (2GFC)'),
+                (TYPE_4GFC_SFP, 'SFP (4GFC)'),
+                (TYPE_8GFC_SFP_PLUS, 'SFP+ (8GFC)'),
+                (TYPE_16GFC_SFP_PLUS, 'SFP+ (16GFC)'),
+                (TYPE_32GFC_SFP28, 'SFP28 (32GFC)'),
+                (TYPE_128GFC_QSFP28, 'QSFP28 (128GFC)'),
+            )
+        ),
+        (
+            'InfiniBand',
             (
-                'InfiniBand',
-                (
-                    (cls.TYPE_INFINIBAND_SDR, 'SDR (2 Gbps)'),
-                    (cls.TYPE_INFINIBAND_DDR, 'DDR (4 Gbps)'),
-                    (cls.TYPE_INFINIBAND_QDR, 'QDR (8 Gbps)'),
-                    (cls.TYPE_INFINIBAND_FDR10, 'FDR10 (10 Gbps)'),
-                    (cls.TYPE_INFINIBAND_FDR, 'FDR (13.5 Gbps)'),
-                    (cls.TYPE_INFINIBAND_EDR, 'EDR (25 Gbps)'),
-                    (cls.TYPE_INFINIBAND_HDR, 'HDR (50 Gbps)'),
-                    (cls.TYPE_INFINIBAND_NDR, 'NDR (100 Gbps)'),
-                    (cls.TYPE_INFINIBAND_XDR, 'XDR (250 Gbps)'),
-                )
-            ),
+                (TYPE_INFINIBAND_SDR, 'SDR (2 Gbps)'),
+                (TYPE_INFINIBAND_DDR, 'DDR (4 Gbps)'),
+                (TYPE_INFINIBAND_QDR, 'QDR (8 Gbps)'),
+                (TYPE_INFINIBAND_FDR10, 'FDR10 (10 Gbps)'),
+                (TYPE_INFINIBAND_FDR, 'FDR (13.5 Gbps)'),
+                (TYPE_INFINIBAND_EDR, 'EDR (25 Gbps)'),
+                (TYPE_INFINIBAND_HDR, 'HDR (50 Gbps)'),
+                (TYPE_INFINIBAND_NDR, 'NDR (100 Gbps)'),
+                (TYPE_INFINIBAND_XDR, 'XDR (250 Gbps)'),
+            )
+        ),
+        (
+            'Serial',
             (
-                'Serial',
-                (
-                    (cls.TYPE_T1, 'T1 (1.544 Mbps)'),
-                    (cls.TYPE_E1, 'E1 (2.048 Mbps)'),
-                    (cls.TYPE_T3, 'T3 (45 Mbps)'),
-                    (cls.TYPE_E3, 'E3 (34 Mbps)'),
-                )
-            ),
+                (TYPE_T1, 'T1 (1.544 Mbps)'),
+                (TYPE_E1, 'E1 (2.048 Mbps)'),
+                (TYPE_T3, 'T3 (45 Mbps)'),
+                (TYPE_E3, 'E3 (34 Mbps)'),
+            )
+        ),
+        (
+            'Stacking',
             (
-                'Stacking',
-                (
-                    (cls.TYPE_STACKWISE, 'Cisco StackWise'),
-                    (cls.TYPE_STACKWISE_PLUS, 'Cisco StackWise Plus'),
-                    (cls.TYPE_FLEXSTACK, 'Cisco FlexStack'),
-                    (cls.TYPE_FLEXSTACK_PLUS, 'Cisco FlexStack Plus'),
-                    (cls.TYPE_JUNIPER_VCP, 'Juniper VCP'),
-                    (cls.TYPE_SUMMITSTACK, 'Extreme SummitStack'),
-                    (cls.TYPE_SUMMITSTACK128, 'Extreme SummitStack-128'),
-                    (cls.TYPE_SUMMITSTACK256, 'Extreme SummitStack-256'),
-                    (cls.TYPE_SUMMITSTACK512, 'Extreme SummitStack-512'),
-                )
-            ),
+                (TYPE_STACKWISE, 'Cisco StackWise'),
+                (TYPE_STACKWISE_PLUS, 'Cisco StackWise Plus'),
+                (TYPE_FLEXSTACK, 'Cisco FlexStack'),
+                (TYPE_FLEXSTACK_PLUS, 'Cisco FlexStack Plus'),
+                (TYPE_JUNIPER_VCP, 'Juniper VCP'),
+                (TYPE_SUMMITSTACK, 'Extreme SummitStack'),
+                (TYPE_SUMMITSTACK128, 'Extreme SummitStack-128'),
+                (TYPE_SUMMITSTACK256, 'Extreme SummitStack-256'),
+                (TYPE_SUMMITSTACK512, 'Extreme SummitStack-512'),
+            )
+        ),
+        (
+            'Other',
             (
-                'Other',
-                (
-                    (cls.TYPE_OTHER, 'Other'),
-                )
-            ),
-        )
+                (TYPE_OTHER, 'Other'),
+            )
+        ),
+    )
 
     @classmethod
     def slug_to_integer(cls, slug):
@@ -844,33 +842,31 @@ class PortTypes:
     TYPE_LSH = 'lsh'
     TYPE_LSH_APC = 'lsh-apc'
 
-    @classmethod
-    def as_choices(cls):
-        return (
+    TYPE_CHOICES = (
+        (
+            'Copper',
             (
-                'Copper',
-                (
-                    (cls.TYPE_8P8C, '8P8C'),
-                    (cls.TYPE_110_PUNCH, '110 Punch'),
-                    (cls.TYPE_BNC, 'BNC'),
-                ),
+                (TYPE_8P8C, '8P8C'),
+                (TYPE_110_PUNCH, '110 Punch'),
+                (TYPE_BNC, 'BNC'),
             ),
+        ),
+        (
+            'Fiber Optic',
             (
-                'Fiber Optic',
-                (
-                    (cls.TYPE_FC, 'FC'),
-                    (cls.TYPE_LC, 'LC'),
-                    (cls.TYPE_LC_APC, 'LC/APC'),
-                    (cls.TYPE_LSH, 'LSH'),
-                    (cls.TYPE_LSH_APC, 'LSH/APC'),
-                    (cls.TYPE_MPO, 'MPO'),
-                    (cls.TYPE_MTRJ, 'MTRJ'),
-                    (cls.TYPE_SC, 'SC'),
-                    (cls.TYPE_SC_APC, 'SC/APC'),
-                    (cls.TYPE_ST, 'ST'),
-                )
+                (TYPE_FC, 'FC'),
+                (TYPE_LC, 'LC'),
+                (TYPE_LC_APC, 'LC/APC'),
+                (TYPE_LSH, 'LSH'),
+                (TYPE_LSH_APC, 'LSH/APC'),
+                (TYPE_MPO, 'MPO'),
+                (TYPE_MTRJ, 'MTRJ'),
+                (TYPE_SC, 'SC'),
+                (TYPE_SC_APC, 'SC/APC'),
+                (TYPE_ST, 'ST'),
             )
         )
+    )
 
     @classmethod
     def slug_to_integer(cls, slug):

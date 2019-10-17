@@ -1290,7 +1290,7 @@ class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
 
 class InterfaceTemplateImportForm(ComponentTemplateImportForm):
     type = forms.ChoiceField(
-        choices=InterfaceTypes.as_choices()
+        choices=InterfaceTypes.TYPE_CHOICES
     )
 
     class Meta:
@@ -1307,7 +1307,7 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
 
 class FrontPortTemplateImportForm(ComponentTemplateImportForm):
     type = forms.ChoiceField(
-        choices=PortTypes.as_choices()
+        choices=PortTypes.TYPE_CHOICES
     )
     rear_port = forms.ModelChoiceField(
         queryset=RearPortTemplate.objects.all(),
@@ -1329,7 +1329,7 @@ class FrontPortTemplateImportForm(ComponentTemplateImportForm):
 
 class RearPortTemplateImportForm(ComponentTemplateImportForm):
     type = forms.ChoiceField(
-        choices=PortTypes.as_choices()
+        choices=PortTypes.TYPE_CHOICES
     )
 
     class Meta:
