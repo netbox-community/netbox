@@ -67,6 +67,12 @@ class Webhook(models.Model):
         default=WEBHOOK_CT_JSON,
         verbose_name='HTTP content type'
     )
+    additional_headers = JSONField(
+        null=True,
+        blank=True,
+        help_text="User supplied headers which should be added to the request in addition to the HTTP content type. "
+                  "Headers are supplied as key/value pairs in a JSON object."
+    )
     secret = models.CharField(
         max_length=255,
         blank=True,
@@ -110,6 +116,12 @@ class Webhook(models.Model):
         if not self.ssl_verification and self.ca_file_path:
             raise ValidationError({
                 'ca_file_path': 'Do not specify a CA certificate file if SSL verification is dissabled.'
+            })
+
+        # Verify that JSON data is provided as an object
+        if self.additional_headers and type(self.additional_headers) is not dict:
+            raise ValidationError({
+                'additional_headers': 'Header JSON data must be in object form. Example: {"X-API-KEY": "abc123"}'
             })
 
 
