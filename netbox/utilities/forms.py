@@ -12,7 +12,7 @@ from .constants import *
 from .validators import EnhancedURLValidator
 
 NUMERIC_EXPANSION_PATTERN = r'\[((?:\d+[?:,-])+\d+)\]'
-ALPHANUMERIC_EXPANSION_PATTERN = r'\[((?:[a-zA-Z0-9]+[?:,-])+[a-zA-Z0-9]+)\]'
+ALPHANUMERIC_EXPANSION_PATTERN = r'\[((?:[a-zA-Z0-9]+[|?:,-])+[a-zA-Z0-9]+)\]'
 IP4_EXPANSION_PATTERN = r'\[((?:[0-9]{1,3}[?:,-])+[0-9]{1,3})\]'
 IP6_EXPANSION_PATTERN = r'\[((?:[0-9a-f]{1,4}[?:,-])+[0-9a-f]{1,4})\]'
 BOOLEAN_WITH_BLANK_CHOICES = (
@@ -45,23 +45,34 @@ def parse_alphanumeric_range(string):
     Expand an alphanumeric range (continuous or not) into a list.
     'a-d,f' => [a, b, c, d, f]
     '0-3,a-d' => [0, 1, 2, 3, a, b, c, d]
+    'word1|word2' => [word1, word2]
     """
+    def parse_dash(string):
+        values = []
+        for dash_range in string.split(','):
+            try:
+                begin, end = dash_range.split('-')
+                vals = begin + end
+                # Break out of loop if there's an invalid pattern to return an error
+                if (not (vals.isdigit() or vals.isalpha())) or (vals.isalpha() and not (vals.isupper() or vals.islower())):
+                    return []
+            except ValueError:
+                begin, end = dash_range, dash_range
+            if begin.isdigit() and end.isdigit():
+                for n in list(range(int(begin), int(end) + 1)):
+                    values.append(n)
+            else:
+                for n in list(range(ord(begin), ord(end) + 1)):
+                    values.append(chr(n))
+        return values
+    def parse_pipe(string):
+        return string.split('|')
+
     values = []
-    for dash_range in string.split(','):
-        try:
-            begin, end = dash_range.split('-')
-            vals = begin + end
-            # Break out of loop if there's an invalid pattern to return an error
-            if (not (vals.isdigit() or vals.isalpha())) or (vals.isalpha() and not (vals.isupper() or vals.islower())):
-                return []
-        except ValueError:
-            begin, end = dash_range, dash_range
-        if begin.isdigit() and end.isdigit():
-            for n in list(range(int(begin), int(end) + 1)):
-                values.append(n)
-        else:
-            for n in list(range(ord(begin), ord(end) + 1)):
-                values.append(chr(n))
+    if '|' in string:
+        values += parse_pipe(string)
+    if '-' in string:
+        values += parse_dash(string)
     return values
 
 
