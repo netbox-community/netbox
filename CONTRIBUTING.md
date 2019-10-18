@@ -24,7 +24,7 @@ already been fixed.
 to see if the bug you've found has already been reported. If you think you may
 be experiencing a reported issue that hasn't already been resolved, please
 click "add a reaction" in the top right corner of the issue and add a thumbs
-up (+1). You mightalso want to add a comment describing how it's affecting your
+up (+1). You might also want to add a comment describing how it's affecting your
 installation. This will allow us to prioritize bugs based on how many users are
 affected.
 
@@ -99,6 +99,8 @@ any work that's already in progress.
 
 * Any pull request which does _not_ relate to an accepted issue will be closed.
 
+* All major new functionality must include relevant tests where applicable.
+
 * When submitting a pull request, please be sure to work off of the `develop`
 branch, rather than `master`. The `develop` branch is used for ongoing
 development, while `master` is used for tagging new stable releases.
@@ -128,15 +130,16 @@ If an issue is labeled as "status: revisions needed" a moderator has identified 
 the issue itself and is asking for the submitter himself to update the original post with
 the requested information. If the original post is not updated in a reasonable amount of time,
 the issue will be closed as invalid.
- 
+
 The core maintainers group has chosen to make use of the GitHub Stale bot to aid in issue management.
- 
+
 * Issues will be marked as stale after 14 days of no activity.
- 
 * Then after 7 more days of inactivity, the issue will be closed.
- 
-* Any issue with either the "status: accepted" or "status: gathering feedback" labels applied will be exempt from all Stale bot actions.
- 
+* Any issue bearing one of the following labels will be exempt from all Stale bot actions:
+  * `status: accepted`
+  * `status: gathering feedback`
+  * `status: blocked`
+
 It is natural that some new issues get more attention than others. Often this is a metric of an issues's
 overall usefulness to the project. In other cases in which issues merely get lost in the shuffle,
 notifications from Stale bot can bring renewed attention to potentially meaningful issues.
