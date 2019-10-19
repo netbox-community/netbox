@@ -1,9 +1,11 @@
-from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.fields import GenericRelation, GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
-from dcim.constants import CONNECTION_STATUS_CHOICES, STATUS_CLASSES
+from dcim.constants import CONNECTION_STATUS_CHOICES, STATUS_CLASSES, CABLE_TERMINATION_TYPES
 from dcim.fields import ASNField
 from dcim.models import CableTermination
 from extras.models import CustomFieldModel, ObjectChange, TaggedItem
@@ -228,13 +230,26 @@ class CircuitTermination(CableTermination):
         on_delete=models.PROTECT,
         related_name='circuit_terminations'
     )
-    connected_endpoint = models.OneToOneField(
-        to='dcim.Interface',
-        on_delete=models.SET_NULL,
+    connected_endpoint_type = models.ForeignKey(
+        to=ContentType,
+        limit_choices_to={'model__in': CABLE_TERMINATION_TYPES},
+        on_delete=models.PROTECT,
         related_name='+',
         blank=True,
         null=True
     )
+    connected_endpoint_id = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+    connected_endpoint = GenericForeignKey(
+        ct_field='connected_endpoint_type',
+        fk_field='connected_endpoint_id'
+    )
+    _trace = JSONField(
+        default=list
+    )
+
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,
         blank=True
@@ -298,7 +313,11 @@ class CircuitTermination(CableTermination):
             return None
 
     def get_peer_port(self):
-        peer_termination = self.get_peer_termination()
-        if peer_termination is None:
-            return None
-        return peer_termination
+        return self.get_peer_termination()
+
+    def get_endpoint_attributes(self):
+        return {
+            **super().get_endpoint_attributes(),
+            'cid': self.circuit.cid,
+            'site': self.site.name,
+        }

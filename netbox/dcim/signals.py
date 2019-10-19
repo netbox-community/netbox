@@ -43,15 +43,9 @@ def update_connected_endpoints(instance, **kwargs):
         instance.termination_b.cable = instance
         instance.termination_b.save()
 
-    # Check if this Cable has formed a complete path. If so, update both endpoints.
-    endpoint_a, endpoint_b, path_status = instance.get_path_endpoints()
-    if endpoint_a is not None and endpoint_b is not None:
-        endpoint_a.connected_endpoint = endpoint_b
-        endpoint_a.connection_status = path_status
-        endpoint_a.save()
-        endpoint_b.connected_endpoint = endpoint_a
-        endpoint_b.connection_status = path_status
-        endpoint_b.save()
+    # Update all endpoints affected by this cable
+    endpoints = instance.get_related_endpoints()
+    update_endpoints(endpoints)
 
 
 @receiver(pre_delete, sender=Cable)
@@ -59,7 +53,7 @@ def nullify_connected_endpoints(instance, **kwargs):
     """
     When a Cable is deleted, check for and update its two connected endpoints
     """
-    endpoint_a, endpoint_b, _ = instance.get_path_endpoints()
+    endpoints = instance.get_related_endpoints()
 
     # Disassociate the Cable from its termination points
     if instance.termination_a is not None:
@@ -69,11 +63,29 @@ def nullify_connected_endpoints(instance, **kwargs):
         instance.termination_b.cable = None
         instance.termination_b.save()
 
-    # If this Cable was part of a complete path, tear it down
-    if hasattr(endpoint_a, 'connected_endpoint') and hasattr(endpoint_b, 'connected_endpoint'):
-        endpoint_a.connected_endpoint = None
-        endpoint_a.connection_status = None
-        endpoint_a.save()
-        endpoint_b.connected_endpoint = None
-        endpoint_b.connection_status = None
-        endpoint_b.save()
+    # Update all endpoints affected by this cable
+    update_endpoints(endpoints)
+
+
+def update_endpoints(endpoints):
+    """
+    Update all endpoints affected by this cable
+    """
+    for endpoint in endpoints:
+        if not hasattr(endpoint, 'connected_endpoint'):
+            continue
+
+        path = endpoint.trace()
+
+        # The trace returns left and right, we just want a single list
+        # We also want to skip the first endpoint, which is the starting point itself
+        endpoints = [
+            item for sublist in (
+                [left, right] for left, cable, right in path
+            )
+            for item in sublist if item
+        ][1:]
+
+        endpoint.connected_endpoint = endpoints[-1] if endpoints else None
+        endpoint._trace = [endpoint.get_endpoint_attributes() for endpoint in endpoints]
+        endpoint.save()

@@ -160,6 +160,11 @@ class CableTermination(models.Model):
         if self._cabled_as_b.exists():
             return self.cable.termination_a
 
+    def get_endpoint_attributes(self):
+        return {
+            'id': self.pk,
+            'type': self.__class__.__name__,
+        }
 
 #
 # Regions
@@ -2168,6 +2173,9 @@ class Interface(CableTermination, ComponentModel):
         ct_field='connected_endpoint_type',
         fk_field='connected_endpoint_id'
     )
+    _trace = JSONField(
+        default=list
+    )
 
     connected_interface = GenericRelation(
         to='self',
@@ -2382,6 +2390,15 @@ class Interface(CableTermination, ComponentModel):
     def count_ipaddresses(self):
         return self.ip_addresses.count()
 
+    def get_endpoint_attributes(self):
+        return {
+            **super().get_endpoint_attributes(),
+            'name': self.name,
+            'device': self.parent.display_name,
+            'device_id': self.parent.pk,
+            'site': self.parent.site.name,
+        }
+
 
 #
 # Pass-through ports
@@ -2456,6 +2473,15 @@ class FrontPort(CableTermination, ComponentModel):
     def get_peer_port(self):
         return self.rear_port
 
+    def get_endpoint_attributes(self):
+        return {
+            **super().get_endpoint_attributes(),
+            'name': self.name,
+            'device': self.parent.display_name,
+            'device_id': self.parent.pk,
+            'site': self.parent.site.name,
+        }
+
 
 class RearPort(CableTermination, ComponentModel):
     """
@@ -2512,6 +2538,15 @@ class RearPort(CableTermination, ComponentModel):
             return peer_port
         except ObjectDoesNotExist:
             return None
+
+    def get_endpoint_attributes(self):
+        return {
+            **super().get_endpoint_attributes(),
+            'name': self.name,
+            'device': self.parent.display_name,
+            'device_id': self.parent.pk,
+            'site': self.parent.site.name,
+        }
 
 
 #
@@ -2933,31 +2968,34 @@ class Cable(ChangeLoggedModel):
             return
         return COMPATIBLE_TERMINATION_TYPES[self.termination_a._meta.model_name]
 
-    def get_path_endpoints(self):
+    def get_related_endpoints(self):
         """
-        Traverse both ends of a cable path and return its connected endpoints. Note that one or both endpoints may be
-        None.
+        Traverse both ends of a cable path and return a list of all related endpoints.
         """
         # Termination points trace from themselves, through the cable and beyond. Tracing from the B termination
         # therefore traces in the direction of A [(termination_b, cable, termination_a), (...)] and vice versa.
         # Every path therefore also has at least one segment (the current cable).
-        a_path = self.termination_b.trace()
-        b_path = self.termination_a.trace()
+        paths = [
+            self.termination_b.trace(),
+            self.termination_a.trace(),
+        ]
 
-        # Determine overall path status (connected or planned)
-        if self.status == CONNECTION_STATUS_PLANNED:
-            path_status = CONNECTION_STATUS_PLANNED
-        else:
-            path_status = CONNECTION_STATUS_CONNECTED
-            for segment in a_path[1:] + b_path[1:]:
-                if segment[1] is None or segment[1].status == CONNECTION_STATUS_PLANNED:
-                    path_status = CONNECTION_STATUS_PLANNED
-                    break
+        # Use a dict here to avoid storing duplicates. The same object retrieved twice will have different identities.
+        endpoints = {}
+        while paths:
+            path = paths.pop()
+            for left, cable, right in path:
+                if right is not None:
+                    key = '{cls}-{pk}'.format(cls=right.__class__.__name__, pk=right.pk)
+                    endpoints[key] = right
 
-        a_endpoint = a_path[-1][2]
-        b_endpoint = b_path[-1][2]
+            # If a path ends in a RearPort, then everything connected through its FrontPorts is related as well
+            if isinstance(path[-1][2], RearPort):
+                front_ports = FrontPort.objects.filter(rear_port=path[-1][2])
+                for front_port in front_ports:
+                    paths.append(front_port.trace())
 
-        return a_endpoint, b_endpoint, path_status
+        return list(endpoints.values())
 
 
 #
