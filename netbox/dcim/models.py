@@ -2397,6 +2397,7 @@ class Interface(CableTermination, ComponentModel):
             'device': self.parent.display_name,
             'device_id': self.parent.pk,
             'site': self.parent.site.name,
+            'site_slug': self.parent.site.slug,
         }
 
 
@@ -2480,6 +2481,7 @@ class FrontPort(CableTermination, ComponentModel):
             'device': self.parent.display_name,
             'device_id': self.parent.pk,
             'site': self.parent.site.name,
+            'site_slug': self.parent.site.slug,
         }
 
 
@@ -2546,6 +2548,7 @@ class RearPort(CableTermination, ComponentModel):
             'device': self.parent.display_name,
             'device_id': self.parent.pk,
             'site': self.parent.site.name,
+            'site_slug': self.parent.site.slug,
         }
 
 

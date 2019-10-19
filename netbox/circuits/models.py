@@ -319,5 +319,6 @@ class CircuitTermination(CableTermination):
         return {
             **super().get_endpoint_attributes(),
             'cid': self.circuit.cid,
+            'provider': self.circuit.provider.name,
             'site': self.site.name,
         }

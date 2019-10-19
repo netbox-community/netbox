@@ -102,7 +102,9 @@ def migration_get_endpoint_attributes(endpoint):
 
     if endpoint.__class__.__name__ == 'CircuitTermination':
         attributes['cid'] = endpoint.circuit.cid
+        attributes['provider'] = endpoint.circuit.provider.name
         attributes['site'] = endpoint.site.name
+        attributes['site_slug'] = endpoint.site.slug
     elif endpoint.__class__.__name__ in ('Interface', 'FrontPort', 'RearPort'):
         attributes['name'] = endpoint.name
 
@@ -172,39 +174,36 @@ def from_generic_connected_endpoint(apps, schema_editor):
     model_type = contenttype_model.objects.get_for_model(interface_model)
     for interface in interface_model.objects.using(db_alias).filter(connected_endpoint_type=model_type):
         try:
-            interface._connected_interface_id = interface.connected_endpoint_id
+            interface._connected_interface = interface_model.objects.get(pk=interface.connected_endpoint_id)
             interface.save()
+            print(".", end='', flush=True)
         except interface_model.DoesNotExist:
             # Dangling generic foreign key
-            pass
-
-        print(".", end='', flush=True)
+            print("X", end='', flush=True)
 
     print("\nReverting circuit termination endpoints in interfaces...", end='')
 
     model_type = contenttype_model.objects.get_for_model(circuittermination_model)
     for interface in interface_model.objects.using(db_alias).filter(connected_endpoint_type=model_type):
         try:
-            interface._connected_circuittermination_id = interface.connected_endpoint_id
+            interface._connected_circuittermination = circuittermination_model.objects.get(pk=interface.connected_endpoint_id)
             interface.save()
+            print(".", end='', flush=True)
         except circuittermination_model.DoesNotExist:
             # Dangling generic foreign key
-            pass
-
-        print(".", end='', flush=True)
+            print("X", end='', flush=True)
 
     print("\nReverting circuit termination endpoints...", end='')
 
     model_type = contenttype_model.objects.get_for_model(interface_model)
     for interface in circuittermination_model.objects.using(db_alias).filter(connected_endpoint_type=model_type):
         try:
-            interface.old_connected_interface_id = interface.connected_endpoint_id
+            interface.old_connected_interface = interface_model.objects.get(pk=interface.connected_endpoint_id)
             interface.save()
+            print(".", end='', flush=True)
         except interface_model.DoesNotExist:
             # Dangling generic foreign key
-            pass
-
-        print(".", end='', flush=True)
+            print("X", end='', flush=True)
 
 
 class Migration(migrations.Migration):
