@@ -64,16 +64,20 @@ def nullify_connected_endpoints(instance, **kwargs):
         instance.termination_b.save()
 
     # Update all endpoints affected by this cable
-    update_endpoints(endpoints)
+    update_endpoints(endpoints, without_cable=instance)
 
 
-def update_endpoints(endpoints):
+def update_endpoints(endpoints, without_cable=None):
     """
     Update all endpoints affected by this cable
     """
     for endpoint in endpoints:
         if not hasattr(endpoint, 'connected_endpoint'):
             continue
+
+        if endpoint.cable == without_cable:
+            # We collected the endpoints before deleting the cable, so trace with the cable removed
+            endpoint.cable = None
 
         path = endpoint.trace()
 
