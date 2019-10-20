@@ -1,6 +1,9 @@
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 
+from circuits.models import CircuitTermination
+from dcim.constants import CONNECTION_STATUS_PLANNED, CONNECTION_STATUS_CONNECTED
+from dcim.models import Interface
 from .models import Cable, Device, VirtualChassis
 
 
@@ -89,6 +92,15 @@ def update_endpoints(endpoints, without_cable=None):
             )
             for item in sublist if item
         ][1:]
+
+        if not endpoints or not isinstance(endpoints[-1], (Interface, CircuitTermination)):
+            # This corresponds with the old model: interfaces and circuit terminations are considered "real endpoints"
+            endpoint.connection_status = None
+        else:
+            endpoint.connection_status = CONNECTION_STATUS_CONNECTED if all([
+                cable and cable.status == CONNECTION_STATUS_CONNECTED
+                for left, cable, right in path
+            ]) else CONNECTION_STATUS_PLANNED
 
         endpoint.connected_endpoint = endpoints[-1] if endpoints else None
         endpoint.via_endpoints = endpoints[:-1]
