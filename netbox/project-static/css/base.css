@@ -487,3 +487,8 @@ td .progress {
 textarea {
     font-family: Consolas, Lucida Console, monospace;
 }
+
+/* Dividers between path elements */
+span.path-element + span.path-element:before {
+    content: ' ➞ ';
+}

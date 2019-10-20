@@ -72,58 +72,71 @@
         <td colspan="2" class="text-muted">Virtual interface</td>
     {% elif iface.is_wireless %}
         <td colspan="2" class="text-muted">Wireless interface</td>
-    {% elif iface.connected_endpoint.name %}
-        {# Connected to an Interface #}
-        <td>
-            <a href="{% url 'dcim:device' pk=iface.connected_endpoint.device.pk %}">
-                {{ iface.connected_endpoint.device }}
-            </a>
-        </td>
-        <td>
-            <a href="{% url 'dcim:interface' pk=iface.connected_endpoint.pk %}">
-                <span title="{{ iface.connected_endpoint.get_type_display }}">
-                    {{ iface.connected_endpoint }}
-                </span>
-            </a>
-        </td>
-    {% elif iface.connected_endpoint.term_side %}
-        {# Connected to a CircuitTermination #}
-        {% with iface.connected_endpoint.get_peer_termination as peer_termination %}
-            {% if peer_termination %}
-                {% if peer_termination.connected_endpoint %}
-                    <td>
-                        <a href="{% url 'dcim:device' pk=peer_termination.connected_endpoint.device.pk %}">
-                            {{ peer_termination.connected_endpoint.device }}
-                        </a><br/>
-                        <small>via <i class="fa fa-fw fa-globe" title="Circuit"></i>
-                            <a href="{{ iface.connected_endpoint.circuit.get_absolute_url }}">
-                                {{ iface.connected_endpoint.circuit.provider }}
-                                {{ iface.connected_endpoint.circuit }}
-                            </a>
-                        </small>
-                    </td>
-                    <td>
-                        {{ peer_termination.connected_endpoint }}
-                    </td>
-                {% else %}
-                    <td colspan="2">
-                        <a href="{% url 'dcim:site' slug=peer_termination.site.slug %}">
-                            {{ peer_termination.site }}
+    {% elif iface.connected_endpoint %}
+        {% with endpoint=iface.connected_endpoint previous_endpoint=iface.via_endpoints|last %}
+            {% if endpoint.positions and previous_endpoint.rear_port_position %}
+                {# RearPort has positions, FrontPort has rear port position #}
+                {# Ending at a rear port isn't interesting if we know the front port #}
+                <td>
+                    <a href="{% url 'dcim:device' pk=previous_endpoint.pk %}">
+                        {{ previous_endpoint.device }}
+                    </a>
+                    {% with path=iface.via_endpoints|slice:":-1" %}
+                        {% include "dcim/inc/interface_path.html" %}
+                    {% endwith %}
+                </td>
+                <td>
+                    <a href="{% url 'dcim:device' pk=previous_endpoint.device_id %}">
+                        {{ previous_endpoint.name }}
+                    </a>
+                </td>
+            {% elif endpoint.name and endpoint.device %}
+                {# Interface, FrontPort and RearPort have a name and a device #}
+                <td>
+                    <a href="{% url 'dcim:device' pk=endpoint.device.pk %}">
+                        {{ endpoint.device }}
+                    </a>
+                    {% with path=iface.via_endpoints %}
+                        {% include "dcim/inc/interface_path.html" %}
+                    {% endwith %}
+                </td>
+                <td>
+                    {% if endpoint.get_type_display %}
+                        <a href="{% url 'dcim:interface' pk=endpoint.pk %}">
+                            <span title="{{ endpoint.get_type_display }}">
+                                {{ endpoint.name }}
+                            </span>
                         </a>
-                        via <i class="fa fa-fw fa-globe" title="Circuit"></i>
-                        <a href="{{ iface.connected_endpoint.circuit.get_absolute_url }}">
-                            {{ iface.connected_endpoint.circuit.provider }}
-                            {{ iface.connected_endpoint.circuit }}
+                    {% else %}
+                        <a href="{% url 'dcim:device' pk=endpoint.device.pk %}">
+                            {{ endpoint.name }}
                         </a>
-                    </td>
-                {% endif %}
+                    {% endif %}
+                </td>
+            {% elif endpoint.circuit %}
+                {# CircuitTermination has a circuit #}
+                <td colspan="2">
+                    {% if endpoint.circuit == previous_endpoint.circuit %}
+                        {# We have the remote endpoint, show the remote site #}
+                        <a href="{% url 'dcim:site' slug=endpoint.site.slug %}">
+                            {{ endpoint.site }}
+                        </a>
+                    {% else %}
+                        {# We have the local endpoint, show the circuit #}
+                        <i class="fa fa-fw fa-globe" title="Circuit"></i>
+                        <a href="{{ endpoint.circuit.get_absolute_url }}">
+                            {{ endpoint.circuit.provider }}
+                            {{ endpoint.circuit.cid }}
+                        </a>
+                    {% endif %}
+
+                    {% with path=iface.via_endpoints %}
+                        {% include "dcim/inc/interface_path.html" %}
+                    {% endwith %}
+                </td>
             {% else %}
                 <td colspan="2">
-                    <i class="fa fa-fw fa-globe" title="Circuit"></i>
-                    <a href="{{ iface.connected_endpoint.circuit.get_absolute_url }}">
-                        {{ iface.connected_endpoint.circuit.provider }}
-                        {{ iface.connected_endpoint.circuit }}
-                    </a>
+                    <span class="text-muted">Unknown endpoint type</span>
                 </td>
             {% endif %}
         {% endwith %}

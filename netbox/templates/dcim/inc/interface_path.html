@@ -1,0 +1,26 @@
+{% if path %}
+    <br>
+    <small>
+        via
+        {% for endpoint in path %}
+            {% ifchanged %}
+                    {% if endpoint.positions %}
+                        {# Don't show RearPort #}
+                    {% elif endpoint.rear_port_position %}
+                        <span class="path-element">
+                            <a href="{% url 'dcim:device' pk=endpoint.device.pk %}">
+                                {{ endpoint.device }}
+                            </a>
+                            {{ endpoint.name }}
+                        </span>
+                    {% elif endpoint.circuit %}
+                        <span class="path-element">
+                            <a href="{% url 'circuits:circuit' pk=endpoint.circuit.pk %}">
+                                {{ endpoint.circuit }}
+                            </a>
+                        </span>
+                    {% endif %}
+            {% endifchanged %}
+        {% endfor %}
+    </small>
+{% endif %}
