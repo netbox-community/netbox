@@ -3,7 +3,7 @@ from django.dispatch import receiver
 
 from circuits.models import CircuitTermination
 from dcim.constants import CONNECTION_STATUS_PLANNED, CONNECTION_STATUS_CONNECTED
-from dcim.models import Interface
+from dcim.models import Interface, ConsoleServerPort, ConsolePort
 from .models import Cable, Device, VirtualChassis
 
 
@@ -93,8 +93,18 @@ def update_endpoints(endpoints, without_cable=None):
             for item in sublist if item
         ][1:]
 
-        if not endpoints or not isinstance(endpoints[-1], (Interface, CircuitTermination)):
-            # This corresponds with the old model: interfaces and circuit terminations are considered "real endpoints"
+        # This corresponds with the old model: interfaces and circuit terminations are considered "real endpoints"
+        if not endpoints:
+            # There really is no endpoint
+            endpoint.connection_status = None
+        elif isinstance(endpoint, Interface) and not isinstance(endpoints[-1], (Interface, CircuitTermination)):
+            # We only consider interfaces connected when the other end is an interface or circuit
+            endpoint.connection_status = None
+        elif isinstance(endpoint, ConsolePort) and not isinstance(endpoints[-1], ConsoleServerPort):
+            # We only consider console ports connected when the other end is a console server port
+            endpoint.connection_status = None
+        elif isinstance(endpoint, ConsoleServerPort) and not isinstance(endpoints[-1], ConsolePort):
+            # We only consider console server ports connected when the other end is a console port
             endpoint.connection_status = None
         else:
             endpoint.connection_status = CONNECTION_STATUS_CONNECTED if all([
