@@ -91,13 +91,17 @@ def to_generic_connected_endpoint(apps, schema_editor):
     print("\nReconstructing all endpoints...", end='')
 
     interface_model = apps.get_model('dcim', 'Interface')
+    consoleport_model = apps.get_model('dcim', 'ConsolePort')
+    consoleserverport_model = apps.get_model('dcim', 'ConsoleServerPort')
     circuittermination_model = apps.get_model('circuits', 'CircuitTermination')
     contenttype_model = apps.get_model('contenttypes', 'ContentType')
     db_alias = schema_editor.connection.alias
 
     interface_endpoints = interface_model.objects.using(db_alias).all()
     circuittermination_endpoints = circuittermination_model.objects.using(db_alias).all()
-    for endpoint in chain(interface_endpoints, circuittermination_endpoints):
+    consoleport_endpoints = consoleport_model.objects.using(db_alias).all()
+    consoleserverport_endpoints = consoleserverport_model.objects.using(db_alias).all()
+    for endpoint in chain(interface_endpoints, circuittermination_endpoints, consoleport_endpoints, consoleserverport_endpoints):
         path = migration_trace(apps, endpoint)
 
         # The trace returns left and right, we just want a single list

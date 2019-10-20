@@ -513,7 +513,7 @@ class ConsoleConnectionViewSet(ListModelMixin, GenericViewSet):
     queryset = ConsolePort.objects.prefetch_related(
         'device', 'connected_endpoint__device'
     ).filter(
-        connected_endpoint__isnull=False
+        connected_endpoint_type=ContentType.objects.get_for_model(ConsoleServerPort)
     )
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filters.ConsoleConnectionFilter

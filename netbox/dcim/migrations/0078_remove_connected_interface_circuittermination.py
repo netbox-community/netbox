@@ -18,4 +18,8 @@ class Migration(migrations.Migration):
             model_name='interface',
             name='_connected_interface',
         ),
+        migrations.RemoveField(
+            model_name='consoleport',
+            name='old_connected_endpoint',
+        ),
     ]

@@ -30,4 +30,45 @@ class Migration(migrations.Migration):
             name='_trace',
             field=django.contrib.postgres.fields.jsonb.JSONField(default=list),
         ),
+        migrations.RenameField(
+            model_name='consoleport',
+            old_name='connected_endpoint',
+            new_name='old_connected_endpoint',
+        ),
+        migrations.AddField(
+            model_name='consoleport',
+            name='connected_endpoint_id',
+            field=models.PositiveIntegerField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='consoleport',
+            name='connected_endpoint_type',
+            field=models.ForeignKey(blank=True, limit_choices_to={
+                'model__in': ['consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontport',
+                              'rearport', 'circuittermination']
+            }, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.ContentType'),
+        ),
+        migrations.AddField(
+            model_name='consoleport',
+            name='_trace',
+            field=django.contrib.postgres.fields.jsonb.JSONField(default=list),
+        ),
+        migrations.AddField(
+            model_name='consoleserverport',
+            name='connected_endpoint_id',
+            field=models.PositiveIntegerField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='consoleserverport',
+            name='connected_endpoint_type',
+            field=models.ForeignKey(blank=True, limit_choices_to={
+                'model__in': ['consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontport',
+                              'rearport', 'circuittermination']
+            }, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.ContentType'),
+        ),
+        migrations.AddField(
+            model_name='consoleserverport',
+            name='_trace',
+            field=django.contrib.postgres.fields.jsonb.JSONField(default=list),
+        ),
     ]

@@ -1888,7 +1888,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 # Console ports
 #
 
-class ConsolePort(CableTermination, ComponentModel):
+class ConsolePort(CableTermination, ComponentModel, CachedTraceModel):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
@@ -1900,12 +1900,21 @@ class ConsolePort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
-    connected_endpoint = models.OneToOneField(
-        to='dcim.ConsoleServerPort',
-        on_delete=models.SET_NULL,
-        related_name='connected_endpoint',
+    connected_endpoint_type = models.ForeignKey(
+        to=ContentType,
+        limit_choices_to={'model__in': CABLE_TERMINATION_TYPES},
+        on_delete=models.PROTECT,
+        related_name='+',
         blank=True,
         null=True
+    )
+    connected_endpoint_id = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+    connected_endpoint = GenericForeignKey(
+        ct_field='connected_endpoint_type',
+        fk_field='connected_endpoint_id'
     )
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,
@@ -1939,7 +1948,7 @@ class ConsolePort(CableTermination, ComponentModel):
 # Console server ports
 #
 
-class ConsoleServerPort(CableTermination, ComponentModel):
+class ConsoleServerPort(CableTermination, ComponentModel, CachedTraceModel):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
@@ -1950,6 +1959,22 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     )
     name = models.CharField(
         max_length=50
+    )
+    connected_endpoint_type = models.ForeignKey(
+        to=ContentType,
+        limit_choices_to={'model__in': CABLE_TERMINATION_TYPES},
+        on_delete=models.PROTECT,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    connected_endpoint_id = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+    connected_endpoint = GenericForeignKey(
+        ct_field='connected_endpoint_type',
+        fk_field='connected_endpoint_id'
     )
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,

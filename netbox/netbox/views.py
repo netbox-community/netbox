@@ -16,8 +16,9 @@ from dcim.filters import (
     VirtualChassisFilter,
 )
 from dcim.models import (
-    Cable, ConsolePort, Device, DeviceType, Interface, PowerPanel, PowerFeed, PowerPort, Rack, RackGroup, Site, VirtualChassis
-)
+    Cable, ConsolePort, Device, DeviceType, Interface, PowerPanel, PowerFeed, PowerPort, Rack, RackGroup, Site,
+    VirtualChassis,
+    ConsoleServerPort)
 from dcim.tables import (
     CableTable, DeviceDetailTable, DeviceTypeTable, PowerFeedTable, RackTable, RackGroupTable, SiteTable,
     VirtualChassisTable,
@@ -195,7 +196,7 @@ class HomeView(View):
     def get(self, request):
 
         connected_consoleports = ConsolePort.objects.filter(
-            connected_endpoint__isnull=False
+            connected_endpoint_type=ContentType.objects.get_for_model(ConsoleServerPort),
         )
         connected_powerports = PowerPort.objects.filter(
             _connected_poweroutlet__isnull=False

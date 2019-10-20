@@ -1879,9 +1879,9 @@ class ConsoleConnectionsListView(PermissionRequiredMixin, ObjectListView):
     queryset = ConsolePort.objects.prefetch_related(
         'device', 'connected_endpoint__device'
     ).filter(
-        connected_endpoint__isnull=False
+        connected_endpoint_type=ContentType.objects.get_for_model(ConsoleServerPort)
     ).order_by(
-        'cable', 'connected_endpoint__device__name', 'connected_endpoint__name'
+        'cable',  # 'connected_endpoint__device__name', 'connected_endpoint__name'
     )
     filter = filters.ConsoleConnectionFilter
     filter_form = forms.ConsoleConnectionFilterForm
