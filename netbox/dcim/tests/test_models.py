@@ -439,14 +439,14 @@ class CablePathTestCase(TestCase):
         cable1 = Cable(termination_a=self.interface1, termination_b=self.front_port1)
         cable1.save()
         interface1 = Interface.objects.get(pk=self.interface1.pk)
-        self.assertIsNone(interface1.connected_endpoint)
+        self.assertEqual(interface1.connected_endpoint, self.rear_port1)
         self.assertIsNone(interface1.connection_status)
 
         # Second segment
         cable2 = Cable(termination_a=self.rear_port1, termination_b=self.rear_port2)
         cable2.save()
         interface1 = Interface.objects.get(pk=self.interface1.pk)
-        self.assertIsNone(interface1.connected_endpoint)
+        self.assertEqual(interface1.connected_endpoint, self.front_port2)
         self.assertIsNone(interface1.connection_status)
 
         # Third segment
@@ -479,7 +479,16 @@ class CablePathTestCase(TestCase):
         # Remove a cable
         cable2.delete()
         interface1 = Interface.objects.get(pk=self.interface1.pk)
-        self.assertIsNone(interface1.connected_endpoint)
+        self.assertEqual(interface1.connected_endpoint, self.rear_port1)
+        self.assertIsNone(interface1.connection_status)
+        interface2 = Interface.objects.get(pk=self.interface2.pk)
+        self.assertEqual(interface2.connected_endpoint, self.rear_port2)
+        self.assertIsNone(interface2.connection_status)
+
+        # Remove another cable
+        cable3.delete()
+        interface1 = Interface.objects.get(pk=self.interface1.pk)
+        self.assertEqual(interface1.connected_endpoint, self.rear_port1)
         self.assertIsNone(interface1.connection_status)
         interface2 = Interface.objects.get(pk=self.interface2.pk)
         self.assertIsNone(interface2.connected_endpoint)
