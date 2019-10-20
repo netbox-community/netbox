@@ -26,6 +26,62 @@ from .fields import ASNField, MACAddressField
 from .managers import InterfaceManager
 
 
+class CachedTraceModel(models.Model):
+    _trace = JSONField(
+        default=list
+    )
+
+    class Meta:
+        abstract = True
+
+    @property
+    def via_endpoints(self):
+        # Cache the result as we'll be iterating over the resulting list multiple times
+        if hasattr(self, '__cached_via_endpoints'):
+            return self.__cached_via_endpoints[:]
+
+        # Collect all the primary keys per model
+        fetch_list = {}
+        for model_key, key in self._trace:
+            fetch_list.setdefault(tuple(model_key), []).append(key)
+
+        endpoints = {}
+        for model_key, keys in fetch_list.items():
+            endpoint_contenttype = ContentType.objects.get_by_natural_key(*model_key)
+            queryset = endpoint_contenttype.model_class().objects
+            if hasattr(queryset.model, 'circuit'):
+                queryset = queryset.select_related('circuit__provider')
+            if hasattr(queryset.model, 'device'):
+                queryset = queryset.select_related('device')
+
+            endpoints[model_key] = {
+                endpoint.pk: endpoint
+                for endpoint in queryset.filter(pk__in=keys)
+            }
+
+        trace = []
+        for model_key, key in self._trace:
+            endpoint = endpoints[tuple(model_key)].get(key, None)
+            if endpoint:
+                trace.append(endpoint)
+
+        self.__cached_via_endpoints = trace
+        return trace[:]
+
+    @via_endpoints.setter
+    def via_endpoints(self, endpoints):
+        # Invalidate the cache
+        if hasattr(self, '__cached_via_endpoints'):
+            del self.__cached_via_endpoints
+
+        trace = []
+        for step in endpoints:
+            endpoint_contenttype = ContentType.objects.get_for_model(step)
+            trace.append((endpoint_contenttype.natural_key(), step.pk))
+
+        self._trace = trace
+
+
 class ComponentTemplateModel(models.Model):
 
     class Meta:
@@ -160,11 +216,6 @@ class CableTermination(models.Model):
         if self._cabled_as_b.exists():
             return self.cable.termination_a
 
-    def get_endpoint_attributes(self):
-        return {
-            'id': self.pk,
-            'type': self.__class__.__name__,
-        }
 
 #
 # Regions
@@ -2134,7 +2185,7 @@ class PowerOutlet(CableTermination, ComponentModel):
 # Interfaces
 #
 
-class Interface(CableTermination, ComponentModel):
+class Interface(CableTermination, ComponentModel, CachedTraceModel):
     """
     A network interface within a Device or VirtualMachine. A physical Interface can connect to exactly one other
     Interface.
@@ -2172,9 +2223,6 @@ class Interface(CableTermination, ComponentModel):
     connected_endpoint = GenericForeignKey(
         ct_field='connected_endpoint_type',
         fk_field='connected_endpoint_id'
-    )
-    _trace = JSONField(
-        default=list
     )
 
     connected_interface = GenericRelation(
@@ -2390,16 +2438,6 @@ class Interface(CableTermination, ComponentModel):
     def count_ipaddresses(self):
         return self.ip_addresses.count()
 
-    def get_endpoint_attributes(self):
-        return {
-            **super().get_endpoint_attributes(),
-            'name': self.name,
-            'device': self.parent.display_name,
-            'device_id': self.parent.pk,
-            'site': self.parent.site.name,
-            'site_slug': self.parent.site.slug,
-        }
-
 
 #
 # Pass-through ports
@@ -2474,16 +2512,6 @@ class FrontPort(CableTermination, ComponentModel):
     def get_peer_port(self):
         return self.rear_port
 
-    def get_endpoint_attributes(self):
-        return {
-            **super().get_endpoint_attributes(),
-            'name': self.name,
-            'device': self.parent.display_name,
-            'device_id': self.parent.pk,
-            'site': self.parent.site.name,
-            'site_slug': self.parent.site.slug,
-        }
-
 
 class RearPort(CableTermination, ComponentModel):
     """
@@ -2540,16 +2568,6 @@ class RearPort(CableTermination, ComponentModel):
             return peer_port
         except ObjectDoesNotExist:
             return None
-
-    def get_endpoint_attributes(self):
-        return {
-            **super().get_endpoint_attributes(),
-            'name': self.name,
-            'device': self.parent.display_name,
-            'device_id': self.parent.pk,
-            'site': self.parent.site.name,
-            'site_slug': self.parent.site.slug,
-        }
 
 
 #

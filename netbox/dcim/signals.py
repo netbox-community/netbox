@@ -91,5 +91,5 @@ def update_endpoints(endpoints, without_cable=None):
         ][1:]
 
         endpoint.connected_endpoint = endpoints[-1] if endpoints else None
-        endpoint._trace = [endpoint.get_endpoint_attributes() for endpoint in endpoints]
+        endpoint.via_endpoints = endpoints[:-1]
         endpoint.save()

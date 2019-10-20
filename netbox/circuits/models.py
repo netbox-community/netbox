@@ -7,7 +7,7 @@ from taggit.managers import TaggableManager
 
 from dcim.constants import CONNECTION_STATUS_CHOICES, STATUS_CLASSES, CABLE_TERMINATION_TYPES
 from dcim.fields import ASNField
-from dcim.models import CableTermination
+from dcim.models import CableTermination, CachedTraceModel
 from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
@@ -213,8 +213,37 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
     def termination_z(self):
         return self._get_termination('Z')
 
+    def get_related_endpoints(self):
+        """
+        Traverse both ends of a circuit and return a list of all related endpoints.
+        """
+        from dcim.models import FrontPort, RearPort
 
-class CircuitTermination(CableTermination):
+        # Termination points trace from themselves, through the circuit and beyond. Tracing from the Z termination
+        # therefore traces in the direction of A [(termination_z, circuit, termination_a), (...)] and vice versa.
+        # Every path therefore also has at least one segment (the current circuit).
+        terminations = [self.termination_a, self.termination_z]
+        paths = [termination.trace() for termination in terminations if termination]
+
+        # Use a dict here to avoid storing duplicates. The same object retrieved twice will have different identities.
+        endpoints = {}
+        while paths:
+            path = paths.pop()
+            for left, cable, right in path:
+                if right is not None:
+                    key = '{cls}-{pk}'.format(cls=right.__class__.__name__, pk=right.pk)
+                    endpoints[key] = right
+
+            # If a path ends in a RearPort, then everything connected through its FrontPorts is related as well
+            if isinstance(path[-1][2], RearPort):
+                front_ports = FrontPort.objects.filter(rear_port=path[-1][2])
+                for front_port in front_ports:
+                    paths.append(front_port.trace())
+
+        return list(endpoints.values())
+
+
+class CircuitTermination(CableTermination, CachedTraceModel):
     circuit = models.ForeignKey(
         to='circuits.Circuit',
         on_delete=models.CASCADE,
@@ -245,9 +274,6 @@ class CircuitTermination(CableTermination):
     connected_endpoint = GenericForeignKey(
         ct_field='connected_endpoint_type',
         fk_field='connected_endpoint_id'
-    )
-    _trace = JSONField(
-        default=list
     )
 
     connection_status = models.NullBooleanField(
@@ -314,11 +340,3 @@ class CircuitTermination(CableTermination):
 
     def get_peer_port(self):
         return self.get_peer_termination()
-
-    def get_endpoint_attributes(self):
-        return {
-            **super().get_endpoint_attributes(),
-            'cid': self.circuit.cid,
-            'provider': self.circuit.provider.name,
-            'site': self.site.name,
-        }
