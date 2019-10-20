@@ -2133,7 +2133,11 @@
     "fields": {
         "device": 1,
         "name": "Console (RE0)",
-        "connected_endpoint": 27,
+        "connected_endpoint_type": [
+            "dcim",
+            "consoleserverport"
+        ],
+        "connected_endpoint_id": 27,
         "connection_status": true
     }
 },
@@ -2143,7 +2147,11 @@
     "fields": {
         "device": 1,
         "name": "Console (RE1)",
-        "connected_endpoint": 38,
+        "connected_endpoint_type": [
+            "dcim",
+            "consoleserverport"
+        ],
+        "connected_endpoint_id": 38,
         "connection_status": true
     }
 },
@@ -2153,7 +2161,11 @@
     "fields": {
         "device": 2,
         "name": "Console (RE0)",
-        "connected_endpoint": 5,
+        "connected_endpoint_type": [
+            "dcim",
+            "consoleserverport"
+        ],
+        "connected_endpoint_id": 5,
         "connection_status": true
     }
 },
@@ -2163,7 +2175,11 @@
     "fields": {
         "device": 2,
         "name": "Console (RE1)",
-        "connected_endpoint": 16,
+        "connected_endpoint_type": [
+            "dcim",
+            "consoleserverport"
+        ],
+        "connected_endpoint_id": 16,
         "connection_status": true
     }
 },
@@ -2173,7 +2189,11 @@
     "fields": {
         "device": 3,
         "name": "Console",
-        "connected_endpoint": 49,
+        "connected_endpoint_type": [
+            "dcim",
+            "consoleserverport"
+        ],
+        "connected_endpoint_id": 49,
         "connection_status": true
     }
 },
@@ -2183,7 +2203,11 @@
     "fields": {
         "device": 4,
         "name": "Console",
-        "connected_endpoint": 48,
+        "connected_endpoint_type": [
+            "dcim",
+            "consoleserverport"
+        ],
+        "connected_endpoint_id": 48,
         "connection_status": true
     }
 },
@@ -2193,7 +2217,8 @@
     "fields": {
         "device": 5,
         "name": "Console",
-        "connected_endpoint": null,
+        "connected_endpoint_type": null,
+        "connected_endpoint_id": null,
         "connection_status": true
     }
 },
@@ -2203,7 +2228,8 @@
     "fields": {
         "device": 6,
         "name": "Console",
-        "connected_endpoint": null,
+        "connected_endpoint_type": null,
+        "connected_endpoint_id": null,
         "connection_status": true
     }
 },
@@ -2213,7 +2239,8 @@
     "fields": {
         "device": 7,
         "name": "Console (RE0)",
-        "connected_endpoint": null,
+        "connected_endpoint_type": null,
+        "connected_endpoint_id": null,
         "connection_status": true
     }
 },
@@ -2223,7 +2250,8 @@
     "fields": {
         "device": 7,
         "name": "Console (RE1)",
-        "connected_endpoint": null,
+        "connected_endpoint_type": null,
+        "connected_endpoint_id": null,
         "connection_status": true
     }
 },
@@ -2233,7 +2261,8 @@
     "fields": {
         "device": 8,
         "name": "Console (RE0)",
-        "connected_endpoint": null,
+        "connected_endpoint_type": null,
+        "connected_endpoint_id": null,
         "connection_status": true
     }
 },
@@ -2243,7 +2272,8 @@
     "fields": {
         "device": 8,
         "name": "Console (RE1)",
-        "connected_endpoint": null,
+        "connected_endpoint_type": null,
+        "connected_endpoint_id": null,
         "connection_status": true
     }
 },
@@ -2253,7 +2283,8 @@
     "fields": {
         "device": 9,
         "name": "Console",
-        "connected_endpoint": null,
+        "connected_endpoint_type": null,
+        "connected_endpoint_id": null,
         "connection_status": true
     }
 },
@@ -2263,7 +2294,8 @@
     "fields": {
         "device": 11,
         "name": "Serial",
-        "connected_endpoint": null,
+        "connected_endpoint_type": null,
+        "connected_endpoint_id": null,
         "connection_status": true
     }
 },
@@ -2273,7 +2305,8 @@
     "fields": {
         "device": 12,
         "name": "Serial",
-        "connected_endpoint": null,
+        "connected_endpoint_type": null,
+        "connected_endpoint_id": null,
         "connection_status": true
     }
 },
