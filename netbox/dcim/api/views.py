@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, F
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
+from django.utils.functional import cached_property
 from drf_yasg import openapi
 from drf_yasg.openapi import Parameter
 from drf_yasg.utils import swagger_auto_schema
@@ -510,13 +511,16 @@ class InventoryItemViewSet(ModelViewSet):
 #
 
 class ConsoleConnectionViewSet(ListModelMixin, GenericViewSet):
-    queryset = ConsolePort.objects.prefetch_related(
-        'device', 'connected_endpoint__device'
-    ).filter(
-        connected_endpoint_type=ContentType.objects.get_for_model(ConsoleServerPort)
-    )
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filters.ConsoleConnectionFilter
+
+    @cached_property
+    def queryset(self):
+        return ConsolePort.objects.prefetch_related(
+            'device', 'connected_endpoint__device'
+        ).filter(
+            connected_endpoint_type=ContentType.objects.get_for_model(ConsoleServerPort)
+        )
 
 
 class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
@@ -530,17 +534,20 @@ class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
 
 
 class InterfaceConnectionViewSet(ListModelMixin, GenericViewSet):
-    queryset = Interface.objects.prefetch_related(
-        'device', 'connected_endpoint__device'
-    ).filter(
-        # Avoid duplicate connections by only selecting the lower PK in a connected pair
-        connected_endpoint_type=ContentType.objects.get_for_model(Interface),
-        pk__lt=F('connected_endpoint_id')
-    ).order_by(
-        'device'
-    )
     serializer_class = serializers.InterfaceConnectionSerializer
     filterset_class = filters.InterfaceConnectionFilter
+
+    @cached_property
+    def queryset(self):
+        return Interface.objects.prefetch_related(
+            'device', 'connected_endpoint__device'
+        ).filter(
+            # Avoid duplicate connections by only selecting the lower PK in a connected pair
+            connected_endpoint_type=ContentType.objects.get_for_model(Interface),
+            pk__lt=F('connected_endpoint_id')
+        ).order_by(
+            'device'
+        )
 
 
 #

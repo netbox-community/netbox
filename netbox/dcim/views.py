@@ -10,6 +10,7 @@ from django.db.models import Count, F
 from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.functional import cached_property
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
@@ -1876,17 +1877,20 @@ class CableBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class ConsoleConnectionsListView(PermissionRequiredMixin, ObjectListView):
     permission_required = ('dcim.view_consoleport', 'dcim.view_consoleserverport')
-    queryset = ConsolePort.objects.prefetch_related(
-        'device', 'connected_endpoint__device'
-    ).filter(
-        connected_endpoint_type=ContentType.objects.get_for_model(ConsoleServerPort)
-    ).order_by(
-        'cable',  # 'connected_endpoint__device__name', 'connected_endpoint__name'
-    )
     filter = filters.ConsoleConnectionFilter
     filter_form = forms.ConsoleConnectionFilterForm
     table = tables.ConsoleConnectionTable
     template_name = 'dcim/console_connections_list.html'
+
+    @cached_property
+    def queryset(self):
+        return ConsolePort.objects.prefetch_related(
+            'device', 'connected_endpoint__device'
+        ).filter(
+            connected_endpoint_type=ContentType.objects.get_for_model(ConsoleServerPort)
+        ).order_by(
+            'cable',  # 'connected_endpoint__device__name', 'connected_endpoint__name'
+        )
 
     def queryset_to_csv(self):
         csv_data = [
@@ -1938,19 +1942,22 @@ class PowerConnectionsListView(PermissionRequiredMixin, ObjectListView):
 
 class InterfaceConnectionsListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_interface'
-    queryset = Interface.objects.prefetch_related(
-        'device', 'cable', 'connected_endpoint__device'
-    ).filter(
-        # Avoid duplicate connections by only selecting the lower PK in a connected pair
-        connected_endpoint_type=ContentType.objects.get_for_model(Interface),
-        pk__lt=F('connected_endpoint_id')
-    ).order_by(
-        'device'
-    )
     filter = filters.InterfaceConnectionFilter
     filter_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
     template_name = 'dcim/interface_connections_list.html'
+
+    @cached_property
+    def queryset(self):
+        return Interface.objects.prefetch_related(
+            'device', 'cable', 'connected_endpoint__device'
+        ).filter(
+            # Avoid duplicate connections by only selecting the lower PK in a connected pair
+            connected_endpoint_type=ContentType.objects.get_for_model(Interface),
+            pk__lt=F('connected_endpoint_id')
+        ).order_by(
+            'device'
+        )
 
     def queryset_to_csv(self):
         csv_data = [
