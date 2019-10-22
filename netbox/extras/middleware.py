@@ -22,7 +22,7 @@ def handle_changed_object(sender, instance, **kwargs):
     """
     Fires when an object is created or updated.
     """
-    # Queue a copy of the object for processing once the request completes
+    # Queue the object for processing once the request completes
     action = OBJECTCHANGE_ACTION_CREATE if kwargs['created'] else OBJECTCHANGE_ACTION_UPDATE
     _thread_locals.changed_objects.append(
         (instance, action)
@@ -44,7 +44,7 @@ def handle_deleted_object(sender, instance, **kwargs):
     if hasattr(instance, 'tags'):
         copy.tags = DummyQuerySet(instance.tags.all())
 
-    # Queue a copy of the object for processing once the request completes
+    # Queue the copy of the object for processing once the request completes
     _thread_locals.changed_objects.append(
         (copy, OBJECTCHANGE_ACTION_DELETE)
     )
@@ -99,6 +99,11 @@ class ObjectChangeMiddleware(object):
 
         # Create records for any cached objects that were changed.
         for instance, action in _thread_locals.changed_objects:
+
+            # Refresh cached custom field values
+            if action in [OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_UPDATE]:
+                if hasattr(instance, 'cache_custom_fields'):
+                    instance.cache_custom_fields()
 
             # Record an ObjectChange if applicable
             if hasattr(instance, 'to_objectchange'):
