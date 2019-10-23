@@ -74,8 +74,7 @@
         <td colspan="2" class="text-muted">Wireless interface</td>
     {% elif iface.connected_endpoint %}
         {% with endpoint=iface.connected_endpoint previous_endpoint=iface.via_endpoints|last %}
-            {% if endpoint.positions and previous_endpoint.rear_port_position %}
-                {# RearPort has positions, FrontPort has rear port position #}
+            {% if endpoint.termination_type == 'RearPort' and previous_endpoint.termination_type == 'FrontPort' %}
                 {# Ending at a rear port isn't interesting if we know the front port #}
                 <td>
                     <a href="{% url 'dcim:device' pk=previous_endpoint.device.pk %}">
@@ -90,8 +89,7 @@
                         {{ previous_endpoint.name }}
                     </a>
                 </td>
-            {% elif endpoint.name and endpoint.device %}
-                {# Interface, FrontPort and RearPort have a name and a device #}
+            {% elif endpoint.termination_type in 'Interface,FrontPort,RearPort' %}
                 <td>
                     <a href="{% url 'dcim:device' pk=endpoint.device.pk %}">
                         {{ endpoint.device }}
@@ -101,7 +99,7 @@
                     {% endwith %}
                 </td>
                 <td>
-                    {% if endpoint.get_type_display %}
+                    {% if endpoint.termination_type == 'Interface' %}
                         <a href="{% url 'dcim:interface' pk=endpoint.pk %}">
                             <span title="{{ endpoint.get_type_display }}">
                                 {{ endpoint.name }}
@@ -113,8 +111,7 @@
                         </a>
                     {% endif %}
                 </td>
-            {% elif endpoint.circuit %}
-                {# CircuitTermination has a circuit #}
+            {% elif endpoint.termination_type == 'CircuitTermination' %}
                 <td colspan="2">
                     {% if endpoint.circuit == previous_endpoint.circuit %}
                         {# We have the remote endpoint, show the remote site #}

@@ -4,16 +4,16 @@
         via
         {% for endpoint in path %}
             {% ifchanged %}
-                    {% if endpoint.positions %}
+                    {% if endpoint.termination_type == 'RearPort' %}
                         {# Don't show RearPort #}
-                    {% elif endpoint.rear_port_position %}
+                    {% elif endpoint.termination_type == 'FrontPort' %}
                         <span class="path-element">
                             <a href="{% url 'dcim:device' pk=endpoint.device.pk %}">
                                 {{ endpoint.device }}
                             </a>
                             {{ endpoint.name }}
                         </span>
-                    {% elif endpoint.circuit %}
+                    {% elif endpoint.termination_type == 'CircuitTermination' %}
                         <span class="path-element">
                             <a href="{% url 'circuits:circuit' pk=endpoint.circuit.pk %}">
                                 {{ endpoint.circuit }}
