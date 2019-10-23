@@ -9,6 +9,7 @@
 ## Bug Fixes
 
 * [#3340](https://github.com/netbox-community/netbox/issues/3340) - Add missing options to connect front ports to console ports
+* [#3460](https://github.com/netbox-community/netbox/issues/3460) - Extend upgrade script to validate Python dependencies
 * [#3596](https://github.com/netbox-community/netbox/issues/3596) - Prevent server error when reassigning a device to a new device bay
 
 ---
