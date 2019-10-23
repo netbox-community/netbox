@@ -86,7 +86,7 @@ class ClusterForm(BootstrapMixin, CustomFieldForm):
     class Meta:
         model = Cluster
         fields = [
-            'name', 'type', 'group', 'site', 'comments', 'tags',
+            'name', 'type', 'group', 'tenant', 'site', 'comments', 'tags',
         ]
         widgets = {
             'type': APISelect(
@@ -128,6 +128,15 @@ class ClusterCSVForm(forms.ModelForm):
             'invalid_choice': 'Invalid site name.',
         }
     )
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Name of assigned tenant',
+        error_messages={
+            'invalid_choice': 'Invalid tenant name'
+        }
+    )
 
     class Meta:
         model = Cluster
@@ -153,6 +162,10 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
             api_url="/api/virtualization/cluster-groups/"
         )
     )
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -166,7 +179,7 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
 
     class Meta:
         nullable_fields = [
-            'group', 'site', 'comments',
+            'group', 'site', 'comments', 'tenant',
         ]
 
 
@@ -190,6 +203,15 @@ class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
         widget=APISelectMultiple(
             api_url="/api/virtualization/cluster-groups/",
             value_field='slug',
+            null_option=True,
+        )
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.all(),
+        null_label='-- None --',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenants/",
             null_option=True,
         )
     )

@@ -103,6 +103,13 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         null=True
     )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='tenants',
+        blank=True,
+        null=True
+    )
     site = models.ForeignKey(
         to='dcim.Site',
         on_delete=models.PROTECT,
@@ -150,6 +157,7 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
             self.type.name,
             self.group.name if self.group else None,
             self.site.name if self.site else None,
+            self.tenant.name if self.tenant else None,
             self.comments,
         )
 

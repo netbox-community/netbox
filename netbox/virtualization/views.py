@@ -96,7 +96,7 @@ class ClusterGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class ClusterListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'virtualization.view_cluster'
-    queryset = Cluster.objects.prefetch_related('type', 'group', 'site')
+    queryset = Cluster.objects.prefetch_related('type', 'group', 'site', 'tenant')
     table = tables.ClusterTable
     filter = filters.ClusterFilter
     filter_form = forms.ClusterFilterForm

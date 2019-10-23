@@ -9,7 +9,7 @@ from ipam.models import IPAddress, Prefix, VLAN, VRF
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
-from virtualization.models import VirtualMachine
+from virtualization.models import VirtualMachine, Cluster
 from . import filters, forms, tables
 from .models import Tenant, TenantGroup
 
@@ -80,6 +80,7 @@ class TenantView(PermissionRequiredMixin, View):
             'vlan_count': VLAN.objects.filter(tenant=tenant).count(),
             'circuit_count': Circuit.objects.filter(tenant=tenant).count(),
             'virtualmachine_count': VirtualMachine.objects.filter(tenant=tenant).count(),
+            'cluster_count': Cluster.objects.filter(tenant=tenant).count(),
         }
 
         return render(request, 'tenancy/tenant.html', {

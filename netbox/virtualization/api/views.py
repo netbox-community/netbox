@@ -41,7 +41,7 @@ class ClusterGroupViewSet(ModelViewSet):
 
 class ClusterViewSet(CustomFieldModelViewSet):
     queryset = Cluster.objects.prefetch_related(
-        'type', 'group', 'site', 'tags'
+        'type', 'group', 'tenant', 'site', 'tags'
     ).annotate(
         device_count=get_subquery(Device, 'cluster'),
         virtualmachine_count=get_subquery(VirtualMachine, 'cluster')
