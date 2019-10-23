@@ -78,7 +78,7 @@
                 {# RearPort has positions, FrontPort has rear port position #}
                 {# Ending at a rear port isn't interesting if we know the front port #}
                 <td>
-                    <a href="{% url 'dcim:device' pk=previous_endpoint.pk %}">
+                    <a href="{% url 'dcim:device' pk=previous_endpoint.device.pk %}">
                         {{ previous_endpoint.device }}
                     </a>
                     {% with path=iface.via_endpoints|slice:":-1" %}
@@ -86,7 +86,7 @@
                     {% endwith %}
                 </td>
                 <td>
-                    <a href="{% url 'dcim:device' pk=previous_endpoint.device_id %}">
+                    <a href="{% url 'dcim:device' pk=previous_endpoint.device.pk %}">
                         {{ previous_endpoint.name }}
                     </a>
                 </td>
