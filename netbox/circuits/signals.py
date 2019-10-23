@@ -16,7 +16,3 @@ def update_circuit(instance, **kwargs):
     for circuit in circuits:
         circuit.last_updated = time
         circuit.save()
-
-    # Update all endpoints affected by this cable
-    endpoints = instance.circuit.get_related_endpoints()
-    update_endpoints(endpoints)
