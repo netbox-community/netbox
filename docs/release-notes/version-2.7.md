@@ -51,3 +51,8 @@ Full connection details are required in both sections, even if they are the same
 ## Enhancements
 
 * [#2902](https://github.com/digitalocean/netbox/issues/2902) - Replace supervisord with systemd
+* [#3455](https://github.com/digitalocean/netbox/issues/3455) - Add tenant assignment to cluster
+
+## API Changes
+
+* virtualization.Cluster: Added field `tenant`
