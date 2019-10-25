@@ -21,6 +21,7 @@ NetBox requires access to a PostgreSQL database service to store data. This serv
 * `PASSWORD` - PostgreSQL password
 * `HOST` - Name or IP address of the database server (use `localhost` if running locally)
 * `PORT` - TCP port of the PostgreSQL service; leave blank for default port (5432)
+* `CONN_MAX_AGE` - Number in seconds for Netbox to keep database connections open. 150-300 seconds is typically a good starting point ([more info](https://docs.djangoproject.com/en/stable/ref/databases/#persistent-connections)).
 
 Example:
 
@@ -31,6 +32,7 @@ DATABASE = {
     'PASSWORD': 'J5brHrAXFLQSif0K', # PostgreSQL password
     'HOST': 'localhost',            # Database server
     'PORT': '',                     # Database port (leave blank for default)
+    'CONN_MAX_AGE': 300,            # Max database connection age
 }
 ```
 
@@ -69,7 +71,7 @@ REDIS = {
 !!! note:
     If you were using these settings in a prior release with webhooks, the `DATABASE` setting remains the same but
     an additional `CACHE_DATABASE` setting has been added with a default value of 1 to support the caching backend. The
-    `DATABASE` setting will be renamed in a future release of NetBox to better relay the meaning of the setting. 
+    `DATABASE` setting will be renamed in a future release of NetBox to better relay the meaning of the setting.
 
 !!! warning:
     It is highly recommended to keep the webhook and cache databases seperate. Using the same database number for both may result in webhook
