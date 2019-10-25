@@ -3122,6 +3122,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         return (
             self.power_panel.site.name,
             self.power_panel.name,
+            self.rack.group.name if self.rack and self.rack.group else None,
             self.rack.name if self.rack else None,
             self.name,
             self.get_status_display(),
