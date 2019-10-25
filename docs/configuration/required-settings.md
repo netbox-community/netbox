@@ -71,7 +71,7 @@ REDIS = {
 !!! note:
     If you were using these settings in a prior release with webhooks, the `DATABASE` setting remains the same but
     an additional `CACHE_DATABASE` setting has been added with a default value of 1 to support the caching backend. The
-    `DATABASE` setting will be renamed in a future release of NetBox to better relay the meaning of the setting.
+    `DATABASE` setting will be renamed in a future release of NetBox to better relay the meaning of the setting. 
 
 !!! warning:
     It is highly recommended to keep the webhook and cache databases seperate. Using the same database number for both may result in webhook
