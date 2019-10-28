@@ -350,6 +350,8 @@ class VirtualMachineTest(APITestCase):
                 'B': 2
             }
         )
+        self.virtualmachine_non_region1 = VirtualMachine.objects.create(name='Test Virtual Machine Null Region1', cluster=self.cluster2)
+        self.virtualmachine_non_region2 = VirtualMachine.objects.create(name='Test Virtual Machine Null Region2', cluster=self.cluster2)
 
     def test_get_virtualmachine(self):
 
@@ -363,7 +365,7 @@ class VirtualMachineTest(APITestCase):
         url = reverse('virtualization-api:virtualmachine-list')
         response = self.client.get(url, **self.header)
 
-        self.assertEqual(response.data['count'], 4)
+        self.assertEqual(response.data['count'], 6)
 
     def test_list_virtualmachines_brief(self):
 
@@ -377,12 +379,17 @@ class VirtualMachineTest(APITestCase):
 
     def test_list_virtualmachines_null_region(self):
 
-        VirtualMachine.objects.create(name='Test Virtual Machine Null Region', cluster=self.cluster2)
-
         url = reverse('virtualization-api:virtualmachine-list')
         response = self.client.get('{}?region=null'.format(url), **self.header)
 
-        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['count'], 2)
+
+    def test_list_virtualmachines_multiple_regions(self):
+
+        url = reverse('virtualization-api:virtualmachine-list')
+        response = self.client.get('{}?region=null&region=test-region-1'.format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 6)
 
     def test_create_virtualmachine(self):
 
@@ -395,7 +402,7 @@ class VirtualMachineTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(VirtualMachine.objects.count(), 5)
+        self.assertEqual(VirtualMachine.objects.count(), 7)
         virtualmachine4 = VirtualMachine.objects.get(pk=response.data['id'])
         self.assertEqual(virtualmachine4.name, data['name'])
         self.assertEqual(virtualmachine4.cluster.pk, data['cluster'])
@@ -410,7 +417,7 @@ class VirtualMachineTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(VirtualMachine.objects.count(), 4)
+        self.assertEqual(VirtualMachine.objects.count(), 6)
 
     def test_create_virtualmachine_bulk(self):
 
@@ -433,7 +440,7 @@ class VirtualMachineTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(VirtualMachine.objects.count(), 7)
+        self.assertEqual(VirtualMachine.objects.count(), 9)
         self.assertEqual(response.data[0]['name'], data[0]['name'])
         self.assertEqual(response.data[1]['name'], data[1]['name'])
         self.assertEqual(response.data[2]['name'], data[2]['name'])
@@ -455,7 +462,7 @@ class VirtualMachineTest(APITestCase):
         response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(VirtualMachine.objects.count(), 4)
+        self.assertEqual(VirtualMachine.objects.count(), 6)
         virtualmachine1 = VirtualMachine.objects.get(pk=response.data['id'])
         self.assertEqual(virtualmachine1.name, data['name'])
         self.assertEqual(virtualmachine1.cluster.pk, data['cluster'])
@@ -468,7 +475,7 @@ class VirtualMachineTest(APITestCase):
         response = self.client.delete(url, **self.header)
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(VirtualMachine.objects.count(), 3)
+        self.assertEqual(VirtualMachine.objects.count(), 5)
 
     def test_config_context_included_by_default_in_list_view(self):
 
