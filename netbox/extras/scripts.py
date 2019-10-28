@@ -220,16 +220,17 @@ class BaseScript:
     def __str__(self):
         return getattr(self.Meta, 'name', self.__class__.__name__)
 
-    def _get_vars(self):
+    @classmethod
+    def _get_vars(cls):
         vars = OrderedDict()
 
         # Infer order from Meta.field_order (Python 3.5 and lower)
-        field_order = getattr(self.Meta, 'field_order', [])
+        field_order = getattr(cls.Meta, 'field_order', [])
         for name in field_order:
-            vars[name] = getattr(self, name)
+            vars[name] = getattr(cls, name)
 
         # Default to order of declaration on class
-        for name, attr in self.__class__.__dict__.items():
+        for name, attr in cls.__dict__.items():
             if name not in vars and issubclass(attr.__class__, ScriptVariable):
                 vars[name] = attr
 
@@ -361,6 +362,9 @@ def run_script(script, data, files, commit=True):
 
 
 def get_scripts():
+    """
+    Return a dict of dicts mapping all scripts to their modules.
+    """
     scripts = OrderedDict()
 
     # Iterate through all modules within the reports path. These are the user-created files in which reports are
@@ -375,3 +379,13 @@ def get_scripts():
         scripts[module_name] = module_scripts
 
     return scripts
+
+
+def get_script(module_name, script_name):
+    """
+    Retrieve a script class by module and name. Returns None if the script does not exist.
+    """
+    scripts = get_scripts()
+    module = scripts.get(module_name)
+    if module:
+        return module.get(script_name)

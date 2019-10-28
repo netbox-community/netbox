@@ -38,6 +38,9 @@ router.register(r'config-contexts', views.ConfigContextViewSet)
 # Reports
 router.register(r'reports', views.ReportViewSet, basename='report')
 
+# Scripts
+router.register(r'scripts', views.ScriptViewSet, basename='script')
+
 # Change logging
 router.register(r'object-changes', views.ObjectChangeViewSet)
 

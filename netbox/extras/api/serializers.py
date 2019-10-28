@@ -201,6 +201,36 @@ class ReportDetailSerializer(ReportSerializer):
 
 
 #
+# Scripts
+#
+
+class ScriptSerializer(serializers.Serializer):
+    id = serializers.SerializerMethodField(read_only=True)
+    name = serializers.SerializerMethodField(read_only=True)
+    description = serializers.SerializerMethodField(read_only=True)
+    vars = serializers.SerializerMethodField(read_only=True)
+
+    def get_id(self, instance):
+        return '{}.{}'.format(instance.__module__, instance.__name__)
+
+    def get_name(self, instance):
+        return getattr(instance.Meta, 'name', instance.__name__)
+
+    def get_description(self, instance):
+        return getattr(instance.Meta, 'description', '')
+
+    def get_vars(self, instance):
+        return {
+            k: v.__class__.__name__ for k, v in instance._get_vars().items()
+        }
+
+
+class ScriptInputSerializer(serializers.Serializer):
+    data = serializers.JSONField()
+    commit = serializers.BooleanField()
+
+
+#
 # Change logging
 #
 
