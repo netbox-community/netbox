@@ -230,6 +230,22 @@ class ScriptInputSerializer(serializers.Serializer):
     commit = serializers.BooleanField()
 
 
+class ScriptLogMessageSerializer(serializers.Serializer):
+    status = serializers.SerializerMethodField(read_only=True)
+    message = serializers.SerializerMethodField(read_only=True)
+
+    def get_status(self, instance):
+        return LOG_LEVEL_CODES.get(instance[0])
+
+    def get_message(self, instance):
+        return instance[1]
+
+
+class ScriptOutputSerializer(serializers.Serializer):
+    log = ScriptLogMessageSerializer(many=True, read_only=True)
+    output = serializers.CharField(read_only=True)
+
+
 #
 # Change logging
 #

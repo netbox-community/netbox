@@ -262,13 +262,16 @@ class ScriptViewSet(ViewSet):
         Run a Script identified as "<module>.<script>".
         """
         script = self._get_script(pk)()
-        serializer = serializers.ScriptInputSerializer(data=request.data)
+        input_serializer = serializers.ScriptInputSerializer(data=request.data)
 
-        if serializer.is_valid():
-            script.run(serializer.data['data'])
-            return Response(script.log)
+        if input_serializer.is_valid():
+            output = script.run(input_serializer.data['data'])
+            script.output = output
+            output_serializer = serializers.ScriptOutputSerializer(script)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(output_serializer.data)
+
+        return Response(input_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 #
