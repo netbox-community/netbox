@@ -404,8 +404,12 @@ class RackView(PermissionRequiredMixin, View):
             position__isnull=True,
             parent_bay__isnull=True
         ).prefetch_related('device_type__manufacturer')
-        next_rack = Rack.objects.filter(site=rack.site, name__gt=rack.name).order_by('name').first()
-        prev_rack = Rack.objects.filter(site=rack.site, name__lt=rack.name).order_by('-name').first()
+        if rack.group:
+            peer_racks = Rack.objects.filter(site=rack.site, group=rack.group)
+        else:
+            peer_racks = Rack.objects.filter(site=rack.site, group__isnull=True)
+        next_rack = peer_racks.filter(name__gt=rack.name).order_by('name').first()
+        prev_rack = peer_racks.filter(name__lt=rack.name).order_by('-name').first()
 
         reservations = RackReservation.objects.filter(rack=rack)
         power_feeds = PowerFeed.objects.filter(rack=rack).prefetch_related('power_panel')

@@ -15,6 +15,7 @@
 * [#3629](https://github.com/netbox-community/netbox/issues/3629) - Use `get_lldp_neighors_detail` to validation LLDP neighbors
 * [#3635](https://github.com/netbox-community/netbox/issues/3635) - Add missing cache support for the circuits app
 * [#3636](https://github.com/netbox-community/netbox/issues/3636) - Add missing `rack_group` field to PowerFeed CSV export
+* [#3652](https://github.com/netbox-community/netbox/issues/3652) - Limit next/previous rack by assigned rack group
 
 ---
 
