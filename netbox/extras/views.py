@@ -375,7 +375,7 @@ class ScriptListView(PermissionRequiredMixin, View):
     def get(self, request):
 
         return render(request, 'extras/script_list.html', {
-            'scripts': get_scripts(),
+            'scripts': get_scripts(use_names=True),
         })
 
 

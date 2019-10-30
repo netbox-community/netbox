@@ -3,6 +3,7 @@ from collections import OrderedDict
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count
 from django.http import Http404
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -13,6 +14,7 @@ from extras.models import (
     ConfigContext, CustomFieldChoice, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, Tag,
 )
 from extras.reports import get_report, get_reports
+from extras.scripts import get_script, get_scripts
 from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, ModelViewSet
 from . import serializers
 
@@ -220,6 +222,56 @@ class ReportViewSet(ViewSet):
         serializer = serializers.ReportDetailSerializer(report)
 
         return Response(serializer.data)
+
+
+#
+# Scripts
+#
+
+class ScriptViewSet(ViewSet):
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
+    _ignore_model_permissions = True
+    exclude_from_schema = True
+    lookup_value_regex = '[^/]+'  # Allow dots
+
+    def _get_script(self, pk):
+        module_name, script_name = pk.split('.')
+        script = get_script(module_name, script_name)
+        if script is None:
+            raise Http404
+        return script
+
+    def list(self, request):
+
+        flat_list = []
+        for script_list in get_scripts().values():
+            flat_list.extend(script_list.values())
+
+        serializer = serializers.ScriptSerializer(flat_list, many=True, context={'request': request})
+
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk):
+        script = self._get_script(pk)
+        serializer = serializers.ScriptSerializer(script, context={'request': request})
+
+        return Response(serializer.data)
+
+    def post(self, request, pk):
+        """
+        Run a Script identified as "<module>.<script>".
+        """
+        script = self._get_script(pk)()
+        input_serializer = serializers.ScriptInputSerializer(data=request.data)
+
+        if input_serializer.is_valid():
+            output = script.run(input_serializer.data['data'])
+            script.output = output
+            output_serializer = serializers.ScriptOutputSerializer(script)
+
+            return Response(output_serializer.data)
+
+        return Response(input_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 #

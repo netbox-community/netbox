@@ -201,6 +201,52 @@ class ReportDetailSerializer(ReportSerializer):
 
 
 #
+# Scripts
+#
+
+class ScriptSerializer(serializers.Serializer):
+    id = serializers.SerializerMethodField(read_only=True)
+    name = serializers.SerializerMethodField(read_only=True)
+    description = serializers.SerializerMethodField(read_only=True)
+    vars = serializers.SerializerMethodField(read_only=True)
+
+    def get_id(self, instance):
+        return '{}.{}'.format(instance.__module__, instance.__name__)
+
+    def get_name(self, instance):
+        return getattr(instance.Meta, 'name', instance.__name__)
+
+    def get_description(self, instance):
+        return getattr(instance.Meta, 'description', '')
+
+    def get_vars(self, instance):
+        return {
+            k: v.__class__.__name__ for k, v in instance._get_vars().items()
+        }
+
+
+class ScriptInputSerializer(serializers.Serializer):
+    data = serializers.JSONField()
+    commit = serializers.BooleanField()
+
+
+class ScriptLogMessageSerializer(serializers.Serializer):
+    status = serializers.SerializerMethodField(read_only=True)
+    message = serializers.SerializerMethodField(read_only=True)
+
+    def get_status(self, instance):
+        return LOG_LEVEL_CODES.get(instance[0])
+
+    def get_message(self, instance):
+        return instance[1]
+
+
+class ScriptOutputSerializer(serializers.Serializer):
+    log = ScriptLogMessageSerializer(many=True, read_only=True)
+    output = serializers.CharField(read_only=True)
+
+
+#
 # Change logging
 #
 
