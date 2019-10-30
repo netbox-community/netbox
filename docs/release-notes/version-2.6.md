@@ -4,8 +4,18 @@
 
 * [#3445](https://github.com/netbox-community/netbox/issues/3445) - Add support for additional user defined headers to be added to webhook requests
 * [#3499](https://github.com/netbox-community/netbox/issues/3499) - Add `ca_file_path` to Webhook model to support user supplied CA certificate verification of webhook requests
+* [#3594](https://github.com/netbox-community/netbox/issues/3594) - Add ChoiceVar for custom scripts
 
 ## Bug Fixes
+
+* [#3309](https://github.com/netbox-community/netbox/issues/3309) - Rewrite change logging middleware to resolve sporadic testing failures
+* [#3340](https://github.com/netbox-community/netbox/issues/3340) - Add missing options to connect front ports to console ports
+* [#3460](https://github.com/netbox-community/netbox/issues/3460) - Extend upgrade script to validate Python dependencies
+* [#3596](https://github.com/netbox-community/netbox/issues/3596) - Prevent server error when reassigning a device to a new device bay
+* [#3629](https://github.com/netbox-community/netbox/issues/3629) - Use `get_lldp_neighors_detail` to validation LLDP neighbors
+* [#3635](https://github.com/netbox-community/netbox/issues/3635) - Add missing cache support for the circuits app
+* [#3636](https://github.com/netbox-community/netbox/issues/3636) - Add missing `rack_group` field to PowerFeed CSV export
+* [#3652](https://github.com/netbox-community/netbox/issues/3652) - Limit next/previous rack by assigned rack group
 
 ---
 

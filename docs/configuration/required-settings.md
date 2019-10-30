@@ -2,7 +2,7 @@
 
 ## ALLOWED_HOSTS
 
-This is a list of valid fully-qualified domain names (FQDNs) that is used to reach the NetBox service. Usually this is the same as the hostname for the NetBox server, but can also be different (e.g. when using a reverse proxy serving the NetBox website under a different FQDN than the hostname of the NetBox server). NetBox will not permit access to the server via any other hostnames (or IPs). The value of this option is also used to set `CSRF_TRUSTED_ORIGINS`, which restricts `HTTP POST` to the same set of hosts (more about this [here](https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS)). Keep in mind that NetBox, by default, has `USE_X_FORWARDED_HOST = True` (in `netbox/netbox/settings.py`) which means that if you're using a reverse proxy, it's the FQDN used to reach that reverse proxy which needs to be in this list (more about this [here](https://docs.djangoproject.com/en/1.9/ref/settings/#allowed-hosts)).
+This is a list of valid fully-qualified domain names (FQDNs) that is used to reach the NetBox service. Usually this is the same as the hostname for the NetBox server, but can also be different (e.g. when using a reverse proxy serving the NetBox website under a different FQDN than the hostname of the NetBox server). NetBox will not permit access to the server via any other hostnames (or IPs). The value of this option is also used to set `CSRF_TRUSTED_ORIGINS`, which restricts `HTTP POST` to the same set of hosts (more about this [here](https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS)). Keep in mind that NetBox, by default, has `USE_X_FORWARDED_HOST = True` (in `netbox/netbox/settings.py`) which means that if you're using a reverse proxy, it's the FQDN used to reach that reverse proxy which needs to be in this list (more about this [here](https://docs.djangoproject.com/en/stable/ref/settings/#allowed-hosts)).
 
 Example:
 
@@ -21,6 +21,7 @@ NetBox requires access to a PostgreSQL database service to store data. This serv
 * `PASSWORD` - PostgreSQL password
 * `HOST` - Name or IP address of the database server (use `localhost` if running locally)
 * `PORT` - TCP port of the PostgreSQL service; leave blank for default port (5432)
+* `CONN_MAX_AGE` - Number in seconds for Netbox to keep database connections open. 150-300 seconds is typically a good starting point ([more info](https://docs.djangoproject.com/en/stable/ref/databases/#persistent-connections)).
 
 Example:
 
@@ -31,6 +32,7 @@ DATABASE = {
     'PASSWORD': 'J5brHrAXFLQSif0K', # PostgreSQL password
     'HOST': 'localhost',            # Database server
     'PORT': '',                     # Database port (leave blank for default)
+    'CONN_MAX_AGE': 300,            # Max database connection age
 }
 ```
 
@@ -69,7 +71,7 @@ REDIS = {
 !!! note:
     If you were using these settings in a prior release with webhooks, the `DATABASE` setting remains the same but
     an additional `CACHE_DATABASE` setting has been added with a default value of 1 to support the caching backend. The
-    `DATABASE` setting will be renamed in a future release of NetBox to better relay the meaning of the setting. 
+    `DATABASE` setting will be renamed in a future release of NetBox to better relay the meaning of the setting.
 
 !!! warning:
     It is highly recommended to keep the webhook and cache databases seperate. Using the same database number for both may result in webhook

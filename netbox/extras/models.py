@@ -138,16 +138,21 @@ class CustomFieldModel(models.Model):
     class Meta:
         abstract = True
 
+    def cache_custom_fields(self):
+        """
+        Cache all custom field values for this instance
+        """
+        self._cf = {
+            field.name: value for field, value in self.get_custom_fields().items()
+        }
+
     @property
     def cf(self):
         """
         Name-based CustomFieldValue accessor for use in templates
         """
         if self._cf is None:
-            # Cache all custom field values for this instance
-            self._cf = {
-                field.name: value for field, value in self.get_custom_fields().items()
-            }
+            self.cache_custom_fields()
         return self._cf
 
     def get_custom_fields(self):

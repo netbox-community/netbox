@@ -39,6 +39,11 @@ If you want to export only the database schema, and not the data itself (e.g. fo
 ```no-highlight
 pg_dump -s netbox > netbox_schema.sql
 ```
+If you are migrating your instance of NetBox to a different machine, please make sure you invalidate the cache by performing this command:
+
+```no-highlight
+python3 manage.py invalidate all
+```
 
 ---
 
