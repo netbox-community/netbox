@@ -221,6 +221,10 @@ class BaseScript:
         return getattr(self.Meta, 'name', self.__class__.__name__)
 
     @classmethod
+    def module(cls):
+        return cls.__module__
+
+    @classmethod
     def _get_vars(cls):
         vars = OrderedDict()
 
@@ -361,9 +365,10 @@ def run_script(script, data, files, commit=True):
     return output, execution_time
 
 
-def get_scripts():
+def get_scripts(use_names=False):
     """
-    Return a dict of dicts mapping all scripts to their modules.
+    Return a dict of dicts mapping all scripts to their modules. Set use_names to True to use each module's human-
+    defined name in place of the actual module name.
     """
     scripts = OrderedDict()
 
@@ -371,7 +376,7 @@ def get_scripts():
     # defined.
     for importer, module_name, _ in pkgutil.iter_modules([settings.SCRIPTS_ROOT]):
         module = importer.find_module(module_name).load_module(module_name)
-        if hasattr(module, 'name'):
+        if use_names and hasattr(module, 'name'):
             module_name = module.name
         module_scripts = OrderedDict()
         for name, cls in inspect.getmembers(module, is_script):
