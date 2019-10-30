@@ -1,6 +1,41 @@
-v2.7.0 (FUTURE)
+# v2.7.0 (FUTURE)
+
+## New Features
+
+### Enhanced Device Type Import ([#451](https://github.com/netbox-community/netbox/issues/451))
+
+NetBox now supports the import of device types and related component templates using a YAML- or JSON-based definition.
+For example, the following will create a new device type with four network interfaces, two power ports, and a console
+port:
+
+```yaml
+manufacturer: Acme
+model: Packet Shooter 9000
+slug: packet-shooter-9000
+u_height: 1
+interfaces:
+  - name: ge-0/0/0
+    type: 1000base-t
+  - name: ge-0/0/1
+    type: 1000base-t
+  - name: ge-0/0/2
+    type: 1000base-t
+  - name: ge-0/0/3
+    type: 1000base-t
+power-ports:
+  - name: PSU0
+  - name: PSU1
+console-ports:
+  - name: Console
+```
+
+This new functionality replaces the existing CSV-based import form, which did not allow for component template import.
 
 ## Changes
+
+### Topology Maps Removed ([#2745](https://github.com/netbox-community/netbox/issues/2745))
+
+The topology maps feature has been removed to help focus NetBox development efforts.
 
 ### Redis Configuration ([#3282](https://github.com/netbox-community/netbox/issues/3282))
 
@@ -52,7 +87,9 @@ Full connection details are required in both sections, even if they are the same
 
 * [#2902](https://github.com/digitalocean/netbox/issues/2902) - Replace supervisord with systemd
 * [#3455](https://github.com/digitalocean/netbox/issues/3455) - Add tenant assignment to cluster
+* [#3538](https://github.com/digitalocean/netbox/issues/3538) - 
 
 ## API Changes
 
+* Introduced `/api/extras/scripts/` endpoint for retreiving and executing custom scripts
 * virtualization.Cluster: Added field `tenant`
