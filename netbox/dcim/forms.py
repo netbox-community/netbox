@@ -941,7 +941,7 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsolePortTemplate
         fields = [
-            'device_type', 'name',
+            'device_type', 'name', 'type',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -952,6 +952,10 @@ class ConsolePortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    type = forms.ChoiceField(
+        choices=CONSOLE_TYPE_CHOICES,
+        widget=StaticSelect2()
+    )
 
 
 class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -959,7 +963,7 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
-            'device_type', 'name',
+            'device_type', 'name', 'type',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -969,6 +973,10 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
 class ConsoleServerPortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    type = forms.ChoiceField(
+        choices=CONSOLE_TYPE_CHOICES,
+        widget=StaticSelect2()
     )
 
 
@@ -1248,21 +1256,37 @@ class ComponentTemplateImportForm(BootstrapMixin, forms.ModelForm):
 
 
 class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
+    type = forms.ChoiceField(
+        choices=ConsolePortTypes.TYPE_CHOICES
+    )
 
     class Meta:
         model = ConsolePortTemplate
         fields = [
-            'device_type', 'name',
+            'device_type', 'name', 'type',
         ]
+
+    def clean_type(self):
+        # Convert slug value to field integer value
+        slug = self.cleaned_data['type']
+        return ConsolePortTypes.slug_to_integer(slug)
 
 
 class ConsoleServerPortTemplateImportForm(ComponentTemplateImportForm):
+    type = forms.ChoiceField(
+        choices=ConsolePortTypes.TYPE_CHOICES
+    )
 
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
-            'device_type', 'name',
+            'device_type', 'name', 'type',
         ]
+
+    def clean_type(self):
+        # Convert slug value to field integer value
+        slug = self.cleaned_data['type']
+        return ConsolePortTypes.slug_to_integer(slug)
 
 
 class PowerPortTemplateImportForm(ComponentTemplateImportForm):
@@ -2054,7 +2078,7 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsolePort
         fields = [
-            'device', 'name', 'description', 'tags',
+            'device', 'name', 'type', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2064,6 +2088,10 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
 class ConsolePortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    type = forms.ChoiceField(
+        choices=CONSOLE_TYPE_CHOICES,
+        widget=StaticSelect2(),
     )
     description = forms.CharField(
         max_length=100,
@@ -2086,7 +2114,7 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'device', 'name', 'description', 'tags',
+            'device', 'name', 'type', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2096,6 +2124,10 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
 class ConsoleServerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    type = forms.ChoiceField(
+        choices=CONSOLE_TYPE_CHOICES,
+        widget=StaticSelect2(),
     )
     description = forms.CharField(
         max_length=100,
@@ -2110,6 +2142,11 @@ class ConsoleServerPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditF
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsoleServerPort.objects.all(),
         widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(CONSOLE_TYPE_CHOICES),
+        required=False,
+        widget=StaticSelect2()
     )
     description = forms.CharField(
         max_length=100,

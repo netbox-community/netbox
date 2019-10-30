@@ -6,6 +6,11 @@
     </td>
     <td></td>
 
+    {# Type #}
+    <td>
+        {% if cp.type %}{{ cp.get_type_display }}{% else %}&mdash;{% endif %}
+    </td>
+
     {# Description #}
     <td>
         {{ cp.description }}

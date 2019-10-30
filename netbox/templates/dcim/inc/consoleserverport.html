@@ -14,6 +14,11 @@
         <i class="fa fa-fw fa-keyboard-o"></i> {{ csp }}
     </td>
 
+    {# Type #}
+    <td>
+        {% if csp.type %}{{ csp.get_type_display }}{% else %}&mdash;{% endif %}
+    </td>
+
     {# Description #}
     <td>
         {{ csp.description|placeholder }}

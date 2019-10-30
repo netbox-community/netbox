@@ -58,6 +58,41 @@ SUBDEVICE_ROLE_CHOICES = (
 )
 
 #
+# Numeric console port types
+#
+
+CONSOLE_TYPE_DE9 = 1000
+CONSOLE_TYPE_DB25 = 1100
+CONSOLE_TYPE_RJ45 = 2000
+CONSOLE_TYPE_USB_A = 3000
+CONSOLE_TYPE_USB_B = 3010
+CONSOLE_TYPE_USB_C = 3020
+CONSOLE_TYPE_USB_MINI_A = 3100
+CONSOLE_TYPE_USB_MINI_B = 3110
+CONSOLE_TYPE_USB_MICRO_A = 3200
+CONSOLE_TYPE_USB_MICRO_B = 3210
+CONSOLE_TYPE_OTHER = 32767
+CONSOLE_TYPE_CHOICES = [
+    ['Serial', [
+        [CONSOLE_TYPE_DE9, 'DE-9'],
+        [CONSOLE_TYPE_DB25, 'DB-25'],
+        [CONSOLE_TYPE_RJ45, 'RJ-45'],
+    ]],
+    ['USB', [
+        [CONSOLE_TYPE_USB_A, 'USB Type A'],
+        [CONSOLE_TYPE_USB_B, 'USB Type B'],
+        [CONSOLE_TYPE_USB_C, 'USB Type C'],
+        [CONSOLE_TYPE_USB_MINI_A, 'USB Mini A'],
+        [CONSOLE_TYPE_USB_MINI_B, 'USB Mini B'],
+        [CONSOLE_TYPE_USB_MICRO_A, 'USB Micro A'],
+        [CONSOLE_TYPE_USB_MICRO_B, 'USB Micro B'],
+    ]],
+    ['Other', [
+        [CONSOLE_TYPE_OTHER, 'Other'],
+    ]],
+]
+
+#
 # Numeric interface types
 #
 
@@ -513,6 +548,67 @@ POWERFEED_LEG_CHOICES = (
     (POWERFEED_LEG_B, 'B'),
     (POWERFEED_LEG_C, 'C'),
 )
+
+
+#
+# Console port type values
+#
+
+class ConsolePortTypes:
+    """
+    ConsolePort/ConsoleServerPort.type slugs
+    """
+    TYPE_DE9 = 'de-9'
+    TYPE_DB25 = 'db-25'
+    TYPE_RJ45 = 'rj-45'
+    TYPE_USB_A = 'usb-a'
+    TYPE_USB_B = 'usb-b'
+    TYPE_USB_C = 'usb-c'
+    TYPE_USB_MINI_A = 'usb-mini-a'
+    TYPE_USB_MINI_B = 'usb-mini-b'
+    TYPE_USB_MICRO_A = 'usb-micro-a'
+    TYPE_USB_MICRO_B = 'usb-micro-b'
+    TYPE_OTHER = 'other'
+
+    TYPE_CHOICES = (
+        ('Serial', (
+            (TYPE_DE9, 'DE-9'),
+            (TYPE_DB25, 'DB-25'),
+            (TYPE_RJ45, 'RJ-45'),
+        )),
+        ('USB', (
+            (TYPE_USB_A, 'USB Type A'),
+            (TYPE_USB_B, 'USB Type B'),
+            (TYPE_USB_C, 'USB Type C'),
+            (TYPE_USB_MINI_A, 'USB Mini A'),
+            (TYPE_USB_MINI_B, 'USB Mini B'),
+            (TYPE_USB_MICRO_A, 'USB Micro A'),
+            (TYPE_USB_MICRO_B, 'USB Micro B'),
+        )),
+        ('Other', (
+            (TYPE_OTHER, 'Other'),
+        )),
+    )
+
+    @classmethod
+    def slug_to_integer(cls, slug):
+        """
+        Provide backward-compatible mapping of the type slug to integer.
+        """
+        return {
+            # Slug: integer
+            cls.TYPE_DE9: CONSOLE_TYPE_DE9,
+            cls.TYPE_DB25: CONSOLE_TYPE_DB25,
+            cls.TYPE_RJ45: CONSOLE_TYPE_RJ45,
+            cls.TYPE_USB_A: CONSOLE_TYPE_USB_A,
+            cls.TYPE_USB_B: CONSOLE_TYPE_USB_B,
+            cls.TYPE_USB_C: CONSOLE_TYPE_USB_C,
+            cls.TYPE_USB_MINI_A: CONSOLE_TYPE_USB_MINI_A,
+            cls.TYPE_USB_MINI_B: CONSOLE_TYPE_USB_MINI_B,
+            cls.TYPE_USB_MICRO_A: CONSOLE_TYPE_USB_MICRO_A,
+            cls.TYPE_USB_MICRO_B: CONSOLE_TYPE_USB_MICRO_B,
+            cls.TYPE_OTHER: CONSOLE_TYPE_OTHER,
+        }.get(slug)
 
 
 #

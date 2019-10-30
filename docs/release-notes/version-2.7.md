@@ -85,11 +85,16 @@ Full connection details are required in both sections, even if they are the same
 
 ## Enhancements
 
+* [#1865](https://github.com/digitalocean/netbox/issues/1865) - Add console port and console server port types
 * [#2902](https://github.com/digitalocean/netbox/issues/2902) - Replace supervisord with systemd
 * [#3455](https://github.com/digitalocean/netbox/issues/3455) - Add tenant assignment to cluster
 * [#3538](https://github.com/digitalocean/netbox/issues/3538) - 
 
 ## API Changes
 
-* Introduced `/api/extras/scripts/` endpoint for retreiving and executing custom scripts
+* Introduced `/api/extras/scripts/` endpoint for retrieving and executing custom scripts
+* dcim.ConsolePort: Added field `type`
+* dcim.ConsolePortTemplate: Added field `type`
+* dcim.ConsoleServerPort: Added field `type`
+* dcim.ConsoleServerPortTemplate: Added field `type`
 * virtualization.Cluster: Added field `tenant`

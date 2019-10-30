@@ -1014,6 +1014,11 @@ class ConsolePortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+    type = models.PositiveSmallIntegerField(
+        choices=CONSOLE_TYPE_CHOICES,
+        blank=True,
+        null=True
+    )
 
     objects = NaturalOrderingManager()
 
@@ -1027,7 +1032,8 @@ class ConsolePortTemplate(ComponentTemplateModel):
     def instantiate(self, device):
         return ConsolePort(
             device=device,
-            name=self.name
+            name=self.name,
+            type=self.type
         )
 
 
@@ -1043,6 +1049,11 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+    type = models.PositiveSmallIntegerField(
+        choices=CONSOLE_TYPE_CHOICES,
+        blank=True,
+        null=True
+    )
 
     objects = NaturalOrderingManager()
 
@@ -1056,7 +1067,8 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     def instantiate(self, device):
         return ConsoleServerPort(
             device=device,
-            name=self.name
+            name=self.name,
+            type=self.type
         )
 
 
@@ -1846,6 +1858,11 @@ class ConsolePort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
+    type = models.PositiveSmallIntegerField(
+        choices=CONSOLE_TYPE_CHOICES,
+        blank=True,
+        null=True
+    )
     connected_endpoint = models.OneToOneField(
         to='dcim.ConsoleServerPort',
         on_delete=models.SET_NULL,
@@ -1861,7 +1878,7 @@ class ConsolePort(CableTermination, ComponentModel):
     objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'description']
+    csv_headers = ['device', 'name', 'type', 'description']
 
     class Meta:
         ordering = ['device', 'name']
@@ -1877,6 +1894,7 @@ class ConsolePort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.type,
             self.description,
         )
 
@@ -1897,6 +1915,11 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
+    type = models.PositiveSmallIntegerField(
+        choices=CONSOLE_TYPE_CHOICES,
+        blank=True,
+        null=True
+    )
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,
         blank=True
@@ -1905,7 +1928,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'description']
+    csv_headers = ['device', 'name', 'type', 'description']
 
     class Meta:
         unique_together = ['device', 'name']
@@ -1920,6 +1943,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.type,
             self.description,
         )
 

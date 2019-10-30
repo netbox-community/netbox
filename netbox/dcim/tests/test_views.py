@@ -231,12 +231,18 @@ slug: test-1000
 u_height: 2
 console-ports:
   - name: Console Port 1
+    type: de-9
   - name: Console Port 2
+    type: de-9
   - name: Console Port 3
+    type: de-9
 console-server-ports:
   - name: Console Server Port 1
+    type: rj-45
   - name: Console Server Port 2
+    type: rj-45
   - name: Console Server Port 3
+    type: rj-45
 power-ports:
   - name: Power Port 1
   - name: Power Port 2
@@ -313,10 +319,12 @@ device-bays:
         self.assertEqual(dt.consoleport_templates.count(), 3)
         cp1 = ConsolePortTemplate.objects.first()
         self.assertEqual(cp1.name, 'Console Port 1')
+        self.assertEqual(cp1.type, CONSOLE_TYPE_DE9)
 
         self.assertEqual(dt.consoleserverport_templates.count(), 3)
         csp1 = ConsoleServerPortTemplate.objects.first()
         self.assertEqual(csp1.name, 'Console Server Port 1')
+        self.assertEqual(csp1.type, CONSOLE_TYPE_RJ45)
 
         self.assertEqual(dt.powerport_templates.count(), 3)
         pp1 = PowerPortTemplate.objects.first()

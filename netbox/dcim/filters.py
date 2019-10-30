@@ -346,14 +346,14 @@ class ConsolePortTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = ConsolePortTemplate
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'type']
 
 
 class ConsoleServerPortTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = ConsoleServerPortTemplate
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'type']
 
 
 class PowerPortTemplateFilter(DeviceTypeComponentFilterSet):
@@ -641,6 +641,10 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
 
 
 class ConsolePortFilter(DeviceComponentFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=CONSOLE_TYPE_CHOICES,
+        null_value=None
+    )
     cabled = django_filters.BooleanFilter(
         field_name='cable',
         lookup_expr='isnull',
@@ -649,10 +653,14 @@ class ConsolePortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = ConsolePort
-        fields = ['id', 'name', 'description', 'connection_status']
+        fields = ['id', 'name', 'type', 'description', 'connection_status']
 
 
 class ConsoleServerPortFilter(DeviceComponentFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=CONSOLE_TYPE_CHOICES,
+        null_value=None
+    )
     cabled = django_filters.BooleanFilter(
         field_name='cable',
         lookup_expr='isnull',
@@ -661,7 +669,7 @@ class ConsoleServerPortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['id', 'name', 'description', 'connection_status']
+        fields = ['id', 'name', 'type', 'description', 'connection_status']
 
 
 class PowerPortFilter(DeviceComponentFilterSet):

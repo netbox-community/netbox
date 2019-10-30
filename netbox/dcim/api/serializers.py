@@ -200,18 +200,20 @@ class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
 
 class ConsolePortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
+    type = ChoiceField(choices=CONSOLE_TYPE_CHOICES, required=False)
 
     class Meta:
         model = ConsolePortTemplate
-        fields = ['id', 'device_type', 'name']
+        fields = ['id', 'device_type', 'name', 'type']
 
 
 class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
+    type = ChoiceField(choices=CONSOLE_TYPE_CHOICES, required=False)
 
     class Meta:
         model = ConsoleServerPortTemplate
-        fields = ['id', 'device_type', 'name']
+        fields = ['id', 'device_type', 'name', 'type']
 
 
 class PowerPortTemplateSerializer(ValidatedModelSerializer):
@@ -370,27 +372,29 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 
 class ConsoleServerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
+    type = ChoiceField(choices=CONSOLE_TYPE_CHOICES, required=False)
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'id', 'device', 'name', 'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status',
-            'cable', 'tags',
+            'id', 'device', 'name', 'type', 'description', 'connected_endpoint_type', 'connected_endpoint',
+            'connection_status', 'cable', 'tags',
         ]
 
 
 class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
+    type = ChoiceField(choices=CONSOLE_TYPE_CHOICES, required=False)
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = ConsolePort
         fields = [
-            'id', 'device', 'name', 'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status',
-            'cable', 'tags',
+            'id', 'device', 'name', 'type', 'description', 'connected_endpoint_type', 'connected_endpoint',
+            'connection_status', 'cable', 'tags',
         ]
 
 
