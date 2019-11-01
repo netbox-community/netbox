@@ -24,6 +24,7 @@ from .signals import purge_changelog
 __all__ = [
     'BaseScript',
     'BooleanVar',
+    'ChoiceVar',
     'FileVar',
     'IntegerVar',
     'IPNetworkVar',
@@ -131,6 +132,27 @@ class BooleanVar(ScriptVariable):
 
         # Boolean fields cannot be required
         self.field_attrs['required'] = False
+
+
+class ChoiceVar(ScriptVariable):
+    """
+    Select one of several predefined static choices, passed as a list of two-tuples. Example:
+
+        color = ChoiceVar(
+            choices=(
+                ('#ff0000', 'Red'),
+                ('#00ff00', 'Green'),
+                ('#0000ff', 'Blue')
+            )
+        )
+    """
+    form_field = forms.ChoiceField
+
+    def __init__(self, choices, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Set field choices
+        self.field_attrs['choices'] = choices
 
 
 class ObjectVar(ScriptVariable):

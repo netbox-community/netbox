@@ -139,7 +139,7 @@ Enforcement of unique IP space can be toggled on a per-VRF basis. To enforce uni
 
 By default, all messages of INFO severity or higher will be logged to the console. Additionally, if `DEBUG` is False and email access has been configured, ERROR and CRITICAL messages will be emailed to the users defined in `ADMINS`.
 
-The Django framework on which NetBox runs allows for the customization of logging, e.g. to write logs to file. Please consult the [Django logging documentation](https://docs.djangoproject.com/en/1.11/topics/logging/) for more information on configuring this setting. Below is an example which will write all INFO and higher messages to a file:
+The Django framework on which NetBox runs allows for the customization of logging, e.g. to write logs to file. Please consult the [Django logging documentation](https://docs.djangoproject.com/en/stable/topics/logging/) for more information on configuring this setting. Below is an example which will write all INFO and higher messages to a file:
 
 ```
 LOGGING = {
@@ -311,7 +311,7 @@ Enable this option to run the webhook backend. See the docs section on the webho
 
 ## Date and Time Formatting
 
-You may define custom formatting for date and times. For detailed instructions on writing format strings, please see [the Django documentation](https://docs.djangoproject.com/en/dev/ref/templates/builtins/#date).
+You may define custom formatting for date and times. For detailed instructions on writing format strings, please see [the Django documentation](https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date).
 
 Defaults:
 

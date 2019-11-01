@@ -25,6 +25,9 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
     headers = {
         'Content-Type': webhook.get_http_content_type_display(),
     }
+    if webhook.additional_headers:
+        headers.update(webhook.additional_headers)
+
     params = {
         'method': 'POST',
         'url': webhook.payload_url,
@@ -49,6 +52,8 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
 
     with requests.Session() as session:
         session.verify = webhook.ssl_verification
+        if webhook.ca_file_path:
+            session.verify = webhook.ca_file_path
         response = session.send(prepared_request)
 
     if response.status_code >= 200 and response.status_code <= 299:

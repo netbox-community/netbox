@@ -97,13 +97,13 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
     def __init__(self, *args, **kwargs):
 
         def _populate_custom_fields(instance, fields):
-            custom_fields = {f.name: None for f in fields}
-            for cfv in instance.custom_field_values.all():
-                if cfv.field.type == CF_TYPE_SELECT:
-                    custom_fields[cfv.field.name] = CustomFieldChoiceSerializer(cfv.value).data
+            instance.custom_fields = {}
+            for field in fields:
+                value = instance.cf.get(field.name)
+                if field.type == CF_TYPE_SELECT and value is not None:
+                    instance.custom_fields[field.name] = CustomFieldChoiceSerializer(value).data
                 else:
-                    custom_fields[cfv.field.name] = cfv.value
-            instance.custom_fields = custom_fields
+                    instance.custom_fields[field.name] = value
 
         super().__init__(*args, **kwargs)
 

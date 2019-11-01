@@ -12,7 +12,7 @@ from django.core.exceptions import ImproperlyConfigured
 # Environment setup
 #
 
-VERSION = '2.6.6'
+VERSION = '2.6.7'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -364,6 +364,7 @@ CACHEOPS = {
     'auth.user': {'ops': 'get', 'timeout': 60 * 15},
     'auth.*': {'ops': ('fetch', 'get')},
     'auth.permission': {'ops': 'all'},
+    'circuits.*': {'ops': 'all'},
     'dcim.*': {'ops': 'all'},
     'ipam.*': {'ops': 'all'},
     'extras.*': {'ops': 'all'},

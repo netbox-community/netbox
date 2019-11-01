@@ -17,12 +17,13 @@ DATABASE = {
     'PASSWORD': '',           # PostgreSQL password
     'HOST': 'localhost',      # Database server
     'PORT': '',               # Database port (leave blank for default)
+    'CONN_MAX_AGE': 300,      # Max database connection age
 }
 
 # This key is used for secure generation of random numbers and strings. It must never be exposed outside of this file.
 # For optimal security, SECRET_KEY should be at least 50 characters in length and contain a mix of letters, numbers, and
 # symbols. NetBox will not run without this defined. For more information, see
-# https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-SECRET_KEY
+# https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-SECRET_KEY
 SECRET_KEY = ''
 
 # Redis database settings. The Redis database is used for caching and background processing such as webhooks
@@ -106,7 +107,7 @@ EXEMPT_VIEW_PERMISSIONS = [
 ]
 
 # Enable custom logging. Please see the Django documentation for detailed guidance on configuring custom logs:
-#   https://docs.djangoproject.com/en/1.11/topics/logging/
+#   https://docs.djangoproject.com/en/stable/topics/logging/
 LOGGING = {}
 
 # Setting this to True will permit only authenticated users to access any part of NetBox. By default, anonymous users
@@ -154,6 +155,10 @@ PREFER_IPV4 = False
 # this setting is derived from the installed location.
 # REPORTS_ROOT = '/opt/netbox/netbox/reports'
 
+# The file path where custom scripts will be stored. A trailing slash is not needed. Note that the default value of
+# this setting is derived from the installed location.
+# SCRIPTS_ROOT = '/opt/netbox/netbox/scripts'
+
 # By default, NetBox will store session data in the database. Alternatively, a file path can be specified here to use
 # local file storage instead. (This can be useful for enabling authentication on a standby instance with read-only
 # database access.) Note that the user as which NetBox runs must have read and write permissions to this path.
@@ -167,7 +172,7 @@ TIME_ZONE = 'UTC'
 WEBHOOKS_ENABLED = False
 
 # Date/time formatting. See the following link for supported formats:
-# https://docs.djangoproject.com/en/dev/ref/templates/builtins/#date
+# https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
 DATE_FORMAT = 'N j, Y'
 SHORT_DATE_FORMAT = 'Y-m-d'
 TIME_FORMAT = 'g:i a'

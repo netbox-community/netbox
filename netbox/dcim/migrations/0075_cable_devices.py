@@ -1,3 +1,5 @@
+import sys
+
 from django.db import migrations, models
 import django.db.models.deletion
 
@@ -5,14 +7,15 @@ import django.db.models.deletion
 def cache_cable_devices(apps, schema_editor):
     Cable = apps.get_model('dcim', 'Cable')
 
-    print("\nUpdatng cable device terminations...")
+    if 'test' not in sys.argv:
+        print("\nUpdating cable device terminations...")
     cable_count = Cable.objects.count()
 
     # Cache A/B termination devices on all existing Cables. Note that the custom save() method on Cable is not
     # available during a migration, so we replicate its logic here.
     for i, cable in enumerate(Cable.objects.all(), start=1):
 
-        if not i % 1000:
+        if not i % 1000 and 'test' not in sys.argv:
             print("[{}/{}]".format(i, cable_count))
 
         termination_a_model = apps.get_model(cable.termination_a_type.app_label, cable.termination_a_type.model)
