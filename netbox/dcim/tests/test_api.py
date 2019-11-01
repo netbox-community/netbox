@@ -127,6 +127,7 @@ class SiteTest(APITestCase):
         self.region2 = Region.objects.create(name='Test Region 2', slug='test-region-2')
         self.site1 = Site.objects.create(region=self.region1, name='Test Site 1', slug='test-site-1')
         self.site2 = Site.objects.create(region=self.region1, name='Test Site 2', slug='test-site-2')
+        self.site3 = Site.objects.create(region=self.region1, name='Test Site 3', slug='test-site-3')
 
     def test_get_site(self):
 
