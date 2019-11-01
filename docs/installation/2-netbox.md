@@ -129,6 +129,7 @@ DATABASE = {
     'PASSWORD': 'J5brHrAXFLQSif0K', # PostgreSQL password
     'HOST': 'localhost',            # Database server
     'PORT': '',                     # Database port (leave blank for default)
+    'CONN_MAX_AGE': 300,            # Max database connection age
 }
 ```
 

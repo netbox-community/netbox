@@ -2580,6 +2580,16 @@ class DeviceBay(ComponentModel):
         if self.device == self.installed_device:
             raise ValidationError("Cannot install a device into itself.")
 
+        # Check that the installed device is not already installed elsewhere
+        if self.installed_device:
+            current_bay = DeviceBay.objects.filter(installed_device=self.installed_device).first()
+            if current_bay:
+                raise ValidationError({
+                    'installed_device': "Cannot install the specified device; device is already installed in {}".format(
+                        current_bay
+                    )
+                })
+
 
 #
 # Inventory items
@@ -3104,6 +3114,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         return (
             self.power_panel.site.name,
             self.power_panel.name,
+            self.rack.group.name if self.rack and self.rack.group else None,
             self.rack.name if self.rack else None,
             self.name,
             self.get_status_display(),

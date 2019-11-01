@@ -3,7 +3,8 @@
 NetBox is an IP address management (IPAM) and data center infrastructure
 management (DCIM) tool. Initially conceived by the network engineering team at
 [DigitalOcean](https://www.digitalocean.com/), NetBox was developed specifically
-to address the needs of network and infrastructure engineers.
+to address the needs of network and infrastructure engineers. It is intended to
+function as a domain-specific source of truth for network operations.
 
 NetBox runs as a web application atop the [Django](https://www.djangoproject.com/)
 Python framework with a [PostgreSQL](http://www.postgresql.org/) database. For a
@@ -41,6 +42,15 @@ and run `upgrade.sh`.
 * [Vagrant deployment](https://github.com/ryanmerolle/netbox-vagrant) (via [@ryanmerolle](https://github.com/ryanmerolle))
 * [Ansible deployment](https://github.com/lae/ansible-role-netbox) (via [@lae](https://github.com/lae))
 * [Kubernetes deployment](https://github.com/CENGN/netbox-kubernetes) (via [@CENGN](https://github.com/CENGN))
+
+# Providing Feedback
+
+Feature requests and bug reports must be submitted as GiHub issues. (Please be
+sure to use the [appropriate template](https://github.com/netbox-community/netbox/issues/new/choose).)
+For general discussion, please consider joining our [mailing list](https://groups.google.com/forum/#!forum/netbox-discuss).
+
+If you are interested in contributing to the development of NetBox, please read
+our [contributing guide](CONTRIBUTING.md) prior to beginning any work.
 
 # Related projects
 
