@@ -1,9 +1,8 @@
 import django_filters
+from dcim.forms import MACAddressField
 from django import forms
 from django.conf import settings
 from django.db import models
-
-from dcim.forms import MACAddressField
 from extras.models import Tag
 
 
@@ -62,8 +61,15 @@ class TreeNodeMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
     """
     Filters for a set of Models, including all descendant models within a Tree.  Example: [<Region: R1>,<Region: R2>]
     """
+
+    def get_filter_predicate(self, v):
+        # null value filtering
+        if v is None:
+            return {self.field_name.replace('in', 'isnull'): True}
+        return super().get_filter_predicate(v)
+
     def filter(self, qs, value):
-        value = [node.get_descendants(include_self=True) for node in value]
+        value = [node.get_descendants(include_self=True) if not isinstance(node, str) else node for node in value]
         return super().filter(qs, value)
 
 
