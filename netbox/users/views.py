@@ -95,6 +95,10 @@ class ChangePasswordView(LoginRequiredMixin, View):
     template_name = 'users/change_password.html'
 
     def get(self, request):
+        # LDAP users cannot change their password here
+        if getattr(request.user, 'ldap_username', None):
+            return redirect('user:profile')
+
         form = PasswordChangeForm(user=request.user)
 
         return render(request, self.template_name, {
