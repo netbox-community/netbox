@@ -83,6 +83,7 @@ LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
 MAINTENANCE_MODE = getattr(configuration, 'MAINTENANCE_MODE', False)
 MAX_PAGE_SIZE = getattr(configuration, 'MAX_PAGE_SIZE', 1000)
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
+MEDIA_STORAGE = getattr(configuration, 'MEDIA_STORAGE', None)
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
 NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
@@ -118,6 +119,50 @@ DATABASES = {
     'default': DATABASE,
 }
 
+#
+# Media storage
+#
+
+if MEDIA_STORAGE:
+    if not 'BACKEND' in MEDIA_STORAGE:
+        raise ImproperlyConfigured(
+            "Required parameter BACKEND is missing from MEDIA_STORAGE in configuration.py."
+        )
+
+    if MEDIA_STORAGE['BACKEND'] == 'S3':
+        # Enforce required configuration parameters
+        for parameter in ['ACCESS_KEY_ID', 'SECRET_ACCESS_KEY', 'BUCKET_NAME']:
+            if parameter not in MEDIA_STORAGE:
+                raise ImproperlyConfigured(
+                    "Required parameter {} is missing from MEDIA_STORAGE in configuration.py.".format(parameter)
+                )
+
+        # Check that django-storages is installed
+        try:
+            import storages
+        except ImportError:
+            raise ImproperlyConfigured(
+                "S3 storage has been configured, but django-storages is not installed."
+            )
+
+        DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+        AWS_ACCESS_KEY_ID = MEDIA_STORAGE['ACCESS_KEY_ID']
+        AWS_SECRET_ACCESS_KEY = MEDIA_STORAGE['SECRET_ACCESS_KEY']
+        AWS_STORAGE_BUCKET_NAME = MEDIA_STORAGE['BUCKET_NAME']
+        AWS_S3_REGION_NAME = MEDIA_STORAGE.get('REGION_NAME', None)
+        AWS_S3_ENDPOINT_URL = MEDIA_STORAGE.get('ENDPOINT_URL', None)
+        AWS_AUTO_CREATE_BUCKET = MEDIA_STORAGE.get('AUTO_CREATE_BUCKET', False)
+        AWS_BUCKET_ACL = MEDIA_STORAGE.get('BUCKET_ACL', 'public-read')
+        AWS_DEFAULT_ACL = MEDIA_STORAGE.get('DEFAULT_ACL', 'public-read')
+        AWS_S3_OBJECT_PARAMETERS = MEDIA_STORAGE.get('OBJECT_PARAMETERS', {
+            'CacheControl': 'max-age=86400',
+        })
+        AWS_QUERYSTRING_AUTH = MEDIA_STORAGE.get('QUERYSTRING_AUTH', True)
+        AWS_QUERYSTRING_EXPIRE = MEDIA_STORAGE.get('QUERYSTRING_EXPIRE', 3600)
+    else:
+        raise ImproperlyConfigured(
+            "Unknown storage back-end '{}'".format(MEDIA_STORAGE['BACKEND'])
+        )
 
 #
 # Redis
