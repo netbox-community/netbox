@@ -119,7 +119,7 @@ DATABASES = {
 #
 
 if MEDIA_STORAGE:
-    if not 'BACKEND' in MEDIA_STORAGE:
+    if 'BACKEND' not in MEDIA_STORAGE:
         raise ImproperlyConfigured(
             "Required parameter BACKEND is missing from MEDIA_STORAGE in configuration.py."
         )
