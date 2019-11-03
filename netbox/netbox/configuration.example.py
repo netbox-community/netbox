@@ -130,6 +130,28 @@ MAX_PAGE_SIZE = 1000
 # the default value of this setting is derived from the installed location.
 # MEDIA_ROOT = '/opt/netbox/netbox/media'
 
+# By default uploaded media is stored on the local filesystem. Use the following configuration to store media on
+# AWS S3 or compatible service.
+# MEDIA_STORAGE = {
+#   # Required configuration
+#   'BACKEND': 'S3',
+#   'ACCESS_KEY_ID': 'Key ID',
+#   'SECRET_ACCESS_KEY': 'Secret',
+#   'BUCKET_NAME': 'netbox',
+#
+#   # Optional configuration, defaults are shown
+#   'REGION_NAME': '',
+#   'ENDPOINT_URL': None,
+#   'AUTO_CREATE_BUCKET': False,
+#   'BUCKET_ACL': 'public-read',
+#   'DEFAULT_ACL': 'public-read',
+#   'OBJECT_PARAMETERS': {
+#     'CacheControl': 'max-age=86400',
+#   },
+#   'QUERYSTRING_AUTH': True,
+#   'QUERYSTRING_EXPIRE': 3600,
+# }
+
 # Expose Prometheus monitoring metrics at the HTTP endpoint '/metrics'
 METRICS_ENABLED = False
 
