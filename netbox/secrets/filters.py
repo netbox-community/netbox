@@ -2,7 +2,7 @@ import django_filters
 from django.db.models import Q
 
 from dcim.models import Device
-from extras.filters import CustomFieldFilterSet
+from extras.filters import CustomFieldFilterSet, ChangeLoggedFilter
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from .models import Secret, SecretRole
 
@@ -14,7 +14,7 @@ class SecretRoleFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class SecretFilter(CustomFieldFilterSet):
+class SecretFilter(CustomFieldFilterSet, ChangeLoggedFilter):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'

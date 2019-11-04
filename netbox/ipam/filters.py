@@ -5,7 +5,7 @@ from django.db.models import Q
 from netaddr.core import AddrFormatError
 
 from dcim.models import Site, Device, Interface
-from extras.filters import CustomFieldFilterSet
+from extras.filters import CustomFieldFilterSet, ChangeLoggedFilter
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from virtualization.models import VirtualMachine
@@ -13,7 +13,7 @@ from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 
-class VRFFilter(TenancyFilterSet, CustomFieldFilterSet):
+class VRFFilter(TenancyFilterSet, CustomFieldFilterSet, ChangeLoggedFilter):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -49,7 +49,7 @@ class RIRFilter(NameSlugSearchFilterSet):
         fields = ['name', 'slug', 'is_private']
 
 
-class AggregateFilter(CustomFieldFilterSet):
+class AggregateFilter(CustomFieldFilterSet, ChangeLoggedFilter):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -110,7 +110,7 @@ class RoleFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class PrefixFilter(TenancyFilterSet, CustomFieldFilterSet):
+class PrefixFilter(TenancyFilterSet, CustomFieldFilterSet, ChangeLoggedFilter):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -247,7 +247,7 @@ class PrefixFilter(TenancyFilterSet, CustomFieldFilterSet):
         return queryset.filter(prefix__net_mask_length=value)
 
 
-class IPAddressFilter(TenancyFilterSet, CustomFieldFilterSet):
+class IPAddressFilter(TenancyFilterSet, CustomFieldFilterSet, ChangeLoggedFilter):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -384,7 +384,7 @@ class VLANGroupFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class VLANFilter(TenancyFilterSet, CustomFieldFilterSet):
+class VLANFilter(TenancyFilterSet, CustomFieldFilterSet, ChangeLoggedFilter):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -444,7 +444,7 @@ class VLANFilter(TenancyFilterSet, CustomFieldFilterSet):
         return queryset.filter(qs_filter)
 
 
-class ServiceFilter(django_filters.FilterSet):
+class ServiceFilter(django_filters.FilterSet, ChangeLoggedFilter):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

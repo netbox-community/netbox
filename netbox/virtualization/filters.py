@@ -4,7 +4,7 @@ from netaddr import EUI
 from netaddr.core import AddrFormatError
 
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
-from extras.filters import CustomFieldFilterSet
+from extras.filters import CustomFieldFilterSet, ChangeLoggedFilter
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import (
     MultiValueMACAddressFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
@@ -27,7 +27,7 @@ class ClusterGroupFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class ClusterFilter(CustomFieldFilterSet):
+class ClusterFilter(CustomFieldFilterSet, ChangeLoggedFilter):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -81,7 +81,7 @@ class ClusterFilter(CustomFieldFilterSet):
         )
 
 
-class VirtualMachineFilter(TenancyFilterSet, CustomFieldFilterSet):
+class VirtualMachineFilter(TenancyFilterSet, CustomFieldFilterSet, ChangeLoggedFilter):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'

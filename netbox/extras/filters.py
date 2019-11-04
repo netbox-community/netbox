@@ -241,3 +241,23 @@ class ObjectChangeFilter(django_filters.FilterSet):
             Q(user_name__icontains=value) |
             Q(object_repr__icontains=value)
         )
+
+class ChangeLoggedFilter(django_filters.FilterSet):
+    created = django_filters.DateFilter()
+    created__gte = django_filters.DateFilter(
+        field_name='created',
+        lookup_expr='gte'
+    )
+    created__lte = django_filters.DateFilter(
+        field_name='created',
+        lookup_expr='lte'
+    )
+    last_updated = django_filters.DateTimeFilter()
+    last_updated__gte = django_filters.DateTimeFilter(
+        field_name='last_updated',
+        lookup_expr='gte'
+    )
+    last_updated__lte = django_filters.DateTimeFilter(
+        field_name='last_updated',
+        lookup_expr='lte'
+    )
