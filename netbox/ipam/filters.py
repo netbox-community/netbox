@@ -444,7 +444,7 @@ class VLANFilter(TenancyFilterSet, CustomFieldFilterSet, ChangeLoggedFilter):
         return queryset.filter(qs_filter)
 
 
-class ServiceFilter(django_filters.FilterSet, ChangeLoggedFilter):
+class ServiceFilter(ChangeLoggedFilter):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
