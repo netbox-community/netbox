@@ -246,16 +246,22 @@ console-server-ports:
     type: rj-45
 power-ports:
   - name: Power Port 1
+    type: iec-60320-c14
   - name: Power Port 2
+    type: iec-60320-c14
   - name: Power Port 3
+    type: iec-60320-c14
 power-outlets:
   - name: Power Outlet 1
+    type: iec-60320-c13
     power_port: Power Port 1
     feed_leg: 1
   - name: Power Outlet 2
+    type: iec-60320-c13
     power_port: Power Port 1
     feed_leg: 1
   - name: Power Outlet 3
+    type: iec-60320-c13
     power_port: Power Port 1
     feed_leg: 1
 interfaces:
@@ -330,10 +336,12 @@ device-bays:
         self.assertEqual(dt.powerport_templates.count(), 3)
         pp1 = PowerPortTemplate.objects.first()
         self.assertEqual(pp1.name, 'Power Port 1')
+        self.assertEqual(pp1.type, PowerPortTypes.TYPE_IEC_C14)
 
         self.assertEqual(dt.poweroutlet_templates.count(), 3)
         po1 = PowerOutletTemplate.objects.first()
         self.assertEqual(po1.name, 'Power Outlet 1')
+        self.assertEqual(po1.type, PowerOutletTypes.TYPE_IEC_C13)
         self.assertEqual(po1.power_port, pp1)
         self.assertEqual(po1.feed_leg, POWERFEED_LEG_A)
 
