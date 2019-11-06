@@ -36,13 +36,6 @@ Please see [the documentation](http://netbox.readthedocs.io/en/stable/) for
 instructions on installing NetBox. To upgrade NetBox, please download the [latest release](https://github.com/netbox-community/netbox/releases)
 and run `upgrade.sh`.
 
-## Alternative Installations
-
-* [Docker container](https://github.com/netbox-community/netbox-docker) (via [@cimnine](https://github.com/cimnine))
-* [Vagrant deployment](https://github.com/ryanmerolle/netbox-vagrant) (via [@ryanmerolle](https://github.com/ryanmerolle))
-* [Ansible deployment](https://github.com/lae/ansible-role-netbox) (via [@lae](https://github.com/lae))
-* [Kubernetes deployment](https://github.com/CENGN/netbox-kubernetes) (via [@CENGN](https://github.com/CENGN))
-
 # Providing Feedback
 
 Feature requests and bug reports must be submitted as GiHub issues. (Please be
