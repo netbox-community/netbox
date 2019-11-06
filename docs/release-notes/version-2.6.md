@@ -1,3 +1,9 @@
+# v2.6.8 (FUTURE)
+
+## Bug Fixes
+
+* [#3674](https://github.com/netbox-community/netbox/issues/3674) - Include comments on PowerFeed view
+
 # v2.6.7 (2019-11-01)
 
 ## Enhancements
