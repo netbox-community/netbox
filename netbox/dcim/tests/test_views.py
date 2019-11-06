@@ -3,6 +3,7 @@ import urllib.parse
 from django.test import Client, TestCase
 from django.urls import reverse
 
+from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
     Cable, ConsolePortTemplate, ConsoleServerPortTemplate, Device, DeviceBayTemplate, DeviceRole, DeviceType,
@@ -319,12 +320,12 @@ device-bays:
         self.assertEqual(dt.consoleport_templates.count(), 3)
         cp1 = ConsolePortTemplate.objects.first()
         self.assertEqual(cp1.name, 'Console Port 1')
-        self.assertEqual(cp1.type, CONSOLE_TYPE_DE9)
+        self.assertEqual(cp1.type, ConsolePortTypes.TYPE_DE9)
 
         self.assertEqual(dt.consoleserverport_templates.count(), 3)
         csp1 = ConsoleServerPortTemplate.objects.first()
         self.assertEqual(csp1.name, 'Console Server Port 1')
-        self.assertEqual(csp1.type, CONSOLE_TYPE_RJ45)
+        self.assertEqual(csp1.type, ConsolePortTypes.TYPE_RJ45)
 
         self.assertEqual(dt.powerport_templates.count(), 3)
         pp1 = PowerPortTemplate.objects.first()

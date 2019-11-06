@@ -20,7 +20,7 @@ from utilities.fields import ColorField
 from utilities.managers import NaturalOrderingManager
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object, to_meters
-from .choices import PowerOutletTypes, PowerPortTypes
+from .choices import *
 from .constants import *
 from .exceptions import LoopDetected
 from .fields import ASNField, MACAddressField
@@ -1015,10 +1015,10 @@ class ConsolePortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
-    type = models.PositiveSmallIntegerField(
-        choices=CONSOLE_TYPE_CHOICES,
-        blank=True,
-        null=True
+    type = models.CharField(
+        max_length=50,
+        choices=ConsolePortTypes.CHOICES,
+        blank=True
     )
 
     objects = NaturalOrderingManager()
@@ -1050,10 +1050,10 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
-    type = models.PositiveSmallIntegerField(
-        choices=CONSOLE_TYPE_CHOICES,
-        blank=True,
-        null=True
+    type = models.CharField(
+        max_length=50,
+        choices=ConsolePortTypes.CHOICES,
+        blank=True
     )
 
     objects = NaturalOrderingManager()
@@ -1869,10 +1869,10 @@ class ConsolePort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
-    type = models.PositiveSmallIntegerField(
-        choices=CONSOLE_TYPE_CHOICES,
-        blank=True,
-        null=True
+    type = models.CharField(
+        max_length=50,
+        choices=ConsolePortTypes.CHOICES,
+        blank=True
     )
     connected_endpoint = models.OneToOneField(
         to='dcim.ConsoleServerPort',
@@ -1926,10 +1926,10 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
-    type = models.PositiveSmallIntegerField(
-        choices=CONSOLE_TYPE_CHOICES,
-        blank=True,
-        null=True
+    type = models.CharField(
+        max_length=50,
+        choices=ConsolePortTypes.CHOICES,
+        blank=True
     )
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,

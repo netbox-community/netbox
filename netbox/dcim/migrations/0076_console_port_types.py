@@ -13,21 +13,21 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='consoleport',
             name='type',
-            field=models.PositiveSmallIntegerField(blank=True, null=True),
+            field=models.CharField(blank=True, max_length=50),
         ),
         migrations.AddField(
             model_name='consoleporttemplate',
             name='type',
-            field=models.PositiveSmallIntegerField(blank=True, null=True),
+            field=models.CharField(blank=True, max_length=50),
         ),
         migrations.AddField(
             model_name='consoleserverport',
             name='type',
-            field=models.PositiveSmallIntegerField(blank=True, null=True),
+            field=models.CharField(blank=True, max_length=50),
         ),
         migrations.AddField(
             model_name='consoleserverporttemplate',
             name='type',
-            field=models.PositiveSmallIntegerField(blank=True, null=True),
+            field=models.CharField(blank=True, max_length=50),
         ),
     ]

@@ -21,7 +21,7 @@ class ConsolePortTypes:
     TYPE_USB_MICRO_B = 'usb-micro-b'
     TYPE_OTHER = 'other'
 
-    TYPE_CHOICES = (
+    CHOICES = (
         ('Serial', (
             (TYPE_DE9, 'DE-9'),
             (TYPE_DB25, 'DB-25'),
@@ -40,26 +40,6 @@ class ConsolePortTypes:
             (TYPE_OTHER, 'Other'),
         )),
     )
-
-    @classmethod
-    def slug_to_integer(cls, slug):
-        """
-        Provide backward-compatible mapping of the type slug to integer.
-        """
-        return {
-            # Slug: integer
-            cls.TYPE_DE9: CONSOLE_TYPE_DE9,
-            cls.TYPE_DB25: CONSOLE_TYPE_DB25,
-            cls.TYPE_RJ45: CONSOLE_TYPE_RJ45,
-            cls.TYPE_USB_A: CONSOLE_TYPE_USB_A,
-            cls.TYPE_USB_B: CONSOLE_TYPE_USB_B,
-            cls.TYPE_USB_C: CONSOLE_TYPE_USB_C,
-            cls.TYPE_USB_MINI_A: CONSOLE_TYPE_USB_MINI_A,
-            cls.TYPE_USB_MINI_B: CONSOLE_TYPE_USB_MINI_B,
-            cls.TYPE_USB_MICRO_A: CONSOLE_TYPE_USB_MICRO_A,
-            cls.TYPE_USB_MICRO_B: CONSOLE_TYPE_USB_MICRO_B,
-            cls.TYPE_OTHER: CONSOLE_TYPE_OTHER,
-        }.get(slug)
 
 
 #

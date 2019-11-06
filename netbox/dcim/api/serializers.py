@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
-from dcim.choices import PowerOutletTypes, PowerPortTypes
+from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -201,7 +201,10 @@ class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
 
 class ConsolePortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
-    type = ChoiceField(choices=CONSOLE_TYPE_CHOICES, required=False)
+    type = ChoiceField(
+        choices=ConsolePortTypes.CHOICES,
+        required=False
+    )
 
     class Meta:
         model = ConsolePortTemplate
@@ -210,7 +213,10 @@ class ConsolePortTemplateSerializer(ValidatedModelSerializer):
 
 class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
-    type = ChoiceField(choices=CONSOLE_TYPE_CHOICES, required=False)
+    type = ChoiceField(
+        choices=ConsolePortTypes.CHOICES,
+        required=False
+    )
 
     class Meta:
         model = ConsoleServerPortTemplate
@@ -381,7 +387,10 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 
 class ConsoleServerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
-    type = ChoiceField(choices=CONSOLE_TYPE_CHOICES, required=False)
+    type = ChoiceField(
+        choices=ConsolePortTypes.CHOICES,
+        required=False
+    )
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
@@ -395,7 +404,10 @@ class ConsoleServerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer)
 
 class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
-    type = ChoiceField(choices=CONSOLE_TYPE_CHOICES, required=False)
+    type = ChoiceField(
+        choices=ConsolePortTypes.CHOICES,
+        required=False
+    )
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 

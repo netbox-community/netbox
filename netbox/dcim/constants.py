@@ -58,41 +58,6 @@ SUBDEVICE_ROLE_CHOICES = (
 )
 
 #
-# Numeric console port types
-#
-
-CONSOLE_TYPE_DE9 = 1000
-CONSOLE_TYPE_DB25 = 1100
-CONSOLE_TYPE_RJ45 = 2000
-CONSOLE_TYPE_USB_A = 3000
-CONSOLE_TYPE_USB_B = 3010
-CONSOLE_TYPE_USB_C = 3020
-CONSOLE_TYPE_USB_MINI_A = 3100
-CONSOLE_TYPE_USB_MINI_B = 3110
-CONSOLE_TYPE_USB_MICRO_A = 3200
-CONSOLE_TYPE_USB_MICRO_B = 3210
-CONSOLE_TYPE_OTHER = 32767
-CONSOLE_TYPE_CHOICES = [
-    ['Serial', [
-        [CONSOLE_TYPE_DE9, 'DE-9'],
-        [CONSOLE_TYPE_DB25, 'DB-25'],
-        [CONSOLE_TYPE_RJ45, 'RJ-45'],
-    ]],
-    ['USB', [
-        [CONSOLE_TYPE_USB_A, 'USB Type A'],
-        [CONSOLE_TYPE_USB_B, 'USB Type B'],
-        [CONSOLE_TYPE_USB_C, 'USB Type C'],
-        [CONSOLE_TYPE_USB_MINI_A, 'USB Mini A'],
-        [CONSOLE_TYPE_USB_MINI_B, 'USB Mini B'],
-        [CONSOLE_TYPE_USB_MICRO_A, 'USB Micro A'],
-        [CONSOLE_TYPE_USB_MICRO_B, 'USB Micro B'],
-    ]],
-    ['Other', [
-        [CONSOLE_TYPE_OTHER, 'Other'],
-    ]],
-]
-
-#
 # Numeric interface types
 #
 

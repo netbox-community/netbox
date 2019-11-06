@@ -954,7 +954,7 @@ class ConsolePortTemplateCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=CONSOLE_TYPE_CHOICES,
+        choices=ConsolePortTypes.CHOICES,
         widget=StaticSelect2()
     )
 
@@ -976,7 +976,7 @@ class ConsoleServerPortTemplateCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=CONSOLE_TYPE_CHOICES,
+        choices=add_blank_choice(ConsolePortTypes.CHOICES),
         widget=StaticSelect2()
     )
 
@@ -1265,9 +1265,6 @@ class ComponentTemplateImportForm(BootstrapMixin, forms.ModelForm):
 
 
 class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
-    type = forms.ChoiceField(
-        choices=ConsolePortTypes.TYPE_CHOICES
-    )
 
     class Meta:
         model = ConsolePortTemplate
@@ -1275,27 +1272,14 @@ class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
             'device_type', 'name', 'type',
         ]
 
-    def clean_type(self):
-        # Convert slug value to field integer value
-        slug = self.cleaned_data['type']
-        return ConsolePortTypes.slug_to_integer(slug)
-
 
 class ConsoleServerPortTemplateImportForm(ComponentTemplateImportForm):
-    type = forms.ChoiceField(
-        choices=ConsolePortTypes.TYPE_CHOICES
-    )
 
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
             'device_type', 'name', 'type',
         ]
-
-    def clean_type(self):
-        # Convert slug value to field integer value
-        slug = self.cleaned_data['type']
-        return ConsolePortTypes.slug_to_integer(slug)
 
 
 class PowerPortTemplateImportForm(ComponentTemplateImportForm):
@@ -2099,8 +2083,9 @@ class ConsolePortCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=CONSOLE_TYPE_CHOICES,
-        widget=StaticSelect2(),
+        choices=add_blank_choice(ConsolePortTypes.CHOICES),
+        required=False,
+        widget=StaticSelect2()
     )
     description = forms.CharField(
         max_length=100,
@@ -2135,8 +2120,9 @@ class ConsoleServerPortCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=CONSOLE_TYPE_CHOICES,
-        widget=StaticSelect2(),
+        choices=add_blank_choice(ConsolePortTypes.CHOICES),
+        required=False,
+        widget=StaticSelect2()
     )
     description = forms.CharField(
         max_length=100,
@@ -2153,7 +2139,7 @@ class ConsoleServerPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditF
         widget=forms.MultipleHiddenInput()
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(CONSOLE_TYPE_CHOICES),
+        choices=add_blank_choice(ConsolePortTypes.CHOICES),
         required=False,
         widget=StaticSelect2()
     )
@@ -2207,7 +2193,8 @@ class PowerPortCreateForm(ComponentForm):
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerPortTypes.CHOICES),
-        required=False
+        required=False,
+        widget=StaticSelect2()
     )
     maximum_draw = forms.IntegerField(
         min_value=1,
@@ -2266,7 +2253,8 @@ class PowerOutletCreateForm(ComponentForm):
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypes.CHOICES),
-        required=False
+        required=False,
+        widget=StaticSelect2()
     )
     power_port = forms.ModelChoiceField(
         queryset=PowerPort.objects.all(),
