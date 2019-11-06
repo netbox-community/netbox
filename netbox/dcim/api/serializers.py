@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
+from dcim.choices import PowerOutletTypes, PowerPortTypes
 from dcim.constants import *
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -218,14 +219,22 @@ class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
 
 class PowerPortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
+    type = ChoiceField(
+        choices=PowerPortTypes.CHOICES,
+        required=False
+    )
 
     class Meta:
         model = PowerPortTemplate
-        fields = ['id', 'device_type', 'name', 'maximum_draw', 'allocated_draw']
+        fields = ['id', 'device_type', 'name', 'type', 'maximum_draw', 'allocated_draw']
 
 
 class PowerOutletTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
+    type = ChoiceField(
+        choices=PowerOutletTypes.CHOICES,
+        required=False
+    )
     power_port = PowerPortTemplateSerializer(
         required=False
     )
@@ -237,7 +246,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = PowerOutletTemplate
-        fields = ['id', 'device_type', 'name', 'power_port', 'feed_leg']
+        fields = ['id', 'device_type', 'name', 'type', 'power_port', 'feed_leg']
 
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
@@ -400,6 +409,10 @@ class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
 
 class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
+    type = ChoiceField(
+        choices=PowerOutletTypes.CHOICES,
+        required=False
+    )
     power_port = NestedPowerPortSerializer(
         required=False
     )
@@ -418,20 +431,24 @@ class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     class Meta:
         model = PowerOutlet
         fields = [
-            'id', 'device', 'name', 'power_port', 'feed_leg', 'description', 'connected_endpoint_type',
+            'id', 'device', 'name', 'type', 'power_port', 'feed_leg', 'description', 'connected_endpoint_type',
             'connected_endpoint', 'connection_status', 'cable', 'tags',
         ]
 
 
 class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
+    type = ChoiceField(
+        choices=PowerPortTypes.CHOICES,
+        required=False
+    )
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = PowerPort
         fields = [
-            'id', 'device', 'name', 'maximum_draw', 'allocated_draw', 'description', 'connected_endpoint_type',
+            'id', 'device', 'name', 'type', 'maximum_draw', 'allocated_draw', 'description', 'connected_endpoint_type',
             'connected_endpoint', 'connection_status', 'cable', 'tags',
         ]
 

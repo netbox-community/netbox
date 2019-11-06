@@ -450,7 +450,7 @@ class PowerPortTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerPortTemplate
-        fields = ('pk', 'name', 'maximum_draw', 'allocated_draw', 'actions')
+        fields = ('pk', 'name', 'type', 'maximum_draw', 'allocated_draw', 'actions')
         empty_text = "None"
 
 
@@ -464,7 +464,7 @@ class PowerOutletTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerOutletTemplate
-        fields = ('pk', 'name', 'power_port', 'feed_leg', 'actions')
+        fields = ('pk', 'name', 'type', 'power_port', 'feed_leg', 'actions')
         empty_text = "None"
 
 
@@ -661,14 +661,14 @@ class PowerPortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerPort
-        fields = ('name',)
+        fields = ('name', 'type')
 
 
 class PowerOutletTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerOutlet
-        fields = ('name', 'description')
+        fields = ('name', 'type', 'description')
 
 
 class InterfaceTable(BaseTable):

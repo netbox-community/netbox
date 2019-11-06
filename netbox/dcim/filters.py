@@ -360,14 +360,14 @@ class PowerPortTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = PowerPortTemplate
-        fields = ['id', 'name', 'maximum_draw', 'allocated_draw']
+        fields = ['id', 'name', 'type', 'maximum_draw', 'allocated_draw']
 
 
 class PowerOutletTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = PowerOutletTemplate
-        fields = ['id', 'name', 'feed_leg']
+        fields = ['id', 'name', 'type', 'feed_leg']
 
 
 class InterfaceTemplateFilter(DeviceTypeComponentFilterSet):
@@ -681,7 +681,7 @@ class PowerPortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = PowerPort
-        fields = ['id', 'name', 'maximum_draw', 'allocated_draw', 'description', 'connection_status']
+        fields = ['id', 'name', 'type', 'maximum_draw', 'allocated_draw', 'description', 'connection_status']
 
 
 class PowerOutletFilter(DeviceComponentFilterSet):
@@ -693,7 +693,7 @@ class PowerOutletFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = PowerOutlet
-        fields = ['id', 'name', 'feed_leg', 'description', 'connection_status']
+        fields = ['id', 'name', 'type', 'feed_leg', 'description', 'connection_status']
 
 
 class InterfaceFilter(django_filters.FilterSet):
