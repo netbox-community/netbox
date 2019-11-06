@@ -1,5 +1,10 @@
 # v2.6.8 (FUTURE)
 
+## Enhancements
+
+* [#3139](https://github.com/netbox-community/netbox/issues/3139) - Disable password change form for LDAP-authenticated users
+* [#3457](https://github.com/netbox-community/netbox/issues/3457) - Display cable colors on device view
+
 ## Bug Fixes
 
 * [#3669](https://github.com/netbox-community/netbox/issues/3669) - Include `weight` field in prefix/VLAN role form
