@@ -292,7 +292,7 @@ class RoleTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Role
-        fields = ('pk', 'name', 'prefix_count', 'vlan_count', 'slug', 'actions')
+        fields = ('pk', 'name', 'prefix_count', 'vlan_count', 'slug', 'weight', 'actions')
 
 
 #

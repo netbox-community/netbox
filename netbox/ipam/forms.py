@@ -240,7 +240,7 @@ class RoleForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Role
         fields = [
-            'name', 'slug',
+            'name', 'slug', 'weight',
         ]
 
 
