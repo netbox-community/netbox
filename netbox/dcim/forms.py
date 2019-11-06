@@ -986,7 +986,7 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerPortTemplate
         fields = [
-            'device_type', 'name', 'maximum_draw', 'allocated_draw',
+            'device_type', 'name', 'type', 'maximum_draw', 'allocated_draw',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -996,6 +996,10 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
 class PowerPortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PowerPortTypes.CHOICES),
+        required=False
     )
     maximum_draw = forms.IntegerField(
         min_value=1,
@@ -1014,7 +1018,7 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'device_type', 'name', 'power_port', 'feed_leg',
+            'device_type', 'name', 'type', 'power_port', 'feed_leg',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1034,6 +1038,10 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
 class PowerOutletTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PowerOutletTypes.CHOICES),
+        required=False
     )
     power_port = forms.ModelChoiceField(
         queryset=PowerPortTemplate.objects.all(),
@@ -1295,7 +1303,7 @@ class PowerPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = PowerPortTemplate
         fields = [
-            'device_type', 'name', 'maximum_draw', 'allocated_draw',
+            'device_type', 'name', 'type', 'maximum_draw', 'allocated_draw',
         ]
 
 
@@ -1309,7 +1317,7 @@ class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'device_type', 'name', 'power_port', 'feed_leg',
+            'device_type', 'name', 'type', 'power_port', 'feed_leg',
         ]
 
 
@@ -2186,7 +2194,7 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerPort
         fields = [
-            'device', 'name', 'maximum_draw', 'allocated_draw', 'description', 'tags',
+            'device', 'name', 'type', 'maximum_draw', 'allocated_draw', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2196,6 +2204,10 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
 class PowerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PowerPortTypes.CHOICES),
+        required=False
     )
     maximum_draw = forms.IntegerField(
         min_value=1,
@@ -2232,7 +2244,7 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerOutlet
         fields = [
-            'device', 'name', 'power_port', 'feed_leg', 'description', 'tags',
+            'device', 'name', 'type', 'power_port', 'feed_leg', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2251,6 +2263,10 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
 class PowerOutletCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PowerOutletTypes.CHOICES),
+        required=False
     )
     power_port = forms.ModelChoiceField(
         queryset=PowerPort.objects.all(),
@@ -2281,6 +2297,10 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         queryset=PowerOutlet.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    type = forms.ChoiceField(
+        choices=PowerOutletTypes.CHOICES,
+        required=False
+    )
     feed_leg = forms.ChoiceField(
         choices=add_blank_choice(POWERFEED_LEG_CHOICES),
         required=False,
@@ -2296,7 +2316,7 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
 
     class Meta:
         nullable_fields = [
-            'feed_leg', 'power_port', 'description',
+            'type', 'feed_leg', 'power_port', 'description',
         ]
 
     def __init__(self, *args, **kwargs):

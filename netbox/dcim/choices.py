@@ -63,6 +63,180 @@ class ConsolePortTypes:
 
 
 #
+# Power port types
+#
+
+class PowerPortTypes:
+    # TODO: Add more power port types
+    # IEC 60320
+    TYPE_IEC_C6 = 'iec-60320-c6'
+    TYPE_IEC_C8 = 'iec-60320-c8'
+    TYPE_IEC_C14 = 'iec-60320-c14'
+    TYPE_IEC_C16 = 'iec-60320-c16'
+    TYPE_IEC_C20 = 'iec-60320-c20'
+    # IEC 60309
+    TYPE_IEC_PNE4H = 'iec-60309-p-n-e-4h'
+    TYPE_IEC_PNE6H = 'iec-60309-p-n-e-6h'
+    TYPE_IEC_PNE9H = 'iec-60309-p-n-e-9h'
+    TYPE_IEC_2PE4H = 'iec-60309-2p-e-4h'
+    TYPE_IEC_2PE6H = 'iec-60309-2p-e-6h'
+    TYPE_IEC_2PE9H = 'iec-60309-2p-e-9h'
+    TYPE_IEC_3PE4H = 'iec-60309-3p-e-4h'
+    TYPE_IEC_3PE6H = 'iec-60309-3p-e-6h'
+    TYPE_IEC_3PE9H = 'iec-60309-3p-e-9h'
+    TYPE_IEC_3PNE4H = 'iec-60309-3p-n-e-4h'
+    TYPE_IEC_3PNE6H = 'iec-60309-3p-n-e-6h'
+    TYPE_IEC_3PNE9H = 'iec-60309-3p-n-e-9h'
+    # NEMA non-locking
+    TYPE_NEMA_515P = 'nema-5-15p'
+    TYPE_NEMA_520P = 'nema-5-20p'
+    TYPE_NEMA_530P = 'nema-5-30p'
+    TYPE_NEMA_550P = 'nema-5-50p'
+    TYPE_NEMA_615P = 'nema-6-15p'
+    TYPE_NEMA_620P = 'nema-6-20p'
+    TYPE_NEMA_630P = 'nema-6-30p'
+    TYPE_NEMA_650P = 'nema-6-50p'
+    # NEMA locking
+    TYPE_NEMA_L515P = 'nema-l5-15p'
+    TYPE_NEMA_L520P = 'nema-l5-20p'
+    TYPE_NEMA_L530P = 'nema-l5-30p'
+    TYPE_NEMA_L615P = 'nema-l5-50p'
+    TYPE_NEMA_L620P = 'nema-l6-20p'
+    TYPE_NEMA_L630P = 'nema-l6-30p'
+    TYPE_NEMA_L650P = 'nema-l6-50p'
+
+    CHOICES = (
+        ('IEC 60320', (
+            (TYPE_IEC_C6, 'C6'),
+            (TYPE_IEC_C8, 'C8'),
+            (TYPE_IEC_C14, 'C14'),
+            (TYPE_IEC_C16, 'C16'),
+            (TYPE_IEC_C20, 'C20'),
+        )),
+        ('IEC 60309', (
+            (TYPE_IEC_PNE4H, 'P+N+E 4H'),
+            (TYPE_IEC_PNE6H, 'P+N+E 6H'),
+            (TYPE_IEC_PNE9H, 'P+N+E 9H'),
+            (TYPE_IEC_2PE4H, '2P+E 4H'),
+            (TYPE_IEC_2PE6H, '2P+E 6H'),
+            (TYPE_IEC_2PE9H, '2P+E 9H'),
+            (TYPE_IEC_3PE4H, '3P+E 4H'),
+            (TYPE_IEC_3PE6H, '3P+E 6H'),
+            (TYPE_IEC_3PE9H, '3P+E 9H'),
+            (TYPE_IEC_3PNE4H, '3P+N+E 4H'),
+            (TYPE_IEC_3PNE6H, '3P+N+E 6H'),
+            (TYPE_IEC_3PNE9H, '3P+N+E 9H'),
+        )),
+        ('NEMA (Non-locking)', (
+            (TYPE_NEMA_515P, 'NEMA 5-15P'),
+            (TYPE_NEMA_520P, 'NEMA 5-20P'),
+            (TYPE_NEMA_530P, 'NEMA 5-30P'),
+            (TYPE_NEMA_550P, 'NEMA 5-50P'),
+            (TYPE_NEMA_615P, 'NEMA 6-15P'),
+            (TYPE_NEMA_620P, 'NEMA 6-20P'),
+            (TYPE_NEMA_630P, 'NEMA 6-30P'),
+            (TYPE_NEMA_650P, 'NEMA 6-50P'),
+        )),
+        ('NEMA (Locking)', (
+            (TYPE_NEMA_L515P, 'NEMA L5-15P'),
+            (TYPE_NEMA_L520P, 'NEMA L5-20P'),
+            (TYPE_NEMA_L530P, 'NEMA L5-30P'),
+            (TYPE_NEMA_L615P, 'NEMA L6-15P'),
+            (TYPE_NEMA_L620P, 'NEMA L6-20P'),
+            (TYPE_NEMA_L630P, 'NEMA L6-30P'),
+            (TYPE_NEMA_L650P, 'NEMA L6-50P'),
+        )),
+    )
+
+
+#
+# Power outlet types
+#
+
+class PowerOutletTypes:
+    # TODO: Add more power outlet types
+    # IEC 60320
+    TYPE_IEC_C5 = 'iec-60320-c5'
+    TYPE_IEC_C7 = 'iec-60320-c7'
+    TYPE_IEC_C13 = 'iec-60320-c13'
+    TYPE_IEC_C15 = 'iec-60320-c15'
+    TYPE_IEC_C19 = 'iec-60320-c19'
+    # IEC 60309
+    TYPE_IEC_PNE4H = 'iec-60309-p-n-e-4h'
+    TYPE_IEC_PNE6H = 'iec-60309-p-n-e-6h'
+    TYPE_IEC_PNE9H = 'iec-60309-p-n-e-9h'
+    TYPE_IEC_2PE4H = 'iec-60309-2p-e-4h'
+    TYPE_IEC_2PE6H = 'iec-60309-2p-e-6h'
+    TYPE_IEC_2PE9H = 'iec-60309-2p-e-9h'
+    TYPE_IEC_3PE4H = 'iec-60309-3p-e-4h'
+    TYPE_IEC_3PE6H = 'iec-60309-3p-e-6h'
+    TYPE_IEC_3PE9H = 'iec-60309-3p-e-9h'
+    TYPE_IEC_3PNE4H = 'iec-60309-3p-n-e-4h'
+    TYPE_IEC_3PNE6H = 'iec-60309-3p-n-e-6h'
+    TYPE_IEC_3PNE9H = 'iec-60309-3p-n-e-9h'
+    # NEMA non-locking
+    TYPE_NEMA_515R = 'nema-5-15r'
+    TYPE_NEMA_520R = 'nema-5-20r'
+    TYPE_NEMA_530R = 'nema-5-30r'
+    TYPE_NEMA_550R = 'nema-5-50r'
+    TYPE_NEMA_615R = 'nema-6-15r'
+    TYPE_NEMA_620R = 'nema-6-20r'
+    TYPE_NEMA_630R = 'nema-6-30r'
+    TYPE_NEMA_650R = 'nema-6-50r'
+    # NEMA locking
+    TYPE_NEMA_L515R = 'nema-l5-15r'
+    TYPE_NEMA_L520R = 'nema-l5-20r'
+    TYPE_NEMA_L530R = 'nema-l5-30r'
+    TYPE_NEMA_L615R = 'nema-l5-50r'
+    TYPE_NEMA_L620R = 'nema-l6-20r'
+    TYPE_NEMA_L630R = 'nema-l6-30r'
+    TYPE_NEMA_L650R = 'nema-l6-50r'
+
+    CHOICES = (
+        ('IEC 60320', (
+            (TYPE_IEC_C5, 'C5'),
+            (TYPE_IEC_C7, 'C7'),
+            (TYPE_IEC_C13, 'C13'),
+            (TYPE_IEC_C15, 'C15'),
+            (TYPE_IEC_C19, 'C19'),
+        )),
+        ('IEC 60309', (
+            (TYPE_IEC_PNE4H, 'P+N+E 4H'),
+            (TYPE_IEC_PNE6H, 'P+N+E 6H'),
+            (TYPE_IEC_PNE9H, 'P+N+E 9H'),
+            (TYPE_IEC_2PE4H, '2P+E 4H'),
+            (TYPE_IEC_2PE6H, '2P+E 6H'),
+            (TYPE_IEC_2PE9H, '2P+E 9H'),
+            (TYPE_IEC_3PE4H, '3P+E 4H'),
+            (TYPE_IEC_3PE6H, '3P+E 6H'),
+            (TYPE_IEC_3PE9H, '3P+E 9H'),
+            (TYPE_IEC_3PNE4H, '3P+N+E 4H'),
+            (TYPE_IEC_3PNE6H, '3P+N+E 6H'),
+            (TYPE_IEC_3PNE9H, '3P+N+E 9H'),
+        )),
+        ('NEMA (Non-locking)', (
+            (TYPE_NEMA_515R, 'NEMA 5-15R'),
+            (TYPE_NEMA_520R, 'NEMA 5-20R'),
+            (TYPE_NEMA_530R, 'NEMA 5-30R'),
+            (TYPE_NEMA_550R, 'NEMA 5-50R'),
+            (TYPE_NEMA_615R, 'NEMA 6-15R'),
+            (TYPE_NEMA_620R, 'NEMA 6-20R'),
+            (TYPE_NEMA_630R, 'NEMA 6-30R'),
+            (TYPE_NEMA_650R, 'NEMA 6-50R'),
+        )),
+        ('NEMA (Locking)', (
+            (TYPE_NEMA_L515R, 'NEMA L5-15R'),
+            (TYPE_NEMA_L520R, 'NEMA L5-20R'),
+            (TYPE_NEMA_L530R, 'NEMA L5-30R'),
+            (TYPE_NEMA_L615R, 'NEMA L6-15R'),
+            (TYPE_NEMA_L620R, 'NEMA L6-20R'),
+            (TYPE_NEMA_L630R, 'NEMA L6-30R'),
+            (TYPE_NEMA_L650R, 'NEMA L6-50R'),
+        )),
+    )
+
+
+#
 # Interface type values
 #
 
