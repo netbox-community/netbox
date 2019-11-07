@@ -242,6 +242,7 @@ class ObjectChangeFilter(django_filters.FilterSet):
             Q(object_repr__icontains=value)
         )
 
+
 class ChangeLoggedFilter(django_filters.FilterSet):
     created = django_filters.DateFilter()
     created__gte = django_filters.DateFilter(
