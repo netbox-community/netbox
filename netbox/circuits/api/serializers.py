@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
-from circuits.constants import CIRCUIT_STATUS_CHOICES
+from circuits.choices import CircuitStatusChoices
 from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
 from dcim.api.nested_serializers import NestedCableSerializer, NestedSiteSerializer
 from dcim.api.serializers import ConnectedEndpointSerializer
@@ -41,7 +41,7 @@ class CircuitTypeSerializer(ValidatedModelSerializer):
 
 class CircuitSerializer(TaggitSerializer, CustomFieldModelSerializer):
     provider = NestedProviderSerializer()
-    status = ChoiceField(choices=CIRCUIT_STATUS_CHOICES, required=False)
+    status = ChoiceField(choices=CircuitStatusChoices, required=False)
     type = NestedCircuitTypeSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)

@@ -1,9 +1,10 @@
 from django.urls import reverse
 from rest_framework import status
 
-from circuits.constants import CIRCUIT_STATUS_ACTIVE, TERM_SIDE_A, TERM_SIDE_Z
+from circuits.choices import CircuitStatusChoices
+from circuits.constants import TERM_SIDE_A, TERM_SIDE_Z
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
-from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
+from dcim.models import Site
 from extras.constants import GRAPH_TYPE_PROVIDER
 from extras.models import Graph
 from utilities.testing import APITestCase
@@ -250,7 +251,7 @@ class CircuitTest(APITestCase):
             'cid': 'TEST0004',
             'provider': self.provider1.pk,
             'type': self.circuittype1.pk,
-            'status': CIRCUIT_STATUS_ACTIVE,
+            'status': CircuitStatusChoices.STATUS_ACTIVE,
         }
 
         url = reverse('circuits-api:circuit-list')
@@ -270,19 +271,19 @@ class CircuitTest(APITestCase):
                 'cid': 'TEST0004',
                 'provider': self.provider1.pk,
                 'type': self.circuittype1.pk,
-                'status': CIRCUIT_STATUS_ACTIVE,
+                'status': CircuitStatusChoices.STATUS_ACTIVE,
             },
             {
                 'cid': 'TEST0005',
                 'provider': self.provider1.pk,
                 'type': self.circuittype1.pk,
-                'status': CIRCUIT_STATUS_ACTIVE,
+                'status': CircuitStatusChoices.STATUS_ACTIVE,
             },
             {
                 'cid': 'TEST0006',
                 'provider': self.provider1.pk,
                 'type': self.circuittype1.pk,
-                'status': CIRCUIT_STATUS_ACTIVE,
+                'status': CircuitStatusChoices.STATUS_ACTIVE,
             },
         ]
 

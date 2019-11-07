@@ -9,6 +9,7 @@ from dcim.models import CableTermination
 from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
+from .choices import *
 from .constants import *
 
 
@@ -132,9 +133,10 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         on_delete=models.PROTECT,
         related_name='circuits'
     )
-    status = models.PositiveSmallIntegerField(
-        choices=CIRCUIT_STATUS_CHOICES,
-        default=CIRCUIT_STATUS_ACTIVE
+    status = models.CharField(
+        max_length=50,
+        choices=CircuitStatusChoices,
+        default=CircuitStatusChoices.STATUS_ACTIVE
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -171,6 +173,15 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
     ]
 
+    STATUS_CLASS_MAP = {
+        CircuitStatusChoices.STATUS_DEPROVISIONING: 'warning',
+        CircuitStatusChoices.STATUS_ACTIVE: 'success',
+        CircuitStatusChoices.STATUS_PLANNED: 'info',
+        CircuitStatusChoices.STATUS_PROVISIONING: 'primary',
+        CircuitStatusChoices.STATUS_OFFLINE: 'danger',
+        CircuitStatusChoices.STATUS_DECOMMISSIONED: 'default',
+    }
+
     class Meta:
         ordering = ['provider', 'cid']
         unique_together = ['provider', 'cid']
@@ -195,7 +206,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         )
 
     def get_status_class(self):
-        return STATUS_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)
 
     def _get_termination(self, side):
         for ct in self.terminations.all():

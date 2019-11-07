@@ -5,6 +5,7 @@ from dcim.models import Region, Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
+from .choices import *
 from .constants import *
 from .models import Circuit, CircuitTermination, CircuitType, Provider
 
@@ -84,7 +85,7 @@ class CircuitFilter(CustomFieldFilterSet, TenancyFilterSet):
         label='Circuit type (slug)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=CIRCUIT_STATUS_CHOICES,
+        choices=CircuitStatusChoices,
         null_value=None
     )
     site_id = django_filters.ModelMultipleChoiceFilter(

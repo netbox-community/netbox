@@ -3,7 +3,7 @@ class ChoiceSetMeta(type):
     Metaclass for ChoiceSet
     """
     def __call__(cls, *args, **kwargs):
-        # Django will check if a choices value is callable, and if so assume that it returns an iterable
+        # Django will check if a 'choices' value is callable, and if so assume that it returns an iterable
         return getattr(cls, 'CHOICES', ())
 
     def __iter__(cls):
