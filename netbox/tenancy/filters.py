@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Q
 
-from extras.filters import CustomFieldFilterSet, ChangeLoggedFilter
+from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilter
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from .models import Tenant, TenantGroup
 
@@ -13,7 +13,7 @@ class TenantGroupFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class TenantFilter(CustomFieldFilterSet, ChangeLoggedFilter):
+class TenantFilter(CustomFieldFilterSet, CreatedUpdatedFilter):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
