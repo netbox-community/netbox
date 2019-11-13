@@ -1,6 +1,6 @@
 import base64
 
-from Crypto.PublicKey import RSA
+from Cryptodome.PublicKey import RSA
 from django.db.models import Count
 from django.http import HttpResponseBadRequest
 from rest_framework.exceptions import ValidationError

@@ -1,9 +1,9 @@
 import os
 import sys
 
-from Crypto.Cipher import AES, PKCS1_OAEP
-from Crypto.PublicKey import RSA
-from Crypto.Util import strxor
+from Cryptodome.Cipher import AES, PKCS1_OAEP
+from Cryptodome.PublicKey import RSA
+from Cryptodome.Util import strxor
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import Group, User

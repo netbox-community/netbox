@@ -81,4 +81,4 @@ py-gfm
 
 # Extensive cryptographic library (fork of pycrypto)
 # https://github.com/Legrandin/pycryptodome
-pycryptodome
+pycryptodomex
