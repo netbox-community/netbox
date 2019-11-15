@@ -2,7 +2,7 @@ import django_filters
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-from extras.filters import CustomFieldFilterSet, LocalConfigContextFilter
+from extras.filters import CustomFieldFilterSet, LocalConfigContextFilter, CreatedUpdatedFilter
 from tenancy.filtersets import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
@@ -38,7 +38,7 @@ class RegionFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class SiteFilter(TenancyFilterSet, CustomFieldFilterSet):
+class SiteFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilter):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -116,7 +116,7 @@ class RackRoleFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'color']
 
 
-class RackFilter(TenancyFilterSet, CustomFieldFilterSet):
+class RackFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilter):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -251,7 +251,7 @@ class ManufacturerFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class DeviceTypeFilter(CustomFieldFilterSet):
+class DeviceTypeFilter(CustomFieldFilterSet, CreatedUpdatedFilter):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -423,7 +423,7 @@ class PlatformFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'napalm_driver']
 
 
-class DeviceFilter(LocalConfigContextFilter, TenancyFilterSet, CustomFieldFilterSet):
+class DeviceFilter(LocalConfigContextFilter, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilter):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -1096,7 +1096,7 @@ class PowerPanelFilter(django_filters.FilterSet):
         return queryset.filter(qs_filter)
 
 
-class PowerFeedFilter(CustomFieldFilterSet):
+class PowerFeedFilter(CustomFieldFilterSet, CreatedUpdatedFilter):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
