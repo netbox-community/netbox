@@ -243,7 +243,7 @@ class ObjectChangeFilter(django_filters.FilterSet):
         )
 
 
-class CreatedUpdatedFilter(django_filters.FilterSet):
+class CreatedUpdatedFilterSet(django_filters.FilterSet):
     created = django_filters.DateFilter()
     created__gte = django_filters.DateFilter(
         field_name='created',

@@ -2,14 +2,14 @@ import django_filters
 from django.db.models import Q
 
 from dcim.models import Region, Site
-from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilter
+from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
 from .constants import *
 from .models import Circuit, CircuitTermination, CircuitType, Provider
 
 
-class ProviderFilter(CustomFieldFilterSet, CreatedUpdatedFilter):
+class ProviderFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -54,7 +54,7 @@ class CircuitTypeFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class CircuitFilter(CustomFieldFilterSet, TenancyFilterSet, CreatedUpdatedFilter):
+class CircuitFilter(CustomFieldFilterSet, TenancyFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
