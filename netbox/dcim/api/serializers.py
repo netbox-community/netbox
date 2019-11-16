@@ -202,7 +202,7 @@ class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
 class ConsolePortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     type = ChoiceField(
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         required=False
     )
 
@@ -214,7 +214,7 @@ class ConsolePortTemplateSerializer(ValidatedModelSerializer):
 class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     type = ChoiceField(
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         required=False
     )
 
@@ -226,7 +226,7 @@ class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
 class PowerPortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     type = ChoiceField(
-        choices=PowerPortTypes.CHOICES,
+        choices=PowerPortTypeChoices,
         required=False
     )
 
@@ -238,7 +238,7 @@ class PowerPortTemplateSerializer(ValidatedModelSerializer):
 class PowerOutletTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     type = ChoiceField(
-        choices=PowerOutletTypes.CHOICES,
+        choices=PowerOutletTypeChoices,
         required=False
     )
     power_port = PowerPortTemplateSerializer(
@@ -388,7 +388,7 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 class ConsoleServerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         required=False
     )
     cable = NestedCableSerializer(read_only=True)
@@ -405,7 +405,7 @@ class ConsoleServerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer)
 class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         required=False
     )
     cable = NestedCableSerializer(read_only=True)
@@ -422,7 +422,7 @@ class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
 class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(
-        choices=PowerOutletTypes.CHOICES,
+        choices=PowerOutletTypeChoices,
         required=False
     )
     power_port = NestedPowerPortSerializer(
@@ -451,7 +451,7 @@ class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
 class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(
-        choices=PowerPortTypes.CHOICES,
+        choices=PowerPortTypeChoices,
         required=False
     )
     cable = NestedCableSerializer(read_only=True)

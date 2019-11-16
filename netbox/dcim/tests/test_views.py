@@ -326,22 +326,22 @@ device-bays:
         self.assertEqual(dt.consoleport_templates.count(), 3)
         cp1 = ConsolePortTemplate.objects.first()
         self.assertEqual(cp1.name, 'Console Port 1')
-        self.assertEqual(cp1.type, ConsolePortTypes.TYPE_DE9)
+        self.assertEqual(cp1.type, ConsolePortTypeChoices.TYPE_DE9)
 
         self.assertEqual(dt.consoleserverport_templates.count(), 3)
         csp1 = ConsoleServerPortTemplate.objects.first()
         self.assertEqual(csp1.name, 'Console Server Port 1')
-        self.assertEqual(csp1.type, ConsolePortTypes.TYPE_RJ45)
+        self.assertEqual(csp1.type, ConsolePortTypeChoices.TYPE_RJ45)
 
         self.assertEqual(dt.powerport_templates.count(), 3)
         pp1 = PowerPortTemplate.objects.first()
         self.assertEqual(pp1.name, 'Power Port 1')
-        self.assertEqual(pp1.type, PowerPortTypes.TYPE_IEC_C14)
+        self.assertEqual(pp1.type, PowerPortTypeChoices.TYPE_IEC_C14)
 
         self.assertEqual(dt.poweroutlet_templates.count(), 3)
         po1 = PowerOutletTemplate.objects.first()
         self.assertEqual(po1.name, 'Power Outlet 1')
-        self.assertEqual(po1.type, PowerOutletTypes.TYPE_IEC_C13)
+        self.assertEqual(po1.type, PowerOutletTypeChoices.TYPE_IEC_C13)
         self.assertEqual(po1.power_port, pp1)
         self.assertEqual(po1.feed_leg, POWERFEED_LEG_A)
 

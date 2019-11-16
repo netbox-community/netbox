@@ -1,3 +1,4 @@
+from utilities.choices import ChoiceSet
 from .constants import *
 
 
@@ -5,7 +6,7 @@ from .constants import *
 # Console port type values
 #
 
-class ConsolePortTypes:
+class ConsolePortTypeChoices(ChoiceSet):
     """
     ConsolePort/ConsoleServerPort.type slugs
     """
@@ -46,7 +47,7 @@ class ConsolePortTypes:
 # Power port types
 #
 
-class PowerPortTypes:
+class PowerPortTypeChoices(ChoiceSet):
     # TODO: Add more power port types
     # IEC 60320
     TYPE_IEC_C6 = 'iec-60320-c6'
@@ -133,7 +134,7 @@ class PowerPortTypes:
 # Power outlet types
 #
 
-class PowerOutletTypes:
+class PowerOutletTypeChoices(ChoiceSet):
     # TODO: Add more power outlet types
     # IEC 60320
     TYPE_IEC_C5 = 'iec-60320-c5'
@@ -220,7 +221,7 @@ class PowerOutletTypes:
 # Interface type values
 #
 
-class InterfaceTypes:
+class InterfaceTypeChoices(ChoiceSet):
     """
     Interface.type slugs
     """
@@ -315,7 +316,7 @@ class InterfaceTypes:
     # Other
     TYPE_OTHER = 'other'
 
-    TYPE_CHOICES = (
+    CHOICES = (
         (
             'Virtual interfaces',
             (
@@ -444,90 +445,85 @@ class InterfaceTypes:
         ),
     )
 
-    @classmethod
-    def slug_to_integer(cls, slug):
-        """
-        Provide backward-compatible mapping of the type slug to integer.
-        """
-        return {
-            # Slug: integer
-            cls.TYPE_VIRTUAL: IFACE_TYPE_VIRTUAL,
-            cls.TYPE_LAG: IFACE_TYPE_LAG,
-            cls.TYPE_100ME_FIXED: IFACE_TYPE_100ME_FIXED,
-            cls.TYPE_1GE_FIXED: IFACE_TYPE_1GE_FIXED,
-            cls.TYPE_1GE_GBIC: IFACE_TYPE_1GE_GBIC,
-            cls.TYPE_1GE_SFP: IFACE_TYPE_1GE_SFP,
-            cls.TYPE_2GE_FIXED: IFACE_TYPE_2GE_FIXED,
-            cls.TYPE_5GE_FIXED: IFACE_TYPE_5GE_FIXED,
-            cls.TYPE_10GE_FIXED: IFACE_TYPE_10GE_FIXED,
-            cls.TYPE_10GE_CX4: IFACE_TYPE_10GE_CX4,
-            cls.TYPE_10GE_SFP_PLUS: IFACE_TYPE_10GE_SFP_PLUS,
-            cls.TYPE_10GE_XFP: IFACE_TYPE_10GE_XFP,
-            cls.TYPE_10GE_XENPAK: IFACE_TYPE_10GE_XENPAK,
-            cls.TYPE_10GE_X2: IFACE_TYPE_10GE_X2,
-            cls.TYPE_25GE_SFP28: IFACE_TYPE_25GE_SFP28,
-            cls.TYPE_40GE_QSFP_PLUS: IFACE_TYPE_40GE_QSFP_PLUS,
-            cls.TYPE_50GE_QSFP28: IFACE_TYPE_50GE_QSFP28,
-            cls.TYPE_100GE_CFP: IFACE_TYPE_100GE_CFP,
-            cls.TYPE_100GE_CFP2: IFACE_TYPE_100GE_CFP2,
-            cls.TYPE_100GE_CFP4: IFACE_TYPE_100GE_CFP4,
-            cls.TYPE_100GE_CPAK: IFACE_TYPE_100GE_CPAK,
-            cls.TYPE_100GE_QSFP28: IFACE_TYPE_100GE_QSFP28,
-            cls.TYPE_200GE_CFP2: IFACE_TYPE_200GE_CFP2,
-            cls.TYPE_200GE_QSFP56: IFACE_TYPE_200GE_QSFP56,
-            cls.TYPE_400GE_QSFP_DD: IFACE_TYPE_400GE_QSFP_DD,
-            cls.TYPE_80211A: IFACE_TYPE_80211A,
-            cls.TYPE_80211G: IFACE_TYPE_80211G,
-            cls.TYPE_80211N: IFACE_TYPE_80211N,
-            cls.TYPE_80211AC: IFACE_TYPE_80211AC,
-            cls.TYPE_80211AD: IFACE_TYPE_80211AD,
-            cls.TYPE_GSM: IFACE_TYPE_GSM,
-            cls.TYPE_CDMA: IFACE_TYPE_CDMA,
-            cls.TYPE_LTE: IFACE_TYPE_LTE,
-            cls.TYPE_SONET_OC3: IFACE_TYPE_SONET_OC3,
-            cls.TYPE_SONET_OC12: IFACE_TYPE_SONET_OC12,
-            cls.TYPE_SONET_OC48: IFACE_TYPE_SONET_OC48,
-            cls.TYPE_SONET_OC192: IFACE_TYPE_SONET_OC192,
-            cls.TYPE_SONET_OC768: IFACE_TYPE_SONET_OC768,
-            cls.TYPE_SONET_OC1920: IFACE_TYPE_SONET_OC1920,
-            cls.TYPE_SONET_OC3840: IFACE_TYPE_SONET_OC3840,
-            cls.TYPE_1GFC_SFP: IFACE_TYPE_1GFC_SFP,
-            cls.TYPE_2GFC_SFP: IFACE_TYPE_2GFC_SFP,
-            cls.TYPE_4GFC_SFP: IFACE_TYPE_4GFC_SFP,
-            cls.TYPE_8GFC_SFP_PLUS: IFACE_TYPE_8GFC_SFP_PLUS,
-            cls.TYPE_16GFC_SFP_PLUS: IFACE_TYPE_16GFC_SFP_PLUS,
-            cls.TYPE_32GFC_SFP28: IFACE_TYPE_32GFC_SFP28,
-            cls.TYPE_128GFC_QSFP28: IFACE_TYPE_128GFC_QSFP28,
-            cls.TYPE_INFINIBAND_SDR: IFACE_TYPE_INFINIBAND_SDR,
-            cls.TYPE_INFINIBAND_DDR: IFACE_TYPE_INFINIBAND_DDR,
-            cls.TYPE_INFINIBAND_QDR: IFACE_TYPE_INFINIBAND_QDR,
-            cls.TYPE_INFINIBAND_FDR10: IFACE_TYPE_INFINIBAND_FDR10,
-            cls.TYPE_INFINIBAND_FDR: IFACE_TYPE_INFINIBAND_FDR,
-            cls.TYPE_INFINIBAND_EDR: IFACE_TYPE_INFINIBAND_EDR,
-            cls.TYPE_INFINIBAND_HDR: IFACE_TYPE_INFINIBAND_HDR,
-            cls.TYPE_INFINIBAND_NDR: IFACE_TYPE_INFINIBAND_NDR,
-            cls.TYPE_INFINIBAND_XDR: IFACE_TYPE_INFINIBAND_XDR,
-            cls.TYPE_T1: IFACE_TYPE_T1,
-            cls.TYPE_E1: IFACE_TYPE_E1,
-            cls.TYPE_T3: IFACE_TYPE_T3,
-            cls.TYPE_E3: IFACE_TYPE_E3,
-            cls.TYPE_STACKWISE: IFACE_TYPE_STACKWISE,
-            cls.TYPE_STACKWISE_PLUS: IFACE_TYPE_STACKWISE_PLUS,
-            cls.TYPE_FLEXSTACK: IFACE_TYPE_FLEXSTACK,
-            cls.TYPE_FLEXSTACK_PLUS: IFACE_TYPE_FLEXSTACK_PLUS,
-            cls.TYPE_JUNIPER_VCP: IFACE_TYPE_JUNIPER_VCP,
-            cls.TYPE_SUMMITSTACK: IFACE_TYPE_SUMMITSTACK,
-            cls.TYPE_SUMMITSTACK128: IFACE_TYPE_SUMMITSTACK128,
-            cls.TYPE_SUMMITSTACK256: IFACE_TYPE_SUMMITSTACK256,
-            cls.TYPE_SUMMITSTACK512: IFACE_TYPE_SUMMITSTACK512,
-        }.get(slug)
+    LEGACY_MAP = {
+        TYPE_VIRTUAL: 0,
+        TYPE_LAG: 200,
+        TYPE_100ME_FIXED: 800,
+        TYPE_1GE_FIXED: 1000,
+        TYPE_1GE_GBIC: 1050,
+        TYPE_1GE_SFP: 1100,
+        TYPE_2GE_FIXED: 1120,
+        TYPE_5GE_FIXED: 1130,
+        TYPE_10GE_FIXED: 1150,
+        TYPE_10GE_CX4: 1170,
+        TYPE_10GE_SFP_PLUS: 1200,
+        TYPE_10GE_XFP: 1300,
+        TYPE_10GE_XENPAK: 1310,
+        TYPE_10GE_X2: 1320,
+        TYPE_25GE_SFP28: 1350,
+        TYPE_40GE_QSFP_PLUS: 1400,
+        TYPE_50GE_QSFP28: 1420,
+        TYPE_100GE_CFP: 1500,
+        TYPE_100GE_CFP2: 1510,
+        TYPE_100GE_CFP4: 1520,
+        TYPE_100GE_CPAK: 1550,
+        TYPE_100GE_QSFP28: 1600,
+        TYPE_200GE_CFP2: 1650,
+        TYPE_200GE_QSFP56: 1700,
+        TYPE_400GE_QSFP_DD: 1750,
+        TYPE_400GE_OSFP: 1800,
+        TYPE_80211A: 2600,
+        TYPE_80211G: 2610,
+        TYPE_80211N: 2620,
+        TYPE_80211AC: 2630,
+        TYPE_80211AD: 2640,
+        TYPE_GSM: 2810,
+        TYPE_CDMA: 2820,
+        TYPE_LTE: 2830,
+        TYPE_SONET_OC3: 6100,
+        TYPE_SONET_OC12: 6200,
+        TYPE_SONET_OC48: 6300,
+        TYPE_SONET_OC192: 6400,
+        TYPE_SONET_OC768: 6500,
+        TYPE_SONET_OC1920: 6600,
+        TYPE_SONET_OC3840: 6700,
+        TYPE_1GFC_SFP: 3010,
+        TYPE_2GFC_SFP: 3020,
+        TYPE_4GFC_SFP: 3040,
+        TYPE_8GFC_SFP_PLUS: 3080,
+        TYPE_16GFC_SFP_PLUS: 3160,
+        TYPE_32GFC_SFP28: 3320,
+        TYPE_128GFC_QSFP28: 3400,
+        TYPE_INFINIBAND_SDR: 7010,
+        TYPE_INFINIBAND_DDR: 7020,
+        TYPE_INFINIBAND_QDR: 7030,
+        TYPE_INFINIBAND_FDR10: 7040,
+        TYPE_INFINIBAND_FDR: 7050,
+        TYPE_INFINIBAND_EDR: 7060,
+        TYPE_INFINIBAND_HDR: 7070,
+        TYPE_INFINIBAND_NDR: 7080,
+        TYPE_INFINIBAND_XDR: 7090,
+        TYPE_T1: 4000,
+        TYPE_E1: 4010,
+        TYPE_T3: 4040,
+        TYPE_E3: 4050,
+        TYPE_STACKWISE: 5000,
+        TYPE_STACKWISE_PLUS: 5050,
+        TYPE_FLEXSTACK: 5100,
+        TYPE_FLEXSTACK_PLUS: 5150,
+        TYPE_JUNIPER_VCP: 5200,
+        TYPE_SUMMITSTACK: 5300,
+        TYPE_SUMMITSTACK128: 5310,
+        TYPE_SUMMITSTACK256: 5320,
+        TYPE_SUMMITSTACK512: 5330,
+    }
 
 
 #
 # Port type values
 #
 
-class PortTypes:
+class PortTypeChoices(ChoiceSet):
     """
     FrontPort/RearPort.type slugs
     """
@@ -545,7 +541,7 @@ class PortTypes:
     TYPE_LSH = 'lsh'
     TYPE_LSH_APC = 'lsh-apc'
 
-    TYPE_CHOICES = (
+    CHOICES = (
         (
             'Copper',
             (
@@ -571,24 +567,18 @@ class PortTypes:
         )
     )
 
-    @classmethod
-    def slug_to_integer(cls, slug):
-        """
-        Provide backward-compatible mapping of the type slug to integer.
-        """
-        return {
-            # Slug: integer
-            cls.TYPE_8P8C: PORT_TYPE_8P8C,
-            cls.TYPE_110_PUNCH: PORT_TYPE_8P8C,
-            cls.TYPE_BNC: PORT_TYPE_BNC,
-            cls.TYPE_ST: PORT_TYPE_ST,
-            cls.TYPE_SC: PORT_TYPE_SC,
-            cls.TYPE_SC_APC: PORT_TYPE_SC_APC,
-            cls.TYPE_FC: PORT_TYPE_FC,
-            cls.TYPE_LC: PORT_TYPE_LC,
-            cls.TYPE_LC_APC: PORT_TYPE_LC_APC,
-            cls.TYPE_MTRJ: PORT_TYPE_MTRJ,
-            cls.TYPE_MPO: PORT_TYPE_MPO,
-            cls.TYPE_LSH: PORT_TYPE_LSH,
-            cls.TYPE_LSH_APC: PORT_TYPE_LSH_APC,
-        }.get(slug)
+    LEGACY_MAP = {
+        TYPE_8P8C: 1000,
+        TYPE_110_PUNCH: 1100,
+        TYPE_BNC: 1200,
+        TYPE_ST: 2000,
+        TYPE_SC: 2100,
+        TYPE_SC_APC: 2110,
+        TYPE_FC: 2200,
+        TYPE_LC: 2300,
+        TYPE_LC_APC: 2310,
+        TYPE_MTRJ: 2400,
+        TYPE_MPO: 2500,
+        TYPE_LSH: 2600,
+        TYPE_LSH_APC: 2610,
+    }

@@ -1017,7 +1017,7 @@ class ConsolePortTemplate(ComponentTemplateModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         blank=True
     )
 
@@ -1052,7 +1052,7 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         blank=True
     )
 
@@ -1087,7 +1087,7 @@ class PowerPortTemplate(ComponentTemplateModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=PowerPortTypes.CHOICES,
+        choices=PowerPortTypeChoices,
         blank=True
     )
     maximum_draw = models.PositiveSmallIntegerField(
@@ -1135,7 +1135,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=PowerOutletTypes.CHOICES,
+        choices=PowerOutletTypeChoices,
         blank=True
     )
     power_port = models.ForeignKey(
@@ -1871,7 +1871,7 @@ class ConsolePort(CableTermination, ComponentModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         blank=True
     )
     connected_endpoint = models.OneToOneField(
@@ -1928,7 +1928,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         blank=True
     )
     connection_status = models.NullBooleanField(
@@ -1977,7 +1977,7 @@ class PowerPort(CableTermination, ComponentModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=PowerPortTypes.CHOICES,
+        choices=PowerPortTypeChoices,
         blank=True
     )
     maximum_draw = models.PositiveSmallIntegerField(
@@ -2120,7 +2120,7 @@ class PowerOutlet(CableTermination, ComponentModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=PowerOutletTypes.CHOICES,
+        choices=PowerOutletTypeChoices,
         blank=True
     )
     power_port = models.ForeignKey(

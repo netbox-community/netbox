@@ -643,7 +643,7 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
 
 class ConsolePortFilter(DeviceComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         null_value=None
     )
     cabled = django_filters.BooleanFilter(
@@ -659,7 +659,7 @@ class ConsolePortFilter(DeviceComponentFilterSet):
 
 class ConsoleServerPortFilter(DeviceComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         null_value=None
     )
     cabled = django_filters.BooleanFilter(
@@ -675,7 +675,7 @@ class ConsoleServerPortFilter(DeviceComponentFilterSet):
 
 class PowerPortFilter(DeviceComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
-        choices=PowerPortTypes.CHOICES,
+        choices=PowerPortTypeChoices,
         null_value=None
     )
     cabled = django_filters.BooleanFilter(
@@ -691,7 +691,7 @@ class PowerPortFilter(DeviceComponentFilterSet):
 
 class PowerOutletFilter(DeviceComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
-        choices=PowerOutletTypes.CHOICES,
+        choices=PowerOutletTypeChoices,
         null_value=None
     )
     cabled = django_filters.BooleanFilter(

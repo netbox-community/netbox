@@ -954,7 +954,7 @@ class ConsolePortTemplateCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         widget=StaticSelect2()
     )
 
@@ -976,7 +976,7 @@ class ConsoleServerPortTemplateCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(ConsolePortTypes.CHOICES),
+        choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect2()
     )
 
@@ -998,7 +998,7 @@ class PowerPortTemplateCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(PowerPortTypes.CHOICES),
+        choices=add_blank_choice(PowerPortTypeChoices),
         required=False
     )
     maximum_draw = forms.IntegerField(
@@ -1040,7 +1040,7 @@ class PowerOutletTemplateCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(PowerOutletTypes.CHOICES),
+        choices=add_blank_choice(PowerOutletTypeChoices),
         required=False
     )
     power_port = forms.ModelChoiceField(
@@ -1307,7 +1307,7 @@ class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
 
 class InterfaceTemplateImportForm(ComponentTemplateImportForm):
     type = forms.ChoiceField(
-        choices=InterfaceTypes.TYPE_CHOICES
+        choices=InterfaceTypeChoices.CHOICES
     )
 
     class Meta:
@@ -1319,12 +1319,12 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
     def clean_type(self):
         # Convert slug value to field integer value
         slug = self.cleaned_data['type']
-        return InterfaceTypes.slug_to_integer(slug)
+        return InterfaceTypeChoices.slug_to_id(slug)
 
 
 class FrontPortTemplateImportForm(ComponentTemplateImportForm):
     type = forms.ChoiceField(
-        choices=PortTypes.TYPE_CHOICES
+        choices=PortTypeChoices.CHOICES
     )
     rear_port = forms.ModelChoiceField(
         queryset=RearPortTemplate.objects.all(),
@@ -1341,12 +1341,12 @@ class FrontPortTemplateImportForm(ComponentTemplateImportForm):
     def clean_type(self):
         # Convert slug value to field integer value
         slug = self.cleaned_data['type']
-        return PortTypes.slug_to_integer(slug)
+        return PortTypeChoices.slug_to_id(slug)
 
 
 class RearPortTemplateImportForm(ComponentTemplateImportForm):
     type = forms.ChoiceField(
-        choices=PortTypes.TYPE_CHOICES
+        choices=PortTypeChoices.CHOICES
     )
 
     class Meta:
@@ -1358,7 +1358,7 @@ class RearPortTemplateImportForm(ComponentTemplateImportForm):
     def clean_type(self):
         # Convert slug value to field integer value
         slug = self.cleaned_data['type']
-        return PortTypes.slug_to_integer(slug)
+        return PortTypeChoices.slug_to_id(slug)
 
 
 class DeviceBayTemplateImportForm(ComponentTemplateImportForm):
@@ -2083,7 +2083,7 @@ class ConsolePortCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(ConsolePortTypes.CHOICES),
+        choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -2120,7 +2120,7 @@ class ConsoleServerPortCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(ConsolePortTypes.CHOICES),
+        choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -2139,7 +2139,7 @@ class ConsoleServerPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditF
         widget=forms.MultipleHiddenInput()
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(ConsolePortTypes.CHOICES),
+        choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -2192,7 +2192,7 @@ class PowerPortCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(PowerPortTypes.CHOICES),
+        choices=add_blank_choice(PowerPortTypeChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -2252,7 +2252,7 @@ class PowerOutletCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(PowerOutletTypes.CHOICES),
+        choices=add_blank_choice(PowerOutletTypeChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -2286,7 +2286,7 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         widget=forms.MultipleHiddenInput()
     )
     type = forms.ChoiceField(
-        choices=PowerOutletTypes.CHOICES,
+        choices=PowerOutletTypeChoices,
         required=False
     )
     feed_leg = forms.ChoiceField(
