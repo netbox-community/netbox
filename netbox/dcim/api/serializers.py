@@ -117,7 +117,7 @@ class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=RACK_STATUS_CHOICES, required=False)
     role = NestedRackRoleSerializer(required=False, allow_null=True)
-    type = ChoiceField(choices=RACK_TYPE_CHOICES, required=False, allow_null=True)
+    type = ChoiceField(choices=RackTypeChoices, required=False, allow_null=True)
     width = ChoiceField(choices=RACK_WIDTH_CHOICES, required=False)
     outer_unit = ChoiceField(choices=RACK_DIMENSION_UNIT_CHOICES, required=False)
     tags = TagListSerializerField(required=False)

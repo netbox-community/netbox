@@ -1,5 +1,33 @@
 from utilities.choices import ChoiceSet
-from .constants import *
+
+
+#
+# Racks
+#
+
+class RackTypeChoices(ChoiceSet):
+
+    TYPE_2POST = '2-post-frame'
+    TYPE_4POST = '4-post-frame'
+    TYPE_CABINET = '4-post-cabinet'
+    TYPE_WALLFRAME = 'wall-frame'
+    TYPE_WALLCABINET = 'wall-cabinet'
+
+    CHOICES = (
+        (TYPE_2POST, '2-post frame'),
+        (TYPE_4POST, '4-post frame'),
+        (TYPE_CABINET, '4-post cabinet'),
+        (TYPE_WALLFRAME, 'Wall-mounted frame'),
+        (TYPE_WALLCABINET, 'Wall-mounted cabinet'),
+    )
+
+    LEGACY_MAP = {
+        TYPE_2POST: 100,
+        TYPE_4POST: 200,
+        TYPE_CABINET: 300,
+        TYPE_WALLFRAME: 1000,
+        TYPE_WALLCABINET: 1100,
+    }
 
 
 #

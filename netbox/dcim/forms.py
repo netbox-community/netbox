@@ -487,7 +487,7 @@ class RackCSVForm(forms.ModelForm):
         }
     )
     type = CSVChoiceField(
-        choices=RACK_TYPE_CHOICES,
+        choices=RackTypeChoices,
         required=False,
         help_text='Rack type'
     )
@@ -593,7 +593,7 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         required=False
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(RACK_TYPE_CHOICES),
+        choices=add_blank_choice(RackTypeChoices),
         required=False,
         widget=StaticSelect2()
     )

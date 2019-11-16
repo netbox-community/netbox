@@ -1,17 +1,3 @@
-# Rack types
-RACK_TYPE_2POST = 100
-RACK_TYPE_4POST = 200
-RACK_TYPE_CABINET = 300
-RACK_TYPE_WALLFRAME = 1000
-RACK_TYPE_WALLCABINET = 1100
-RACK_TYPE_CHOICES = (
-    (RACK_TYPE_2POST, '2-post frame'),
-    (RACK_TYPE_4POST, '4-post frame'),
-    (RACK_TYPE_CABINET, '4-post cabinet'),
-    (RACK_TYPE_WALLFRAME, 'Wall-mounted frame'),
-    (RACK_TYPE_WALLCABINET, 'Wall-mounted cabinet'),
-)
-
 # Rack widths
 RACK_WIDTH_19IN = 19
 RACK_WIDTH_23IN = 23

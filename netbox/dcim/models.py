@@ -497,10 +497,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         verbose_name='Asset tag',
         help_text='A unique tag used to identify this rack'
     )
-    type = models.PositiveSmallIntegerField(
-        choices=RACK_TYPE_CHOICES,
+    type = models.CharField(
+        choices=RackTypeChoices,
+        max_length=50,
         blank=True,
-        null=True,
         verbose_name='Type'
     )
     width = models.PositiveSmallIntegerField(
