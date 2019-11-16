@@ -1,11 +1,3 @@
-# Rack widths
-RACK_WIDTH_19IN = 19
-RACK_WIDTH_23IN = 23
-RACK_WIDTH_CHOICES = (
-    (RACK_WIDTH_19IN, '19 inches'),
-    (RACK_WIDTH_23IN, '23 inches'),
-)
-
 # Rack faces
 RACK_FACE_FRONT = 0
 RACK_FACE_REAR = 1

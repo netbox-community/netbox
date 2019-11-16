@@ -504,8 +504,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         verbose_name='Type'
     )
     width = models.PositiveSmallIntegerField(
-        choices=RACK_WIDTH_CHOICES,
-        default=RACK_WIDTH_19IN,
+        choices=RackWidthChoices,
+        default=RackWidthChoices.WIDTH_19IN,
         verbose_name='Width',
         help_text='Rail-to-rail width'
     )
