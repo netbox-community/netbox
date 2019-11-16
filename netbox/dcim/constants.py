@@ -1,23 +1,9 @@
-# Rack faces
+# Device rack faces
 RACK_FACE_FRONT = 0
 RACK_FACE_REAR = 1
 RACK_FACE_CHOICES = [
     [RACK_FACE_FRONT, 'Front'],
     [RACK_FACE_REAR, 'Rear'],
-]
-
-# Rack statuses
-RACK_STATUS_RESERVED = 0
-RACK_STATUS_AVAILABLE = 1
-RACK_STATUS_PLANNED = 2
-RACK_STATUS_ACTIVE = 3
-RACK_STATUS_DEPRECATED = 4
-RACK_STATUS_CHOICES = [
-    [RACK_STATUS_ACTIVE, 'Active'],
-    [RACK_STATUS_PLANNED, 'Planned'],
-    [RACK_STATUS_RESERVED, 'Reserved'],
-    [RACK_STATUS_AVAILABLE, 'Available'],
-    [RACK_STATUS_DEPRECATED, 'Deprecated'],
 ]
 
 # Device rack position

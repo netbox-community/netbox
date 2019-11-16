@@ -473,9 +473,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         null=True
     )
-    status = models.PositiveSmallIntegerField(
-        choices=RACK_STATUS_CHOICES,
-        default=RACK_STATUS_ACTIVE
+    status = models.CharField(
+        max_length=50,
+        choices=RackStatusChoices,
+        default=RackStatusChoices.STATUS_ACTIVE
     )
     role = models.ForeignKey(
         to='dcim.RackRole',
@@ -551,6 +552,14 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         'site', 'group_name', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
         'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
     ]
+
+    STATUS_CLASS_MAP = {
+        RackStatusChoices.STATUS_RESERVED: 'warning',
+        RackStatusChoices.STATUS_AVAILABLE: 'success',
+        RackStatusChoices.STATUS_PLANNED: 'info',
+        RackStatusChoices.STATUS_ACTIVE: 'primary',
+        RackStatusChoices.STATUS_DEPRECATED: 'danger',
+    }
 
     class Meta:
         ordering = ['site', 'group', 'name']
@@ -644,7 +653,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         return ""
 
     def get_status_class(self):
-        return STATUS_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)
 
     def get_rack_units(self, face=RACK_FACE_FRONT, exclude=None, remove_redundant=False):
         """

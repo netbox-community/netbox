@@ -473,7 +473,7 @@ class RackCSVForm(forms.ModelForm):
         }
     )
     status = CSVChoiceField(
-        choices=RACK_STATUS_CHOICES,
+        choices=RackStatusChoices,
         required=False,
         help_text='Operational status'
     )
@@ -568,7 +568,7 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         )
     )
     status = forms.ChoiceField(
-        choices=add_blank_choice(RACK_STATUS_CHOICES),
+        choices=add_blank_choice(RackStatusChoices),
         required=False,
         initial='',
         widget=StaticSelect2()
@@ -662,7 +662,7 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         )
     )
     status = forms.MultipleChoiceField(
-        choices=RACK_STATUS_CHOICES,
+        choices=RackStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )

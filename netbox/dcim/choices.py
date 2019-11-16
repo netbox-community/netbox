@@ -41,6 +41,31 @@ class RackWidthChoices(ChoiceSet):
     )
 
 
+class RackStatusChoices(ChoiceSet):
+
+    STATUS_RESERVED = 'reserved'
+    STATUS_AVAILABLE = 'available'
+    STATUS_PLANNED = 'planned'
+    STATUS_ACTIVE = 'active'
+    STATUS_DEPRECATED = 'deprecated'
+
+    CHOICES = (
+        (STATUS_RESERVED, 'Reserved'),
+        (STATUS_AVAILABLE, 'Available'),
+        (STATUS_PLANNED, 'Planned'),
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_DEPRECATED, 'Deprecated'),
+    )
+
+    LEGACY_MAP = {
+        STATUS_RESERVED: 0,
+        STATUS_AVAILABLE: 1,
+        STATUS_PLANNED: 2,
+        STATUS_ACTIVE: 3,
+        STATUS_DEPRECATED: 4,
+    }
+
+
 #
 # Console port type values
 #

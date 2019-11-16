@@ -147,7 +147,7 @@ class RackFilter(TenancyFilterSet, CustomFieldFilterSet):
         label='Group',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=RACK_STATUS_CHOICES,
+        choices=RackStatusChoices,
         null_value=None
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
