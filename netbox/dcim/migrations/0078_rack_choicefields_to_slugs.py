@@ -12,7 +12,7 @@ RACK_TYPE_CHOICES = (
 def rack_type_to_slug(apps, schema_editor):
     Rack = apps.get_model('dcim', 'Rack')
     for id, slug in RACK_TYPE_CHOICES:
-        Rack.objects.filter(status=str(id)).update(status=slug)
+        Rack.objects.filter(type=str(id)).update(type=slug)
 
 
 class Migration(migrations.Migration):
