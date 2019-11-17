@@ -324,7 +324,7 @@ class DeviceSerializer(TaggitSerializer, CustomFieldModelSerializer):
     platform = NestedPlatformSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer()
     rack = NestedRackSerializer(required=False, allow_null=True)
-    face = ChoiceField(choices=RACK_FACE_CHOICES, required=False, allow_null=True)
+    face = ChoiceField(choices=DeviceFaceChoices, required=False, allow_null=True)
     status = ChoiceField(choices=DEVICE_STATUS_CHOICES, required=False)
     primary_ip = NestedIPAddressSerializer(read_only=True)
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)

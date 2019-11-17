@@ -655,7 +655,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def get_status_class(self):
         return self.STATUS_CLASS_MAP.get(self.status)
 
-    def get_rack_units(self, face=RACK_FACE_FRONT, exclude=None, remove_redundant=False):
+    def get_rack_units(self, face=DeviceFaceChoices.FACE_FRONT, exclude=None, remove_redundant=False):
         """
         Return a list of rack units as dictionaries. Example: {'device': None, 'face': 0, 'id': 48, 'name': 'U48'}
         Each key 'device' is either a Device or None. By default, multi-U devices are repeated for each U they occupy.
@@ -687,10 +687,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         return [u for u in elevation.values()]
 
     def get_front_elevation(self):
-        return self.get_rack_units(face=RACK_FACE_FRONT, remove_redundant=True)
+        return self.get_rack_units(face=DeviceFaceChoices.FACE_FRONT, remove_redundant=True)
 
     def get_rear_elevation(self):
-        return self.get_rack_units(face=RACK_FACE_REAR, remove_redundant=True)
+        return self.get_rack_units(face=DeviceFaceChoices.FACE_REAR, remove_redundant=True)
 
     def get_available_units(self, u_height=1, rack_face=None, exclude=list()):
         """
@@ -1535,10 +1535,10 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         verbose_name='Position (U)',
         help_text='The lowest-numbered unit occupied by the device'
     )
-    face = models.PositiveSmallIntegerField(
+    face = models.CharField(
+        max_length=50,
         blank=True,
-        null=True,
-        choices=RACK_FACE_CHOICES,
+        choices=DeviceFaceChoices,
         verbose_name='Rack face'
     )
     status = models.PositiveSmallIntegerField(
@@ -1634,7 +1634,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
             })
 
         if self.rack is None:
-            if self.face is not None:
+            if self.face:
                 raise ValidationError({
                     'face': "Cannot select a rack face without assigning a rack.",
                 })
@@ -1644,7 +1644,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                 })
 
         # Validate position/face combination
-        if self.position and self.face is None:
+        if self.position and not self.face:
             raise ValidationError({
                 'face': "Must specify rack face when defining rack position.",
             })

@@ -87,7 +87,7 @@ class RackTestCase(TestCase):
             site=self.site1,
             rack=rack1,
             position=43,
-            face=RACK_FACE_FRONT,
+            face=DeviceFaceChoices.FACE_FRONT,
         )
         device1.save()
 
@@ -117,7 +117,7 @@ class RackTestCase(TestCase):
             site=self.site1,
             rack=self.rack,
             position=10,
-            face=RACK_FACE_REAR,
+            face=DeviceFaceChoices.FACE_REAR,
         )
         device1.save()
 
@@ -146,7 +146,7 @@ class RackTestCase(TestCase):
             site=self.site1,
             rack=self.rack,
             position=None,
-            face=None,
+            face='',
         )
         self.assertTrue(pdu)
 

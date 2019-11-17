@@ -67,6 +67,26 @@ class RackStatusChoices(ChoiceSet):
 
 
 #
+# Devices
+#
+
+class DeviceFaceChoices(ChoiceSet):
+
+    FACE_FRONT = 'front'
+    FACE_REAR = 'rear'
+
+    CHOICES = (
+        (FACE_FRONT, 'Front'),
+        (FACE_REAR, 'Rear'),
+    )
+
+    LEGACY_MAP = {
+        FACE_FRONT: 0,
+        FACE_REAR: 1,
+    }
+
+
+#
 # Console port type values
 #
 

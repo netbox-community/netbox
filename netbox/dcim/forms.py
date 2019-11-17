@@ -1716,7 +1716,7 @@ class DeviceCSVForm(BaseDeviceCSVForm):
         help_text='Name of parent rack'
     )
     face = CSVChoiceField(
-        choices=RACK_FACE_CHOICES,
+        choices=DeviceFaceChoices,
         required=False,
         help_text='Mounted rack face'
     )

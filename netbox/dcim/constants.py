@@ -1,17 +1,3 @@
-# Device rack faces
-RACK_FACE_FRONT = 0
-RACK_FACE_REAR = 1
-RACK_FACE_CHOICES = [
-    [RACK_FACE_FRONT, 'Front'],
-    [RACK_FACE_REAR, 'Rear'],
-]
-
-# Device rack position
-DEVICE_POSITION_CHOICES = [
-    # Rack.u_height is limited to 100
-    (i, 'Unit {}'.format(i)) for i in range(1, 101)
-]
-
 # Parent/child device roles
 SUBDEVICE_ROLE_PARENT = True
 SUBDEVICE_ROLE_CHILD = False

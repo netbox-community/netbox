@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='rack',
             name='status',
-            field=models.CharField(blank=True, max_length=50),
+            field=models.CharField(blank=True, default='active', max_length=50),
         ),
         migrations.RunPython(
             code=rack_status_to_slug
