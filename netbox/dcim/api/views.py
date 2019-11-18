@@ -1,9 +1,11 @@
 from collections import OrderedDict
 
+import svgwrite
 from django.conf import settings
 from django.db.models import Count, F
-from django.http import HttpResponseForbidden
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponseForbidden, HttpResponse
+from django.shortcuts import get_object_or_404, reverse
+from django.utils.http import urlencode
 from drf_yasg import openapi
 from drf_yasg.openapi import Parameter
 from drf_yasg.utils import swagger_auto_schema
@@ -199,6 +201,46 @@ class RackViewSet(CustomFieldModelViewSet):
         if page is not None:
             rack_units = serializers.RackUnitSerializer(page, many=True, context={'request': request})
             return self.get_paginated_response(rack_units.data)
+
+
+class RackElevationViewSet(ViewSet):
+    queryset = Rack.objects.prefetch_related(
+        'devices'
+    )
+
+    def get_view_name(self):
+        return "Rack Elevations"
+
+
+    def retrieve(self, request, pk=None):
+        """
+        Render rack
+        """
+        rack = get_object_or_404(Rack, pk=pk)
+
+        elevation = rack.get_front_elevation()
+        drawing = svgwrite.Drawing(size=(230, len(elevation)*20), style="box-sizing: border-box")
+
+        for i, u in enumerate(elevation):
+            device = u['device']
+            start = i * 20
+            end = 20
+            if device:
+                link = drawing.add(drawing.a(reverse('dcim:device', kwargs={'pk': device.pk}), fill='black'))
+                link.add(drawing.rect((0, start), (230, end), fill='#{}'.format(device.device_role.color), stroke='grey'))
+                link.add(drawing.text(device.name, insert=(0, start+20)))
+            else:
+                link = drawing.add(
+                    drawing.a('{}?{}'.format(
+                        reverse('dcim:device_add'),
+                        urlencode({'rack': rack.pk, 'site': rack.site.pk, 'face': 0, 'position': u['id']})
+                    ))
+                )
+                link.add(drawing.rect((0, start), (230, end), fill='white', stroke='lightgrey'))
+
+        drawing.add(drawing.rect((0, 0), (230, len(elevation*20)), stroke='black', stroke_width=3, fill='none'))
+
+        return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
 
 
 #

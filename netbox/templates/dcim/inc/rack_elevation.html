@@ -8,47 +8,6 @@
 
 <div class="rack_frame">
 
-    <!-- Render rear view of devices on far face -->
-    <ul class="rack rack_far_face">
-        {% for u in secondary_face %}
-            {% if u.device %}
-                <li class="occupied h{{ u.device.device_type.u_height }}u{% if u.device.device_type.is_full_depth %} blocked{% endif %}"></li>
-            {% else %}
-                <li></li>
-            {% endif %}
-        {% endfor %}
-    </ul>
-
-    <!-- Render front view of devices on near face -->
-    <ul class="rack rack_near_face">
-        {% for u in primary_face %}
-            {% if u.device %}
-                <li class="occupied h{{ u.device.device_type.u_height }}u"{% ifequal u.device.face face_id %} style="background-color: #{{ u.device.device_role.color }}"{% endifequal %}>
-                    {% ifequal u.device.face face_id %}
-                        <a href="{% url 'dcim:device' pk=u.device.pk %}" style="color: {{ u.device.device_role.color|fgcolor }}" data-toggle="popover" data-trigger="hover" data-container="body" data-html="true"
-                           data-content="{{ u.device.device_role }}<br />{{ u.device.device_type.display_name }} ({{ u.device.device_type.u_height }}U){% if u.device.asset_tag %}<br />{{ u.device.asset_tag }}{% endif %}{% if u.device.serial %}<br />{{ u.device.serial }}{% endif %}">
-                            {{ u.device }}
-                            {% if u.device.devicebay_count %}
-                                ({{ u.device.get_children.count }}/{{ u.device.devicebay_count }})
-                            {% endif %}
-                        </a>
-                    {% else %}
-                        <span>{{ u.device }}</span>
-                    {% endifequal %}
-                </li>
-            {% else %}
-                <li class="available{% if u.id in reserved_units.keys %} reserved{% endif %}">
-                    {% if perms.dcim.add_device %}
-                        <a href="{% url 'dcim:device_add' %}?site={{ rack.site.pk }}&rack={{ rack.pk }}&face={{ face_id }}&position={{ u.id }}" class="add_device"
-                       {% if u.id in reserved_units.keys %}{% with reserved_units|getkey:u.id as resv %}
-                           data-toggle="popover" data-trigger="hover" data-container="body" data-html="true"
-                           data-content="{{ resv.description }}<br/><small>{{ resv.user }} &middot; {{ resv.created }}</small>"
-                       {% endwith %}{% endif %}
-                        >add device</a>
-                    {% endif %}
-                </li>
-            {% endif %}
-        {% endfor %}
-    </ul>
+  <img src="{% url 'dcim-api:rack-elevation-detail' pk=rack.pk %}" height="100%">
 
 </div>
