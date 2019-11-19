@@ -106,7 +106,7 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
-        related_name='tenants',
+        related_name='clusters',
         blank=True,
         null=True
     )
