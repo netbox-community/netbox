@@ -187,7 +187,7 @@ class ManufacturerSerializer(ValidatedModelSerializer):
 
 class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
     manufacturer = NestedManufacturerSerializer()
-    subdevice_role = ChoiceField(choices=SUBDEVICE_ROLE_CHOICES, required=False, allow_null=True)
+    subdevice_role = ChoiceField(choices=SubdeviceRoleChoices, required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
     device_count = serializers.IntegerField(read_only=True)
 

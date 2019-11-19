@@ -879,12 +879,10 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
             value_field="slug",
         )
     )
-    subdevice_role = forms.NullBooleanField(
+    subdevice_role = forms.MultipleChoiceField(
+        choices=add_blank_choice(SubdeviceRoleChoices),
         required=False,
-        label='Subdevice role',
-        widget=StaticSelect2(
-            choices=add_blank_choice(SUBDEVICE_ROLE_CHOICES)
-        )
+        widget=StaticSelect2Multiple()
     )
     console_ports = forms.NullBooleanField(
         required=False,
@@ -3382,7 +3380,7 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
             rack=device_bay.device.rack,
             parent_bay__isnull=True,
             device_type__u_height=0,
-            device_type__subdevice_role=SUBDEVICE_ROLE_CHILD
+            device_type__subdevice_role=SubdeviceRoleChoices.ROLE_CHILD
         ).exclude(pk=device_bay.device.pk)
 
 

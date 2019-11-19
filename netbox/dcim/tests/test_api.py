@@ -3,6 +3,7 @@ from netaddr import IPNetwork
 from rest_framework import status
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
+from dcim.choices import SubdeviceRoleChoices
 from dcim.constants import *
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -2590,11 +2591,11 @@ class DeviceBayTest(APITestCase):
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype1 = DeviceType.objects.create(
             manufacturer=manufacturer, model='Parent Device Type', slug='parent-device-type',
-            subdevice_role=SUBDEVICE_ROLE_PARENT
+            subdevice_role=SubdeviceRoleChoices.ROLE_PARENT
         )
         self.devicetype2 = DeviceType.objects.create(
             manufacturer=manufacturer, model='Child Device Type', slug='child-device-type',
-            subdevice_role=SUBDEVICE_ROLE_CHILD
+            subdevice_role=SubdeviceRoleChoices.ROLE_CHILD
         )
         devicerole = DeviceRole.objects.create(
             name='Test Device Role 1', slug='test-device-role-1', color='ff0000'

@@ -1,12 +1,3 @@
-# Parent/child device roles
-SUBDEVICE_ROLE_PARENT = True
-SUBDEVICE_ROLE_CHILD = False
-SUBDEVICE_ROLE_CHOICES = (
-    (None, 'None'),
-    (SUBDEVICE_ROLE_PARENT, 'Parent'),
-    (SUBDEVICE_ROLE_CHILD, 'Child'),
-)
-
 #
 # Numeric interface types
 #

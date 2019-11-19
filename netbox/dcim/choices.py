@@ -67,6 +67,26 @@ class RackStatusChoices(ChoiceSet):
 
 
 #
+# DeviceTypes
+#
+
+class SubdeviceRoleChoices(ChoiceSet):
+
+    ROLE_PARENT = 'parent'
+    ROLE_CHILD = 'child'
+
+    CHOICES = (
+        (ROLE_PARENT, 'Parent'),
+        (ROLE_CHILD, 'Child'),
+    )
+
+    LEGACY_MAP = {
+        ROLE_PARENT: True,
+        ROLE_CHILD: False,
+    }
+
+
+#
 # Devices
 #
 

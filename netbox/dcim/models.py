@@ -919,12 +919,12 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         verbose_name='Is full depth',
         help_text='Device consumes both front and rear rack faces'
     )
-    subdevice_role = models.NullBooleanField(
-        default=None,
+    subdevice_role = models.CharField(
+        max_length=50,
+        choices=SubdeviceRoleChoices,
         verbose_name='Parent/child status',
-        choices=SUBDEVICE_ROLE_CHOICES,
-        help_text='Parent devices house child devices in device bays. Select '
-                  '"None" if this device type is neither a parent nor a child.'
+        help_text='Parent devices house child devices in device bays. Leave blank '
+                  'if this device type is neither a parent nor a child.'
     )
     comments = models.TextField(
         blank=True
@@ -968,7 +968,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
             self.part_number,
             self.u_height,
             self.is_full_depth,
-            self.get_subdevice_role_display() if self.subdevice_role else None,
+            self.get_subdevice_role_display(),
             self.comments,
         )
 
@@ -988,13 +988,15 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
                                     "{}U".format(d, d.rack, self.u_height)
                     })
 
-        if self.subdevice_role != SUBDEVICE_ROLE_PARENT and self.device_bay_templates.count():
+        if (
+                self.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT
+        ) and self.device_bay_templates.count():
             raise ValidationError({
                 'subdevice_role': "Must delete all device bay templates associated with this device before "
                                   "declassifying it as a parent device."
             })
 
-        if self.u_height and self.subdevice_role == SUBDEVICE_ROLE_CHILD:
+        if self.u_height and self.subdevice_role == SubdeviceRoleChoices.ROLE_CHILD:
             raise ValidationError({
                 'u_height': "Child device types must be 0U."
             })
@@ -1005,11 +1007,11 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 
     @property
     def is_parent_device(self):
-        return bool(self.subdevice_role)
+        return self.subdevice_role == SubdeviceRoleChoices.ROLE_PARENT
 
     @property
     def is_child_device(self):
-        return bool(self.subdevice_role is False)
+        return self.subdevice_role == SubdeviceRoleChoices.ROLE_CHILD
 
 
 class ConsolePortTemplate(ComponentTemplateModel):

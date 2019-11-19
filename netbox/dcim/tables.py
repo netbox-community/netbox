@@ -156,10 +156,6 @@ DEVICE_PRIMARY_IP = """
 {{ record.primary_ip4.address.ip|default:"" }}
 """
 
-SUBDEVICE_ROLE_TEMPLATE = """
-{% if record.subdevice_role == True %}Parent{% elif record.subdevice_role == False %}Child{% else %}&mdash;{% endif %}
-"""
-
 DEVICETYPE_INSTANCES_TEMPLATE = """
 <a href="{% url 'dcim:device_list' %}?manufacturer_id={{ record.manufacturer_id }}&device_type_id={{ record.pk }}">{{ record.instance_count }}</a>
 """
@@ -391,10 +387,6 @@ class DeviceTypeTable(BaseTable):
         verbose_name='Device Type'
     )
     is_full_depth = BooleanColumn(verbose_name='Full Depth')
-    subdevice_role = tables.TemplateColumn(
-        template_code=SUBDEVICE_ROLE_TEMPLATE,
-        verbose_name='Subdevice Role'
-    )
     instance_count = tables.TemplateColumn(
         template_code=DEVICETYPE_INSTANCES_TEMPLATE,
         verbose_name='Instances'
