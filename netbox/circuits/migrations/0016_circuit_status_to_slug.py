@@ -18,6 +18,7 @@ def circuit_status_to_slug(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [
         ('circuits', '0015_custom_tag_models'),
@@ -31,5 +32,5 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(
             code=circuit_status_to_slug
-        )
+        ),
     ]
