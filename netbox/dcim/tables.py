@@ -651,7 +651,6 @@ class DeviceComponentDetailTable(BaseTable):
     cable = tables.LinkColumn()
 
 
-
 class ConsolePortTable(BaseTable):
 
     class Meta(BaseTable.Meta):

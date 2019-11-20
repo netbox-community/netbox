@@ -1205,6 +1205,7 @@ class ConsolePortListView(PermissionRequiredMixin, ObjectListView):
     table = tables.ConsolePortDetailTable
     template_name = 'dcim/device_component_list.html'
 
+
 class ConsolePortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_consoleport'
     parent_model = Device
@@ -1244,6 +1245,7 @@ class ConsoleServerPortListView(PermissionRequiredMixin, ObjectListView):
     filter_form = forms.ConsoleServerPortFilterForm
     table = tables.ConsoleServerPortDetailTable
     template_name = 'dcim/device_component_list.html'
+
 
 class ConsoleServerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_consoleserverport'
@@ -1305,6 +1307,7 @@ class PowerPortListView(PermissionRequiredMixin, ObjectListView):
     table = tables.PowerPortDetailTable
     template_name = 'dcim/device_component_list.html'
 
+
 class PowerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_powerport'
     parent_model = Device
@@ -1344,6 +1347,7 @@ class PowerOutletListView(PermissionRequiredMixin, ObjectListView):
     filter_form = forms.PowerOutletFilterForm
     table = tables.PowerOutletDetailTable
     template_name = 'dcim/device_component_list.html'
+
 
 class PowerOutletCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_poweroutlet'
@@ -1504,6 +1508,7 @@ class FrontPortListView(PermissionRequiredMixin, ObjectListView):
     table = tables.FrontPortDetailTable
     template_name = 'dcim/device_component_list.html'
 
+
 class FrontPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_frontport'
     parent_model = Device
@@ -1563,6 +1568,7 @@ class RearPortListView(PermissionRequiredMixin, ObjectListView):
     filter_form = forms.RearPortFilterForm
     table = tables.RearPortDetailTable
     template_name = 'dcim/device_component_list.html'
+
 
 class RearPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_rearport'
@@ -1625,6 +1631,7 @@ class DeviceBayListView(PermissionRequiredMixin, ObjectListView):
     filter_form = forms.DeviceBayFilterForm
     table = tables.DeviceBayDetailTable
     template_name = 'dcim/device_component_list.html'
+
 
 class DeviceBayCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_devicebay'
