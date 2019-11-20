@@ -203,6 +203,37 @@ class RackViewSet(CustomFieldModelViewSet):
             return self.get_paginated_response(rack_units.data)
 
 
+RACK_ELEVATION_STYLE = """
+* {
+    font-family: 'Helvetica Neue';
+    font-size: 13px;
+}
+rect {
+    box-sizing: border-box;
+}
+
+.rack {
+    background-color: #f0f0f0;
+    fill: none;
+    stroke: black;
+    stroke-width: 3px;
+}
+.empty {
+    fill: #f9f9f9;
+    stroke: grey;  
+}
+.empty:hover {
+    fill: #fff;
+}
+.empty+.add-device {   
+    fill: none;
+}
+.empty:hover+.add-device {
+    fill: blue;
+}
+"""
+
+
 class RackElevationViewSet(ViewSet):
     queryset = Rack.objects.prefetch_related(
         'devices'
@@ -226,8 +257,8 @@ class RackElevationViewSet(ViewSet):
         else:
             return HttpResponseBadRequest('side should either be "front" or "back".')
 
-        drawing = svgwrite.Drawing(size=(230, len(elevation)*20), style="box-sizing: border-box")
-        drawing.defs.add(drawing.style('* { font-family: "Helvetica Neue"; }'))
+        drawing = svgwrite.Drawing(size=(230, len(elevation)*20))
+        drawing.defs.add(drawing.style(RACK_ELEVATION_STYLE))
 
         for i, u in enumerate(elevation):
             device = u['device']
@@ -244,9 +275,10 @@ class RackElevationViewSet(ViewSet):
                         urlencode({'rack': rack.pk, 'site': rack.site.pk, 'face': 0, 'position': u['id']})
                     ))
                 )
-                link.add(drawing.rect((0, start), (230, end), fill='white', stroke='lightgrey'))
+                link.add(drawing.rect((0, start), (230, end), class_='empty'))
+                link.add(drawing.text("add device", insert=(115, start+10), text_anchor="middle", dominant_baseline="middle", class_="add-device"))
 
-        drawing.add(drawing.rect((0, 0), (230, len(elevation*20)), stroke='black', stroke_width=3, fill='none'))
+        drawing.add(drawing.rect((0, 0), (230, len(elevation*20)), class_='rack'))
 
         return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
 

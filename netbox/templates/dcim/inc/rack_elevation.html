@@ -8,6 +8,6 @@
 
 <div class="rack_frame">
 
-  <img src="{% url 'dcim-api:rack-elevation-detail' pk=rack.pk %}?face={{face}}" height="100%">
+  <object data="{% url 'dcim-api:rack-elevation-detail' pk=rack.pk %}?face={{face}}"></object>
 
 </div>
