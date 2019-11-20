@@ -183,6 +183,23 @@
                         <li{% if not perms.dcim.view_interface %} class="disabled"{% endif %}>
                             <a href="{% url 'dcim:interface_connections_list' %}">Interface Connections</a>
                         </li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Device Components</li>
+                        <li{% if not perms.dcim.view_interface %} class="disabled"{% endif %}>
+                            <a href="{% url 'dcim:interface_list' %}">Interfaces</a>
+                        </li>
+                        <li{% if not perms.dcim.view_frontport %} class="disabled"{% endif %}>
+                            <a href="{% url 'dcim:frontport_list' %}">Front Ports</a>
+                        </li>
+                        <li{% if not perms.dcim.view_rearport %} class="disabled"{% endif %}>
+                            <a href="{% url 'dcim:rearport_list' %}">Rear Ports</a>
+                        </li>
+                        <li{% if not perms.dcim.view_powerport %} class="disabled"{% endif %}>
+                            <a href="{% url 'dcim:powerport_list' %}">Power Ports</a>
+                        </li>
+                        <li{% if not perms.dcim.view_poweroutlet %} class="disabled"{% endif %}>
+                            <a href="{% url 'dcim:poweroutlet_list' %}">Power Outlet</a>
+                        </li>
                     </ul>
                 </li>
                 <li class="dropdown">

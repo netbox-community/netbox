@@ -56,6 +56,33 @@ def get_device_by_name_or_pk(name):
     return device
 
 
+class DeviceComponentFilterForm(BootstrapMixin, forms.Form):
+
+    field_order = [
+        'q', 'region', 'site'
+    ]
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
+    region_id = TreeNodeChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/regions/"
+        )
+    )
+    site_id = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        required=False,
+        help_text='Name of parent site',
+        error_messages={
+            'invalid_choice': 'Site not found.',
+        }
+    )
+
+
 class InterfaceCommonForm:
 
     def clean(self):
@@ -2063,6 +2090,11 @@ class DeviceBulkAddInterfaceForm(DeviceBulkAddComponentForm):
 # Console ports
 #
 
+
+class ConsolePortFilterForm(DeviceComponentFilterForm):
+    model = ConsolePort
+
+
 class ConsolePortForm(BootstrapMixin, forms.ModelForm):
     tags = TagField(
         required=False
@@ -2099,6 +2131,11 @@ class ConsolePortCreateForm(ComponentForm):
 #
 # Console server ports
 #
+
+
+class ConsoleServerPortFilterForm(DeviceComponentFilterForm):
+    model = ConsoleServerPort
+
 
 class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
     tags = TagField(
@@ -2172,6 +2209,11 @@ class ConsoleServerPortBulkDisconnectForm(ConfirmationForm):
 # Power ports
 #
 
+
+class PowerPortFilterForm(DeviceComponentFilterForm):
+    model = PowerPort
+
+
 class PowerPortForm(BootstrapMixin, forms.ModelForm):
     tags = TagField(
         required=False
@@ -2218,6 +2260,11 @@ class PowerPortCreateForm(ComponentForm):
 #
 # Power outlets
 #
+
+
+class PowerOutletFilterForm(DeviceComponentFilterForm):
+    model = PowerOutlet
+
 
 class PowerOutletForm(BootstrapMixin, forms.ModelForm):
     power_port = forms.ModelChoiceField(
@@ -2331,6 +2378,11 @@ class PowerOutletBulkDisconnectForm(ConfirmationForm):
 #
 # Interfaces
 #
+
+
+class InterfaceFilterForm(DeviceComponentFilterForm):
+    model = Interface
+
 
 class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
     untagged_vlan = forms.ModelChoiceField(
@@ -2661,6 +2713,10 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
 # Front pass-through ports
 #
 
+class FrontPortFilterForm(DeviceComponentFilterForm):
+    model = FrontPort
+
+
 class FrontPortForm(BootstrapMixin, forms.ModelForm):
     tags = TagField(
         required=False
@@ -2785,6 +2841,10 @@ class FrontPortBulkDisconnectForm(ConfirmationForm):
 #
 # Rear pass-through ports
 #
+
+class RearPortFilterForm(DeviceComponentFilterForm):
+    model = RearPort
+
 
 class RearPortForm(BootstrapMixin, forms.ModelForm):
     tags = TagField(
@@ -3343,6 +3403,10 @@ class CableFilterForm(BootstrapMixin, forms.Form):
 #
 # Device bays
 #
+
+class DeviceBayFilterForm(DeviceComponentFilterForm):
+    model = DeviceBay
+
 
 class DeviceBayForm(BootstrapMixin, forms.ModelForm):
     tags = TagField(

@@ -643,11 +643,28 @@ class DeviceImportTable(BaseTable):
 # Device components
 #
 
+class DeviceComponentDetailTable(BaseTable):
+    component_type = ''
+
+    pk = ToggleColumn()
+    device = tables.LinkColumn()
+    cable = tables.LinkColumn()
+
+
+
 class ConsolePortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConsolePort
         fields = ('name', 'type')
+
+
+class ConsolePortDetailTable(DeviceComponentDetailTable):
+    component_type = 'Console Ports'
+
+    class Meta(ConsolePortTable.Meta):
+        model = ConsolePort
+        fields = ('pk', 'name', 'type', 'connection_status', 'device', 'cable')
 
 
 class ConsoleServerPortTable(BaseTable):
@@ -657,11 +674,27 @@ class ConsoleServerPortTable(BaseTable):
         fields = ('name', 'description')
 
 
+class ConsoleServerPortDetailTable(DeviceComponentDetailTable):
+    component_type = 'Console Server Ports'
+
+    class Meta(ConsoleServerPortTable.Meta):
+        model = ConsoleServerPort
+        fields = ('pk', 'name', 'type', 'connection_status', 'device', 'cable')
+
+
 class PowerPortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerPort
         fields = ('name', 'type')
+
+
+class PowerPortDetailTable(DeviceComponentDetailTable):
+    component_type = 'Power Ports'
+
+    class Meta(PowerPortTable.Meta):
+        model = PowerPort
+        fields = ('pk', 'name', 'type', 'connection_status', 'device', 'cable')
 
 
 class PowerOutletTable(BaseTable):
@@ -671,11 +704,27 @@ class PowerOutletTable(BaseTable):
         fields = ('name', 'type', 'description')
 
 
+class PowerOutletDetailTable(DeviceComponentDetailTable):
+    component_type = 'Power Outlets'
+
+    class Meta(PowerOutletTable.Meta):
+        model = PowerOutlet
+        fields = ('pk', 'name', 'type', 'connection_status', 'device', 'cable')
+
+
 class InterfaceTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Interface
         fields = ('name', 'type', 'lag', 'enabled', 'mgmt_only', 'description')
+
+
+class InterfaceDetailTable(DeviceComponentDetailTable):
+    component_type = 'Interfaces'
+
+    class Meta(InterfaceTable.Meta):
+        model = Interface
+        fields = ('pk', 'name', 'type', 'connection_status', 'device', 'cable')
 
 
 class FrontPortTable(BaseTable):
@@ -686,6 +735,14 @@ class FrontPortTable(BaseTable):
         empty_text = "None"
 
 
+class FrontPortDetailTable(DeviceComponentDetailTable):
+    component_type = 'Front Ports'
+
+    class Meta(FrontPortTable.Meta):
+        model = FrontPort
+        fields = ('pk', 'name', 'type', 'connection_status', 'device', 'cable')
+
+
 class RearPortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
@@ -694,11 +751,27 @@ class RearPortTable(BaseTable):
         empty_text = "None"
 
 
+class RearPortDetailTable(DeviceComponentDetailTable):
+    component_type = 'Rear Ports'
+
+    class Meta(RearPortTable.Meta):
+        model = RearPort
+        fields = ('pk', 'name', 'type', 'connection_status', 'device', 'cable')
+
+
 class DeviceBayTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = DeviceBay
         fields = ('name',)
+
+
+class DeviceBayDetailTable(DeviceComponentDetailTable):
+    component_type = 'Device Bays'
+
+    class Meta(DeviceBayTable.Meta):
+        model = FrontPort
+        fields = ('pk', 'name', 'device', 'installed_device')
 
 
 #
