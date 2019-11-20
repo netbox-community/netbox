@@ -225,7 +225,9 @@ class RackElevationViewSet(ViewSet):
             elevation = rack.get_rear_elevation()
         else:
             return HttpResponseBadRequest('side should either be "front" or "back".')
+
         drawing = svgwrite.Drawing(size=(230, len(elevation)*20), style="box-sizing: border-box")
+        drawing.defs.add(drawing.style('* { font-family: "Helvetica Neue"; }'))
 
         for i, u in enumerate(elevation):
             device = u['device']
@@ -234,7 +236,7 @@ class RackElevationViewSet(ViewSet):
             if device:
                 link = drawing.add(drawing.a(reverse('dcim:device', kwargs={'pk': device.pk}), fill='black'))
                 link.add(drawing.rect((0, start), (230, end), fill='#{}'.format(device.device_role.color), stroke='grey'))
-                link.add(drawing.text(device.name, insert=(0, start+20)))
+                link.add(drawing.text(device.name, insert=(115, start+10), text_anchor="middle", dominant_baseline="middle"))
             else:
                 link = drawing.add(
                     drawing.a('{}?{}'.format(
