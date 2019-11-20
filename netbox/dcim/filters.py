@@ -733,6 +733,27 @@ class InterfaceFilter(django_filters.FilterSet):
         method='search',
         label='Search',
     )
+    region_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site__region',
+        queryset=Region.objects.all(),
+        label='Region (ID)',
+    )
+    region = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site__region__in',
+        queryset=Region.objects.all(),
+        label='Region name (slug)',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site',
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site__slug',
+        to_field_name='slug',
+        queryset=Site.objects.all(),
+        label='Site name (slug)',
+    )
     device = django_filters.CharFilter(
         method='filter_device',
         field_name='name',

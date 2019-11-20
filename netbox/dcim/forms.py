@@ -65,14 +65,14 @@ class DeviceComponentFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Search'
     )
-    region_id = TreeNodeChoiceField(
+    region = TreeNodeChoiceField(
         queryset=Region.objects.all(),
         required=False,
         widget=APISelect(
             api_url="/api/dcim/regions/"
         )
     )
-    site_id = forms.ModelChoiceField(
+    site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
