@@ -3,7 +3,7 @@ from collections import OrderedDict
 import svgwrite
 from django.conf import settings
 from django.db.models import Count, F
-from django.http import HttpResponseForbidden, HttpResponse
+from django.http import HttpResponseForbidden, HttpResponseBadRequest, HttpResponse
 from django.shortcuts import get_object_or_404, reverse
 from django.utils.http import urlencode
 from drf_yasg import openapi
@@ -218,7 +218,13 @@ class RackElevationViewSet(ViewSet):
         """
         rack = get_object_or_404(Rack, pk=pk)
 
-        elevation = rack.get_front_elevation()
+        side = request.GET.get('face', 'front')
+        if side == 'front':
+            elevation = rack.get_front_elevation()
+        elif side == 'rear':
+            elevation = rack.get_rear_elevation()
+        else:
+            return HttpResponseBadRequest('side should either be "front" or "back".')
         drawing = svgwrite.Drawing(size=(230, len(elevation)*20), style="box-sizing: border-box")
 
         for i, u in enumerate(elevation):
