@@ -125,14 +125,14 @@ class RackTestCase(TestCase):
         self.assertEqual(list(self.rack.units), list(reversed(range(1, 43))))
 
         # Validate inventory (front face)
-        rack1_inventory_front = self.rack.get_front_elevation()
+        rack1_inventory_front = self.rack.get_rack_units(face=RACK_FACE_FRONT)
         self.assertEqual(rack1_inventory_front[-10]['device'], device1)
         del(rack1_inventory_front[-10])
         for u in rack1_inventory_front:
             self.assertIsNone(u['device'])
 
         # Validate inventory (rear face)
-        rack1_inventory_rear = self.rack.get_rear_elevation()
+        rack1_inventory_rear = self.rack.get_rack_units(face=RACK_FACE_REAR)
         self.assertEqual(rack1_inventory_rear[-10]['device'], device1)
         del(rack1_inventory_rear[-10])
         for u in rack1_inventory_rear:
