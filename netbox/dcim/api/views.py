@@ -318,7 +318,7 @@ class RackElevationViewSet(ViewSet):
         link.add(drawing.text("add device", insert=text, class_='add-device'))
 
     def _draw_elevations(self, rack, elevation, reserved, face_id, width, slot_height):
-        drawing = self._setup_drawing(width, slot_height*rack.u_height)
+        drawing = self._setup_drawing(width, slot_height * rack.u_height)
         i = 0
         for u in elevation:
             device = u['device']
@@ -327,7 +327,7 @@ class RackElevationViewSet(ViewSet):
             end_y = slot_height * height
             start = (0, start_y)
             end = (width, end_y)
-            text = (width/2, start_y + end_y/2)
+            text = (width / 2, start_y + end_y / 2)
             if device and device.face == face_id:
                 self._draw_device_front(drawing, device, start, end, text)
             elif device and device.device_type.is_full_depth:
@@ -342,7 +342,7 @@ class RackElevationViewSet(ViewSet):
                     rack, drawing, start, end, text, u["id"], face_id, class_
                 )
             i += height
-        drawing.add(drawing.rect((0, 0), (width, rack.u_height*slot_height), class_='rack'))
+        drawing.add(drawing.rect((0, 0), (width, rack.u_height * slot_height), class_='rack'))
         return drawing
 
     def _get_elevation(self, rack):
