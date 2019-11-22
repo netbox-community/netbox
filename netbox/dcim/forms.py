@@ -2495,7 +2495,7 @@ class InterfaceCSVForm(forms.ModelForm):
 
     def clean_enabled(self):
         # Make sure enabled is True when it's not included in the uploaded data
-        if 'enabled' in self.data:
+        if 'enabled' not in self.data:
             return True
         else:
             return self.cleaned_data['enabled']
