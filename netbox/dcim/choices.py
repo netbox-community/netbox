@@ -107,7 +107,7 @@ class DeviceFaceChoices(ChoiceSet):
 
 
 #
-# Console port type values
+# ConsolePorts
 #
 
 class ConsolePortTypeChoices(ChoiceSet):
@@ -148,7 +148,7 @@ class ConsolePortTypeChoices(ChoiceSet):
 
 
 #
-# Power port types
+# PowerPorts
 #
 
 class PowerPortTypeChoices(ChoiceSet):
@@ -235,7 +235,7 @@ class PowerPortTypeChoices(ChoiceSet):
 
 
 #
-# Power outlet types
+# PowerOutlets
 #
 
 class PowerOutletTypeChoices(ChoiceSet):
@@ -322,7 +322,7 @@ class PowerOutletTypeChoices(ChoiceSet):
 
 
 #
-# Interface type values
+# Interfaces
 #
 
 class InterfaceTypeChoices(ChoiceSet):
@@ -624,7 +624,7 @@ class InterfaceTypeChoices(ChoiceSet):
 
 
 #
-# Port type values
+# FrontPorts/RearPorts
 #
 
 class PortTypeChoices(ChoiceSet):

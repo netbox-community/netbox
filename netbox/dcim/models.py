@@ -1206,9 +1206,9 @@ class InterfaceTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=64
     )
-    type = models.PositiveSmallIntegerField(
-        choices=IFACE_TYPE_CHOICES,
-        default=IFACE_TYPE_10GE_SFP_PLUS
+    type = models.CharField(
+        max_length=50,
+        choices=InterfaceTypeChoices
     )
     mgmt_only = models.BooleanField(
         default=False,
@@ -2238,9 +2238,9 @@ class Interface(CableTermination, ComponentModel):
         blank=True,
         verbose_name='Parent LAG'
     )
-    type = models.PositiveSmallIntegerField(
-        choices=IFACE_TYPE_CHOICES,
-        default=IFACE_TYPE_10GE_SFP_PLUS
+    type = models.CharField(
+        max_length=50,
+        choices=InterfaceTypeChoices
     )
     enabled = models.BooleanField(
         default=True
@@ -2323,7 +2323,7 @@ class Interface(CableTermination, ComponentModel):
             raise ValidationError("An interface must belong to either a device or a virtual machine.")
 
         # VM interfaces must be virtual
-        if self.virtual_machine and self.type is not IFACE_TYPE_VIRTUAL:
+        if self.virtual_machine and self.type is not InterfaceTypeChoices.TYPE_VIRTUAL:
             raise ValidationError({
                 'type': "Virtual machines can only have virtual interfaces."
             })
@@ -2352,7 +2352,7 @@ class Interface(CableTermination, ComponentModel):
             })
 
         # Only a LAG can have LAG members
-        if self.type != IFACE_TYPE_LAG and self.member_interfaces.exists():
+        if self.type != InterfaceTypeChoices.TYPE_LAG and self.member_interfaces.exists():
             raise ValidationError({
                 'type': "Cannot change interface type; it has LAG members ({}).".format(
                     ", ".join([iface.name for iface in self.member_interfaces.all()])
@@ -2435,7 +2435,7 @@ class Interface(CableTermination, ComponentModel):
 
     @property
     def is_lag(self):
-        return self.type == IFACE_TYPE_LAG
+        return self.type == InterfaceTypeChoices.TYPE_LAG
 
     @property
     def count_ipaddresses(self):

@@ -257,7 +257,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
-    type = ChoiceField(choices=IFACE_TYPE_CHOICES, required=False)
+    type = ChoiceField(choices=InterfaceTypeChoices, required=False)
 
     class Meta:
         model = InterfaceTemplate
@@ -467,7 +467,7 @@ class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
 
 class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
-    type = ChoiceField(choices=IFACE_TYPE_CHOICES, required=False)
+    type = ChoiceField(choices=InterfaceTypeChoices, required=False)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False, allow_null=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)

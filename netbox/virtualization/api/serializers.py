@@ -3,7 +3,8 @@ from rest_framework import serializers
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from dcim.api.nested_serializers import NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer
-from dcim.constants import IFACE_TYPE_CHOICES, IFACE_TYPE_VIRTUAL, IFACE_MODE_CHOICES
+from dcim.choices import InterfaceTypeChoices
+from dcim.constants import IFACE_MODE_CHOICES
 from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
@@ -98,7 +99,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 
 class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
     virtual_machine = NestedVirtualMachineSerializer()
-    type = ChoiceField(choices=IFACE_TYPE_CHOICES, default=IFACE_TYPE_VIRTUAL, required=False)
+    type = ChoiceField(choices=InterfaceTypeChoices, default=InterfaceTypeChoices.TYPE_VIRTUAL, required=False)
     mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False, allow_null=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(

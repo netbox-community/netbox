@@ -193,7 +193,7 @@ class DeviceTestCase(TestCase):
         InterfaceTemplate(
             device_type=self.device_type,
             name='Interface 1',
-            type=IFACE_TYPE_1GE_FIXED,
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
             mgmt_only=True
         ).save()
 
@@ -257,7 +257,7 @@ class DeviceTestCase(TestCase):
         Interface.objects.get(
             device=d,
             name='Interface 1',
-            type=IFACE_TYPE_1GE_FIXED,
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
             mgmt_only=True
         )
 
@@ -379,7 +379,7 @@ class CableTestCase(TestCase):
         """
         A cable cannot terminate to a virtual interface
         """
-        virtual_interface = Interface(device=self.device1, name="V1", type=IFACE_TYPE_VIRTUAL)
+        virtual_interface = Interface(device=self.device1, name="V1", type=InterfaceTypeChoices.TYPE_VIRTUAL)
         cable = Cable(termination_a=self.interface2, termination_b=virtual_interface)
         with self.assertRaises(ValidationError):
             cable.clean()
@@ -388,7 +388,7 @@ class CableTestCase(TestCase):
         """
         A cable cannot terminate to a wireless interface
         """
-        wireless_interface = Interface(device=self.device1, name="W1", type=IFACE_TYPE_80211A)
+        wireless_interface = Interface(device=self.device1, name="W1", type=InterfaceTypeChoices.TYPE_80211A)
         cable = Cable(termination_a=self.interface2, termination_b=wireless_interface)
         with self.assertRaises(ValidationError):
             cable.clean()

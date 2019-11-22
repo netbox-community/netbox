@@ -1076,7 +1076,7 @@ class InterfaceTemplateCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=IFACE_TYPE_CHOICES,
+        choices=InterfaceTypeChoices,
         widget=StaticSelect2()
     )
     mgmt_only = forms.BooleanField(
@@ -1091,7 +1091,7 @@ class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         widget=forms.MultipleHiddenInput()
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(IFACE_TYPE_CHOICES),
+        choices=add_blank_choice(InterfaceTypeChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -1310,11 +1310,6 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
         fields = [
             'device_type', 'name', 'type', 'mgmt_only',
         ]
-
-    def clean_type(self):
-        # Convert slug value to field integer value
-        slug = self.cleaned_data['type']
-        return InterfaceTypeChoices.slug_to_id(slug)
 
 
 class FrontPortTemplateImportForm(ComponentTemplateImportForm):
@@ -2031,7 +2026,7 @@ class DeviceBulkAddComponentForm(BootstrapMixin, forms.Form):
 
 class DeviceBulkAddInterfaceForm(DeviceBulkAddComponentForm):
     type = forms.ChoiceField(
-        choices=IFACE_TYPE_CHOICES,
+        choices=InterfaceTypeChoices,
         widget=StaticSelect2()
     )
     enabled = forms.BooleanField(
@@ -2377,12 +2372,14 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         if self.is_bound:
             device = Device.objects.get(pk=self.data['device'])
             self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[device, device.get_vc_master()], type=IFACE_TYPE_LAG
+                device__in=[device, device.get_vc_master()],
+                type=InterfaceTypeChoices.TYPE_LAG
             )
         else:
             device = self.instance.device
             self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[self.instance.device, self.instance.device.get_vc_master()], type=IFACE_TYPE_LAG
+                device__in=[self.instance.device, self.instance.device.get_vc_master()],
+                type=InterfaceTypeChoices.TYPE_LAG
             )
 
         # Limit VLan choices to those in: global vlans, global groups, the current site's group, the current site
@@ -2421,7 +2418,7 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=IFACE_TYPE_CHOICES,
+        choices=InterfaceTypeChoices,
         widget=StaticSelect2(),
     )
     enabled = forms.BooleanField(
@@ -2490,7 +2487,8 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
         # Limit LAG choices to interfaces belonging to this device (or its VC master)
         if self.parent is not None:
             self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[self.parent, self.parent.get_vc_master()], type=IFACE_TYPE_LAG
+                device__in=[self.parent, self.parent.get_vc_master()],
+                type=InterfaceTypeChoices.TYPE_LAG
             )
         else:
             self.fields['lag'].queryset = Interface.objects.none()
@@ -2532,7 +2530,7 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
         widget=forms.MultipleHiddenInput()
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(IFACE_TYPE_CHOICES),
+        choices=add_blank_choice(InterfaceTypeChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -2602,7 +2600,7 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
         if device is not None:
             self.fields['lag'].queryset = Interface.objects.filter(
                 device__in=[device, device.get_vc_master()],
-                type=IFACE_TYPE_LAG
+                type=InterfaceTypeChoices.TYPE_LAG
             )
         else:
             self.fields['lag'].choices = []

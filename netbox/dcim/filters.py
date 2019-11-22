@@ -748,7 +748,7 @@ class InterfaceFilter(django_filters.FilterSet):
         label='Assigned VID'
     )
     type = django_filters.MultipleChoiceFilter(
-        choices=IFACE_TYPE_CHOICES,
+        choices=InterfaceTypeChoices,
         null_value=None
     )
 

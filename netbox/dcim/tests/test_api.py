@@ -2554,7 +2554,7 @@ class InterfaceTest(APITestCase):
     def test_update_interface(self):
 
         lag_interface = Interface.objects.create(
-            device=self.device, name='Test LAG Interface', type=IFACE_TYPE_LAG
+            device=self.device, name='Test LAG Interface', type=InterfaceTypeChoices.TYPE_LAG
         )
 
         data = {
@@ -2842,7 +2842,7 @@ class CableTest(APITestCase):
         )
         for device in [self.device1, self.device2]:
             for i in range(0, 10):
-                Interface(device=device, type=IFACE_TYPE_1GE_FIXED, name='eth{}'.format(i)).save()
+                Interface(device=device, type=InterfaceTypeChoices.TYPE_1GE_FIXED, name='eth{}'.format(i)).save()
 
         self.cable1 = Cable(
             termination_a=self.device1.interfaces.get(name='eth0'),
@@ -3411,23 +3411,23 @@ class VirtualChassisTest(APITestCase):
             device_type=device_type, device_role=device_role, name='StackSwitch9', site=site
         )
         for i in range(0, 13):
-            Interface.objects.create(device=self.device1, name='1/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device1, name='1/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device2, name='2/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device2, name='2/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device3, name='3/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device3, name='3/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device4, name='1/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device4, name='1/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device5, name='2/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device5, name='2/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device6, name='3/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device6, name='3/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device7, name='1/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device7, name='1/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device8, name='2/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device8, name='2/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device9, name='3/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device9, name='3/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
 
         # Create two VirtualChassis with three members each
         self.vc1 = VirtualChassis.objects.create(master=self.device1, domain='test-domain-1')
