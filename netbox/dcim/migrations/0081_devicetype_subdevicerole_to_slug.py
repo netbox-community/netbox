@@ -28,4 +28,9 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=devicetype_subdevicerole_to_slug
         ),
+        migrations.AlterField(
+            model_name='devicetype',
+            name='subdevice_role',
+            field=models.CharField(blank=True, max_length=50),
+        ),
     ]

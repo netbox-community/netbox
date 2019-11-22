@@ -28,4 +28,9 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=device_face_to_slug
         ),
+        migrations.AlterField(
+            model_name='device',
+            name='face',
+            field=models.CharField(blank=True, max_length=50),
+        ),
     ]

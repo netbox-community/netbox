@@ -31,4 +31,9 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=rack_type_to_slug
         ),
+        migrations.AlterField(
+            model_name='rack',
+            name='type',
+            field=models.CharField(blank=True, max_length=50),
+        ),
     ]

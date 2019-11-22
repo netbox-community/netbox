@@ -922,6 +922,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
     subdevice_role = models.CharField(
         max_length=50,
         choices=SubdeviceRoleChoices,
+        blank=True,
         verbose_name='Parent/child status',
         help_text='Parent devices house child devices in device bays. Leave blank '
                   'if this device type is neither a parent nor a child.'
