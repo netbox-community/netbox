@@ -2,6 +2,29 @@ from utilities.choices import ChoiceSet
 
 
 #
+# Sites
+#
+
+class SiteStatusChoices(ChoiceSet):
+
+    STATUS_ACTIVE = 'active'
+    STATUS_PLANNED = 'planned'
+    STATUS_RETIRED = 'retired'
+
+    CHOICES = (
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_PLANNED, 'Planned'),
+        (STATUS_RETIRED, 'Retired'),
+    )
+
+    LEGACY_MAP = {
+        STATUS_ACTIVE: 1,
+        STATUS_PLANNED: 2,
+        STATUS_RETIRED: 4,
+    }
+
+
+#
 # Racks
 #
 

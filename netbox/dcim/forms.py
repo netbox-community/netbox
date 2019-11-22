@@ -223,7 +223,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
 class SiteCSVForm(forms.ModelForm):
     status = CSVChoiceField(
-        choices=SITE_STATUS_CHOICES,
+        choices=SiteStatusChoices,
         required=False,
         help_text='Operational status'
     )
@@ -262,7 +262,7 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         widget=forms.MultipleHiddenInput
     )
     status = forms.ChoiceField(
-        choices=add_blank_choice(SITE_STATUS_CHOICES),
+        choices=add_blank_choice(SiteStatusChoices),
         required=False,
         initial='',
         widget=StaticSelect2()
@@ -311,7 +311,7 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         label='Search'
     )
     status = forms.MultipleChoiceField(
-        choices=SITE_STATUS_CHOICES,
+        choices=SiteStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )

@@ -79,16 +79,6 @@ DEVICE_STATUS_CHOICES = [
     [DEVICE_STATUS_DECOMMISSIONING, 'Decommissioning'],
 ]
 
-# Site statuses
-SITE_STATUS_ACTIVE = 1
-SITE_STATUS_PLANNED = 2
-SITE_STATUS_RETIRED = 4
-SITE_STATUS_CHOICES = [
-    [SITE_STATUS_ACTIVE, 'Active'],
-    [SITE_STATUS_PLANNED, 'Planned'],
-    [SITE_STATUS_RETIRED, 'Retired'],
-]
-
 # Bootstrap CSS classes for device/rack statuses
 STATUS_CLASSES = {
     0: 'warning',

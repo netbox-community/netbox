@@ -68,7 +68,7 @@ class RegionSerializer(serializers.ModelSerializer):
 
 
 class SiteSerializer(TaggitSerializer, CustomFieldModelSerializer):
-    status = ChoiceField(choices=SITE_STATUS_CHOICES, required=False)
+    status = ChoiceField(choices=SiteStatusChoices, required=False)
     region = NestedRegionSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     time_zone = TimeZoneField(required=False)

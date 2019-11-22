@@ -245,9 +245,10 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     slug = models.SlugField(
         unique=True
     )
-    status = models.PositiveSmallIntegerField(
-        choices=SITE_STATUS_CHOICES,
-        default=SITE_STATUS_ACTIVE
+    status = models.CharField(
+        max_length=50,
+        choices=SiteStatusChoices,
+        default=SiteStatusChoices.STATUS_ACTIVE
     )
     region = models.ForeignKey(
         to='dcim.Region',
@@ -331,6 +332,12 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email', 'comments',
     ]
 
+    STATUS_CLASS_MAP = {
+        SiteStatusChoices.STATUS_ACTIVE: 'success',
+        SiteStatusChoices.STATUS_PLANNED: 'info',
+        SiteStatusChoices.STATUS_RETIRED: 'danger',
+    }
+
     class Meta:
         ordering = ['name']
 
@@ -362,7 +369,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         )
 
     def get_status_class(self):
-        return STATUS_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)
 
 
 #

@@ -49,7 +49,7 @@ class SiteFilter(TenancyFilterSet, CustomFieldFilterSet):
         label='Search',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=SITE_STATUS_CHOICES,
+        choices=SiteStatusChoices,
         null_value=None
     )
     region_id = TreeNodeMultipleChoiceFilter(
