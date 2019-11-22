@@ -66,13 +66,13 @@ class InterfaceCommonForm:
         tagged_vlans = self.cleaned_data['tagged_vlans']
 
         # Untagged interfaces cannot be assigned tagged VLANs
-        if self.cleaned_data['mode'] == IFACE_MODE_ACCESS and tagged_vlans:
+        if self.cleaned_data['mode'] == InterfaceModeChoices.MODE_ACCESS and tagged_vlans:
             raise forms.ValidationError({
                 'mode': "An access interface cannot have tagged VLANs assigned."
             })
 
         # Remove all tagged VLAN assignments from "tagged all" interfaces
-        elif self.cleaned_data['mode'] == IFACE_MODE_TAGGED_ALL:
+        elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED_ALL:
             self.cleaned_data['tagged_vlans'] = []
 
 
@@ -2450,7 +2450,7 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
         required=False
     )
     mode = forms.ChoiceField(
-        choices=add_blank_choice(IFACE_MODE_CHOICES),
+        choices=add_blank_choice(InterfaceModeChoices),
         required=False,
         widget=StaticSelect2(),
     )
@@ -2564,7 +2564,7 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
         required=False
     )
     mode = forms.ChoiceField(
-        choices=add_blank_choice(IFACE_MODE_CHOICES),
+        choices=add_blank_choice(InterfaceModeChoices),
         required=False,
         widget=StaticSelect2()
     )

@@ -2,8 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
-from dcim.choices import InterfaceTypeChoices
-from dcim.constants import IFACE_MODE_ACCESS, IFACE_MODE_TAGGED_ALL, IFACE_MODE_CHOICES
+from dcim.choices import InterfaceModeChoices, InterfaceTypeChoices
 from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
 from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
@@ -718,13 +717,13 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         tagged_vlans = self.cleaned_data['tagged_vlans']
 
         # Untagged interfaces cannot be assigned tagged VLANs
-        if self.cleaned_data['mode'] == IFACE_MODE_ACCESS and tagged_vlans:
+        if self.cleaned_data['mode'] == InterfaceModeChoices.MODE_ACCESS and tagged_vlans:
             raise forms.ValidationError({
                 'mode': "An access interface cannot have tagged VLANs assigned."
             })
 
         # Remove all tagged VLAN assignments from "tagged all" interfaces
-        elif self.cleaned_data['mode'] == IFACE_MODE_TAGGED_ALL:
+        elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED_ALL:
             self.cleaned_data['tagged_vlans'] = []
 
 
@@ -755,7 +754,7 @@ class InterfaceCreateForm(ComponentForm):
         required=False
     )
     mode = forms.ChoiceField(
-        choices=add_blank_choice(IFACE_MODE_CHOICES),
+        choices=add_blank_choice(InterfaceModeChoices),
         required=False,
         widget=StaticSelect2(),
     )
@@ -840,7 +839,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False
     )
     mode = forms.ChoiceField(
-        choices=add_blank_choice(IFACE_MODE_CHOICES),
+        choices=add_blank_choice(InterfaceModeChoices),
         required=False,
         widget=StaticSelect2()
     )

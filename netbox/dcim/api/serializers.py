@@ -469,7 +469,7 @@ class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=InterfaceTypeChoices, required=False)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
-    mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False, allow_null=True)
+    mode = ChoiceField(choices=InterfaceModeChoices, required=False, allow_null=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),

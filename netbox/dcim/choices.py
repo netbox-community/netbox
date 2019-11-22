@@ -111,9 +111,7 @@ class DeviceFaceChoices(ChoiceSet):
 #
 
 class ConsolePortTypeChoices(ChoiceSet):
-    """
-    ConsolePort/ConsoleServerPort.type slugs
-    """
+
     TYPE_DE9 = 'de-9'
     TYPE_DB25 = 'db-25'
     TYPE_RJ45 = 'rj-45'
@@ -152,6 +150,7 @@ class ConsolePortTypeChoices(ChoiceSet):
 #
 
 class PowerPortTypeChoices(ChoiceSet):
+
     # TODO: Add more power port types
     # IEC 60320
     TYPE_IEC_C6 = 'iec-60320-c6'
@@ -239,6 +238,7 @@ class PowerPortTypeChoices(ChoiceSet):
 #
 
 class PowerOutletTypeChoices(ChoiceSet):
+
     # TODO: Add more power outlet types
     # IEC 60320
     TYPE_IEC_C5 = 'iec-60320-c5'
@@ -326,9 +326,7 @@ class PowerOutletTypeChoices(ChoiceSet):
 #
 
 class InterfaceTypeChoices(ChoiceSet):
-    """
-    Interface.type slugs
-    """
+
     # Virtual
     TYPE_VIRTUAL = 'virtual'
     TYPE_LAG = 'lag'
@@ -623,14 +621,31 @@ class InterfaceTypeChoices(ChoiceSet):
     }
 
 
+class InterfaceModeChoices(ChoiceSet):
+
+    MODE_ACCESS = 'access'
+    MODE_TAGGED = 'tagged'
+    MODE_TAGGED_ALL = 'tagged-all'
+
+    CHOICES = (
+        (MODE_ACCESS, 'Access'),
+        (MODE_TAGGED, 'Tagged'),
+        (MODE_TAGGED_ALL, 'Tagged (All)'),
+    )
+
+    LEGACY_MAP = {
+        MODE_ACCESS: 100,
+        MODE_TAGGED: 200,
+        MODE_TAGGED_ALL: 300,
+    }
+
+
 #
 # FrontPorts/RearPorts
 #
 
 class PortTypeChoices(ChoiceSet):
-    """
-    FrontPort/RearPort.type slugs
-    """
+
     TYPE_8P8C = '8p8c'
     TYPE_110_PUNCH = '110-punch'
     TYPE_BNC = 'bnc'

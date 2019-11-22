@@ -3,7 +3,7 @@ from netaddr import IPNetwork
 from rest_framework import status
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
-from dcim.choices import SubdeviceRoleChoices
+from dcim.choices import InterfaceModeChoices, SubdeviceRoleChoices
 from dcim.constants import *
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -2474,7 +2474,7 @@ class InterfaceTest(APITestCase):
         data = {
             'device': self.device.pk,
             'name': 'Test Interface 4',
-            'mode': IFACE_MODE_TAGGED,
+            'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': self.vlan3.id,
             'tagged_vlans': [self.vlan1.id, self.vlan2.id],
         }
@@ -2521,21 +2521,21 @@ class InterfaceTest(APITestCase):
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 4',
-                'mode': IFACE_MODE_TAGGED,
+                'mode': InterfaceModeChoices.MODE_TAGGED,
                 'untagged_vlan': self.vlan2.id,
                 'tagged_vlans': [self.vlan1.id],
             },
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 5',
-                'mode': IFACE_MODE_TAGGED,
+                'mode': InterfaceModeChoices.MODE_TAGGED,
                 'untagged_vlan': self.vlan2.id,
                 'tagged_vlans': [self.vlan1.id],
             },
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 6',
-                'mode': IFACE_MODE_TAGGED,
+                'mode': InterfaceModeChoices.MODE_TAGGED,
                 'untagged_vlan': self.vlan2.id,
                 'tagged_vlans': [self.vlan1.id],
             },

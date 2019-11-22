@@ -75,6 +75,13 @@ INTERFACE_TYPE_CHOICES = (
 )
 
 
+INTERFACE_MODE_CHOICES = (
+    (100, 'access'),
+    (200, 'tagged'),
+    (300, 'tagged-all'),
+)
+
+
 def interfacetemplate_type_to_slug(apps, schema_editor):
     InterfaceTemplate = apps.get_model('dcim', 'InterfaceTemplate')
     for id, slug in INTERFACE_TYPE_CHOICES:
@@ -85,6 +92,12 @@ def interface_type_to_slug(apps, schema_editor):
     Interface = apps.get_model('dcim', 'Interface')
     for id, slug in INTERFACE_TYPE_CHOICES:
         Interface.objects.filter(type=id).update(type=slug)
+
+
+def interface_mode_to_slug(apps, schema_editor):
+    Interface = apps.get_model('dcim', 'Interface')
+    for id, slug in INTERFACE_MODE_CHOICES:
+        Interface.objects.filter(mode=id).update(mode=slug)
 
 
 class Migration(migrations.Migration):
@@ -110,5 +123,18 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(
             code=interface_type_to_slug
+        ),
+        migrations.AlterField(
+            model_name='interface',
+            name='mode',
+            field=models.CharField(blank=True, default='', max_length=50),
+        ),
+        migrations.RunPython(
+            code=interface_mode_to_slug
+        ),
+        migrations.AlterField(
+            model_name='interface',
+            name='mode',
+            field=models.CharField(blank=True, max_length=50),
         ),
     ]

@@ -2,8 +2,7 @@ from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
 
-from dcim.choices import InterfaceTypeChoices
-from dcim.constants import IFACE_MODE_TAGGED
+from dcim.choices import InterfaceModeChoices, InterfaceTypeChoices
 from dcim.models import Interface
 from ipam.models import IPAddress, VLAN
 from utilities.testing import APITestCase
@@ -552,7 +551,7 @@ class InterfaceTest(APITestCase):
         data = {
             'virtual_machine': self.virtualmachine.pk,
             'name': 'Test Interface 4',
-            'mode': IFACE_MODE_TAGGED,
+            'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': self.vlan3.id,
             'tagged_vlans': [self.vlan1.id, self.vlan2.id],
         }
@@ -599,21 +598,21 @@ class InterfaceTest(APITestCase):
             {
                 'virtual_machine': self.virtualmachine.pk,
                 'name': 'Test Interface 4',
-                'mode': IFACE_MODE_TAGGED,
+                'mode': InterfaceModeChoices.MODE_TAGGED,
                 'untagged_vlan': self.vlan2.id,
                 'tagged_vlans': [self.vlan1.id],
             },
             {
                 'virtual_machine': self.virtualmachine.pk,
                 'name': 'Test Interface 5',
-                'mode': IFACE_MODE_TAGGED,
+                'mode': InterfaceModeChoices.MODE_TAGGED,
                 'untagged_vlan': self.vlan2.id,
                 'tagged_vlans': [self.vlan1.id],
             },
             {
                 'virtual_machine': self.virtualmachine.pk,
                 'name': 'Test Interface 6',
-                'mode': IFACE_MODE_TAGGED,
+                'mode': InterfaceModeChoices.MODE_TAGGED,
                 'untagged_vlan': self.vlan2.id,
                 'tagged_vlans': [self.vlan1.id],
             },

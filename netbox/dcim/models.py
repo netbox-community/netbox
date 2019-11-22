@@ -2261,10 +2261,10 @@ class Interface(CableTermination, ComponentModel):
         verbose_name='OOB Management',
         help_text='This interface is used only for out-of-band management'
     )
-    mode = models.PositiveSmallIntegerField(
-        choices=IFACE_MODE_CHOICES,
+    mode = models.CharField(
+        max_length=50,
+        choices=InterfaceModeChoices,
         blank=True,
-        null=True
     )
     untagged_vlan = models.ForeignKey(
         to='ipam.VLAN',
@@ -2373,7 +2373,7 @@ class Interface(CableTermination, ComponentModel):
             self.untagged_vlan = None
 
         # Only "tagged" interfaces may have tagged VLANs assigned. ("tagged all" implies all VLANs are assigned.)
-        if self.pk and self.mode is not IFACE_MODE_TAGGED:
+        if self.pk and self.mode is not InterfaceModeChoices.MODE_TAGGED:
             self.tagged_vlans.clear()
 
         return super().save(*args, **kwargs)
