@@ -1,6 +1,10 @@
 from utilities.choices import ChoiceSet
 
 
+#
+# Circuits
+#
+
 class CircuitStatusChoices(ChoiceSet):
 
     STATUS_DEPROVISIONING = 'deprovisioning'
@@ -27,3 +31,18 @@ class CircuitStatusChoices(ChoiceSet):
         STATUS_OFFLINE: 4,
         STATUS_DECOMMISSIONED: 5,
     }
+
+
+#
+# CircuitTerminations
+#
+
+class CircuitTerminationSideChoices(ChoiceSet):
+
+    SIDE_A = 'A'
+    SIDE_Z = 'Z'
+
+    CHOICES = (
+        (SIDE_A, 'A'),
+        (SIDE_Z, 'Z')
+    )

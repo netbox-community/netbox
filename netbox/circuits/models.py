@@ -3,14 +3,13 @@ from django.db import models
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
-from dcim.constants import CONNECTION_STATUS_CHOICES, STATUS_CLASSES
+from dcim.constants import CONNECTION_STATUS_CHOICES
 from dcim.fields import ASNField
 from dcim.models import CableTermination
 from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
 from .choices import *
-from .constants import *
 
 
 class Provider(ChangeLoggedModel, CustomFieldModel):
@@ -231,7 +230,7 @@ class CircuitTermination(CableTermination):
     )
     term_side = models.CharField(
         max_length=1,
-        choices=TERM_SIDE_CHOICES,
+        choices=CircuitTerminationSideChoices,
         verbose_name='Termination'
     )
     site = models.ForeignKey(

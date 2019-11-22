@@ -10,7 +10,6 @@ from utilities.forms import (
     FilterChoiceField, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple
 )
 from .choices import CircuitStatusChoices
-from .constants import *
 from .models import Circuit, CircuitTermination, CircuitType, Provider
 
 

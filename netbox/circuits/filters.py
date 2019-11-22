@@ -6,7 +6,6 @@ from extras.filters import CustomFieldFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
-from .constants import *
 from .models import Circuit, CircuitTermination, CircuitType, Provider
 
 
