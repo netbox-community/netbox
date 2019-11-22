@@ -2728,7 +2728,6 @@ class FrontPortCSVForm(forms.ModelForm):
     )
     rear_port = FlexibleModelChoiceField(
         queryset=RearPort.objects.all(),
-        required=False,
         to_field_name='name',
         help_text='Name or ID of Rear Port',
         error_messages={
