@@ -25,7 +25,7 @@ from utilities.forms import (
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, JSONField,
     SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES
 )
-from virtualization.models import Cluster, ClusterGroup
+from virtualization.models import Cluster, ClusterGroup, VirtualMachine
 from .constants import *
 from .models import (
     Cable, DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
@@ -2057,6 +2057,26 @@ class PowerPortCreateForm(ComponentForm):
     )
 
 
+class PowerPortCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Name or ID of device',
+        error_messages={
+            'invalid_choice': 'Device not found.',
+        }
+    )
+
+    class Meta:
+        model = PowerPort
+        fields = PowerPort.csv_headers
+
+    def clean_type(self):
+        # The type may be blank, but not None
+        value = self.cleaned_data['type']
+        return value if value is not None else ''
+
+
 #
 # Power outlets
 #
@@ -2115,6 +2135,56 @@ class PowerOutletCreateForm(ComponentForm):
 
         # Limit power_port choices to those on the parent device
         self.fields['power_port'].queryset = PowerPort.objects.filter(device=self.parent)
+
+
+class PowerOutletCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Name or ID of device',
+        error_messages={
+            'invalid_choice': 'Device not found.',
+        }
+    )
+    power_port = FlexibleModelChoiceField(
+        queryset=PowerPort.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name or ID of Power Port',
+        error_messages={
+            'invalid_choice': 'Power Port not found.',
+        }
+    )
+    feed_leg = CSVChoiceField(
+        choices=POWERFEED_LEG_CHOICES,
+        required=False,
+    )
+
+    class Meta:
+        model = PowerOutlet
+        fields = PowerOutlet.csv_headers
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit PowerPort choices to those belonging to this device (or VC master)
+        if self.is_bound:
+            try:
+                device = self.fields['device'].to_python(self.data['device'])
+            except forms.ValidationError:
+                device = None
+        else:
+            try:
+                device = self.instance.device
+            except Device.DoesNotExist:
+                device = None
+
+        if device:
+            self.fields['power_port'].queryset = PowerPort.objects.filter(
+                device__in=[device, device.get_vc_master()]
+            )
+        else:
+            self.fields['power_port'].queryset = PowerPort.objects.none()
 
 
 class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
@@ -2364,6 +2434,73 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
         self.fields['tagged_vlans'].choices = vlan_choices
 
 
+class InterfaceCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name or ID of device',
+        error_messages={
+            'invalid_choice': 'Device not found.',
+        }
+    )
+    virtual_machine = FlexibleModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name or ID of virtual machine',
+        error_messages={
+            'invalid_choice': 'Virtual machine not found.',
+        }
+    )
+    lag = FlexibleModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name or ID of LAG interface',
+        error_messages={
+            'invalid_choice': 'LAG interface not found.',
+        }
+    )
+    type = CSVChoiceField(
+        choices=IFACE_TYPE_CHOICES,
+    )
+    mode = CSVChoiceField(
+        choices=IFACE_MODE_CHOICES,
+        required=False,
+    )
+
+    class Meta:
+        model = Interface
+        fields = Interface.csv_headers
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit LAG choices to interfaces belonging to this device (or VC master)
+        if self.is_bound:
+            try:
+                device = self.fields['device'].to_python(self.data['device'])
+            except forms.ValidationError:
+                device = None
+        else:
+            device = self.instance.device
+
+        if device:
+            self.fields['lag'].queryset = Interface.objects.filter(
+                device__in=[device, device.get_vc_master()], type=IFACE_TYPE_LAG
+            )
+        else:
+            self.fields['lag'].queryset = Interface.objects.none()
+
+    def clean_enabled(self):
+        # Make sure enabled is True when it's not included in the uploaded data
+        if 'enabled' in self.data:
+            return True
+        else:
+            return self.cleaned_data['enabled']
+
+
 class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Interface.objects.all(),
@@ -2580,6 +2717,55 @@ class FrontPortCreateForm(ComponentForm):
         }
 
 
+class FrontPortCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Name or ID of device',
+        error_messages={
+            'invalid_choice': 'Device not found.',
+        }
+    )
+    rear_port = FlexibleModelChoiceField(
+        queryset=RearPort.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name or ID of Rear Port',
+        error_messages={
+            'invalid_choice': 'Rear Port not found.',
+        }
+    )
+    type = CSVChoiceField(
+        choices=PORT_TYPE_CHOICES,
+    )
+
+    class Meta:
+        model = FrontPort
+        fields = FrontPort.csv_headers
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit RearPort choices to those belonging to this device (or VC master)
+        if self.is_bound:
+            try:
+                device = self.fields['device'].to_python(self.data['device'])
+            except forms.ValidationError:
+                device = None
+        else:
+            try:
+                device = self.instance.device
+            except Device.DoesNotExist:
+                device = None
+
+        if device:
+            self.fields['rear_port'].queryset = RearPort.objects.filter(
+                device__in=[device, device.get_vc_master()]
+            )
+        else:
+            self.fields['rear_port'].queryset = RearPort.objects.none()
+
+
 class FrontPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=FrontPort.objects.all(),
@@ -2652,6 +2838,24 @@ class RearPortCreateForm(ComponentForm):
     description = forms.CharField(
         required=False
     )
+
+
+class RearPortCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Name or ID of device',
+        error_messages={
+            'invalid_choice': 'Device not found.',
+        }
+    )
+    type = CSVChoiceField(
+        choices=PORT_TYPE_CHOICES,
+    )
+
+    class Meta:
+        model = RearPort
+        fields = RearPort.csv_headers
 
 
 class RearPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):

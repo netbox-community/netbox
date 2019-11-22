@@ -196,6 +196,7 @@ urlpatterns = [
     path(r'power-ports/<int:pk>/edit/', views.PowerPortEditView.as_view(), name='powerport_edit'),
     path(r'power-ports/<int:pk>/delete/', views.PowerPortDeleteView.as_view(), name='powerport_delete'),
     path(r'power-ports/<int:pk>/trace/', views.CableTraceView.as_view(), name='powerport_trace', kwargs={'model': PowerPort}),
+    path(r'power-ports/import/', views.PowerPortBulkImportView.as_view(), name='powerport_import'),
 
     # Power outlets
     path(r'devices/power-outlets/add/', views.DeviceBulkAddPowerOutletView.as_view(), name='device_bulk_add_poweroutlet'),
@@ -208,6 +209,7 @@ urlpatterns = [
     path(r'power-outlets/<int:pk>/trace/', views.CableTraceView.as_view(), name='poweroutlet_trace', kwargs={'model': PowerOutlet}),
     path(r'power-outlets/rename/', views.PowerOutletBulkRenameView.as_view(), name='poweroutlet_bulk_rename'),
     path(r'power-outlets/disconnect/', views.PowerOutletBulkDisconnectView.as_view(), name='poweroutlet_bulk_disconnect'),
+    path(r'power-outlets/import/', views.PowerOutletBulkImportView.as_view(), name='poweroutlet_import'),
 
     # Interfaces
     path(r'devices/interfaces/add/', views.DeviceBulkAddInterfaceView.as_view(), name='device_bulk_add_interface'),
@@ -222,6 +224,7 @@ urlpatterns = [
     path(r'interfaces/<int:pk>/trace/', views.CableTraceView.as_view(), name='interface_trace', kwargs={'model': Interface}),
     path(r'interfaces/rename/', views.InterfaceBulkRenameView.as_view(), name='interface_bulk_rename'),
     path(r'interfaces/disconnect/', views.InterfaceBulkDisconnectView.as_view(), name='interface_bulk_disconnect'),
+    path(r'interfaces/import/', views.InterfaceBulkImportView.as_view(), name='interface_import'),
 
     # Front ports
     # path(r'devices/front-ports/add/', views.DeviceBulkAddFrontPortView.as_view(), name='device_bulk_add_frontport'),
@@ -234,6 +237,7 @@ urlpatterns = [
     path(r'front-ports/<int:pk>/trace/', views.CableTraceView.as_view(), name='frontport_trace', kwargs={'model': FrontPort}),
     path(r'front-ports/rename/', views.FrontPortBulkRenameView.as_view(), name='frontport_bulk_rename'),
     path(r'front-ports/disconnect/', views.FrontPortBulkDisconnectView.as_view(), name='frontport_bulk_disconnect'),
+    path(r'front-ports/import/', views.FrontPortBulkImportView.as_view(), name='frontport_import'),
 
     # Rear ports
     # path(r'devices/rear-ports/add/', views.DeviceBulkAddRearPortView.as_view(), name='device_bulk_add_rearport'),
@@ -246,6 +250,7 @@ urlpatterns = [
     path(r'rear-ports/<int:pk>/trace/', views.CableTraceView.as_view(), name='rearport_trace', kwargs={'model': RearPort}),
     path(r'rear-ports/rename/', views.RearPortBulkRenameView.as_view(), name='rearport_bulk_rename'),
     path(r'rear-ports/disconnect/', views.RearPortBulkDisconnectView.as_view(), name='rearport_bulk_disconnect'),
+    path(r'rear-ports/import/', views.RearPortBulkImportView.as_view(), name='rearport_import'),
 
     # Device bays
     path(r'devices/device-bays/add/', views.DeviceBulkAddDeviceBayView.as_view(), name='device_bulk_add_devicebay'),

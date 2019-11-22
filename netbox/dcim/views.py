@@ -1283,6 +1283,13 @@ class PowerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = PowerPort
 
 
+class PowerPortBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_powerport'
+    model_form = forms.PowerPortCSVForm
+    table = tables.PowerPortImportTable
+    default_return_url = 'dcim:powerport_list'
+
+
 class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_powerport'
     queryset = PowerPort.objects.all()
@@ -1313,6 +1320,13 @@ class PowerOutletEditView(PermissionRequiredMixin, ObjectEditView):
 class PowerOutletDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_poweroutlet'
     model = PowerOutlet
+
+
+class PowerOutletBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_poweroutlet'
+    model_form = forms.PowerOutletCSVForm
+    table = tables.PowerOutletImportTable
+    default_return_url = 'dcim:poweroutlet_list'
 
 
 class PowerOutletBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -1404,6 +1418,13 @@ class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = Interface
 
 
+class InterfaceBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_interface'
+    model_form = forms.InterfaceCSVForm
+    table = tables.InterfaceImportTable
+    default_return_url = 'dcim:interface_list'
+
+
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_interface'
     queryset = Interface.objects.all()
@@ -1456,6 +1477,13 @@ class FrontPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = FrontPort
 
 
+class FrontPortBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_frontport'
+    model_form = forms.FrontPortCSVForm
+    table = tables.FrontPortImportTable
+    default_return_url = 'dcim:frontport_list'
+
+
 class FrontPortBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_frontport'
     queryset = FrontPort.objects.all()
@@ -1506,6 +1534,13 @@ class RearPortEditView(PermissionRequiredMixin, ObjectEditView):
 class RearPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_rearport'
     model = RearPort
+
+
+class RearPortBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_rearport'
+    model_form = forms.RearPortCSVForm
+    table = tables.RearPortImportTable
+    default_return_url = 'dcim:rearport_list'
 
 
 class RearPortBulkEditView(PermissionRequiredMixin, BulkEditView):
