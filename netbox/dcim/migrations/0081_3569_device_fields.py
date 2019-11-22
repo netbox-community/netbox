@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
     atomic = False
 
     dependencies = [
-        ('dcim', '0079_rack_status_to_slug'),
+        ('dcim', '0080_3569_devicetype_fields'),
     ]
 
     operations = [

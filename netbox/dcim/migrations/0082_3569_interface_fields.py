@@ -91,7 +91,7 @@ class Migration(migrations.Migration):
     atomic = False
 
     dependencies = [
-        ('dcim', '0081_devicetype_subdevicerole_to_slug'),
+        ('dcim', '0081_3569_device_fields'),
     ]
 
     operations = [
