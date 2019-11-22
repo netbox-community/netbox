@@ -1287,7 +1287,8 @@ class PowerPortBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_powerport'
     model_form = forms.PowerPortCSVForm
     table = tables.PowerPortImportTable
-    default_return_url = 'dcim:powerport_list'
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:powerport_list'
 
 
 class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -1326,7 +1327,8 @@ class PowerOutletBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_poweroutlet'
     model_form = forms.PowerOutletCSVForm
     table = tables.PowerOutletImportTable
-    default_return_url = 'dcim:poweroutlet_list'
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:poweroutlet_list'
 
 
 class PowerOutletBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -1422,7 +1424,8 @@ class InterfaceBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_interface'
     model_form = forms.InterfaceCSVForm
     table = tables.InterfaceImportTable
-    default_return_url = 'dcim:interface_list'
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:interface_list'
 
 
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -1481,7 +1484,8 @@ class FrontPortBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_frontport'
     model_form = forms.FrontPortCSVForm
     table = tables.FrontPortImportTable
-    default_return_url = 'dcim:frontport_list'
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:frontport_list'
 
 
 class FrontPortBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -1540,7 +1544,8 @@ class RearPortBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_rearport'
     model_form = forms.RearPortCSVForm
     table = tables.RearPortImportTable
-    default_return_url = 'dcim:rearport_list'
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:rearport_list'
 
 
 class RearPortBulkEditView(PermissionRequiredMixin, BulkEditView):
