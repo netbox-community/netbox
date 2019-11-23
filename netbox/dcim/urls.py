@@ -263,6 +263,7 @@ urlpatterns = [
     path(r'device-bays/<int:pk>/populate/', views.DeviceBayPopulateView.as_view(), name='devicebay_populate'),
     path(r'device-bays/<int:pk>/depopulate/', views.DeviceBayDepopulateView.as_view(), name='devicebay_depopulate'),
     path(r'device-bays/rename/', views.DeviceBayBulkRenameView.as_view(), name='devicebay_bulk_rename'),
+    path(r'device-bays/import/', views.DeviceBayBulkImportView.as_view(), name='devicebay_import'),
 
     # Inventory items
     path(r'inventory-items/', views.InventoryItemListView.as_view(), name='inventoryitem_list'),

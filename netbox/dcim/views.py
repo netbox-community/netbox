@@ -1685,6 +1685,14 @@ class DeviceBayDepopulateView(PermissionRequiredMixin, View):
         })
 
 
+class DeviceBayBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_devicebay'
+    model_form = forms.DeviceBayCSVForm
+    table = tables.DeviceBayImportTable
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:devicebay_list'
+
+
 class DeviceBayBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_devicebay'
     queryset = DeviceBay.objects.all()

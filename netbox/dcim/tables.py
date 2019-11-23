@@ -765,6 +765,16 @@ class DeviceBayTable(BaseTable):
         fields = ('name',)
 
 
+class DeviceBayImportTable(BaseTable):
+    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+    installed_device = tables.LinkColumn('dcim:device', args=[Accessor('installed_device.pk')], verbose_name='Installed Device')
+
+    class Meta(BaseTable.Meta):
+        model = DeviceBay
+        fields = ('device', 'name', 'installed_device', 'description')
+        empty_text = False
+
+
 #
 # Cables
 #
