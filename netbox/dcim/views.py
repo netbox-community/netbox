@@ -1199,6 +1199,14 @@ class ConsolePortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = ConsolePort
 
 
+class ConsolePortBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_consoleport'
+    model_form = forms.ConsolePortCSVForm
+    table = tables.ConsolePortImportTable
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:consoleport_list'
+
+
 class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_consoleport'
     queryset = ConsolePort.objects.all()
@@ -1229,6 +1237,14 @@ class ConsoleServerPortEditView(PermissionRequiredMixin, ObjectEditView):
 class ConsoleServerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_consoleserverport'
     model = ConsoleServerPort
+
+
+class ConsoleServerPortBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_consoleserverport'
+    model_form = forms.ConsoleServerPortCSVForm
+    table = tables.ConsoleServerPortImportTable
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:consoleserverport_list'
 
 
 class ConsoleServerPortBulkEditView(PermissionRequiredMixin, BulkEditView):

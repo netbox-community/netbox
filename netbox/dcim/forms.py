@@ -1953,6 +1953,21 @@ class ConsolePortCreateForm(ComponentForm):
     )
 
 
+class ConsolePortCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Name or ID of device',
+        error_messages={
+            'invalid_choice': 'Device not found.',
+        }
+    )
+
+    class Meta:
+        model = ConsolePort
+        fields = ConsolePort.csv_headers
+
+
 #
 # Console server ports
 #
@@ -2013,6 +2028,21 @@ class ConsoleServerPortBulkDisconnectForm(ConfirmationForm):
         queryset=ConsoleServerPort.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+
+
+class ConsoleServerPortCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Name or ID of device',
+        error_messages={
+            'invalid_choice': 'Device not found.',
+        }
+    )
+
+    class Meta:
+        model = ConsoleServerPort
+        fields = ConsoleServerPort.csv_headers
 
 
 #

@@ -426,6 +426,15 @@ class ConsolePortTemplateTable(BaseTable):
         empty_text = "None"
 
 
+class ConsolePortImportTable(BaseTable):
+    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+
+    class Meta(BaseTable.Meta):
+        model = ConsolePort
+        fields = ('device', 'name', 'description')
+        empty_text = False
+
+
 class ConsoleServerPortTemplateTable(BaseTable):
     pk = ToggleColumn()
     actions = tables.TemplateColumn(
@@ -438,6 +447,15 @@ class ConsoleServerPortTemplateTable(BaseTable):
         model = ConsoleServerPortTemplate
         fields = ('pk', 'name', 'actions')
         empty_text = "None"
+
+
+class ConsoleServerPortImportTable(BaseTable):
+    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+
+    class Meta(BaseTable.Meta):
+        model = ConsoleServerPort
+        fields = ('device', 'name', 'description')
+        empty_text = False
 
 
 class PowerPortTemplateTable(BaseTable):
