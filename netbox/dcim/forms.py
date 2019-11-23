@@ -2071,11 +2071,6 @@ class PowerPortCSVForm(forms.ModelForm):
         model = PowerPort
         fields = PowerPort.csv_headers
 
-    def clean_type(self):
-        # The type may be blank, but not None
-        value = self.cleaned_data['type']
-        return value if value is not None else ''
-
 
 #
 # Power outlets
