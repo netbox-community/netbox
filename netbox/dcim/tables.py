@@ -652,7 +652,7 @@ class DeviceComponentDetailTable(BaseTable):
     class Meta(BaseTable.Meta):
         order_by = ('device', 'name')
         fields = ('pk', 'device', 'name', 'type', 'description', 'cable')
-        sequence = ('pk', 'device', 'name', 'type', 'description',  'cable')
+        sequence = ('pk', 'device', 'name', 'type', 'description', 'cable')
 
 
 class ConsolePortTable(BaseTable):
