@@ -647,8 +647,12 @@ class DeviceComponentDetailTable(BaseTable):
     component_type = ''
 
     pk = ToggleColumn()
-    device = tables.LinkColumn()
     cable = tables.LinkColumn()
+
+    class Meta(BaseTable.Meta):
+        order_by = ('device', 'name')
+        fields = ('pk', 'device', 'name', 'type', 'description', 'cable')
+        sequence = ('pk', 'device', 'name', 'type', 'description',  'cable')
 
 
 class ConsolePortTable(BaseTable):
@@ -660,10 +664,10 @@ class ConsolePortTable(BaseTable):
 
 class ConsolePortDetailTable(DeviceComponentDetailTable):
     component_type = 'Console Ports'
+    device = tables.LinkColumn()
 
-    class Meta(ConsolePortTable.Meta):
-        model = ConsolePort
-        fields = ('pk', 'name', 'type', 'connection_status', 'device', 'cable')
+    class Meta(DeviceComponentDetailTable.Meta, ConsolePortTable.Meta):
+        pass
 
 
 class ConsoleServerPortTable(BaseTable):
@@ -675,10 +679,10 @@ class ConsoleServerPortTable(BaseTable):
 
 class ConsoleServerPortDetailTable(DeviceComponentDetailTable):
     component_type = 'Console Server Ports'
+    device = tables.LinkColumn()
 
-    class Meta(ConsoleServerPortTable.Meta):
-        model = ConsoleServerPort
-        fields = ('pk', 'name', 'type', 'connection_status', 'device', 'cable')
+    class Meta(DeviceComponentDetailTable.Meta, ConsoleServerPortTable.Meta):
+        pass
 
 
 class PowerPortTable(BaseTable):
@@ -690,10 +694,10 @@ class PowerPortTable(BaseTable):
 
 class PowerPortDetailTable(DeviceComponentDetailTable):
     component_type = 'Power Ports'
+    device = tables.LinkColumn()
 
-    class Meta(PowerPortTable.Meta):
-        model = PowerPort
-        fields = ('pk', 'name', 'type', 'connection_status', 'device', 'cable')
+    class Meta(DeviceComponentDetailTable.Meta, PowerPortTable.Meta):
+        pass
 
 
 class PowerOutletTable(BaseTable):
@@ -705,10 +709,10 @@ class PowerOutletTable(BaseTable):
 
 class PowerOutletDetailTable(DeviceComponentDetailTable):
     component_type = 'Power Outlets'
+    device = tables.LinkColumn()
 
-    class Meta(PowerOutletTable.Meta):
-        model = PowerOutlet
-        fields = ('pk', 'name', 'type', 'connection_status', 'device', 'cable')
+    class Meta(DeviceComponentDetailTable.Meta, PowerOutletTable.Meta):
+        pass
 
 
 class InterfaceTable(BaseTable):
@@ -720,10 +724,12 @@ class InterfaceTable(BaseTable):
 
 class InterfaceDetailTable(DeviceComponentDetailTable):
     component_type = 'Interfaces'
+    parent = tables.LinkColumn(order_by=('device', 'virtual_machine'))
 
-    class Meta(InterfaceTable.Meta):
-        model = Interface
-        fields = ('pk', 'name', 'type', 'connection_status', 'device', 'cable')
+    class Meta(InterfaceTable.Meta, DeviceComponentDetailTable.Meta):
+        order_by = ('parent', 'name')
+        fields = ('pk', 'parent', 'name', 'type', 'cable', 'description')
+        sequence = ('pk', 'parent', 'name', 'type', 'cable', 'description')
 
 
 class FrontPortTable(BaseTable):
@@ -736,10 +742,10 @@ class FrontPortTable(BaseTable):
 
 class FrontPortDetailTable(DeviceComponentDetailTable):
     component_type = 'Front Ports'
+    device = tables.LinkColumn()
 
-    class Meta(FrontPortTable.Meta):
-        model = FrontPort
-        fields = ('pk', 'name', 'type', 'connection_status', 'device', 'cable')
+    class Meta(DeviceComponentDetailTable.Meta, FrontPortTable.Meta):
+        pass
 
 
 class RearPortTable(BaseTable):
@@ -752,10 +758,10 @@ class RearPortTable(BaseTable):
 
 class RearPortDetailTable(DeviceComponentDetailTable):
     component_type = 'Rear Ports'
+    device = tables.LinkColumn()
 
-    class Meta(RearPortTable.Meta):
-        model = RearPort
-        fields = ('pk', 'name', 'type', 'connection_status', 'device', 'cable')
+    class Meta(DeviceComponentDetailTable.Meta, RearPortTable.Meta):
+        pass
 
 
 class DeviceBayTable(BaseTable):
@@ -767,10 +773,13 @@ class DeviceBayTable(BaseTable):
 
 class DeviceBayDetailTable(DeviceComponentDetailTable):
     component_type = 'Device Bays'
+    device = tables.LinkColumn()
+    installed_device = tables.LinkColumn()
 
-    class Meta(DeviceBayTable.Meta):
-        model = FrontPort
+    class Meta(DeviceComponentDetailTable.Meta, DeviceBayTable.Meta):
         fields = ('pk', 'name', 'device', 'installed_device')
+        sequence = ('pk', 'name', 'device', 'installed_device')
+        exclude = ('cable',)
 
 
 #
