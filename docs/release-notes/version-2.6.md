@@ -13,6 +13,7 @@
 * [#3674](https://github.com/netbox-community/netbox/issues/3674) - Include comments on PowerFeed view
 * [#3679](https://github.com/netbox-community/netbox/issues/3679) - Fix link for assigned ipaddress in interface page
 * [#3709](https://github.com/netbox-community/netbox/issues/3709) - Prevent exception when importing an invalid cable definition
+* [#3720](https://github.com/netbox-community/netbox/issues/3720) - Correctly indicate power feed terminations on cable list
 
 # v2.6.7 (2019-11-01)
 
