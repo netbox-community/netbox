@@ -2838,6 +2838,8 @@ class Cable(ChangeLoggedModel):
     def clean(self):
 
         # Validate that termination A exists
+        if not hasattr(self, 'termination_a_type'):
+            raise ValidationError('Termination A type has not been specified')
         try:
             self.termination_a_type.model_class().objects.get(pk=self.termination_a_id)
         except ObjectDoesNotExist:
@@ -2846,6 +2848,8 @@ class Cable(ChangeLoggedModel):
             })
 
         # Validate that termination B exists
+        if not hasattr(self, 'termination_b_type'):
+            raise ValidationError('Termination B type has not been specified')
         try:
             self.termination_b_type.model_class().objects.get(pk=self.termination_b_id)
         except ObjectDoesNotExist:
