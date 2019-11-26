@@ -1,10 +1,10 @@
-from dcim.constants import DEVICE_STATUS_ACTIVE, DEVICE_STATUS_OFFLINE, DEVICE_STATUS_STAGED
+from dcim.choices import DeviceStatusChoices
 
 # VirtualMachine statuses (replicated from Device statuses)
 VM_STATUS_CHOICES = [
-    [DEVICE_STATUS_ACTIVE, 'Active'],
-    [DEVICE_STATUS_OFFLINE, 'Offline'],
-    [DEVICE_STATUS_STAGED, 'Staged'],
+    [1, 'Active'],
+    [0, 'Offline'],
+    [3, 'Staged'],
 ]
 
 # Bootstrap CSS classes for VirtualMachine statuses

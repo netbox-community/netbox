@@ -511,7 +511,7 @@ class DeviceFilter(LocalConfigContextFilter, TenancyFilterSet, CustomFieldFilter
         label='Device model (slug)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=DEVICE_STATUS_CHOICES,
+        choices=DeviceStatusChoices,
         null_value=None
     )
     is_full_depth = django_filters.BooleanFilter(

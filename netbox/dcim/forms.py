@@ -1665,7 +1665,7 @@ class BaseDeviceCSVForm(forms.ModelForm):
         }
     )
     status = CSVChoiceField(
-        choices=DEVICE_STATUS_CHOICES,
+        choices=DeviceStatusChoices,
         help_text='Operational status'
     )
 
@@ -1833,7 +1833,7 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         )
     )
     status = forms.ChoiceField(
-        choices=add_blank_choice(DEVICE_STATUS_CHOICES),
+        choices=add_blank_choice(DeviceStatusChoices),
         required=False,
         initial='',
         widget=StaticSelect2()
@@ -1944,7 +1944,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         )
     )
     status = forms.MultipleChoiceField(
-        choices=DEVICE_STATUS_CHOICES,
+        choices=DeviceStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )

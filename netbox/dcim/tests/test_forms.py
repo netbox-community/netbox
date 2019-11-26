@@ -24,7 +24,7 @@ class DeviceTestCase(TestCase):
             'face': DeviceFaceChoices.FACE_FRONT,
             'position': 41,
             'platform': get_id(Platform, 'juniper-junos'),
-            'status': DEVICE_STATUS_ACTIVE,
+            'status': DeviceStatusChoices.STATUS_ACTIVE,
         })
         self.assertTrue(test.is_valid(), test.fields['position'].choices)
         self.assertTrue(test.save())
@@ -41,7 +41,7 @@ class DeviceTestCase(TestCase):
             'face': DeviceFaceChoices.FACE_FRONT,
             'position': 1,
             'platform': get_id(Platform, 'juniper-junos'),
-            'status': DEVICE_STATUS_ACTIVE,
+            'status': DeviceStatusChoices.STATUS_ACTIVE,
         })
         self.assertFalse(test.is_valid())
 
@@ -57,7 +57,7 @@ class DeviceTestCase(TestCase):
             'face': '',
             'position': None,
             'platform': None,
-            'status': DEVICE_STATUS_ACTIVE,
+            'status': DeviceStatusChoices.STATUS_ACTIVE,
         })
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())
@@ -74,7 +74,7 @@ class DeviceTestCase(TestCase):
             'face': DeviceFaceChoices.FACE_REAR,
             'position': None,
             'platform': None,
-            'status': DEVICE_STATUS_ACTIVE,
+            'status': DeviceStatusChoices.STATUS_ACTIVE,
         })
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())

@@ -195,7 +195,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     )
     status = models.PositiveSmallIntegerField(
         choices=VM_STATUS_CHOICES,
-        default=DEVICE_STATUS_ACTIVE,
+        default=1,  # TODO: Replace with ChoiceSet value
         verbose_name='Status'
     )
     role = models.ForeignKey(

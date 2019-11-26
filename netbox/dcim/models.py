@@ -1551,10 +1551,10 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         choices=DeviceFaceChoices,
         verbose_name='Rack face'
     )
-    status = models.PositiveSmallIntegerField(
-        choices=DEVICE_STATUS_CHOICES,
-        default=DEVICE_STATUS_ACTIVE,
-        verbose_name='Status'
+    status = models.CharField(
+        max_length=50,
+        choices=DeviceStatusChoices,
+        default=DeviceStatusChoices.STATUS_ACTIVE
     )
     primary_ip4 = models.OneToOneField(
         to='ipam.IPAddress',
@@ -1615,6 +1615,16 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
         'site', 'rack_group', 'rack_name', 'position', 'face', 'comments',
     ]
+
+    STATUS_CLASS_MAP = {
+        DeviceStatusChoices.STATUS_OFFLINE: 'warning',
+        DeviceStatusChoices.STATUS_ACTIVE: 'success',
+        DeviceStatusChoices.STATUS_PLANNED: 'info',
+        DeviceStatusChoices.STATUS_STAGED: 'primary',
+        DeviceStatusChoices.STATUS_FAILED: 'danger',
+        DeviceStatusChoices.STATUS_INVENTORY: 'default',
+        DeviceStatusChoices.STATUS_DECOMMISSIONING: 'warning',
+    }
 
     class Meta:
         ordering = ['name']
@@ -1869,7 +1879,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         return Device.objects.filter(parent_bay__device=self.pk)
 
     def get_status_class(self):
-        return STATUS_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)
 
 
 #
