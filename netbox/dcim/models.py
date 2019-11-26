@@ -2829,10 +2829,10 @@ class Cable(ChangeLoggedModel):
         blank=True,
         null=True
     )
-    length_unit = models.PositiveSmallIntegerField(
-        choices=CABLE_LENGTH_UNIT_CHOICES,
+    length_unit = models.CharField(
+        max_length=50,
+        choices=CableLengthUnitChoices,
         blank=True,
-        null=True
     )
     # Stores the normalized length (in meters) for database ordering
     _abs_length = models.DecimalField(
@@ -2960,10 +2960,10 @@ class Cable(ChangeLoggedModel):
             ))
 
         # Validate length and length_unit
-        if self.length is not None and self.length_unit is None:
+        if self.length is not None and not self.length_unit:
             raise ValidationError("Must specify a unit when setting a cable length")
         elif self.length is None:
-            self.length_unit = None
+            self.length_unit = ''
 
     def save(self, *args, **kwargs):
 

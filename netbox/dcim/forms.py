@@ -3149,7 +3149,7 @@ class CableCSVForm(forms.ModelForm):
         help_text='Cable type'
     )
     length_unit = CSVChoiceField(
-        choices=CABLE_LENGTH_UNIT_CHOICES,
+        choices=CableLengthUnitChoices,
         required=False,
         help_text='Length unit'
     )
@@ -3254,7 +3254,7 @@ class CableBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False
     )
     length_unit = forms.ChoiceField(
-        choices=add_blank_choice(CABLE_LENGTH_UNIT_CHOICES),
+        choices=add_blank_choice(CableLengthUnitChoices),
         required=False,
         initial='',
         widget=StaticSelect2()

@@ -834,3 +834,25 @@ class CableTypeChoices(ChoiceSet):
         TYPE_AOC: 3800,
         TYPE_POWER: 5000,
     }
+
+
+class CableLengthUnitChoices(ChoiceSet):
+
+    UNIT_METER = 'm'
+    UNIT_CENTIMETER = 'cm'
+    UNIT_FOOT = 'ft'
+    UNIT_INCH = 'in'
+
+    CHOICES = (
+        (UNIT_METER, 'Meters'),
+        (UNIT_CENTIMETER, 'Centimeters'),
+        (UNIT_FOOT, 'Feet'),
+        (UNIT_INCH, 'Inches'),
+    )
+
+    LEGACY_MAP = {
+        UNIT_METER: 1200,
+        UNIT_CENTIMETER: 1100,
+        UNIT_FOOT: 2100,
+        UNIT_INCH: 2000,
+    }

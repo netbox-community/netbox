@@ -23,11 +23,24 @@ CABLE_TYPE_CHOICES = (
     (5000, 'power'),
 )
 
+CABLE_LENGTH_UNIT_CHOICES = (
+    (1200, 'm'),
+    (1100, 'cm'),
+    (2100, 'ft'),
+    (2000, 'in'),
+)
+
 
 def cable_type_to_slug(apps, schema_editor):
     Cable = apps.get_model('dcim', 'Cable')
     for id, slug in CABLE_TYPE_CHOICES:
         Cable.objects.filter(type=id).update(type=slug)
+
+
+def cable_length_unit_to_slug(apps, schema_editor):
+    Cable = apps.get_model('dcim', 'Cable')
+    for id, slug in CABLE_LENGTH_UNIT_CHOICES:
+        Cable.objects.filter(length_unit=id).update(length_unit=slug)
 
 
 class Migration(migrations.Migration):
@@ -38,6 +51,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+
+        # Cable.type
         migrations.AlterField(
             model_name='cable',
             name='type',
@@ -51,4 +66,20 @@ class Migration(migrations.Migration):
             name='type',
             field=models.CharField(blank=True, max_length=50),
         ),
+
+        # Cable.length_unit
+        migrations.AlterField(
+            model_name='cable',
+            name='length_unit',
+            field=models.CharField(blank=True, default='', max_length=50),
+        ),
+        migrations.RunPython(
+            code=cable_length_unit_to_slug
+        ),
+        migrations.AlterField(
+            model_name='cable',
+            name='length_unit',
+            field=models.CharField(blank=True, max_length=50),
+        ),
+
     ]
