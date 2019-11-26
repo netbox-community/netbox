@@ -2108,7 +2108,7 @@ class PowerPort(CableTermination, ComponentModel):
             }
 
             # Calculate per-leg aggregates for three-phase feeds
-            if self._connected_powerfeed and self._connected_powerfeed.phase == POWERFEED_PHASE_3PHASE:
+            if self._connected_powerfeed and self._connected_powerfeed.phase == PowerFeedPhaseChoices.PHASE_3PHASE:
                 for leg, leg_name in POWERFEED_LEG_CHOICES:
                     outlet_ids = PowerOutlet.objects.filter(power_port=self, feed_leg=leg).values_list('pk', flat=True)
                     utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
@@ -3121,9 +3121,10 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         choices=PowerFeedSupplyChoices,
         default=PowerFeedSupplyChoices.SUPPLY_AC
     )
-    phase = models.PositiveSmallIntegerField(
-        choices=POWERFEED_PHASE_CHOICES,
-        default=POWERFEED_PHASE_SINGLE
+    phase = models.CharField(
+        max_length=50,
+        choices=PowerFeedPhaseChoices,
+        default=PowerFeedPhaseChoices.PHASE_SINGLE
     )
     voltage = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)],
@@ -3197,7 +3198,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
 
         # Cache the available_power property on the instance
         kva = self.voltage * self.amperage * (self.max_utilization / 100)
-        if self.phase == POWERFEED_PHASE_3PHASE:
+        if self.phase == PowerFeedPhaseChoices.PHASE_3PHASE:
             self.available_power = round(kva * 1.732)
         else:
             self.available_power = round(kva)

@@ -3870,7 +3870,7 @@ class PowerFeedCSVForm(forms.ModelForm):
         help_text='AC/DC'
     )
     phase = CSVChoiceField(
-        choices=POWERFEED_PHASE_CHOICES,
+        choices=PowerFeedPhaseChoices,
         required=False,
         help_text='Single or three-phase'
     )
@@ -3948,7 +3948,7 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         widget=StaticSelect2()
     )
     phase = forms.ChoiceField(
-        choices=add_blank_choice(POWERFEED_PHASE_CHOICES),
+        choices=add_blank_choice(PowerFeedPhaseChoices),
         required=False,
         initial='',
         widget=StaticSelect2()
@@ -4024,7 +4024,7 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
         widget=StaticSelect2()
     )
     phase = forms.ChoiceField(
-        choices=add_blank_choice(POWERFEED_PHASE_CHOICES),
+        choices=add_blank_choice(PowerFeedPhaseChoices),
         required=False,
         widget=StaticSelect2()
     )

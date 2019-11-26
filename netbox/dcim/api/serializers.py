@@ -703,8 +703,8 @@ class PowerFeedSerializer(TaggitSerializer, CustomFieldModelSerializer):
         default=PowerFeedSupplyChoices.SUPPLY_AC
     )
     phase = ChoiceField(
-        choices=POWERFEED_PHASE_CHOICES,
-        default=POWERFEED_PHASE_SINGLE
+        choices=PowerFeedPhaseChoices,
+        default=PowerFeedPhaseChoices.PHASE_SINGLE
     )
     tags = TagListSerializerField(
         required=False

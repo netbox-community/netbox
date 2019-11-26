@@ -11,6 +11,11 @@ POWERFEED_SUPPLY_CHOICES = (
     (2, 'dc'),
 )
 
+POWERFEED_PHASE_CHOICES = (
+    (1, 'single-phase'),
+    (3, 'three-phase'),
+)
+
 
 def powerfeed_type_to_slug(apps, schema_editor):
     PowerFeed = apps.get_model('dcim', 'PowerFeed')
@@ -22,6 +27,12 @@ def powerfeed_supply_to_slug(apps, schema_editor):
     PowerFeed = apps.get_model('dcim', 'PowerFeed')
     for id, slug in POWERFEED_SUPPLY_CHOICES:
         PowerFeed.objects.filter(supply=id).update(supply=slug)
+
+
+def powerfeed_phase_to_slug(apps, schema_editor):
+    PowerFeed = apps.get_model('dcim', 'PowerFeed')
+    for id, slug in POWERFEED_PHASE_CHOICES:
+        PowerFeed.objects.filter(phase=id).update(phase=slug)
 
 
 class Migration(migrations.Migration):
@@ -51,6 +62,16 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(
             code=powerfeed_supply_to_slug
+        ),
+
+        # PowerFeed.phase
+        migrations.AlterField(
+            model_name='powerfeed',
+            name='phase',
+            field=models.CharField(blank=True, max_length=50),
+        ),
+        migrations.RunPython(
+            code=powerfeed_phase_to_slug
         ),
 
     ]

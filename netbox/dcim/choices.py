@@ -900,11 +900,27 @@ class PowerFeedSupplyChoices(ChoiceSet):
     SUPPLY_DC = 'dc'
 
     CHOICES = (
-        (SUPPLY_AC, 'Primary'),
-        (SUPPLY_DC, 'Redundant'),
+        (SUPPLY_AC, 'AC'),
+        (SUPPLY_DC, 'DC'),
     )
 
     LEGACY_MAP = {
         SUPPLY_AC: 1,
         SUPPLY_DC: 2,
+    }
+
+
+class PowerFeedPhaseChoices(ChoiceSet):
+
+    PHASE_SINGLE = 'single-phase'
+    PHASE_3PHASE = 'three-phase'
+
+    CHOICES = (
+        (PHASE_SINGLE, 'Single phase'),
+        (PHASE_3PHASE, 'Three-phase'),
+    )
+
+    LEGACY_MAP = {
+        PHASE_SINGLE: 1,
+        PHASE_3PHASE: 3,
     }
