@@ -878,6 +878,28 @@ class CableLengthUnitChoices(ChoiceSet):
 # PowerFeeds
 #
 
+class PowerFeedStatusChoices(ChoiceSet):
+
+    STATUS_OFFLINE = 'offline'
+    STATUS_ACTIVE = 'active'
+    STATUS_PLANNED = 'planned'
+    STATUS_FAILED = 'failed'
+
+    CHOICES = (
+        (STATUS_OFFLINE, 'Offline'),
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_PLANNED, 'Planned'),
+        (STATUS_FAILED, 'Failed'),
+    )
+
+    LEGACY_MAP = {
+        STATUS_OFFLINE: 0,
+        STATUS_ACTIVE: 1,
+        STATUS_PLANNED: 2,
+        STATUS_FAILED: 4,
+    }
+
+
 class PowerFeedTypeChoices(ChoiceSet):
 
     TYPE_PRIMARY = 'primary'

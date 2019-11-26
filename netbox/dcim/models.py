@@ -3107,9 +3107,10 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     name = models.CharField(
         max_length=50
     )
-    status = models.PositiveSmallIntegerField(
-        choices=POWERFEED_STATUS_CHOICES,
-        default=POWERFEED_STATUS_ACTIVE
+    status = models.CharField(
+        max_length=50,
+        choices=PowerFeedStatusChoices,
+        default=PowerFeedStatusChoices.STATUS_ACTIVE
     )
     type = models.CharField(
         max_length=50,
@@ -3159,6 +3160,18 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         'amperage', 'max_utilization', 'comments',
     ]
 
+    STATUS_CLASS_MAP = {
+        PowerFeedStatusChoices.STATUS_OFFLINE: 'warning',
+        PowerFeedStatusChoices.STATUS_ACTIVE: 'success',
+        PowerFeedStatusChoices.STATUS_PLANNED: 'info',
+        PowerFeedStatusChoices.STATUS_FAILED: 'danger',
+    }
+
+    TYPE_CLASS_MAP = {
+        PowerFeedTypeChoices.TYPE_PRIMARY: 'success',
+        PowerFeedTypeChoices.TYPE_REDUNDANT: 'info',
+    }
+
     class Meta:
         ordering = ['power_panel', 'name']
         unique_together = ['power_panel', 'name']
@@ -3206,7 +3219,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         super().save(*args, **kwargs)
 
     def get_type_class(self):
-        return STATUS_CLASSES[self.type]
+        return self.TYPE_CLASS_MAP.get(self.type)
 
     def get_status_class(self):
-        return STATUS_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)

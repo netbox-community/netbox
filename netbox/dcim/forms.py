@@ -3855,7 +3855,7 @@ class PowerFeedCSVForm(forms.ModelForm):
         help_text="Rack name (optional)"
     )
     status = CSVChoiceField(
-        choices=POWERFEED_STATUS_CHOICES,
+        choices=PowerFeedStatusChoices,
         required=False,
         help_text='Operational status'
     )
@@ -3930,7 +3930,7 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         )
     )
     status = forms.ChoiceField(
-        choices=add_blank_choice(POWERFEED_STATUS_CHOICES),
+        choices=add_blank_choice(PowerFeedStatusChoices),
         required=False,
         initial='',
         widget=StaticSelect2()
@@ -4009,7 +4009,7 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
         )
     )
     status = forms.MultipleChoiceField(
-        choices=POWERFEED_STATUS_CHOICES,
+        choices=PowerFeedStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )
