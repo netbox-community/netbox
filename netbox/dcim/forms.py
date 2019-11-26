@@ -3144,7 +3144,7 @@ class CableCSVForm(forms.ModelForm):
         help_text='Connection status'
     )
     type = CSVChoiceField(
-        choices=CABLE_TYPE_CHOICES,
+        choices=CableTypeChoices,
         required=False,
         help_text='Cable type'
     )
@@ -3229,7 +3229,7 @@ class CableBulkEditForm(BootstrapMixin, BulkEditForm):
         widget=forms.MultipleHiddenInput
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(CABLE_TYPE_CHOICES),
+        choices=add_blank_choice(CableTypeChoices),
         required=False,
         initial='',
         widget=StaticSelect2()
@@ -3303,7 +3303,7 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         )
     )
     type = forms.MultipleChoiceField(
-        choices=add_blank_choice(CABLE_TYPE_CHOICES),
+        choices=add_blank_choice(CableTypeChoices),
         required=False,
         widget=StaticSelect2()
     )

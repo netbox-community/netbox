@@ -939,7 +939,7 @@ class CableFilter(django_filters.FilterSet):
         label='Search',
     )
     type = django_filters.MultipleChoiceFilter(
-        choices=CABLE_TYPE_CHOICES
+        choices=CableTypeChoices
     )
     status = django_filters.MultipleChoiceFilter(
         choices=CONNECTION_STATUS_CHOICES

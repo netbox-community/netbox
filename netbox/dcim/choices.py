@@ -755,3 +755,82 @@ class PortTypeChoices(ChoiceSet):
         TYPE_LSH: 2600,
         TYPE_LSH_APC: 2610,
     }
+
+
+#
+# Cables
+#
+
+class CableTypeChoices(ChoiceSet):
+
+    TYPE_CAT3 = 'cat3'
+    TYPE_CAT5 = 'cat5'
+    TYPE_CAT5E = 'cat5e'
+    TYPE_CAT6 = 'cat6'
+    TYPE_CAT6A = 'cat6a'
+    TYPE_CAT7 = 'cat7'
+    TYPE_DAC_ACTIVE = 'dac-active'
+    TYPE_DAC_PASSIVE = 'dac-passive'
+    TYPE_COAXIAL = 'coaxial'
+    TYPE_MMF = 'mmf'
+    TYPE_MMF_OM1 = 'mmf-om1'
+    TYPE_MMF_OM2 = 'mmf-om2'
+    TYPE_MMF_OM3 = 'mmf-om3'
+    TYPE_MMF_OM4 = 'mmf-om4'
+    TYPE_SMF = 'smf'
+    TYPE_SMF_OS1 = 'smf-os1'
+    TYPE_SMF_OS2 = 'smf-os2'
+    TYPE_AOC = 'aoc'
+    TYPE_POWER = 'power'
+
+    CHOICES = (
+        (
+            'Copper', (
+                (TYPE_CAT3, 'CAT3'),
+                (TYPE_CAT5, 'CAT5'),
+                (TYPE_CAT5E, 'CAT5e'),
+                (TYPE_CAT6, 'CAT6'),
+                (TYPE_CAT6A, 'CAT6a'),
+                (TYPE_CAT7, 'CAT7'),
+                (TYPE_DAC_ACTIVE, 'Direct Attach Copper (Active)'),
+                (TYPE_DAC_PASSIVE, 'Direct Attach Copper (Passive)'),
+                (TYPE_COAXIAL, 'Coaxial'),
+            ),
+        ),
+        (
+            'Fiber', (
+                (TYPE_MMF, 'Multimode Fiber'),
+                (TYPE_MMF_OM1, 'Multimode Fiber (OM1)'),
+                (TYPE_MMF_OM2, 'Multimode Fiber (OM2)'),
+                (TYPE_MMF_OM3, 'Multimode Fiber (OM3)'),
+                (TYPE_MMF_OM4, 'Multimode Fiber (OM4)'),
+                (TYPE_SMF, 'Singlemode Fiber'),
+                (TYPE_SMF_OS1, 'Singlemode Fiber (OS1)'),
+                (TYPE_SMF_OS2, 'Singlemode Fiber (OS2)'),
+                (TYPE_AOC, 'Active Optical Cabling (AOC)'),
+            ),
+        ),
+        (TYPE_POWER, 'Power'),
+    )
+
+    LEGACY_MAP = {
+        TYPE_CAT3: 1300,
+        TYPE_CAT5: 1500,
+        TYPE_CAT5E: 1510,
+        TYPE_CAT6: 1600,
+        TYPE_CAT6A: 1610,
+        TYPE_CAT7: 1700,
+        TYPE_DAC_ACTIVE: 1800,
+        TYPE_DAC_PASSIVE: 1810,
+        TYPE_COAXIAL: 1900,
+        TYPE_MMF: 3000,
+        TYPE_MMF_OM1: 3010,
+        TYPE_MMF_OM2: 3020,
+        TYPE_MMF_OM3: 3030,
+        TYPE_MMF_OM4: 3040,
+        TYPE_SMF: 3500,
+        TYPE_SMF_OS1: 3510,
+        TYPE_SMF_OS2: 3520,
+        TYPE_AOC: 3800,
+        TYPE_POWER: 5000,
+    }

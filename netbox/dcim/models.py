@@ -2809,10 +2809,10 @@ class Cable(ChangeLoggedModel):
         ct_field='termination_b_type',
         fk_field='termination_b_id'
     )
-    type = models.PositiveSmallIntegerField(
-        choices=CABLE_TYPE_CHOICES,
-        blank=True,
-        null=True
+    type = models.CharField(
+        max_length=50,
+        choices=CableTypeChoices,
+        blank=True
     )
     status = models.BooleanField(
         choices=CONNECTION_STATUS_CHOICES,

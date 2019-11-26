@@ -527,15 +527,15 @@ class CableTestCase(TestCase):
         iface6 = Interface(device=device2, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         iface6.save()
 
-        Cable(termination_a=iface1, termination_b=iface4, type=CABLE_TYPE_CAT6).save()
-        Cable(termination_a=iface2, termination_b=iface5, type=CABLE_TYPE_CAT6).save()
-        Cable(termination_a=iface3, termination_b=iface6, type=CABLE_TYPE_CAT6).save()
+        Cable(termination_a=iface1, termination_b=iface4, type=CableTypeChoices.TYPE_CAT6).save()
+        Cable(termination_a=iface2, termination_b=iface5, type=CableTypeChoices.TYPE_CAT6).save()
+        Cable(termination_a=iface3, termination_b=iface6, type=CableTypeChoices.TYPE_CAT6).save()
 
     def test_cable_list(self):
 
         url = reverse('dcim:cable_list')
         params = {
-            "type": CABLE_TYPE_CAT6,
+            "type": CableTypeChoices.TYPE_CAT6,
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
