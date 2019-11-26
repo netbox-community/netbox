@@ -89,6 +89,22 @@ class RackStatusChoices(ChoiceSet):
     }
 
 
+class RackDimensionUnitChoices(ChoiceSet):
+
+    UNIT_MILLIMETER = 'mm'
+    UNIT_INCH = 'in'
+
+    CHOICES = (
+        (UNIT_MILLIMETER, 'Millimeters'),
+        (UNIT_INCH, 'Inches'),
+    )
+
+    LEGACY_MAP = {
+        UNIT_MILLIMETER: 1000,
+        UNIT_INCH: 2000,
+    }
+
+
 #
 # DeviceTypes
 #

@@ -5,7 +5,7 @@ from collections import OrderedDict
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
 
-from dcim.constants import LENGTH_UNIT_CENTIMETER, LENGTH_UNIT_FOOT, LENGTH_UNIT_INCH, LENGTH_UNIT_METER
+from dcim.choices import CableLengthUnitChoices
 
 
 def csv_format(data):
@@ -165,12 +165,18 @@ def to_meters(length, unit):
     length = int(length)
     if length < 0:
         raise ValueError("Length must be a positive integer")
-    if unit == LENGTH_UNIT_METER:
+
+    valid_units = [u[0] for u in CableLengthUnitChoices]
+    if unit not in valid_units:
+        raise ValueError(
+            "Unknown unit {}. Must be one of the following: {}".format(unit, ', '.join(valid_units))
+        )
+
+    if unit == CableLengthUnitChoices.UNIT_METER:
         return length
-    if unit == LENGTH_UNIT_CENTIMETER:
+    if unit == CableLengthUnitChoices.UNIT_CENTIMETER:
         return length / 100
-    if unit == LENGTH_UNIT_FOOT:
+    if unit == CableLengthUnitChoices.UNIT_FOOT:
         return length * 0.3048
-    if unit == LENGTH_UNIT_INCH:
+    if unit == CableLengthUnitChoices.UNIT_INCH:
         return length * 0.3048 * 12
-    raise ValueError("Unknown unit {}. Must be 'm', 'cm', 'ft', or 'in'.".format(unit))

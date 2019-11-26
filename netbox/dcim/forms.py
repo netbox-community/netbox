@@ -496,7 +496,7 @@ class RackCSVForm(forms.ModelForm):
         help_text='Rail-to-rail width (in inches)'
     )
     outer_unit = CSVChoiceField(
-        choices=RACK_DIMENSION_UNIT_CHOICES,
+        choices=RackDimensionUnitChoices,
         required=False,
         help_text='Unit for outer dimensions'
     )
@@ -617,7 +617,7 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         min_value=1
     )
     outer_unit = forms.ChoiceField(
-        choices=add_blank_choice(RACK_DIMENSION_UNIT_CHOICES),
+        choices=add_blank_choice(RackDimensionUnitChoices),
         required=False,
         widget=StaticSelect2()
     )

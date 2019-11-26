@@ -119,7 +119,7 @@ class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
     role = NestedRackRoleSerializer(required=False, allow_null=True)
     type = ChoiceField(choices=RackTypeChoices, required=False, allow_null=True)
     width = ChoiceField(choices=RackWidthChoices, required=False)
-    outer_unit = ChoiceField(choices=RACK_DIMENSION_UNIT_CHOICES, required=False)
+    outer_unit = ChoiceField(choices=RackDimensionUnitChoices, required=False)
     tags = TagListSerializerField(required=False)
     device_count = serializers.IntegerField(read_only=True)
     powerfeed_count = serializers.IntegerField(read_only=True)

@@ -535,10 +535,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         null=True
     )
-    outer_unit = models.PositiveSmallIntegerField(
-        choices=RACK_DIMENSION_UNIT_CHOICES,
+    outer_unit = models.CharField(
+        max_length=50,
+        choices=RackDimensionUnitChoices,
         blank=True,
-        null=True
     )
     comments = models.TextField(
         blank=True
@@ -584,10 +584,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def clean(self):
 
         # Validate outer dimensions and unit
-        if (self.outer_width is not None or self.outer_depth is not None) and self.outer_unit is None:
+        if (self.outer_width is not None or self.outer_depth is not None) and not self.outer_unit:
             raise ValidationError("Must specify a unit when setting an outer width/depth")
         elif self.outer_width is None and self.outer_depth is None:
-            self.outer_unit = None
+            self.outer_unit = ''
 
         if self.pk:
             # Validate that Rack is tall enough to house the installed Devices

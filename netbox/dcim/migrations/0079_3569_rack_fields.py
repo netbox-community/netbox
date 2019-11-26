@@ -16,6 +16,11 @@ RACK_STATUS_CHOICES = (
     (4, 'deprecated'),
 )
 
+RACK_DIMENSION_CHOICES = (
+    (1000, 'mm'),
+    (2000, 'in'),
+)
+
 
 def rack_type_to_slug(apps, schema_editor):
     Rack = apps.get_model('dcim', 'Rack')
@@ -26,6 +31,12 @@ def rack_type_to_slug(apps, schema_editor):
 def rack_status_to_slug(apps, schema_editor):
     Rack = apps.get_model('dcim', 'Rack')
     for id, slug in RACK_STATUS_CHOICES:
+        Rack.objects.filter(status=str(id)).update(status=slug)
+
+
+def rack_outer_unit_to_slug(apps, schema_editor):
+    Rack = apps.get_model('dcim', 'Rack')
+    for id, slug in RACK_DIMENSION_CHOICES:
         Rack.objects.filter(status=str(id)).update(status=slug)
 
 
@@ -61,5 +72,20 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(
             code=rack_status_to_slug
+        ),
+
+        # Rack.outer_unit
+        migrations.AlterField(
+            model_name='rack',
+            name='outer_unit',
+            field=models.CharField(blank=True, default='', max_length=50),
+        ),
+        migrations.RunPython(
+            code=rack_outer_unit_to_slug
+        ),
+        migrations.AlterField(
+            model_name='rack',
+            name='outer_unit',
+            field=models.CharField(blank=True, max_length=50),
         ),
     ]
