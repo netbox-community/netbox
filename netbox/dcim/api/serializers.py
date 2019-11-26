@@ -266,7 +266,7 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
 
 class RearPortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
-    type = ChoiceField(choices=PORT_TYPE_CHOICES)
+    type = ChoiceField(choices=PortTypeChoices)
 
     class Meta:
         model = RearPortTemplate
@@ -275,7 +275,7 @@ class RearPortTemplateSerializer(ValidatedModelSerializer):
 
 class FrontPortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
-    type = ChoiceField(choices=PORT_TYPE_CHOICES)
+    type = ChoiceField(choices=PortTypeChoices)
     rear_port = NestedRearPortTemplateSerializer()
 
     class Meta:
@@ -511,7 +511,7 @@ class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
 
 class RearPortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    type = ChoiceField(choices=PORT_TYPE_CHOICES)
+    type = ChoiceField(choices=PortTypeChoices)
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
@@ -533,7 +533,7 @@ class FrontPortRearPortSerializer(WritableNestedSerializer):
 
 class FrontPortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    type = ChoiceField(choices=PORT_TYPE_CHOICES)
+    type = ChoiceField(choices=PortTypeChoices)
     rear_port = FrontPortRearPortSerializer()
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)

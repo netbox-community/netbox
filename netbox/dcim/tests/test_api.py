@@ -3034,16 +3034,16 @@ class ConnectionTest(APITestCase):
             device=self.device2, name='Test Console Server Port 1'
         )
         rearport1 = RearPort.objects.create(
-            device=self.panel1, name='Test Rear Port 1', type=PORT_TYPE_8P8C
+            device=self.panel1, name='Test Rear Port 1', type=PortTypeChoices.TYPE_8P8C
         )
         frontport1 = FrontPort.objects.create(
-            device=self.panel1, name='Test Front Port 1', type=PORT_TYPE_8P8C, rear_port=rearport1
+            device=self.panel1, name='Test Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport1
         )
         rearport2 = RearPort.objects.create(
-            device=self.panel2, name='Test Rear Port 2', type=PORT_TYPE_8P8C
+            device=self.panel2, name='Test Rear Port 2', type=PortTypeChoices.TYPE_8P8C
         )
         frontport2 = FrontPort.objects.create(
-            device=self.panel2, name='Test Front Port 2', type=PORT_TYPE_8P8C, rear_port=rearport2
+            device=self.panel2, name='Test Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport2
         )
 
         url = reverse('dcim-api:cable-list')
@@ -3162,16 +3162,16 @@ class ConnectionTest(APITestCase):
             device=self.device2, name='Test Interface 2'
         )
         rearport1 = RearPort.objects.create(
-            device=self.panel1, name='Test Rear Port 1', type=PORT_TYPE_8P8C
+            device=self.panel1, name='Test Rear Port 1', type=PortTypeChoices.TYPE_8P8C
         )
         frontport1 = FrontPort.objects.create(
-            device=self.panel1, name='Test Front Port 1', type=PORT_TYPE_8P8C, rear_port=rearport1
+            device=self.panel1, name='Test Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport1
         )
         rearport2 = RearPort.objects.create(
-            device=self.panel2, name='Test Rear Port 2', type=PORT_TYPE_8P8C
+            device=self.panel2, name='Test Rear Port 2', type=PortTypeChoices.TYPE_8P8C
         )
         frontport2 = FrontPort.objects.create(
-            device=self.panel2, name='Test Front Port 2', type=PORT_TYPE_8P8C, rear_port=rearport2
+            device=self.panel2, name='Test Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport2
         )
 
         url = reverse('dcim-api:cable-list')
@@ -3273,16 +3273,16 @@ class ConnectionTest(APITestCase):
             circuit=circuit, term_side='A', site=self.site, port_speed=10000
         )
         rearport1 = RearPort.objects.create(
-            device=self.panel1, name='Test Rear Port 1', type=PORT_TYPE_8P8C
+            device=self.panel1, name='Test Rear Port 1', type=PortTypeChoices.TYPE_8P8C
         )
         frontport1 = FrontPort.objects.create(
-            device=self.panel1, name='Test Front Port 1', type=PORT_TYPE_8P8C, rear_port=rearport1
+            device=self.panel1, name='Test Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport1
         )
         rearport2 = RearPort.objects.create(
-            device=self.panel2, name='Test Rear Port 2', type=PORT_TYPE_8P8C
+            device=self.panel2, name='Test Rear Port 2', type=PortTypeChoices.TYPE_8P8C
         )
         frontport2 = FrontPort.objects.create(
-            device=self.panel2, name='Test Front Port 2', type=PORT_TYPE_8P8C, rear_port=rearport2
+            device=self.panel2, name='Test Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport2
         )
 
         url = reverse('dcim-api:cable-list')

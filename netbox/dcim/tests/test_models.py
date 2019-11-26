@@ -200,7 +200,7 @@ class DeviceTestCase(TestCase):
         rpt = RearPortTemplate(
             device_type=self.device_type,
             name='Rear Port 1',
-            type=PORT_TYPE_8P8C,
+            type=PortTypeChoices.TYPE_8P8C,
             positions=8
         )
         rpt.save()
@@ -208,7 +208,7 @@ class DeviceTestCase(TestCase):
         FrontPortTemplate(
             device_type=self.device_type,
             name='Front Port 1',
-            type=PORT_TYPE_8P8C,
+            type=PortTypeChoices.TYPE_8P8C,
             rear_port=rpt,
             rear_port_position=2
         ).save()
@@ -264,14 +264,14 @@ class DeviceTestCase(TestCase):
         rp = RearPort.objects.get(
             device=d,
             name='Rear Port 1',
-            type=PORT_TYPE_8P8C,
+            type=PortTypeChoices.TYPE_8P8C,
             positions=8
         )
 
         FrontPort.objects.get(
             device=d,
             name='Front Port 1',
-            type=PORT_TYPE_8P8C,
+            type=PortTypeChoices.TYPE_8P8C,
             rear_port=rp,
             rear_port_position=2
         )
@@ -421,16 +421,16 @@ class CablePathTestCase(TestCase):
             device_type=devicetype, device_role=devicerole, name='Test Panel 2', site=site
         )
         self.rear_port1 = RearPort.objects.create(
-            device=self.panel1, name='Rear Port 1', type=PORT_TYPE_8P8C
+            device=self.panel1, name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C
         )
         self.front_port1 = FrontPort.objects.create(
-            device=self.panel1, name='Front Port 1', type=PORT_TYPE_8P8C, rear_port=self.rear_port1
+            device=self.panel1, name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=self.rear_port1
         )
         self.rear_port2 = RearPort.objects.create(
-            device=self.panel2, name='Rear Port 2', type=PORT_TYPE_8P8C
+            device=self.panel2, name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C
         )
         self.front_port2 = FrontPort.objects.create(
-            device=self.panel2, name='Front Port 2', type=PORT_TYPE_8P8C, rear_port=self.rear_port2
+            device=self.panel2, name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=self.rear_port2
         )
 
     def test_path_completion(self):

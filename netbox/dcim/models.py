@@ -1252,8 +1252,9 @@ class FrontPortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=64
     )
-    type = models.PositiveSmallIntegerField(
-        choices=PORT_TYPE_CHOICES
+    type = models.CharField(
+        max_length=50,
+        choices=PortTypeChoices
     )
     rear_port = models.ForeignKey(
         to='dcim.RearPortTemplate',
@@ -1319,8 +1320,9 @@ class RearPortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=64
     )
-    type = models.PositiveSmallIntegerField(
-        choices=PORT_TYPE_CHOICES
+    type = models.CharField(
+        max_length=50,
+        choices=PortTypeChoices
     )
     positions = models.PositiveSmallIntegerField(
         default=1,
@@ -2475,8 +2477,9 @@ class FrontPort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=64
     )
-    type = models.PositiveSmallIntegerField(
-        choices=PORT_TYPE_CHOICES
+    type = models.CharField(
+        max_length=50,
+        choices=PortTypeChoices
     )
     rear_port = models.ForeignKey(
         to='dcim.RearPort',
@@ -2542,8 +2545,9 @@ class RearPort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=64
     )
-    type = models.PositiveSmallIntegerField(
-        choices=PORT_TYPE_CHOICES
+    type = models.CharField(
+        max_length=50,
+        choices=PortTypeChoices
     )
     positions = models.PositiveSmallIntegerField(
         default=1,

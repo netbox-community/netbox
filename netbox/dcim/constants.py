@@ -20,47 +20,6 @@ WIRELESS_IFACE_TYPES = [
 
 NONCONNECTABLE_IFACE_TYPES = VIRTUAL_IFACE_TYPES + WIRELESS_IFACE_TYPES
 
-
-# Pass-through port types
-PORT_TYPE_8P8C = 1000
-PORT_TYPE_110_PUNCH = 1100
-PORT_TYPE_BNC = 1200
-PORT_TYPE_ST = 2000
-PORT_TYPE_SC = 2100
-PORT_TYPE_SC_APC = 2110
-PORT_TYPE_FC = 2200
-PORT_TYPE_LC = 2300
-PORT_TYPE_LC_APC = 2310
-PORT_TYPE_MTRJ = 2400
-PORT_TYPE_MPO = 2500
-PORT_TYPE_LSH = 2600
-PORT_TYPE_LSH_APC = 2610
-PORT_TYPE_CHOICES = [
-    [
-        'Copper',
-        [
-            [PORT_TYPE_8P8C, '8P8C'],
-            [PORT_TYPE_110_PUNCH, '110 Punch'],
-            [PORT_TYPE_BNC, 'BNC'],
-        ],
-    ],
-    [
-        'Fiber Optic',
-        [
-            [PORT_TYPE_FC, 'FC'],
-            [PORT_TYPE_LC, 'LC'],
-            [PORT_TYPE_LC_APC, 'LC/APC'],
-            [PORT_TYPE_LSH, 'LSH'],
-            [PORT_TYPE_LSH_APC, 'LSH/APC'],
-            [PORT_TYPE_MPO, 'MPO'],
-            [PORT_TYPE_MTRJ, 'MTRJ'],
-            [PORT_TYPE_SC, 'SC'],
-            [PORT_TYPE_SC_APC, 'SC/APC'],
-            [PORT_TYPE_ST, 'ST'],
-        ]
-    ]
-]
-
 # Bootstrap CSS classes for device/rack statuses
 STATUS_CLASSES = {
     0: 'warning',

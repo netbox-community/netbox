@@ -1133,7 +1133,7 @@ class FrontPortTemplateCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=PORT_TYPE_CHOICES,
+        choices=PortTypeChoices,
         widget=StaticSelect2()
     )
     rear_port_set = forms.MultipleChoiceField(
@@ -1203,7 +1203,7 @@ class RearPortTemplateCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=PORT_TYPE_CHOICES,
+        choices=PortTypeChoices,
         widget=StaticSelect2(),
     )
     positions = forms.IntegerField(
@@ -1328,11 +1328,6 @@ class FrontPortTemplateImportForm(ComponentTemplateImportForm):
             'device_type', 'name', 'type', 'rear_port', 'rear_port_position',
         ]
 
-    def clean_type(self):
-        # Convert slug value to field integer value
-        slug = self.cleaned_data['type']
-        return PortTypeChoices.slug_to_id(slug)
-
 
 class RearPortTemplateImportForm(ComponentTemplateImportForm):
     type = forms.ChoiceField(
@@ -1344,11 +1339,6 @@ class RearPortTemplateImportForm(ComponentTemplateImportForm):
         fields = [
             'device_type', 'name', 'type', 'positions',
         ]
-
-    def clean_type(self):
-        # Convert slug value to field integer value
-        slug = self.cleaned_data['type']
-        return PortTypeChoices.slug_to_id(slug)
 
 
 class DeviceBayTemplateImportForm(ComponentTemplateImportForm):
@@ -2686,7 +2676,7 @@ class FrontPortCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=PORT_TYPE_CHOICES,
+        choices=PortTypeChoices,
         widget=StaticSelect2(),
     )
     rear_port_set = forms.MultipleChoiceField(
@@ -2746,7 +2736,7 @@ class FrontPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         widget=forms.MultipleHiddenInput()
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(PORT_TYPE_CHOICES),
+        choices=add_blank_choice(PortTypeChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -2800,7 +2790,7 @@ class RearPortCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=PORT_TYPE_CHOICES,
+        choices=PortTypeChoices,
         widget=StaticSelect2(),
     )
     positions = forms.IntegerField(
@@ -2820,7 +2810,7 @@ class RearPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         widget=forms.MultipleHiddenInput()
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(PORT_TYPE_CHOICES),
+        choices=add_blank_choice(PortTypeChoices),
         required=False,
         widget=StaticSelect2()
     )
