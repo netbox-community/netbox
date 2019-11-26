@@ -3111,9 +3111,9 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         choices=POWERFEED_STATUS_CHOICES,
         default=POWERFEED_STATUS_ACTIVE
     )
-    type = models.PositiveSmallIntegerField(
-        choices=POWERFEED_TYPE_CHOICES,
-        default=POWERFEED_TYPE_PRIMARY
+    type = models.CharField(
+        choices=PowerFeedTypeChoices,
+        default=PowerFeedTypeChoices.TYPE_PRIMARY
     )
     supply = models.PositiveSmallIntegerField(
         choices=POWERFEED_SUPPLY_CHOICES,

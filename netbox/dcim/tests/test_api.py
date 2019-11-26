@@ -3679,22 +3679,22 @@ class PowerFeedTest(APITestCase):
             site=self.site1, rack_group=self.rackgroup1, name='Test Power Panel 2'
         )
         self.powerfeed1 = PowerFeed.objects.create(
-            power_panel=self.powerpanel1, rack=self.rack1, name='Test Power Feed 1A', type=POWERFEED_TYPE_PRIMARY
+            power_panel=self.powerpanel1, rack=self.rack1, name='Test Power Feed 1A', type=PowerFeedTypeChoices.TYPE_PRIMARY
         )
         self.powerfeed2 = PowerFeed.objects.create(
-            power_panel=self.powerpanel2, rack=self.rack1, name='Test Power Feed 1B', type=POWERFEED_TYPE_REDUNDANT
+            power_panel=self.powerpanel2, rack=self.rack1, name='Test Power Feed 1B', type=PowerFeedTypeChoices.TYPE_REDUNDANT
         )
         self.powerfeed3 = PowerFeed.objects.create(
-            power_panel=self.powerpanel1, rack=self.rack2, name='Test Power Feed 2A', type=POWERFEED_TYPE_PRIMARY
+            power_panel=self.powerpanel1, rack=self.rack2, name='Test Power Feed 2A', type=PowerFeedTypeChoices.TYPE_PRIMARY
         )
         self.powerfeed4 = PowerFeed.objects.create(
-            power_panel=self.powerpanel2, rack=self.rack2, name='Test Power Feed 2B', type=POWERFEED_TYPE_REDUNDANT
+            power_panel=self.powerpanel2, rack=self.rack2, name='Test Power Feed 2B', type=PowerFeedTypeChoices.TYPE_REDUNDANT
         )
         self.powerfeed5 = PowerFeed.objects.create(
-            power_panel=self.powerpanel1, rack=self.rack3, name='Test Power Feed 3A', type=POWERFEED_TYPE_PRIMARY
+            power_panel=self.powerpanel1, rack=self.rack3, name='Test Power Feed 3A', type=PowerFeedTypeChoices.TYPE_PRIMARY
         )
         self.powerfeed6 = PowerFeed.objects.create(
-            power_panel=self.powerpanel2, rack=self.rack3, name='Test Power Feed 3B', type=POWERFEED_TYPE_REDUNDANT
+            power_panel=self.powerpanel2, rack=self.rack3, name='Test Power Feed 3B', type=PowerFeedTypeChoices.TYPE_REDUNDANT
         )
 
     def test_get_powerfeed(self):
@@ -3727,7 +3727,7 @@ class PowerFeedTest(APITestCase):
             'name': 'Test Power Feed 4A',
             'power_panel': self.powerpanel1.pk,
             'rack': self.rack4.pk,
-            'type': POWERFEED_TYPE_PRIMARY,
+            'type': PowerFeedTypeChoices.TYPE_PRIMARY,
         }
 
         url = reverse('dcim-api:powerfeed-list')
@@ -3747,13 +3747,13 @@ class PowerFeedTest(APITestCase):
                 'name': 'Test Power Feed 4A',
                 'power_panel': self.powerpanel1.pk,
                 'rack': self.rack4.pk,
-                'type': POWERFEED_TYPE_PRIMARY,
+                'type': PowerFeedTypeChoices.TYPE_PRIMARY,
             },
             {
                 'name': 'Test Power Feed 4B',
                 'power_panel': self.powerpanel1.pk,
                 'rack': self.rack4.pk,
-                'type': POWERFEED_TYPE_REDUNDANT,
+                'type': PowerFeedTypeChoices.TYPE_REDUNDANT,
             },
         ]
 
@@ -3770,7 +3770,7 @@ class PowerFeedTest(APITestCase):
         data = {
             'name': 'Test Power Feed X',
             'rack': self.rack4.pk,
-            'type': POWERFEED_TYPE_REDUNDANT,
+            'type': PowerFeedTypeChoices.TYPE_REDUNDANT,
         }
 
         url = reverse('dcim-api:powerfeed-detail', kwargs={'pk': self.powerfeed1.pk})

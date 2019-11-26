@@ -691,8 +691,8 @@ class PowerFeedSerializer(TaggitSerializer, CustomFieldModelSerializer):
         default=None
     )
     type = ChoiceField(
-        choices=POWERFEED_TYPE_CHOICES,
-        default=POWERFEED_TYPE_PRIMARY
+        choices=PowerFeedTypeChoices,
+        default=PowerFeedTypeChoices.TYPE_PRIMARY
     )
     status = ChoiceField(
         choices=POWERFEED_STATUS_CHOICES,

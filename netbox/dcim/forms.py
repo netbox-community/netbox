@@ -3860,7 +3860,7 @@ class PowerFeedCSVForm(forms.ModelForm):
         help_text='Operational status'
     )
     type = CSVChoiceField(
-        choices=POWERFEED_TYPE_CHOICES,
+        choices=PowerFeedTypeChoices,
         required=False,
         help_text='Primary or redundant'
     )
@@ -3936,7 +3936,7 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         widget=StaticSelect2()
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(POWERFEED_TYPE_CHOICES),
+        choices=add_blank_choice(PowerFeedTypeChoices),
         required=False,
         initial='',
         widget=StaticSelect2()
@@ -4014,7 +4014,7 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
         widget=StaticSelect2Multiple()
     )
     type = forms.ChoiceField(
-        choices=add_blank_choice(POWERFEED_TYPE_CHOICES),
+        choices=add_blank_choice(PowerFeedTypeChoices),
         required=False,
         widget=StaticSelect2()
     )

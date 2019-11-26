@@ -872,3 +872,23 @@ class CableLengthUnitChoices(ChoiceSet):
         UNIT_FOOT: 2100,
         UNIT_INCH: 2000,
     }
+
+
+#
+# PowerFeeds
+#
+
+class PowerFeedTypeChoices(ChoiceSet):
+
+    TYPE_PRIMARY = 'primary'
+    TYPE_REDUNDANT = 'redundant'
+
+    CHOICES = (
+        (TYPE_PRIMARY, 'Primary'),
+        (TYPE_REDUNDANT, 'Redundant'),
+    )
+
+    LEGACY_MAP = {
+        TYPE_PRIMARY: 1,
+        TYPE_REDUNDANT: 2,
+    }
