@@ -699,8 +699,8 @@ class PowerFeedSerializer(TaggitSerializer, CustomFieldModelSerializer):
         default=POWERFEED_STATUS_ACTIVE
     )
     supply = ChoiceField(
-        choices=POWERFEED_SUPPLY_CHOICES,
-        default=POWERFEED_SUPPLY_AC
+        choices=PowerFeedSupplyChoices,
+        default=PowerFeedSupplyChoices.SUPPLY_AC
     )
     phase = ChoiceField(
         choices=POWERFEED_PHASE_CHOICES,

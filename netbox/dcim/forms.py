@@ -3865,7 +3865,7 @@ class PowerFeedCSVForm(forms.ModelForm):
         help_text='Primary or redundant'
     )
     supply = CSVChoiceField(
-        choices=POWERFEED_SUPPLY_CHOICES,
+        choices=PowerFeedSupplyChoices,
         required=False,
         help_text='AC/DC'
     )
@@ -3942,7 +3942,7 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         widget=StaticSelect2()
     )
     supply = forms.ChoiceField(
-        choices=add_blank_choice(POWERFEED_SUPPLY_CHOICES),
+        choices=add_blank_choice(PowerFeedSupplyChoices),
         required=False,
         initial='',
         widget=StaticSelect2()
@@ -4019,7 +4019,7 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
         widget=StaticSelect2()
     )
     supply = forms.ChoiceField(
-        choices=add_blank_choice(POWERFEED_SUPPLY_CHOICES),
+        choices=add_blank_choice(PowerFeedSupplyChoices),
         required=False,
         widget=StaticSelect2()
     )

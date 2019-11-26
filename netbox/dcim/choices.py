@@ -892,3 +892,19 @@ class PowerFeedTypeChoices(ChoiceSet):
         TYPE_PRIMARY: 1,
         TYPE_REDUNDANT: 2,
     }
+
+
+class PowerFeedSupplyChoices(ChoiceSet):
+
+    SUPPLY_AC = 'ac'
+    SUPPLY_DC = 'dc'
+
+    CHOICES = (
+        (SUPPLY_AC, 'Primary'),
+        (SUPPLY_DC, 'Redundant'),
+    )
+
+    LEGACY_MAP = {
+        SUPPLY_AC: 1,
+        SUPPLY_DC: 2,
+    }

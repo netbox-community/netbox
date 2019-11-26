@@ -3112,12 +3112,14 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         default=POWERFEED_STATUS_ACTIVE
     )
     type = models.CharField(
+        max_length=50,
         choices=PowerFeedTypeChoices,
         default=PowerFeedTypeChoices.TYPE_PRIMARY
     )
-    supply = models.PositiveSmallIntegerField(
-        choices=POWERFEED_SUPPLY_CHOICES,
-        default=POWERFEED_SUPPLY_AC
+    supply = models.CharField(
+        max_length=50,
+        choices=PowerFeedSupplyChoices,
+        default=PowerFeedSupplyChoices.SUPPLY_AC
     )
     phase = models.PositiveSmallIntegerField(
         choices=POWERFEED_PHASE_CHOICES,
