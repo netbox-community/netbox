@@ -384,7 +384,8 @@ CONNECTION_STATUS_CHOICES = [
 
 # Cable endpoint types
 CABLE_TERMINATION_TYPES = [
-    'consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontport', 'rearport', 'circuittermination',
+    'consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontport', 'rearport',
+    'circuittermination', 'powerfeed',
 ]
 
 # Cable types
