@@ -1043,7 +1043,7 @@ class PowerOutletTemplateCreateForm(ComponentForm):
         required=False
     )
     feed_leg = forms.ChoiceField(
-        choices=add_blank_choice(POWERFEED_LEG_CHOICES),
+        choices=add_blank_choice(PowerOutletFeedLegChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -2241,7 +2241,7 @@ class PowerOutletCreateForm(ComponentForm):
         required=False
     )
     feed_leg = forms.ChoiceField(
-        choices=add_blank_choice(POWERFEED_LEG_CHOICES),
+        choices=add_blank_choice(PowerOutletFeedLegChoices),
         required=False
     )
     description = forms.CharField(
@@ -2270,7 +2270,7 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         required=False
     )
     feed_leg = forms.ChoiceField(
-        choices=add_blank_choice(POWERFEED_LEG_CHOICES),
+        choices=add_blank_choice(PowerOutletFeedLegChoices),
         required=False,
     )
     power_port = forms.ModelChoiceField(

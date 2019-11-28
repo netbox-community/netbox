@@ -391,6 +391,25 @@ class PowerOutletTypeChoices(ChoiceSet):
     )
 
 
+class PowerOutletFeedLegChoices(ChoiceSet):
+
+    FEED_LEG_A = 'A'
+    FEED_LEG_B = 'B'
+    FEED_LEG_C = 'C'
+
+    CHOICES = (
+        (FEED_LEG_A, 'A'),
+        (FEED_LEG_B, 'B'),
+        (FEED_LEG_C, 'C'),
+    )
+
+    LEGACY_MAP = {
+        FEED_LEG_A: 1,
+        FEED_LEG_B: 2,
+        FEED_LEG_C: 3,
+    }
+
+
 #
 # Interfaces
 #

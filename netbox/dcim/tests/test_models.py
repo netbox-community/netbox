@@ -187,7 +187,7 @@ class DeviceTestCase(TestCase):
             device_type=self.device_type,
             name='Power Outlet 1',
             power_port=ppt,
-            feed_leg=POWERFEED_LEG_A
+            feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A
         ).save()
 
         InterfaceTemplate(
@@ -251,7 +251,7 @@ class DeviceTestCase(TestCase):
             device=d,
             name='Power Outlet 1',
             power_port=pp,
-            feed_leg=POWERFEED_LEG_A
+            feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A
         )
 
         Interface.objects.get(

@@ -245,7 +245,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
         required=False
     )
     feed_leg = ChoiceField(
-        choices=POWERFEED_LEG_CHOICES,
+        choices=PowerOutletFeedLegChoices,
         required=False,
         allow_null=True
     )
@@ -429,7 +429,7 @@ class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
         required=False
     )
     feed_leg = ChoiceField(
-        choices=POWERFEED_LEG_CHOICES,
+        choices=PowerOutletFeedLegChoices,
         required=False,
         allow_null=True
     )

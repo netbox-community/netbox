@@ -255,15 +255,15 @@ power-outlets:
   - name: Power Outlet 1
     type: iec-60320-c13
     power_port: Power Port 1
-    feed_leg: 1
+    feed_leg: A
   - name: Power Outlet 2
     type: iec-60320-c13
     power_port: Power Port 1
-    feed_leg: 1
+    feed_leg: A
   - name: Power Outlet 3
     type: iec-60320-c13
     power_port: Power Port 1
-    feed_leg: 1
+    feed_leg: A
 interfaces:
   - name: Interface 1
     type: 1000base-t
@@ -343,7 +343,7 @@ device-bays:
         self.assertEqual(po1.name, 'Power Outlet 1')
         self.assertEqual(po1.type, PowerOutletTypeChoices.TYPE_IEC_C13)
         self.assertEqual(po1.power_port, pp1)
-        self.assertEqual(po1.feed_leg, POWERFEED_LEG_A)
+        self.assertEqual(po1.feed_leg, PowerOutletFeedLegChoices.FEED_LEG_A)
 
         self.assertEqual(dt.interface_templates.count(), 3)
         iface1 = InterfaceTemplate.objects.first()

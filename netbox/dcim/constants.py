@@ -55,13 +55,3 @@ COMPATIBLE_TERMINATION_TYPES = {
     'rearport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport', 'circuittermination'],
     'circuittermination': ['interface', 'frontport', 'rearport'],
 }
-
-# Power feeds
-POWERFEED_LEG_A = 1
-POWERFEED_LEG_B = 2
-POWERFEED_LEG_C = 3
-POWERFEED_LEG_CHOICES = (
-    (POWERFEED_LEG_A, 'A'),
-    (POWERFEED_LEG_B, 'B'),
-    (POWERFEED_LEG_C, 'C'),
-)

@@ -1164,10 +1164,10 @@ class PowerOutletTemplate(ComponentTemplateModel):
         null=True,
         related_name='poweroutlet_templates'
     )
-    feed_leg = models.PositiveSmallIntegerField(
-        choices=POWERFEED_LEG_CHOICES,
+    feed_leg = models.CharField(
+        max_length=50,
+        choices=PowerOutletFeedLegChoices,
         blank=True,
-        null=True,
         help_text="Phase (for three-phase feeds)"
     )
 
@@ -2109,7 +2109,7 @@ class PowerPort(CableTermination, ComponentModel):
 
             # Calculate per-leg aggregates for three-phase feeds
             if self._connected_powerfeed and self._connected_powerfeed.phase == PowerFeedPhaseChoices.PHASE_3PHASE:
-                for leg, leg_name in POWERFEED_LEG_CHOICES:
+                for leg, leg_name in PowerOutletFeedLegChoices:
                     outlet_ids = PowerOutlet.objects.filter(power_port=self, feed_leg=leg).values_list('pk', flat=True)
                     utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
                         maximum_draw_total=Sum('maximum_draw'),
@@ -2161,10 +2161,10 @@ class PowerOutlet(CableTermination, ComponentModel):
         null=True,
         related_name='poweroutlets'
     )
-    feed_leg = models.PositiveSmallIntegerField(
-        choices=POWERFEED_LEG_CHOICES,
+    feed_leg = models.CharField(
+        max_length=50,
+        choices=PowerOutletFeedLegChoices,
         blank=True,
-        null=True,
         help_text="Phase (for three-phase feeds)"
     )
     connection_status = models.NullBooleanField(
