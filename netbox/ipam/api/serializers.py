@@ -201,7 +201,7 @@ class IPAddressSerializer(TaggitSerializer, CustomFieldModelSerializer):
     family = ChoiceField(choices=AF_CHOICES, read_only=True)
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    status = ChoiceField(choices=IPADDRESS_STATUS_CHOICES, required=False)
+    status = ChoiceField(choices=IPAddressStatusChoices, required=False)
     role = ChoiceField(choices=IPADDRESS_ROLE_CHOICES, required=False, allow_null=True)
     interface = IPAddressInterfaceSerializer(required=False, allow_null=True)
     nat_inside = NestedIPAddressSerializer(required=False, allow_null=True)

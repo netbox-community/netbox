@@ -559,10 +559,10 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         null=True
     )
-    status = models.PositiveSmallIntegerField(
-        choices=IPADDRESS_STATUS_CHOICES,
-        default=IPADDRESS_STATUS_ACTIVE,
-        verbose_name='Status',
+    status = models.CharField(
+        max_length=50,
+        choices=IPAddressStatusChoices,
+        default=IPAddressStatusChoices.STATUS_ACTIVE,
         help_text='The operational status of this IP'
     )
     role = models.PositiveSmallIntegerField(
@@ -612,6 +612,13 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface_name', 'is_primary',
         'dns_name', 'description',
     ]
+
+    STATUS_CLASS_MAP = {
+        'active': 'primary',
+        'reserved': 'info',
+        'deprecated': 'danger',
+        'dhcp': 'success',
+    }
 
     class Meta:
         ordering = ['family', 'address']
@@ -746,7 +753,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         return None
 
     def get_status_class(self):
-        return STATUS_CHOICE_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)
 
     def get_role_class(self):
         return ROLE_CHOICE_CLASSES[self.role]

@@ -311,7 +311,7 @@ class IPAddressFilter(TenancyFilterSet, CustomFieldFilterSet):
         label='Interface (ID)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=IPADDRESS_STATUS_CHOICES,
+        choices=IPAddressStatusChoices,
         null_value=None
     )
     role = django_filters.MultipleChoiceFilter(
