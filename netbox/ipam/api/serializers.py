@@ -9,8 +9,7 @@ from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerial
 from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.choices import *
-from ipam.constants import *
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from ipam.models import AF_CHOICES, Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import (
     ChoiceField, SerializedPKRelatedField, ValidatedModelSerializer, WritableNestedSerializer,
@@ -240,7 +239,7 @@ class AvailableIPSerializer(serializers.Serializer):
 class ServiceSerializer(CustomFieldModelSerializer):
     device = NestedDeviceSerializer(required=False, allow_null=True)
     virtual_machine = NestedVirtualMachineSerializer(required=False, allow_null=True)
-    protocol = ChoiceField(choices=IP_PROTOCOL_CHOICES)
+    protocol = ChoiceField(choices=ServiceProtocolChoices)
     ipaddresses = SerializedPKRelatedField(
         queryset=IPAddress.objects.all(),
         serializer=NestedIPAddressSerializer,

@@ -15,11 +15,16 @@ from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
 from virtualization.models import VirtualMachine
 from .choices import *
-from .constants import *
 from .fields import IPNetworkField, IPAddressField
 from .querysets import PrefixQuerySet
 from .validators import DNSValidator
 
+
+# IP address families
+AF_CHOICES = (
+    (4, 'IPv4'),
+    (6, 'IPv6'),
+)
 
 IPADDRESS_ROLES_NONUNIQUE = (
     # IPAddress roles which are exempt from unique address enforcement
@@ -975,8 +980,9 @@ class Service(ChangeLoggedModel, CustomFieldModel):
     name = models.CharField(
         max_length=30
     )
-    protocol = models.PositiveSmallIntegerField(
-        choices=IP_PROTOCOL_CHOICES
+    protocol = models.CharField(
+        max_length=50,
+        choices=ServiceProtocolChoices
     )
     port = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(65535)],

@@ -14,7 +14,6 @@ from utilities.forms import (
 )
 from virtualization.models import VirtualMachine
 from .choices import *
-from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 IP_FAMILY_CHOICES = [
@@ -1293,7 +1292,7 @@ class ServiceFilterForm(BootstrapMixin, CustomFieldFilterForm):
         label='Search'
     )
     protocol = forms.ChoiceField(
-        choices=add_blank_choice(IP_PROTOCOL_CHOICES),
+        choices=add_blank_choice(ServiceProtocolChoices),
         required=False,
         widget=StaticSelect2Multiple()
     )
@@ -1308,7 +1307,7 @@ class ServiceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         widget=forms.MultipleHiddenInput()
     )
     protocol = forms.ChoiceField(
-        choices=add_blank_choice(IP_PROTOCOL_CHOICES),
+        choices=add_blank_choice(ServiceProtocolChoices),
         required=False,
         widget=StaticSelect2()
     )

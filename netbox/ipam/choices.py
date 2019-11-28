@@ -108,3 +108,23 @@ class VLANStatusChoices(ChoiceSet):
         STATUS_RESERVED: 2,
         STATUS_DEPRECATED: 3,
     }
+
+
+#
+# VLANs
+#
+
+class ServiceProtocolChoices(ChoiceSet):
+
+    PROTOCOL_TCP = 'tcp'
+    PROTOCOL_UDP = 'udp'
+
+    CHOICES = (
+        (PROTOCOL_TCP, 'TCP'),
+        (PROTOCOL_UDP, 'UDP'),
+    )
+
+    LEGACY_MAP = {
+        PROTOCOL_TCP: 6,
+        PROTOCOL_UDP: 17,
+    }
