@@ -14,7 +14,7 @@ from utilities.views import (
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
-from .choices import PrefixStatusChoices
+from .choices import *
 from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
@@ -666,8 +666,8 @@ class IPAddressView(PermissionRequiredMixin, View):
             'nat_inside', 'interface__device'
         )
         # Exclude anycast IPs if this IP is anycast
-        if ipaddress.role == IPADDRESS_ROLE_ANYCAST:
-            duplicate_ips = duplicate_ips.exclude(role=IPADDRESS_ROLE_ANYCAST)
+        if ipaddress.role == IPAddressRoleChoices.ROLE_ANYCAST:
+            duplicate_ips = duplicate_ips.exclude(role=IPAddressRoleChoices.ROLE_ANYCAST)
         duplicate_ips_table = tables.IPAddressTable(list(duplicate_ips), orderable=False)
 
         # Related IP table

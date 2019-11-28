@@ -21,6 +21,17 @@ from .querysets import PrefixQuerySet
 from .validators import DNSValidator
 
 
+IPADDRESS_ROLES_NONUNIQUE = (
+    # IPAddress roles which are exempt from unique address enforcement
+    IPAddressRoleChoices.ROLE_ANYCAST,
+    IPAddressRoleChoices.ROLE_VIP,
+    IPAddressRoleChoices.ROLE_VRRP,
+    IPAddressRoleChoices.ROLE_HSRP,
+    IPAddressRoleChoices.ROLE_GLBP,
+    IPAddressRoleChoices.ROLE_CARP,
+)
+
+
 class VRF(ChangeLoggedModel, CustomFieldModel):
     """
     A virtual routing and forwarding (VRF) table represents a discrete layer three forwarding domain (e.g. a routing
@@ -565,11 +576,10 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         default=IPAddressStatusChoices.STATUS_ACTIVE,
         help_text='The operational status of this IP'
     )
-    role = models.PositiveSmallIntegerField(
-        verbose_name='Role',
-        choices=IPADDRESS_ROLE_CHOICES,
+    role = models.CharField(
+        max_length=50,
+        choices=IPAddressRoleChoices,
         blank=True,
-        null=True,
         help_text='The functional role of this IP'
     )
     interface = models.ForeignKey(
@@ -618,6 +628,17 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         'reserved': 'info',
         'deprecated': 'danger',
         'dhcp': 'success',
+    }
+
+    ROLE_CLASS_MAP = {
+        'loopback': 'default',
+        'secondary': 'primary',
+        'anycast': 'warning',
+        'vip': 'success',
+        'vrrp': 'success',
+        'hsrp': 'success',
+        'glbp': 'success',
+        'carp': 'success',
     }
 
     class Meta:
@@ -756,7 +777,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         return self.STATUS_CLASS_MAP.get(self.status)
 
     def get_role_class(self):
-        return ROLE_CHOICE_CLASSES[self.role]
+        return self.ROLE_CLASS_MAP[self.role]
 
 
 class VLANGroup(ChangeLoggedModel):

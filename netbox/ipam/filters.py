@@ -315,7 +315,7 @@ class IPAddressFilter(TenancyFilterSet, CustomFieldFilterSet):
         null_value=None
     )
     role = django_filters.MultipleChoiceFilter(
-        choices=IPADDRESS_ROLE_CHOICES
+        choices=IPAddressRoleChoices
     )
     tag = TagFilter()
 

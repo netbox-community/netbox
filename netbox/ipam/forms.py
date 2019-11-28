@@ -769,7 +769,7 @@ class IPAddressCSVForm(forms.ModelForm):
         help_text='Operational status'
     )
     role = CSVChoiceField(
-        choices=IPADDRESS_ROLE_CHOICES,
+        choices=IPAddressRoleChoices,
         required=False,
         help_text='Functional role'
     )
@@ -899,7 +899,7 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         widget=StaticSelect2()
     )
     role = forms.ChoiceField(
-        choices=add_blank_choice(IPADDRESS_ROLE_CHOICES),
+        choices=add_blank_choice(IPAddressRoleChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -978,7 +978,7 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
         widget=StaticSelect2Multiple()
     )
     role = forms.MultipleChoiceField(
-        choices=IPADDRESS_ROLE_CHOICES,
+        choices=IPAddressRoleChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )
