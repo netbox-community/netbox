@@ -8,6 +8,7 @@ from taggit_serializer.serializers import TaggitSerializer, TagListSerializerFie
 from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerializer
 from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
+from ipam.choices import *
 from ipam.constants import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from tenancy.api.nested_serializers import NestedTenantSerializer
@@ -140,7 +141,7 @@ class PrefixSerializer(TaggitSerializer, CustomFieldModelSerializer):
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     vlan = NestedVLANSerializer(required=False, allow_null=True)
-    status = ChoiceField(choices=PREFIX_STATUS_CHOICES, required=False)
+    status = ChoiceField(choices=PrefixStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
 

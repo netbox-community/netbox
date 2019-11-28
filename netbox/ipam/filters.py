@@ -9,6 +9,7 @@ from extras.filters import CustomFieldFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from virtualization.models import VirtualMachine
+from .choices import *
 from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
@@ -178,7 +179,7 @@ class PrefixFilter(TenancyFilterSet, CustomFieldFilterSet):
         label='Role (slug)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=PREFIX_STATUS_CHOICES,
+        choices=PrefixStatusChoices,
         null_value=None
     )
     tag = TagFilter()

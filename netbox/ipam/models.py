@@ -14,6 +14,7 @@ from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
 from virtualization.models import VirtualMachine
+from .choices import *
 from .constants import *
 from .fields import IPNetworkField, IPAddressField
 from .querysets import PrefixQuerySet
@@ -297,9 +298,10 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         null=True,
         verbose_name='VLAN'
     )
-    status = models.PositiveSmallIntegerField(
-        choices=PREFIX_STATUS_CHOICES,
-        default=PREFIX_STATUS_ACTIVE,
+    status = models.CharField(
+        max_length=50,
+        choices=PrefixStatusChoices,
+        default=PrefixStatusChoices.STATUS_ACTIVE,
         verbose_name='Status',
         help_text='Operational status of this prefix'
     )
@@ -332,6 +334,13 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     csv_headers = [
         'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
     ]
+
+    STATUS_CLASS_MAP = {
+        'container': 'default',
+        'active': 'primary',
+        'reserved': 'info',
+        'deprecated': 'danger',
+    }
 
     class Meta:
         ordering = [F('vrf').asc(nulls_first=True), 'family', 'prefix']
@@ -404,7 +413,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     prefix_length = property(fset=_set_prefix_length)
 
     def get_status_class(self):
-        return STATUS_CHOICE_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)
 
     def get_duplicates(self):
         return Prefix.objects.filter(vrf=self.vrf, prefix=str(self.prefix)).exclude(pk=self.pk)
@@ -414,7 +423,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         Return all Prefixes within this Prefix and VRF. If this Prefix is a container in the global table, return child
         Prefixes belonging to any VRF.
         """
-        if self.vrf is None and self.status == PREFIX_STATUS_CONTAINER:
+        if self.vrf is None and self.status == PrefixStatusChoices.STATUS_CONTAINER:
             return Prefix.objects.filter(prefix__net_contained=str(self.prefix))
         else:
             return Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
@@ -424,7 +433,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         Return all IPAddresses within this Prefix and VRF. If this Prefix is a container in the global table, return
         child IPAddresses belonging to any VRF.
         """
-        if self.vrf is None and self.status == PREFIX_STATUS_CONTAINER:
+        if self.vrf is None and self.status == PrefixStatusChoices.STATUS_CONTAINER:
             return IPAddress.objects.filter(address__net_host_contained=str(self.prefix))
         else:
             return IPAddress.objects.filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
@@ -490,7 +499,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         Determine the utilization of the prefix and return it as a percentage. For Prefixes with a status of
         "container", calculate utilization based on child prefixes. For all others, count child IP addresses.
         """
-        if self.status == PREFIX_STATUS_CONTAINER:
+        if self.status == PrefixStatusChoices.STATUS_CONTAINER:
             queryset = Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
             child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
             return int(float(child_prefixes.size) / self.prefix.size * 100)

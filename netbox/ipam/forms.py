@@ -13,6 +13,7 @@ from utilities.forms import (
     StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES
 )
 from virtualization.models import VirtualMachine
+from .choices import *
 from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
@@ -374,7 +375,7 @@ class PrefixCSVForm(forms.ModelForm):
         required=False
     )
     status = CSVChoiceField(
-        choices=PREFIX_STATUS_CHOICES,
+        choices=PrefixStatusChoices,
         help_text='Operational status'
     )
     role = forms.ModelChoiceField(
@@ -459,7 +460,7 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         )
     )
     status = forms.ChoiceField(
-        choices=add_blank_choice(PREFIX_STATUS_CHOICES),
+        choices=add_blank_choice(PrefixStatusChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -527,7 +528,7 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         )
     )
     status = forms.MultipleChoiceField(
-        choices=PREFIX_STATUS_CHOICES,
+        choices=PrefixStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )

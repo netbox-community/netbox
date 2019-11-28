@@ -14,6 +14,7 @@ from utilities.views import (
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
+from .choices import PrefixStatusChoices
 from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
@@ -217,13 +218,13 @@ class RIRListView(PermissionRequiredMixin, ObjectListView):
 
                 # Find all consumed space for each prefix status (we ignore containers for this purpose).
                 active_prefixes = netaddr.cidr_merge(
-                    [p.prefix for p in queryset.filter(status=PREFIX_STATUS_ACTIVE)]
+                    [p.prefix for p in queryset.filter(status=PrefixStatusChoices.STATUS_ACTIVE)]
                 )
                 reserved_prefixes = netaddr.cidr_merge(
-                    [p.prefix for p in queryset.filter(status=PREFIX_STATUS_RESERVED)]
+                    [p.prefix for p in queryset.filter(status=PrefixStatusChoices.STATUS_RESERVED)]
                 )
                 deprecated_prefixes = netaddr.cidr_merge(
-                    [p.prefix for p in queryset.filter(status=PREFIX_STATUS_DEPRECATED)]
+                    [p.prefix for p in queryset.filter(status=PrefixStatusChoices.STATUS_DEPRECATED)]
                 )
 
                 # Find all available prefixes by subtracting each of the existing prefix sets from the aggregate prefix.
