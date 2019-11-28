@@ -85,3 +85,26 @@ class IPAddressRoleChoices(ChoiceSet):
         ROLE_GLBP: 43,
         ROLE_CARP: 44,
     }
+
+
+#
+# VLANs
+#
+
+class VLANStatusChoices(ChoiceSet):
+
+    STATUS_ACTIVE = 'active'
+    STATUS_RESERVED = 'reserved'
+    STATUS_DEPRECATED = 'deprecated'
+
+    CHOICES = (
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_RESERVED, 'Reserved'),
+        (STATUS_DEPRECATED, 'Deprecated'),
+    )
+
+    LEGACY_MAP = {
+        STATUS_ACTIVE: 1,
+        STATUS_RESERVED: 2,
+        STATUS_DEPRECATED: 3,
+    }

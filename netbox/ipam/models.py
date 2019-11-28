@@ -868,10 +868,10 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         null=True
     )
-    status = models.PositiveSmallIntegerField(
-        choices=VLAN_STATUS_CHOICES,
-        default=1,
-        verbose_name='Status'
+    status = models.CharField(
+        max_length=50,
+        choices=VLANStatusChoices,
+        default=VLANStatusChoices.STATUS_ACTIVE
     )
     role = models.ForeignKey(
         to='ipam.Role',
@@ -893,6 +893,12 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
+
+    STATUS_CLASS_MAP = {
+        'active': 'primary',
+        'reserved': 'info',
+        'deprecated': 'danger',
+    }
 
     class Meta:
         ordering = ['site', 'group', 'vid']
@@ -936,7 +942,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         return None
 
     def get_status_class(self):
-        return STATUS_CHOICE_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP[self.status]
 
     def get_members(self):
         # Return all interfaces assigned to this VLAN

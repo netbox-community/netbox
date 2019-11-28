@@ -103,7 +103,7 @@ class VLANSerializer(TaggitSerializer, CustomFieldModelSerializer):
     site = NestedSiteSerializer(required=False, allow_null=True)
     group = NestedVLANGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    status = ChoiceField(choices=VLAN_STATUS_CHOICES, required=False)
+    status = ChoiceField(choices=VLANStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
     prefix_count = serializers.IntegerField(read_only=True)

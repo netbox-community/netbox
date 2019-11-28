@@ -425,7 +425,7 @@ class VLANFilter(TenancyFilterSet, CustomFieldFilterSet):
         label='Role (slug)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=VLAN_STATUS_CHOICES,
+        choices=VLANStatusChoices,
         null_value=None
     )
     tag = TagFilter()

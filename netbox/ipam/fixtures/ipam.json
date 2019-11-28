@@ -322,7 +322,7 @@
         "site": 1,
         "vid": 999,
         "name": "TEST",
-        "status": 1,
+        "status": "active",
         "role": 1
     }
 }

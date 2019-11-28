@@ -1112,7 +1112,7 @@ class VLANCSVForm(forms.ModelForm):
         }
     )
     status = CSVChoiceField(
-        choices=VLAN_STATUS_CHOICES,
+        choices=VLANStatusChoices,
         help_text='Operational status'
     )
     role = forms.ModelChoiceField(
@@ -1181,7 +1181,7 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         )
     )
     status = forms.ChoiceField(
-        choices=add_blank_choice(VLAN_STATUS_CHOICES),
+        choices=add_blank_choice(VLANStatusChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -1230,7 +1230,7 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         )
     )
     status = forms.MultipleChoiceField(
-        choices=VLAN_STATUS_CHOICES,
+        choices=VLANStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )
