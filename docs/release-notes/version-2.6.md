@@ -15,6 +15,7 @@
 * [#3679](https://github.com/netbox-community/netbox/issues/3679) - Fix link for assigned ipaddress in interface page
 * [#3709](https://github.com/netbox-community/netbox/issues/3709) - Prevent exception when importing an invalid cable definition
 * [#3720](https://github.com/netbox-community/netbox/issues/3720) - Correctly indicate power feed terminations on cable list
+* [#3724](https://github.com/netbox-community/netbox/issues/3724) - Fix API filtering of interfaces by more than one device name
 
 # v2.6.7 (2019-11-01)
 
