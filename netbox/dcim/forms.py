@@ -2371,7 +2371,7 @@ class PowerOutletCSVForm(forms.ModelForm):
         }
     )
     feed_leg = CSVChoiceField(
-        choices=POWERFEED_LEG_CHOICES,
+        choices=PowerOutletFeedLegChoices,
         required=False,
     )
 
@@ -2690,10 +2690,10 @@ class InterfaceCSVForm(forms.ModelForm):
         }
     )
     type = CSVChoiceField(
-        choices=IFACE_TYPE_CHOICES,
+        choices=InterfaceTypeChoices,
     )
     mode = CSVChoiceField(
-        choices=IFACE_MODE_CHOICES,
+        choices=InterfaceModeChoices,
         required=False,
     )
 
@@ -2715,7 +2715,7 @@ class InterfaceCSVForm(forms.ModelForm):
 
         if device:
             self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[device, device.get_vc_master()], type=IFACE_TYPE_LAG
+                device__in=[device, device.get_vc_master()], type=InterfaceTypeChoices.TYPE_LAG
             )
         else:
             self.fields['lag'].queryset = Interface.objects.none()
@@ -2966,7 +2966,7 @@ class FrontPortCSVForm(forms.ModelForm):
         }
     )
     type = CSVChoiceField(
-        choices=PORT_TYPE_CHOICES,
+        choices=PortTypeChoices,
     )
 
     class Meta:
@@ -3084,7 +3084,7 @@ class RearPortCSVForm(forms.ModelForm):
         }
     )
     type = CSVChoiceField(
-        choices=PORT_TYPE_CHOICES,
+        choices=PortTypeChoices,
     )
 
     class Meta:
@@ -3708,7 +3708,7 @@ class DeviceBayCSVForm(forms.ModelForm):
                 rack=device.rack,
                 parent_bay__isnull=True,
                 device_type__u_height=0,
-                device_type__subdevice_role=SUBDEVICE_ROLE_CHILD
+                device_type__subdevice_role=SubdeviceRoleChoices.ROLE_CHILD
             ).exclude(pk=device.pk)
         else:
             self.fields['installed_device'].queryset = Interface.objects.none()
