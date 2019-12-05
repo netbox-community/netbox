@@ -63,9 +63,10 @@ class Webhook(models.Model):
         verbose_name='URL',
         help_text="A POST will be sent to this URL when the webhook is called."
     )
-    http_content_type = models.PositiveSmallIntegerField(
-        choices=WEBHOOK_CT_CHOICES,
-        default=WEBHOOK_CT_JSON,
+    http_content_type = models.CharField(
+        max_length=50,
+        choices=WebhookContentTypeChoices,
+        default=WebhookContentTypeChoices.CONTENTTYPE_JSON,
         verbose_name='HTTP content type'
     )
     additional_headers = JSONField(

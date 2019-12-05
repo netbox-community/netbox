@@ -99,14 +99,6 @@ LOG_LEVEL_CODES = {
     LOG_FAILURE: 'failure',
 }
 
-# webhook content types
-WEBHOOK_CT_JSON = 1
-WEBHOOK_CT_X_WWW_FORM_ENCODED = 2
-WEBHOOK_CT_CHOICES = (
-    (WEBHOOK_CT_JSON, 'application/json'),
-    (WEBHOOK_CT_X_WWW_FORM_ENCODED, 'application/x-www-form-urlencoded'),
-)
-
 # Models which support registered webhooks
 WEBHOOK_MODELS = [
     'circuits.circuit',
