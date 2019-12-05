@@ -98,3 +98,23 @@ class ObjectChangeActionChoices(ChoiceSet):
         ACTION_UPDATE: 2,
         ACTION_DELETE: 3,
     }
+
+
+#
+# ExportTemplates
+#
+
+class ExportTemplateLanguageChoices(ChoiceSet):
+
+    LANGUAGE_DJANGO = 'django'
+    LANGUAGE_JINJA2 = 'jinja2'
+
+    CHOICES = (
+        (LANGUAGE_DJANGO, 'Django'),
+        (LANGUAGE_JINJA2, 'Jinja2'),
+    )
+
+    LEGACY_MAP = {
+        LANGUAGE_DJANGO: 10,
+        LANGUAGE_JINJA2: 20,
+    }

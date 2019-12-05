@@ -464,9 +464,10 @@ class ExportTemplate(models.Model):
         max_length=200,
         blank=True
     )
-    template_language = models.PositiveSmallIntegerField(
-        choices=TEMPLATE_LANGUAGE_CHOICES,
-        default=TEMPLATE_LANGUAGE_JINJA2
+    template_language = models.CharField(
+        max_length=50,
+        choices=ExportTemplateLanguageChoices,
+        default=ExportTemplateLanguageChoices.LANGUAGE_JINJA2
     )
     template_code = models.TextField(
         help_text='The list of objects being exported is passed as a context variable named <code>queryset</code>.'

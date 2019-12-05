@@ -1,5 +1,4 @@
 from django.db import migrations, models
-import django.db.models.deletion
 
 
 OBJECTCHANGE_ACTION_CHOICES = (

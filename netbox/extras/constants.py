@@ -85,14 +85,6 @@ EXPORTTEMPLATE_MODELS = [
     'virtualization.virtualmachine',
 ]
 
-# ExportTemplate language choices
-TEMPLATE_LANGUAGE_DJANGO = 10
-TEMPLATE_LANGUAGE_JINJA2 = 20
-TEMPLATE_LANGUAGE_CHOICES = (
-    (TEMPLATE_LANGUAGE_DJANGO, 'Django'),
-    (TEMPLATE_LANGUAGE_JINJA2, 'Jinja2'),
-)
-
 # Report logging levels
 LOG_DEFAULT = 0
 LOG_SUCCESS = 10
