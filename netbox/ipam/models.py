@@ -14,10 +14,27 @@ from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
 from virtualization.models import VirtualMachine
-from .constants import *
+from .choices import *
 from .fields import IPNetworkField, IPAddressField
 from .querysets import PrefixQuerySet
 from .validators import DNSValidator
+
+
+# IP address families
+AF_CHOICES = (
+    (4, 'IPv4'),
+    (6, 'IPv6'),
+)
+
+IPADDRESS_ROLES_NONUNIQUE = (
+    # IPAddress roles which are exempt from unique address enforcement
+    IPAddressRoleChoices.ROLE_ANYCAST,
+    IPAddressRoleChoices.ROLE_VIP,
+    IPAddressRoleChoices.ROLE_VRRP,
+    IPAddressRoleChoices.ROLE_HSRP,
+    IPAddressRoleChoices.ROLE_GLBP,
+    IPAddressRoleChoices.ROLE_CARP,
+)
 
 
 class VRF(ChangeLoggedModel, CustomFieldModel):
@@ -297,9 +314,10 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         null=True,
         verbose_name='VLAN'
     )
-    status = models.PositiveSmallIntegerField(
-        choices=PREFIX_STATUS_CHOICES,
-        default=PREFIX_STATUS_ACTIVE,
+    status = models.CharField(
+        max_length=50,
+        choices=PrefixStatusChoices,
+        default=PrefixStatusChoices.STATUS_ACTIVE,
         verbose_name='Status',
         help_text='Operational status of this prefix'
     )
@@ -332,6 +350,13 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     csv_headers = [
         'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
     ]
+
+    STATUS_CLASS_MAP = {
+        'container': 'default',
+        'active': 'primary',
+        'reserved': 'info',
+        'deprecated': 'danger',
+    }
 
     class Meta:
         ordering = [F('vrf').asc(nulls_first=True), 'family', 'prefix']
@@ -404,7 +429,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     prefix_length = property(fset=_set_prefix_length)
 
     def get_status_class(self):
-        return STATUS_CHOICE_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)
 
     def get_duplicates(self):
         return Prefix.objects.filter(vrf=self.vrf, prefix=str(self.prefix)).exclude(pk=self.pk)
@@ -414,7 +439,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         Return all Prefixes within this Prefix and VRF. If this Prefix is a container in the global table, return child
         Prefixes belonging to any VRF.
         """
-        if self.vrf is None and self.status == PREFIX_STATUS_CONTAINER:
+        if self.vrf is None and self.status == PrefixStatusChoices.STATUS_CONTAINER:
             return Prefix.objects.filter(prefix__net_contained=str(self.prefix))
         else:
             return Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
@@ -424,7 +449,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         Return all IPAddresses within this Prefix and VRF. If this Prefix is a container in the global table, return
         child IPAddresses belonging to any VRF.
         """
-        if self.vrf is None and self.status == PREFIX_STATUS_CONTAINER:
+        if self.vrf is None and self.status == PrefixStatusChoices.STATUS_CONTAINER:
             return IPAddress.objects.filter(address__net_host_contained=str(self.prefix))
         else:
             return IPAddress.objects.filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
@@ -490,7 +515,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         Determine the utilization of the prefix and return it as a percentage. For Prefixes with a status of
         "container", calculate utilization based on child prefixes. For all others, count child IP addresses.
         """
-        if self.status == PREFIX_STATUS_CONTAINER:
+        if self.status == PrefixStatusChoices.STATUS_CONTAINER:
             queryset = Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
             child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
             return int(float(child_prefixes.size) / self.prefix.size * 100)
@@ -550,17 +575,16 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         null=True
     )
-    status = models.PositiveSmallIntegerField(
-        choices=IPADDRESS_STATUS_CHOICES,
-        default=IPADDRESS_STATUS_ACTIVE,
-        verbose_name='Status',
+    status = models.CharField(
+        max_length=50,
+        choices=IPAddressStatusChoices,
+        default=IPAddressStatusChoices.STATUS_ACTIVE,
         help_text='The operational status of this IP'
     )
-    role = models.PositiveSmallIntegerField(
-        verbose_name='Role',
-        choices=IPADDRESS_ROLE_CHOICES,
+    role = models.CharField(
+        max_length=50,
+        choices=IPAddressRoleChoices,
         blank=True,
-        null=True,
         help_text='The functional role of this IP'
     )
     interface = models.ForeignKey(
@@ -603,6 +627,24 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface_name', 'is_primary',
         'dns_name', 'description',
     ]
+
+    STATUS_CLASS_MAP = {
+        'active': 'primary',
+        'reserved': 'info',
+        'deprecated': 'danger',
+        'dhcp': 'success',
+    }
+
+    ROLE_CLASS_MAP = {
+        'loopback': 'default',
+        'secondary': 'primary',
+        'anycast': 'warning',
+        'vip': 'success',
+        'vrrp': 'success',
+        'hsrp': 'success',
+        'glbp': 'success',
+        'carp': 'success',
+    }
 
     class Meta:
         ordering = ['family', 'address']
@@ -737,10 +779,10 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         return None
 
     def get_status_class(self):
-        return STATUS_CHOICE_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)
 
     def get_role_class(self):
-        return ROLE_CHOICE_CLASSES[self.role]
+        return self.ROLE_CLASS_MAP[self.role]
 
 
 class VLANGroup(ChangeLoggedModel):
@@ -831,10 +873,10 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         null=True
     )
-    status = models.PositiveSmallIntegerField(
-        choices=VLAN_STATUS_CHOICES,
-        default=1,
-        verbose_name='Status'
+    status = models.CharField(
+        max_length=50,
+        choices=VLANStatusChoices,
+        default=VLANStatusChoices.STATUS_ACTIVE
     )
     role = models.ForeignKey(
         to='ipam.Role',
@@ -856,6 +898,12 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
+
+    STATUS_CLASS_MAP = {
+        'active': 'primary',
+        'reserved': 'info',
+        'deprecated': 'danger',
+    }
 
     class Meta:
         ordering = ['site', 'group', 'vid']
@@ -899,7 +947,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         return None
 
     def get_status_class(self):
-        return STATUS_CHOICE_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP[self.status]
 
     def get_members(self):
         # Return all interfaces assigned to this VLAN
@@ -932,8 +980,9 @@ class Service(ChangeLoggedModel, CustomFieldModel):
     name = models.CharField(
         max_length=30
     )
-    protocol = models.PositiveSmallIntegerField(
-        choices=IP_PROTOCOL_CHOICES
+    protocol = models.CharField(
+        max_length=50,
+        choices=ServiceProtocolChoices
     )
     port = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(65535)],

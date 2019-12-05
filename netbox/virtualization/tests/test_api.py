@@ -2,7 +2,7 @@ from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
 
-from dcim.constants import IFACE_TYPE_VIRTUAL, IFACE_MODE_TAGGED
+from dcim.choices import InterfaceModeChoices, InterfaceTypeChoices
 from dcim.models import Interface
 from ipam.models import IPAddress, VLAN
 from utilities.testing import APITestCase
@@ -489,17 +489,17 @@ class InterfaceTest(APITestCase):
         self.interface1 = Interface.objects.create(
             virtual_machine=self.virtualmachine,
             name='Test Interface 1',
-            type=IFACE_TYPE_VIRTUAL
+            type=InterfaceTypeChoices.TYPE_VIRTUAL
         )
         self.interface2 = Interface.objects.create(
             virtual_machine=self.virtualmachine,
             name='Test Interface 2',
-            type=IFACE_TYPE_VIRTUAL
+            type=InterfaceTypeChoices.TYPE_VIRTUAL
         )
         self.interface3 = Interface.objects.create(
             virtual_machine=self.virtualmachine,
             name='Test Interface 3',
-            type=IFACE_TYPE_VIRTUAL
+            type=InterfaceTypeChoices.TYPE_VIRTUAL
         )
 
         self.vlan1 = VLAN.objects.create(name="Test VLAN 1", vid=1)
@@ -551,7 +551,7 @@ class InterfaceTest(APITestCase):
         data = {
             'virtual_machine': self.virtualmachine.pk,
             'name': 'Test Interface 4',
-            'mode': IFACE_MODE_TAGGED,
+            'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': self.vlan3.id,
             'tagged_vlans': [self.vlan1.id, self.vlan2.id],
         }
@@ -598,21 +598,21 @@ class InterfaceTest(APITestCase):
             {
                 'virtual_machine': self.virtualmachine.pk,
                 'name': 'Test Interface 4',
-                'mode': IFACE_MODE_TAGGED,
+                'mode': InterfaceModeChoices.MODE_TAGGED,
                 'untagged_vlan': self.vlan2.id,
                 'tagged_vlans': [self.vlan1.id],
             },
             {
                 'virtual_machine': self.virtualmachine.pk,
                 'name': 'Test Interface 5',
-                'mode': IFACE_MODE_TAGGED,
+                'mode': InterfaceModeChoices.MODE_TAGGED,
                 'untagged_vlan': self.vlan2.id,
                 'tagged_vlans': [self.vlan1.id],
             },
             {
                 'virtual_machine': self.virtualmachine.pk,
                 'name': 'Test Interface 6',
-                'mode': IFACE_MODE_TAGGED,
+                'mode': InterfaceModeChoices.MODE_TAGGED,
                 'untagged_vlan': self.vlan2.id,
                 'tagged_vlans': [self.vlan1.id],
             },

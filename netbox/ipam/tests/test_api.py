@@ -5,7 +5,7 @@ from netaddr import IPNetwork
 from rest_framework import status
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
-from ipam.constants import IP_PROTOCOL_TCP, IP_PROTOCOL_UDP
+from ipam.choices import ServiceProtocolChoices
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from utilities.testing import APITestCase
 
@@ -996,13 +996,13 @@ class ServiceTest(APITestCase):
             name='Test Device 2', site=site, device_type=devicetype, device_role=devicerole
         )
         self.service1 = Service.objects.create(
-            device=self.device1, name='Test Service 1', protocol=IP_PROTOCOL_TCP, port=1
+            device=self.device1, name='Test Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=1
         )
         self.service1 = Service.objects.create(
-            device=self.device1, name='Test Service 2', protocol=IP_PROTOCOL_TCP, port=2
+            device=self.device1, name='Test Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=2
         )
         self.service1 = Service.objects.create(
-            device=self.device1, name='Test Service 3', protocol=IP_PROTOCOL_TCP, port=3
+            device=self.device1, name='Test Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=3
         )
 
     def test_get_service(self):
@@ -1024,7 +1024,7 @@ class ServiceTest(APITestCase):
         data = {
             'device': self.device1.pk,
             'name': 'Test Service 4',
-            'protocol': IP_PROTOCOL_TCP,
+            'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
             'port': 4,
         }
 
@@ -1045,19 +1045,19 @@ class ServiceTest(APITestCase):
             {
                 'device': self.device1.pk,
                 'name': 'Test Service 4',
-                'protocol': IP_PROTOCOL_TCP,
+                'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
                 'port': 4,
             },
             {
                 'device': self.device1.pk,
                 'name': 'Test Service 5',
-                'protocol': IP_PROTOCOL_TCP,
+                'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
                 'port': 5,
             },
             {
                 'device': self.device1.pk,
                 'name': 'Test Service 6',
-                'protocol': IP_PROTOCOL_TCP,
+                'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
                 'port': 6,
             },
         ]
@@ -1076,7 +1076,7 @@ class ServiceTest(APITestCase):
         data = {
             'device': self.device2.pk,
             'name': 'Test Service X',
-            'protocol': IP_PROTOCOL_UDP,
+            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
             'port': 99,
         }
 

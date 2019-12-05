@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from extras.models import Webhook
 from utilities.api import get_serializer_for_model
+from .choices import *
 from .constants import *
 
 
@@ -18,9 +19,9 @@ def enqueue_webhooks(instance, user, request_id, action):
 
     # Retrieve any applicable Webhooks
     action_flag = {
-        OBJECTCHANGE_ACTION_CREATE: 'type_create',
-        OBJECTCHANGE_ACTION_UPDATE: 'type_update',
-        OBJECTCHANGE_ACTION_DELETE: 'type_delete',
+        ObjectChangeActionChoices.ACTION_CREATE: 'type_create',
+        ObjectChangeActionChoices.ACTION_UPDATE: 'type_update',
+        ObjectChangeActionChoices.ACTION_DELETE: 'type_delete',
     }[action]
     obj_type = ContentType.objects.get_for_model(instance.__class__)
     webhooks = Webhook.objects.filter(obj_type=obj_type, enabled=True, **{action_flag: True})

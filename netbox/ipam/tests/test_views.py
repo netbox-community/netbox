@@ -5,7 +5,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
-from ipam.constants import IP_PROTOCOL_TCP
+from ipam.choices import ServiceProtocolChoices
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from utilities.testing import create_test_user
 
@@ -264,9 +264,9 @@ class ServiceTestCase(TestCase):
         device.save()
 
         Service.objects.bulk_create([
-            Service(device=device, name='Service 1', protocol=IP_PROTOCOL_TCP, port=101),
-            Service(device=device, name='Service 2', protocol=IP_PROTOCOL_TCP, port=102),
-            Service(device=device, name='Service 3', protocol=IP_PROTOCOL_TCP, port=103),
+            Service(device=device, name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=101),
+            Service(device=device, name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=102),
+            Service(device=device, name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=103),
         ])
 
     def test_service_list(self):

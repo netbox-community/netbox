@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from dcim.models import Site
-from extras.constants import CF_TYPE_TEXT, CF_TYPE_INTEGER, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_SELECT, CF_TYPE_URL, CF_TYPE_SELECT
+from extras.choices import *
 from extras.models import CustomField, CustomFieldValue, CustomFieldChoice
 from utilities.testing import APITestCase
 from virtualization.models import VirtualMachine
@@ -25,13 +25,13 @@ class CustomFieldTest(TestCase):
     def test_simple_fields(self):
 
         DATA = (
-            {'field_type': CF_TYPE_TEXT, 'field_value': 'Foobar!', 'empty_value': ''},
-            {'field_type': CF_TYPE_INTEGER, 'field_value': 0, 'empty_value': None},
-            {'field_type': CF_TYPE_INTEGER, 'field_value': 42, 'empty_value': None},
-            {'field_type': CF_TYPE_BOOLEAN, 'field_value': True, 'empty_value': None},
-            {'field_type': CF_TYPE_BOOLEAN, 'field_value': False, 'empty_value': None},
-            {'field_type': CF_TYPE_DATE, 'field_value': date(2016, 6, 23), 'empty_value': None},
-            {'field_type': CF_TYPE_URL, 'field_value': 'http://example.com/', 'empty_value': ''},
+            {'field_type': CustomFieldTypeChoices.TYPE_TEXT, 'field_value': 'Foobar!', 'empty_value': ''},
+            {'field_type': CustomFieldTypeChoices.TYPE_INTEGER, 'field_value': 0, 'empty_value': None},
+            {'field_type': CustomFieldTypeChoices.TYPE_INTEGER, 'field_value': 42, 'empty_value': None},
+            {'field_type': CustomFieldTypeChoices.TYPE_BOOLEAN, 'field_value': True, 'empty_value': None},
+            {'field_type': CustomFieldTypeChoices.TYPE_BOOLEAN, 'field_value': False, 'empty_value': None},
+            {'field_type': CustomFieldTypeChoices.TYPE_DATE, 'field_value': date(2016, 6, 23), 'empty_value': None},
+            {'field_type': CustomFieldTypeChoices.TYPE_URL, 'field_value': 'http://example.com/', 'empty_value': ''},
         )
 
         obj_type = ContentType.objects.get_for_model(Site)
@@ -67,7 +67,7 @@ class CustomFieldTest(TestCase):
         obj_type = ContentType.objects.get_for_model(Site)
 
         # Create a custom field
-        cf = CustomField(type=CF_TYPE_SELECT, name='my_field', required=False)
+        cf = CustomField(type=CustomFieldTypeChoices.TYPE_SELECT, name='my_field', required=False)
         cf.save()
         cf.obj_type.set([obj_type])
         cf.save()
@@ -107,37 +107,37 @@ class CustomFieldAPITest(APITestCase):
         content_type = ContentType.objects.get_for_model(Site)
 
         # Text custom field
-        self.cf_text = CustomField(type=CF_TYPE_TEXT, name='magic_word')
+        self.cf_text = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='magic_word')
         self.cf_text.save()
         self.cf_text.obj_type.set([content_type])
         self.cf_text.save()
 
         # Integer custom field
-        self.cf_integer = CustomField(type=CF_TYPE_INTEGER, name='magic_number')
+        self.cf_integer = CustomField(type=CustomFieldTypeChoices.TYPE_INTEGER, name='magic_number')
         self.cf_integer.save()
         self.cf_integer.obj_type.set([content_type])
         self.cf_integer.save()
 
         # Boolean custom field
-        self.cf_boolean = CustomField(type=CF_TYPE_BOOLEAN, name='is_magic')
+        self.cf_boolean = CustomField(type=CustomFieldTypeChoices.TYPE_BOOLEAN, name='is_magic')
         self.cf_boolean.save()
         self.cf_boolean.obj_type.set([content_type])
         self.cf_boolean.save()
 
         # Date custom field
-        self.cf_date = CustomField(type=CF_TYPE_DATE, name='magic_date')
+        self.cf_date = CustomField(type=CustomFieldTypeChoices.TYPE_DATE, name='magic_date')
         self.cf_date.save()
         self.cf_date.obj_type.set([content_type])
         self.cf_date.save()
 
         # URL custom field
-        self.cf_url = CustomField(type=CF_TYPE_URL, name='magic_url')
+        self.cf_url = CustomField(type=CustomFieldTypeChoices.TYPE_URL, name='magic_url')
         self.cf_url.save()
         self.cf_url.obj_type.set([content_type])
         self.cf_url.save()
 
         # Select custom field
-        self.cf_select = CustomField(type=CF_TYPE_SELECT, name='magic_choice')
+        self.cf_select = CustomField(type=CustomFieldTypeChoices.TYPE_SELECT, name='magic_choice')
         self.cf_select.save()
         self.cf_select.obj_type.set([content_type])
         self.cf_select.save()
@@ -308,8 +308,8 @@ class CustomFieldChoiceAPITest(APITestCase):
 
         vm_content_type = ContentType.objects.get_for_model(VirtualMachine)
 
-        self.cf_1 = CustomField.objects.create(name="cf_1", type=CF_TYPE_SELECT)
-        self.cf_2 = CustomField.objects.create(name="cf_2", type=CF_TYPE_SELECT)
+        self.cf_1 = CustomField.objects.create(name="cf_1", type=CustomFieldTypeChoices.TYPE_SELECT)
+        self.cf_2 = CustomField.objects.create(name="cf_2", type=CustomFieldTypeChoices.TYPE_SELECT)
 
         self.cf_choice_1 = CustomFieldChoice.objects.create(field=self.cf_1, value="cf_field_1", weight=100)
         self.cf_choice_2 = CustomFieldChoice.objects.create(field=self.cf_1, value="cf_field_2", weight=50)

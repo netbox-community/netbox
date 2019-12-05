@@ -8,8 +8,6 @@ import django.db.models.deletion
 import extras.models
 from django.db.utils import OperationalError
 
-from extras.constants import CF_FILTER_DISABLED, CF_FILTER_EXACT, CF_FILTER_LOOSE, CF_TYPE_SELECT
-
 
 def verify_postgresql_version(apps, schema_editor):
     """

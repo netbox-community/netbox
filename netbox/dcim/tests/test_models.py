@@ -87,7 +87,7 @@ class RackTestCase(TestCase):
             site=self.site1,
             rack=rack1,
             position=43,
-            face=RACK_FACE_FRONT,
+            face=DeviceFaceChoices.FACE_FRONT,
         )
         device1.save()
 
@@ -117,7 +117,7 @@ class RackTestCase(TestCase):
             site=self.site1,
             rack=self.rack,
             position=10,
-            face=RACK_FACE_REAR,
+            face=DeviceFaceChoices.FACE_REAR,
         )
         device1.save()
 
@@ -146,7 +146,7 @@ class RackTestCase(TestCase):
             site=self.site1,
             rack=self.rack,
             position=None,
-            face=None,
+            face='',
         )
         self.assertTrue(pdu)
 
@@ -187,20 +187,20 @@ class DeviceTestCase(TestCase):
             device_type=self.device_type,
             name='Power Outlet 1',
             power_port=ppt,
-            feed_leg=POWERFEED_LEG_A
+            feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A
         ).save()
 
         InterfaceTemplate(
             device_type=self.device_type,
             name='Interface 1',
-            type=IFACE_TYPE_1GE_FIXED,
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
             mgmt_only=True
         ).save()
 
         rpt = RearPortTemplate(
             device_type=self.device_type,
             name='Rear Port 1',
-            type=PORT_TYPE_8P8C,
+            type=PortTypeChoices.TYPE_8P8C,
             positions=8
         )
         rpt.save()
@@ -208,7 +208,7 @@ class DeviceTestCase(TestCase):
         FrontPortTemplate(
             device_type=self.device_type,
             name='Front Port 1',
-            type=PORT_TYPE_8P8C,
+            type=PortTypeChoices.TYPE_8P8C,
             rear_port=rpt,
             rear_port_position=2
         ).save()
@@ -251,27 +251,27 @@ class DeviceTestCase(TestCase):
             device=d,
             name='Power Outlet 1',
             power_port=pp,
-            feed_leg=POWERFEED_LEG_A
+            feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A
         )
 
         Interface.objects.get(
             device=d,
             name='Interface 1',
-            type=IFACE_TYPE_1GE_FIXED,
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
             mgmt_only=True
         )
 
         rp = RearPort.objects.get(
             device=d,
             name='Rear Port 1',
-            type=PORT_TYPE_8P8C,
+            type=PortTypeChoices.TYPE_8P8C,
             positions=8
         )
 
         FrontPort.objects.get(
             device=d,
             name='Front Port 1',
-            type=PORT_TYPE_8P8C,
+            type=PortTypeChoices.TYPE_8P8C,
             rear_port=rp,
             rear_port_position=2
         )
@@ -379,7 +379,7 @@ class CableTestCase(TestCase):
         """
         A cable cannot terminate to a virtual interface
         """
-        virtual_interface = Interface(device=self.device1, name="V1", type=IFACE_TYPE_VIRTUAL)
+        virtual_interface = Interface(device=self.device1, name="V1", type=InterfaceTypeChoices.TYPE_VIRTUAL)
         cable = Cable(termination_a=self.interface2, termination_b=virtual_interface)
         with self.assertRaises(ValidationError):
             cable.clean()
@@ -388,7 +388,7 @@ class CableTestCase(TestCase):
         """
         A cable cannot terminate to a wireless interface
         """
-        wireless_interface = Interface(device=self.device1, name="W1", type=IFACE_TYPE_80211A)
+        wireless_interface = Interface(device=self.device1, name="W1", type=InterfaceTypeChoices.TYPE_80211A)
         cable = Cable(termination_a=self.interface2, termination_b=wireless_interface)
         with self.assertRaises(ValidationError):
             cable.clean()
@@ -421,16 +421,16 @@ class CablePathTestCase(TestCase):
             device_type=devicetype, device_role=devicerole, name='Test Panel 2', site=site
         )
         self.rear_port1 = RearPort.objects.create(
-            device=self.panel1, name='Rear Port 1', type=PORT_TYPE_8P8C
+            device=self.panel1, name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C
         )
         self.front_port1 = FrontPort.objects.create(
-            device=self.panel1, name='Front Port 1', type=PORT_TYPE_8P8C, rear_port=self.rear_port1
+            device=self.panel1, name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=self.rear_port1
         )
         self.rear_port2 = RearPort.objects.create(
-            device=self.panel2, name='Rear Port 2', type=PORT_TYPE_8P8C
+            device=self.panel2, name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C
         )
         self.front_port2 = FrontPort.objects.create(
-            device=self.panel2, name='Front Port 2', type=PORT_TYPE_8P8C, rear_port=self.rear_port2
+            device=self.panel2, name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=self.rear_port2
         )
 
     def test_path_completion(self):

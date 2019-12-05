@@ -12,7 +12,7 @@ from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
-from .constants import TERM_SIDE_A, TERM_SIDE_Z
+from .choices import CircuitTerminationSideChoices
 from .models import Circuit, CircuitTermination, CircuitType, Provider
 
 
@@ -151,12 +151,12 @@ class CircuitView(PermissionRequiredMixin, View):
         termination_a = CircuitTermination.objects.prefetch_related(
             'site__region', 'connected_endpoint__device'
         ).filter(
-            circuit=circuit, term_side=TERM_SIDE_A
+            circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_A
         ).first()
         termination_z = CircuitTermination.objects.prefetch_related(
             'site__region', 'connected_endpoint__device'
         ).filter(
-            circuit=circuit, term_side=TERM_SIDE_Z
+            circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_Z
         ).first()
 
         return render(request, 'circuits/circuit.html', {
@@ -212,8 +212,12 @@ class CircuitBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 def circuit_terminations_swap(request, pk):
 
     circuit = get_object_or_404(Circuit, pk=pk)
-    termination_a = CircuitTermination.objects.filter(circuit=circuit, term_side=TERM_SIDE_A).first()
-    termination_z = CircuitTermination.objects.filter(circuit=circuit, term_side=TERM_SIDE_Z).first()
+    termination_a = CircuitTermination.objects.filter(
+        circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_A
+    ).first()
+    termination_z = CircuitTermination.objects.filter(
+        circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_Z
+    ).first()
     if not termination_a and not termination_z:
         messages.error(request, "No terminations have been defined for circuit {}.".format(circuit))
         return redirect('circuits:circuit', pk=circuit.pk)

@@ -6,6 +6,7 @@ import requests
 from django_rq import job
 from rest_framework.utils.encoders import JSONEncoder
 
+from .choices import ObjectChangeActionChoices
 from .constants import *
 
 
@@ -15,7 +16,7 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
     Make a POST request to the defined Webhook
     """
     payload = {
-        'event': dict(OBJECTCHANGE_ACTION_CHOICES)[event].lower(),
+        'event': dict(ObjectChangeActionChoices)[event].lower(),
         'timestamp': timestamp,
         'model': model_name,
         'username': username,

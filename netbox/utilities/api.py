@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import Field, ModelSerializer, ValidationError
 from rest_framework.viewsets import ModelViewSet as _ModelViewSet, ViewSet
 
+from utilities.choices import ChoiceSet
 from .utils import dict_to_filter_params, dynamic_import
 
 
@@ -64,14 +65,17 @@ class ChoiceField(Field):
     Represent a ChoiceField as {'value': <DB value>, 'label': <string>}.
     """
     def __init__(self, choices, **kwargs):
+        self.choiceset = choices
         self._choices = dict()
+
+        # Unpack grouped choices
         for k, v in choices:
-            # Unpack grouped choices
             if type(v) in [list, tuple]:
                 for k2, v2 in v:
                     self._choices[k2] = v2
             else:
                 self._choices[k] = v
+
         super().__init__(**kwargs)
 
     def to_representation(self, obj):
@@ -81,6 +85,11 @@ class ChoiceField(Field):
             ('value', obj),
             ('label', self._choices[obj])
         ])
+
+        # Include legacy numeric ID (where applicable)
+        if type(self.choiceset) is ChoiceSet and obj in self.choiceset.LEGACY_MAP:
+            data['id'] = self.choiceset.LEGACY_MAP.get(obj)
+
         return data
 
     def to_internal_value(self, data):
@@ -104,6 +113,10 @@ class ChoiceField(Field):
         try:
             if data in self._choices:
                 return data
+            # Check if data is a legacy numeric ID
+            slug = self.choiceset.id_to_slug(data)
+            if slug is not None:
+                return slug
         except TypeError:  # Input is an unhashable type
             pass
 

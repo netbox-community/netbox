@@ -3,6 +3,7 @@ from netaddr import IPNetwork
 from rest_framework import status
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
+from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -180,7 +181,7 @@ class SiteTest(APITestCase):
             'name': 'Test Site 4',
             'slug': 'test-site-4',
             'region': self.region1.pk,
-            'status': SITE_STATUS_ACTIVE,
+            'status': SiteStatusChoices.STATUS_ACTIVE,
         }
 
         url = reverse('dcim-api:site-list')
@@ -200,19 +201,19 @@ class SiteTest(APITestCase):
                 'name': 'Test Site 4',
                 'slug': 'test-site-4',
                 'region': self.region1.pk,
-                'status': SITE_STATUS_ACTIVE,
+                'status': SiteStatusChoices.STATUS_ACTIVE,
             },
             {
                 'name': 'Test Site 5',
                 'slug': 'test-site-5',
                 'region': self.region1.pk,
-                'status': SITE_STATUS_ACTIVE,
+                'status': SiteStatusChoices.STATUS_ACTIVE,
             },
             {
                 'name': 'Test Site 6',
                 'slug': 'test-site-6',
                 'region': self.region1.pk,
-                'status': SITE_STATUS_ACTIVE,
+                'status': SiteStatusChoices.STATUS_ACTIVE,
             },
         ]
 
@@ -2473,7 +2474,7 @@ class InterfaceTest(APITestCase):
         data = {
             'device': self.device.pk,
             'name': 'Test Interface 4',
-            'mode': IFACE_MODE_TAGGED,
+            'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': self.vlan3.id,
             'tagged_vlans': [self.vlan1.id, self.vlan2.id],
         }
@@ -2520,21 +2521,21 @@ class InterfaceTest(APITestCase):
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 4',
-                'mode': IFACE_MODE_TAGGED,
+                'mode': InterfaceModeChoices.MODE_TAGGED,
                 'untagged_vlan': self.vlan2.id,
                 'tagged_vlans': [self.vlan1.id],
             },
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 5',
-                'mode': IFACE_MODE_TAGGED,
+                'mode': InterfaceModeChoices.MODE_TAGGED,
                 'untagged_vlan': self.vlan2.id,
                 'tagged_vlans': [self.vlan1.id],
             },
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 6',
-                'mode': IFACE_MODE_TAGGED,
+                'mode': InterfaceModeChoices.MODE_TAGGED,
                 'untagged_vlan': self.vlan2.id,
                 'tagged_vlans': [self.vlan1.id],
             },
@@ -2553,7 +2554,7 @@ class InterfaceTest(APITestCase):
     def test_update_interface(self):
 
         lag_interface = Interface.objects.create(
-            device=self.device, name='Test LAG Interface', type=IFACE_TYPE_LAG
+            device=self.device, name='Test LAG Interface', type=InterfaceTypeChoices.TYPE_LAG
         )
 
         data = {
@@ -2590,11 +2591,11 @@ class DeviceBayTest(APITestCase):
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype1 = DeviceType.objects.create(
             manufacturer=manufacturer, model='Parent Device Type', slug='parent-device-type',
-            subdevice_role=SUBDEVICE_ROLE_PARENT
+            subdevice_role=SubdeviceRoleChoices.ROLE_PARENT
         )
         self.devicetype2 = DeviceType.objects.create(
             manufacturer=manufacturer, model='Child Device Type', slug='child-device-type',
-            subdevice_role=SUBDEVICE_ROLE_CHILD
+            subdevice_role=SubdeviceRoleChoices.ROLE_CHILD
         )
         devicerole = DeviceRole.objects.create(
             name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
@@ -2841,7 +2842,7 @@ class CableTest(APITestCase):
         )
         for device in [self.device1, self.device2]:
             for i in range(0, 10):
-                Interface(device=device, type=IFACE_TYPE_1GE_FIXED, name='eth{}'.format(i)).save()
+                Interface(device=device, type=InterfaceTypeChoices.TYPE_1GE_FIXED, name='eth{}'.format(i)).save()
 
         self.cable1 = Cable(
             termination_a=self.device1.interfaces.get(name='eth0'),
@@ -3033,16 +3034,16 @@ class ConnectionTest(APITestCase):
             device=self.device2, name='Test Console Server Port 1'
         )
         rearport1 = RearPort.objects.create(
-            device=self.panel1, name='Test Rear Port 1', type=PORT_TYPE_8P8C
+            device=self.panel1, name='Test Rear Port 1', type=PortTypeChoices.TYPE_8P8C
         )
         frontport1 = FrontPort.objects.create(
-            device=self.panel1, name='Test Front Port 1', type=PORT_TYPE_8P8C, rear_port=rearport1
+            device=self.panel1, name='Test Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport1
         )
         rearport2 = RearPort.objects.create(
-            device=self.panel2, name='Test Rear Port 2', type=PORT_TYPE_8P8C
+            device=self.panel2, name='Test Rear Port 2', type=PortTypeChoices.TYPE_8P8C
         )
         frontport2 = FrontPort.objects.create(
-            device=self.panel2, name='Test Front Port 2', type=PORT_TYPE_8P8C, rear_port=rearport2
+            device=self.panel2, name='Test Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport2
         )
 
         url = reverse('dcim-api:cable-list')
@@ -3161,16 +3162,16 @@ class ConnectionTest(APITestCase):
             device=self.device2, name='Test Interface 2'
         )
         rearport1 = RearPort.objects.create(
-            device=self.panel1, name='Test Rear Port 1', type=PORT_TYPE_8P8C
+            device=self.panel1, name='Test Rear Port 1', type=PortTypeChoices.TYPE_8P8C
         )
         frontport1 = FrontPort.objects.create(
-            device=self.panel1, name='Test Front Port 1', type=PORT_TYPE_8P8C, rear_port=rearport1
+            device=self.panel1, name='Test Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport1
         )
         rearport2 = RearPort.objects.create(
-            device=self.panel2, name='Test Rear Port 2', type=PORT_TYPE_8P8C
+            device=self.panel2, name='Test Rear Port 2', type=PortTypeChoices.TYPE_8P8C
         )
         frontport2 = FrontPort.objects.create(
-            device=self.panel2, name='Test Front Port 2', type=PORT_TYPE_8P8C, rear_port=rearport2
+            device=self.panel2, name='Test Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport2
         )
 
         url = reverse('dcim-api:cable-list')
@@ -3272,16 +3273,16 @@ class ConnectionTest(APITestCase):
             circuit=circuit, term_side='A', site=self.site, port_speed=10000
         )
         rearport1 = RearPort.objects.create(
-            device=self.panel1, name='Test Rear Port 1', type=PORT_TYPE_8P8C
+            device=self.panel1, name='Test Rear Port 1', type=PortTypeChoices.TYPE_8P8C
         )
         frontport1 = FrontPort.objects.create(
-            device=self.panel1, name='Test Front Port 1', type=PORT_TYPE_8P8C, rear_port=rearport1
+            device=self.panel1, name='Test Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport1
         )
         rearport2 = RearPort.objects.create(
-            device=self.panel2, name='Test Rear Port 2', type=PORT_TYPE_8P8C
+            device=self.panel2, name='Test Rear Port 2', type=PortTypeChoices.TYPE_8P8C
         )
         frontport2 = FrontPort.objects.create(
-            device=self.panel2, name='Test Front Port 2', type=PORT_TYPE_8P8C, rear_port=rearport2
+            device=self.panel2, name='Test Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport2
         )
 
         url = reverse('dcim-api:cable-list')
@@ -3410,23 +3411,23 @@ class VirtualChassisTest(APITestCase):
             device_type=device_type, device_role=device_role, name='StackSwitch9', site=site
         )
         for i in range(0, 13):
-            Interface.objects.create(device=self.device1, name='1/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device1, name='1/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device2, name='2/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device2, name='2/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device3, name='3/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device3, name='3/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device4, name='1/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device4, name='1/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device5, name='2/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device5, name='2/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device6, name='3/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device6, name='3/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device7, name='1/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device7, name='1/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device8, name='2/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device8, name='2/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device9, name='3/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
+            Interface.objects.create(device=self.device9, name='3/{}'.format(i), type=InterfaceTypeChoices.TYPE_1GE_FIXED)
 
         # Create two VirtualChassis with three members each
         self.vc1 = VirtualChassis.objects.create(master=self.device1, domain='test-domain-1')
@@ -3678,22 +3679,22 @@ class PowerFeedTest(APITestCase):
             site=self.site1, rack_group=self.rackgroup1, name='Test Power Panel 2'
         )
         self.powerfeed1 = PowerFeed.objects.create(
-            power_panel=self.powerpanel1, rack=self.rack1, name='Test Power Feed 1A', type=POWERFEED_TYPE_PRIMARY
+            power_panel=self.powerpanel1, rack=self.rack1, name='Test Power Feed 1A', type=PowerFeedTypeChoices.TYPE_PRIMARY
         )
         self.powerfeed2 = PowerFeed.objects.create(
-            power_panel=self.powerpanel2, rack=self.rack1, name='Test Power Feed 1B', type=POWERFEED_TYPE_REDUNDANT
+            power_panel=self.powerpanel2, rack=self.rack1, name='Test Power Feed 1B', type=PowerFeedTypeChoices.TYPE_REDUNDANT
         )
         self.powerfeed3 = PowerFeed.objects.create(
-            power_panel=self.powerpanel1, rack=self.rack2, name='Test Power Feed 2A', type=POWERFEED_TYPE_PRIMARY
+            power_panel=self.powerpanel1, rack=self.rack2, name='Test Power Feed 2A', type=PowerFeedTypeChoices.TYPE_PRIMARY
         )
         self.powerfeed4 = PowerFeed.objects.create(
-            power_panel=self.powerpanel2, rack=self.rack2, name='Test Power Feed 2B', type=POWERFEED_TYPE_REDUNDANT
+            power_panel=self.powerpanel2, rack=self.rack2, name='Test Power Feed 2B', type=PowerFeedTypeChoices.TYPE_REDUNDANT
         )
         self.powerfeed5 = PowerFeed.objects.create(
-            power_panel=self.powerpanel1, rack=self.rack3, name='Test Power Feed 3A', type=POWERFEED_TYPE_PRIMARY
+            power_panel=self.powerpanel1, rack=self.rack3, name='Test Power Feed 3A', type=PowerFeedTypeChoices.TYPE_PRIMARY
         )
         self.powerfeed6 = PowerFeed.objects.create(
-            power_panel=self.powerpanel2, rack=self.rack3, name='Test Power Feed 3B', type=POWERFEED_TYPE_REDUNDANT
+            power_panel=self.powerpanel2, rack=self.rack3, name='Test Power Feed 3B', type=PowerFeedTypeChoices.TYPE_REDUNDANT
         )
 
     def test_get_powerfeed(self):
@@ -3726,7 +3727,7 @@ class PowerFeedTest(APITestCase):
             'name': 'Test Power Feed 4A',
             'power_panel': self.powerpanel1.pk,
             'rack': self.rack4.pk,
-            'type': POWERFEED_TYPE_PRIMARY,
+            'type': PowerFeedTypeChoices.TYPE_PRIMARY,
         }
 
         url = reverse('dcim-api:powerfeed-list')
@@ -3746,13 +3747,13 @@ class PowerFeedTest(APITestCase):
                 'name': 'Test Power Feed 4A',
                 'power_panel': self.powerpanel1.pk,
                 'rack': self.rack4.pk,
-                'type': POWERFEED_TYPE_PRIMARY,
+                'type': PowerFeedTypeChoices.TYPE_PRIMARY,
             },
             {
                 'name': 'Test Power Feed 4B',
                 'power_panel': self.powerpanel1.pk,
                 'rack': self.rack4.pk,
-                'type': POWERFEED_TYPE_REDUNDANT,
+                'type': PowerFeedTypeChoices.TYPE_REDUNDANT,
             },
         ]
 
@@ -3769,7 +3770,7 @@ class PowerFeedTest(APITestCase):
         data = {
             'name': 'Test Power Feed X',
             'rack': self.rack4.pk,
-            'type': POWERFEED_TYPE_REDUNDANT,
+            'type': PowerFeedTypeChoices.TYPE_REDUNDANT,
         }
 
         url = reverse('dcim-api:powerfeed-detail', kwargs={'pk': self.powerfeed1.pk})

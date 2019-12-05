@@ -1,14 +1,187 @@
-from .constants import *
+from utilities.choices import ChoiceSet
 
 
 #
-# Console port type values
+# Sites
 #
 
-class ConsolePortTypes:
-    """
-    ConsolePort/ConsoleServerPort.type slugs
-    """
+class SiteStatusChoices(ChoiceSet):
+
+    STATUS_ACTIVE = 'active'
+    STATUS_PLANNED = 'planned'
+    STATUS_RETIRED = 'retired'
+
+    CHOICES = (
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_PLANNED, 'Planned'),
+        (STATUS_RETIRED, 'Retired'),
+    )
+
+    LEGACY_MAP = {
+        STATUS_ACTIVE: 1,
+        STATUS_PLANNED: 2,
+        STATUS_RETIRED: 4,
+    }
+
+
+#
+# Racks
+#
+
+class RackTypeChoices(ChoiceSet):
+
+    TYPE_2POST = '2-post-frame'
+    TYPE_4POST = '4-post-frame'
+    TYPE_CABINET = '4-post-cabinet'
+    TYPE_WALLFRAME = 'wall-frame'
+    TYPE_WALLCABINET = 'wall-cabinet'
+
+    CHOICES = (
+        (TYPE_2POST, '2-post frame'),
+        (TYPE_4POST, '4-post frame'),
+        (TYPE_CABINET, '4-post cabinet'),
+        (TYPE_WALLFRAME, 'Wall-mounted frame'),
+        (TYPE_WALLCABINET, 'Wall-mounted cabinet'),
+    )
+
+    LEGACY_MAP = {
+        TYPE_2POST: 100,
+        TYPE_4POST: 200,
+        TYPE_CABINET: 300,
+        TYPE_WALLFRAME: 1000,
+        TYPE_WALLCABINET: 1100,
+    }
+
+
+class RackWidthChoices(ChoiceSet):
+
+    WIDTH_19IN = 19
+    WIDTH_23IN = 23
+
+    CHOICES = (
+        (WIDTH_19IN, '19 inches'),
+        (WIDTH_23IN, '23 inches'),
+    )
+
+
+class RackStatusChoices(ChoiceSet):
+
+    STATUS_RESERVED = 'reserved'
+    STATUS_AVAILABLE = 'available'
+    STATUS_PLANNED = 'planned'
+    STATUS_ACTIVE = 'active'
+    STATUS_DEPRECATED = 'deprecated'
+
+    CHOICES = (
+        (STATUS_RESERVED, 'Reserved'),
+        (STATUS_AVAILABLE, 'Available'),
+        (STATUS_PLANNED, 'Planned'),
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_DEPRECATED, 'Deprecated'),
+    )
+
+    LEGACY_MAP = {
+        STATUS_RESERVED: 0,
+        STATUS_AVAILABLE: 1,
+        STATUS_PLANNED: 2,
+        STATUS_ACTIVE: 3,
+        STATUS_DEPRECATED: 4,
+    }
+
+
+class RackDimensionUnitChoices(ChoiceSet):
+
+    UNIT_MILLIMETER = 'mm'
+    UNIT_INCH = 'in'
+
+    CHOICES = (
+        (UNIT_MILLIMETER, 'Millimeters'),
+        (UNIT_INCH, 'Inches'),
+    )
+
+    LEGACY_MAP = {
+        UNIT_MILLIMETER: 1000,
+        UNIT_INCH: 2000,
+    }
+
+
+#
+# DeviceTypes
+#
+
+class SubdeviceRoleChoices(ChoiceSet):
+
+    ROLE_PARENT = 'parent'
+    ROLE_CHILD = 'child'
+
+    CHOICES = (
+        (ROLE_PARENT, 'Parent'),
+        (ROLE_CHILD, 'Child'),
+    )
+
+    LEGACY_MAP = {
+        ROLE_PARENT: True,
+        ROLE_CHILD: False,
+    }
+
+
+#
+# Devices
+#
+
+class DeviceFaceChoices(ChoiceSet):
+
+    FACE_FRONT = 'front'
+    FACE_REAR = 'rear'
+
+    CHOICES = (
+        (FACE_FRONT, 'Front'),
+        (FACE_REAR, 'Rear'),
+    )
+
+    LEGACY_MAP = {
+        FACE_FRONT: 0,
+        FACE_REAR: 1,
+    }
+
+
+class DeviceStatusChoices(ChoiceSet):
+
+    STATUS_OFFLINE = 'offline'
+    STATUS_ACTIVE = 'active'
+    STATUS_PLANNED = 'planned'
+    STATUS_STAGED = 'staged'
+    STATUS_FAILED = 'failed'
+    STATUS_INVENTORY = 'inventory'
+    STATUS_DECOMMISSIONING = 'decommissioning'
+
+    CHOICES = (
+        (STATUS_OFFLINE, 'Offline'),
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_PLANNED, 'Planned'),
+        (STATUS_STAGED, 'Staged'),
+        (STATUS_FAILED, 'Failed'),
+        (STATUS_INVENTORY, 'Inventory'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning'),
+    )
+
+    LEGACY_MAP = {
+        STATUS_OFFLINE: 0,
+        STATUS_ACTIVE: 1,
+        STATUS_PLANNED: 2,
+        STATUS_STAGED: 3,
+        STATUS_FAILED: 4,
+        STATUS_INVENTORY: 5,
+        STATUS_DECOMMISSIONING: 6,
+    }
+
+
+#
+# ConsolePorts
+#
+
+class ConsolePortTypeChoices(ChoiceSet):
+
     TYPE_DE9 = 'de-9'
     TYPE_DB25 = 'db-25'
     TYPE_RJ45 = 'rj-45'
@@ -43,10 +216,11 @@ class ConsolePortTypes:
 
 
 #
-# Power port types
+# PowerPorts
 #
 
-class PowerPortTypes:
+class PowerPortTypeChoices(ChoiceSet):
+
     # TODO: Add more power port types
     # IEC 60320
     TYPE_IEC_C6 = 'iec-60320-c6'
@@ -130,10 +304,11 @@ class PowerPortTypes:
 
 
 #
-# Power outlet types
+# PowerOutlets
 #
 
-class PowerOutletTypes:
+class PowerOutletTypeChoices(ChoiceSet):
+
     # TODO: Add more power outlet types
     # IEC 60320
     TYPE_IEC_C5 = 'iec-60320-c5'
@@ -216,14 +391,31 @@ class PowerOutletTypes:
     )
 
 
+class PowerOutletFeedLegChoices(ChoiceSet):
+
+    FEED_LEG_A = 'A'
+    FEED_LEG_B = 'B'
+    FEED_LEG_C = 'C'
+
+    CHOICES = (
+        (FEED_LEG_A, 'A'),
+        (FEED_LEG_B, 'B'),
+        (FEED_LEG_C, 'C'),
+    )
+
+    LEGACY_MAP = {
+        FEED_LEG_A: 1,
+        FEED_LEG_B: 2,
+        FEED_LEG_C: 3,
+    }
+
+
 #
-# Interface type values
+# Interfaces
 #
 
-class InterfaceTypes:
-    """
-    Interface.type slugs
-    """
+class InterfaceTypeChoices(ChoiceSet):
+
     # Virtual
     TYPE_VIRTUAL = 'virtual'
     TYPE_LAG = 'lag'
@@ -315,7 +507,7 @@ class InterfaceTypes:
     # Other
     TYPE_OTHER = 'other'
 
-    TYPE_CHOICES = (
+    CHOICES = (
         (
             'Virtual interfaces',
             (
@@ -444,93 +636,105 @@ class InterfaceTypes:
         ),
     )
 
-    @classmethod
-    def slug_to_integer(cls, slug):
-        """
-        Provide backward-compatible mapping of the type slug to integer.
-        """
-        return {
-            # Slug: integer
-            cls.TYPE_VIRTUAL: IFACE_TYPE_VIRTUAL,
-            cls.TYPE_LAG: IFACE_TYPE_LAG,
-            cls.TYPE_100ME_FIXED: IFACE_TYPE_100ME_FIXED,
-            cls.TYPE_1GE_FIXED: IFACE_TYPE_1GE_FIXED,
-            cls.TYPE_1GE_GBIC: IFACE_TYPE_1GE_GBIC,
-            cls.TYPE_1GE_SFP: IFACE_TYPE_1GE_SFP,
-            cls.TYPE_2GE_FIXED: IFACE_TYPE_2GE_FIXED,
-            cls.TYPE_5GE_FIXED: IFACE_TYPE_5GE_FIXED,
-            cls.TYPE_10GE_FIXED: IFACE_TYPE_10GE_FIXED,
-            cls.TYPE_10GE_CX4: IFACE_TYPE_10GE_CX4,
-            cls.TYPE_10GE_SFP_PLUS: IFACE_TYPE_10GE_SFP_PLUS,
-            cls.TYPE_10GE_XFP: IFACE_TYPE_10GE_XFP,
-            cls.TYPE_10GE_XENPAK: IFACE_TYPE_10GE_XENPAK,
-            cls.TYPE_10GE_X2: IFACE_TYPE_10GE_X2,
-            cls.TYPE_25GE_SFP28: IFACE_TYPE_25GE_SFP28,
-            cls.TYPE_40GE_QSFP_PLUS: IFACE_TYPE_40GE_QSFP_PLUS,
-            cls.TYPE_50GE_QSFP28: IFACE_TYPE_50GE_QSFP28,
-            cls.TYPE_100GE_CFP: IFACE_TYPE_100GE_CFP,
-            cls.TYPE_100GE_CFP2: IFACE_TYPE_100GE_CFP2,
-            cls.TYPE_100GE_CFP4: IFACE_TYPE_100GE_CFP4,
-            cls.TYPE_100GE_CPAK: IFACE_TYPE_100GE_CPAK,
-            cls.TYPE_100GE_QSFP28: IFACE_TYPE_100GE_QSFP28,
-            cls.TYPE_200GE_CFP2: IFACE_TYPE_200GE_CFP2,
-            cls.TYPE_200GE_QSFP56: IFACE_TYPE_200GE_QSFP56,
-            cls.TYPE_400GE_QSFP_DD: IFACE_TYPE_400GE_QSFP_DD,
-            cls.TYPE_80211A: IFACE_TYPE_80211A,
-            cls.TYPE_80211G: IFACE_TYPE_80211G,
-            cls.TYPE_80211N: IFACE_TYPE_80211N,
-            cls.TYPE_80211AC: IFACE_TYPE_80211AC,
-            cls.TYPE_80211AD: IFACE_TYPE_80211AD,
-            cls.TYPE_GSM: IFACE_TYPE_GSM,
-            cls.TYPE_CDMA: IFACE_TYPE_CDMA,
-            cls.TYPE_LTE: IFACE_TYPE_LTE,
-            cls.TYPE_SONET_OC3: IFACE_TYPE_SONET_OC3,
-            cls.TYPE_SONET_OC12: IFACE_TYPE_SONET_OC12,
-            cls.TYPE_SONET_OC48: IFACE_TYPE_SONET_OC48,
-            cls.TYPE_SONET_OC192: IFACE_TYPE_SONET_OC192,
-            cls.TYPE_SONET_OC768: IFACE_TYPE_SONET_OC768,
-            cls.TYPE_SONET_OC1920: IFACE_TYPE_SONET_OC1920,
-            cls.TYPE_SONET_OC3840: IFACE_TYPE_SONET_OC3840,
-            cls.TYPE_1GFC_SFP: IFACE_TYPE_1GFC_SFP,
-            cls.TYPE_2GFC_SFP: IFACE_TYPE_2GFC_SFP,
-            cls.TYPE_4GFC_SFP: IFACE_TYPE_4GFC_SFP,
-            cls.TYPE_8GFC_SFP_PLUS: IFACE_TYPE_8GFC_SFP_PLUS,
-            cls.TYPE_16GFC_SFP_PLUS: IFACE_TYPE_16GFC_SFP_PLUS,
-            cls.TYPE_32GFC_SFP28: IFACE_TYPE_32GFC_SFP28,
-            cls.TYPE_128GFC_QSFP28: IFACE_TYPE_128GFC_QSFP28,
-            cls.TYPE_INFINIBAND_SDR: IFACE_TYPE_INFINIBAND_SDR,
-            cls.TYPE_INFINIBAND_DDR: IFACE_TYPE_INFINIBAND_DDR,
-            cls.TYPE_INFINIBAND_QDR: IFACE_TYPE_INFINIBAND_QDR,
-            cls.TYPE_INFINIBAND_FDR10: IFACE_TYPE_INFINIBAND_FDR10,
-            cls.TYPE_INFINIBAND_FDR: IFACE_TYPE_INFINIBAND_FDR,
-            cls.TYPE_INFINIBAND_EDR: IFACE_TYPE_INFINIBAND_EDR,
-            cls.TYPE_INFINIBAND_HDR: IFACE_TYPE_INFINIBAND_HDR,
-            cls.TYPE_INFINIBAND_NDR: IFACE_TYPE_INFINIBAND_NDR,
-            cls.TYPE_INFINIBAND_XDR: IFACE_TYPE_INFINIBAND_XDR,
-            cls.TYPE_T1: IFACE_TYPE_T1,
-            cls.TYPE_E1: IFACE_TYPE_E1,
-            cls.TYPE_T3: IFACE_TYPE_T3,
-            cls.TYPE_E3: IFACE_TYPE_E3,
-            cls.TYPE_STACKWISE: IFACE_TYPE_STACKWISE,
-            cls.TYPE_STACKWISE_PLUS: IFACE_TYPE_STACKWISE_PLUS,
-            cls.TYPE_FLEXSTACK: IFACE_TYPE_FLEXSTACK,
-            cls.TYPE_FLEXSTACK_PLUS: IFACE_TYPE_FLEXSTACK_PLUS,
-            cls.TYPE_JUNIPER_VCP: IFACE_TYPE_JUNIPER_VCP,
-            cls.TYPE_SUMMITSTACK: IFACE_TYPE_SUMMITSTACK,
-            cls.TYPE_SUMMITSTACK128: IFACE_TYPE_SUMMITSTACK128,
-            cls.TYPE_SUMMITSTACK256: IFACE_TYPE_SUMMITSTACK256,
-            cls.TYPE_SUMMITSTACK512: IFACE_TYPE_SUMMITSTACK512,
-        }.get(slug)
+    LEGACY_MAP = {
+        TYPE_VIRTUAL: 0,
+        TYPE_LAG: 200,
+        TYPE_100ME_FIXED: 800,
+        TYPE_1GE_FIXED: 1000,
+        TYPE_1GE_GBIC: 1050,
+        TYPE_1GE_SFP: 1100,
+        TYPE_2GE_FIXED: 1120,
+        TYPE_5GE_FIXED: 1130,
+        TYPE_10GE_FIXED: 1150,
+        TYPE_10GE_CX4: 1170,
+        TYPE_10GE_SFP_PLUS: 1200,
+        TYPE_10GE_XFP: 1300,
+        TYPE_10GE_XENPAK: 1310,
+        TYPE_10GE_X2: 1320,
+        TYPE_25GE_SFP28: 1350,
+        TYPE_40GE_QSFP_PLUS: 1400,
+        TYPE_50GE_QSFP28: 1420,
+        TYPE_100GE_CFP: 1500,
+        TYPE_100GE_CFP2: 1510,
+        TYPE_100GE_CFP4: 1520,
+        TYPE_100GE_CPAK: 1550,
+        TYPE_100GE_QSFP28: 1600,
+        TYPE_200GE_CFP2: 1650,
+        TYPE_200GE_QSFP56: 1700,
+        TYPE_400GE_QSFP_DD: 1750,
+        TYPE_400GE_OSFP: 1800,
+        TYPE_80211A: 2600,
+        TYPE_80211G: 2610,
+        TYPE_80211N: 2620,
+        TYPE_80211AC: 2630,
+        TYPE_80211AD: 2640,
+        TYPE_GSM: 2810,
+        TYPE_CDMA: 2820,
+        TYPE_LTE: 2830,
+        TYPE_SONET_OC3: 6100,
+        TYPE_SONET_OC12: 6200,
+        TYPE_SONET_OC48: 6300,
+        TYPE_SONET_OC192: 6400,
+        TYPE_SONET_OC768: 6500,
+        TYPE_SONET_OC1920: 6600,
+        TYPE_SONET_OC3840: 6700,
+        TYPE_1GFC_SFP: 3010,
+        TYPE_2GFC_SFP: 3020,
+        TYPE_4GFC_SFP: 3040,
+        TYPE_8GFC_SFP_PLUS: 3080,
+        TYPE_16GFC_SFP_PLUS: 3160,
+        TYPE_32GFC_SFP28: 3320,
+        TYPE_128GFC_QSFP28: 3400,
+        TYPE_INFINIBAND_SDR: 7010,
+        TYPE_INFINIBAND_DDR: 7020,
+        TYPE_INFINIBAND_QDR: 7030,
+        TYPE_INFINIBAND_FDR10: 7040,
+        TYPE_INFINIBAND_FDR: 7050,
+        TYPE_INFINIBAND_EDR: 7060,
+        TYPE_INFINIBAND_HDR: 7070,
+        TYPE_INFINIBAND_NDR: 7080,
+        TYPE_INFINIBAND_XDR: 7090,
+        TYPE_T1: 4000,
+        TYPE_E1: 4010,
+        TYPE_T3: 4040,
+        TYPE_E3: 4050,
+        TYPE_STACKWISE: 5000,
+        TYPE_STACKWISE_PLUS: 5050,
+        TYPE_FLEXSTACK: 5100,
+        TYPE_FLEXSTACK_PLUS: 5150,
+        TYPE_JUNIPER_VCP: 5200,
+        TYPE_SUMMITSTACK: 5300,
+        TYPE_SUMMITSTACK128: 5310,
+        TYPE_SUMMITSTACK256: 5320,
+        TYPE_SUMMITSTACK512: 5330,
+    }
+
+
+class InterfaceModeChoices(ChoiceSet):
+
+    MODE_ACCESS = 'access'
+    MODE_TAGGED = 'tagged'
+    MODE_TAGGED_ALL = 'tagged-all'
+
+    CHOICES = (
+        (MODE_ACCESS, 'Access'),
+        (MODE_TAGGED, 'Tagged'),
+        (MODE_TAGGED_ALL, 'Tagged (All)'),
+    )
+
+    LEGACY_MAP = {
+        MODE_ACCESS: 100,
+        MODE_TAGGED: 200,
+        MODE_TAGGED_ALL: 300,
+    }
 
 
 #
-# Port type values
+# FrontPorts/RearPorts
 #
 
-class PortTypes:
-    """
-    FrontPort/RearPort.type slugs
-    """
+class PortTypeChoices(ChoiceSet):
+
     TYPE_8P8C = '8p8c'
     TYPE_110_PUNCH = '110-punch'
     TYPE_BNC = 'bnc'
@@ -545,7 +749,7 @@ class PortTypes:
     TYPE_LSH = 'lsh'
     TYPE_LSH_APC = 'lsh-apc'
 
-    TYPE_CHOICES = (
+    CHOICES = (
         (
             'Copper',
             (
@@ -571,24 +775,193 @@ class PortTypes:
         )
     )
 
-    @classmethod
-    def slug_to_integer(cls, slug):
-        """
-        Provide backward-compatible mapping of the type slug to integer.
-        """
-        return {
-            # Slug: integer
-            cls.TYPE_8P8C: PORT_TYPE_8P8C,
-            cls.TYPE_110_PUNCH: PORT_TYPE_8P8C,
-            cls.TYPE_BNC: PORT_TYPE_BNC,
-            cls.TYPE_ST: PORT_TYPE_ST,
-            cls.TYPE_SC: PORT_TYPE_SC,
-            cls.TYPE_SC_APC: PORT_TYPE_SC_APC,
-            cls.TYPE_FC: PORT_TYPE_FC,
-            cls.TYPE_LC: PORT_TYPE_LC,
-            cls.TYPE_LC_APC: PORT_TYPE_LC_APC,
-            cls.TYPE_MTRJ: PORT_TYPE_MTRJ,
-            cls.TYPE_MPO: PORT_TYPE_MPO,
-            cls.TYPE_LSH: PORT_TYPE_LSH,
-            cls.TYPE_LSH_APC: PORT_TYPE_LSH_APC,
-        }.get(slug)
+    LEGACY_MAP = {
+        TYPE_8P8C: 1000,
+        TYPE_110_PUNCH: 1100,
+        TYPE_BNC: 1200,
+        TYPE_ST: 2000,
+        TYPE_SC: 2100,
+        TYPE_SC_APC: 2110,
+        TYPE_FC: 2200,
+        TYPE_LC: 2300,
+        TYPE_LC_APC: 2310,
+        TYPE_MTRJ: 2400,
+        TYPE_MPO: 2500,
+        TYPE_LSH: 2600,
+        TYPE_LSH_APC: 2610,
+    }
+
+
+#
+# Cables
+#
+
+class CableTypeChoices(ChoiceSet):
+
+    TYPE_CAT3 = 'cat3'
+    TYPE_CAT5 = 'cat5'
+    TYPE_CAT5E = 'cat5e'
+    TYPE_CAT6 = 'cat6'
+    TYPE_CAT6A = 'cat6a'
+    TYPE_CAT7 = 'cat7'
+    TYPE_DAC_ACTIVE = 'dac-active'
+    TYPE_DAC_PASSIVE = 'dac-passive'
+    TYPE_COAXIAL = 'coaxial'
+    TYPE_MMF = 'mmf'
+    TYPE_MMF_OM1 = 'mmf-om1'
+    TYPE_MMF_OM2 = 'mmf-om2'
+    TYPE_MMF_OM3 = 'mmf-om3'
+    TYPE_MMF_OM4 = 'mmf-om4'
+    TYPE_SMF = 'smf'
+    TYPE_SMF_OS1 = 'smf-os1'
+    TYPE_SMF_OS2 = 'smf-os2'
+    TYPE_AOC = 'aoc'
+    TYPE_POWER = 'power'
+
+    CHOICES = (
+        (
+            'Copper', (
+                (TYPE_CAT3, 'CAT3'),
+                (TYPE_CAT5, 'CAT5'),
+                (TYPE_CAT5E, 'CAT5e'),
+                (TYPE_CAT6, 'CAT6'),
+                (TYPE_CAT6A, 'CAT6a'),
+                (TYPE_CAT7, 'CAT7'),
+                (TYPE_DAC_ACTIVE, 'Direct Attach Copper (Active)'),
+                (TYPE_DAC_PASSIVE, 'Direct Attach Copper (Passive)'),
+                (TYPE_COAXIAL, 'Coaxial'),
+            ),
+        ),
+        (
+            'Fiber', (
+                (TYPE_MMF, 'Multimode Fiber'),
+                (TYPE_MMF_OM1, 'Multimode Fiber (OM1)'),
+                (TYPE_MMF_OM2, 'Multimode Fiber (OM2)'),
+                (TYPE_MMF_OM3, 'Multimode Fiber (OM3)'),
+                (TYPE_MMF_OM4, 'Multimode Fiber (OM4)'),
+                (TYPE_SMF, 'Singlemode Fiber'),
+                (TYPE_SMF_OS1, 'Singlemode Fiber (OS1)'),
+                (TYPE_SMF_OS2, 'Singlemode Fiber (OS2)'),
+                (TYPE_AOC, 'Active Optical Cabling (AOC)'),
+            ),
+        ),
+        (TYPE_POWER, 'Power'),
+    )
+
+    LEGACY_MAP = {
+        TYPE_CAT3: 1300,
+        TYPE_CAT5: 1500,
+        TYPE_CAT5E: 1510,
+        TYPE_CAT6: 1600,
+        TYPE_CAT6A: 1610,
+        TYPE_CAT7: 1700,
+        TYPE_DAC_ACTIVE: 1800,
+        TYPE_DAC_PASSIVE: 1810,
+        TYPE_COAXIAL: 1900,
+        TYPE_MMF: 3000,
+        TYPE_MMF_OM1: 3010,
+        TYPE_MMF_OM2: 3020,
+        TYPE_MMF_OM3: 3030,
+        TYPE_MMF_OM4: 3040,
+        TYPE_SMF: 3500,
+        TYPE_SMF_OS1: 3510,
+        TYPE_SMF_OS2: 3520,
+        TYPE_AOC: 3800,
+        TYPE_POWER: 5000,
+    }
+
+
+class CableLengthUnitChoices(ChoiceSet):
+
+    UNIT_METER = 'm'
+    UNIT_CENTIMETER = 'cm'
+    UNIT_FOOT = 'ft'
+    UNIT_INCH = 'in'
+
+    CHOICES = (
+        (UNIT_METER, 'Meters'),
+        (UNIT_CENTIMETER, 'Centimeters'),
+        (UNIT_FOOT, 'Feet'),
+        (UNIT_INCH, 'Inches'),
+    )
+
+    LEGACY_MAP = {
+        UNIT_METER: 1200,
+        UNIT_CENTIMETER: 1100,
+        UNIT_FOOT: 2100,
+        UNIT_INCH: 2000,
+    }
+
+
+#
+# PowerFeeds
+#
+
+class PowerFeedStatusChoices(ChoiceSet):
+
+    STATUS_OFFLINE = 'offline'
+    STATUS_ACTIVE = 'active'
+    STATUS_PLANNED = 'planned'
+    STATUS_FAILED = 'failed'
+
+    CHOICES = (
+        (STATUS_OFFLINE, 'Offline'),
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_PLANNED, 'Planned'),
+        (STATUS_FAILED, 'Failed'),
+    )
+
+    LEGACY_MAP = {
+        STATUS_OFFLINE: 0,
+        STATUS_ACTIVE: 1,
+        STATUS_PLANNED: 2,
+        STATUS_FAILED: 4,
+    }
+
+
+class PowerFeedTypeChoices(ChoiceSet):
+
+    TYPE_PRIMARY = 'primary'
+    TYPE_REDUNDANT = 'redundant'
+
+    CHOICES = (
+        (TYPE_PRIMARY, 'Primary'),
+        (TYPE_REDUNDANT, 'Redundant'),
+    )
+
+    LEGACY_MAP = {
+        TYPE_PRIMARY: 1,
+        TYPE_REDUNDANT: 2,
+    }
+
+
+class PowerFeedSupplyChoices(ChoiceSet):
+
+    SUPPLY_AC = 'ac'
+    SUPPLY_DC = 'dc'
+
+    CHOICES = (
+        (SUPPLY_AC, 'AC'),
+        (SUPPLY_DC, 'DC'),
+    )
+
+    LEGACY_MAP = {
+        SUPPLY_AC: 1,
+        SUPPLY_DC: 2,
+    }
+
+
+class PowerFeedPhaseChoices(ChoiceSet):
+
+    PHASE_SINGLE = 'single-phase'
+    PHASE_3PHASE = 'three-phase'
+
+    CHOICES = (
+        (PHASE_SINGLE, 'Single phase'),
+        (PHASE_3PHASE, 'Three-phase'),
+    )
+
+    LEGACY_MAP = {
+        PHASE_SINGLE: 1,
+        PHASE_3PHASE: 3,
+    }

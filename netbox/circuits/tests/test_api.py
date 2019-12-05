@@ -1,9 +1,9 @@
 from django.urls import reverse
 from rest_framework import status
 
-from circuits.constants import CIRCUIT_STATUS_ACTIVE, TERM_SIDE_A, TERM_SIDE_Z
+from circuits.choices import *
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
-from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
+from dcim.models import Site
 from extras.constants import GRAPH_TYPE_PROVIDER
 from extras.models import Graph
 from utilities.testing import APITestCase
@@ -250,7 +250,7 @@ class CircuitTest(APITestCase):
             'cid': 'TEST0004',
             'provider': self.provider1.pk,
             'type': self.circuittype1.pk,
-            'status': CIRCUIT_STATUS_ACTIVE,
+            'status': CircuitStatusChoices.STATUS_ACTIVE,
         }
 
         url = reverse('circuits-api:circuit-list')
@@ -270,19 +270,19 @@ class CircuitTest(APITestCase):
                 'cid': 'TEST0004',
                 'provider': self.provider1.pk,
                 'type': self.circuittype1.pk,
-                'status': CIRCUIT_STATUS_ACTIVE,
+                'status': CircuitStatusChoices.STATUS_ACTIVE,
             },
             {
                 'cid': 'TEST0005',
                 'provider': self.provider1.pk,
                 'type': self.circuittype1.pk,
-                'status': CIRCUIT_STATUS_ACTIVE,
+                'status': CircuitStatusChoices.STATUS_ACTIVE,
             },
             {
                 'cid': 'TEST0006',
                 'provider': self.provider1.pk,
                 'type': self.circuittype1.pk,
-                'status': CIRCUIT_STATUS_ACTIVE,
+                'status': CircuitStatusChoices.STATUS_ACTIVE,
             },
         ]
 
@@ -336,16 +336,28 @@ class CircuitTerminationTest(APITestCase):
         self.circuit2 = Circuit.objects.create(cid='TEST0002', provider=provider, type=circuittype)
         self.circuit3 = Circuit.objects.create(cid='TEST0003', provider=provider, type=circuittype)
         self.circuittermination1 = CircuitTermination.objects.create(
-            circuit=self.circuit1, term_side=TERM_SIDE_A, site=self.site1, port_speed=1000000
+            circuit=self.circuit1,
+            term_side=CircuitTerminationSideChoices.SIDE_A,
+            site=self.site1,
+            port_speed=1000000
         )
         self.circuittermination2 = CircuitTermination.objects.create(
-            circuit=self.circuit1, term_side=TERM_SIDE_Z, site=self.site2, port_speed=1000000
+            circuit=self.circuit1,
+            term_side=CircuitTerminationSideChoices.SIDE_Z,
+            site=self.site2,
+            port_speed=1000000
         )
         self.circuittermination3 = CircuitTermination.objects.create(
-            circuit=self.circuit2, term_side=TERM_SIDE_A, site=self.site1, port_speed=1000000
+            circuit=self.circuit2,
+            term_side=CircuitTerminationSideChoices.SIDE_A,
+            site=self.site1,
+            port_speed=1000000
         )
         self.circuittermination4 = CircuitTermination.objects.create(
-            circuit=self.circuit2, term_side=TERM_SIDE_Z, site=self.site2, port_speed=1000000
+            circuit=self.circuit2,
+            term_side=CircuitTerminationSideChoices.SIDE_Z,
+            site=self.site2,
+            port_speed=1000000
         )
 
     def test_get_circuittermination(self):
@@ -366,7 +378,7 @@ class CircuitTerminationTest(APITestCase):
 
         data = {
             'circuit': self.circuit3.pk,
-            'term_side': TERM_SIDE_A,
+            'term_side': CircuitTerminationSideChoices.SIDE_A,
             'site': self.site1.pk,
             'port_speed': 1000000,
         }
@@ -385,12 +397,15 @@ class CircuitTerminationTest(APITestCase):
     def test_update_circuittermination(self):
 
         circuittermination5 = CircuitTermination.objects.create(
-            circuit=self.circuit3, term_side=TERM_SIDE_A, site=self.site1, port_speed=1000000
+            circuit=self.circuit3,
+            term_side=CircuitTerminationSideChoices.SIDE_A,
+            site=self.site1,
+            port_speed=1000000
         )
 
         data = {
             'circuit': self.circuit3.pk,
-            'term_side': TERM_SIDE_Z,
+            'term_side': CircuitTerminationSideChoices.SIDE_Z,
             'site': self.site2.pk,
             'port_speed': 1000000,
         }

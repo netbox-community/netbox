@@ -245,9 +245,10 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     slug = models.SlugField(
         unique=True
     )
-    status = models.PositiveSmallIntegerField(
-        choices=SITE_STATUS_CHOICES,
-        default=SITE_STATUS_ACTIVE
+    status = models.CharField(
+        max_length=50,
+        choices=SiteStatusChoices,
+        default=SiteStatusChoices.STATUS_ACTIVE
     )
     region = models.ForeignKey(
         to='dcim.Region',
@@ -331,6 +332,12 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email', 'comments',
     ]
 
+    STATUS_CLASS_MAP = {
+        SiteStatusChoices.STATUS_ACTIVE: 'success',
+        SiteStatusChoices.STATUS_PLANNED: 'info',
+        SiteStatusChoices.STATUS_RETIRED: 'danger',
+    }
+
     class Meta:
         ordering = ['name']
 
@@ -362,7 +369,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         )
 
     def get_status_class(self):
-        return STATUS_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)
 
 
 #
@@ -473,9 +480,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         null=True
     )
-    status = models.PositiveSmallIntegerField(
-        choices=RACK_STATUS_CHOICES,
-        default=RACK_STATUS_ACTIVE
+    status = models.CharField(
+        max_length=50,
+        choices=RackStatusChoices,
+        default=RackStatusChoices.STATUS_ACTIVE
     )
     role = models.ForeignKey(
         to='dcim.RackRole',
@@ -497,15 +505,15 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         verbose_name='Asset tag',
         help_text='A unique tag used to identify this rack'
     )
-    type = models.PositiveSmallIntegerField(
-        choices=RACK_TYPE_CHOICES,
+    type = models.CharField(
+        choices=RackTypeChoices,
+        max_length=50,
         blank=True,
-        null=True,
         verbose_name='Type'
     )
     width = models.PositiveSmallIntegerField(
-        choices=RACK_WIDTH_CHOICES,
-        default=RACK_WIDTH_19IN,
+        choices=RackWidthChoices,
+        default=RackWidthChoices.WIDTH_19IN,
         verbose_name='Width',
         help_text='Rail-to-rail width'
     )
@@ -527,10 +535,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         null=True
     )
-    outer_unit = models.PositiveSmallIntegerField(
-        choices=RACK_DIMENSION_UNIT_CHOICES,
+    outer_unit = models.CharField(
+        max_length=50,
+        choices=RackDimensionUnitChoices,
         blank=True,
-        null=True
     )
     comments = models.TextField(
         blank=True
@@ -552,6 +560,14 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
     ]
 
+    STATUS_CLASS_MAP = {
+        RackStatusChoices.STATUS_RESERVED: 'warning',
+        RackStatusChoices.STATUS_AVAILABLE: 'success',
+        RackStatusChoices.STATUS_PLANNED: 'info',
+        RackStatusChoices.STATUS_ACTIVE: 'primary',
+        RackStatusChoices.STATUS_DEPRECATED: 'danger',
+    }
+
     class Meta:
         ordering = ['site', 'group', 'name']
         unique_together = [
@@ -568,10 +584,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def clean(self):
 
         # Validate outer dimensions and unit
-        if (self.outer_width is not None or self.outer_depth is not None) and self.outer_unit is None:
+        if (self.outer_width is not None or self.outer_depth is not None) and not self.outer_unit:
             raise ValidationError("Must specify a unit when setting an outer width/depth")
         elif self.outer_width is None and self.outer_depth is None:
-            self.outer_unit = None
+            self.outer_unit = ''
 
         if self.pk:
             # Validate that Rack is tall enough to house the installed Devices
@@ -644,9 +660,9 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         return ""
 
     def get_status_class(self):
-        return STATUS_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)
 
-    def get_rack_units(self, face=RACK_FACE_FRONT, exclude=None, remove_redundant=False):
+    def get_rack_units(self, face=DeviceFaceChoices.FACE_FRONT, exclude=None, remove_redundant=False):
         """
         Return a list of rack units as dictionaries. Example: {'device': None, 'face': 0, 'id': 48, 'name': 'U48'}
         Each key 'device' is either a Device or None. By default, multi-U devices are repeated for each U they occupy.
@@ -678,10 +694,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         return [u for u in elevation.values()]
 
     def get_front_elevation(self):
-        return self.get_rack_units(face=RACK_FACE_FRONT, remove_redundant=True)
+        return self.get_rack_units(face=DeviceFaceChoices.FACE_FRONT, remove_redundant=True)
 
     def get_rear_elevation(self):
-        return self.get_rack_units(face=RACK_FACE_REAR, remove_redundant=True)
+        return self.get_rack_units(face=DeviceFaceChoices.FACE_REAR, remove_redundant=True)
 
     def get_available_units(self, u_height=1, rack_face=None, exclude=list()):
         """
@@ -910,12 +926,13 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         verbose_name='Is full depth',
         help_text='Device consumes both front and rear rack faces'
     )
-    subdevice_role = models.NullBooleanField(
-        default=None,
+    subdevice_role = models.CharField(
+        max_length=50,
+        choices=SubdeviceRoleChoices,
+        blank=True,
         verbose_name='Parent/child status',
-        choices=SUBDEVICE_ROLE_CHOICES,
-        help_text='Parent devices house child devices in device bays. Select '
-                  '"None" if this device type is neither a parent nor a child.'
+        help_text='Parent devices house child devices in device bays. Leave blank '
+                  'if this device type is neither a parent nor a child.'
     )
     comments = models.TextField(
         blank=True
@@ -959,7 +976,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
             self.part_number,
             self.u_height,
             self.is_full_depth,
-            self.get_subdevice_role_display() if self.subdevice_role else None,
+            self.get_subdevice_role_display(),
             self.comments,
         )
 
@@ -979,13 +996,15 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
                                     "{}U".format(d, d.rack, self.u_height)
                     })
 
-        if self.subdevice_role != SUBDEVICE_ROLE_PARENT and self.device_bay_templates.count():
+        if (
+                self.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT
+        ) and self.device_bay_templates.count():
             raise ValidationError({
                 'subdevice_role': "Must delete all device bay templates associated with this device before "
                                   "declassifying it as a parent device."
             })
 
-        if self.u_height and self.subdevice_role == SUBDEVICE_ROLE_CHILD:
+        if self.u_height and self.subdevice_role == SubdeviceRoleChoices.ROLE_CHILD:
             raise ValidationError({
                 'u_height': "Child device types must be 0U."
             })
@@ -996,11 +1015,11 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 
     @property
     def is_parent_device(self):
-        return bool(self.subdevice_role)
+        return self.subdevice_role == SubdeviceRoleChoices.ROLE_PARENT
 
     @property
     def is_child_device(self):
-        return bool(self.subdevice_role is False)
+        return self.subdevice_role == SubdeviceRoleChoices.ROLE_CHILD
 
 
 class ConsolePortTemplate(ComponentTemplateModel):
@@ -1017,7 +1036,7 @@ class ConsolePortTemplate(ComponentTemplateModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         blank=True
     )
 
@@ -1052,7 +1071,7 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         blank=True
     )
 
@@ -1087,7 +1106,7 @@ class PowerPortTemplate(ComponentTemplateModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=PowerPortTypes.CHOICES,
+        choices=PowerPortTypeChoices,
         blank=True
     )
     maximum_draw = models.PositiveSmallIntegerField(
@@ -1135,7 +1154,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=PowerOutletTypes.CHOICES,
+        choices=PowerOutletTypeChoices,
         blank=True
     )
     power_port = models.ForeignKey(
@@ -1145,10 +1164,10 @@ class PowerOutletTemplate(ComponentTemplateModel):
         null=True,
         related_name='poweroutlet_templates'
     )
-    feed_leg = models.PositiveSmallIntegerField(
-        choices=POWERFEED_LEG_CHOICES,
+    feed_leg = models.CharField(
+        max_length=50,
+        choices=PowerOutletFeedLegChoices,
         blank=True,
-        null=True,
         help_text="Phase (for three-phase feeds)"
     )
 
@@ -1194,9 +1213,9 @@ class InterfaceTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=64
     )
-    type = models.PositiveSmallIntegerField(
-        choices=IFACE_TYPE_CHOICES,
-        default=IFACE_TYPE_10GE_SFP_PLUS
+    type = models.CharField(
+        max_length=50,
+        choices=InterfaceTypeChoices
     )
     mgmt_only = models.BooleanField(
         default=False,
@@ -1233,8 +1252,9 @@ class FrontPortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=64
     )
-    type = models.PositiveSmallIntegerField(
-        choices=PORT_TYPE_CHOICES
+    type = models.CharField(
+        max_length=50,
+        choices=PortTypeChoices
     )
     rear_port = models.ForeignKey(
         to='dcim.RearPortTemplate',
@@ -1300,8 +1320,9 @@ class RearPortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=64
     )
-    type = models.PositiveSmallIntegerField(
-        choices=PORT_TYPE_CHOICES
+    type = models.CharField(
+        max_length=50,
+        choices=PortTypeChoices
     )
     positions = models.PositiveSmallIntegerField(
         default=1,
@@ -1526,16 +1547,16 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         verbose_name='Position (U)',
         help_text='The lowest-numbered unit occupied by the device'
     )
-    face = models.PositiveSmallIntegerField(
+    face = models.CharField(
+        max_length=50,
         blank=True,
-        null=True,
-        choices=RACK_FACE_CHOICES,
+        choices=DeviceFaceChoices,
         verbose_name='Rack face'
     )
-    status = models.PositiveSmallIntegerField(
-        choices=DEVICE_STATUS_CHOICES,
-        default=DEVICE_STATUS_ACTIVE,
-        verbose_name='Status'
+    status = models.CharField(
+        max_length=50,
+        choices=DeviceStatusChoices,
+        default=DeviceStatusChoices.STATUS_ACTIVE
     )
     primary_ip4 = models.OneToOneField(
         to='ipam.IPAddress',
@@ -1597,6 +1618,16 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         'site', 'rack_group', 'rack_name', 'position', 'face', 'comments',
     ]
 
+    STATUS_CLASS_MAP = {
+        DeviceStatusChoices.STATUS_OFFLINE: 'warning',
+        DeviceStatusChoices.STATUS_ACTIVE: 'success',
+        DeviceStatusChoices.STATUS_PLANNED: 'info',
+        DeviceStatusChoices.STATUS_STAGED: 'primary',
+        DeviceStatusChoices.STATUS_FAILED: 'danger',
+        DeviceStatusChoices.STATUS_INVENTORY: 'default',
+        DeviceStatusChoices.STATUS_DECOMMISSIONING: 'warning',
+    }
+
     class Meta:
         ordering = ['name']
         unique_together = [
@@ -1625,7 +1656,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
             })
 
         if self.rack is None:
-            if self.face is not None:
+            if self.face:
                 raise ValidationError({
                     'face': "Cannot select a rack face without assigning a rack.",
                 })
@@ -1635,7 +1666,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                 })
 
         # Validate position/face combination
-        if self.position and self.face is None:
+        if self.position and not self.face:
             raise ValidationError({
                 'face': "Must specify rack face when defining rack position.",
             })
@@ -1850,7 +1881,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         return Device.objects.filter(parent_bay__device=self.pk)
 
     def get_status_class(self):
-        return STATUS_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)
 
 
 #
@@ -1871,7 +1902,7 @@ class ConsolePort(CableTermination, ComponentModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         blank=True
     )
     connected_endpoint = models.OneToOneField(
@@ -1928,7 +1959,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         blank=True
     )
     connection_status = models.NullBooleanField(
@@ -1977,7 +2008,7 @@ class PowerPort(CableTermination, ComponentModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=PowerPortTypes.CHOICES,
+        choices=PowerPortTypeChoices,
         blank=True
     )
     maximum_draw = models.PositiveSmallIntegerField(
@@ -2077,8 +2108,8 @@ class PowerPort(CableTermination, ComponentModel):
             }
 
             # Calculate per-leg aggregates for three-phase feeds
-            if self._connected_powerfeed and self._connected_powerfeed.phase == POWERFEED_PHASE_3PHASE:
-                for leg, leg_name in POWERFEED_LEG_CHOICES:
+            if self._connected_powerfeed and self._connected_powerfeed.phase == PowerFeedPhaseChoices.PHASE_3PHASE:
+                for leg, leg_name in PowerOutletFeedLegChoices:
                     outlet_ids = PowerOutlet.objects.filter(power_port=self, feed_leg=leg).values_list('pk', flat=True)
                     utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
                         maximum_draw_total=Sum('maximum_draw'),
@@ -2120,7 +2151,7 @@ class PowerOutlet(CableTermination, ComponentModel):
     )
     type = models.CharField(
         max_length=50,
-        choices=PowerOutletTypes.CHOICES,
+        choices=PowerOutletTypeChoices,
         blank=True
     )
     power_port = models.ForeignKey(
@@ -2130,10 +2161,10 @@ class PowerOutlet(CableTermination, ComponentModel):
         null=True,
         related_name='poweroutlets'
     )
-    feed_leg = models.PositiveSmallIntegerField(
-        choices=POWERFEED_LEG_CHOICES,
+    feed_leg = models.CharField(
+        max_length=50,
+        choices=PowerOutletFeedLegChoices,
         blank=True,
-        null=True,
         help_text="Phase (for three-phase feeds)"
     )
     connection_status = models.NullBooleanField(
@@ -2226,9 +2257,9 @@ class Interface(CableTermination, ComponentModel):
         blank=True,
         verbose_name='Parent LAG'
     )
-    type = models.PositiveSmallIntegerField(
-        choices=IFACE_TYPE_CHOICES,
-        default=IFACE_TYPE_10GE_SFP_PLUS
+    type = models.CharField(
+        max_length=50,
+        choices=InterfaceTypeChoices
     )
     enabled = models.BooleanField(
         default=True
@@ -2249,10 +2280,10 @@ class Interface(CableTermination, ComponentModel):
         verbose_name='OOB Management',
         help_text='This interface is used only for out-of-band management'
     )
-    mode = models.PositiveSmallIntegerField(
-        choices=IFACE_MODE_CHOICES,
+    mode = models.CharField(
+        max_length=50,
+        choices=InterfaceModeChoices,
         blank=True,
-        null=True
     )
     untagged_vlan = models.ForeignKey(
         to='ipam.VLAN',
@@ -2311,7 +2342,7 @@ class Interface(CableTermination, ComponentModel):
             raise ValidationError("An interface must belong to either a device or a virtual machine.")
 
         # VM interfaces must be virtual
-        if self.virtual_machine and self.type is not IFACE_TYPE_VIRTUAL:
+        if self.virtual_machine and self.type is not InterfaceTypeChoices.TYPE_VIRTUAL:
             raise ValidationError({
                 'type': "Virtual machines can only have virtual interfaces."
             })
@@ -2340,7 +2371,7 @@ class Interface(CableTermination, ComponentModel):
             })
 
         # Only a LAG can have LAG members
-        if self.type != IFACE_TYPE_LAG and self.member_interfaces.exists():
+        if self.type != InterfaceTypeChoices.TYPE_LAG and self.member_interfaces.exists():
             raise ValidationError({
                 'type': "Cannot change interface type; it has LAG members ({}).".format(
                     ", ".join([iface.name for iface in self.member_interfaces.all()])
@@ -2361,7 +2392,7 @@ class Interface(CableTermination, ComponentModel):
             self.untagged_vlan = None
 
         # Only "tagged" interfaces may have tagged VLANs assigned. ("tagged all" implies all VLANs are assigned.)
-        if self.pk and self.mode is not IFACE_MODE_TAGGED:
+        if self.pk and self.mode is not InterfaceModeChoices.MODE_TAGGED:
             self.tagged_vlans.clear()
 
         return super().save(*args, **kwargs)
@@ -2423,7 +2454,7 @@ class Interface(CableTermination, ComponentModel):
 
     @property
     def is_lag(self):
-        return self.type == IFACE_TYPE_LAG
+        return self.type == InterfaceTypeChoices.TYPE_LAG
 
     @property
     def count_ipaddresses(self):
@@ -2446,8 +2477,9 @@ class FrontPort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=64
     )
-    type = models.PositiveSmallIntegerField(
-        choices=PORT_TYPE_CHOICES
+    type = models.CharField(
+        max_length=50,
+        choices=PortTypeChoices
     )
     rear_port = models.ForeignKey(
         to='dcim.RearPort',
@@ -2513,8 +2545,9 @@ class RearPort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=64
     )
-    type = models.PositiveSmallIntegerField(
-        choices=PORT_TYPE_CHOICES
+    type = models.CharField(
+        max_length=50,
+        choices=PortTypeChoices
     )
     positions = models.PositiveSmallIntegerField(
         default=1,
@@ -2776,10 +2809,10 @@ class Cable(ChangeLoggedModel):
         ct_field='termination_b_type',
         fk_field='termination_b_id'
     )
-    type = models.PositiveSmallIntegerField(
-        choices=CABLE_TYPE_CHOICES,
-        blank=True,
-        null=True
+    type = models.CharField(
+        max_length=50,
+        choices=CableTypeChoices,
+        blank=True
     )
     status = models.BooleanField(
         choices=CONNECTION_STATUS_CHOICES,
@@ -2796,10 +2829,10 @@ class Cable(ChangeLoggedModel):
         blank=True,
         null=True
     )
-    length_unit = models.PositiveSmallIntegerField(
-        choices=CABLE_LENGTH_UNIT_CHOICES,
+    length_unit = models.CharField(
+        max_length=50,
+        choices=CableLengthUnitChoices,
         blank=True,
-        null=True
     )
     # Stores the normalized length (in meters) for database ordering
     _abs_length = models.DecimalField(
@@ -2927,10 +2960,10 @@ class Cable(ChangeLoggedModel):
             ))
 
         # Validate length and length_unit
-        if self.length is not None and self.length_unit is None:
+        if self.length is not None and not self.length_unit:
             raise ValidationError("Must specify a unit when setting a cable length")
         elif self.length is None:
-            self.length_unit = None
+            self.length_unit = ''
 
     def save(self, *args, **kwargs):
 
@@ -3074,21 +3107,25 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     name = models.CharField(
         max_length=50
     )
-    status = models.PositiveSmallIntegerField(
-        choices=POWERFEED_STATUS_CHOICES,
-        default=POWERFEED_STATUS_ACTIVE
+    status = models.CharField(
+        max_length=50,
+        choices=PowerFeedStatusChoices,
+        default=PowerFeedStatusChoices.STATUS_ACTIVE
     )
-    type = models.PositiveSmallIntegerField(
-        choices=POWERFEED_TYPE_CHOICES,
-        default=POWERFEED_TYPE_PRIMARY
+    type = models.CharField(
+        max_length=50,
+        choices=PowerFeedTypeChoices,
+        default=PowerFeedTypeChoices.TYPE_PRIMARY
     )
-    supply = models.PositiveSmallIntegerField(
-        choices=POWERFEED_SUPPLY_CHOICES,
-        default=POWERFEED_SUPPLY_AC
+    supply = models.CharField(
+        max_length=50,
+        choices=PowerFeedSupplyChoices,
+        default=PowerFeedSupplyChoices.SUPPLY_AC
     )
-    phase = models.PositiveSmallIntegerField(
-        choices=POWERFEED_PHASE_CHOICES,
-        default=POWERFEED_PHASE_SINGLE
+    phase = models.CharField(
+        max_length=50,
+        choices=PowerFeedPhaseChoices,
+        default=PowerFeedPhaseChoices.PHASE_SINGLE
     )
     voltage = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)],
@@ -3122,6 +3159,18 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         'site', 'panel_name', 'rack_group', 'rack_name', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
         'amperage', 'max_utilization', 'comments',
     ]
+
+    STATUS_CLASS_MAP = {
+        PowerFeedStatusChoices.STATUS_OFFLINE: 'warning',
+        PowerFeedStatusChoices.STATUS_ACTIVE: 'success',
+        PowerFeedStatusChoices.STATUS_PLANNED: 'info',
+        PowerFeedStatusChoices.STATUS_FAILED: 'danger',
+    }
+
+    TYPE_CLASS_MAP = {
+        PowerFeedTypeChoices.TYPE_PRIMARY: 'success',
+        PowerFeedTypeChoices.TYPE_REDUNDANT: 'info',
+    }
 
     class Meta:
         ordering = ['power_panel', 'name']
@@ -3162,7 +3211,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
 
         # Cache the available_power property on the instance
         kva = self.voltage * self.amperage * (self.max_utilization / 100)
-        if self.phase == POWERFEED_PHASE_3PHASE:
+        if self.phase == PowerFeedPhaseChoices.PHASE_3PHASE:
             self.available_power = round(kva * 1.732)
         else:
             self.available_power = round(kva)
@@ -3170,7 +3219,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         super().save(*args, **kwargs)
 
     def get_type_class(self):
-        return STATUS_CLASSES[self.type]
+        return self.TYPE_CLASS_MAP.get(self.type)
 
     def get_status_class(self):
-        return STATUS_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)

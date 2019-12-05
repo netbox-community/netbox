@@ -255,15 +255,15 @@ power-outlets:
   - name: Power Outlet 1
     type: iec-60320-c13
     power_port: Power Port 1
-    feed_leg: 1
+    feed_leg: A
   - name: Power Outlet 2
     type: iec-60320-c13
     power_port: Power Port 1
-    feed_leg: 1
+    feed_leg: A
   - name: Power Outlet 3
     type: iec-60320-c13
     power_port: Power Port 1
-    feed_leg: 1
+    feed_leg: A
 interfaces:
   - name: Interface 1
     type: 1000base-t
@@ -326,29 +326,29 @@ device-bays:
         self.assertEqual(dt.consoleport_templates.count(), 3)
         cp1 = ConsolePortTemplate.objects.first()
         self.assertEqual(cp1.name, 'Console Port 1')
-        self.assertEqual(cp1.type, ConsolePortTypes.TYPE_DE9)
+        self.assertEqual(cp1.type, ConsolePortTypeChoices.TYPE_DE9)
 
         self.assertEqual(dt.consoleserverport_templates.count(), 3)
         csp1 = ConsoleServerPortTemplate.objects.first()
         self.assertEqual(csp1.name, 'Console Server Port 1')
-        self.assertEqual(csp1.type, ConsolePortTypes.TYPE_RJ45)
+        self.assertEqual(csp1.type, ConsolePortTypeChoices.TYPE_RJ45)
 
         self.assertEqual(dt.powerport_templates.count(), 3)
         pp1 = PowerPortTemplate.objects.first()
         self.assertEqual(pp1.name, 'Power Port 1')
-        self.assertEqual(pp1.type, PowerPortTypes.TYPE_IEC_C14)
+        self.assertEqual(pp1.type, PowerPortTypeChoices.TYPE_IEC_C14)
 
         self.assertEqual(dt.poweroutlet_templates.count(), 3)
         po1 = PowerOutletTemplate.objects.first()
         self.assertEqual(po1.name, 'Power Outlet 1')
-        self.assertEqual(po1.type, PowerOutletTypes.TYPE_IEC_C13)
+        self.assertEqual(po1.type, PowerOutletTypeChoices.TYPE_IEC_C13)
         self.assertEqual(po1.power_port, pp1)
-        self.assertEqual(po1.feed_leg, POWERFEED_LEG_A)
+        self.assertEqual(po1.feed_leg, PowerOutletFeedLegChoices.FEED_LEG_A)
 
         self.assertEqual(dt.interface_templates.count(), 3)
         iface1 = InterfaceTemplate.objects.first()
         self.assertEqual(iface1.name, 'Interface 1')
-        self.assertEqual(iface1.type, IFACE_TYPE_1GE_FIXED)
+        self.assertEqual(iface1.type, InterfaceTypeChoices.TYPE_1GE_FIXED)
         self.assertTrue(iface1.mgmt_only)
 
         self.assertEqual(dt.rearport_templates.count(), 3)
@@ -514,28 +514,28 @@ class CableTestCase(TestCase):
         device2 = Device(name='Device 2', site=site, device_type=devicetype, device_role=devicerole)
         device2.save()
 
-        iface1 = Interface(device=device1, name='Interface 1', type=IFACE_TYPE_1GE_FIXED)
+        iface1 = Interface(device=device1, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         iface1.save()
-        iface2 = Interface(device=device1, name='Interface 2', type=IFACE_TYPE_1GE_FIXED)
+        iface2 = Interface(device=device1, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         iface2.save()
-        iface3 = Interface(device=device1, name='Interface 3', type=IFACE_TYPE_1GE_FIXED)
+        iface3 = Interface(device=device1, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         iface3.save()
-        iface4 = Interface(device=device2, name='Interface 1', type=IFACE_TYPE_1GE_FIXED)
+        iface4 = Interface(device=device2, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         iface4.save()
-        iface5 = Interface(device=device2, name='Interface 2', type=IFACE_TYPE_1GE_FIXED)
+        iface5 = Interface(device=device2, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         iface5.save()
-        iface6 = Interface(device=device2, name='Interface 3', type=IFACE_TYPE_1GE_FIXED)
+        iface6 = Interface(device=device2, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         iface6.save()
 
-        Cable(termination_a=iface1, termination_b=iface4, type=CABLE_TYPE_CAT6).save()
-        Cable(termination_a=iface2, termination_b=iface5, type=CABLE_TYPE_CAT6).save()
-        Cable(termination_a=iface3, termination_b=iface6, type=CABLE_TYPE_CAT6).save()
+        Cable(termination_a=iface1, termination_b=iface4, type=CableTypeChoices.TYPE_CAT6).save()
+        Cable(termination_a=iface2, termination_b=iface5, type=CableTypeChoices.TYPE_CAT6).save()
+        Cable(termination_a=iface3, termination_b=iface6, type=CableTypeChoices.TYPE_CAT6).save()
 
     def test_cable_list(self):
 
         url = reverse('dcim:cable_list')
         params = {
-            "type": CABLE_TYPE_CAT6,
+            "type": CableTypeChoices.TYPE_CAT6,
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))

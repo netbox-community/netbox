@@ -15,6 +15,7 @@ from taggit.models import TagBase, GenericTaggedItemBase
 
 from utilities.fields import ColorField
 from utilities.utils import deepmerge, model_names_to_filter_dict
+from .choices import *
 from .constants import *
 from .querysets import ConfigContextQuerySet
 
@@ -62,9 +63,10 @@ class Webhook(models.Model):
         verbose_name='URL',
         help_text="A POST will be sent to this URL when the webhook is called."
     )
-    http_content_type = models.PositiveSmallIntegerField(
-        choices=WEBHOOK_CT_CHOICES,
-        default=WEBHOOK_CT_JSON,
+    http_content_type = models.CharField(
+        max_length=50,
+        choices=WebhookContentTypeChoices,
+        default=WebhookContentTypeChoices.CONTENTTYPE_JSON,
         verbose_name='HTTP content type'
     )
     additional_headers = JSONField(
@@ -182,9 +184,10 @@ class CustomField(models.Model):
         limit_choices_to=get_custom_field_models,
         help_text='The object(s) to which this field applies.'
     )
-    type = models.PositiveSmallIntegerField(
-        choices=CUSTOMFIELD_TYPE_CHOICES,
-        default=CF_TYPE_TEXT
+    type = models.CharField(
+        max_length=50,
+        choices=CustomFieldTypeChoices,
+        default=CustomFieldTypeChoices.TYPE_TEXT
     )
     name = models.CharField(
         max_length=50,
@@ -205,9 +208,10 @@ class CustomField(models.Model):
         help_text='If true, this field is required when creating new objects '
                   'or editing an existing object.'
     )
-    filter_logic = models.PositiveSmallIntegerField(
-        choices=CF_FILTER_CHOICES,
-        default=CF_FILTER_LOOSE,
+    filter_logic = models.CharField(
+        max_length=50,
+        choices=CustomFieldFilterLogicChoices,
+        default=CustomFieldFilterLogicChoices.FILTER_LOOSE,
         help_text='Loose matches any instance of a given string; exact '
                   'matches the entire field.'
     )
@@ -233,15 +237,15 @@ class CustomField(models.Model):
         """
         if value is None:
             return ''
-        if self.type == CF_TYPE_BOOLEAN:
+        if self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
             return str(int(bool(value)))
-        if self.type == CF_TYPE_DATE:
+        if self.type == CustomFieldTypeChoices.TYPE_DATE:
             # Could be date/datetime object or string
             try:
                 return value.strftime('%Y-%m-%d')
             except AttributeError:
                 return value
-        if self.type == CF_TYPE_SELECT:
+        if self.type == CustomFieldTypeChoices.TYPE_SELECT:
             # Could be ModelChoiceField or TypedChoiceField
             return str(value.id) if hasattr(value, 'id') else str(value)
         return value
@@ -252,14 +256,14 @@ class CustomField(models.Model):
         """
         if serialized_value == '':
             return None
-        if self.type == CF_TYPE_INTEGER:
+        if self.type == CustomFieldTypeChoices.TYPE_INTEGER:
             return int(serialized_value)
-        if self.type == CF_TYPE_BOOLEAN:
+        if self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
             return bool(int(serialized_value))
-        if self.type == CF_TYPE_DATE:
+        if self.type == CustomFieldTypeChoices.TYPE_DATE:
             # Read date as YYYY-MM-DD
             return date(*[int(n) for n in serialized_value.split('-')])
-        if self.type == CF_TYPE_SELECT:
+        if self.type == CustomFieldTypeChoices.TYPE_SELECT:
             return self.choices.get(pk=int(serialized_value))
         return serialized_value
 
@@ -312,7 +316,7 @@ class CustomFieldChoice(models.Model):
         to='extras.CustomField',
         on_delete=models.CASCADE,
         related_name='choices',
-        limit_choices_to={'type': CF_TYPE_SELECT}
+        limit_choices_to={'type': CustomFieldTypeChoices.TYPE_SELECT}
     )
     value = models.CharField(
         max_length=100
@@ -330,14 +334,17 @@ class CustomFieldChoice(models.Model):
         return self.value
 
     def clean(self):
-        if self.field.type != CF_TYPE_SELECT:
+        if self.field.type != CustomFieldTypeChoices.TYPE_SELECT:
             raise ValidationError("Custom field choices can only be assigned to selection fields.")
 
     def delete(self, using=None, keep_parents=False):
         # When deleting a CustomFieldChoice, delete all CustomFieldValues which point to it
         pk = self.pk
         super().delete(using, keep_parents)
-        CustomFieldValue.objects.filter(field__type=CF_TYPE_SELECT, serialized_value=str(pk)).delete()
+        CustomFieldValue.objects.filter(
+            field__type=CustomFieldTypeChoices.TYPE_SELECT,
+            serialized_value=str(pk)
+        ).delete()
 
 
 #
@@ -381,8 +388,8 @@ class CustomLink(models.Model):
     )
     button_class = models.CharField(
         max_length=30,
-        choices=BUTTON_CLASS_CHOICES,
-        default=BUTTON_CLASS_DEFAULT,
+        choices=CustomLinkButtonClassChoices,
+        default=CustomLinkButtonClassChoices.CLASS_DEFAULT,
         help_text="The class of the first link in a group will be used for the dropdown button"
     )
     new_window = models.BooleanField(
@@ -458,9 +465,10 @@ class ExportTemplate(models.Model):
         max_length=200,
         blank=True
     )
-    template_language = models.PositiveSmallIntegerField(
-        choices=TEMPLATE_LANGUAGE_CHOICES,
-        default=TEMPLATE_LANGUAGE_JINJA2
+    template_language = models.CharField(
+        max_length=50,
+        choices=ExportTemplateLanguageChoices,
+        default=ExportTemplateLanguageChoices.LANGUAGE_JINJA2
     )
     template_code = models.TextField(
         help_text='The list of objects being exported is passed as a context variable named <code>queryset</code>.'
@@ -796,8 +804,9 @@ class ObjectChange(models.Model):
     request_id = models.UUIDField(
         editable=False
     )
-    action = models.PositiveSmallIntegerField(
-        choices=OBJECTCHANGE_ACTION_CHOICES
+    action = models.CharField(
+        max_length=50,
+        choices=ObjectChangeActionChoices
     )
     changed_object_type = models.ForeignKey(
         to=ContentType,

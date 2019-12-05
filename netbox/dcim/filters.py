@@ -49,7 +49,7 @@ class SiteFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet
         label='Search',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=SITE_STATUS_CHOICES,
+        choices=SiteStatusChoices,
         null_value=None
     )
     region_id = TreeNodeMultipleChoiceFilter(
@@ -147,7 +147,7 @@ class RackFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet
         label='Group',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=RACK_STATUS_CHOICES,
+        choices=RackStatusChoices,
         null_value=None
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
@@ -511,7 +511,7 @@ class DeviceFilter(LocalConfigContextFilter, TenancyFilterSet, CustomFieldFilter
         label='Device model (slug)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=DEVICE_STATUS_CHOICES,
+        choices=DeviceStatusChoices,
         null_value=None
     )
     is_full_depth = django_filters.BooleanFilter(
@@ -663,7 +663,7 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
 
 class ConsolePortFilter(DeviceComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         null_value=None
     )
     cabled = django_filters.BooleanFilter(
@@ -679,7 +679,7 @@ class ConsolePortFilter(DeviceComponentFilterSet):
 
 class ConsoleServerPortFilter(DeviceComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
-        choices=ConsolePortTypes.CHOICES,
+        choices=ConsolePortTypeChoices,
         null_value=None
     )
     cabled = django_filters.BooleanFilter(
@@ -695,7 +695,7 @@ class ConsoleServerPortFilter(DeviceComponentFilterSet):
 
 class PowerPortFilter(DeviceComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
-        choices=PowerPortTypes.CHOICES,
+        choices=PowerPortTypeChoices,
         null_value=None
     )
     cabled = django_filters.BooleanFilter(
@@ -711,7 +711,7 @@ class PowerPortFilter(DeviceComponentFilterSet):
 
 class PowerOutletFilter(DeviceComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
-        choices=PowerOutletTypes.CHOICES,
+        choices=PowerOutletTypeChoices,
         null_value=None
     )
     cabled = django_filters.BooleanFilter(
@@ -789,7 +789,7 @@ class InterfaceFilter(django_filters.FilterSet):
         label='Assigned VID'
     )
     type = django_filters.MultipleChoiceFilter(
-        choices=IFACE_TYPE_CHOICES,
+        choices=InterfaceTypeChoices,
         null_value=None
     )
 
@@ -980,7 +980,7 @@ class CableFilter(django_filters.FilterSet):
         label='Search',
     )
     type = django_filters.MultipleChoiceFilter(
-        choices=CABLE_TYPE_CHOICES
+        choices=CableTypeChoices
     )
     status = django_filters.MultipleChoiceFilter(
         choices=CONNECTION_STATUS_CHOICES

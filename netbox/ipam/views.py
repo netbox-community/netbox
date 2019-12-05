@@ -14,7 +14,7 @@ from utilities.views import (
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
-from .constants import *
+from .choices import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 
@@ -217,13 +217,13 @@ class RIRListView(PermissionRequiredMixin, ObjectListView):
 
                 # Find all consumed space for each prefix status (we ignore containers for this purpose).
                 active_prefixes = netaddr.cidr_merge(
-                    [p.prefix for p in queryset.filter(status=PREFIX_STATUS_ACTIVE)]
+                    [p.prefix for p in queryset.filter(status=PrefixStatusChoices.STATUS_ACTIVE)]
                 )
                 reserved_prefixes = netaddr.cidr_merge(
-                    [p.prefix for p in queryset.filter(status=PREFIX_STATUS_RESERVED)]
+                    [p.prefix for p in queryset.filter(status=PrefixStatusChoices.STATUS_RESERVED)]
                 )
                 deprecated_prefixes = netaddr.cidr_merge(
-                    [p.prefix for p in queryset.filter(status=PREFIX_STATUS_DEPRECATED)]
+                    [p.prefix for p in queryset.filter(status=PrefixStatusChoices.STATUS_DEPRECATED)]
                 )
 
                 # Find all available prefixes by subtracting each of the existing prefix sets from the aggregate prefix.
@@ -665,8 +665,8 @@ class IPAddressView(PermissionRequiredMixin, View):
             'nat_inside', 'interface__device'
         )
         # Exclude anycast IPs if this IP is anycast
-        if ipaddress.role == IPADDRESS_ROLE_ANYCAST:
-            duplicate_ips = duplicate_ips.exclude(role=IPADDRESS_ROLE_ANYCAST)
+        if ipaddress.role == IPAddressRoleChoices.ROLE_ANYCAST:
+            duplicate_ips = duplicate_ips.exclude(role=IPAddressRoleChoices.ROLE_ANYCAST)
         duplicate_ips_table = tables.IPAddressTable(list(duplicate_ips), orderable=False)
 
         # Related IP table

@@ -13,7 +13,7 @@ from utilities.forms import (
     StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES
 )
 from virtualization.models import VirtualMachine
-from .constants import *
+from .choices import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 IP_FAMILY_CHOICES = [
@@ -374,7 +374,7 @@ class PrefixCSVForm(forms.ModelForm):
         required=False
     )
     status = CSVChoiceField(
-        choices=PREFIX_STATUS_CHOICES,
+        choices=PrefixStatusChoices,
         help_text='Operational status'
     )
     role = forms.ModelChoiceField(
@@ -459,7 +459,7 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         )
     )
     status = forms.ChoiceField(
-        choices=add_blank_choice(PREFIX_STATUS_CHOICES),
+        choices=add_blank_choice(PrefixStatusChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -527,7 +527,7 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         )
     )
     status = forms.MultipleChoiceField(
-        choices=PREFIX_STATUS_CHOICES,
+        choices=PrefixStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )
@@ -764,11 +764,11 @@ class IPAddressCSVForm(forms.ModelForm):
         }
     )
     status = CSVChoiceField(
-        choices=IPADDRESS_STATUS_CHOICES,
+        choices=IPAddressStatusChoices,
         help_text='Operational status'
     )
     role = CSVChoiceField(
-        choices=IPADDRESS_ROLE_CHOICES,
+        choices=IPAddressRoleChoices,
         required=False,
         help_text='Functional role'
     )
@@ -893,12 +893,12 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         )
     )
     status = forms.ChoiceField(
-        choices=add_blank_choice(IPADDRESS_STATUS_CHOICES),
+        choices=add_blank_choice(IPAddressStatusChoices),
         required=False,
         widget=StaticSelect2()
     )
     role = forms.ChoiceField(
-        choices=add_blank_choice(IPADDRESS_ROLE_CHOICES),
+        choices=add_blank_choice(IPAddressRoleChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -972,12 +972,12 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
         )
     )
     status = forms.MultipleChoiceField(
-        choices=IPADDRESS_STATUS_CHOICES,
+        choices=IPAddressStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )
     role = forms.MultipleChoiceField(
-        choices=IPADDRESS_ROLE_CHOICES,
+        choices=IPAddressRoleChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )
@@ -1111,7 +1111,7 @@ class VLANCSVForm(forms.ModelForm):
         }
     )
     status = CSVChoiceField(
-        choices=VLAN_STATUS_CHOICES,
+        choices=VLANStatusChoices,
         help_text='Operational status'
     )
     role = forms.ModelChoiceField(
@@ -1180,7 +1180,7 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         )
     )
     status = forms.ChoiceField(
-        choices=add_blank_choice(VLAN_STATUS_CHOICES),
+        choices=add_blank_choice(VLANStatusChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -1229,7 +1229,7 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         )
     )
     status = forms.MultipleChoiceField(
-        choices=VLAN_STATUS_CHOICES,
+        choices=VLANStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )
@@ -1292,7 +1292,7 @@ class ServiceFilterForm(BootstrapMixin, CustomFieldFilterForm):
         label='Search'
     )
     protocol = forms.ChoiceField(
-        choices=add_blank_choice(IP_PROTOCOL_CHOICES),
+        choices=add_blank_choice(ServiceProtocolChoices),
         required=False,
         widget=StaticSelect2Multiple()
     )
@@ -1307,7 +1307,7 @@ class ServiceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         widget=forms.MultipleHiddenInput()
     )
     protocol = forms.ChoiceField(
-        choices=add_blank_choice(IP_PROTOCOL_CHOICES),
+        choices=add_blank_choice(ServiceProtocolChoices),
         required=False,
         widget=StaticSelect2()
     )

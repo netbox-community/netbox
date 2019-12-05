@@ -4,6 +4,7 @@ from django.db.models import Q
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
+from .choices import *
 from .constants import *
 from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, Tag
 
@@ -25,7 +26,7 @@ class CustomFieldFilter(django_filters.Filter):
             return queryset
 
         # Selection fields get special treatment (values must be integers)
-        if self.cf_type == CF_TYPE_SELECT:
+        if self.cf_type == CustomFieldTypeChoices.TYPE_SELECT:
             try:
                 # Treat 0 as None
                 if int(value) == 0:
@@ -42,7 +43,8 @@ class CustomFieldFilter(django_filters.Filter):
                 return queryset.none()
 
         # Apply the assigned filter logic (exact or loose)
-        if self.cf_type == CF_TYPE_BOOLEAN or self.filter_logic == CF_FILTER_EXACT:
+        if (self.cf_type == CustomFieldTypeChoices.TYPE_BOOLEAN or
+                self.filter_logic == CustomFieldFilterLogicChoices.FILTER_EXACT):
             queryset = queryset.filter(
                 custom_field_values__field__name=self.field_name,
                 custom_field_values__serialized_value=value
@@ -65,7 +67,11 @@ class CustomFieldFilterSet(django_filters.FilterSet):
         super().__init__(*args, **kwargs)
 
         obj_type = ContentType.objects.get_for_model(self._meta.model)
-        custom_fields = CustomField.objects.filter(obj_type=obj_type).exclude(filter_logic=CF_FILTER_DISABLED)
+        custom_fields = CustomField.objects.filter(
+            obj_type=obj_type
+        ).exclude(
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED
+        )
         for cf in custom_fields:
             self.filters['cf_{}'.format(cf.name)] = CustomFieldFilter(field_name=cf.name, custom_field=cf)
 

@@ -9,7 +9,7 @@ from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from virtualization.models import VirtualMachine
-from .constants import *
+from .choices import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 
@@ -178,7 +178,7 @@ class PrefixFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterS
         label='Role (slug)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=PREFIX_STATUS_CHOICES,
+        choices=PrefixStatusChoices,
         null_value=None
     )
     tag = TagFilter()
@@ -310,11 +310,11 @@ class IPAddressFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilt
         label='Interface (ID)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=IPADDRESS_STATUS_CHOICES,
+        choices=IPAddressStatusChoices,
         null_value=None
     )
     role = django_filters.MultipleChoiceFilter(
-        choices=IPADDRESS_ROLE_CHOICES
+        choices=IPAddressRoleChoices
     )
     tag = TagFilter()
 
@@ -424,7 +424,7 @@ class VLANFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet
         label='Role (slug)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=VLAN_STATUS_CHOICES,
+        choices=VLANStatusChoices,
         null_value=None
     )
     tag = TagFilter()
