@@ -1,4 +1,5 @@
 from django.db import migrations, models
+import django.db.models.deletion
 
 
 CUSTOMFIELD_TYPE_CHOICES = (
@@ -46,6 +47,13 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(
             code=customfield_type_to_slug
+        ),
+
+        # Update CustomFieldChoice.field.limit_choices_to
+        migrations.AlterField(
+            model_name='customfieldchoice',
+            name='field',
+            field=models.ForeignKey(limit_choices_to={'type': 'select'}, on_delete=django.db.models.deletion.CASCADE, related_name='choices', to='extras.CustomField'),
         ),
 
         # CustomField.filter_logic
