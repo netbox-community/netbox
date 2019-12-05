@@ -23,6 +23,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+
+        # Prefix.status
         migrations.AlterField(
             model_name='prefix',
             name='status',
@@ -31,4 +33,5 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=prefix_status_to_slug
         ),
+
     ]

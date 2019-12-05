@@ -88,4 +88,5 @@ class Migration(migrations.Migration):
             name='outer_unit',
             field=models.CharField(blank=True, max_length=50),
         ),
+
     ]

@@ -20,6 +20,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+
+        # DeviceType.subdevice_role
         migrations.AlterField(
             model_name='devicetype',
             name='subdevice_role',
@@ -33,4 +35,5 @@ class Migration(migrations.Migration):
             name='subdevice_role',
             field=models.CharField(blank=True, max_length=50),
         ),
+
     ]

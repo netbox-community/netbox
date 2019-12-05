@@ -25,6 +25,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+
+        # Circuit.status
         migrations.AlterField(
             model_name='circuit',
             name='status',
@@ -33,4 +35,5 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=circuit_status_to_slug
         ),
+
     ]

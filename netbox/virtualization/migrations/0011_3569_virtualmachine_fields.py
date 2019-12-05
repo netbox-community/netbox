@@ -22,6 +22,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+
+        # VirtualMachine.status
         migrations.AlterField(
             model_name='virtualmachine',
             name='status',
@@ -30,4 +32,5 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=virtualmachine_status_to_slug
         ),
+
     ]

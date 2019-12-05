@@ -21,6 +21,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+
+        # Site.status
         migrations.AlterField(
             model_name='site',
             name='status',
@@ -29,4 +31,5 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=site_status_to_slug
         ),
+
     ]

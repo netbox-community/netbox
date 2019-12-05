@@ -50,6 +50,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+
+        # FrontPortTemplate.type
         migrations.AlterField(
             model_name='frontporttemplate',
             name='type',
@@ -58,6 +60,8 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=frontporttemplate_type_to_slug
         ),
+
+        # RearPortTemplate.type
         migrations.AlterField(
             model_name='rearporttemplate',
             name='type',
@@ -66,6 +70,8 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=rearporttemplate_type_to_slug
         ),
+
+        # FrontPort.type
         migrations.AlterField(
             model_name='frontport',
             name='type',
@@ -74,6 +80,8 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=frontport_type_to_slug
         ),
+
+        # RearPort.type
         migrations.AlterField(
             model_name='rearport',
             name='type',

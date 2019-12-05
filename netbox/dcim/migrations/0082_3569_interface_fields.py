@@ -108,6 +108,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+
+        # InterfaceTemplate.type
         migrations.AlterField(
             model_name='interfacetemplate',
             name='type',
@@ -116,6 +118,8 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=interfacetemplate_type_to_slug
         ),
+
+        # Interface.type
         migrations.AlterField(
             model_name='interface',
             name='type',
@@ -124,6 +128,8 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=interface_type_to_slug
         ),
+
+        # Interface.mode
         migrations.AlterField(
             model_name='interface',
             name='mode',
@@ -137,4 +143,5 @@ class Migration(migrations.Migration):
             name='mode',
             field=models.CharField(blank=True, max_length=50),
         ),
+
     ]
