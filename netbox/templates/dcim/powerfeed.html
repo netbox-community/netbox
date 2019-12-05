@@ -121,6 +121,18 @@
                 </tr>
             </table>
         </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Comments</strong>
+            </div>
+            <div class="panel-body rendered-markdown">
+                {% if powerfeed.comments %}
+                    {{ powerfeed.comments|gfm }}
+                {% else %}
+                    <span class="text-muted">None</span>
+                {% endif %}
+            </div>
+        </div>
     </div>
     <div class="col-md-6">
         <div class="panel panel-default">

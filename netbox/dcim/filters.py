@@ -2,7 +2,7 @@ import django_filters
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-from extras.filters import CustomFieldFilterSet, LocalConfigContextFilter
+from extras.filters import CustomFieldFilterSet, LocalConfigContextFilter, CreatedUpdatedFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
@@ -39,7 +39,7 @@ class RegionFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class SiteFilter(TenancyFilterSet, CustomFieldFilterSet):
+class SiteFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -117,7 +117,7 @@ class RackRoleFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'color']
 
 
-class RackFilter(TenancyFilterSet, CustomFieldFilterSet):
+class RackFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -252,7 +252,7 @@ class ManufacturerFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class DeviceTypeFilter(CustomFieldFilterSet):
+class DeviceTypeFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -424,7 +424,7 @@ class PlatformFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'napalm_driver']
 
 
-class DeviceFilter(LocalConfigContextFilter, TenancyFilterSet, CustomFieldFilterSet):
+class DeviceFilter(LocalConfigContextFilter, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -621,6 +621,26 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         method='search',
         label='Search',
     )
+    region_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site__region',
+        queryset=Region.objects.all(),
+        label='Region (ID)',
+    )
+    region = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site__region__in',
+        queryset=Region.objects.all(),
+        label='Region name (slug)',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site',
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site__slug',
+        queryset=Site.objects.all(),
+        label='Site name (slug)',
+    )
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label='Device (ID)',
@@ -712,6 +732,27 @@ class InterfaceFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    region_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site__region',
+        queryset=Region.objects.all(),
+        label='Region (ID)',
+    )
+    region = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site__region__in',
+        queryset=Region.objects.all(),
+        label='Region name (slug)',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site',
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site__slug',
+        to_field_name='slug',
+        queryset=Site.objects.all(),
+        label='Site name (slug)',
     )
     device = django_filters.CharFilter(
         method='filter_device',
@@ -1113,7 +1154,7 @@ class PowerPanelFilter(django_filters.FilterSet):
         return queryset.filter(qs_filter)
 
 
-class PowerFeedFilter(CustomFieldFilterSet):
+class PowerFeedFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
