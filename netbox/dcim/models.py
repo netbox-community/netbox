@@ -20,6 +20,7 @@ from utilities.fields import ColorField
 from utilities.managers import NaturalOrderingManager
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object, to_meters
+from .choices import *
 from .constants import *
 from .exceptions import LoopDetected
 from .fields import ASNField, MACAddressField
@@ -1014,6 +1015,11 @@ class ConsolePortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+    type = models.CharField(
+        max_length=50,
+        choices=ConsolePortTypes.CHOICES,
+        blank=True
+    )
 
     objects = NaturalOrderingManager()
 
@@ -1027,7 +1033,8 @@ class ConsolePortTemplate(ComponentTemplateModel):
     def instantiate(self, device):
         return ConsolePort(
             device=device,
-            name=self.name
+            name=self.name,
+            type=self.type
         )
 
 
@@ -1043,6 +1050,11 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+    type = models.CharField(
+        max_length=50,
+        choices=ConsolePortTypes.CHOICES,
+        blank=True
+    )
 
     objects = NaturalOrderingManager()
 
@@ -1056,7 +1068,8 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     def instantiate(self, device):
         return ConsoleServerPort(
             device=device,
-            name=self.name
+            name=self.name,
+            type=self.type
         )
 
 
@@ -1071,6 +1084,11 @@ class PowerPortTemplate(ComponentTemplateModel):
     )
     name = models.CharField(
         max_length=50
+    )
+    type = models.CharField(
+        max_length=50,
+        choices=PowerPortTypes.CHOICES,
+        blank=True
     )
     maximum_draw = models.PositiveSmallIntegerField(
         blank=True,
@@ -1114,6 +1132,11 @@ class PowerOutletTemplate(ComponentTemplateModel):
     )
     name = models.CharField(
         max_length=50
+    )
+    type = models.CharField(
+        max_length=50,
+        choices=PowerOutletTypes.CHOICES,
+        blank=True
     )
     power_port = models.ForeignKey(
         to='dcim.PowerPortTemplate',
@@ -1188,22 +1211,6 @@ class InterfaceTemplate(ComponentTemplateModel):
 
     def __str__(self):
         return self.name
-
-    # TODO: Remove in v2.7
-    @property
-    def form_factor(self):
-        """
-        Backward-compatibility for form_factor
-        """
-        return self.type
-
-    # TODO: Remove in v2.7
-    @form_factor.setter
-    def form_factor(self, value):
-        """
-        Backward-compatibility for form_factor
-        """
-        self.type = value
 
     def instantiate(self, device):
         return Interface(
@@ -1862,6 +1869,11 @@ class ConsolePort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
+    type = models.CharField(
+        max_length=50,
+        choices=ConsolePortTypes.CHOICES,
+        blank=True
+    )
     connected_endpoint = models.OneToOneField(
         to='dcim.ConsoleServerPort',
         on_delete=models.SET_NULL,
@@ -1877,7 +1889,7 @@ class ConsolePort(CableTermination, ComponentModel):
     objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'description']
+    csv_headers = ['device', 'name', 'type', 'description']
 
     class Meta:
         ordering = ['device', 'name']
@@ -1893,6 +1905,7 @@ class ConsolePort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.type,
             self.description,
         )
 
@@ -1913,6 +1926,11 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
+    type = models.CharField(
+        max_length=50,
+        choices=ConsolePortTypes.CHOICES,
+        blank=True
+    )
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,
         blank=True
@@ -1921,7 +1939,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'description']
+    csv_headers = ['device', 'name', 'type', 'description']
 
     class Meta:
         unique_together = ['device', 'name']
@@ -1936,6 +1954,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.type,
             self.description,
         )
 
@@ -1955,6 +1974,11 @@ class PowerPort(CableTermination, ComponentModel):
     )
     name = models.CharField(
         max_length=50
+    )
+    type = models.CharField(
+        max_length=50,
+        choices=PowerPortTypes.CHOICES,
+        blank=True
     )
     maximum_draw = models.PositiveSmallIntegerField(
         blank=True,
@@ -1990,7 +2014,7 @@ class PowerPort(CableTermination, ComponentModel):
     objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'maximum_draw', 'allocated_draw', 'description']
+    csv_headers = ['device', 'name', 'type', 'maximum_draw', 'allocated_draw', 'description']
 
     class Meta:
         ordering = ['device', 'name']
@@ -2006,6 +2030,7 @@ class PowerPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.get_type_display(),
             self.maximum_draw,
             self.allocated_draw,
             self.description,
@@ -2093,6 +2118,11 @@ class PowerOutlet(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
+    type = models.CharField(
+        max_length=50,
+        choices=PowerOutletTypes.CHOICES,
+        blank=True
+    )
     power_port = models.ForeignKey(
         to='dcim.PowerPort',
         on_delete=models.SET_NULL,
@@ -2114,7 +2144,7 @@ class PowerOutlet(CableTermination, ComponentModel):
     objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'power_port', 'feed_leg', 'description']
+    csv_headers = ['device', 'name', 'type', 'power_port', 'feed_leg', 'description']
 
     class Meta:
         unique_together = ['device', 'name']
@@ -2129,6 +2159,7 @@ class PowerOutlet(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.get_type_display(),
             self.power_port.name if self.power_port else None,
             self.get_feed_leg_display(),
             self.description,
@@ -2349,22 +2380,6 @@ class Interface(CableTermination, ComponentModel):
             related_object=parent_obj,
             object_data=serialize_object(self)
         )
-
-    # TODO: Remove in v2.7
-    @property
-    def form_factor(self):
-        """
-        Backward-compatibility for form_factor
-        """
-        return self.type
-
-    # TODO: Remove in v2.7
-    @form_factor.setter
-    def form_factor(self, value):
-        """
-        Backward-compatibility for form_factor
-        """
-        self.type = value
 
     @property
     def connected_endpoint(self):

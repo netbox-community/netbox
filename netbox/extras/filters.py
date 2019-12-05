@@ -5,7 +5,7 @@ from django.db.models import Q
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from .constants import *
-from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, Tag, TopologyMap
+from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, Tag
 
 
 class CustomFieldFilter(django_filters.Filter):
@@ -101,24 +101,6 @@ class TagFilter(django_filters.FilterSet):
             Q(name__icontains=value) |
             Q(slug__icontains=value)
         )
-
-
-class TopologyMapFilter(django_filters.FilterSet):
-    site_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='site',
-        queryset=Site.objects.all(),
-        label='Site',
-    )
-    site = django_filters.ModelMultipleChoiceFilter(
-        field_name='site__slug',
-        queryset=Site.objects.all(),
-        to_field_name='slug',
-        label='Site (slug)',
-    )
-
-    class Meta:
-        model = TopologyMap
-        fields = ['name', 'slug']
 
 
 class ConfigContextFilter(django_filters.FilterSet):

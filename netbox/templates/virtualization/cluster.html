@@ -84,6 +84,16 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Tenant</td>
+                    <td>
+                        {% if cluster.tenant %}
+                            <a href="{{ cluster.tenant.get_absolute_url }}">{{ cluster.tenant }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Site</td>
                     <td>
                         {% if cluster.site %}

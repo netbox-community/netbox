@@ -10,8 +10,7 @@ from dcim.api.nested_serializers import (
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
 from extras.constants import *
 from extras.models import (
-    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
-    Tag
+    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, Tag,
 )
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
@@ -67,18 +66,6 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
             'id', 'content_type', 'name', 'description', 'template_language', 'template_code', 'mime_type',
             'file_extension',
         ]
-
-
-#
-# Topology maps
-#
-
-class TopologyMapSerializer(ValidatedModelSerializer):
-    site = NestedSiteSerializer()
-
-    class Meta:
-        model = TopologyMap
-        fields = ['id', 'name', 'slug', 'site', 'device_patterns', 'description']
 
 
 #
@@ -211,6 +198,52 @@ class ReportSerializer(serializers.Serializer):
 
 class ReportDetailSerializer(ReportSerializer):
     result = ReportResultSerializer()
+
+
+#
+# Scripts
+#
+
+class ScriptSerializer(serializers.Serializer):
+    id = serializers.SerializerMethodField(read_only=True)
+    name = serializers.SerializerMethodField(read_only=True)
+    description = serializers.SerializerMethodField(read_only=True)
+    vars = serializers.SerializerMethodField(read_only=True)
+
+    def get_id(self, instance):
+        return '{}.{}'.format(instance.__module__, instance.__name__)
+
+    def get_name(self, instance):
+        return getattr(instance.Meta, 'name', instance.__name__)
+
+    def get_description(self, instance):
+        return getattr(instance.Meta, 'description', '')
+
+    def get_vars(self, instance):
+        return {
+            k: v.__class__.__name__ for k, v in instance._get_vars().items()
+        }
+
+
+class ScriptInputSerializer(serializers.Serializer):
+    data = serializers.JSONField()
+    commit = serializers.BooleanField()
+
+
+class ScriptLogMessageSerializer(serializers.Serializer):
+    status = serializers.SerializerMethodField(read_only=True)
+    message = serializers.SerializerMethodField(read_only=True)
+
+    def get_status(self, instance):
+        return LOG_LEVEL_CODES.get(instance[0])
+
+    def get_message(self, instance):
+        return instance[1]
+
+
+class ScriptOutputSerializer(serializers.Serializer):
+    log = ScriptLogMessageSerializer(many=True, read_only=True)
+    output = serializers.CharField(read_only=True)
 
 
 #

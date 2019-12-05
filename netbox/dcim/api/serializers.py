@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
+from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -200,30 +201,46 @@ class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
 
 class ConsolePortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
+    type = ChoiceField(
+        choices=ConsolePortTypes.CHOICES,
+        required=False
+    )
 
     class Meta:
         model = ConsolePortTemplate
-        fields = ['id', 'device_type', 'name']
+        fields = ['id', 'device_type', 'name', 'type']
 
 
 class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
+    type = ChoiceField(
+        choices=ConsolePortTypes.CHOICES,
+        required=False
+    )
 
     class Meta:
         model = ConsoleServerPortTemplate
-        fields = ['id', 'device_type', 'name']
+        fields = ['id', 'device_type', 'name', 'type']
 
 
 class PowerPortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
+    type = ChoiceField(
+        choices=PowerPortTypes.CHOICES,
+        required=False
+    )
 
     class Meta:
         model = PowerPortTemplate
-        fields = ['id', 'device_type', 'name', 'maximum_draw', 'allocated_draw']
+        fields = ['id', 'device_type', 'name', 'type', 'maximum_draw', 'allocated_draw']
 
 
 class PowerOutletTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
+    type = ChoiceField(
+        choices=PowerOutletTypes.CHOICES,
+        required=False
+    )
     power_port = PowerPortTemplateSerializer(
         required=False
     )
@@ -235,18 +252,16 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = PowerOutletTemplate
-        fields = ['id', 'device_type', 'name', 'power_port', 'feed_leg']
+        fields = ['id', 'device_type', 'name', 'type', 'power_port', 'feed_leg']
 
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     type = ChoiceField(choices=IFACE_TYPE_CHOICES, required=False)
-    # TODO: Remove in v2.7 (backward-compatibility for form_factor)
-    form_factor = ChoiceField(choices=IFACE_TYPE_CHOICES, required=False)
 
     class Meta:
         model = InterfaceTemplate
-        fields = ['id', 'device_type', 'name', 'type', 'form_factor', 'mgmt_only']
+        fields = ['id', 'device_type', 'name', 'type', 'mgmt_only']
 
 
 class RearPortTemplateSerializer(ValidatedModelSerializer):
@@ -372,32 +387,44 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 
 class ConsoleServerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
+    type = ChoiceField(
+        choices=ConsolePortTypes.CHOICES,
+        required=False
+    )
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'id', 'device', 'name', 'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status',
-            'cable', 'tags',
+            'id', 'device', 'name', 'type', 'description', 'connected_endpoint_type', 'connected_endpoint',
+            'connection_status', 'cable', 'tags',
         ]
 
 
 class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
+    type = ChoiceField(
+        choices=ConsolePortTypes.CHOICES,
+        required=False
+    )
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = ConsolePort
         fields = [
-            'id', 'device', 'name', 'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status',
-            'cable', 'tags',
+            'id', 'device', 'name', 'type', 'description', 'connected_endpoint_type', 'connected_endpoint',
+            'connection_status', 'cable', 'tags',
         ]
 
 
 class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
+    type = ChoiceField(
+        choices=PowerOutletTypes.CHOICES,
+        required=False
+    )
     power_port = NestedPowerPortSerializer(
         required=False
     )
@@ -416,20 +443,24 @@ class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     class Meta:
         model = PowerOutlet
         fields = [
-            'id', 'device', 'name', 'power_port', 'feed_leg', 'description', 'connected_endpoint_type',
+            'id', 'device', 'name', 'type', 'power_port', 'feed_leg', 'description', 'connected_endpoint_type',
             'connected_endpoint', 'connection_status', 'cable', 'tags',
         ]
 
 
 class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
+    type = ChoiceField(
+        choices=PowerPortTypes.CHOICES,
+        required=False
+    )
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = PowerPort
         fields = [
-            'id', 'device', 'name', 'maximum_draw', 'allocated_draw', 'description', 'connected_endpoint_type',
+            'id', 'device', 'name', 'type', 'maximum_draw', 'allocated_draw', 'description', 'connected_endpoint_type',
             'connected_endpoint', 'connection_status', 'cable', 'tags',
         ]
 
@@ -437,8 +468,6 @@ class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
 class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=IFACE_TYPE_CHOICES, required=False)
-    # TODO: Remove in v2.7 (backward-compatibility for form_factor)
-    form_factor = ChoiceField(choices=IFACE_TYPE_CHOICES, required=False)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False, allow_null=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
@@ -454,9 +483,9 @@ class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     class Meta:
         model = Interface
         fields = [
-            'id', 'device', 'name', 'type', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only',
-            'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable', 'mode',
-            'untagged_vlan', 'tagged_vlans', 'tags', 'count_ipaddresses',
+            'id', 'device', 'name', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
+            'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable', 'mode', 'untagged_vlan',
+            'tagged_vlans', 'tags', 'count_ipaddresses',
         ]
 
     # TODO: This validation should be handled by Interface.clean()

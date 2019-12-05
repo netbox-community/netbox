@@ -23,9 +23,10 @@ from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField, ComponentForm,
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, JSONField,
-    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES
+    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
+from .choices import *
 from .constants import *
 from .models import (
     Cable, DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
@@ -828,29 +829,17 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
         }
 
 
-class DeviceTypeCSVForm(forms.ModelForm):
+class DeviceTypeImportForm(BootstrapMixin, forms.ModelForm):
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
-        required=True,
-        to_field_name='name',
-        help_text='Manufacturer name',
-        error_messages={
-            'invalid_choice': 'Manufacturer not found.',
-        }
-    )
-    subdevice_role = CSVChoiceField(
-        choices=SUBDEVICE_ROLE_CHOICES,
-        required=False,
-        help_text='Parent/child status'
+        to_field_name='name'
     )
 
     class Meta:
         model = DeviceType
-        fields = DeviceType.csv_headers
-        help_texts = {
-            'model': 'Model name',
-            'slug': 'URL-friendly slug',
-        }
+        fields = [
+            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+        ]
 
 
 class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -953,7 +942,7 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsolePortTemplate
         fields = [
-            'device_type', 'name',
+            'device_type', 'name', 'type',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -964,6 +953,10 @@ class ConsolePortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    type = forms.ChoiceField(
+        choices=ConsolePortTypes.CHOICES,
+        widget=StaticSelect2()
+    )
 
 
 class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -971,7 +964,7 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
-            'device_type', 'name',
+            'device_type', 'name', 'type',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -982,6 +975,10 @@ class ConsoleServerPortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(ConsolePortTypes.CHOICES),
+        widget=StaticSelect2()
+    )
 
 
 class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -989,7 +986,7 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerPortTemplate
         fields = [
-            'device_type', 'name', 'maximum_draw', 'allocated_draw',
+            'device_type', 'name', 'type', 'maximum_draw', 'allocated_draw',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -999,6 +996,10 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
 class PowerPortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PowerPortTypes.CHOICES),
+        required=False
     )
     maximum_draw = forms.IntegerField(
         min_value=1,
@@ -1017,7 +1018,7 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'device_type', 'name', 'power_port', 'feed_leg',
+            'device_type', 'name', 'type', 'power_port', 'feed_leg',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1037,6 +1038,10 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
 class PowerOutletTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PowerOutletTypes.CHOICES),
+        required=False
     )
     power_port = forms.ModelChoiceField(
         queryset=PowerPortTemplate.objects.all(),
@@ -1230,6 +1235,139 @@ class DeviceBayTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+
+
+#
+# Component template import forms
+#
+
+class ComponentTemplateImportForm(BootstrapMixin, forms.ModelForm):
+
+    def __init__(self, device_type, data=None, *args, **kwargs):
+
+        # Must pass the parent DeviceType on form initialization
+        data.update({
+            'device_type': device_type.pk,
+        })
+
+        super().__init__(data, *args, **kwargs)
+
+    def clean_device_type(self):
+
+        data = self.cleaned_data['device_type']
+
+        # Limit fields referencing other components to the parent DeviceType
+        for field_name, field in self.fields.items():
+            if isinstance(field, forms.ModelChoiceField) and field_name != 'device_type':
+                field.queryset = field.queryset.filter(device_type=data)
+
+        return data
+
+
+class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
+
+    class Meta:
+        model = ConsolePortTemplate
+        fields = [
+            'device_type', 'name', 'type',
+        ]
+
+
+class ConsoleServerPortTemplateImportForm(ComponentTemplateImportForm):
+
+    class Meta:
+        model = ConsoleServerPortTemplate
+        fields = [
+            'device_type', 'name', 'type',
+        ]
+
+
+class PowerPortTemplateImportForm(ComponentTemplateImportForm):
+
+    class Meta:
+        model = PowerPortTemplate
+        fields = [
+            'device_type', 'name', 'type', 'maximum_draw', 'allocated_draw',
+        ]
+
+
+class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
+    power_port = forms.ModelChoiceField(
+        queryset=PowerPortTemplate.objects.all(),
+        to_field_name='name',
+        required=False
+    )
+
+    class Meta:
+        model = PowerOutletTemplate
+        fields = [
+            'device_type', 'name', 'type', 'power_port', 'feed_leg',
+        ]
+
+
+class InterfaceTemplateImportForm(ComponentTemplateImportForm):
+    type = forms.ChoiceField(
+        choices=InterfaceTypes.TYPE_CHOICES
+    )
+
+    class Meta:
+        model = InterfaceTemplate
+        fields = [
+            'device_type', 'name', 'type', 'mgmt_only',
+        ]
+
+    def clean_type(self):
+        # Convert slug value to field integer value
+        slug = self.cleaned_data['type']
+        return InterfaceTypes.slug_to_integer(slug)
+
+
+class FrontPortTemplateImportForm(ComponentTemplateImportForm):
+    type = forms.ChoiceField(
+        choices=PortTypes.TYPE_CHOICES
+    )
+    rear_port = forms.ModelChoiceField(
+        queryset=RearPortTemplate.objects.all(),
+        to_field_name='name',
+        required=False
+    )
+
+    class Meta:
+        model = FrontPortTemplate
+        fields = [
+            'device_type', 'name', 'type', 'rear_port', 'rear_port_position',
+        ]
+
+    def clean_type(self):
+        # Convert slug value to field integer value
+        slug = self.cleaned_data['type']
+        return PortTypes.slug_to_integer(slug)
+
+
+class RearPortTemplateImportForm(ComponentTemplateImportForm):
+    type = forms.ChoiceField(
+        choices=PortTypes.TYPE_CHOICES
+    )
+
+    class Meta:
+        model = RearPortTemplate
+        fields = [
+            'device_type', 'name', 'type', 'positions',
+        ]
+
+    def clean_type(self):
+        # Convert slug value to field integer value
+        slug = self.cleaned_data['type']
+        return PortTypes.slug_to_integer(slug)
+
+
+class DeviceBayTemplateImportForm(ComponentTemplateImportForm):
+
+    class Meta:
+        model = DeviceBayTemplate
+        fields = [
+            'device_type', 'name',
+        ]
 
 
 #
@@ -1933,7 +2071,7 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsolePort
         fields = [
-            'device', 'name', 'description', 'tags',
+            'device', 'name', 'type', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -1943,6 +2081,11 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
 class ConsolePortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(ConsolePortTypes.CHOICES),
+        required=False,
+        widget=StaticSelect2()
     )
     description = forms.CharField(
         max_length=100,
@@ -1980,7 +2123,7 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'device', 'name', 'description', 'tags',
+            'device', 'name', 'type', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -1990,6 +2133,11 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
 class ConsoleServerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(ConsolePortTypes.CHOICES),
+        required=False,
+        widget=StaticSelect2()
     )
     description = forms.CharField(
         max_length=100,
@@ -2004,6 +2152,11 @@ class ConsoleServerPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditF
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsoleServerPort.objects.all(),
         widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(ConsolePortTypes.CHOICES),
+        required=False,
+        widget=StaticSelect2()
     )
     description = forms.CharField(
         max_length=100,
@@ -2057,7 +2210,7 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerPort
         fields = [
-            'device', 'name', 'maximum_draw', 'allocated_draw', 'description', 'tags',
+            'device', 'name', 'type', 'maximum_draw', 'allocated_draw', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2067,6 +2220,11 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
 class PowerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PowerPortTypes.CHOICES),
+        required=False,
+        widget=StaticSelect2()
     )
     maximum_draw = forms.IntegerField(
         min_value=1,
@@ -2118,7 +2276,7 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerOutlet
         fields = [
-            'device', 'name', 'power_port', 'feed_leg', 'description', 'tags',
+            'device', 'name', 'type', 'power_port', 'feed_leg', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2137,6 +2295,11 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
 class PowerOutletCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PowerOutletTypes.CHOICES),
+        required=False,
+        widget=StaticSelect2()
     )
     power_port = forms.ModelChoiceField(
         queryset=PowerPort.objects.all(),
@@ -2217,6 +2380,10 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         queryset=PowerOutlet.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    type = forms.ChoiceField(
+        choices=PowerOutletTypes.CHOICES,
+        required=False
+    )
     feed_leg = forms.ChoiceField(
         choices=add_blank_choice(POWERFEED_LEG_CHOICES),
         required=False,
@@ -2232,7 +2399,7 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
 
     class Meta:
         nullable_fields = [
-            'feed_leg', 'power_port', 'description',
+            'type', 'feed_leg', 'power_port', 'description',
         ]
 
     def __init__(self, *args, **kwargs):

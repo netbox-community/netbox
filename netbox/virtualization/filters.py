@@ -6,6 +6,7 @@ from netaddr.core import AddrFormatError
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
 from tenancy.filtersets import TenancyFilterSet
+from tenancy.models import Tenant
 from utilities.filters import (
     MultiValueMACAddressFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
 )
@@ -55,6 +56,10 @@ class ClusterFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
         label='Cluster type (slug)',
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        queryset=Tenant.objects.all(),
+        label="Tenant (ID)"
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),

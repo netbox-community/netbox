@@ -1,4 +1,3 @@
-
 # Rack types
 RACK_TYPE_2POST = 100
 RACK_TYPE_4POST = 200
@@ -58,7 +57,10 @@ SUBDEVICE_ROLE_CHOICES = (
     (SUBDEVICE_ROLE_CHILD, 'Child'),
 )
 
-# Interface types
+#
+# Numeric interface types
+#
+
 # Virtual
 IFACE_TYPE_VIRTUAL = 0
 IFACE_TYPE_LAG = 200
@@ -114,15 +116,15 @@ IFACE_TYPE_16GFC_SFP_PLUS = 3160
 IFACE_TYPE_32GFC_SFP28 = 3320
 IFACE_TYPE_128GFC_QSFP28 = 3400
 # InfiniBand
-IFACE_FF_INFINIBAND_SDR = 7010
-IFACE_FF_INFINIBAND_DDR = 7020
-IFACE_FF_INFINIBAND_QDR = 7030
-IFACE_FF_INFINIBAND_FDR10 = 7040
-IFACE_FF_INFINIBAND_FDR = 7050
-IFACE_FF_INFINIBAND_EDR = 7060
-IFACE_FF_INFINIBAND_HDR = 7070
-IFACE_FF_INFINIBAND_NDR = 7080
-IFACE_FF_INFINIBAND_XDR = 7090
+IFACE_TYPE_INFINIBAND_SDR = 7010
+IFACE_TYPE_INFINIBAND_DDR = 7020
+IFACE_TYPE_INFINIBAND_QDR = 7030
+IFACE_TYPE_INFINIBAND_FDR10 = 7040
+IFACE_TYPE_INFINIBAND_FDR = 7050
+IFACE_TYPE_INFINIBAND_EDR = 7060
+IFACE_TYPE_INFINIBAND_HDR = 7070
+IFACE_TYPE_INFINIBAND_NDR = 7080
+IFACE_TYPE_INFINIBAND_XDR = 7090
 # Serial
 IFACE_TYPE_T1 = 4000
 IFACE_TYPE_E1 = 4010
@@ -229,15 +231,15 @@ IFACE_TYPE_CHOICES = [
     [
         'InfiniBand',
         [
-            [IFACE_FF_INFINIBAND_SDR, 'SDR (2 Gbps)'],
-            [IFACE_FF_INFINIBAND_DDR, 'DDR (4 Gbps)'],
-            [IFACE_FF_INFINIBAND_QDR, 'QDR (8 Gbps)'],
-            [IFACE_FF_INFINIBAND_FDR10, 'FDR10 (10 Gbps)'],
-            [IFACE_FF_INFINIBAND_FDR, 'FDR (13.5 Gbps)'],
-            [IFACE_FF_INFINIBAND_EDR, 'EDR (25 Gbps)'],
-            [IFACE_FF_INFINIBAND_HDR, 'HDR (50 Gbps)'],
-            [IFACE_FF_INFINIBAND_NDR, 'NDR (100 Gbps)'],
-            [IFACE_FF_INFINIBAND_XDR, 'XDR (250 Gbps)'],
+            [IFACE_TYPE_INFINIBAND_SDR, 'SDR (2 Gbps)'],
+            [IFACE_TYPE_INFINIBAND_DDR, 'DDR (4 Gbps)'],
+            [IFACE_TYPE_INFINIBAND_QDR, 'QDR (8 Gbps)'],
+            [IFACE_TYPE_INFINIBAND_FDR10, 'FDR10 (10 Gbps)'],
+            [IFACE_TYPE_INFINIBAND_FDR, 'FDR (13.5 Gbps)'],
+            [IFACE_TYPE_INFINIBAND_EDR, 'EDR (25 Gbps)'],
+            [IFACE_TYPE_INFINIBAND_HDR, 'HDR (50 Gbps)'],
+            [IFACE_TYPE_INFINIBAND_NDR, 'NDR (100 Gbps)'],
+            [IFACE_TYPE_INFINIBAND_XDR, 'XDR (250 Gbps)'],
         ]
     ],
     [
@@ -384,7 +386,8 @@ CONNECTION_STATUS_CHOICES = [
 
 # Cable endpoint types
 CABLE_TERMINATION_TYPES = [
-    'consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontport', 'rearport', 'circuittermination',
+    'consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontport', 'rearport',
+    'circuittermination',
 ]
 
 # Cable types

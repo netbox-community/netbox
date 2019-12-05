@@ -38,6 +38,7 @@ class ClusterGroupSerializer(ValidatedModelSerializer):
 class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
     type = NestedClusterTypeSerializer()
     group = NestedClusterGroupSerializer(required=False, allow_null=True)
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
     device_count = serializers.IntegerField(read_only=True)
@@ -46,7 +47,7 @@ class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
     class Meta:
         model = Cluster
         fields = [
-            'id', 'name', 'type', 'group', 'site', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
             'device_count', 'virtualmachine_count',
         ]
 

@@ -1,0 +1,24 @@
+[Unit]
+Description=Netbox WSGI
+Documentation=https://netbox.readthedocs.io/en/stable/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+EnvironmentFile=/etc/sysconfig/netbox.env
+
+User=www-data
+Group=www-data
+PIDFile=${PidPath}
+WorkingDirectory=${WorkingDirectory}
+
+ExecStart=/usr/local/bin/gunicorn --pid ${PidPath} --pythonpath ${WorkingDirectory}/netbox --config ${ConfigPath} netbox.wsgi
+
+Restart=on-failure
+RestartSec=30
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

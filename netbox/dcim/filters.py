@@ -11,6 +11,7 @@ from utilities.filters import (
     TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import Cluster
+from .choices import *
 from .constants import *
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -346,28 +347,28 @@ class ConsolePortTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = ConsolePortTemplate
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'type']
 
 
 class ConsoleServerPortTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = ConsoleServerPortTemplate
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'type']
 
 
 class PowerPortTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = PowerPortTemplate
-        fields = ['id', 'name', 'maximum_draw', 'allocated_draw']
+        fields = ['id', 'name', 'type', 'maximum_draw', 'allocated_draw']
 
 
 class PowerOutletTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = PowerOutletTemplate
-        fields = ['id', 'name', 'feed_leg']
+        fields = ['id', 'name', 'type', 'feed_leg']
 
 
 class InterfaceTemplateFilter(DeviceTypeComponentFilterSet):
@@ -641,6 +642,10 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
 
 
 class ConsolePortFilter(DeviceComponentFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=ConsolePortTypes.CHOICES,
+        null_value=None
+    )
     cabled = django_filters.BooleanFilter(
         field_name='cable',
         lookup_expr='isnull',
@@ -653,6 +658,10 @@ class ConsolePortFilter(DeviceComponentFilterSet):
 
 
 class ConsoleServerPortFilter(DeviceComponentFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=ConsolePortTypes.CHOICES,
+        null_value=None
+    )
     cabled = django_filters.BooleanFilter(
         field_name='cable',
         lookup_expr='isnull',
@@ -665,6 +674,10 @@ class ConsoleServerPortFilter(DeviceComponentFilterSet):
 
 
 class PowerPortFilter(DeviceComponentFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=PowerPortTypes.CHOICES,
+        null_value=None
+    )
     cabled = django_filters.BooleanFilter(
         field_name='cable',
         lookup_expr='isnull',
@@ -677,6 +690,10 @@ class PowerPortFilter(DeviceComponentFilterSet):
 
 
 class PowerOutletFilter(DeviceComponentFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=PowerOutletTypes.CHOICES,
+        null_value=None
+    )
     cabled = django_filters.BooleanFilter(
         field_name='cable',
         lookup_expr='isnull',

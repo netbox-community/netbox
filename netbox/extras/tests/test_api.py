@@ -3,8 +3,10 @@ from django.urls import reverse
 from rest_framework import status
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Region, Site
+from extras.api.views import ScriptViewSet
 from extras.constants import GRAPH_TYPE_SITE
 from extras.models import ConfigContext, Graph, ExportTemplate, Tag
+from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import APITestCase
 
@@ -520,3 +522,68 @@ class ConfigContextTest(APITestCase):
         configcontext6.sites.add(site2)
         rendered_context = device.get_config_context()
         self.assertEqual(rendered_context['bar'], 456)
+
+
+class ScriptTest(APITestCase):
+
+    class TestScript(Script):
+
+        class Meta:
+            name = "Test script"
+
+        var1 = StringVar()
+        var2 = IntegerVar()
+        var3 = BooleanVar()
+
+        def run(self, data):
+
+            self.log_info(data['var1'])
+            self.log_success(data['var2'])
+            self.log_failure(data['var3'])
+
+            return 'Script complete'
+
+    def get_test_script(self, *args):
+        return self.TestScript
+
+    def setUp(self):
+
+        super().setUp()
+
+        # Monkey-patch the API viewset's _get_script method to return our test script above
+        ScriptViewSet._get_script = self.get_test_script
+
+    def test_get_script(self):
+
+        url = reverse('extras-api:script-detail', kwargs={'pk': None})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.TestScript.Meta.name)
+        self.assertEqual(response.data['vars']['var1'], 'StringVar')
+        self.assertEqual(response.data['vars']['var2'], 'IntegerVar')
+        self.assertEqual(response.data['vars']['var3'], 'BooleanVar')
+
+    def test_run_script(self):
+
+        script_data = {
+            'var1': 'FooBar',
+            'var2': 123,
+            'var3': False,
+        }
+
+        data = {
+            'data': script_data,
+            'commit': True,
+        }
+
+        url = reverse('extras-api:script-detail', kwargs={'pk': None})
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['log'][0]['status'], 'info')
+        self.assertEqual(response.data['log'][0]['message'], script_data['var1'])
+        self.assertEqual(response.data['log'][1]['status'], 'success')
+        self.assertEqual(response.data['log'][1]['message'], script_data['var2'])
+        self.assertEqual(response.data['log'][2]['status'], 'failure')
+        self.assertEqual(response.data['log'][2]['message'], script_data['var3'])
+        self.assertEqual(response.data['output'], 'Script complete')
