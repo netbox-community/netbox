@@ -31,6 +31,11 @@ console-ports:
 
 This new functionality replaces the existing CSV-based import form, which did not allow for component template import.
 
+### Bulk Import of Device Components ([#822](https://github.com/netbox-community/netbox/issues/822))
+
+NetBox now supports the bulk import of device components such as console ports, power ports, and interfaces. Device
+components can be imported in CSV-format.
+
 ## Changes
 
 ### Topology Maps Removed ([#2745](https://github.com/netbox-community/netbox/issues/2745))
@@ -88,7 +93,7 @@ Full connection details are required in both sections, even if they are the same
 * [#1865](https://github.com/digitalocean/netbox/issues/1865) - Add console port and console server port types
 * [#2902](https://github.com/digitalocean/netbox/issues/2902) - Replace supervisord with systemd
 * [#3455](https://github.com/digitalocean/netbox/issues/3455) - Add tenant assignment to cluster
-* [#3538](https://github.com/digitalocean/netbox/issues/3538) - 
+* [#3538](https://github.com/digitalocean/netbox/issues/3538) - Introduce a REST API endpoint for executing custom scripts
 
 ## API Changes
 
