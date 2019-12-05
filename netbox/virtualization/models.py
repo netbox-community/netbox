@@ -8,7 +8,7 @@ from taggit.managers import TaggableManager
 from dcim.models import Device
 from extras.models import ConfigContextModel, CustomFieldModel, TaggedItem
 from utilities.models import ChangeLoggedModel
-from .constants import *
+from .choices import *
 
 
 #
@@ -193,9 +193,10 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         max_length=64,
         unique=True
     )
-    status = models.PositiveSmallIntegerField(
-        choices=VM_STATUS_CHOICES,
-        default=1,  # TODO: Replace with ChoiceSet value
+    status = models.CharField(
+        max_length=50,
+        choices=VirtualMachineStatusChoices,
+        default=VirtualMachineStatusChoices.STATUS_ACTIVE,
         verbose_name='Status'
     )
     role = models.ForeignKey(
@@ -252,6 +253,12 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
     ]
 
+    STATUS_CLASS_MAP = {
+        'active': 'success',
+        'offline': 'warning',
+        'staged': 'primary',
+    }
+
     class Meta:
         ordering = ['name']
 
@@ -294,7 +301,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         )
 
     def get_status_class(self):
-        return VM_STATUS_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)
 
     @property
     def primary_ip(self):

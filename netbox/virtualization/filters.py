@@ -10,7 +10,7 @@ from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import (
     MultiValueMACAddressFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
 )
-from .constants import *
+from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
@@ -96,7 +96,7 @@ class VirtualMachineFilter(TenancyFilterSet, CustomFieldFilterSet):
         label='Search',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=VM_STATUS_CHOICES,
+        choices=VirtualMachineStatusChoices,
         null_value=None
     )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(

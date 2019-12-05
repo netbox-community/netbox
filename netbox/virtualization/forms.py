@@ -15,7 +15,7 @@ from utilities.forms import (
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField,
     SmallTextarea, StaticSelect2, StaticSelect2Multiple
 )
-from .constants import *
+from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 VIFACE_TYPE_CHOICES = (
@@ -428,7 +428,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
 class VirtualMachineCSVForm(forms.ModelForm):
     status = CSVChoiceField(
-        choices=VM_STATUS_CHOICES,
+        choices=VirtualMachineStatusChoices,
         required=False,
         help_text='Operational status of device'
     )
@@ -481,7 +481,7 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
         widget=forms.MultipleHiddenInput()
     )
     status = forms.ChoiceField(
-        choices=add_blank_choice(VM_STATUS_CHOICES),
+        choices=add_blank_choice(VirtualMachineStatusChoices),
         required=False,
         initial='',
         widget=StaticSelect2(),
@@ -612,7 +612,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         )
     )
     status = forms.MultipleChoiceField(
-        choices=VM_STATUS_CHOICES,
+        choices=VirtualMachineStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )

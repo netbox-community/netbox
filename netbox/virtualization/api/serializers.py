@@ -10,7 +10,7 @@ from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSer
 from ipam.models import VLAN
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import ChoiceField, SerializedPKRelatedField, ValidatedModelSerializer
-from virtualization.constants import VM_STATUS_CHOICES
+from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 from .nested_serializers import *
 
@@ -57,7 +57,7 @@ class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
 #
 
 class VirtualMachineSerializer(TaggitSerializer, CustomFieldModelSerializer):
-    status = ChoiceField(choices=VM_STATUS_CHOICES, required=False)
+    status = ChoiceField(choices=VirtualMachineStatusChoices, required=False)
     site = NestedSiteSerializer(read_only=True)
     cluster = NestedClusterSerializer()
     role = NestedDeviceRoleSerializer(required=False, allow_null=True)
