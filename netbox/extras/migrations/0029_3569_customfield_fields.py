@@ -10,11 +10,23 @@ CUSTOMFIELD_TYPE_CHOICES = (
     (600, 'select')
 )
 
+CUSTOMFIELD_FILTER_LOGIC_CHOICES = (
+    (0, 'disabled'),
+    (1, 'integer'),
+    (2, 'exact'),
+)
+
 
 def customfield_type_to_slug(apps, schema_editor):
     CustomField = apps.get_model('extras', 'CustomField')
     for id, slug in CUSTOMFIELD_TYPE_CHOICES:
         CustomField.objects.filter(type=str(id)).update(type=slug)
+
+
+def customfield_filter_logic_to_slug(apps, schema_editor):
+    CustomField = apps.get_model('extras', 'CustomField')
+    for id, slug in CUSTOMFIELD_FILTER_LOGIC_CHOICES:
+        CustomField.objects.filter(filter_logic=str(id)).update(filter_logic=slug)
 
 
 class Migration(migrations.Migration):
@@ -25,6 +37,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+
+        # CustomField.type
         migrations.AlterField(
             model_name='customfield',
             name='type',
@@ -33,4 +47,15 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=customfield_type_to_slug
         ),
+
+        # CustomField.filter_logic
+        migrations.AlterField(
+            model_name='customfield',
+            name='filter_logic',
+            field=models.CharField(default='loose', max_length=50),
+        ),
+        migrations.RunPython(
+            code=customfield_filter_logic_to_slug
+        ),
+
     ]

@@ -19,16 +19,6 @@ CUSTOMFIELD_MODELS = [
     'virtualization.virtualmachine',
 ]
 
-# Custom field filter logic choices
-CF_FILTER_DISABLED = 0
-CF_FILTER_LOOSE = 1
-CF_FILTER_EXACT = 2
-CF_FILTER_CHOICES = (
-    (CF_FILTER_DISABLED, 'Disabled'),
-    (CF_FILTER_LOOSE, 'Loose'),
-    (CF_FILTER_EXACT, 'Exact'),
-)
-
 # Custom links
 CUSTOMLINK_MODELS = [
     'circuits.circuit',

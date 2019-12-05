@@ -29,7 +29,7 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
     field_dict = OrderedDict()
     custom_fields = CustomField.objects.filter(obj_type=content_type)
     if filterable_only:
-        custom_fields = custom_fields.exclude(filter_logic=CF_FILTER_DISABLED)
+        custom_fields = custom_fields.exclude(filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED)
 
     for cf in custom_fields:
         field_name = 'cf_{}'.format(str(cf.name))

@@ -207,9 +207,10 @@ class CustomField(models.Model):
         help_text='If true, this field is required when creating new objects '
                   'or editing an existing object.'
     )
-    filter_logic = models.PositiveSmallIntegerField(
-        choices=CF_FILTER_CHOICES,
-        default=CF_FILTER_LOOSE,
+    filter_logic = models.CharField(
+        max_length=50,
+        choices=CustomFieldFilterLogicChoices,
+        default=CustomFieldFilterLogicChoices.FILTER_LOOSE,
         help_text='Loose matches any instance of a given string; exact '
                   'matches the entire field.'
     )

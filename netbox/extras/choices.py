@@ -31,3 +31,22 @@ class CustomFieldTypeChoices(ChoiceSet):
         TYPE_URL: 500,
         TYPE_SELECT: 600,
     }
+
+
+class CustomFieldFilterLogicChoices(ChoiceSet):
+
+    FILTER_DISABLED = 'disabled'
+    FILTER_LOOSE = 'loose'
+    FILTER_EXACT = 'exact'
+
+    CHOICES = (
+        (FILTER_DISABLED, 'Disabled'),
+        (FILTER_LOOSE, 'Loose'),
+        (FILTER_EXACT, 'Exact'),
+    )
+
+    LEGACY_MAP = {
+        FILTER_DISABLED: 0,
+        FILTER_LOOSE: 1,
+        FILTER_EXACT: 2,
+    }
