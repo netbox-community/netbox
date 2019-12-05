@@ -93,6 +93,7 @@ Full connection details are required in both sections, even if they are the same
 * [#1865](https://github.com/digitalocean/netbox/issues/1865) - Add console port and console server port types
 * [#2902](https://github.com/digitalocean/netbox/issues/2902) - Replace supervisord with systemd
 * [#3455](https://github.com/digitalocean/netbox/issues/3455) - Add tenant assignment to cluster
+* [#3564](https://github.com/digitalocean/netbox/issues/3564) - Add interface, ports & bays list view
 * [#3538](https://github.com/digitalocean/netbox/issues/3538) - Introduce a REST API endpoint for executing custom scripts
 
 ## API Changes

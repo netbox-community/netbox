@@ -183,6 +183,72 @@
                         <li{% if not perms.dcim.view_interface %} class="disabled"{% endif %}>
                             <a href="{% url 'dcim:interface_connections_list' %}">Interface Connections</a>
                         </li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Device Components</li>
+                        <li{% if not perms.dcim.view_interface %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_interface %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:interface_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:interface_list' %}">Interfaces</a>
+                        </li>
+                        <li{% if not perms.dcim.view_frontport %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_frontport %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:frontport_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:frontport_list' %}">Front Ports</a>
+                        </li>
+                        <li{% if not perms.dcim.view_rearport %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_rearport %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:rearport_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:rearport_list' %}">Rear Ports</a>
+                        </li>
+                        <li{% if not perms.dcim.view_consoleport %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_consoleport %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:consoleport_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:consoleport_list' %}">Console Ports</a>
+                        </li>
+                        <li{% if not perms.dcim.view_consoleserverport %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_consoleserverport %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:consoleserverport_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:consoleserverport_list' %}">Console Server Ports</a>
+                        </li>
+                        <li{% if not perms.dcim.view_powerport %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_powerport %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:powerport_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:powerport_list' %}">Power Ports</a>
+                        </li>
+                        <li{% if not perms.dcim.view_poweroutlet %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_poweroutlet %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:poweroutlet_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:poweroutlet_list' %}">Power Outlet</a>
+                        </li>
+                        <li{% if not perms.dcim.view_devicebay %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_devicebay %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:devicebay_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:devicebay_list' %}">Device Bays</a>
+                        </li>
                     </ul>
                 </li>
                 <li class="dropdown">
