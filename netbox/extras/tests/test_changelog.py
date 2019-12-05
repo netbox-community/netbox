@@ -3,6 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from dcim.models import Site
+from extras.choices import *
 from extras.constants import *
 from extras.models import CustomField, CustomFieldValue, ObjectChange
 from utilities.testing import APITestCase
@@ -17,7 +18,7 @@ class ChangeLogTest(APITestCase):
         # Create a custom field on the Site model
         ct = ContentType.objects.get_for_model(Site)
         cf = CustomField(
-            type=CF_TYPE_TEXT,
+            type=CustomFieldTypeChoices.TYPE_TEXT,
             name='my_field',
             required=False
         )

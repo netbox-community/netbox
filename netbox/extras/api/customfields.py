@@ -5,7 +5,7 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from extras.constants import *
+from extras.choices import *
 from extras.models import CustomField, CustomFieldChoice, CustomFieldValue
 from utilities.api import ValidatedModelSerializer
 
@@ -37,7 +37,7 @@ class CustomFieldsSerializer(serializers.BaseSerializer):
             if value not in [None, '']:
 
                 # Validate integer
-                if cf.type == CF_TYPE_INTEGER:
+                if cf.type == CustomFieldTypeChoices.TYPE_INTEGER:
                     try:
                         int(value)
                     except ValueError:
@@ -46,13 +46,13 @@ class CustomFieldsSerializer(serializers.BaseSerializer):
                         )
 
                 # Validate boolean
-                if cf.type == CF_TYPE_BOOLEAN and value not in [True, False, 1, 0]:
+                if cf.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value not in [True, False, 1, 0]:
                     raise ValidationError(
                         "Invalid value for boolean field {}: {}".format(field_name, value)
                     )
 
                 # Validate date
-                if cf.type == CF_TYPE_DATE:
+                if cf.type == CustomFieldTypeChoices.TYPE_DATE:
                     try:
                         datetime.strptime(value, '%Y-%m-%d')
                     except ValueError:
@@ -61,7 +61,7 @@ class CustomFieldsSerializer(serializers.BaseSerializer):
                         )
 
                 # Validate selected choice
-                if cf.type == CF_TYPE_SELECT:
+                if cf.type == CustomFieldTypeChoices.TYPE_SELECT:
                     try:
                         value = int(value)
                     except ValueError:
@@ -100,7 +100,7 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
             instance.custom_fields = {}
             for field in fields:
                 value = instance.cf.get(field.name)
-                if field.type == CF_TYPE_SELECT and value is not None:
+                if field.type == CustomFieldTypeChoices.TYPE_SELECT and value is not None:
                     instance.custom_fields[field.name] = CustomFieldChoiceSerializer(value).data
                 else:
                     instance.custom_fields[field.name] = value

@@ -15,6 +15,7 @@ from taggit.models import TagBase, GenericTaggedItemBase
 
 from utilities.fields import ColorField
 from utilities.utils import deepmerge, model_names_to_filter_dict
+from .choices import *
 from .constants import *
 from .querysets import ConfigContextQuerySet
 
@@ -182,9 +183,10 @@ class CustomField(models.Model):
         limit_choices_to=get_custom_field_models,
         help_text='The object(s) to which this field applies.'
     )
-    type = models.PositiveSmallIntegerField(
-        choices=CUSTOMFIELD_TYPE_CHOICES,
-        default=CF_TYPE_TEXT
+    type = models.CharField(
+        max_length=50,
+        choices=CustomFieldTypeChoices,
+        default=CustomFieldTypeChoices.TYPE_TEXT
     )
     name = models.CharField(
         max_length=50,
@@ -233,15 +235,15 @@ class CustomField(models.Model):
         """
         if value is None:
             return ''
-        if self.type == CF_TYPE_BOOLEAN:
+        if self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
             return str(int(bool(value)))
-        if self.type == CF_TYPE_DATE:
+        if self.type == CustomFieldTypeChoices.TYPE_DATE:
             # Could be date/datetime object or string
             try:
                 return value.strftime('%Y-%m-%d')
             except AttributeError:
                 return value
-        if self.type == CF_TYPE_SELECT:
+        if self.type == CustomFieldTypeChoices.TYPE_SELECT:
             # Could be ModelChoiceField or TypedChoiceField
             return str(value.id) if hasattr(value, 'id') else str(value)
         return value
@@ -252,14 +254,14 @@ class CustomField(models.Model):
         """
         if serialized_value == '':
             return None
-        if self.type == CF_TYPE_INTEGER:
+        if self.type == CustomFieldTypeChoices.TYPE_INTEGER:
             return int(serialized_value)
-        if self.type == CF_TYPE_BOOLEAN:
+        if self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
             return bool(int(serialized_value))
-        if self.type == CF_TYPE_DATE:
+        if self.type == CustomFieldTypeChoices.TYPE_DATE:
             # Read date as YYYY-MM-DD
             return date(*[int(n) for n in serialized_value.split('-')])
-        if self.type == CF_TYPE_SELECT:
+        if self.type == CustomFieldTypeChoices.TYPE_SELECT:
             return self.choices.get(pk=int(serialized_value))
         return serialized_value
 
@@ -312,7 +314,7 @@ class CustomFieldChoice(models.Model):
         to='extras.CustomField',
         on_delete=models.CASCADE,
         related_name='choices',
-        limit_choices_to={'type': CF_TYPE_SELECT}
+        limit_choices_to={'type': CustomFieldTypeChoices.TYPE_SELECT}
     )
     value = models.CharField(
         max_length=100
@@ -330,14 +332,17 @@ class CustomFieldChoice(models.Model):
         return self.value
 
     def clean(self):
-        if self.field.type != CF_TYPE_SELECT:
+        if self.field.type != CustomFieldTypeChoices.TYPE_SELECT:
             raise ValidationError("Custom field choices can only be assigned to selection fields.")
 
     def delete(self, using=None, keep_parents=False):
         # When deleting a CustomFieldChoice, delete all CustomFieldValues which point to it
         pk = self.pk
         super().delete(using, keep_parents)
-        CustomFieldValue.objects.filter(field__type=CF_TYPE_SELECT, serialized_value=str(pk)).delete()
+        CustomFieldValue.objects.filter(
+            field__type=CustomFieldTypeChoices.TYPE_SELECT,
+            serialized_value=str(pk)
+        ).delete()
 
 
 #

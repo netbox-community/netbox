@@ -19,22 +19,6 @@ CUSTOMFIELD_MODELS = [
     'virtualization.virtualmachine',
 ]
 
-# Custom field types
-CF_TYPE_TEXT = 100
-CF_TYPE_INTEGER = 200
-CF_TYPE_BOOLEAN = 300
-CF_TYPE_DATE = 400
-CF_TYPE_URL = 500
-CF_TYPE_SELECT = 600
-CUSTOMFIELD_TYPE_CHOICES = (
-    (CF_TYPE_TEXT, 'Text'),
-    (CF_TYPE_INTEGER, 'Integer'),
-    (CF_TYPE_BOOLEAN, 'Boolean (true/false)'),
-    (CF_TYPE_DATE, 'Date'),
-    (CF_TYPE_URL, 'URL'),
-    (CF_TYPE_SELECT, 'Selection'),
-)
-
 # Custom field filter logic choices
 CF_FILTER_DISABLED = 0
 CF_FILTER_LOOSE = 1
