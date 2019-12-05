@@ -182,7 +182,7 @@ class NewBranchScript(Script):
     class Meta:
         name = "New Branch"
         description = "Provision a new branch site"
-        fields = ['site_name', 'switch_count', 'switch_model']
+        field_order = ['site_name', 'switch_count', 'switch_model']
 
     site_name = StringVar(
         description="Name of the new site"

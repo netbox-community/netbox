@@ -457,6 +457,14 @@ table.report th a {
     width: 80px;
     border: 1px solid grey;
 }
+.inline-color-block {
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+    border: 1px solid grey;
+    border-radius: .25em;
+    vertical-align: middle;
+}
 .text-nowrap {
     white-space: nowrap;
 }

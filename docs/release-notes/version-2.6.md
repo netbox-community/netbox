@@ -1,3 +1,18 @@
+# v2.6.8 (FUTURE)
+
+## Enhancements
+
+* [#3139](https://github.com/netbox-community/netbox/issues/3139) - Disable password change form for LDAP-authenticated users
+* [#3457](https://github.com/netbox-community/netbox/issues/3457) - Display cable colors on device view
+* [#3329](https://github.com/netbox-community/netbox/issues/3329) - Remove obsolete P3P policy header
+* [#3663](https://github.com/netbox-community/netbox/issues/3663) - Add query filters for `created` and `last_updated` fields
+
+## Bug Fixes
+
+* [#3669](https://github.com/netbox-community/netbox/issues/3669) - Include `weight` field in prefix/VLAN role form
+* [#3674](https://github.com/netbox-community/netbox/issues/3674) - Include comments on PowerFeed view
+* [#3679](https://github.com/netbox-community/netbox/issues/3679) - Fix link for assigned ipaddress in interface page
+
 # v2.6.7 (2019-11-01)
 
 ## Enhancements

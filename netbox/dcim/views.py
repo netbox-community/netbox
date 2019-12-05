@@ -1218,6 +1218,14 @@ class ConsolePortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = ConsolePort
 
 
+class ConsolePortBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_consoleport'
+    model_form = forms.ConsolePortCSVForm
+    table = tables.ConsolePortImportTable
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:consoleport_list'
+
+
 class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_consoleport'
     queryset = ConsolePort.objects.all()
@@ -1248,6 +1256,14 @@ class ConsoleServerPortEditView(PermissionRequiredMixin, ObjectEditView):
 class ConsoleServerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_consoleserverport'
     model = ConsoleServerPort
+
+
+class ConsoleServerPortBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_consoleserverport'
+    model_form = forms.ConsoleServerPortCSVForm
+    table = tables.ConsoleServerPortImportTable
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:consoleserverport_list'
 
 
 class ConsoleServerPortBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -1302,6 +1318,14 @@ class PowerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = PowerPort
 
 
+class PowerPortBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_powerport'
+    model_form = forms.PowerPortCSVForm
+    table = tables.PowerPortImportTable
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:powerport_list'
+
+
 class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_powerport'
     queryset = PowerPort.objects.all()
@@ -1332,6 +1356,14 @@ class PowerOutletEditView(PermissionRequiredMixin, ObjectEditView):
 class PowerOutletDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_poweroutlet'
     model = PowerOutlet
+
+
+class PowerOutletBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_poweroutlet'
+    model_form = forms.PowerOutletCSVForm
+    table = tables.PowerOutletImportTable
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:poweroutlet_list'
 
 
 class PowerOutletBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -1423,6 +1455,14 @@ class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = Interface
 
 
+class InterfaceBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_interface'
+    model_form = forms.InterfaceCSVForm
+    table = tables.InterfaceImportTable
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:interface_list'
+
+
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_interface'
     queryset = Interface.objects.all()
@@ -1475,6 +1515,14 @@ class FrontPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = FrontPort
 
 
+class FrontPortBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_frontport'
+    model_form = forms.FrontPortCSVForm
+    table = tables.FrontPortImportTable
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:frontport_list'
+
+
 class FrontPortBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_frontport'
     queryset = FrontPort.objects.all()
@@ -1525,6 +1573,14 @@ class RearPortEditView(PermissionRequiredMixin, ObjectEditView):
 class RearPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_rearport'
     model = RearPort
+
+
+class RearPortBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_rearport'
+    model_form = forms.RearPortCSVForm
+    table = tables.RearPortImportTable
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:rearport_list'
 
 
 class RearPortBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -1646,6 +1702,14 @@ class DeviceBayDepopulateView(PermissionRequiredMixin, View):
             'form': form,
             'return_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
         })
+
+
+class DeviceBayBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_devicebay'
+    model_form = forms.DeviceBayCSVForm
+    table = tables.DeviceBayImportTable
+    # TODO: change after netbox-community#3564 has been implemented
+    # default_return_url = 'dcim:devicebay_list'
 
 
 class DeviceBayBulkRenameView(PermissionRequiredMixin, BulkRenameView):

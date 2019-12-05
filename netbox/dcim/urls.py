@@ -175,6 +175,7 @@ urlpatterns = [
     path(r'console-ports/<int:pk>/edit/', views.ConsolePortEditView.as_view(), name='consoleport_edit'),
     path(r'console-ports/<int:pk>/delete/', views.ConsolePortDeleteView.as_view(), name='consoleport_delete'),
     path(r'console-ports/<int:pk>/trace/', views.CableTraceView.as_view(), name='consoleport_trace', kwargs={'model': ConsolePort}),
+    path(r'console-ports/import/', views.ConsolePortBulkImportView.as_view(), name='consoleport_import'),
 
     # Console server ports
     path(r'devices/console-server-ports/add/', views.DeviceBulkAddConsoleServerPortView.as_view(), name='device_bulk_add_consoleserverport'),
@@ -187,6 +188,7 @@ urlpatterns = [
     path(r'console-server-ports/<int:pk>/trace/', views.CableTraceView.as_view(), name='consoleserverport_trace', kwargs={'model': ConsoleServerPort}),
     path(r'console-server-ports/rename/', views.ConsoleServerPortBulkRenameView.as_view(), name='consoleserverport_bulk_rename'),
     path(r'console-server-ports/disconnect/', views.ConsoleServerPortBulkDisconnectView.as_view(), name='consoleserverport_bulk_disconnect'),
+    path(r'console-server-ports/import/', views.ConsoleServerPortBulkImportView.as_view(), name='consoleserverport_import'),
 
     # Power ports
     path(r'devices/power-ports/add/', views.DeviceBulkAddPowerPortView.as_view(), name='device_bulk_add_powerport'),
@@ -196,6 +198,7 @@ urlpatterns = [
     path(r'power-ports/<int:pk>/edit/', views.PowerPortEditView.as_view(), name='powerport_edit'),
     path(r'power-ports/<int:pk>/delete/', views.PowerPortDeleteView.as_view(), name='powerport_delete'),
     path(r'power-ports/<int:pk>/trace/', views.CableTraceView.as_view(), name='powerport_trace', kwargs={'model': PowerPort}),
+    path(r'power-ports/import/', views.PowerPortBulkImportView.as_view(), name='powerport_import'),
 
     # Power outlets
     path(r'devices/power-outlets/add/', views.DeviceBulkAddPowerOutletView.as_view(), name='device_bulk_add_poweroutlet'),
@@ -208,6 +211,7 @@ urlpatterns = [
     path(r'power-outlets/<int:pk>/trace/', views.CableTraceView.as_view(), name='poweroutlet_trace', kwargs={'model': PowerOutlet}),
     path(r'power-outlets/rename/', views.PowerOutletBulkRenameView.as_view(), name='poweroutlet_bulk_rename'),
     path(r'power-outlets/disconnect/', views.PowerOutletBulkDisconnectView.as_view(), name='poweroutlet_bulk_disconnect'),
+    path(r'power-outlets/import/', views.PowerOutletBulkImportView.as_view(), name='poweroutlet_import'),
 
     # Interfaces
     path(r'devices/interfaces/add/', views.DeviceBulkAddInterfaceView.as_view(), name='device_bulk_add_interface'),
@@ -222,6 +226,7 @@ urlpatterns = [
     path(r'interfaces/<int:pk>/trace/', views.CableTraceView.as_view(), name='interface_trace', kwargs={'model': Interface}),
     path(r'interfaces/rename/', views.InterfaceBulkRenameView.as_view(), name='interface_bulk_rename'),
     path(r'interfaces/disconnect/', views.InterfaceBulkDisconnectView.as_view(), name='interface_bulk_disconnect'),
+    path(r'interfaces/import/', views.InterfaceBulkImportView.as_view(), name='interface_import'),
 
     # Front ports
     # path(r'devices/front-ports/add/', views.DeviceBulkAddFrontPortView.as_view(), name='device_bulk_add_frontport'),
@@ -234,6 +239,7 @@ urlpatterns = [
     path(r'front-ports/<int:pk>/trace/', views.CableTraceView.as_view(), name='frontport_trace', kwargs={'model': FrontPort}),
     path(r'front-ports/rename/', views.FrontPortBulkRenameView.as_view(), name='frontport_bulk_rename'),
     path(r'front-ports/disconnect/', views.FrontPortBulkDisconnectView.as_view(), name='frontport_bulk_disconnect'),
+    path(r'front-ports/import/', views.FrontPortBulkImportView.as_view(), name='frontport_import'),
 
     # Rear ports
     # path(r'devices/rear-ports/add/', views.DeviceBulkAddRearPortView.as_view(), name='device_bulk_add_rearport'),
@@ -246,6 +252,7 @@ urlpatterns = [
     path(r'rear-ports/<int:pk>/trace/', views.CableTraceView.as_view(), name='rearport_trace', kwargs={'model': RearPort}),
     path(r'rear-ports/rename/', views.RearPortBulkRenameView.as_view(), name='rearport_bulk_rename'),
     path(r'rear-ports/disconnect/', views.RearPortBulkDisconnectView.as_view(), name='rearport_bulk_disconnect'),
+    path(r'rear-ports/import/', views.RearPortBulkImportView.as_view(), name='rearport_import'),
 
     # Device bays
     path(r'devices/device-bays/add/', views.DeviceBulkAddDeviceBayView.as_view(), name='device_bulk_add_devicebay'),
@@ -256,6 +263,7 @@ urlpatterns = [
     path(r'device-bays/<int:pk>/populate/', views.DeviceBayPopulateView.as_view(), name='devicebay_populate'),
     path(r'device-bays/<int:pk>/depopulate/', views.DeviceBayDepopulateView.as_view(), name='devicebay_depopulate'),
     path(r'device-bays/rename/', views.DeviceBayBulkRenameView.as_view(), name='devicebay_bulk_rename'),
+    path(r'device-bays/import/', views.DeviceBayBulkImportView.as_view(), name='devicebay_import'),
 
     # Inventory items
     path(r'inventory-items/', views.InventoryItemListView.as_view(), name='inventoryitem_list'),
