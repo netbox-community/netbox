@@ -802,8 +802,9 @@ class ObjectChange(models.Model):
     request_id = models.UUIDField(
         editable=False
     )
-    action = models.PositiveSmallIntegerField(
-        choices=OBJECTCHANGE_ACTION_CHOICES
+    action = models.CharField(
+        max_length=50,
+        choices=ObjectChangeActionChoices
     )
     changed_object_type = models.ForeignKey(
         to=ContentType,

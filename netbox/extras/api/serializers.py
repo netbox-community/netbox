@@ -8,6 +8,7 @@ from dcim.api.nested_serializers import (
     NestedRegionSerializer, NestedSiteSerializer,
 )
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
+from extras.choices import *
 from extras.constants import *
 from extras.models import (
     ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, Tag,
@@ -255,7 +256,7 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
         read_only=True
     )
     action = ChoiceField(
-        choices=OBJECTCHANGE_ACTION_CHOICES,
+        choices=ObjectChangeActionChoices,
         read_only=True
     )
     changed_object_type = ContentTypeField(

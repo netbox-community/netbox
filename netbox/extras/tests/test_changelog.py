@@ -50,7 +50,7 @@ class ChangeLogTest(APITestCase):
             changed_object_id=site.pk
         )
         self.assertEqual(oc.changed_object, site)
-        self.assertEqual(oc.action, OBJECTCHANGE_ACTION_CREATE)
+        self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_CREATE)
         self.assertEqual(oc.object_data['custom_fields'], data['custom_fields'])
         self.assertListEqual(sorted(oc.object_data['tags']), data['tags'])
 
@@ -82,7 +82,7 @@ class ChangeLogTest(APITestCase):
             changed_object_id=site.pk
         )
         self.assertEqual(oc.changed_object, site)
-        self.assertEqual(oc.action, OBJECTCHANGE_ACTION_UPDATE)
+        self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_UPDATE)
         self.assertEqual(oc.object_data['custom_fields'], data['custom_fields'])
         self.assertListEqual(sorted(oc.object_data['tags']), data['tags'])
 
@@ -111,6 +111,6 @@ class ChangeLogTest(APITestCase):
         oc = ObjectChange.objects.first()
         self.assertEqual(oc.changed_object, None)
         self.assertEqual(oc.object_repr, site.name)
-        self.assertEqual(oc.action, OBJECTCHANGE_ACTION_DELETE)
+        self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_DELETE)
         self.assertEqual(oc.object_data['custom_fields'], {'my_field': 'ABC'})
         self.assertListEqual(sorted(oc.object_data['tags']), ['bar', 'foo'])

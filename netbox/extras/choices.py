@@ -75,3 +75,26 @@ class CustomLinkButtonClassChoices(ChoiceSet):
         (CLASS_DANGER, 'Danger (red)'),
         (CLASS_LINK, 'None (link)'),
     )
+
+
+#
+# ObjectChanges
+#
+
+class ObjectChangeActionChoices(ChoiceSet):
+
+    ACTION_CREATE = 'create'
+    ACTION_UPDATE = 'update'
+    ACTION_DELETE = 'delete'
+
+    CHOICES = (
+        (ACTION_CREATE, 'Created'),
+        (ACTION_UPDATE, 'Updated'),
+        (ACTION_DELETE, 'Deleted'),
+    )
+
+    LEGACY_MAP = {
+        ACTION_CREATE: 1,
+        ACTION_UPDATE: 2,
+        ACTION_DELETE: 3,
+    }

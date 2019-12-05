@@ -401,7 +401,7 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         )
     )
     action = forms.ChoiceField(
-        choices=add_blank_choice(OBJECTCHANGE_ACTION_CHOICES),
+        choices=add_blank_choice(ObjectChangeActionChoices),
         required=False
     )
     user = forms.ModelChoiceField(

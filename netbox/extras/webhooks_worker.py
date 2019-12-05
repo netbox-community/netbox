@@ -15,7 +15,7 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
     Make a POST request to the defined Webhook
     """
     payload = {
-        'event': dict(OBJECTCHANGE_ACTION_CHOICES)[event].lower(),
+        'event': event,
         'timestamp': timestamp,
         'model': model_name,
         'username': username,
