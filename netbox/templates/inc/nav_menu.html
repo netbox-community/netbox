@@ -194,6 +194,12 @@
                         <li{% if not perms.dcim.view_rearport %} class="disabled"{% endif %}>
                             <a href="{% url 'dcim:rearport_list' %}">Rear Ports</a>
                         </li>
+                        <li{% if not perms.dcim.view_consoleport %} class="disabled"{% endif %}>
+                            <a href="{% url 'dcim:consoleport_list' %}">Console Ports</a>
+                        </li>
+                        <li{% if not perms.dcim.view_consoleport %} class="disabled"{% endif %}>
+                            <a href="{% url 'dcim:consoleserverport_list' %}">Console Server Ports</a>
+                        </li>
                         <li{% if not perms.dcim.view_powerport %} class="disabled"{% endif %}>
                             <a href="{% url 'dcim:powerport_list' %}">Power Ports</a>
                         </li>

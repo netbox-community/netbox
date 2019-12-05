@@ -1402,7 +1402,6 @@ class PowerOutletBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class InterfaceListView(PermissionRequiredMixin, ObjectListView):
-    type = 'Interface'
     permission_required = 'dcim.view_interface'
     queryset = Interface.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
     filter = filters.InterfaceFilter

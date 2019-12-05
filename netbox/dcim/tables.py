@@ -644,8 +644,6 @@ class DeviceImportTable(BaseTable):
 #
 
 class DeviceComponentDetailTable(BaseTable):
-    component_type = ''
-
     pk = ToggleColumn()
     cable = tables.LinkColumn()
 
@@ -663,7 +661,6 @@ class ConsolePortTable(BaseTable):
 
 
 class ConsolePortDetailTable(DeviceComponentDetailTable):
-    component_type = 'Console Ports'
     device = tables.LinkColumn()
 
     class Meta(DeviceComponentDetailTable.Meta, ConsolePortTable.Meta):
@@ -678,7 +675,6 @@ class ConsoleServerPortTable(BaseTable):
 
 
 class ConsoleServerPortDetailTable(DeviceComponentDetailTable):
-    component_type = 'Console Server Ports'
     device = tables.LinkColumn()
 
     class Meta(DeviceComponentDetailTable.Meta, ConsoleServerPortTable.Meta):
@@ -693,7 +689,6 @@ class PowerPortTable(BaseTable):
 
 
 class PowerPortDetailTable(DeviceComponentDetailTable):
-    component_type = 'Power Ports'
     device = tables.LinkColumn()
 
     class Meta(DeviceComponentDetailTable.Meta, PowerPortTable.Meta):
@@ -708,7 +703,6 @@ class PowerOutletTable(BaseTable):
 
 
 class PowerOutletDetailTable(DeviceComponentDetailTable):
-    component_type = 'Power Outlets'
     device = tables.LinkColumn()
 
     class Meta(DeviceComponentDetailTable.Meta, PowerOutletTable.Meta):
@@ -723,10 +717,9 @@ class InterfaceTable(BaseTable):
 
 
 class InterfaceDetailTable(DeviceComponentDetailTable):
-    component_type = 'Interfaces'
     parent = tables.LinkColumn(order_by=('device', 'virtual_machine'))
 
-    class Meta(InterfaceTable.Meta, DeviceComponentDetailTable.Meta):
+    class Meta(InterfaceTable.Meta):
         order_by = ('parent', 'name')
         fields = ('pk', 'parent', 'name', 'type', 'description', 'cable')
         sequence = ('pk', 'parent', 'name', 'type', 'description', 'cable')
@@ -741,7 +734,6 @@ class FrontPortTable(BaseTable):
 
 
 class FrontPortDetailTable(DeviceComponentDetailTable):
-    component_type = 'Front Ports'
     device = tables.LinkColumn()
 
     class Meta(DeviceComponentDetailTable.Meta, FrontPortTable.Meta):
@@ -757,7 +749,6 @@ class RearPortTable(BaseTable):
 
 
 class RearPortDetailTable(DeviceComponentDetailTable):
-    component_type = 'Rear Ports'
     device = tables.LinkColumn()
 
     class Meta(DeviceComponentDetailTable.Meta, RearPortTable.Meta):
@@ -772,11 +763,10 @@ class DeviceBayTable(BaseTable):
 
 
 class DeviceBayDetailTable(DeviceComponentDetailTable):
-    component_type = 'Device Bays'
     device = tables.LinkColumn()
     installed_device = tables.LinkColumn()
 
-    class Meta(DeviceComponentDetailTable.Meta, DeviceBayTable.Meta):
+    class Meta(DeviceBayTable.Meta):
         fields = ('pk', 'name', 'device', 'installed_device')
         sequence = ('pk', 'name', 'device', 'installed_device')
         exclude = ('cable',)
