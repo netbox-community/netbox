@@ -50,3 +50,28 @@ class CustomFieldFilterLogicChoices(ChoiceSet):
         FILTER_LOOSE: 1,
         FILTER_EXACT: 2,
     }
+
+
+#
+# CustomLinks
+#
+
+class CustomLinkButtonClassChoices(ChoiceSet):
+
+    CLASS_DEFAULT = 'default'
+    CLASS_PRIMARY = 'primary'
+    CLASS_SUCCESS = 'success'
+    CLASS_INFO = 'info'
+    CLASS_WARNING = 'warning'
+    CLASS_DANGER = 'danger'
+    CLASS_LINK = 'link'
+
+    CHOICES = (
+        (CLASS_DEFAULT, 'Default'),
+        (CLASS_PRIMARY, 'Primary (blue)'),
+        (CLASS_SUCCESS, 'Success (green)'),
+        (CLASS_INFO, 'Info (aqua)'),
+        (CLASS_WARNING, 'Warning (orange)'),
+        (CLASS_DANGER, 'Danger (red)'),
+        (CLASS_LINK, 'None (link)'),
+    )
