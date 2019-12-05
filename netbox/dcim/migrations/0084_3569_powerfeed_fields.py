@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='powerfeed',
             name='status',
-            field=models.CharField(blank=True, max_length=50),
+            field=models.CharField(default='active', max_length=50),
         ),
         migrations.RunPython(
             code=powerfeed_status_to_slug
@@ -71,7 +71,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='powerfeed',
             name='type',
-            field=models.CharField(blank=True, max_length=50),
+            field=models.CharField(default='primary', max_length=50),
         ),
         migrations.RunPython(
             code=powerfeed_type_to_slug
@@ -81,7 +81,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='powerfeed',
             name='supply',
-            field=models.CharField(blank=True, max_length=50),
+            field=models.CharField(default='ac', max_length=50),
         ),
         migrations.RunPython(
             code=powerfeed_supply_to_slug
@@ -91,7 +91,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='powerfeed',
             name='phase',
-            field=models.CharField(blank=True, max_length=50),
+            field=models.CharField(default='single-phase', max_length=50),
         ),
         migrations.RunPython(
             code=powerfeed_phase_to_slug
