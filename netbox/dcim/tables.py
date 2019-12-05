@@ -835,7 +835,7 @@ class DeviceBayDetailTable(DeviceComponentDetailTable):
         sequence = ('pk', 'name', 'device', 'installed_device')
         exclude = ('cable',)
 
-        
+
 class DeviceBayImportTable(BaseTable):
     device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
     installed_device = tables.LinkColumn('dcim:device', args=[Accessor('installed_device.pk')], verbose_name='Installed Device')
