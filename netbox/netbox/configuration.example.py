@@ -31,9 +31,9 @@ SECRET_KEY = ''
 # Full connection details are required in both sections, even if they are the same.
 REDIS = {
     'webhooks': {
-        'HOST': 'redis.example.com',
-        'PORT': 1234,
-        'PASSWORD': 'foobar',
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'PASSWORD': '',
         'DATABASE': 0,
         'DEFAULT_TIMEOUT': 300,
         'SSL': False,
