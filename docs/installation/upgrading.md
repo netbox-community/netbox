@@ -84,15 +84,10 @@ This script:
 
 # Restart the WSGI Service
 
-Finally, restart the WSGI service to run the new code. If you followed this guide for the initial installation, this is done using `systemctl:
+Finally, restart the WSGI services to run the new code. If you followed this guide for the initial installation, this is done using `systemctl:
 
 ```no-highlight
 # sudo systemctl restart netbox
-```
-
-If using webhooks, also restart the Redis worker:
-
-```no-highlight
 # sudo systemctl restart netbox-rqworker
 ```
 

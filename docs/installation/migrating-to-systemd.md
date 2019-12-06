@@ -89,17 +89,12 @@ timeout=120
 errorlog='/opt/netbox/netbox.log'
 ```
 
-Then, restart the systemd daemon service to detect the netbox service and start the netbox service:
+Finally, start the `netbox` and `netbox-rq` services and enable them to initiate at boot time:
 
 ```no-highlight
 # systemctl daemon-reload
 # systemctl start netbox.service
-# systemctl enable netbox.service
-```
-
-If using webhooks, also start the Redis worker:
-
-```no-highlight
 # systemctl start netbox-rq.service
+# systemctl enable netbox.service
 # systemctl enable netbox-rq.service
 ```

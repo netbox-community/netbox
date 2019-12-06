@@ -78,3 +78,7 @@ py-gfm
 # Extensive cryptographic library (fork of pycrypto)
 # https://github.com/Legrandin/pycryptodome
 pycryptodome
+
+# In-memory key/value store used for caching and queuing
+# https://github.com/andymccurdy/redis-py
+redis

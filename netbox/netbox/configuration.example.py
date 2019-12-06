@@ -178,10 +178,6 @@ SESSION_FILE_PATH = None
 # Time zone (default: UTC)
 TIME_ZONE = 'UTC'
 
-# The webhooks backend is disabled by default. Set this to True to enable it. Note that this requires a Redis
-# database be configured and accessible by NetBox.
-WEBHOOKS_ENABLED = False
-
 # Date/time formatting. See the following link for supported formats:
 # https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
 DATE_FORMAT = 'N j, Y'

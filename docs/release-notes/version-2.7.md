@@ -88,6 +88,13 @@ Note that `CACHE_DATABASE` has been removed and the connection settings have bee
 `caching`. This allows the user to make use of separate Redis instances and/or databases if desired. Full connection
 details are required in both sections, even if they are the same.
 
+### WEBHOOKS_ENABLED Configuration Setting Removed ([#3408](https://github.com/netbox-community/netbox/issues/3408))
+
+As `django-rq` is now a required library, NetBox assumes that the RQ worker process is running. The installation and
+upgrade documentation has been updated to reflect this, and the `WEBHOOKS_ENABLED` configuration parameter is no longer
+used. Please ensure that both the NetBox WSGI service and the RQ worker process are running on all production
+installations.
+
 ### API Choice Fields Now Use String Values ([#3569](https://github.com/netbox-community/netbox/issues/3569))
 
 NetBox's REST API presents fields which reference a particular choice as a dictionary with two keys: `value` and

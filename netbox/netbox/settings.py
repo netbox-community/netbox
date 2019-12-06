@@ -92,7 +92,6 @@ SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
-WEBHOOKS_ENABLED = getattr(configuration, 'WEBHOOKS_ENABLED', False)
 
 
 #
@@ -184,6 +183,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'debug_toolbar',
     'django_filters',
+    'django_rq',
     'django_tables2',
     'django_prometheus',
     'mptt',
@@ -202,10 +202,6 @@ INSTALLED_APPS = [
     'virtualization',
     'drf_yasg',
 ]
-
-# Only load django-rq if the webhook backend is enabled
-if WEBHOOKS_ENABLED:
-    INSTALLED_APPS.append('django_rq')
 
 # Middleware
 MIDDLEWARE = (

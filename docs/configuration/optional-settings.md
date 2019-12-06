@@ -301,14 +301,6 @@ The time zone NetBox will use when dealing with dates and times. It is recommend
 
 ---
 
-## WEBHOOKS_ENABLED
-
-Default: False
-
-Enable this option to run the webhook backend. See the docs section on the webhook backend [here](../../additional-features/webhooks/) for more information on setup and use.
-
----
-
 ## Date and Time Formatting
 
 You may define custom formatting for date and times. For detailed instructions on writing format strings, please see [the Django documentation](https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date).
