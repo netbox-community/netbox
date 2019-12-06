@@ -755,13 +755,16 @@ class ImageAttachment(models.Model):
         """
         from django.conf import settings
         if settings.MEDIA_STORAGE and settings.MEDIA_STORAGE['BACKEND'] == 'S3':
-            from botocore.exceptions import ClientError as AccessError
-        else:
-            AccessError = OSError
+            # For S3 we need to handle a different exception
+            from botocore.exceptions import ClientError
+            try:
+                return self.image.size
+            except ClientError:
+                return None
 
         try:
             return self.image.size
-        except AccessError:
+        except OSError:
             return None
 
 
