@@ -1,0 +1,18 @@
+@@ -14,3 +14,16 @@ fabfile.py
+gunicorn_config.py
+.DS_Store
+.vscode
+*.py
+*.py
+*.md
+*.yaml
+.github/stale.yaml
+docs/release-notes/version-2.6.md
+netbox/circuits/signals.py
+netbox/dcim/models.py
+netbox/dcim/signals.py
+netbox/dcim/tests/test_api.py
+netbox/dcim/tests/test_views.py
+netbox/dcim/views.py
+netbox/ipam/forms.py
+---1
