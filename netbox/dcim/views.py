@@ -17,7 +17,6 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from circuits.models import Circuit
-from extras.constants import GRAPH_TYPE_DEVICE, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from extras.models import Graph
 from extras.views import ObjectConfigContextView
 from ipam.models import Prefix, VLAN
@@ -209,7 +208,7 @@ class SiteView(PermissionRequiredMixin, View):
             'vm_count': VirtualMachine.objects.filter(cluster__site=site).count(),
         }
         rack_groups = RackGroup.objects.filter(site=site).annotate(rack_count=Count('racks'))
-        show_graphs = Graph.objects.filter(type=GRAPH_TYPE_SITE).exists()
+        show_graphs = Graph.objects.filter(type__model='site').exists()
 
         return render(request, 'dcim/site.html', {
             'site': site,
@@ -1058,8 +1057,8 @@ class DeviceView(PermissionRequiredMixin, View):
             'secrets': secrets,
             'vc_members': vc_members,
             'related_devices': related_devices,
-            'show_graphs': Graph.objects.filter(type=GRAPH_TYPE_DEVICE).exists(),
-            'show_interface_graphs': Graph.objects.filter(type=GRAPH_TYPE_INTERFACE).exists(),
+            'show_graphs': Graph.objects.filter(type__model='device').exists(),
+            'show_interface_graphs': Graph.objects.filter(type__model='interface').exists(),
         })
 
 

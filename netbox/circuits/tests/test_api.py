@@ -1,10 +1,10 @@
+from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework import status
 
 from circuits.choices import *
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim.models import Site
-from extras.constants import GRAPH_TYPE_PROVIDER
 from extras.models import Graph
 from utilities.testing import APITestCase
 
@@ -28,16 +28,20 @@ class ProviderTest(APITestCase):
 
     def test_get_provider_graphs(self):
 
+        provider_ct = ContentType.objects.get(app_label='circuits', model='provider')
         self.graph1 = Graph.objects.create(
-            type=GRAPH_TYPE_PROVIDER, name='Test Graph 1',
+            type=provider_ct,
+            name='Test Graph 1',
             source='http://example.com/graphs.py?provider={{ obj.slug }}&foo=1'
         )
         self.graph2 = Graph.objects.create(
-            type=GRAPH_TYPE_PROVIDER, name='Test Graph 2',
+            type=provider_ct,
+            name='Test Graph 2',
             source='http://example.com/graphs.py?provider={{ obj.slug }}&foo=2'
         )
         self.graph3 = Graph.objects.create(
-            type=GRAPH_TYPE_PROVIDER, name='Test Graph 3',
+            type=provider_ct,
+            name='Test Graph 3',
             source='http://example.com/graphs.py?provider={{ obj.slug }}&foo=3'
         )
 

@@ -42,18 +42,6 @@ CUSTOMLINK_MODELS = [
     'virtualization.virtualmachine',
 ]
 
-# Graph types
-GRAPH_TYPE_INTERFACE = 100
-GRAPH_TYPE_DEVICE = 150
-GRAPH_TYPE_PROVIDER = 200
-GRAPH_TYPE_SITE = 300
-GRAPH_TYPE_CHOICES = (
-    (GRAPH_TYPE_INTERFACE, 'Interface'),
-    (GRAPH_TYPE_DEVICE, 'Device'),
-    (GRAPH_TYPE_PROVIDER, 'Provider'),
-    (GRAPH_TYPE_SITE, 'Site'),
-)
-
 # Models which support export templates
 EXPORTTEMPLATE_MODELS = [
     'circuits.circuit',

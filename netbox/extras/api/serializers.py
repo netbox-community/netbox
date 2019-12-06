@@ -28,7 +28,9 @@ from .nested_serializers import *
 #
 
 class GraphSerializer(ValidatedModelSerializer):
-    type = ChoiceField(choices=GRAPH_TYPE_CHOICES)
+    type = ContentTypeField(
+        queryset=ContentType.objects.all()
+    )
 
     class Meta:
         model = Graph
@@ -38,7 +40,9 @@ class GraphSerializer(ValidatedModelSerializer):
 class RenderedGraphSerializer(serializers.ModelSerializer):
     embed_url = serializers.SerializerMethodField()
     embed_link = serializers.SerializerMethodField()
-    type = ChoiceField(choices=GRAPH_TYPE_CHOICES)
+    type = ContentTypeField(
+        queryset=ContentType.objects.all()
+    )
 
     class Meta:
         model = Graph

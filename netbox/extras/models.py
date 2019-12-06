@@ -408,8 +408,12 @@ class CustomLink(models.Model):
 #
 
 class Graph(models.Model):
-    type = models.PositiveSmallIntegerField(
-        choices=GRAPH_TYPE_CHOICES
+    type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to={
+            'model__in': ['device', 'interface', 'provider', 'site']
+        }
     )
     weight = models.PositiveSmallIntegerField(
         default=1000

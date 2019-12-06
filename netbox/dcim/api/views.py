@@ -23,7 +23,6 @@ from dcim.models import (
 )
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
-from extras.constants import GRAPH_TYPE_DEVICE, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from extras.models import Graph
 from ipam.models import Prefix, VLAN
 from utilities.api import (
@@ -133,7 +132,7 @@ class SiteViewSet(CustomFieldModelViewSet):
         A convenience method for rendering graphs for a particular site.
         """
         site = get_object_or_404(Site, pk=pk)
-        queryset = Graph.objects.filter(type=GRAPH_TYPE_SITE)
+        queryset = Graph.objects.filter(type__model='site')
         serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': site})
         return Response(serializer.data)
 
@@ -357,7 +356,7 @@ class DeviceViewSet(CustomFieldModelViewSet):
         A convenience method for rendering graphs for a particular Device.
         """
         device = get_object_or_404(Device, pk=pk)
-        queryset = Graph.objects.filter(type=GRAPH_TYPE_DEVICE)
+        queryset = Graph.objects.filter(type__model='device')
         serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': device})
 
         return Response(serializer.data)
@@ -479,7 +478,7 @@ class InterfaceViewSet(CableTraceMixin, ModelViewSet):
         A convenience method for rendering graphs for a particular interface.
         """
         interface = get_object_or_404(Interface, pk=pk)
-        queryset = Graph.objects.filter(type=GRAPH_TYPE_INTERFACE)
+        queryset = Graph.objects.filter(type__model='interface')
         serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': interface})
         return Response(serializer.data)
 

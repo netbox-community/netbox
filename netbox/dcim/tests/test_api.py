@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
@@ -12,7 +13,7 @@ from dcim.models import (
     Rack, RackGroup, RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
 )
 from ipam.models import IPAddress, VLAN
-from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
+from extras.models import Graph
 from utilities.testing import APITestCase
 from virtualization.models import Cluster, ClusterType
 
@@ -139,16 +140,20 @@ class SiteTest(APITestCase):
 
     def test_get_site_graphs(self):
 
+        site_ct = ContentType.objects.get_for_model(Site)
         self.graph1 = Graph.objects.create(
-            type=GRAPH_TYPE_SITE, name='Test Graph 1',
+            type=site_ct,
+            name='Test Graph 1',
             source='http://example.com/graphs.py?site={{ obj.slug }}&foo=1'
         )
         self.graph2 = Graph.objects.create(
-            type=GRAPH_TYPE_SITE, name='Test Graph 2',
+            type=site_ct,
+            name='Test Graph 2',
             source='http://example.com/graphs.py?site={{ obj.slug }}&foo=2'
         )
         self.graph3 = Graph.objects.create(
-            type=GRAPH_TYPE_SITE, name='Test Graph 3',
+            type=site_ct,
+            name='Test Graph 3',
             source='http://example.com/graphs.py?site={{ obj.slug }}&foo=3'
         )
 
@@ -2417,16 +2422,20 @@ class InterfaceTest(APITestCase):
 
     def test_get_interface_graphs(self):
 
+        interface_ct = ContentType.objects.get_for_model(Interface)
         self.graph1 = Graph.objects.create(
-            type=GRAPH_TYPE_INTERFACE, name='Test Graph 1',
+            type=interface_ct,
+            name='Test Graph 1',
             source='http://example.com/graphs.py?interface={{ obj.name }}&foo=1'
         )
         self.graph2 = Graph.objects.create(
-            type=GRAPH_TYPE_INTERFACE, name='Test Graph 2',
+            type=interface_ct,
+            name='Test Graph 2',
             source='http://example.com/graphs.py?interface={{ obj.name }}&foo=2'
         )
         self.graph3 = Graph.objects.create(
-            type=GRAPH_TYPE_INTERFACE, name='Test Graph 3',
+            type=interface_ct,
+            name='Test Graph 3',
             source='http://example.com/graphs.py?interface={{ obj.name }}&foo=3'
         )
 

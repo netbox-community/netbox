@@ -6,7 +6,7 @@ from django.db.models import Count, OuterRef, Subquery
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
 
-from extras.models import Graph, GRAPH_TYPE_PROVIDER
+from extras.models import Graph
 from utilities.forms import ConfirmationForm
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -36,7 +36,7 @@ class ProviderView(PermissionRequiredMixin, View):
 
         provider = get_object_or_404(Provider, slug=slug)
         circuits = Circuit.objects.filter(provider=provider).prefetch_related('type', 'tenant', 'terminations__site')
-        show_graphs = Graph.objects.filter(type=GRAPH_TYPE_PROVIDER).exists()
+        show_graphs = Graph.objects.filter(type__model='provider').exists()
 
         return render(request, 'circuits/provider.html', {
             'provider': provider,

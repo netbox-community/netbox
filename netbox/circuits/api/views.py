@@ -7,7 +7,7 @@ from circuits import filters
 from circuits.models import Provider, CircuitTermination, CircuitType, Circuit
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
-from extras.models import Graph, GRAPH_TYPE_PROVIDER
+from extras.models import Graph
 from utilities.api import FieldChoicesViewSet, ModelViewSet
 from . import serializers
 
@@ -40,7 +40,7 @@ class ProviderViewSet(CustomFieldModelViewSet):
         A convenience method for rendering graphs for a particular provider.
         """
         provider = get_object_or_404(Provider, pk=pk)
-        queryset = Graph.objects.filter(type=GRAPH_TYPE_PROVIDER)
+        queryset = Graph.objects.filter(type__model='provider')
         serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': provider})
         return Response(serializer.data)
 

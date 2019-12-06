@@ -4,7 +4,6 @@ from rest_framework import status
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Region, Site
 from extras.api.views import ScriptViewSet
-from extras.constants import GRAPH_TYPE_SITE
 from extras.models import ConfigContext, Graph, ExportTemplate, Tag
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from tenancy.models import Tenant, TenantGroup
@@ -17,14 +16,21 @@ class GraphTest(APITestCase):
 
         super().setUp()
 
+        site_ct = ContentType.objects.get_for_model(Site)
         self.graph1 = Graph.objects.create(
-            type=GRAPH_TYPE_SITE, name='Test Graph 1', source='http://example.com/graphs.py?site={{ obj.name }}&foo=1'
+            type=site_ct,
+            name='Test Graph 1',
+            source='http://example.com/graphs.py?site={{ obj.name }}&foo=1'
         )
         self.graph2 = Graph.objects.create(
-            type=GRAPH_TYPE_SITE, name='Test Graph 2', source='http://example.com/graphs.py?site={{ obj.name }}&foo=2'
+            type=site_ct,
+            name='Test Graph 2',
+            source='http://example.com/graphs.py?site={{ obj.name }}&foo=2'
         )
         self.graph3 = Graph.objects.create(
-            type=GRAPH_TYPE_SITE, name='Test Graph 3', source='http://example.com/graphs.py?site={{ obj.name }}&foo=3'
+            type=site_ct,
+            name='Test Graph 3',
+            source='http://example.com/graphs.py?site={{ obj.name }}&foo=3'
         )
 
     def test_get_graph(self):
@@ -44,7 +50,7 @@ class GraphTest(APITestCase):
     def test_create_graph(self):
 
         data = {
-            'type': GRAPH_TYPE_SITE,
+            'type': 'dcim.site',
             'name': 'Test Graph 4',
             'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=4',
         }
@@ -55,7 +61,7 @@ class GraphTest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Graph.objects.count(), 4)
         graph4 = Graph.objects.get(pk=response.data['id'])
-        self.assertEqual(graph4.type, data['type'])
+        self.assertEqual(graph4.type, ContentType.objects.get_for_model(Site))
         self.assertEqual(graph4.name, data['name'])
         self.assertEqual(graph4.source, data['source'])
 
@@ -63,17 +69,17 @@ class GraphTest(APITestCase):
 
         data = [
             {
-                'type': GRAPH_TYPE_SITE,
+                'type': 'dcim.site',
                 'name': 'Test Graph 4',
                 'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=4',
             },
             {
-                'type': GRAPH_TYPE_SITE,
+                'type': 'dcim.site',
                 'name': 'Test Graph 5',
                 'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=5',
             },
             {
-                'type': GRAPH_TYPE_SITE,
+                'type': 'dcim.site',
                 'name': 'Test Graph 6',
                 'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=6',
             },
@@ -91,7 +97,7 @@ class GraphTest(APITestCase):
     def test_update_graph(self):
 
         data = {
-            'type': GRAPH_TYPE_SITE,
+            'type': 'dcim.site',
             'name': 'Test Graph X',
             'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=99',
         }
@@ -102,7 +108,7 @@ class GraphTest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Graph.objects.count(), 3)
         graph1 = Graph.objects.get(pk=response.data['id'])
-        self.assertEqual(graph1.type, data['type'])
+        self.assertEqual(graph1.type, ContentType.objects.get_for_model(Site))
         self.assertEqual(graph1.name, data['name'])
         self.assertEqual(graph1.source, data['source'])
 
