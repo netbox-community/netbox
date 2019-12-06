@@ -1,8 +1,9 @@
 {% extends '_base.html' %}
-{% load static %}
-{% load tz %}
+{% load buttons %}
 {% load custom_links %}
 {% load helpers %}
+{% load static %}
+{% load tz %}
 
 {% block header %}
     <div class="row noprint">
@@ -37,6 +38,9 @@
                 <i class="fa fa-signal" aria-hidden="true"></i>
                 Graphs
             </button>
+        {% endif %}
+        {% if perms.dcim.add_site %}
+            {% clone_button 'dcim:site_add' site %}
         {% endif %}
         {% if perms.dcim.change_site %}
             <a href="{% url 'dcim:site_edit' slug=site.slug %}" class="btn btn-warning">

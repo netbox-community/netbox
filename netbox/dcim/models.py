@@ -331,6 +331,10 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
         'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email', 'comments',
     ]
+    clone_fields = [
+        'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
+        'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email',
+    ]
 
     STATUS_CLASS_MAP = {
         SiteStatusChoices.STATUS_ACTIVE: 'success',
@@ -558,6 +562,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     csv_headers = [
         'site', 'group_name', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
         'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
+    ]
+    clone_fields = [
+        'site', 'group', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
+        'outer_depth', 'outer_unit',
     ]
 
     STATUS_CLASS_MAP = {
@@ -947,6 +955,9 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 
     csv_headers = [
         'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'comments',
+    ]
+    clone_fields = [
+        'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role',
     ]
 
     class Meta:
@@ -1616,6 +1627,9 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
         'site', 'rack_group', 'rack_name', 'position', 'face', 'comments',
+    ]
+    clone_fields = [
+        'device_type', 'device_role', 'tenant', 'platform', 'site', 'rack', 'status', 'cluster',
     ]
 
     STATUS_CLASS_MAP = {
@@ -3158,6 +3172,10 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     csv_headers = [
         'site', 'panel_name', 'rack_group', 'rack_name', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
         'amperage', 'max_utilization', 'comments',
+    ]
+    clone_fields = [
+        'power_panel', 'rack', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'max_utilization',
+        'available_power',
     ]
 
     STATUS_CLASS_MAP = {

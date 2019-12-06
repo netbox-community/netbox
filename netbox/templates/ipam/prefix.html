@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load buttons %}
 {% load custom_links %}
 {% load helpers %}
 
@@ -37,6 +38,9 @@
                 <span class="fa fa-plus" aria-hidden="true"></span>
                 Add an IP Address
             </a>
+        {% endif %}
+        {% if perms.ipam.add_prefix %}
+            {% clone_button 'ipam:prefix_add' prefix %}
         {% endif %}
         {% if perms.ipam.change_prefix %}
             <a href="{% url 'ipam:prefix_edit' pk=prefix.pk %}" class="btn btn-warning">

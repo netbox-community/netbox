@@ -78,6 +78,9 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
+    clone_fields = [
+        'tenant', 'enforce_unique', 'description',
+    ]
 
     class Meta:
         ordering = ['name', 'rd']
@@ -177,6 +180,9 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['prefix', 'rir', 'date_added', 'description']
+    clone_fields = [
+        'rir', 'date_added', 'description',
+    ]
 
     class Meta:
         ordering = ['family', 'prefix']
@@ -349,6 +355,9 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
 
     csv_headers = [
         'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
+    ]
+    clone_fields = [
+        'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
     ]
 
     STATUS_CLASS_MAP = {
@@ -627,6 +636,9 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface_name', 'is_primary',
         'dns_name', 'description',
     ]
+    clone_fields = [
+        'vrf', 'tenant', 'status', 'role', 'description',
+    ]
 
     STATUS_CLASS_MAP = {
         'active': 'primary',
@@ -898,6 +910,9 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
+    clone_fields = [
+        'site', 'group', 'tenant', 'status', 'role', 'description',
+    ]
 
     STATUS_CLASS_MAP = {
         'active': 'primary',

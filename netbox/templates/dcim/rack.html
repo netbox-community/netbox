@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load buttons %}
 {% load custom_links %}
 {% load helpers %}
 
@@ -31,6 +32,9 @@
         <a {% if next_rack %}href="{% url 'dcim:rack' pk=next_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
             <span class="fa fa-chevron-right" aria-hidden="true"></span> Next Rack
         </a>
+        {% if perms.dcim.add_rack %}
+            {% clone_button 'dcim:rack_add' rack %}
+        {% endif %}
         {% if perms.dcim.change_rack %}
             <a href="{% url 'dcim:rack_edit' pk=rack.pk %}" class="btn btn-warning">
                 <span class="fa fa-pencil" aria-hidden="true"></span> Edit this rack

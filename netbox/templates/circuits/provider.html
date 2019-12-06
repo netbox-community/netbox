@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load buttons %}
 {% load static %}
 {% load custom_links %}
 {% load helpers %}
@@ -32,6 +33,9 @@
                 <i class="fa fa-signal" aria-hidden="true"></i>
                 Graphs
             </button>
+        {% endif %}
+        {% if perms.circuits.add_provider %}
+            {% clone_button 'circuits:provider_add' provider %}
         {% endif %}
         {% if perms.circuits.change_provider %}
             <a href="{% url 'circuits:provider_edit' slug=provider.slug %}" class="btn btn-warning">

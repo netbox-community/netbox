@@ -57,7 +57,12 @@ class Provider(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
+    csv_headers = [
+        'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
+    ]
+    clone_fields = [
+        'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact',
+    ]
 
     class Meta:
         ordering = ['name']
@@ -170,6 +175,9 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
 
     csv_headers = [
         'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
+    ]
+    clone_fields = [
+        'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description',
     ]
 
     STATUS_CLASS_MAP = {

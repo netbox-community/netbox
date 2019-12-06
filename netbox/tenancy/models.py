@@ -73,6 +73,9 @@ class Tenant(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['name', 'slug', 'group', 'description', 'comments']
+    clone_fields = [
+        'group', 'description',
+    ]
 
     class Meta:
         ordering = ['group', 'name']

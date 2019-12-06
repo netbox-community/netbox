@@ -129,6 +129,9 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['name', 'type', 'group', 'site', 'comments']
+    clone_fields = [
+        'type', 'group', 'tenant', 'site',
+    ]
 
     class Meta:
         ordering = ['name']
@@ -251,6 +254,9 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 
     csv_headers = [
         'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+    ]
+    clone_fields = [
+        'cluster', 'tenant', 'platform', 'status', 'role', 'vcpus', 'memory', 'disk',
     ]
 
     STATUS_CLASS_MAP = {
