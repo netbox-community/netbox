@@ -180,3 +180,33 @@ def to_meters(length, unit):
         return length * 0.3048
     if unit == CableLengthUnitChoices.UNIT_INCH:
         return length * 0.3048 * 12
+
+
+def prepare_cloned_fields(instance):
+    """
+    Compile an object's `clone_fields` list into a string of URL query parameters. Tags are automatically cloned where
+    applicable.
+    """
+    params = {}
+    for field_name in getattr(instance, 'clone_fields', []):
+        field = instance._meta.get_field(field_name)
+        field_value = field.value_from_object(instance)
+
+        # Swap out False with URL-friendly value
+        if field_value is False:
+            field_value = ''
+
+        # Omit empty values
+        if field_value not in (None, ''):
+            params[field_name] = field_value
+
+        # Copy tags
+        if hasattr(instance, 'tags'):
+            params['tags'] = ','.join([t.name for t in instance.tags.all()])
+
+    # Concatenate parameters into a URL query string
+    param_string = '&'.join(
+        ['{}={}'.format(k, v) for k, v in params.items()]
+    )
+
+    return param_string

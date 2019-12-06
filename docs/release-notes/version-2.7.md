@@ -128,6 +128,7 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 ## Enhancements
 
 * [#33](https://github.com/digitalocean/netbox/issues/33) - Add ability to clone objects (pre-populate form fields)
+* [#648](https://github.com/digitalocean/netbox/issues/648) - Pre-populate forms when selecting "create and add another"
 * [#792](https://github.com/digitalocean/netbox/issues/792) - Add power port and power outlet types
 * [#1865](https://github.com/digitalocean/netbox/issues/1865) - Add console port and console server port types
 * [#2902](https://github.com/digitalocean/netbox/issues/2902) - Replace `supervisord` with `systemd`

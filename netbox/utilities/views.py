@@ -1,6 +1,4 @@
-import json
 import sys
-import yaml
 from copy import deepcopy
 
 from django.conf import settings
@@ -28,7 +26,7 @@ from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
 from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField
-from utilities.utils import csv_format
+from utilities.utils import csv_format, prepare_cloned_fields
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm, ImportForm
 from .paginator import EnhancedPaginator
@@ -238,6 +236,12 @@ class ObjectEditView(GetReturnURLMixin, View):
             messages.success(request, mark_safe(msg))
 
             if '_addanother' in request.POST:
+
+                # If the object has clone_fields, pre-populate a new instance of the form
+                if hasattr(obj, 'clone_fields'):
+                    url = '{}?{}'.format(request.path, prepare_cloned_fields(obj))
+                    return redirect(url)
+
                 return redirect(request.get_full_path())
 
             return_url = form.cleaned_data.get('return_url')

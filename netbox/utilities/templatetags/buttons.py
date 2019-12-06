@@ -2,6 +2,7 @@ from django import template
 from django.urls import reverse
 
 from extras.models import ExportTemplate
+from utilities.utils import prepare_cloned_fields
 
 register = template.Library()
 
@@ -24,27 +25,7 @@ def import_button(url):
 def clone_button(url, instance):
 
     url = reverse(url)
-
-    # Populate form field values
-    params = {}
-    for field_name in getattr(instance, 'clone_fields', []):
-        field = instance._meta.get_field(field_name)
-        field_value = field.value_from_object(instance)
-
-        # Swap out False with URL-friendly value
-        if field_value is False:
-            field_value = ''
-
-        # Omit empty values
-        if field_value not in (None, ''):
-            params[field_name] = field_value
-
-        # Copy tags
-        if hasattr(instance, 'tags'):
-            params['tags'] = ','.join([t.name for t in instance.tags.all()])
-
-    # Append parameters to URL
-    param_string = '&'.join(['{}={}'.format(k, v) for k, v in params.items()])
+    param_string = prepare_cloned_fields(instance)
     if param_string:
         url = '{}?{}'.format(url, param_string)
 
