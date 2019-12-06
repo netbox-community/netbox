@@ -84,23 +84,59 @@ REDIS = {
 }
 ```
 
-Note that `CACHE_DATABASE` has been removed and the connection settings have been duplicated for both `webhooks` and `caching`.
-This allows the user to make use of separate Redis instances and/or databases if desired.
-Full connection details are required in both sections, even if they are the same.
+Note that `CACHE_DATABASE` has been removed and the connection settings have been duplicated for both `webhooks` and
+`caching`. This allows the user to make use of separate Redis instances and/or databases if desired. Full connection
+details are required in both sections, even if they are the same.
+
+### API Choice Fields Now Use String Values ([#3569](https://github.com/netbox-community/netbox/issues/3569))
+
+NetBox's REST API presents fields which reference a particular choice as a dictionary with two keys: `value` and
+`label`. In previous versions, `value` was an integer which represented the particular choice in the database. This has
+been changed to a more human-friendly "slug" string, which is essentially a simplified version of the choice's `label`.
+
+For example, The site status field was previously represented as:
+
+```json
+"status": {
+    "value": 1,
+    "label": "Active"
+},
+```
+
+Beginning with v2.7.0, it now looks like this:
+
+```json
+"status": {
+    "value": "active",
+    "label": "Active"
+},
+```
+
+This change allows for much more intuitive representation of values, and obviates the need for API consumers to maintain
+a mapping of static integer values.
+
+Note that that all v2.7 releases will continue to accept the legacy integer values in write requests (POST, PUT, and
+PATCH) to maintain backward compatibility. This behavior will be discontinued beginning in v2.8.0.
 
 ## Enhancements
 
+* [#792](https://github.com/digitalocean/netbox/issues/792) - Add power port and power outlet types
 * [#1865](https://github.com/digitalocean/netbox/issues/1865) - Add console port and console server port types
-* [#2902](https://github.com/digitalocean/netbox/issues/2902) - Replace supervisord with systemd
+* [#2902](https://github.com/digitalocean/netbox/issues/2902) - Replace `supervisord` with `systemd`
 * [#3455](https://github.com/digitalocean/netbox/issues/3455) - Add tenant assignment to cluster
-* [#3564](https://github.com/digitalocean/netbox/issues/3564) - Add interface, ports & bays list view
+* [#3564](https://github.com/digitalocean/netbox/issues/3564) - Add list views for device components
 * [#3538](https://github.com/digitalocean/netbox/issues/3538) - Introduce a REST API endpoint for executing custom scripts
 
 ## API Changes
 
+* Choice fields now use human-friendly strings for their values instead of integers (see [#3569](https://github.com/netbox-community/netbox/issues/3569))
 * Introduced `/api/extras/scripts/` endpoint for retrieving and executing custom scripts
 * dcim.ConsolePort: Added field `type`
 * dcim.ConsolePortTemplate: Added field `type`
 * dcim.ConsoleServerPort: Added field `type`
 * dcim.ConsoleServerPortTemplate: Added field `type`
+* dcim.PowerPort: Added field `type`
+* dcim.PowerPortTemplate: Added field `type`
+* dcim.PowerOutlet: Added field `type`
+* dcim.PowerOutletTemplate: Added field `type`
 * virtualization.Cluster: Added field `tenant`
