@@ -77,7 +77,7 @@ class ClusterGroupCSVForm(forms.ModelForm):
 # Clusters
 #
 
-class ClusterForm(BootstrapMixin, CustomFieldForm):
+class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     comments = CommentField()
     tags = TagField(
         required=False
