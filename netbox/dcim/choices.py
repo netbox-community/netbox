@@ -258,6 +258,19 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_NEMA_L620P = 'nema-l6-20p'
     TYPE_NEMA_L630P = 'nema-l6-30p'
     TYPE_NEMA_L650P = 'nema-l6-50p'
+    # ITA/international
+    TYPE_ITA_E = 'ita-e'
+    TYPE_ITA_F = 'ita-f'
+    TYPE_ITA_EF = 'ita-ef'
+    TYPE_ITA_G = 'ita-g'
+    TYPE_ITA_H = 'ita-h'
+    TYPE_ITA_I = 'ita-i'
+    TYPE_ITA_J = 'ita-j'
+    TYPE_ITA_K = 'ita-k'
+    TYPE_ITA_L = 'ita-l'
+    TYPE_ITA_M = 'ita-m'
+    TYPE_ITA_N = 'ita-n'
+    TYPE_ITA_O = 'ita-o'
 
     CHOICES = (
         ('IEC 60320', (
@@ -299,6 +312,20 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_NEMA_L620P, 'NEMA L6-20P'),
             (TYPE_NEMA_L630P, 'NEMA L6-30P'),
             (TYPE_NEMA_L650P, 'NEMA L6-50P'),
+        )),
+        ('International/ITA', (
+            (TYPE_ITA_E, 'ITA Type E (CEE 7/5)'),
+            (TYPE_ITA_F, 'ITA Type F (CEE 7/4)'),
+            (TYPE_ITA_EF, 'ITA Type E/F (CEE 7/7)'),
+            (TYPE_ITA_G, 'ITA Type G (BS 1363)'),
+            (TYPE_ITA_H, 'ITA Type H'),
+            (TYPE_ITA_I, 'ITA Type I'),
+            (TYPE_ITA_J, 'ITA Type J'),
+            (TYPE_ITA_K, 'ITA Type K'),
+            (TYPE_ITA_L, 'ITA Type L (CEI 23-50)'),
+            (TYPE_ITA_M, 'ITA Type M (BS 546)'),
+            (TYPE_ITA_N, 'ITA Type N'),
+            (TYPE_ITA_O, 'ITA Type O'),
         )),
     )
 
@@ -346,6 +373,18 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_NEMA_L620R = 'nema-l6-20r'
     TYPE_NEMA_L630R = 'nema-l6-30r'
     TYPE_NEMA_L650R = 'nema-l6-50r'
+    # ITA/international
+    TYPE_ITA_E = 'ita-e'
+    TYPE_ITA_F = 'ita-f'
+    TYPE_ITA_G = 'ita-g'
+    TYPE_ITA_H = 'ita-h'
+    TYPE_ITA_I = 'ita-i'
+    TYPE_ITA_J = 'ita-j'
+    TYPE_ITA_K = 'ita-k'
+    TYPE_ITA_L = 'ita-l'
+    TYPE_ITA_M = 'ita-m'
+    TYPE_ITA_N = 'ita-n'
+    TYPE_ITA_O = 'ita-o'
 
     CHOICES = (
         ('IEC 60320', (
@@ -387,6 +426,19 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_NEMA_L620R, 'NEMA L6-20R'),
             (TYPE_NEMA_L630R, 'NEMA L6-30R'),
             (TYPE_NEMA_L650R, 'NEMA L6-50R'),
+        )),
+        ('ITA/International', (
+            (TYPE_ITA_E, 'ITA Type E (CEE7/5)'),
+            (TYPE_ITA_F, 'ITA Type F (CEE7/3)'),
+            (TYPE_ITA_G, 'ITA Type G (BS 1363)'),
+            (TYPE_ITA_H, 'ITA Type H'),
+            (TYPE_ITA_I, 'ITA Type I'),
+            (TYPE_ITA_J, 'ITA Type J'),
+            (TYPE_ITA_K, 'ITA Type K'),
+            (TYPE_ITA_L, 'ITA Type L (CEI 23-50)'),
+            (TYPE_ITA_M, 'ITA Type M (BS 546)'),
+            (TYPE_ITA_N, 'ITA Type N'),
+            (TYPE_ITA_O, 'ITA Type O'),
         )),
     )
 
