@@ -6,6 +6,7 @@
 * [#3457](https://github.com/netbox-community/netbox/issues/3457) - Display cable colors on device view
 * [#3329](https://github.com/netbox-community/netbox/issues/3329) - Remove obsolete P3P policy header
 * [#3663](https://github.com/netbox-community/netbox/issues/3663) - Add query filters for `created` and `last_updated` fields
+* [#3722](https://github.com/netbox-community/netbox/issues/3722) - Allow the underscore character in IPAddress DNS names
 
 ## Bug Fixes
 
