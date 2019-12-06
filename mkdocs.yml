@@ -31,6 +31,7 @@ pages:
         - Change Logging: 'additional-features/change-logging.md'
         - Context Data: 'additional-features/context-data.md'
         - Custom Fields: 'additional-features/custom-fields.md'
+        - Custom Links: 'additional-features/custom-links.md'
         - Custom Scripts: 'additional-features/custom-scripts.md'
         - Export Templates: 'additional-features/export-templates.md'
         - Graphs: 'additional-features/graphs.md'
