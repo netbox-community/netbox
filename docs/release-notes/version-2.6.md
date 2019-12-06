@@ -17,6 +17,7 @@
 * [#3709](https://github.com/netbox-community/netbox/issues/3709) - Prevent exception when importing an invalid cable definition
 * [#3720](https://github.com/netbox-community/netbox/issues/3720) - Correctly indicate power feed terminations on cable list
 * [#3724](https://github.com/netbox-community/netbox/issues/3724) - Fix API filtering of interfaces by more than one device name
+* [#3725](https://github.com/netbox-community/netbox/issues/3725) - Enforce client validation for minimum service port number
 
 # v2.6.7 (2019-11-01)
 
