@@ -39,7 +39,9 @@ def clone_button(url, instance):
         if field_value not in (None, ''):
             params[field_name] = field_value
 
-        # TODO: Tag replication
+        # Copy tags
+        if hasattr(instance, 'tags'):
+            params['tags'] = ','.join([t.name for t in instance.tags.all()])
 
     # Append parameters to URL
     param_string = '&'.join(['{}={}'.format(k, v) for k, v in params.items()])
