@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ViewSet
 
 from circuits.models import Circuit
-from dcim import filters
+from dcim import constants, filters
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
@@ -30,9 +30,7 @@ from ipam.models import Prefix, VLAN
 from utilities.api import (
     get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, FieldChoicesViewSet, ModelViewSet, ServiceUnavailable,
 )
-from utilities.utils import get_subquery
-# XXX: should this be moved to a util function so that we don’t have to import templatetags?
-from utilities.templatetags.helpers import fgcolor
+from utilities.utils import get_subquery, foreground_color
 from virtualization.models import VirtualMachine
 from . import serializers
 from .exceptions import MissingFilterException
@@ -205,61 +203,6 @@ class RackViewSet(CustomFieldModelViewSet):
             return self.get_paginated_response(rack_units.data)
 
 
-RACK_ELEVATION_STYLE = """
-* {
-    font-family: 'Helvetica Neue';
-    font-size: 13px;
-}
-rect {
-    box-sizing: border-box;
-}
-text {
-    text-anchor: middle;
-    dominant-baseline: middle;
-}
-.rack {
-    background-color: #f0f0f0;
-    fill: none;
-    stroke: black;
-    stroke-width: 3px;
-}
-.slot {
-    fill: #f7f7f7;
-    stroke: #a0a0a0;
-}
-.slot:hover {
-    fill: #fff;
-}
-.slot+.add-device {
-    fill: none;
-}
-.slot:hover+.add-device {
-    fill: blue;
-}
-.reserved {
-    fill: url(#reserved);
-}
-.reserved:hover {
-    fill: url(#reserved);
-}
-.occupied {
-    fill: url(#occupied);
-}
-.occupied:hover {
-    fill: url(#occupied);
-}
-.blocked {
-    fill: url(#blocked);
-}
-.blocked:hover {
-    fill: url(#blocked);
-}
-.blocked:hover+.add-device {
-    fill: none;
-}
-"""
-
-
 class RackElevationViewSet(ViewSet):
     queryset = Rack.objects.prefetch_related(
         'devices'
@@ -280,7 +223,7 @@ class RackElevationViewSet(ViewSet):
         drawing = svgwrite.Drawing(size=(width, height))
 
         # add the stylesheet
-        drawing.defs.add(drawing.style(RACK_ELEVATION_STYLE))
+        drawing.defs.add(drawing.style(constants.RACK_ELEVATION_STYLE))
 
         # add gradients
         self._add_gradient(drawing, 'reserved', '#c7c7ff')
@@ -296,12 +239,9 @@ class RackElevationViewSet(ViewSet):
                 reverse('dcim:device', kwargs={'pk': device.pk}), fill='black'
             )
         )
-        link.add(
-            drawing.rect(start, end, fill='#{}'.format(color))
-        )
-        link.add(
-            drawing.text(device.name, insert=text, fill=fgcolor(color))
-        )
+        link.add(drawing.rect(start, end, fill='#{}'.format(color)))
+        hex_color = '#{}'.format(foreground_color(color))
+        link.add(drawing.text(device.name, insert=text, fill=hex_color))
 
     def _draw_device_rear(self, drawing, device, start, end, text):
         drawing.add(drawing.rect(start, end, class_="blocked"))
@@ -317,14 +257,14 @@ class RackElevationViewSet(ViewSet):
         link.add(drawing.rect(start, end, class_=class_))
         link.add(drawing.text("add device", insert=text, class_='add-device'))
 
-    def _draw_elevations(self, rack, elevation, reserved, face_id, width, slot_height):
-        drawing = self._setup_drawing(width, slot_height * rack.u_height)
+    def _draw_elevations(self, rack, elevation, reserved, face_id, width, u_height):
+        drawing = self._setup_drawing(width, u_height * rack.u_height)
         i = 0
         for u in elevation:
             device = u['device']
             height = u['height']
-            start_y = i * slot_height
-            end_y = slot_height * height
+            start_y = i * u_height
+            end_y = u_height * height
             start = (0, start_y)
             end = (width, end_y)
             text = (width / 2, start_y + end_y / 2)
@@ -342,7 +282,7 @@ class RackElevationViewSet(ViewSet):
                     rack, drawing, start, end, text, u["id"], face_id, class_
                 )
             i += height
-        drawing.add(drawing.rect((0, 0), (width, rack.u_height * slot_height), class_='rack'))
+        drawing.add(drawing.rect((0, 0), (width, rack.u_height * u_height), class_='rack'))
         return drawing
 
     def _get_elevation(self, rack):
@@ -366,28 +306,26 @@ class RackElevationViewSet(ViewSet):
         rack = get_object_or_404(Rack, pk=pk)
 
         face_id = request.GET.get('face', '0')
-        if face_id not in ['0', '1']:
-            return HttpResponseBadRequest('side should either be "0" or "1".')
-        # this is safe because of the validation above
-        face_id = int(face_id)
+        if face_id not in ['front', 'rear']:
+            return HttpResponseBadRequest('face should either be "front" or "rear".')
 
-        width = request.GET.get('width', '230')
+        width = request.GET.get('u_width', '230')
         try:
             width = int(width)
         except ValueError:
-            return HttpResponseBadRequest('width must be numeric.')
+            return HttpResponseBadRequest('u_width must be numeric.')
 
-        slot_height = request.GET.get('slot_height', '20')
+        u_height = request.GET.get('u_height', '20')
         try:
-            slot_height = int(slot_height)
+            u_height = int(u_height)
         except ValueError:
-            return HttpResponseBadRequest('slot_height must be numeric.')
+            return HttpResponseBadRequest('u_height must be numeric.')
 
         elevation = self._get_elevation(rack)
 
         reserved = rack.get_reserved_units().keys()
 
-        drawing = self._draw_elevations(rack, elevation, reserved, face_id, width, slot_height)
+        drawing = self._draw_elevations(rack, elevation, reserved, face_id, width, u_height)
 
         return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
 

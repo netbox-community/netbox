@@ -55,3 +55,58 @@ COMPATIBLE_TERMINATION_TYPES = {
     'rearport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport', 'circuittermination'],
     'circuittermination': ['interface', 'frontport', 'rearport'],
 }
+
+
+RACK_ELEVATION_STYLE = """
+* {
+    font-family: 'Helvetica Neue';
+    font-size: 13px;
+}
+rect {
+    box-sizing: border-box;
+}
+text {
+    text-anchor: middle;
+    dominant-baseline: middle;
+}
+.rack {
+    background-color: #f0f0f0;
+    fill: none;
+    stroke: black;
+    stroke-width: 3px;
+}
+.slot {
+    fill: #f7f7f7;
+    stroke: #a0a0a0;
+}
+.slot:hover {
+    fill: #fff;
+}
+.slot+.add-device {
+    fill: none;
+}
+.slot:hover+.add-device {
+    fill: blue;
+}
+.reserved {
+    fill: url(#reserved);
+}
+.reserved:hover {
+    fill: url(#reserved);
+}
+.occupied {
+    fill: url(#occupied);
+}
+.occupied:hover {
+    fill: url(#occupied);
+}
+.blocked {
+    fill: url(#blocked);
+}
+.blocked:hover {
+    fill: url(#blocked);
+}
+.blocked:hover+.add-device {
+    fill: none;
+}
+"""

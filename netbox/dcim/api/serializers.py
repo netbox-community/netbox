@@ -157,7 +157,7 @@ class RackUnitSerializer(serializers.Serializer):
     """
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(read_only=True)
-    face = serializers.IntegerField(read_only=True)
+    face = ChoiceField(choices=DeviceFaceChoices, required=False, allow_null=True)
     device = NestedDeviceSerializer(read_only=True)
 
 

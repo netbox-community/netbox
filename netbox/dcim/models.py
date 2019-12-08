@@ -670,7 +670,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def get_status_class(self):
         return self.STATUS_CLASS_MAP.get(self.status)
 
-    def get_rack_units(self, face=Device.FaceChoices.FACE_FRONT, exclude=None):
+    def get_rack_units(self, face=DeviceFaceChoices.FACE_FRONT, exclude=None):
         """
         Return a list of rack units as dictionaries. Example: {'device': None, 'face': 0, 'id': 48, 'name': 'U48'}
         Each key 'device' is either a Device or None. By default, multi-U devices are repeated for each U they occupy.
