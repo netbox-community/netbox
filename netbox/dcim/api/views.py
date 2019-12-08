@@ -183,7 +183,7 @@ class RackViewSet(CustomFieldModelViewSet):
         List rack units (by rack)
         """
         rack = get_object_or_404(Rack, pk=pk)
-        face = request.GET.get('face', 0)
+        face = request.GET.get('face', 'front')
         exclude_pk = request.GET.get('exclude', None)
         if exclude_pk is not None:
             try:
