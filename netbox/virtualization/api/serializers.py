@@ -75,6 +75,7 @@ class VirtualMachineSerializer(TaggitSerializer, CustomFieldModelSerializer):
             'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data', 'tags', 'custom_fields',
             'created', 'last_updated',
         ]
+        validators = []
 
 
 class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
