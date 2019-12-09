@@ -131,6 +131,7 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 * [#648](https://github.com/digitalocean/netbox/issues/648) - Pre-populate forms when selecting "create and add another"
 * [#792](https://github.com/digitalocean/netbox/issues/792) - Add power port and power outlet types
 * [#1865](https://github.com/digitalocean/netbox/issues/1865) - Add console port and console server port types
+* [#2669](https://github.com/digitalocean/netbox/issues/2669) - Relax uniqueness constraint on device and VM names
 * [#2902](https://github.com/digitalocean/netbox/issues/2902) - Replace `supervisord` with `systemd`
 * [#3455](https://github.com/digitalocean/netbox/issues/3455) - Add tenant assignment to cluster
 * [#3564](https://github.com/digitalocean/netbox/issues/3564) - Add list views for device components
