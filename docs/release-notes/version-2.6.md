@@ -11,6 +11,7 @@
 ## Bug Fixes
 
 * [#3312](https://github.com/netbox-community/netbox/issues/3312) - Fix validation error when editing power cables in bulk
+* [#3644](https://github.com/netbox-community/netbox/issues/3644) - Fix exception when connecting a cable to a RearPort with no corresponding FrontPort
 * [#3669](https://github.com/netbox-community/netbox/issues/3669) - Include `weight` field in prefix/VLAN role form
 * [#3674](https://github.com/netbox-community/netbox/issues/3674) - Include comments on PowerFeed view
 * [#3679](https://github.com/netbox-community/netbox/issues/3679) - Fix link for assigned ipaddress in interface page

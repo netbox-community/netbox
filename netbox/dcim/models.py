@@ -98,6 +98,8 @@ class CableTermination(models.Model):
         object_id_field='termination_b_id'
     )
 
+    is_path_endpoint = True
+
     class Meta:
         abstract = True
 
@@ -2444,6 +2446,8 @@ class FrontPort(CableTermination, ComponentModel):
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
 
+    is_path_endpoint = False
+
     objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
@@ -2505,6 +2509,8 @@ class RearPort(CableTermination, ComponentModel):
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
+
+    is_path_endpoint = False
 
     objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)

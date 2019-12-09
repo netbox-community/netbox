@@ -45,7 +45,7 @@ def update_connected_endpoints(instance, **kwargs):
 
     # Check if this Cable has formed a complete path. If so, update both endpoints.
     endpoint_a, endpoint_b, path_status = instance.get_path_endpoints()
-    if endpoint_a is not None and endpoint_b is not None:
+    if getattr(endpoint_a, 'is_path_endpoint', False) and getattr(endpoint_b, 'is_path_endpoint', False):
         endpoint_a.connected_endpoint = endpoint_b
         endpoint_a.connection_status = path_status
         endpoint_a.save()
