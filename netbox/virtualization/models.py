@@ -193,8 +193,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         null=True
     )
     name = models.CharField(
-        max_length=64,
-        unique=True
+        max_length=64
     )
     status = models.CharField(
         max_length=50,
@@ -267,12 +266,29 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 
     class Meta:
         ordering = ['name']
+        unique_together = [
+            ['cluster', 'tenant', 'name']
+        ]
 
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
         return reverse('virtualization:virtualmachine', args=[self.pk])
+
+    def validate_unique(self, exclude=None):
+
+        # Check for a duplicate name on a VM assigned to the same Cluster and no Tenant. This is necessary
+        # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
+        # of the uniqueness constraint without manual intervention.
+        if self.tenant is None and VirtualMachine.objects.exclude(pk=self.pk).filter(
+                name=self.name, tenant__isnull=True
+        ):
+            raise ValidationError({
+                'name': 'A virtual machine with this name already exists.'
+            })
+
+        super().validate_unique(exclude)
 
     def clean(self):
 
