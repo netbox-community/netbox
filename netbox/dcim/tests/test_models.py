@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from dcim.models import *
+from tenancy.models import Tenant
 
 
 class RackTestCase(TestCase):
@@ -280,6 +281,42 @@ class DeviceTestCase(TestCase):
             device=d,
             name='Device Bay 1'
         )
+
+    def test_device_duplicate_name_per_site(self):
+
+        device1 = Device(
+            site=self.site,
+            device_type=self.device_type,
+            device_role=self.device_role,
+            name='Test Device 1'
+        )
+        device1.save()
+
+        device2 = Device(
+            site=device1.site,
+            device_type=device1.device_type,
+            device_role=device1.device_role,
+            name=device1.name
+        )
+
+        # Two devices assigned to the same Site and no Tenant should fail validation
+        with self.assertRaises(ValidationError):
+            device2.full_clean()
+
+        tenant = Tenant.objects.create(name='Test Tenant 1', slug='test-tenant-1')
+        device1.tenant = tenant
+        device1.save()
+        device2.tenant = tenant
+
+        # Two devices assigned to the same Site and the same Tenant should fail validation
+        with self.assertRaises(ValidationError):
+            device2.full_clean()
+
+        device2.tenant = None
+
+        # Two devices assigned to the same Site and different Tenants should pass validation
+        device2.full_clean()
+        device2.save()
 
 
 class CableTestCase(TestCase):

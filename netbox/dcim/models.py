@@ -1523,8 +1523,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     name = models.CharField(
         max_length=64,
         blank=True,
-        null=True,
-        unique=True
+        null=True
     )
     serial = models.CharField(
         max_length=50,
@@ -1645,6 +1644,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     class Meta:
         ordering = ['name']
         unique_together = [
+            ['site', 'tenant', 'name'],  # See validate_unique below
             ['rack', 'position', 'face'],
             ['virtual_chassis', 'vc_position'],
         ]
@@ -1658,6 +1658,18 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 
     def get_absolute_url(self):
         return reverse('dcim:device', args=[self.pk])
+
+    def validate_unique(self, exclude=None):
+
+        # Check for a duplicate name on a device assigned to the same Site and no Tenant. This is necessary
+        # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
+        # of the uniqueness constraint without manual intervention.
+        if self.tenant is None and Device.objects.exclude(pk=self.pk).filter(name=self.name, tenant__isnull=True):
+            raise ValidationError({
+                'name': 'A device with this name already exists.'
+            })
+
+        super().validate_unique(exclude)
 
     def clean(self):
 
