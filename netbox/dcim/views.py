@@ -419,8 +419,6 @@ class RackView(PermissionRequiredMixin, View):
             'nonracked_devices': nonracked_devices,
             'next_rack': next_rack,
             'prev_rack': prev_rack,
-            'front_elevation': rack.get_front_elevation(),
-            'rear_elevation': rack.get_rear_elevation(),
         })
 
 

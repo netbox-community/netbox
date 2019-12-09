@@ -670,14 +670,13 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def get_status_class(self):
         return self.STATUS_CLASS_MAP.get(self.status)
 
-    def get_rack_units(self, face=DeviceFaceChoices.FACE_FRONT, exclude=None, remove_redundant=False):
+    def get_rack_units(self, face=DeviceFaceChoices.FACE_FRONT, exclude=None):
         """
         Return a list of rack units as dictionaries. Example: {'device': None, 'face': 0, 'id': 48, 'name': 'U48'}
         Each key 'device' is either a Device or None. By default, multi-U devices are repeated for each U they occupy.
 
         :param face: Rack face (front or rear)
         :param exclude: PK of a Device to exclude (optional); helpful when relocating a Device within a Rack
-        :param remove_redundant: If True, rack units occupied by a device already listed will be omitted
         """
 
         elevation = OrderedDict()
@@ -691,21 +690,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
                     .exclude(pk=exclude)\
                     .filter(rack=self, position__gt=0)\
                     .filter(Q(face=face) | Q(device_type__is_full_depth=True)):
-                if remove_redundant:
-                    elevation[device.position]['device'] = device
-                    for u in range(device.position + 1, device.position + device.device_type.u_height):
-                        elevation.pop(u, None)
-                else:
-                    for u in range(device.position, device.position + device.device_type.u_height):
-                        elevation[u]['device'] = device
+                for u in range(device.position, device.position + device.device_type.u_height):
+                    elevation[u]['device'] = device
 
         return [u for u in elevation.values()]
-
-    def get_front_elevation(self):
-        return self.get_rack_units(face=DeviceFaceChoices.FACE_FRONT, remove_redundant=True)
-
-    def get_rear_elevation(self):
-        return self.get_rack_units(face=DeviceFaceChoices.FACE_REAR, remove_redundant=True)
 
     def get_available_units(self, u_height=1, rack_face=None, exclude=list()):
         """

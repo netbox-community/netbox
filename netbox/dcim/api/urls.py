@@ -25,6 +25,7 @@ router.register(r'sites', views.SiteViewSet)
 router.register(r'rack-groups', views.RackGroupViewSet)
 router.register(r'rack-roles', views.RackRoleViewSet)
 router.register(r'racks', views.RackViewSet)
+router.register(r'rack-elevations', views.RackElevationViewSet, basename='rack-elevation')
 router.register(r'rack-reservations', views.RackReservationViewSet)
 
 # Device types
