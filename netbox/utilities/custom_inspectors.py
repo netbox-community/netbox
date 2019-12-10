@@ -75,7 +75,7 @@ class CustomChoiceFieldInspector(FieldInspector):
         SwaggerType, _ = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
 
         if isinstance(field, ChoiceField):
-            value_schema = openapi.Schema(type=openapi.TYPE_INTEGER)
+            value_schema = openapi.Schema(type=openapi.TYPE_STRING)
 
             choices = list(field._choices.keys())
             if set([None] + choices) == {None, True, False}:
@@ -83,7 +83,7 @@ class CustomChoiceFieldInspector(FieldInspector):
                 # differentiated since they each have subtly different values in their choice keys.
                 # - subdevice_role and connection_status are booleans, although subdevice_role includes None
                 # - face is an integer set {0, 1} which is easily confused with {False, True}
-                schema_type = openapi.TYPE_INTEGER
+                schema_type = openapi.TYPE_STRING
                 if all(type(x) == bool for x in [c for c in choices if c is not None]):
                     schema_type = openapi.TYPE_BOOLEAN
                 value_schema = openapi.Schema(type=schema_type)
