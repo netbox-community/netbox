@@ -255,19 +255,6 @@ class RackViewSet(CustomFieldModelViewSet):
                 return self.get_paginated_response(rack_units.data)
 
 
-class RackElevationViewSet(ViewSet):
-    queryset = Rack.objects.prefetch_related(
-        'devices'
-    )
-
-    def get_view_name(self):
-        return "Rack Elevations"
-
-    def retrieve(self, request, pk=None):
-        pass
-
-
-
 #
 # Rack reservations
 #
