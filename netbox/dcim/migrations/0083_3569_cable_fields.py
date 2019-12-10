@@ -82,7 +82,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='cable',
             name='status',
-            field=models.CharField(max_length=50),
+            field=models.CharField(default='connected', max_length=50),
         ),
         migrations.RunPython(
             code=cable_status_to_slug

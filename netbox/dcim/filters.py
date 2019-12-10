@@ -7,8 +7,8 @@ from tenancy.filtersets import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
 from utilities.filters import (
-    MultiValueMACAddressFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter,
-    TreeNodeMultipleChoiceFilter,
+    MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, NumericInFilter,
+    TagFilter, TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import Cluster
 from .choices import *
@@ -754,7 +754,7 @@ class InterfaceFilter(django_filters.FilterSet):
         queryset=Site.objects.all(),
         label='Site name (slug)',
     )
-    device = django_filters.CharFilter(
+    device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',
         label='Device',
@@ -807,8 +807,10 @@ class InterfaceFilter(django_filters.FilterSet):
 
     def filter_device(self, queryset, name, value):
         try:
-            device = Device.objects.get(**{name: value})
-            vc_interface_ids = device.vc_interfaces.values_list('id', flat=True)
+            devices = Device.objects.filter(**{'{}__in'.format(name): value})
+            vc_interface_ids = []
+            for device in devices:
+                vc_interface_ids.extend(device.vc_interfaces.values_list('id', flat=True))
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()

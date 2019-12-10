@@ -177,8 +177,10 @@ VIRTUALCHASSIS_ACTIONS = """
 CABLE_TERMINATION_PARENT = """
 {% if value.device %}
     <a href="{{ value.device.get_absolute_url }}">{{ value.device }}</a>
-{% else %}
+{% elif value.circuit %}
     <a href="{{ value.circuit.get_absolute_url }}">{{ value.circuit }}</a>
+{% elif value.power_panel %}
+    <a href="{{ value.power_panel.get_absolute_url }}">{{ value.power_panel }}</a>
 {% endif %}
 """
 
@@ -855,7 +857,7 @@ class CableTable(BaseTable):
         orderable=False,
         verbose_name='Termination A'
     )
-    termination_a = tables.Column(
+    termination_a = tables.LinkColumn(
         accessor=Accessor('termination_a'),
         orderable=False,
         verbose_name=''
@@ -866,7 +868,7 @@ class CableTable(BaseTable):
         orderable=False,
         verbose_name='Termination B'
     )
-    termination_b = tables.Column(
+    termination_b = tables.LinkColumn(
         accessor=Accessor('termination_b'),
         orderable=False,
         verbose_name=''
