@@ -22,13 +22,13 @@ django-filter
 # https://github.com/django-mptt/django-mptt
 django-mptt
 
-# Django integration for RQ (Reqis queuing)
-# https://github.com/rq/django-rq
-django-rq
-
 # Prometheus metrics library for Django
 # https://github.com/korfuri/django-prometheus
 django-prometheus
+
+# Django integration for RQ (Reqis queuing)
+# https://github.com/rq/django-rq
+django-rq
 
 # Abstraction models for rendering and paginating HTML tables
 # https://github.com/jieter/django-tables2
