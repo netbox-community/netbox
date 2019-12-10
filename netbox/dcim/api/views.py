@@ -1,11 +1,9 @@
 from collections import OrderedDict
 
-import svgwrite
 from django.conf import settings
 from django.db.models import Count, F
 from django.http import HttpResponseForbidden, HttpResponseBadRequest, HttpResponse
 from django.shortcuts import get_object_or_404, reverse
-from django.utils.http import urlencode
 from drf_yasg import openapi
 from drf_yasg.openapi import Parameter
 from drf_yasg.utils import swagger_auto_schema
@@ -30,7 +28,8 @@ from ipam.models import Prefix, VLAN
 from utilities.api import (
     get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, FieldChoicesViewSet, ModelViewSet, ServiceUnavailable,
 )
-from utilities.utils import get_subquery, foreground_color
+from utilities.custom_inspectors import NullablePaginatorInspector
+from utilities.utils import get_subquery
 from virtualization.models import VirtualMachine
 from . import serializers
 from .exceptions import MissingFilterException
@@ -202,6 +201,59 @@ class RackViewSet(CustomFieldModelViewSet):
             rack_units = serializers.RackUnitSerializer(page, many=True, context={'request': request})
             return self.get_paginated_response(rack_units.data)
 
+    @swagger_auto_schema(responses={200: serializers.RackUnitSerializer(many=True)})
+    @action(detail=True)
+    def elevation(self, request, pk=None):
+        """
+        Rack elevation representing the list of rack units. Also supports rendering the elevation as an SVG.
+        """
+        rack = get_object_or_404(Rack, pk=pk)
+        face = request.GET.get('face')
+        if face not in ['front', 'rear']:
+            face = 'front'
+
+        if request.GET.get('render_format', 'json') == 'svg':
+            # Render the elevantion as an SVG
+            width = request.GET.get('width', 230)
+            try:
+                width = int(width)
+            except ValueError:
+                return HttpResponseBadRequest('width must be an integer.')
+
+            unit_height = request.GET.get('unit_height', 20)
+            try:
+                unit_height = int(unit_height)
+            except ValueError:
+                return HttpResponseBadRequest('unit_height must be numeric.')
+
+            drawing = rack.get_elevation_svg(face, width, unit_height)
+
+            return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
+
+        else:
+            # Render a JSON response of the elevation
+            exclude = request.GET.get('exclude', None)
+            if exclude is not None:
+                try:
+                    if isinstance(exclude, list):
+                        exclude = [int(item) for item in exclude]
+                    else:
+                        exclude = int(exclude)
+                except ValueError:
+                    exclude = None
+
+            elevation = rack.get_rack_units(face, exclude)
+
+            # Enable filtering rack units by ID
+            q = request.GET.get('q', None)
+            if q:
+                elevation = [u for u in elevation if q in str(u['id'])]
+
+            page = self.paginate_queryset(elevation)
+            if page is not None:
+                rack_units = serializers.RackUnitSerializer(page, many=True, context={'request': request})
+                return self.get_paginated_response(rack_units.data)
+
 
 class RackElevationViewSet(ViewSet):
     queryset = Rack.objects.prefetch_related(
@@ -211,123 +263,9 @@ class RackElevationViewSet(ViewSet):
     def get_view_name(self):
         return "Rack Elevations"
 
-    def _add_gradient(self, drawing, id_, color):
-        gradient = drawing.linearGradient(start=('0', '20%'), end=('0', '40%'), spreadMethod='repeat', id_=id_, gradientTransform='rotate(80)')
-        gradient.add_stop_color(offset='0%', color='#f7f7f7')
-        gradient.add_stop_color(offset='50%', color='#f7f7f7')
-        gradient.add_stop_color(offset='50%', color=color)
-        gradient.add_stop_color(offset='100%', color=color)
-        drawing.defs.add(gradient)
-
-    def _setup_drawing(self, width, height):
-        drawing = svgwrite.Drawing(size=(width, height))
-
-        # add the stylesheet
-        drawing.defs.add(drawing.style(constants.RACK_ELEVATION_STYLE))
-
-        # add gradients
-        self._add_gradient(drawing, 'reserved', '#c7c7ff')
-        self._add_gradient(drawing, 'occupied', '#f0f0f0')
-        self._add_gradient(drawing, 'blocked', '#ffc7c7')
-
-        return drawing
-
-    def _draw_device_front(self, drawing, device, start, end, text):
-        color = device.device_role.color
-        link = drawing.add(
-            drawing.a(
-                reverse('dcim:device', kwargs={'pk': device.pk}), fill='black'
-            )
-        )
-        link.add(drawing.rect(start, end, fill='#{}'.format(color)))
-        hex_color = '#{}'.format(foreground_color(color))
-        link.add(drawing.text(device.name, insert=text, fill=hex_color))
-
-    def _draw_device_rear(self, drawing, device, start, end, text):
-        drawing.add(drawing.rect(start, end, class_="blocked"))
-        drawing.add(drawing.text(device.name, insert=text))
-
-    def _draw_empty(self, rack, drawing, start, end, text, id_, face_id, class_):
-        link = drawing.add(
-            drawing.a('{}?{}'.format(
-                reverse('dcim:device_add'),
-                urlencode({'rack': rack.pk, 'site': rack.site.pk, 'face': face_id, 'position': id_})
-            ))
-        )
-        link.add(drawing.rect(start, end, class_=class_))
-        link.add(drawing.text("add device", insert=text, class_='add-device'))
-
-    def _draw_elevations(self, rack, elevation, reserved, face_id, width, u_height):
-        drawing = self._setup_drawing(width, u_height * rack.u_height)
-        i = 0
-        for u in elevation:
-            device = u['device']
-            height = u['height']
-            start_y = i * u_height
-            end_y = u_height * height
-            start = (0, start_y)
-            end = (width, end_y)
-            text = (width / 2, start_y + end_y / 2)
-            if device and device.face == face_id:
-                self._draw_device_front(drawing, device, start, end, text)
-            elif device and device.device_type.is_full_depth:
-                self._draw_device_rear(drawing, device, start, end, text)
-            else:
-                class_ = 'slot'
-                if device:
-                    class_ += ' occupied'
-                if u["id"] in reserved:
-                    class_ += ' reserved'
-                self._draw_empty(
-                    rack, drawing, start, end, text, u["id"], face_id, class_
-                )
-            i += height
-        drawing.add(drawing.rect((0, 0), (width, rack.u_height * u_height), class_='rack'))
-        return drawing
-
-    def _get_elevation(self, rack):
-        elevation = OrderedDict()
-        for u in rack.units:
-            elevation[u] = {'id': u, 'device': None, 'height': 1}
-
-        for device in Device.objects.prefetch_related('device_role')\
-                .filter(rack=rack, position__gt=0):
-            elevation[device.position]['device'] = device
-            elevation[device.position]['height'] = device.device_type.u_height
-            for u in range(device.position + 1, device.position + device.device_type.u_height):
-                elevation.pop(u, None)
-
-        return elevation.values()
-
     def retrieve(self, request, pk=None):
-        """
-        Render rack
-        """
-        rack = get_object_or_404(Rack, pk=pk)
+        pass
 
-        face_id = request.GET.get('face', '0')
-        if face_id not in ['front', 'rear']:
-            return HttpResponseBadRequest('face should either be "front" or "rear".')
-
-        width = request.GET.get('u_width', '230')
-        try:
-            width = int(width)
-        except ValueError:
-            return HttpResponseBadRequest('u_width must be numeric.')
-
-        u_height = request.GET.get('u_height', '20')
-        try:
-            u_height = int(u_height)
-        except ValueError:
-            return HttpResponseBadRequest('u_height must be numeric.')
-
-        elevation = self._get_elevation(rack)
-
-        reserved = rack.get_reserved_units().keys()
-
-        drawing = self._draw_elevations(rack, elevation, reserved, face_id, width, u_height)
-
-        return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
 
 
 #
