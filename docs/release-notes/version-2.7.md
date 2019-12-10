@@ -1,5 +1,9 @@
 # v2.7.0 (FUTURE)
 
+!!! warning
+    NetBox v2.7 is the last major release that will support Python 3.5. Beginning with NetBox v2.8, Python 3.6 or higher
+    will be required.
+
 ## New Features
 
 ### Enhanced Device Type Import ([#451](https://github.com/netbox-community/netbox/issues/451))

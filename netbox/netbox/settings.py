@@ -20,10 +20,16 @@ HOSTNAME = platform.node()
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Django 2.1+ requires Python 3.5+
+# Validate Python version
 if platform.python_version_tuple() < ('3', '5'):
     raise RuntimeError(
         "NetBox requires Python 3.5 or higher (current: Python {})".format(platform.python_version())
+    )
+elif platform.python_version_tuple() < ('3', '6'):
+    warnings.warn(
+        "Python 3.6 or higher will be required starting with NetBox v2.8 (current: Python {})".format(
+            platform.python_version()
+        )
     )
 
 
