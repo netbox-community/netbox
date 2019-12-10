@@ -240,7 +240,7 @@ class RoleForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Role
         fields = [
-            'name', 'slug',
+            'name', 'slug', 'weight',
         ]
 
 
@@ -1250,6 +1250,10 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 #
 
 class ServiceForm(BootstrapMixin, CustomFieldForm):
+    port = forms.IntegerField(
+        min_value=1,
+        max_value=65535
+    )
     tags = TagField(
         required=False
     )

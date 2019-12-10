@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='ipaddress',
             name='dns_name',
-            field=models.CharField(blank=True, max_length=255, validators=[django.core.validators.RegexValidator(code='invalid', message='Only alphanumeric characters, hyphens, and periods are allowed in DNS names', regex='^[0-9A-Za-z.-]+$')]),
+            field=models.CharField(blank=True, max_length=255, validators=[django.core.validators.RegexValidator(code='invalid', message='Only alphanumeric characters, hyphens, periods, and underscores are allowed in DNS names', regex='^[0-9A-Za-z._-]+$')]),
         ),
     ]

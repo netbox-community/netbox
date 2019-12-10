@@ -2,13 +2,13 @@ import django_filters
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-from extras.filters import CustomFieldFilterSet, LocalConfigContextFilter
+from extras.filters import CustomFieldFilterSet, LocalConfigContextFilter, CreatedUpdatedFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
 from utilities.filters import (
-    MultiValueMACAddressFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter,
-    TreeNodeMultipleChoiceFilter,
+    MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, NumericInFilter,
+    TagFilter, TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import Cluster
 from .constants import *
@@ -38,7 +38,7 @@ class RegionFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class SiteFilter(TenancyFilterSet, CustomFieldFilterSet):
+class SiteFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -116,7 +116,7 @@ class RackRoleFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'color']
 
 
-class RackFilter(TenancyFilterSet, CustomFieldFilterSet):
+class RackFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -251,7 +251,7 @@ class ManufacturerFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class DeviceTypeFilter(CustomFieldFilterSet):
+class DeviceTypeFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -423,7 +423,7 @@ class PlatformFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'napalm_driver']
 
 
-class DeviceFilter(LocalConfigContextFilter, TenancyFilterSet, CustomFieldFilterSet):
+class DeviceFilter(LocalConfigContextFilter, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -696,7 +696,7 @@ class InterfaceFilter(django_filters.FilterSet):
         method='search',
         label='Search',
     )
-    device = django_filters.CharFilter(
+    device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',
         label='Device',
@@ -749,8 +749,10 @@ class InterfaceFilter(django_filters.FilterSet):
 
     def filter_device(self, queryset, name, value):
         try:
-            device = Device.objects.get(**{name: value})
-            vc_interface_ids = device.vc_interfaces.values_list('id', flat=True)
+            devices = Device.objects.filter(**{'{}__in'.format(name): value})
+            vc_interface_ids = []
+            for device in devices:
+                vc_interface_ids.extend(device.vc_interfaces.values_list('id', flat=True))
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()
@@ -1096,7 +1098,7 @@ class PowerPanelFilter(django_filters.FilterSet):
         return queryset.filter(qs_filter)
 
 
-class PowerFeedFilter(CustomFieldFilterSet):
+class PowerFeedFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
