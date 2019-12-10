@@ -71,7 +71,7 @@ class RoleSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = Role
-        fields = ['id', 'name', 'slug', 'weight', 'prefix_count', 'vlan_count']
+        fields = ['id', 'name', 'slug', 'weight', 'description', 'prefix_count', 'vlan_count']
 
 
 class VLANGroupSerializer(ValidatedModelSerializer):

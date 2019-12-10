@@ -260,8 +260,12 @@ class Role(ChangeLoggedModel):
     weight = models.PositiveSmallIntegerField(
         default=1000
     )
+    description = models.CharField(
+        max_length=100,
+        blank=True,
+    )
 
-    csv_headers = ['name', 'slug', 'weight']
+    csv_headers = ['name', 'slug', 'weight', 'description']
 
     class Meta:
         ordering = ['weight', 'name']
@@ -274,6 +278,7 @@ class Role(ChangeLoggedModel):
             self.name,
             self.slug,
             self.weight,
+            self.description,
         )
 
 
