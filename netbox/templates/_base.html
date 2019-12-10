@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'font-awesome-4.7.0/css/font-awesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'jquery-ui-1.12.1/jquery-ui.css' %}">
-    <link rel="stylesheet" href="{% static 'select2-4.0.5/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'select2-4.0.12/dist/css/select2.min.css' %}">
     <link rel="stylesheet" href="{% static 'select2-bootstrap-0.1.0-beta.10/select2-bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v{{ settings.VERSION }}">
     <link rel="icon" type="image/png" href="{% static 'img/netbox.ico' %}" />
@@ -65,11 +65,11 @@
             </div>
         </div>
     </footer>
-<script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+<script src="{% static 'jquery/jquery-3.4.1.min.js' %}"></script>
 <script src="{% static 'jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
 <script src="{% static 'bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
-<script src="{% static 'select2-4.0.5/js/select2.min.js' %}"></script>
-<script src="{% static 'clipboard-2.0.4.min.js' %}"></script>
+<script src="{% static 'select2-4.0.12/dist/js/select2.min.js' %}"></script>
+<script src="{% static 'clipboard.js/clipboard-2.0.4.min.js' %}"></script>
 <script src="{% static 'js/forms.js' %}?v{{ settings.VERSION }}"></script>
 <script type="text/javascript">
     var netbox_api_path = "/{{ settings.BASE_PATH }}api/";
