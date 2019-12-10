@@ -983,7 +983,7 @@ class CableFilter(django_filters.FilterSet):
         choices=CableTypeChoices
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=CONNECTION_STATUS_CHOICES
+        choices=CableStatusChoices
     )
     color = django_filters.MultipleChoiceFilter(
         choices=COLOR_CHOICES

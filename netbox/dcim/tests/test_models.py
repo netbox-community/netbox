@@ -487,7 +487,11 @@ class CablePathTestCase(TestCase):
         self.assertIsNone(interface1.connection_status)
 
         # Third segment
-        cable3 = Cable(termination_a=self.front_port2, termination_b=self.interface2, status=CONNECTION_STATUS_PLANNED)
+        cable3 = Cable(
+            termination_a=self.front_port2,
+            termination_b=self.interface2,
+            status=CableStatusChoices.STATUS_PLANNED
+        )
         cable3.save()
         interface1 = Interface.objects.get(pk=self.interface1.pk)
         self.assertEqual(interface1.connected_endpoint, self.interface2)

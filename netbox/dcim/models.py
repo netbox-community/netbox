@@ -2840,9 +2840,10 @@ class Cable(ChangeLoggedModel):
         choices=CableTypeChoices,
         blank=True
     )
-    status = models.BooleanField(
-        choices=CONNECTION_STATUS_CHOICES,
-        default=CONNECTION_STATUS_CONNECTED
+    status = models.CharField(
+        max_length=50,
+        choices=CableStatusChoices,
+        default=CableStatusChoices.STATUS_CONNECTED
     )
     label = models.CharField(
         max_length=100,
@@ -3039,12 +3040,12 @@ class Cable(ChangeLoggedModel):
         b_path = self.termination_a.trace()
 
         # Determine overall path status (connected or planned)
-        if self.status == CONNECTION_STATUS_PLANNED:
+        if self.status == CableStatusChoices.STATUS_PLANNED:
             path_status = CONNECTION_STATUS_PLANNED
         else:
             path_status = CONNECTION_STATUS_CONNECTED
             for segment in a_path[1:] + b_path[1:]:
-                if segment[1] is None or segment[1].status == CONNECTION_STATUS_PLANNED:
+                if segment[1] is None or segment[1].status == CableStatusChoices.STATUS_PLANNED:
                     path_status = CONNECTION_STATUS_PLANNED
                     break
 

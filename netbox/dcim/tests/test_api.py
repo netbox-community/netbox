@@ -2895,7 +2895,7 @@ class CableTest(APITestCase):
             'termination_a_id': interface_a.pk,
             'termination_b_type': 'dcim.interface',
             'termination_b_id': interface_b.pk,
-            'status': CONNECTION_STATUS_PLANNED,
+            'status': CableStatusChoices.STATUS_PLANNED,
             'label': 'Test Cable 4',
         }
 
@@ -2949,7 +2949,7 @@ class CableTest(APITestCase):
 
         data = {
             'label': 'Test Cable X',
-            'status': CONNECTION_STATUS_CONNECTED,
+            'status': CableStatusChoices.STATUS_CONNECTED,
         }
 
         url = reverse('dcim-api:cable-detail', kwargs={'pk': self.cable1.pk})

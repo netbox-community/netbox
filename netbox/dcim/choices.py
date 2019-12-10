@@ -923,6 +923,22 @@ class CableTypeChoices(ChoiceSet):
     }
 
 
+class CableStatusChoices(ChoiceSet):
+
+    STATUS_CONNECTED = 'connected'
+    STATUS_PLANNED = 'planned'
+
+    CHOICES = (
+        (STATUS_CONNECTED, 'Connected'),
+        (STATUS_PLANNED, 'Planned'),
+    )
+
+    LEGACY_MAP = {
+        STATUS_CONNECTED: True,
+        STATUS_PLANNED: False,
+    }
+
+
 class CableLengthUnitChoices(ChoiceSet):
 
     UNIT_METER = 'm'

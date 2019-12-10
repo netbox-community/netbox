@@ -3427,7 +3427,7 @@ class CableCSVForm(forms.ModelForm):
 
     # Cable attributes
     status = CSVChoiceField(
-        choices=CONNECTION_STATUS_CHOICES,
+        choices=CableStatusChoices,
         required=False,
         help_text='Connection status'
     )
@@ -3523,7 +3523,7 @@ class CableBulkEditForm(BootstrapMixin, BulkEditForm):
         widget=StaticSelect2()
     )
     status = forms.ChoiceField(
-        choices=add_blank_choice(CONNECTION_STATUS_CHOICES),
+        choices=add_blank_choice(CableStatusChoices),
         required=False,
         widget=StaticSelect2(),
         initial=''
@@ -3597,7 +3597,7 @@ class CableFilterForm(BootstrapMixin, forms.Form):
     )
     status = forms.ChoiceField(
         required=False,
-        choices=add_blank_choice(CONNECTION_STATUS_CHOICES),
+        choices=add_blank_choice(CableStatusChoices),
         widget=StaticSelect2()
     )
     color = forms.CharField(

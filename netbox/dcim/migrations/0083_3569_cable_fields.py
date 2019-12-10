@@ -23,6 +23,11 @@ CABLE_TYPE_CHOICES = (
     (5000, 'power'),
 )
 
+CABLE_STATUS_CHOICES = (
+    (True, 'connected'),
+    (False, 'planned'),
+)
+
 CABLE_LENGTH_UNIT_CHOICES = (
     (1200, 'm'),
     (1100, 'cm'),
@@ -35,6 +40,12 @@ def cable_type_to_slug(apps, schema_editor):
     Cable = apps.get_model('dcim', 'Cable')
     for id, slug in CABLE_TYPE_CHOICES:
         Cable.objects.filter(type=id).update(type=slug)
+
+
+def cable_status_to_slug(apps, schema_editor):
+    Cable = apps.get_model('dcim', 'Cable')
+    for bool, slug in CABLE_STATUS_CHOICES:
+        Cable.objects.filter(status=str(bool)).update(status=slug)
 
 
 def cable_length_unit_to_slug(apps, schema_editor):
@@ -65,6 +76,16 @@ class Migration(migrations.Migration):
             model_name='cable',
             name='type',
             field=models.CharField(blank=True, max_length=50),
+        ),
+
+        # Cable.status
+        migrations.AlterField(
+            model_name='cable',
+            name='status',
+            field=models.CharField(max_length=50),
+        ),
+        migrations.RunPython(
+            code=cable_status_to_slug
         ),
 
         # Cable.length_unit

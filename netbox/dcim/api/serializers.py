@@ -585,7 +585,7 @@ class CableSerializer(ValidatedModelSerializer):
     )
     termination_a = serializers.SerializerMethodField(read_only=True)
     termination_b = serializers.SerializerMethodField(read_only=True)
-    status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, required=False)
+    status = ChoiceField(choices=CableStatusChoices, required=False)
     length_unit = ChoiceField(choices=CableLengthUnitChoices, required=False, allow_null=True)
 
     class Meta:
