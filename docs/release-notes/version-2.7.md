@@ -136,19 +136,25 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 * [#3455](https://github.com/digitalocean/netbox/issues/3455) - Add tenant assignment to cluster
 * [#3564](https://github.com/digitalocean/netbox/issues/3564) - Add list views for device components
 * [#3538](https://github.com/digitalocean/netbox/issues/3538) - Introduce a REST API endpoint for executing custom scripts
+* [#3655](https://github.com/digitalocean/netbox/issues/3655) - Add `description` field to organizational models
 * [#3731](https://github.com/digitalocean/netbox/issues/3731) - Change Graph.type to a ContentType foreign key field
 
 ## API Changes
 
 * Choice fields now use human-friendly strings for their values instead of integers (see [#3569](https://github.com/netbox-community/netbox/issues/3569)).
 * Introduced `/api/extras/scripts/` endpoint for retrieving and executing custom scripts
+* circuits.CircuitType: Added field `description`
 * dcim.ConsolePort: Added field `type`
 * dcim.ConsolePortTemplate: Added field `type`
 * dcim.ConsoleServerPort: Added field `type`
 * dcim.ConsoleServerPortTemplate: Added field `type`
+* dcim.DeviceRole: Added field `description`
 * dcim.PowerPort: Added field `type`
 * dcim.PowerPortTemplate: Added field `type`
 * dcim.PowerOutlet: Added field `type`
 * dcim.PowerOutletTemplate: Added field `type`
+* dcim.RackRole: Added field `description`
 * extras.Graph: The `type` field has been changed to a content type foreign key. Models are specified as `<app>.<model>`; e.g. `dcim.site`.
+* ipam.Role: Added field `description`
+* secrets.SecretRole: Added field `description`
 * virtualization.Cluster: Added field `tenant`

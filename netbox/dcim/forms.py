@@ -412,7 +412,7 @@ class RackRoleForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = RackRole
         fields = [
-            'name', 'slug', 'color',
+            'name', 'slug', 'color', 'description',
         ]
 
 
@@ -1387,7 +1387,7 @@ class DeviceRoleForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = DeviceRole
         fields = [
-            'name', 'slug', 'color', 'vm_role',
+            'name', 'slug', 'color', 'vm_role', 'description',
         ]
 
 

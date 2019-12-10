@@ -272,16 +272,17 @@ class RackGroupTable(BaseTable):
 
 class RackRoleTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(verbose_name='Name')
     rack_count = tables.Column(verbose_name='Racks')
-    color = tables.TemplateColumn(COLOR_LABEL, verbose_name='Color')
-    slug = tables.Column(verbose_name='Slug')
-    actions = tables.TemplateColumn(template_code=RACKROLE_ACTIONS, attrs={'td': {'class': 'text-right noprint'}},
-                                    verbose_name='')
+    color = tables.TemplateColumn(COLOR_LABEL)
+    actions = tables.TemplateColumn(
+        template_code=RACKROLE_ACTIONS,
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = RackRole
-        fields = ('pk', 'name', 'rack_count', 'color', 'slug', 'actions')
+        fields = ('pk', 'name', 'rack_count', 'color', 'description', 'slug', 'actions')
 
 
 #
@@ -614,7 +615,7 @@ class DeviceRoleTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
-        fields = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'slug', 'actions')
+        fields = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description', 'slug', 'actions')
 
 
 #

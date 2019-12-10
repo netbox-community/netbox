@@ -36,7 +36,7 @@ class CircuitTypeSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = CircuitType
-        fields = ['id', 'name', 'slug', 'circuit_count']
+        fields = ['id', 'name', 'slug', 'description', 'circuit_count']
 
 
 class CircuitSerializer(TaggitSerializer, CustomFieldModelSerializer):

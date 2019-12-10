@@ -270,6 +270,10 @@ class SecretRole(ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
+    description = models.CharField(
+        max_length=100,
+        blank=True,
+    )
     users = models.ManyToManyField(
         to=User,
         related_name='secretroles',
@@ -281,7 +285,7 @@ class SecretRole(ChangeLoggedModel):
         blank=True
     )
 
-    csv_headers = ['name', 'slug']
+    csv_headers = ['name', 'slug', 'description']
 
     class Meta:
         ordering = ['name']
@@ -296,6 +300,7 @@ class SecretRole(ChangeLoggedModel):
         return (
             self.name,
             self.slug,
+            self.description,
         )
 
     def has_member(self, user):

@@ -128,7 +128,7 @@ class CircuitTypeForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = CircuitType
         fields = [
-            'name', 'slug',
+            'name', 'slug', 'description',
         ]
 
 

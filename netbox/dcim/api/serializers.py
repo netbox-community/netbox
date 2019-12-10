@@ -108,7 +108,7 @@ class RackRoleSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = RackRole
-        fields = ['id', 'name', 'slug', 'color', 'rack_count']
+        fields = ['id', 'name', 'slug', 'color', 'description', 'rack_count']
 
 
 class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
@@ -301,7 +301,9 @@ class DeviceRoleSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = DeviceRole
-        fields = ['id', 'name', 'slug', 'color', 'vm_role', 'device_count', 'virtualmachine_count']
+        fields = [
+            'id', 'name', 'slug', 'color', 'vm_role', 'description', 'device_count', 'virtualmachine_count',
+        ]
 
 
 class PlatformSerializer(ValidatedModelSerializer):

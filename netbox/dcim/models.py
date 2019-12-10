@@ -433,8 +433,12 @@ class RackRole(ChangeLoggedModel):
         unique=True
     )
     color = ColorField()
+    description = models.CharField(
+        max_length=100,
+        blank=True,
+    )
 
-    csv_headers = ['name', 'slug', 'color']
+    csv_headers = ['name', 'slug', 'color', 'description']
 
     class Meta:
         ordering = ['name']
@@ -450,6 +454,7 @@ class RackRole(ChangeLoggedModel):
             self.name,
             self.slug,
             self.color,
+            self.description,
         )
 
 
@@ -1412,8 +1417,12 @@ class DeviceRole(ChangeLoggedModel):
         verbose_name='VM Role',
         help_text='Virtual machines may be assigned to this role'
     )
+    description = models.CharField(
+        max_length=100,
+        blank=True,
+    )
 
-    csv_headers = ['name', 'slug', 'color', 'vm_role']
+    csv_headers = ['name', 'slug', 'color', 'vm_role', 'description']
 
     class Meta:
         ordering = ['name']
@@ -1427,6 +1436,7 @@ class DeviceRole(ChangeLoggedModel):
             self.slug,
             self.color,
             self.vm_role,
+            self.description,
         )
 
 

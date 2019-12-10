@@ -18,7 +18,7 @@ class SecretRoleSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = SecretRole
-        fields = ['id', 'name', 'slug', 'secret_count']
+        fields = ['id', 'name', 'slug', 'description', 'secret_count']
 
 
 class SecretSerializer(TaggitSerializer, CustomFieldModelSerializer):
