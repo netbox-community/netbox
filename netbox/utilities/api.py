@@ -86,8 +86,9 @@ class ChoiceField(Field):
             ('label', self._choices[obj])
         ])
 
+        # TODO: Remove in v2.8
         # Include legacy numeric ID (where applicable)
-        if type(self.choiceset) is ChoiceSet and obj in self.choiceset.LEGACY_MAP:
+        if hasattr(self.choiceset, 'LEGACY_MAP') and obj in self.choiceset.LEGACY_MAP:
             data['id'] = self.choiceset.LEGACY_MAP.get(obj)
 
         return data
