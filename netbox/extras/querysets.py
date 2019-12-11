@@ -39,8 +39,6 @@ class ConfigContextQuerySet(QuerySet):
         else:
             regions = []
 
-        tags = obj.tags.slugs()
-
         return self.filter(
             Q(regions__in=regions) | Q(regions=None),
             Q(sites=obj.site) | Q(sites=None),
@@ -48,6 +46,6 @@ class ConfigContextQuerySet(QuerySet):
             Q(platforms=obj.platform) | Q(platforms=None),
             Q(tenant_groups=tenant_group) | Q(tenant_groups=None),
             Q(tenants=obj.tenant) | Q(tenants=None),
-            Q(tags__name__in=tags) | Q(tags=None),
+            Q(tags__slug__in=obj.tags.slugs()) | Q(tags=None),
             is_active=True,
         ).order_by('weight', 'name')

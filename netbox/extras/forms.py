@@ -14,7 +14,6 @@ from utilities.forms import (
     BOOLEAN_WITH_BLANK_CHOICES,
 )
 from .choices import *
-from .constants import *
 from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachment, ObjectChange, Tag
 
 
@@ -238,6 +237,14 @@ class TagBulkEditForm(BootstrapMixin, BulkEditForm):
 #
 
 class ConfigContextForm(BootstrapMixin, forms.ModelForm):
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/extras/tags/"
+        )
+    )
     data = JSONField(
         label=''
     )
@@ -267,9 +274,6 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
             'tenants': APISelectMultiple(
                 api_url="/api/tenancy/tenants/"
             ),
-            'tags': APISelectMultiple(
-                api_url="/api/extras/tags/"
-            )
         }
 
 
