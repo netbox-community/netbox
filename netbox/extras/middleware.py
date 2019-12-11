@@ -9,6 +9,7 @@ from django.db.models.signals import pre_delete, post_save
 from django.utils import timezone
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
+from extras.utils import is_taggable
 from utilities.querysets import DummyQuerySet
 from .choices import ObjectChangeActionChoices
 from .models import ObjectChange
@@ -41,7 +42,7 @@ def handle_deleted_object(sender, instance, **kwargs):
     copy = deepcopy(instance)
 
     # Preserve tags
-    if hasattr(instance, 'tags'):
+    if is_taggable(instance):
         copy.tags = DummyQuerySet(instance.tags.all())
 
     # Queue the copy of the object for processing once the request completes

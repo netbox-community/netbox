@@ -6,6 +6,7 @@ from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
 
 from dcim.choices import CableLengthUnitChoices
+from extras.utils import is_taggable
 
 
 def csv_format(data):
@@ -103,7 +104,7 @@ def serialize_object(obj, extra=None):
         }
 
     # Include any tags
-    if hasattr(obj, 'tags'):
+    if is_taggable(obj):
         data['tags'] = [tag.name for tag in obj.tags.all()]
 
     # Append any extra data
@@ -201,7 +202,7 @@ def prepare_cloned_fields(instance):
             params[field_name] = field_value
 
         # Copy tags
-        if hasattr(instance, 'tags'):
+        if is_taggable(instance):
             params['tags'] = ','.join([t.name for t in instance.tags.all()])
 
     # Concatenate parameters into a URL query string
