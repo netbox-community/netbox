@@ -83,6 +83,8 @@ LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
 MAINTENANCE_MODE = getattr(configuration, 'MAINTENANCE_MODE', False)
 MAX_PAGE_SIZE = getattr(configuration, 'MAX_PAGE_SIZE', 1000)
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
+STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
+STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
 NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
@@ -118,6 +120,23 @@ DATABASES = {
     'default': DATABASE,
 }
 
+#
+# Media storage
+#
+
+if STORAGE_BACKEND is not None:
+    DEFAULT_FILE_STORAGE = STORAGE_BACKEND
+
+    if STORAGE_BACKEND.startswith('storages.'):
+        # Monkey-patch Django-storages to also fetch settings from STORAGE_CONFIG
+        import storages.utils
+
+        def _setting(name, default=None):
+            if name in STORAGE_CONFIG:
+                return STORAGE_CONFIG[name]
+            return globals().get(name, default)
+
+        storages.utils.setting = _setting
 
 #
 # Redis

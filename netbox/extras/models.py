@@ -611,11 +611,20 @@ class ImageAttachment(models.Model):
     @property
     def size(self):
         """
-        Wrapper around `image.size` to suppress an OSError in case the file is inaccessible.
+        Wrapper around `image.size` to suppress an OSError in case the file is inaccessible. Also opportunistically
+        catch other exceptions that we know other storage back-ends to throw.
         """
+        expected_exceptions = [OSError]
+
+        try:
+            from botocore.exceptions import ClientError
+            expected_exceptions.append(ClientError)
+        except ImportError:
+            pass
+
         try:
             return self.image.size
-        except OSError:
+        except tuple(expected_exceptions):
             return None
 
 
