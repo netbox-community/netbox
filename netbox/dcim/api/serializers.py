@@ -171,6 +171,16 @@ class RackReservationSerializer(ValidatedModelSerializer):
         fields = ['id', 'rack', 'units', 'created', 'user', 'tenant', 'description']
 
 
+class RackElevationDetailFilterSerializer(serializers.Serializer):
+    face = serializers.ChoiceField(choices=['front', 'rear'], default='front')
+    render_format = serializers.ChoiceField(choices=['json', 'svg'], default='json')
+    width = serializers.IntegerField(default=230)
+    unit_height = serializers.IntegerField(default=20)
+    exclude = serializers.IntegerField(required=False, default=None)
+    q = serializers.CharField(required=False, default=None)
+    expand_devices = serializers.BooleanField(required=False, default=True)
+
+
 #
 # Device types
 #

@@ -526,17 +526,8 @@ class RackElevationHelperMixin:
             # Loop through all units in the elevation
             unit = elevation[unit_cursor]
             device = unit['device']
-            if device:
-                # Look ahead to get the total device height
-                height = 0
-                look_ahead_unit_cursor = unit_cursor
-                while elevation[look_ahead_unit_cursor]['device'] == device and look_ahead_unit_cursor < total_units:
-                    height += 1
-                    look_ahead_unit_cursor += 1
-            else:
-                # Empty unit
-                height = 1
-            
+            height = unit.get('height', 1)
+
             # Setup drawing cordinates
             start_y = unit_cursor * unit_height
             end_y = unit_height * height
@@ -567,13 +558,16 @@ class RackElevationHelperMixin:
 
         return drawing
 
-    def get_rack_units(self, face=DeviceFaceChoices.FACE_FRONT, exclude=None):
+    def get_rack_units(self, face=DeviceFaceChoices.FACE_FRONT, exclude=None, expand_devices=True):
         """
         Return a list of rack units as dictionaries. Example: {'device': None, 'face': 0, 'id': 48, 'name': 'U48'}
         Each key 'device' is either a Device or None. By default, multi-U devices are repeated for each U they occupy.
 
         :param face: Rack face (front or rear)
         :param exclude: PK of a Device to exclude (optional); helpful when relocating a Device within a Rack
+        :param expand_devices: When True, all units that a device occupies will be listed with each containing a
+            reference to the device. When False, only the bottom most unit for a device is included and that unit
+            contains a height attribute for the device
         """
 
         elevation = OrderedDict()
@@ -582,13 +576,29 @@ class RackElevationHelperMixin:
 
         # Add devices to rack units list
         if self.pk:
-            for device in Device.objects.prefetch_related('device_type__manufacturer', 'device_role')\
-                    .annotate(devicebay_count=Count('device_bays'))\
-                    .exclude(pk=exclude)\
-                    .filter(rack=self, position__gt=0)\
-                    .filter(Q(face=face) | Q(device_type__is_full_depth=True)):
-                for u in range(device.position, device.position + device.device_type.u_height):
-                    elevation[u]['device'] = device
+            queryset = Device.objects.prefetch_related(
+                'device_type',
+                'device_type__manufacturer',
+                'device_role'
+            ).annotate(
+                devicebay_count=Count('device_bays')
+            ).exclude(
+                pk=exclude
+            ).filter(
+                rack=self,
+                position__gt=0
+            ).filter(
+                Q(face=face) | Q(device_type__is_full_depth=True)
+            )
+            for device in queryset:
+                if expand_devices:
+                    for u in range(device.position, device.position + device.device_type.u_height):
+                        elevation[u]['device'] = device
+                else:
+                    elevation[device.position]['device'] = device
+                    elevation[device.position]['height'] = device.device_type.u_height
+                    for u in range(device.position + 1, device.position + device.device_type.u_height):
+                        elevation.pop(u, None)
 
         return [u for u in elevation.values()]
 
@@ -646,7 +656,7 @@ class RackElevationHelperMixin:
         :param unit_height: Height of each rack unit for the rendered drawing. Note this is not the total
             height of the elevation
         """
-        elevation = self.get_rack_units(face=face)
+        elevation = self.get_rack_units(face=face, expand_devices=False)
         reserved_units = self.get_reserved_units().keys()
 
         return self._draw_elevations(elevation, reserved_units, face, width, unit_height)

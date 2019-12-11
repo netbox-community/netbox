@@ -176,11 +176,13 @@ class RackViewSet(CustomFieldModelViewSet):
     serializer_class = serializers.RackSerializer
     filterset_class = filters.RackFilter
 
+    @swagger_auto_schema(deprecated=True)
     @action(detail=True)
     def units(self, request, pk=None):
         """
         List rack units (by rack)
         """
+        # TODO: Remove this action detail route in v2.8
         rack = get_object_or_404(Rack, pk=pk)
         face = request.GET.get('face', 'front')
         exclude_pk = request.GET.get('exclude', None)
@@ -201,53 +203,33 @@ class RackViewSet(CustomFieldModelViewSet):
             rack_units = serializers.RackUnitSerializer(page, many=True, context={'request': request})
             return self.get_paginated_response(rack_units.data)
 
-    @swagger_auto_schema(responses={200: serializers.RackUnitSerializer(many=True)})
+    @swagger_auto_schema(
+        responses={200: serializers.RackUnitSerializer(many=True)},
+        query_serializer=serializers.RackElevationDetailFilterSerializer
+    )
     @action(detail=True)
     def elevation(self, request, pk=None):
         """
         Rack elevation representing the list of rack units. Also supports rendering the elevation as an SVG.
         """
         rack = get_object_or_404(Rack, pk=pk)
-        face = request.GET.get('face')
-        if face not in ['front', 'rear']:
-            face = 'front'
+        serializer = serializers.RackElevationDetailFilterSerializer(data=request.GET)
+        if not serializer.is_valid():
+            return Response(serializer.errors, 400)
+        data = serializer.validated_data
 
-        if request.GET.get('render_format', 'json') == 'svg':
-            # Render the elevantion as an SVG
-            width = request.GET.get('width', 230)
-            try:
-                width = int(width)
-            except ValueError:
-                return HttpResponseBadRequest('width must be an integer.')
-
-            unit_height = request.GET.get('unit_height', 20)
-            try:
-                unit_height = int(unit_height)
-            except ValueError:
-                return HttpResponseBadRequest('unit_height must be numeric.')
-
-            drawing = rack.get_elevation_svg(face, width, unit_height)
-
+        if data['render_format'] == 'svg':
+            drawing = rack.get_elevation_svg(data['face'], data['width'], data['unit_height'])
             return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
 
         else:
-            # Render a JSON response of the elevation
-            exclude = request.GET.get('exclude', None)
-            if exclude is not None:
-                try:
-                    if isinstance(exclude, list):
-                        exclude = [int(item) for item in exclude]
-                    else:
-                        exclude = int(exclude)
-                except ValueError:
-                    exclude = None
-
-            elevation = rack.get_rack_units(face, exclude)
-
-            # Enable filtering rack units by ID
-            q = request.GET.get('q', None)
-            if q:
-                elevation = [u for u in elevation if q in str(u['id'])]
+            elevation = rack.get_rack_units(
+                face=data['face'],
+                exclude=data['exclude'],
+                expand_devices=data['expand_devices']
+            )
+            if data['q']:
+                elevation = [u for u in elevation if data['q'] in str(u['id'])]
 
             page = self.paginate_queryset(elevation)
             if page is not None:
