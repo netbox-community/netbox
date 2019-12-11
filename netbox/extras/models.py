@@ -506,11 +506,11 @@ class ExportTemplate(models.Model):
             'queryset': queryset
         }
 
-        if self.template_language == TEMPLATE_LANGUAGE_DJANGO:
+        if self.template_language == ExportTemplateLanguageChoices.LANGUAGE_DJANGO:
             template = Template(self.template_code)
             output = template.render(Context(context))
 
-        elif self.template_language == TEMPLATE_LANGUAGE_JINJA2:
+        elif self.template_language == ExportTemplateLanguageChoices.LANGUAGE_JINJA2:
             template = Environment().from_string(source=self.template_code)
             output = template.render(**context)
 
