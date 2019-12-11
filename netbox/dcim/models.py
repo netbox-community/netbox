@@ -517,8 +517,8 @@ class RackElevationHelperMixin:
         link.add(drawing.rect(start, end, class_=class_))
         link.add(drawing.text("add device", insert=text, class_='add-device'))
 
-    def _draw_elevations(self, elevation, reserved_units, face, width, unit_height):
-        drawing = self._setup_drawing(width, unit_height * self.u_height)
+    def _draw_elevations(self, elevation, reserved_units, face, unit_width, unit_height):
+        drawing = self._setup_drawing(unit_width, unit_height * self.u_height)
 
         unit_cursor = 0
         total_units = len(elevation)
@@ -532,8 +532,8 @@ class RackElevationHelperMixin:
             start_y = unit_cursor * unit_height
             end_y = unit_height * height
             start_cordinates = (0, start_y)
-            end_cordinates = (width, end_y)
-            text_cordinates = (width / 2, start_y + end_y / 2)
+            end_cordinates = (unit_width, end_y)
+            text_cordinates = (unit_width / 2, start_y + end_y / 2)
 
             # Draw the device
             if device and device.face == face:
@@ -554,100 +554,11 @@ class RackElevationHelperMixin:
             unit_cursor += height
 
         # Wrap the drawing with a border
-        drawing.add(drawing.rect((0, 0), (width, self.u_height * unit_height), class_='rack'))
+        drawing.add(drawing.rect((0, 0), (unit_width, self.u_height * unit_height), class_='rack'))
 
         return drawing
 
-    def get_rack_units(self, face=DeviceFaceChoices.FACE_FRONT, exclude=None, expand_devices=True):
-        """
-        Return a list of rack units as dictionaries. Example: {'device': None, 'face': 0, 'id': 48, 'name': 'U48'}
-        Each key 'device' is either a Device or None. By default, multi-U devices are repeated for each U they occupy.
-
-        :param face: Rack face (front or rear)
-        :param exclude: PK of a Device to exclude (optional); helpful when relocating a Device within a Rack
-        :param expand_devices: When True, all units that a device occupies will be listed with each containing a
-            reference to the device. When False, only the bottom most unit for a device is included and that unit
-            contains a height attribute for the device
-        """
-
-        elevation = OrderedDict()
-        for u in self.units:
-            elevation[u] = {'id': u, 'name': 'U{}'.format(u), 'face': face, 'device': None}
-
-        # Add devices to rack units list
-        if self.pk:
-            queryset = Device.objects.prefetch_related(
-                'device_type',
-                'device_type__manufacturer',
-                'device_role'
-            ).annotate(
-                devicebay_count=Count('device_bays')
-            ).exclude(
-                pk=exclude
-            ).filter(
-                rack=self,
-                position__gt=0
-            ).filter(
-                Q(face=face) | Q(device_type__is_full_depth=True)
-            )
-            for device in queryset:
-                if expand_devices:
-                    for u in range(device.position, device.position + device.device_type.u_height):
-                        elevation[u]['device'] = device
-                else:
-                    elevation[device.position]['device'] = device
-                    elevation[device.position]['height'] = device.device_type.u_height
-                    for u in range(device.position + 1, device.position + device.device_type.u_height):
-                        elevation.pop(u, None)
-
-        return [u for u in elevation.values()]
-
-    def get_available_units(self, u_height=1, rack_face=None, exclude=list()):
-        """
-        Return a list of units within the rack available to accommodate a device of a given U height (default 1).
-        Optionally exclude one or more devices when calculating empty units (needed when moving a device from one
-        position to another within a rack).
-
-        :param u_height: Minimum number of contiguous free units required
-        :param rack_face: The face of the rack (front or rear) required; 'None' if device is full depth
-        :param exclude: List of devices IDs to exclude (useful when moving a device within a rack)
-        """
-
-        # Gather all devices which consume U space within the rack
-        devices = self.devices.prefetch_related('device_type').filter(position__gte=1).exclude(pk__in=exclude)
-
-        # Initialize the rack unit skeleton
-        units = list(range(1, self.u_height + 1))
-
-        # Remove units consumed by installed devices
-        for d in devices:
-            if rack_face is None or d.face == rack_face or d.device_type.is_full_depth:
-                for u in range(d.position, d.position + d.device_type.u_height):
-                    try:
-                        units.remove(u)
-                    except ValueError:
-                        # Found overlapping devices in the rack!
-                        pass
-
-        # Remove units without enough space above them to accommodate a device of the specified height
-        available_units = []
-        for u in units:
-            if set(range(u, u + u_height)).issubset(units):
-                available_units.append(u)
-
-        return list(reversed(available_units))
-
-    def get_reserved_units(self):
-        """
-        Return a dictionary mapping all reserved units within the rack to their reservation.
-        """
-        reserved_units = {}
-        for r in self.reservations.all():
-            for u in r.units:
-                reserved_units[u] = r
-        return reserved_units
-
-    def get_elevation_svg(self, face=DeviceFaceChoices.FACE_FRONT, width=230, unit_height=20):
+    def get_elevation_svg(self, face=DeviceFaceChoices.FACE_FRONT, unit_width=230, unit_height=20):
         """
         Return an SVG of the rack elevation
 
@@ -659,7 +570,7 @@ class RackElevationHelperMixin:
         elevation = self.get_rack_units(face=face, expand_devices=False)
         reserved_units = self.get_reserved_units().keys()
 
-        return self._draw_elevations(elevation, reserved_units, face, width, unit_height)
+        return self._draw_elevations(elevation, reserved_units, face, unit_width, unit_height)
 
 
 class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
@@ -880,6 +791,95 @@ class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
 
     def get_status_class(self):
         return self.STATUS_CLASS_MAP.get(self.status)
+
+    def get_rack_units(self, face=DeviceFaceChoices.FACE_FRONT, exclude=None, expand_devices=True):
+        """
+        Return a list of rack units as dictionaries. Example: {'device': None, 'face': 0, 'id': 48, 'name': 'U48'}
+        Each key 'device' is either a Device or None. By default, multi-U devices are repeated for each U they occupy.
+
+        :param face: Rack face (front or rear)
+        :param exclude: PK of a Device to exclude (optional); helpful when relocating a Device within a Rack
+        :param expand_devices: When True, all units that a device occupies will be listed with each containing a
+            reference to the device. When False, only the bottom most unit for a device is included and that unit
+            contains a height attribute for the device
+        """
+
+        elevation = OrderedDict()
+        for u in self.units:
+            elevation[u] = {'id': u, 'name': 'U{}'.format(u), 'face': face, 'device': None}
+
+        # Add devices to rack units list
+        if self.pk:
+            queryset = Device.objects.prefetch_related(
+                'device_type',
+                'device_type__manufacturer',
+                'device_role'
+            ).annotate(
+                devicebay_count=Count('device_bays')
+            ).exclude(
+                pk=exclude
+            ).filter(
+                rack=self,
+                position__gt=0
+            ).filter(
+                Q(face=face) | Q(device_type__is_full_depth=True)
+            )
+            for device in queryset:
+                if expand_devices:
+                    for u in range(device.position, device.position + device.device_type.u_height):
+                        elevation[u]['device'] = device
+                else:
+                    elevation[device.position]['device'] = device
+                    elevation[device.position]['height'] = device.device_type.u_height
+                    for u in range(device.position + 1, device.position + device.device_type.u_height):
+                        elevation.pop(u, None)
+
+        return [u for u in elevation.values()]
+
+    def get_available_units(self, u_height=1, rack_face=None, exclude=list()):
+        """
+        Return a list of units within the rack available to accommodate a device of a given U height (default 1).
+        Optionally exclude one or more devices when calculating empty units (needed when moving a device from one
+        position to another within a rack).
+
+        :param u_height: Minimum number of contiguous free units required
+        :param rack_face: The face of the rack (front or rear) required; 'None' if device is full depth
+        :param exclude: List of devices IDs to exclude (useful when moving a device within a rack)
+        """
+
+        # Gather all devices which consume U space within the rack
+        devices = self.devices.prefetch_related('device_type').filter(position__gte=1).exclude(pk__in=exclude)
+
+        # Initialize the rack unit skeleton
+        units = list(range(1, self.u_height + 1))
+
+        # Remove units consumed by installed devices
+        for d in devices:
+            if rack_face is None or d.face == rack_face or d.device_type.is_full_depth:
+                for u in range(d.position, d.position + d.device_type.u_height):
+                    try:
+                        units.remove(u)
+                    except ValueError:
+                        # Found overlapping devices in the rack!
+                        pass
+
+        # Remove units without enough space above them to accommodate a device of the specified height
+        available_units = []
+        for u in units:
+            if set(range(u, u + u_height)).issubset(units):
+                available_units.append(u)
+
+        return list(reversed(available_units))
+
+    def get_reserved_units(self):
+        """
+        Return a dictionary mapping all reserved units within the rack to their reservation.
+        """
+        reserved_units = {}
+        for r in self.reservations.all():
+            for u in r.units:
+                reserved_units[u] = r
+        return reserved_units
 
     def get_0u_devices(self):
         return self.devices.filter(position=0)

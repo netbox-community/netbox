@@ -110,3 +110,8 @@ text {
     fill: none;
 }
 """
+
+
+# Rack Elevation SVG Size
+RACK_ELEVATION_UNIT_WIDTH_DEFAULT = 230
+RACK_ELEVATION_UNIT_HEIGHT_DEFAULT = 20

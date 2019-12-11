@@ -18,9 +18,9 @@
                             <p><small class="text-muted">{{ rack.facility_id|truncatechars:"30" }}</small></p>
                         </div>
                         {% if face_id %}
-                            {% include 'dcim/inc/rack_elevation.html' with face=1 %}
+                            {% include 'dcim/inc/rack_elevation.html' with face='rear' %}
                         {% else %}
-                            {% include 'dcim/inc/rack_elevation.html' with face=0 %}
+                            {% include 'dcim/inc/rack_elevation.html' with face='front' %}
                         {% endif %}
                         <div class="clearfix"></div>
                         <div class="rack_header">

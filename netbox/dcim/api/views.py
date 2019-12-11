@@ -219,17 +219,17 @@ class RackViewSet(CustomFieldModelViewSet):
         data = serializer.validated_data
 
         if data['render_format'] == 'svg':
-            drawing = rack.get_elevation_svg(data['face'], data['width'], data['unit_height'])
+            # Render and return the elevation as an SVG drawing with the correct content type
+            drawing = rack.get_elevation_svg(data['face'], data['unit_width'], data['unit_height'])
             return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
 
         else:
+            # Return a JSON representation of the rack units in the elevation
             elevation = rack.get_rack_units(
                 face=data['face'],
                 exclude=data['exclude'],
                 expand_devices=data['expand_devices']
             )
-            if data['q']:
-                elevation = [u for u in elevation if data['q'] in str(u['id'])]
 
             page = self.paginate_queryset(elevation)
             if page is not None:
