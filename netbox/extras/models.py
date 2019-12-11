@@ -611,21 +611,20 @@ class ImageAttachment(models.Model):
     @property
     def size(self):
         """
-        Wrapper around `image.size` to suppress an OSError in case the file is inaccessible. When S3 storage is used
-        ClientError is suppressed instead.
+        Wrapper around `image.size` to suppress an OSError in case the file is inaccessible. Also opportunistically
+        catch other exceptions that we know other storage back-ends to throw.
         """
-        from django.conf import settings
-        if settings.MEDIA_STORAGE and settings.MEDIA_STORAGE['BACKEND'] == 'S3':
-            # For S3 we need to handle a different exception
+        expected_exceptions = [OSError]
+
+        try:
             from botocore.exceptions import ClientError
-            try:
-                return self.image.size
-            except ClientError:
-                return None
+            expected_exceptions.append(ClientError)
+        except ImportError:
+            pass
 
         try:
             return self.image.size
-        except OSError:
+        except tuple(expected_exceptions):
             return None
 
 
