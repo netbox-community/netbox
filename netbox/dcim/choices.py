@@ -232,7 +232,6 @@ class ConsolePortTypeChoices(ChoiceSet):
 
 class PowerPortTypeChoices(ChoiceSet):
 
-    # TODO: Add more power port types
     # IEC 60320
     TYPE_IEC_C6 = 'iec-60320-c6'
     TYPE_IEC_C8 = 'iec-60320-c8'
@@ -347,7 +346,6 @@ class PowerPortTypeChoices(ChoiceSet):
 
 class PowerOutletTypeChoices(ChoiceSet):
 
-    # TODO: Add more power outlet types
     # IEC 60320
     TYPE_IEC_C5 = 'iec-60320-c5'
     TYPE_IEC_C7 = 'iec-60320-c7'
