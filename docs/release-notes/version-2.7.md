@@ -109,7 +109,7 @@ deprecated and will be removed in v2.8 (see [#3753](https://github.com/netbox-co
 /api/dcim/racks/<id>/units/
 ```
 
-In order to render the elevation as an SVG, include the `render_format=svg` query parameter in the request. You may also
+In order to render the elevation as an SVG, include the `render=svg` query parameter in the request. You may also
 control the width of the elevation drawing in pixels with `unit_width=<width in pixels>` and the height of each rack
 unit with `unit_height=<height in pixels>`. The `unit_width` defaults to `230` and the `unit_height` default to `20`
 which produces elevations the same size as those that appear in the NetBox Web UI. The query parameter `face` is used to
@@ -119,14 +119,14 @@ Here is an example of the request url for an SVG rendering using the default par
 elevation:
 
 ```
-/api/dcim/racks/<id>/elevation/?render_format=svg
+/api/dcim/racks/<id>/elevation/?render=svg
 ```
 
 Here is an example of the request url for an SVG rendering of the rear of the elevation having a width of 300 pixels and
 per unit height of 35 pixels:
 
 ```
-/api/dcim/racks/<id>/elevation/?render_format=svg&face=rear&unit_width=300&unit_height=35
+/api/dcim/racks/<id>/elevation/?render=svg&face=rear&unit_width=300&unit_height=35
 ```
 
 Thanks to [@hellerve](https://github.com/hellerve) for doing the heavy lifting on this!

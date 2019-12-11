@@ -218,7 +218,7 @@ class RackViewSet(CustomFieldModelViewSet):
             return Response(serializer.errors, 400)
         data = serializer.validated_data
 
-        if data['render_format'] == 'svg':
+        if data['render'] == 'svg':
             # Render and return the elevation as an SVG drawing with the correct content type
             drawing = rack.get_elevation_svg(data['face'], data['unit_width'], data['unit_height'])
             return HttpResponse(drawing.tostring(), content_type='image/svg+xml')

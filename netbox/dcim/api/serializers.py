@@ -176,9 +176,9 @@ class RackElevationDetailFilterSerializer(serializers.Serializer):
         choices=DeviceFaceChoices,
         default=DeviceFaceChoices.FACE_FRONT
     )
-    render_format = serializers.ChoiceField(
-        choices=RackElevationDetailRenderFormatChoices,
-        default=RackElevationDetailRenderFormatChoices.RENDER_FORMAT_JSON
+    render = serializers.ChoiceField(
+        choices=RackElevationDetailRenderChoices,
+        default=RackElevationDetailRenderChoices.RENDER_JSON
     )
     unit_width = serializers.IntegerField(
         default=RACK_ELEVATION_UNIT_WIDTH_DEFAULT
