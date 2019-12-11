@@ -1,16 +1,15 @@
 # v2.7.0 (FUTURE)
 
-!!! warning
-    NetBox v2.7 is the last major release that will support Python 3.5. Beginning with NetBox v2.8, Python 3.6 or higher
-    will be required.
+**Note:** NetBox v2.7 is the last major release that will support Python 3.5. Beginning with NetBox v2.8, Python 3.6 or
+higher will be required.
 
 ## New Features
 
 ### Enhanced Device Type Import ([#451](https://github.com/netbox-community/netbox/issues/451))
 
-NetBox now supports the import of device types and related component templates using a YAML- or JSON-based definition.
-For example, the following will create a new device type with four network interfaces, two power ports, and a console
-port:
+NetBox now supports the import of device types and related component templates using a definition written in YAML or
+JSON. For example, the following will create a new device type with four network interfaces, two power ports, and a
+console port:
 
 ```yaml
 manufacturer: Acme
@@ -37,14 +36,24 @@ This new functionality replaces the existing CSV-based import form, which did no
 
 ### Bulk Import of Device Components ([#822](https://github.com/netbox-community/netbox/issues/822))
 
-NetBox now supports the bulk import of device components such as console ports, power ports, and interfaces. Device
-components can be imported in CSV-format.
+NetBox now supports the bulk import of device components such as console ports, power ports, and interfaces across
+multiple devices. Device components can be imported in CSV-format.
+
+Here's an example bulk import of interfaces to several devices:
+
+```
+device,name,type
+Switch1,Vlan100,Virtual
+Switch1,Vlan200,Virtual
+Switch2,Vlan100,Virtual
+Switch2,Vlan200,Virtual
+```
 
 ### External File Storage ([#1814](https://github.com/netbox-community/netbox/issues/1814))
 
-In prior releases, the only option for storing uploaded file (e.g. image attachments) was to save them to the local
-filesystem on the NetBox server. This release introduces support for several remote storage backends via the
-[`django-storages`](https://django-storages.readthedocs.io/en/stable/) package. These include:
+In prior releases, the only option for storing uploaded files (e.g. image attachments) was to save them to the local
+filesystem on the NetBox server. This release introduces support for several remote storage backends provided by the
+[`django-storages`](https://django-storages.readthedocs.io/en/stable/) library. These include:
 
 * Amazon S3
 * ApacheLibcloud
@@ -74,11 +83,17 @@ STORAGE_CONFIG = {
 }
 ```
 
+Thanks to [@steffann](https://github.com/steffann) for contributing this work!
+
 ## Changes
 
 ### Rack Elevations Rendered via SVG ([#2248](https://github.com/netbox-community/netbox/issues/2248))
 
-v2.7.0 introduces a new method of rendering rack elevations as an [SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics) via a REST API endpoint. This replaces the prior method of rendering elevations using pure HTML which was cumbersome and had several shortcomings. Allowing elevations to be rendered as an SVG in the API allows users to retrieve and make use of the drawings in their own tooling. This also opens the door to other feature requests related to rack elevations in the NetBox backlog.
+NetBox v2.7 introduces a new method of rendering rack elevations as an
+[SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics) via a REST API endpoint. This replaces the prior method of
+rendering elevations using pure HTML which was cumbersome and had several shortcomings. Allowing elevations to be
+rendered as an SVG image in the API allows users to retrieve and make use of the drawings in their own tooling. This
+also opens the door to other feature requests related to rack elevations in the NetBox backlog.
 
 This feature implements a new REST API endpoint:
 
@@ -86,21 +101,29 @@ This feature implements a new REST API endpoint:
 /api/dcim/racks/<id>/elevation/
 ```
 
-By default, this endpoint returns a paginated JSON response representing each rack unit in the given elevation. This is the same response returned by the rack units detail endpoint and for this reason the rack units endpoint has been deprecated and will be removed in v2.8 (see [#3753](https://github.com/netbox-community/netbox/issues/3753)):
+By default, this endpoint returns a paginated JSON response representing each rack unit in the given elevation. This is
+the same response returned by the rack units detail endpoint and for this reason the rack units endpoint has been
+deprecated and will be removed in v2.8 (see [#3753](https://github.com/netbox-community/netbox/issues/3753)):
 
 ```
 /api/dcim/racks/<id>/units/
 ```
 
-In order to render the elevation as an SVG, include the `render_format=svg` query parameter in the request. You may also control the width of the elevation drawing in pixels with `unit_width=<width in pixels>` and the height of each rack unit with `unit_height=<height in pixels>`. The `unit_width` defaults to `230` and the `unit_height` default to `20` which produces elevations the same size as those that appear in the NetBox Web UI. The query parameter `face` is used to request either the `front` or `rear` of the elevation and defaults to `front`.
+In order to render the elevation as an SVG, include the `render_format=svg` query parameter in the request. You may also
+control the width of the elevation drawing in pixels with `unit_width=<width in pixels>` and the height of each rack
+unit with `unit_height=<height in pixels>`. The `unit_width` defaults to `230` and the `unit_height` default to `20`
+which produces elevations the same size as those that appear in the NetBox Web UI. The query parameter `face` is used to
+request either the `front` or `rear` of the elevation and defaults to `front`.
 
-Here is an example of the request url for an SVG rendering using the default parameters to render the front of the elevation:
+Here is an example of the request url for an SVG rendering using the default parameters to render the front of the
+elevation:
 
 ```
 /api/dcim/racks/<id>/elevation/?render_format=svg
 ```
 
-Here is an example of the request url for an SVG rendering of the rear of the elevation having a width of 300 pixels and per unit height of 35 pixels:
+Here is an example of the request url for an SVG rendering of the rear of the elevation having a width of 300 pixels and
+per unit height of 35 pixels:
 
 ```
 /api/dcim/racks/<id>/elevation/?render_format=svg&face=rear&unit_width=300&unit_height=35
@@ -116,8 +139,8 @@ The topology maps feature has been removed to help focus NetBox development effo
 
 v2.6.0 introduced caching and added the `CACHE_DATABASE` option to the existing `REDIS` database configuration section.
 This did not however, allow for using two different Redis connections for the seperate caching and webhooks features.
-This change separates the Redis connection configurations in the `REDIS` section into distinct `webhooks` and `caching` subsections.
-This requires modification of the `REDIS` section of the `configuration.py` file as follows:
+This change separates the Redis connection configurations in the `REDIS` section into distinct `webhooks` and `caching`
+subsections. This requires modification of the `REDIS` section of the `configuration.py` file as follows:
 
 Old Redis configuration:
 ```python
@@ -205,14 +228,16 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 * [#2902](https://github.com/digitalocean/netbox/issues/2902) - Replace `supervisord` with `systemd`
 * [#3455](https://github.com/digitalocean/netbox/issues/3455) - Add tenant assignment to cluster
 * [#3564](https://github.com/digitalocean/netbox/issues/3564) - Add list views for device components
-* [#3538](https://github.com/digitalocean/netbox/issues/3538) - Introduce a REST API endpoint for executing custom scripts
+* [#3538](https://github.com/digitalocean/netbox/issues/3538) - Introduce a REST API endpoint for executing custom
+  scripts
 * [#3655](https://github.com/digitalocean/netbox/issues/3655) - Add `description` field to organizational models
 * [#3664](https://github.com/digitalocean/netbox/issues/3664) - Enable applying configuration contexts by tags
 * [#3731](https://github.com/digitalocean/netbox/issues/3731) - Change Graph.type to a ContentType foreign key field
 
 ## API Changes
 
-* Choice fields now use human-friendly strings for their values instead of integers (see [#3569](https://github.com/netbox-community/netbox/issues/3569)).
+* Choice fields now use human-friendly strings for their values instead of integers (see
+  [#3569](https://github.com/netbox-community/netbox/issues/3569)).
 * Introduced `/api/extras/scripts/` endpoint for retrieving and executing custom scripts
 * circuits.CircuitType: Added field `description`
 * dcim.ConsolePort: Added field `type`
@@ -225,7 +250,8 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 * dcim.PowerOutlet: Added field `type`
 * dcim.PowerOutletTemplate: Added field `type`
 * dcim.RackRole: Added field `description`
-* extras.Graph: The `type` field has been changed to a content type foreign key. Models are specified as `<app>.<model>`; e.g. `dcim.site`.
+* extras.Graph: The `type` field has been changed to a content type foreign key. Models are specified as
+  `<app>.<model>`; e.g. `dcim.site`.
 * ipam.Role: Added field `description`
 * secrets.SecretRole: Added field `description`
 * virtualization.Cluster: Added field `tenant`
