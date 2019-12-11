@@ -38,6 +38,28 @@ components can be imported in CSV-format.
 
 ## Changes
 
+### Rack Elevations Rendered via SVG ([#2248](https://github.com/netbox-community/netbox/issues/2248))
+
+v2.7.0 introduces a new method of rendering rack elevations as an [SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics) via a REST API endpoint. This replaces the prior method of rendering elevations using pure HTML which was cumbersome and had several shortcomings. Allowing elevations to be rendered as an SVG in the API allows users to retrieve and make use of the drawings in their own tooling. This also opens the door to other feature requests related to rack elevations in the NetBox backlog.
+
+This feature implements a new REST API endpoint:
+
+```
+/api/dcim/racks/<id>/elevation/
+```
+
+By default, this endpoint returns a paginated JSON response representing each rack unit in the given elevation. This is the same response returned by the rack units detail endpoint and for this reason the rack units endpoint has been deprecated and will be removed in v2.8:
+
+```
+/api/dcim/racks/<id>/units/
+```
+
+All internal use of the rack units endpoint has been updated to use the new rack elevation endpoint.
+
+In order to render the elevation as an SVG, include the `render_format=svg` query parameter in the request. You may also control the width of the elevation drawing in pixels with `width=<width in pixels>` and the height of each rack unit with `unit_height=<height in pixels>`. The `width` defaults to `230` and the `unit_height` default to `20` which produces elevations the same size as those that appear in the NetBox Web UI. The query parameter `face` is used to request either the `front` or `rear` of the elevation and defaults to `front`.
+
+Thanks to [@hellerve](https://github.com/hellerve) for doing the heavy lifting on this!
+
 ### Topology Maps Removed ([#2745](https://github.com/netbox-community/netbox/issues/2745))
 
 The topology maps feature has been removed to help focus NetBox development efforts.
