@@ -157,7 +157,7 @@ class RackUnitSerializer(serializers.Serializer):
     """
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(read_only=True)
-    face = serializers.IntegerField(read_only=True)
+    face = ChoiceField(choices=DeviceFaceChoices, read_only=True)
     device = NestedDeviceSerializer(read_only=True)
 
 
@@ -169,6 +169,18 @@ class RackReservationSerializer(ValidatedModelSerializer):
     class Meta:
         model = RackReservation
         fields = ['id', 'rack', 'units', 'created', 'user', 'tenant', 'description']
+
+
+class RackElevationDetailFilterSerializer(serializers.Serializer):
+    face = serializers.ChoiceField(choices=DeviceFaceChoices, default=DeviceFaceChoices.FACE_FRONT)
+    render_format = serializers.ChoiceField(
+        choices=RackElecationDetailRenderFormatChoices,
+        default=RackElecationDetailRenderFormatChoices.RENDER_FORMAT_SVG
+    )
+    unit_width = serializers.IntegerField(default=RACK_ELEVATION_UNIT_WIDTH_DEFAULT)
+    unit_height = serializers.IntegerField(default=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT)
+    exclude = serializers.IntegerField(required=False, default=None)
+    expand_devices = serializers.BooleanField(required=False, default=True)
 
 
 #

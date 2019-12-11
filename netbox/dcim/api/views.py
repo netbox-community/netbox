@@ -2,8 +2,8 @@ from collections import OrderedDict
 
 from django.conf import settings
 from django.db.models import Count, F
-from django.http import HttpResponseForbidden
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponseForbidden, HttpResponseBadRequest, HttpResponse
+from django.shortcuts import get_object_or_404, reverse
 from drf_yasg import openapi
 from drf_yasg.openapi import Parameter
 from drf_yasg.utils import swagger_auto_schema
@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ViewSet
 
 from circuits.models import Circuit
-from dcim import filters
+from dcim import constants, filters
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
@@ -28,6 +28,7 @@ from ipam.models import Prefix, VLAN
 from utilities.api import (
     get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, FieldChoicesViewSet, ModelViewSet, ServiceUnavailable,
 )
+from utilities.custom_inspectors import NullablePaginatorInspector
 from utilities.utils import get_subquery
 from virtualization.models import VirtualMachine
 from . import serializers
@@ -175,13 +176,15 @@ class RackViewSet(CustomFieldModelViewSet):
     serializer_class = serializers.RackSerializer
     filterset_class = filters.RackFilter
 
+    @swagger_auto_schema(deprecated=True)
     @action(detail=True)
     def units(self, request, pk=None):
         """
         List rack units (by rack)
         """
+        # TODO: Remove this action detail route in v2.8
         rack = get_object_or_404(Rack, pk=pk)
-        face = request.GET.get('face', 0)
+        face = request.GET.get('face', 'front')
         exclude_pk = request.GET.get('exclude', None)
         if exclude_pk is not None:
             try:
@@ -199,6 +202,39 @@ class RackViewSet(CustomFieldModelViewSet):
         if page is not None:
             rack_units = serializers.RackUnitSerializer(page, many=True, context={'request': request})
             return self.get_paginated_response(rack_units.data)
+
+    @swagger_auto_schema(
+        responses={200: serializers.RackUnitSerializer(many=True)},
+        query_serializer=serializers.RackElevationDetailFilterSerializer
+    )
+    @action(detail=True)
+    def elevation(self, request, pk=None):
+        """
+        Rack elevation representing the list of rack units. Also supports rendering the elevation as an SVG.
+        """
+        rack = get_object_or_404(Rack, pk=pk)
+        serializer = serializers.RackElevationDetailFilterSerializer(data=request.GET)
+        if not serializer.is_valid():
+            return Response(serializer.errors, 400)
+        data = serializer.validated_data
+
+        if data['render_format'] == 'svg':
+            # Render and return the elevation as an SVG drawing with the correct content type
+            drawing = rack.get_elevation_svg(data['face'], data['unit_width'], data['unit_height'])
+            return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
+
+        else:
+            # Return a JSON representation of the rack units in the elevation
+            elevation = rack.get_rack_units(
+                face=data['face'],
+                exclude=data['exclude'],
+                expand_devices=data['expand_devices']
+            )
+
+            page = self.paginate_queryset(elevation)
+            if page is not None:
+                rack_units = serializers.RackUnitSerializer(page, many=True, context={'request': request})
+                return self.get_paginated_response(rack_units.data)
 
 
 #

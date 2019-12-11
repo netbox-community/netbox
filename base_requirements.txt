@@ -82,3 +82,7 @@ pycryptodome
 # In-memory key/value store used for caching and queuing
 # https://github.com/andymccurdy/redis-py
 redis
+
+# Python Package to write SVG files - used for rack elevations
+# https://github.com/mozman/svgwrite
+svgwrite

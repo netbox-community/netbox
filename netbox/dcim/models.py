@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from itertools import count, groupby
 
+import svgwrite
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -11,6 +12,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Q, Sum
 from django.urls import reverse
+from django.utils.http import urlencode
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
@@ -19,7 +21,8 @@ from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, Ta
 from utilities.fields import ColorField
 from utilities.managers import NaturalOrderingManager
 from utilities.models import ChangeLoggedModel
-from utilities.utils import serialize_object, to_meters
+from utilities.utils import foreground_color, serialize_object, to_meters
+
 from .choices import *
 from .constants import *
 from .exceptions import LoopDetected
@@ -458,7 +461,126 @@ class RackRole(ChangeLoggedModel):
         )
 
 
-class Rack(ChangeLoggedModel, CustomFieldModel):
+class RackElevationHelperMixin:
+    """
+    Utility class that renders rack elevations. Contains helper methods for rendering elevations as a list of
+    rack units represented as dictionaries, or an SVG of the elevation.
+    """
+
+    @staticmethod
+    def _add_gradient(drawing, id_, color):
+        gradient = drawing.linearGradient(
+            start=('0', '20%'),
+            end=('0', '40%'),
+            spreadMethod='repeat',
+            id_=id_,
+            gradientTransform='rotate(80)'
+        )
+        gradient.add_stop_color(offset='0%', color='#f7f7f7')
+        gradient.add_stop_color(offset='50%', color='#f7f7f7')
+        gradient.add_stop_color(offset='50%', color=color)
+        gradient.add_stop_color(offset='100%', color=color)
+        drawing.defs.add(gradient)
+
+    @staticmethod
+    def _setup_drawing(width, height):
+        drawing = svgwrite.Drawing(size=(width, height))
+
+        # add the stylesheet
+        drawing.defs.add(drawing.style(RACK_ELEVATION_STYLE))
+
+        # add gradients
+        RackElevationHelperMixin._add_gradient(drawing, 'reserved', '#c7c7ff')
+        RackElevationHelperMixin._add_gradient(drawing, 'occupied', '#f0f0f0')
+        RackElevationHelperMixin._add_gradient(drawing, 'blocked', '#ffc7c7')
+
+        return drawing
+
+    @staticmethod
+    def _draw_device_front(drawing, device, start, end, text):
+        color = device.device_role.color
+        link = drawing.add(
+            drawing.a(
+                reverse('dcim:device', kwargs={'pk': device.pk}), fill='black'
+            )
+        )
+        link.add(drawing.rect(start, end, fill='#{}'.format(color)))
+        hex_color = '#{}'.format(foreground_color(color))
+        link.add(drawing.text(device.name, insert=text, fill=hex_color))
+
+    @staticmethod
+    def _draw_device_rear(drawing, device, start, end, text):
+        drawing.add(drawing.rect(start, end, class_="blocked"))
+        drawing.add(drawing.text(device.name, insert=text))
+
+    @staticmethod
+    def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_):
+        link = drawing.add(
+            drawing.a('{}?{}'.format(
+                reverse('dcim:device_add'),
+                urlencode({'rack': rack.pk, 'site': rack.site.pk, 'face': face_id, 'position': id_})
+            ))
+        )
+        link.add(drawing.rect(start, end, class_=class_))
+        link.add(drawing.text("add device", insert=text, class_='add-device'))
+
+    def _draw_elevations(self, elevation, reserved_units, face, unit_width, unit_height):
+        drawing = self._setup_drawing(unit_width, unit_height * self.u_height)
+
+        unit_cursor = 0
+        total_units = len(elevation)
+        while unit_cursor < total_units:
+            # Loop through all units in the elevation
+            unit = elevation[unit_cursor]
+            device = unit['device']
+            height = unit.get('height', 1)
+
+            # Setup drawing cordinates
+            start_y = unit_cursor * unit_height
+            end_y = unit_height * height
+            start_cordinates = (0, start_y)
+            end_cordinates = (unit_width, end_y)
+            text_cordinates = (unit_width / 2, start_y + end_y / 2)
+
+            # Draw the device
+            if device and device.face == face:
+                self._draw_device_front(drawing, device, start_cordinates, end_cordinates, text_cordinates)
+            elif device and device.device_type.is_full_depth:
+                self._draw_device_rear(drawing, device, start_cordinates, end_cordinates, text_cordinates)
+            else:
+                # Draw shallow devices, reservations, or empty units
+                class_ = 'slot'
+                if device:
+                    class_ += ' occupied'
+                if unit["id"] in reserved_units:
+                    class_ += ' reserved'
+                self._draw_empty(
+                    drawing, self, start_cordinates, end_cordinates, text_cordinates, unit["id"], face, class_
+                )
+
+            unit_cursor += height
+
+        # Wrap the drawing with a border
+        drawing.add(drawing.rect((0, 0), (unit_width, self.u_height * unit_height), class_='rack'))
+
+        return drawing
+
+    def get_elevation_svg(self, face=DeviceFaceChoices.FACE_FRONT, unit_width=230, unit_height=20):
+        """
+        Return an SVG of the rack elevation
+
+        :param face: Enum of [front, rear] representing the desired side of the rack elevation to render
+        :param width: Width in pixles for the rendered drawing
+        :param unit_height: Height of each rack unit for the rendered drawing. Note this is not the total
+            height of the elevation
+        """
+        elevation = self.get_rack_units(face=face, expand_devices=False)
+        reserved_units = self.get_reserved_units().keys()
+
+        return self._draw_elevations(elevation, reserved_units, face, unit_width, unit_height)
+
+
+class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a RackGroup.
@@ -677,14 +799,16 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def get_status_class(self):
         return self.STATUS_CLASS_MAP.get(self.status)
 
-    def get_rack_units(self, face=DeviceFaceChoices.FACE_FRONT, exclude=None, remove_redundant=False):
+    def get_rack_units(self, face=DeviceFaceChoices.FACE_FRONT, exclude=None, expand_devices=True):
         """
         Return a list of rack units as dictionaries. Example: {'device': None, 'face': 0, 'id': 48, 'name': 'U48'}
         Each key 'device' is either a Device or None. By default, multi-U devices are repeated for each U they occupy.
 
         :param face: Rack face (front or rear)
         :param exclude: PK of a Device to exclude (optional); helpful when relocating a Device within a Rack
-        :param remove_redundant: If True, rack units occupied by a device already listed will be omitted
+        :param expand_devices: When True, all units that a device occupies will be listed with each containing a
+            reference to the device. When False, only the bottom most unit for a device is included and that unit
+            contains a height attribute for the device
         """
 
         elevation = OrderedDict()
@@ -693,26 +817,31 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         # Add devices to rack units list
         if self.pk:
-            for device in Device.objects.prefetch_related('device_type__manufacturer', 'device_role')\
-                    .annotate(devicebay_count=Count('device_bays'))\
-                    .exclude(pk=exclude)\
-                    .filter(rack=self, position__gt=0)\
-                    .filter(Q(face=face) | Q(device_type__is_full_depth=True)):
-                if remove_redundant:
-                    elevation[device.position]['device'] = device
-                    for u in range(device.position + 1, device.position + device.device_type.u_height):
-                        elevation.pop(u, None)
-                else:
+            queryset = Device.objects.prefetch_related(
+                'device_type',
+                'device_type__manufacturer',
+                'device_role'
+            ).annotate(
+                devicebay_count=Count('device_bays')
+            ).exclude(
+                pk=exclude
+            ).filter(
+                rack=self,
+                position__gt=0
+            ).filter(
+                Q(face=face) | Q(device_type__is_full_depth=True)
+            )
+            for device in queryset:
+                if expand_devices:
                     for u in range(device.position, device.position + device.device_type.u_height):
                         elevation[u]['device'] = device
+                else:
+                    elevation[device.position]['device'] = device
+                    elevation[device.position]['height'] = device.device_type.u_height
+                    for u in range(device.position + 1, device.position + device.device_type.u_height):
+                        elevation.pop(u, None)
 
         return [u for u in elevation.values()]
-
-    def get_front_elevation(self):
-        return self.get_rack_units(face=DeviceFaceChoices.FACE_FRONT, remove_redundant=True)
-
-    def get_rear_elevation(self):
-        return self.get_rack_units(face=DeviceFaceChoices.FACE_REAR, remove_redundant=True)
 
     def get_available_units(self, u_height=1, rack_face=None, exclude=list()):
         """

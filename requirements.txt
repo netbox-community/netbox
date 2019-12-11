@@ -20,3 +20,4 @@ psycopg2-binary==2.8.4
 py-gfm==0.1.4
 pycryptodome==3.9.4
 redis==3.3.11
+svgwrite==1.1.9

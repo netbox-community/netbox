@@ -105,6 +105,17 @@ class RackDimensionUnitChoices(ChoiceSet):
     }
 
 
+class RackElecationDetailRenderFormatChoices(ChoiceSet):
+
+    RENDER_FORMAT_JSON = 'json'
+    RENDER_FORMAT_SVG = 'svg'
+
+    CHOICES = (
+        (RENDER_FORMAT_JSON, 'json'),
+        (RENDER_FORMAT_SVG, 'svg')
+    )
+
+
 #
 # DeviceTypes
 #

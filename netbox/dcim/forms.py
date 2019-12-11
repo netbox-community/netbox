@@ -1475,7 +1475,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         empty_value=None,
         help_text="The lowest-numbered unit occupied by the device",
         widget=APISelect(
-            api_url='/api/dcim/racks/{{rack}}/units/',
+            api_url='/api/dcim/racks/{{rack}}/elevation/',
             disabled_indicator='device'
         )
     )
