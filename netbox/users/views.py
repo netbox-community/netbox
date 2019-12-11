@@ -96,7 +96,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
 
     def get(self, request):
         # LDAP users cannot change their password here
-        if getattr(request.user, 'ldap_username'):
+        if getattr(request.user, 'ldap_username', None):
             messages.warning(request, "LDAP-authenticated user credentials cannot be changed within NetBox.")
             return redirect('user:profile')
 
