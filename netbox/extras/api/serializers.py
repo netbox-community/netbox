@@ -173,9 +173,9 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         required=False,
         many=True
     )
-    tags = SerializedPKRelatedField(
+    tags = serializers.SlugRelatedField(
         queryset=Tag.objects.all(),
-        serializer=TagSerializer,
+        slug_field='slug',
         required=False,
         many=True
     )
