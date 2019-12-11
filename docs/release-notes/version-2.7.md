@@ -207,6 +207,7 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 * [#3564](https://github.com/digitalocean/netbox/issues/3564) - Add list views for device components
 * [#3538](https://github.com/digitalocean/netbox/issues/3538) - Introduce a REST API endpoint for executing custom scripts
 * [#3655](https://github.com/digitalocean/netbox/issues/3655) - Add `description` field to organizational models
+* [#3664](https://github.com/digitalocean/netbox/issues/3664) - Enable applying configuration contexts by tags
 * [#3731](https://github.com/digitalocean/netbox/issues/3731) - Change Graph.type to a ContentType foreign key field
 
 ## API Changes
