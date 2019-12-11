@@ -293,6 +293,26 @@ Session data is used to track authenticated users when they access NetBox. By de
 
 ---
 
+## STORAGE_BACKEND
+
+Default: None (local storage)
+
+The backend storage engine for handling uploaded files (e.g. image attachments). NetBox supports integration with the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) package, which provides backends for several popular file storage services. If not configured, local filesystem storage will be used.
+
+The configuration parameters for the specified storage backend are defined under the `STORAGE_CONFIG` setting.
+
+---
+
+## STORAGE_CONFIG
+
+Default: Empty
+
+A dictionary of configuration parameters for the storage backend configured as `STORAGE_BACKEND`. The specific parameters to be used here are specific to each backend; see the [`django-storages` documentation](https://django-storages.readthedocs.io/en/stable/) for more detail.
+
+If `STORAGE_BACKEND` is not defined, this setting will be ignored.
+
+---
+
 ## TIME_ZONE
 
 Default: UTC

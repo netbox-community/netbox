@@ -40,6 +40,40 @@ This new functionality replaces the existing CSV-based import form, which did no
 NetBox now supports the bulk import of device components such as console ports, power ports, and interfaces. Device
 components can be imported in CSV-format.
 
+### External File Storage ([#1814](https://github.com/netbox-community/netbox/issues/1814))
+
+In prior releases, the only option for storing uploaded file (e.g. image attachments) was to save them to the local
+filesystem on the NetBox server. This release introduces support for several remote storage backends via the
+[`django-storages`](https://django-storages.readthedocs.io/en/stable/) package. These include:
+
+* Amazon S3
+* ApacheLibcloud
+* Azure Storage
+* DigitalOcean Spaces
+* Dropbox
+* FTP
+* Google Cloud Storage
+* SFTP
+
+To enable remote file storage, first install `django-storages`:
+
+```
+pip install django-storages
+```
+
+Then, set the appropriate storage backend and its configuration in `configuration.py`. Here's an example using Amazon
+S3:
+
+```python
+STORAGE_BACKEND = 'storages.backends.s3boto3.S3Boto3Storage'
+STORAGE_CONFIG = {
+    'AWS_ACCESS_KEY_ID': '<Key>',
+    'AWS_SECRET_ACCESS_KEY': '<Secret>',
+    'AWS_STORAGE_BUCKET_NAME': 'netbox',
+    'AWS_S3_REGION_NAME': 'eu-west-1',
+}
+```
+
 ## Changes
 
 ### Topology Maps Removed ([#2745](https://github.com/netbox-community/netbox/issues/2745))
