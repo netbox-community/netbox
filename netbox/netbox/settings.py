@@ -120,6 +120,7 @@ DATABASES = {
     'default': DATABASE,
 }
 
+
 #
 # Media storage
 #
@@ -127,16 +128,30 @@ DATABASES = {
 if STORAGE_BACKEND is not None:
     DEFAULT_FILE_STORAGE = STORAGE_BACKEND
 
+    # django-storages
     if STORAGE_BACKEND.startswith('storages.'):
-        # Monkey-patch Django-storages to also fetch settings from STORAGE_CONFIG
-        import storages.utils
 
+        try:
+            import storages.utils
+        except ImportError:
+            raise ImproperlyConfigured(
+                "STORAGE_BACKEND is set to {} but django-storages is not present. It can be installed by running 'pip "
+                "install django-storages'.".format(STORAGE_BACKEND)
+            )
+
+        # Monkey-patch django-storages to fetch settings from STORAGE_CONFIG
         def _setting(name, default=None):
             if name in STORAGE_CONFIG:
                 return STORAGE_CONFIG[name]
             return globals().get(name, default)
-
         storages.utils.setting = _setting
+
+if STORAGE_CONFIG and STORAGE_BACKEND is None:
+    warnings.warn(
+        "STORAGE_CONFIG has been set in configuration.py but STORAGE_BACKEND is not defined. STORAGE_CONFIG will be "
+        "ignored."
+    )
+
 
 #
 # Redis
