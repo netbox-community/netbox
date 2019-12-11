@@ -432,7 +432,7 @@ class CSVChoiceField(forms.ChoiceField):
     def clean(self, value):
         value = super().clean(value)
         if not value:
-            return None
+            return ''
         if value not in self.choice_values:
             raise forms.ValidationError("Invalid choice: {}".format(value))
         return self.choice_values[value]
