@@ -144,7 +144,7 @@ class ObjectListView(View):
             table.columns.show('pk')
 
         # Construct queryset for tags list
-        if hasattr(model, 'tags'):
+        if hasattr(model, 'tags') and type(model.tags).__name__ is not 'ManyToManyDescriptor':
             tags = model.tags.annotate(count=Count('extras_taggeditem_items')).order_by('name')
         else:
             tags = None

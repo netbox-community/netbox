@@ -673,6 +673,11 @@ class ConfigContext(models.Model):
         related_name='+',
         blank=True
     )
+    tags = models.ManyToManyField(
+        to='extras.Tag',
+        related_name='+',
+        blank=True
+    )
     data = JSONField()
 
     objects = ConfigContextQuerySet.as_manager()
