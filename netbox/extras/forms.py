@@ -14,7 +14,6 @@ from utilities.forms import (
     BOOLEAN_WITH_BLANK_CHOICES,
 )
 from .choices import *
-from .constants import *
 from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachment, ObjectChange, Tag
 
 
@@ -238,6 +237,14 @@ class TagBulkEditForm(BootstrapMixin, BulkEditForm):
 #
 
 class ConfigContextForm(BootstrapMixin, forms.ModelForm):
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/extras/tags/"
+        )
+    )
     data = JSONField(
         label=''
     )
@@ -246,7 +253,7 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
         model = ConfigContext
         fields = [
             'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'tenant_groups',
-            'tenants', 'data',
+            'tenants', 'tags', 'data',
         ]
         widgets = {
             'regions': APISelectMultiple(
@@ -266,7 +273,7 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
             ),
             'tenants': APISelectMultiple(
                 api_url="/api/tenancy/tenants/"
-            )
+            ),
         }
 
 
@@ -344,6 +351,14 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenants/",
+            value_field="slug",
+        )
+    )
+    tag = FilterChoiceField(
+        queryset=Tag.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/extras/tags/",
             value_field="slug",
         )
     )

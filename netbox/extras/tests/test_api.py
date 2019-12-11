@@ -370,6 +370,8 @@ class ConfigContextTest(APITestCase):
         tenantgroup2 = TenantGroup.objects.create(name='Test Tenant Group 2', slug='test-tenant-group-2')
         tenant1 = Tenant.objects.create(name='Test Tenant 1', slug='test-tenant-1')
         tenant2 = Tenant.objects.create(name='Test Tenant 2', slug='test-tenant-2')
+        tag1 = Tag.objects.create(name='Test Tag 1', slug='test-tag-1')
+        tag2 = Tag.objects.create(name='Test Tag 2', slug='test-tag-2')
 
         data = {
             'name': 'Test Config Context 4',
@@ -380,6 +382,7 @@ class ConfigContextTest(APITestCase):
             'platforms': [platform1.pk, platform2.pk],
             'tenant_groups': [tenantgroup1.pk, tenantgroup2.pk],
             'tenants': [tenant1.pk, tenant2.pk],
+            'tags': [tag1.slug, tag2.slug],
             'data': {'foo': 'XXX'}
         }
 
@@ -402,6 +405,8 @@ class ConfigContextTest(APITestCase):
         self.assertEqual(tenantgroup2.pk, data['tenant_groups'][1])
         self.assertEqual(tenant1.pk, data['tenants'][0])
         self.assertEqual(tenant2.pk, data['tenants'][1])
+        self.assertEqual(tag1.slug, data['tags'][0])
+        self.assertEqual(tag2.slug, data['tags'][1])
         self.assertEqual(configcontext4.data, data['data'])
 
     def test_create_configcontext_bulk(self):

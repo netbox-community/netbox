@@ -24,6 +24,7 @@ from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
+from extras.utils import is_taggable
 from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField
 from utilities.utils import csv_format, prepare_cloned_fields
@@ -144,7 +145,7 @@ class ObjectListView(View):
             table.columns.show('pk')
 
         # Construct queryset for tags list
-        if hasattr(model, 'tags'):
+        if is_taggable(model):
             tags = model.tags.annotate(count=Count('extras_taggeditem_items')).order_by('name')
         else:
             tags = None

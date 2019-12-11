@@ -173,12 +173,18 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         required=False,
         many=True
     )
+    tags = serializers.SlugRelatedField(
+        queryset=Tag.objects.all(),
+        slug_field='slug',
+        required=False,
+        many=True
+    )
 
     class Meta:
         model = ConfigContext
         fields = [
             'id', 'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms',
-            'tenant_groups', 'tenants', 'data',
+            'tenant_groups', 'tenants', 'tags', 'data',
         ]
 
 

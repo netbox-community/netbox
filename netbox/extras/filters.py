@@ -5,7 +5,6 @@ from django.db.models import Q
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from .choices import *
-from .constants import *
 from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, Tag
 
 
@@ -179,6 +178,12 @@ class ConfigContextFilter(django_filters.FilterSet):
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
+    )
+    tag = django_filters.ModelMultipleChoiceFilter(
+        field_name='tags__slug',
+        queryset=Tag.objects.all(),
+        to_field_name='slug',
+        label='Tag (slug)',
     )
 
     class Meta:
