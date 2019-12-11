@@ -1,3 +1,9 @@
+# v2.6.9 (FUTURE)
+
+## Bug Fixes
+
+* [#3749](https://github.com/netbox-community/netbox/issues/3749) - Fix exception on password change page for local users
+
 # v2.6.8 (2019-12-10)
 
 ## Enhancements
