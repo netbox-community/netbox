@@ -48,7 +48,7 @@ This feature implements a new REST API endpoint:
 /api/dcim/racks/<id>/elevation/
 ```
 
-By default, this endpoint returns a paginated JSON response representing each rack unit in the given elevation. This is the same response returned by the rack units detail endpoint and for this reason the rack units endpoint has been deprecated and will be removed in v2.8:
+By default, this endpoint returns a paginated JSON response representing each rack unit in the given elevation. This is the same response returned by the rack units detail endpoint and for this reason the rack units endpoint has been deprecated and will be removed in v2.8 (see [#3753](https://github.com/netbox-community/netbox/issues/3753)):
 
 ```
 /api/dcim/racks/<id>/units/
