@@ -105,7 +105,7 @@ class RackDimensionUnitChoices(ChoiceSet):
     }
 
 
-class RackElecationDetailRenderFormatChoices(ChoiceSet):
+class RackElevationDetailRenderFormatChoices(ChoiceSet):
 
     RENDER_FORMAT_JSON = 'json'
     RENDER_FORMAT_SVG = 'svg'

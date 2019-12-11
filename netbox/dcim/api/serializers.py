@@ -172,15 +172,28 @@ class RackReservationSerializer(ValidatedModelSerializer):
 
 
 class RackElevationDetailFilterSerializer(serializers.Serializer):
-    face = serializers.ChoiceField(choices=DeviceFaceChoices, default=DeviceFaceChoices.FACE_FRONT)
-    render_format = serializers.ChoiceField(
-        choices=RackElecationDetailRenderFormatChoices,
-        default=RackElecationDetailRenderFormatChoices.RENDER_FORMAT_SVG
+    face = serializers.ChoiceField(
+        choices=DeviceFaceChoices,
+        default=DeviceFaceChoices.FACE_FRONT
     )
-    unit_width = serializers.IntegerField(default=RACK_ELEVATION_UNIT_WIDTH_DEFAULT)
-    unit_height = serializers.IntegerField(default=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT)
-    exclude = serializers.IntegerField(required=False, default=None)
-    expand_devices = serializers.BooleanField(required=False, default=True)
+    render_format = serializers.ChoiceField(
+        choices=RackElevationDetailRenderFormatChoices,
+        default=RackElevationDetailRenderFormatChoices.RENDER_FORMAT_JSON
+    )
+    unit_width = serializers.IntegerField(
+        default=RACK_ELEVATION_UNIT_WIDTH_DEFAULT
+    )
+    unit_height = serializers.IntegerField(
+        default=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT
+    )
+    exclude = serializers.IntegerField(
+        required=False,
+        default=None
+    )
+    expand_devices = serializers.BooleanField(
+        required=False,
+        default=True
+    )
 
 
 #
