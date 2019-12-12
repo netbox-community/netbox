@@ -28,7 +28,7 @@ def ipaddress_status_to_slug(apps, schema_editor):
 
 def ipaddress_role_to_slug(apps, schema_editor):
     IPAddress = apps.get_model('ipam', 'IPAddress')
-    for id, slug in IPADDRESS_STATUS_CHOICES:
+    for id, slug in IPADDRESS_ROLE_CHOICES:
         IPAddress.objects.filter(role=str(id)).update(role=slug)
 
 
