@@ -525,17 +525,17 @@ class RackElevationHelperMixin:
         link.add(drawing.text("add device", insert=text, class_='add-device'))
 
     def _draw_elevations(self, elevation, reserved_units, face, unit_width, unit_height):
+
         drawing = self._setup_drawing(unit_width, unit_height * self.u_height)
 
         unit_cursor = 0
-        total_units = len(elevation)
-        while unit_cursor < total_units:
+        for unit in elevation:
+
             # Loop through all units in the elevation
-            unit = elevation[unit_cursor]
             device = unit['device']
             height = unit.get('height', 1)
 
-            # Setup drawing cordinates
+            # Setup drawing coordinates
             start_y = unit_cursor * unit_height
             end_y = unit_height * height
             start_cordinates = (0, start_y)
