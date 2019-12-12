@@ -5,11 +5,7 @@ from django.urls import reverse
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.models import (
-    Cable, ConsolePortTemplate, ConsoleServerPortTemplate, Device, DeviceBayTemplate, DeviceRole, DeviceType,
-    FrontPortTemplate, Interface, InterfaceTemplate, InventoryItem, Manufacturer, Platform, PowerPortTemplate,
-    PowerOutletTemplate, Rack, RackGroup, RackReservation, RackRole, RearPortTemplate, Site, Region, VirtualChassis,
-)
+from dcim.models import *
 from utilities.testing import create_test_user
 
 
@@ -620,6 +616,462 @@ class DeviceTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Device.objects.count(), 6)
+
+
+class ConsolePortTestCase(TestCase):
+
+    def setUp(self):
+        user = create_test_user(
+            permissions=[
+                'dcim.view_consoleport',
+                'dcim.add_consoleport',
+            ]
+        )
+        self.client = Client()
+        self.client.force_login(user)
+
+        site = Site(name='Site 1', slug='site-1')
+        site.save()
+
+        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
+        manufacturer.save()
+
+        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
+        devicetype.save()
+
+        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
+        devicerole.save()
+
+        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
+        device.save()
+
+        ConsolePort.objects.bulk_create([
+            ConsolePort(device=device, name='Console Port 1'),
+            ConsolePort(device=device, name='Console Port 2'),
+            ConsolePort(device=device, name='Console Port 3'),
+        ])
+
+    def test_consoleport_list(self):
+
+        url = reverse('dcim:consoleport_list')
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_consoleport_import(self):
+
+        csv_data = (
+            "device,name",
+            "Device 1,Console Port 4",
+            "Device 1,Console Port 5",
+            "Device 1,Console Port 6",
+        )
+
+        response = self.client.post(reverse('dcim:consoleport_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ConsolePort.objects.count(), 6)
+
+
+class ConsoleServerPortTestCase(TestCase):
+
+    def setUp(self):
+        user = create_test_user(
+            permissions=[
+                'dcim.view_consoleserverport',
+                'dcim.add_consoleserverport',
+            ]
+        )
+        self.client = Client()
+        self.client.force_login(user)
+
+        site = Site(name='Site 1', slug='site-1')
+        site.save()
+
+        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
+        manufacturer.save()
+
+        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
+        devicetype.save()
+
+        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
+        devicerole.save()
+
+        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
+        device.save()
+
+        ConsoleServerPort.objects.bulk_create([
+            ConsoleServerPort(device=device, name='Console Server Port 1'),
+            ConsoleServerPort(device=device, name='Console Server Port 2'),
+            ConsoleServerPort(device=device, name='Console Server Port 3'),
+        ])
+
+    def test_consoleserverport_list(self):
+
+        url = reverse('dcim:consoleserverport_list')
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_consoleserverport_import(self):
+
+        csv_data = (
+            "device,name",
+            "Device 1,Console Server Port 4",
+            "Device 1,Console Server Port 5",
+            "Device 1,Console Server Port 6",
+        )
+
+        response = self.client.post(reverse('dcim:consoleserverport_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ConsoleServerPort.objects.count(), 6)
+
+
+class PowerPortTestCase(TestCase):
+
+    def setUp(self):
+        user = create_test_user(
+            permissions=[
+                'dcim.view_powerport',
+                'dcim.add_powerport',
+            ]
+        )
+        self.client = Client()
+        self.client.force_login(user)
+
+        site = Site(name='Site 1', slug='site-1')
+        site.save()
+
+        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
+        manufacturer.save()
+
+        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
+        devicetype.save()
+
+        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
+        devicerole.save()
+
+        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
+        device.save()
+
+        PowerPort.objects.bulk_create([
+            PowerPort(device=device, name='Power Port 1'),
+            PowerPort(device=device, name='Power Port 2'),
+            PowerPort(device=device, name='Power Port 3'),
+        ])
+
+    def test_powerport_list(self):
+
+        url = reverse('dcim:powerport_list')
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_powerport_import(self):
+
+        csv_data = (
+            "device,name",
+            "Device 1,Power Port 4",
+            "Device 1,Power Port 5",
+            "Device 1,Power Port 6",
+        )
+
+        response = self.client.post(reverse('dcim:powerport_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(PowerPort.objects.count(), 6)
+
+
+class PowerOutletTestCase(TestCase):
+
+    def setUp(self):
+        user = create_test_user(
+            permissions=[
+                'dcim.view_poweroutlet',
+                'dcim.add_poweroutlet',
+            ]
+        )
+        self.client = Client()
+        self.client.force_login(user)
+
+        site = Site(name='Site 1', slug='site-1')
+        site.save()
+
+        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
+        manufacturer.save()
+
+        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
+        devicetype.save()
+
+        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
+        devicerole.save()
+
+        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
+        device.save()
+
+        PowerOutlet.objects.bulk_create([
+            PowerOutlet(device=device, name='Power Outlet 1'),
+            PowerOutlet(device=device, name='Power Outlet 2'),
+            PowerOutlet(device=device, name='Power Outlet 3'),
+        ])
+
+    def test_poweroutlet_list(self):
+
+        url = reverse('dcim:poweroutlet_list')
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_poweroutlet_import(self):
+
+        csv_data = (
+            "device,name",
+            "Device 1,Power Outlet 4",
+            "Device 1,Power Outlet 5",
+            "Device 1,Power Outlet 6",
+        )
+
+        response = self.client.post(reverse('dcim:poweroutlet_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(PowerOutlet.objects.count(), 6)
+
+
+class InterfaceTestCase(TestCase):
+
+    def setUp(self):
+        user = create_test_user(
+            permissions=[
+                'dcim.view_interface',
+                'dcim.add_interface',
+            ]
+        )
+        self.client = Client()
+        self.client.force_login(user)
+
+        site = Site(name='Site 1', slug='site-1')
+        site.save()
+
+        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
+        manufacturer.save()
+
+        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
+        devicetype.save()
+
+        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
+        devicerole.save()
+
+        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
+        device.save()
+
+        Interface.objects.bulk_create([
+            Interface(device=device, name='Interface 1'),
+            Interface(device=device, name='Interface 2'),
+            Interface(device=device, name='Interface 3'),
+        ])
+
+    def test_interface_list(self):
+
+        url = reverse('dcim:interface_list')
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_interface_import(self):
+
+        csv_data = (
+            "device,name,type",
+            "Device 1,Interface 4,1000BASE-T (1GE)",
+            "Device 1,Interface 5,1000BASE-T (1GE)",
+            "Device 1,Interface 6,1000BASE-T (1GE)",
+        )
+
+        response = self.client.post(reverse('dcim:interface_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Interface.objects.count(), 6)
+
+
+class FrontPortTestCase(TestCase):
+
+    def setUp(self):
+        user = create_test_user(
+            permissions=[
+                'dcim.view_frontport',
+                'dcim.add_frontport',
+            ]
+        )
+        self.client = Client()
+        self.client.force_login(user)
+
+        site = Site(name='Site 1', slug='site-1')
+        site.save()
+
+        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
+        manufacturer.save()
+
+        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
+        devicetype.save()
+
+        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
+        devicerole.save()
+
+        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
+        device.save()
+
+        rearport1 = RearPort(device=device, name='Rear Port 1')
+        rearport1.save()
+        rearport2 = RearPort(device=device, name='Rear Port 2')
+        rearport2.save()
+        rearport3 = RearPort(device=device, name='Rear Port 3')
+        rearport3.save()
+
+        # RearPorts for CSV import test
+        RearPort(device=device, name='Rear Port 4').save()
+        RearPort(device=device, name='Rear Port 5').save()
+        RearPort(device=device, name='Rear Port 6').save()
+
+        FrontPort.objects.bulk_create([
+            FrontPort(device=device, name='Front Port 1', rear_port=rearport1),
+            FrontPort(device=device, name='Front Port 2', rear_port=rearport2),
+            FrontPort(device=device, name='Front Port 3', rear_port=rearport3),
+        ])
+
+    def test_frontport_list(self):
+
+        url = reverse('dcim:frontport_list')
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_frontport_import(self):
+
+        csv_data = (
+            "device,name,type,rear_port,rear_port_position",
+            "Device 1,Front Port 4,8P8C,Rear Port 4,1",
+            "Device 1,Front Port 5,8P8C,Rear Port 5,1",
+            "Device 1,Front Port 6,8P8C,Rear Port 6,1",
+        )
+
+        response = self.client.post(reverse('dcim:frontport_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(FrontPort.objects.count(), 6)
+
+
+class RearPortTestCase(TestCase):
+
+    def setUp(self):
+        user = create_test_user(
+            permissions=[
+                'dcim.view_rearport',
+                'dcim.add_rearport',
+            ]
+        )
+        self.client = Client()
+        self.client.force_login(user)
+
+        site = Site(name='Site 1', slug='site-1')
+        site.save()
+
+        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
+        manufacturer.save()
+
+        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
+        devicetype.save()
+
+        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
+        devicerole.save()
+
+        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
+        device.save()
+
+        RearPort.objects.bulk_create([
+            RearPort(device=device, name='Rear Port 1'),
+            RearPort(device=device, name='Rear Port 2'),
+            RearPort(device=device, name='Rear Port 3'),
+        ])
+
+    def test_rearport_list(self):
+
+        url = reverse('dcim:rearport_list')
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_rearport_import(self):
+
+        csv_data = (
+            "device,name,type,positions",
+            "Device 1,Rear Port 4,8P8C,1",
+            "Device 1,Rear Port 5,8P8C,1",
+            "Device 1,Rear Port 6,8P8C,1",
+        )
+
+        response = self.client.post(reverse('dcim:rearport_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(RearPort.objects.count(), 6)
+
+
+class DeviceBayTestCase(TestCase):
+
+    def setUp(self):
+        user = create_test_user(
+            permissions=[
+                'dcim.view_devicebay',
+                'dcim.add_devicebay',
+            ]
+        )
+        self.client = Client()
+        self.client.force_login(user)
+
+        site = Site(name='Site 1', slug='site-1')
+        site.save()
+
+        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
+        manufacturer.save()
+
+        devicetype = DeviceType(
+            model='Device Type 1',
+            manufacturer=manufacturer,
+            subdevice_role=SubdeviceRoleChoices.ROLE_PARENT
+        )
+        devicetype.save()
+
+        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
+        devicerole.save()
+
+        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
+        device.save()
+
+        DeviceBay.objects.bulk_create([
+            DeviceBay(device=device, name='Device Bay 1'),
+            DeviceBay(device=device, name='Device Bay 2'),
+            DeviceBay(device=device, name='Device Bay 3'),
+        ])
+
+    def test_devicebay_list(self):
+
+        url = reverse('dcim:devicebay_list')
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_devicebay_import(self):
+
+        csv_data = (
+            "device,name",
+            "Device 1,Device Bay 4",
+            "Device 1,Device Bay 5",
+            "Device 1,Device Bay 6",
+        )
+
+        response = self.client.post(reverse('dcim:devicebay_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(DeviceBay.objects.count(), 6)
 
 
 class InventoryItemTestCase(TestCase):
