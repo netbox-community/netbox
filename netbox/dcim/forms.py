@@ -1026,12 +1026,12 @@ class PowerPortTemplateCreateForm(ComponentForm):
     maximum_draw = forms.IntegerField(
         min_value=1,
         required=False,
-        help_text="Maximum current draw (watts)"
+        help_text="Maximum power draw (watts)"
     )
     allocated_draw = forms.IntegerField(
         min_value=1,
         required=False,
-        help_text="Allocated current draw (watts)"
+        help_text="Allocated power draw (watts)"
     )
 
 

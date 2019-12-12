@@ -1260,13 +1260,13 @@ class PowerPortTemplate(ComponentTemplateModel):
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Maximum current draw (watts)"
+        help_text="Maximum power draw (watts)"
     )
     allocated_draw = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Allocated current draw (watts)"
+        help_text="Allocated power draw (watts)"
     )
 
     objects = NaturalOrderingManager()
@@ -2182,13 +2182,13 @@ class PowerPort(CableTermination, ComponentModel):
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Maximum current draw (watts)"
+        help_text="Maximum power draw (watts)"
     )
     allocated_draw = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Allocated current draw (watts)"
+        help_text="Allocated power draw (watts)"
     )
     _connected_poweroutlet = models.OneToOneField(
         to='dcim.PowerOutlet',
@@ -3316,7 +3316,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         default=80,
         help_text="Maximum permissible draw (percentage)"
     )
-    available_power = models.PositiveSmallIntegerField(
+    available_power = models.PositiveIntegerField(
         default=0,
         editable=False
     )

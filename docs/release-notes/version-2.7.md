@@ -232,6 +232,7 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
   scripts
 * [#3655](https://github.com/digitalocean/netbox/issues/3655) - Add `description` field to organizational models
 * [#3664](https://github.com/digitalocean/netbox/issues/3664) - Enable applying configuration contexts by tags
+* [#3706](https://github.com/digitalocean/netbox/issues/3706) - Increase `available_power` maximum value on PowerFeed
 * [#3731](https://github.com/digitalocean/netbox/issues/3731) - Change Graph.type to a ContentType foreign key field
 
 ## API Changes
