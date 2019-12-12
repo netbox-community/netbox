@@ -59,7 +59,7 @@ COMPATIBLE_TERMINATION_TYPES = {
 
 RACK_ELEVATION_STYLE = """
 * {
-    font-family: 'Helvetica Neue';
+    font-family: sans-serif;
     font-size: 13px;
 }
 rect {
