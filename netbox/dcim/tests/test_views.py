@@ -16,7 +16,12 @@ from utilities.testing import create_test_user
 class RegionTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['dcim.view_region'])
+        user = create_test_user(
+            permissions=[
+                'dcim.view_region',
+                'dcim.add_region',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -31,11 +36,30 @@ class RegionTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_region_import(self):
+
+        csv_data = (
+            "name,slug",
+            "Region 4,region-4",
+            "Region 5,region-5",
+            "Region 6,region-6",
+        )
+
+        response = self.client.post(reverse('dcim:region_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Region.objects.count(), 6)
+
 
 class SiteTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['dcim.view_site'])
+        user = create_test_user(
+            permissions=[
+                'dcim.view_site',
+                'dcim.add_site',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -64,11 +88,30 @@ class SiteTestCase(TestCase):
         response = self.client.get(site.get_absolute_url())
         self.assertEqual(response.status_code, 200)
 
+    def test_site_import(self):
+
+        csv_data = (
+            "name,slug",
+            "Site 4,site-4",
+            "Site 5,site-5",
+            "Site 6,site-6",
+        )
+
+        response = self.client.post(reverse('dcim:site_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Site.objects.count(), 6)
+
 
 class RackGroupTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['dcim.view_rackgroup'])
+        user = create_test_user(
+            permissions=[
+                'dcim.view_rackgroup',
+                'dcim.add_rackgroup',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -88,11 +131,30 @@ class RackGroupTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_rackgroup_import(self):
+
+        csv_data = (
+            "site,name,slug",
+            "Site 1,Rack Group 4,rack-group-4",
+            "Site 1,Rack Group 5,rack-group-5",
+            "Site 1,Rack Group 6,rack-group-6",
+        )
+
+        response = self.client.post(reverse('dcim:rackgroup_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(RackGroup.objects.count(), 6)
+
 
 class RackRoleTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['dcim.view_rackrole'])
+        user = create_test_user(
+            permissions=[
+                'dcim.view_rackrole',
+                'dcim.add_rackrole',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -108,6 +170,20 @@ class RackRoleTestCase(TestCase):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_rackrole_import(self):
+
+        csv_data = (
+            "name,slug,color",
+            "Rack Role 4,rack-role-4,ff0000",
+            "Rack Role 5,rack-role-5,00ff00",
+            "Rack Role 6,rack-role-6,0000ff",
+        )
+
+        response = self.client.post(reverse('dcim:rackrole_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(RackRole.objects.count(), 6)
 
 
 class RackReservationTestCase(TestCase):
@@ -140,7 +216,12 @@ class RackReservationTestCase(TestCase):
 class RackTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['dcim.view_rack'])
+        user = create_test_user(
+            permissions=[
+                'dcim.view_rack',
+                'dcim.add_rack',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -169,11 +250,30 @@ class RackTestCase(TestCase):
         response = self.client.get(rack.get_absolute_url())
         self.assertEqual(response.status_code, 200)
 
+    def test_rack_import(self):
+
+        csv_data = (
+            "site,name,width,u_height",
+            "Site 1,Rack 4,19,42",
+            "Site 1,Rack 5,19,42",
+            "Site 1,Rack 6,19,42",
+        )
+
+        response = self.client.post(reverse('dcim:rack_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Rack.objects.count(), 6)
+
 
 class ManufacturerTypeTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['dcim.view_manufacturer'])
+        user = create_test_user(
+            permissions=[
+                'dcim.view_manufacturer',
+                'dcim.add_manufacturer',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -189,6 +289,20 @@ class ManufacturerTypeTestCase(TestCase):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_manufacturer_import(self):
+
+        csv_data = (
+            "name,slug",
+            "Manufacturer 4,manufacturer-4",
+            "Manufacturer 5,manufacturer-5",
+            "Manufacturer 6,manufacturer-6",
+        )
+
+        response = self.client.post(reverse('dcim:manufacturer_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Manufacturer.objects.count(), 6)
 
 
 class DeviceTypeTestCase(TestCase):
@@ -369,7 +483,12 @@ device-bays:
 class DeviceRoleTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['dcim.view_devicerole'])
+        user = create_test_user(
+            permissions=[
+                'dcim.view_devicerole',
+                'dcim.add_devicerole',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -386,11 +505,30 @@ class DeviceRoleTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_devicerole_import(self):
+
+        csv_data = (
+            "name,slug,color",
+            "Device Role 4,device-role-4,ff0000",
+            "Device Role 5,device-role-5,00ff00",
+            "Device Role 6,device-role-6,0000ff",
+        )
+
+        response = self.client.post(reverse('dcim:devicerole_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(DeviceRole.objects.count(), 6)
+
 
 class PlatformTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['dcim.view_platform'])
+        user = create_test_user(
+            permissions=[
+                'dcim.view_platform',
+                'dcim.add_platform',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -407,11 +545,30 @@ class PlatformTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_platform_import(self):
+
+        csv_data = (
+            "name,slug",
+            "Platform 4,platform-4",
+            "Platform 5,platform-5",
+            "Platform 6,platform-6",
+        )
+
+        response = self.client.post(reverse('dcim:platform_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Platform.objects.count(), 6)
+
 
 class DeviceTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['dcim.view_device'])
+        user = create_test_user(
+            permissions=[
+                'dcim.view_device',
+                'dcim.add_device',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -450,11 +607,30 @@ class DeviceTestCase(TestCase):
         response = self.client.get(device.get_absolute_url())
         self.assertEqual(response.status_code, 200)
 
+    def test_device_import(self):
+
+        csv_data = (
+            "device_role,manufacturer,model_name,status,site,name",
+            "Device Role 1,Manufacturer 1,Device Type 1,Active,Site 1,Device 4",
+            "Device Role 1,Manufacturer 1,Device Type 1,Active,Site 1,Device 5",
+            "Device Role 1,Manufacturer 1,Device Type 1,Active,Site 1,Device 6",
+        )
+
+        response = self.client.post(reverse('dcim:device_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Device.objects.count(), 6)
+
 
 class InventoryItemTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['dcim.view_inventoryitem'])
+        user = create_test_user(
+            permissions=[
+                'dcim.view_inventoryitem',
+                'dcim.add_inventoryitem',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -489,11 +665,30 @@ class InventoryItemTestCase(TestCase):
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
         self.assertEqual(response.status_code, 200)
 
+    def test_inventoryitem_import(self):
+
+        csv_data = (
+            "device,name",
+            "Device 1,Inventory Item 4",
+            "Device 1,Inventory Item 5",
+            "Device 1,Inventory Item 6",
+        )
+
+        response = self.client.post(reverse('dcim:inventoryitem_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(InventoryItem.objects.count(), 6)
+
 
 class CableTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['dcim.view_cable'])
+        user = create_test_user(
+            permissions=[
+                'dcim.view_cable',
+                'dcim.add_cable',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -513,6 +708,10 @@ class CableTestCase(TestCase):
         device1.save()
         device2 = Device(name='Device 2', site=site, device_type=devicetype, device_role=devicerole)
         device2.save()
+        device3 = Device(name='Device 3', site=site, device_type=devicetype, device_role=devicerole)
+        device3.save()
+        device4 = Device(name='Device 4', site=site, device_type=devicetype, device_role=devicerole)
+        device4.save()
 
         iface1 = Interface(device=device1, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         iface1.save()
@@ -526,6 +725,14 @@ class CableTestCase(TestCase):
         iface5.save()
         iface6 = Interface(device=device2, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         iface6.save()
+
+        # Interfaces for CSV import testing
+        Interface(device=device3, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED).save()
+        Interface(device=device3, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED).save()
+        Interface(device=device3, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED).save()
+        Interface(device=device4, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED).save()
+        Interface(device=device4, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED).save()
+        Interface(device=device4, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED).save()
 
         Cable(termination_a=iface1, termination_b=iface4, type=CableTypeChoices.TYPE_CAT6).save()
         Cable(termination_a=iface2, termination_b=iface5, type=CableTypeChoices.TYPE_CAT6).save()
@@ -546,6 +753,20 @@ class CableTestCase(TestCase):
         cable = Cable.objects.first()
         response = self.client.get(cable.get_absolute_url())
         self.assertEqual(response.status_code, 200)
+
+    def test_cable_import(self):
+
+        csv_data = (
+            "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name",
+            "Device 3,interface,Interface 1,Device 4,interface,Interface 1",
+            "Device 3,interface,Interface 2,Device 4,interface,Interface 2",
+            "Device 3,interface,Interface 3,Device 4,interface,Interface 3",
+        )
+
+        response = self.client.post(reverse('dcim:cable_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Cable.objects.count(), 6)
 
 
 class VirtualChassisTestCase(TestCase):
