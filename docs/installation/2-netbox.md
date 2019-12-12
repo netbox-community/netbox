@@ -215,18 +215,6 @@ Superuser created successfully.
 959 static files copied to '/opt/netbox/netbox/static'.
 ```
 
-# Load Initial Data (Optional)
-
-NetBox ships with some initial data to help you get started: RIR definitions, common devices roles, etc. You can delete any seed data that you don't want to keep.
-
-!!! note
-    This step is optional. It's perfectly fine to start using NetBox without using this initial data if you'd rather create everything from scratch.
-
-```no-highlight
-# python3 manage.py loaddata initial_data
-Installed 43 object(s) from 4 fixture(s)
-```
-
 # Test the Application
 
 At this point, NetBox should be able to run. We can verify this by starting a development instance:
