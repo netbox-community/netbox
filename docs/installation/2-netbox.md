@@ -212,15 +212,7 @@ Superuser created successfully.
 ```no-highlight
 # python3 manage.py collectstatic --no-input
 
-You have requested to collect static files at the destination
-location as specified in your settings:
-
-    /opt/netbox/netbox/static
-
-This will overwrite existing files!
-Are you sure you want to do this?
-
-Type 'yes' to continue, or 'no' to cancel: yes
+959 static files copied to '/opt/netbox/netbox/static'.
 ```
 
 # Load Initial Data (Optional)
@@ -254,3 +246,11 @@ Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on
 
 !!! warning
     If the test service does not run, or you cannot reach the NetBox home page, something has gone wrong. Do not proceed with the rest of this guide until the installation has been corrected.
+
+Note that the initial UI will be locked down for non-authenticated users.
+
+![NetBox UI as seen by a non-authenticated user](../media/installation/netbox_ui_guest.png)
+
+After logging in as the superuser you created earlier, all areas of the UI will be available.
+
+![NetBox UI as seen by an administrator](../media/installation/netbox_ui_admin.png)

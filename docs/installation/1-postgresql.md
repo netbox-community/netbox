@@ -4,7 +4,7 @@ NetBox requires a PostgreSQL database to store data. This can be hosted locally 
     The installation instructions provided here have been tested to work on Ubuntu 18.04 and CentOS 7.5. The particular commands needed to install dependencies on other distributions may vary significantly. Unfortunately, this is outside the control of the NetBox maintainers. Please consult your distribution's documentation for assistance with any errors.
 
 !!! warning
-    NetBox v2.2 and later requires PostgreSQL 9.4 or higher.
+    NetBox requires PostgreSQL 9.4 or higher.
 
 # Installation
 

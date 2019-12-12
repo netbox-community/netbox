@@ -1,5 +1,5 @@
 [Unit]
-Description=Netbox WSGI
+Description=NetBox WSGI Service
 Documentation=https://netbox.readthedocs.io/en/stable/
 After=network-online.target
 Wants=network-online.target
@@ -7,14 +7,12 @@ Wants=network-online.target
 [Service]
 Type=simple
 
-EnvironmentFile=/etc/sysconfig/netbox.env
-
 User=www-data
 Group=www-data
-PIDFile=${PidPath}
-WorkingDirectory=${WorkingDirectory}
+PIDFile=/var/tmp/netbox.pid
+WorkingDirectory=/opt/netbox
 
-ExecStart=/usr/local/bin/gunicorn --pid ${PidPath} --pythonpath ${WorkingDirectory}/netbox --config ${ConfigPath} netbox.wsgi
+ExecStart=/usr/local/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox --config /opt/netbox/gunicorn.py netbox.wsgi
 
 Restart=on-failure
 RestartSec=30

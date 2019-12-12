@@ -1,5 +1,5 @@
 [Unit]
-Description=Netbox RQ Worker
+Description=NetBox Request Queue Worker
 Documentation=https://netbox.readthedocs.io/en/stable/
 After=network-online.target
 Wants=network-online.target
@@ -7,14 +7,12 @@ Wants=network-online.target
 [Service]
 Type=simple
 
-EnvironmentFile=/etc/sysconfig/netbox.env
-
 User=www-data
 Group=www-data
 
-WorkingDirectory=${WorkingDirectory}
+WorkingDirectory=/opt/netbox
 
-ExecStart=/usr/bin/python3 ${WorkingDirectory}/netbox/manage.py rqworker
+ExecStart=/usr/bin/python3 /opt/netbox/netbox/manage.py rqworker
 
 Restart=on-failure
 RestartSec=30
