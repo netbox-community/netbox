@@ -470,11 +470,12 @@ class RackElevationHelperMixin:
     @staticmethod
     def _add_gradient(drawing, id_, color):
         gradient = drawing.linearGradient(
-            start=('0', '20%'),
-            end=('0', '40%'),
+            start=('0', '0%'),
+            end=('0', '5%'),
             spreadMethod='repeat',
             id_=id_,
-            gradientTransform='rotate(80)'
+            gradientTransform='rotate(45, 0, 0)',
+            gradientUnits='userSpaceOnUse'
         )
         gradient.add_stop_color(offset='0%', color='#f7f7f7')
         gradient.add_stop_color(offset='50%', color='#f7f7f7')

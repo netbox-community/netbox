@@ -88,6 +88,12 @@ text {
 .slot:hover+.add-device {
     fill: blue;
 }
+.add-device:hover {
+    fill: blue;
+}
+.add-device:hover+.slot {
+    fill: #fff;
+}
 .reserved {
     fill: url(#reserved);
 }
