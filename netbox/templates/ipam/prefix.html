@@ -40,19 +40,13 @@
             </a>
         {% endif %}
         {% if perms.ipam.add_prefix %}
-            {% clone_button 'ipam:prefix_add' prefix %}
+            {% clone_button prefix %}
         {% endif %}
         {% if perms.ipam.change_prefix %}
-            <a href="{% url 'ipam:prefix_edit' pk=prefix.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span>
-                Edit this prefix
-            </a>
+            {% edit_button prefix %}
         {% endif %}
         {% if perms.ipam.delete_prefix %}
-            <a href="{% url 'ipam:prefix_delete' pk=prefix.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>
-                Delete this prefix
-            </a>
+            {% delete_button prefix %}
         {% endif %}
     </div>
     <h1>{% block title %}{{ prefix }}{% endblock %}</h1>

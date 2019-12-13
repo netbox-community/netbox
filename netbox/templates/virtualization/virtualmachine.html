@@ -28,19 +28,13 @@
     </div>
     <div class="pull-right noprint">
         {% if perms.virtualization.add_virtualmachine %}
-            {% clone_button 'virtualization:virtualmachine_add' virtualmachine %}
+            {% clone_button virtualmachine %}
         {% endif %}
         {% if perms.virtualization.change_virtualmachine %}
-            <a href="{% url 'virtualization:virtualmachine_edit' pk=virtualmachine.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil"></span>
-                Edit this VM
-            </a>
+            {% edit_button virtualmachine %}
         {% endif %}
         {% if perms.virtualization.delete_virtualmachine %}
-            <a href="{% url 'virtualization:virtualmachine_delete' pk=virtualmachine.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash"></span>
-                Delete this VM
-            </a>
+            {% delete_button virtualmachine %}
         {% endif %}
     </div>
     <h1>{% block title %}{{ virtualmachine }}{% endblock %}</h1>

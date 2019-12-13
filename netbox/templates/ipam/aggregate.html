@@ -27,19 +27,13 @@
     </div>
     <div class="pull-right noprint">
         {% if perms.ipam.add_aggregate %}
-            {% clone_button 'ipam:aggregate_add' aggregate %}
+            {% clone_button aggregate %}
         {% endif %}
         {% if perms.ipam.change_aggregate %}
-            <a href="{% url 'ipam:aggregate_edit' pk=aggregate.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span>
-                Edit this aggregate
-            </a>
+            {% edit_button aggregate %}
         {% endif %}
         {% if perms.ipam.delete_aggregate %}
-            <a href="{% url 'ipam:aggregate_delete' pk=aggregate.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>
-                Delete this aggregate
-            </a>
+            {% delete_button aggregate %}
         {% endif %}
     </div>
     <h1>{% block title %}{{ aggregate }}{% endblock %}</h1>
