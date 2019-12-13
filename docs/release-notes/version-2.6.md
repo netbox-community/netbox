@@ -11,6 +11,7 @@
 * [#2170](https://github.com/netbox-community/netbox/issues/2170) - Prevent the deletion of a virtual chassis when a cross-member LAG is present
 * [#2358](https://github.com/netbox-community/netbox/issues/2358) - Respect custom field default values when creating objects via the REST API
 * [#3749](https://github.com/netbox-community/netbox/issues/3749) - Fix exception on password change page for local users
+* [#3757](https://github.com/netbox-community/netbox/issues/3757) - Fix unable to assign IP to interface
 
 # v2.6.8 (2019-12-10)
 
