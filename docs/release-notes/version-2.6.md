@@ -1,5 +1,9 @@
 # v2.6.9 (FUTURE)
 
+## Enhancements
+
+* [#3152](https://github.com/netbox-community/netbox/issues/3152) - Include direct link to rack elevations on site view
+
 ## Bug Fixes
 
 * [#3749](https://github.com/netbox-community/netbox/issues/3749) - Fix exception on password change page for local users
