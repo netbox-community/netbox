@@ -4,6 +4,7 @@
 
 * [#3152](https://github.com/netbox-community/netbox/issues/3152) - Include direct link to rack elevations on site view
 * [#3441](https://github.com/netbox-community/netbox/issues/3441) - Move virtual machine results near devices in global search
+* [#3761](https://github.com/netbox-community/netbox/issues/3761) - Added copy button for API tokens
 
 ## Bug Fixes
 
