@@ -7,6 +7,7 @@
 
 ## Bug Fixes
 
+* [#2170](https://github.com/netbox-community/netbox/issues/2170) - Prevent the deletion of a virtual chassis when a cross-member LAG is present
 * [#3749](https://github.com/netbox-community/netbox/issues/3749) - Fix exception on password change page for local users
 
 # v2.6.8 (2019-12-10)
