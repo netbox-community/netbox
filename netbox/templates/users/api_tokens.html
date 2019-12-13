@@ -10,6 +10,7 @@
                 <div class="panel panel-{% if token.is_expired %}danger{% else %}default{% endif %}">
                     <div class="panel-heading">
                         <div class="pull-right noprint">
+                            <a class="btn btn-xs btn-success copy-token" data-clipboard-target="#token_{{ token.pk }}">Copy</a>
                             {% if perms.users.change_token %}
                                 <a href="{% url 'user:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning">Edit</a>
                             {% endif %}
@@ -17,7 +18,8 @@
                                 <a href="{% url 'user:token_delete' pk=token.pk %}" class="btn btn-xs btn-danger">Delete</a>
                             {% endif %}
                         </div>
-                        <i class="fa fa-key"></i> {{ token.key }}
+                        <i class="fa fa-key"></i>
+                        <span id="token_{{ token.pk }}">{{ token.key }}</span>
                         {% if token.is_expired %}
                             <span class="label label-danger">Expired</span>
                         {% endif %}
@@ -65,4 +67,10 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+new ClipboardJS('.copy-token');
+</script>
 {% endblock %}
