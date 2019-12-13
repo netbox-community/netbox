@@ -33,17 +33,13 @@
             <span class="fa fa-chevron-right" aria-hidden="true"></span> Next Rack
         </a>
         {% if perms.dcim.add_rack %}
-            {% clone_button 'dcim:rack_add' rack %}
+            {% clone_button rack %}
         {% endif %}
         {% if perms.dcim.change_rack %}
-            <a href="{% url 'dcim:rack_edit' pk=rack.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span> Edit this rack
-            </a>
+            {% edit_button rack %}
         {% endif %}
         {% if perms.dcim.delete_rack %}
-            <a href="{% url 'dcim:rack_delete' pk=rack.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span> Delete this rack
-            </a>
+            {% delete_button rack %}
         {% endif %}
     </div>
     <h1>{% block title %}Rack {{ rack }}{% endblock %}</h1>

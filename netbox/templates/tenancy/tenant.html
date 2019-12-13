@@ -29,19 +29,13 @@
     </div>
     <div class="pull-right noprint">
         {% if perms.tenancy.add_tenant %}
-            {% clone_button 'tenancy:tenant_add' tenant %}
+            {% clone_button tenant %}
         {% endif %}
         {% if perms.tenancy.change_tenant %}
-            <a href="{% url 'tenancy:tenant_edit' slug=tenant.slug %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span>
-                Edit this tenant
-            </a>
+            {% edit_button tenant %}
         {% endif %}
         {% if perms.tenancy.delete_tenant %}
-            <a href="{% url 'tenancy:tenant_delete' slug=tenant.slug %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>
-                Delete this tenant
-            </a>
+            {% delete_button tenant %}
         {% endif %}
     </div>
     <h1>{% block title %}{{ tenant }}{% endblock %}</h1>

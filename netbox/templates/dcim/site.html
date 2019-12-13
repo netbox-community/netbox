@@ -40,19 +40,13 @@
             </button>
         {% endif %}
         {% if perms.dcim.add_site %}
-            {% clone_button 'dcim:site_add' site %}
+            {% clone_button site %}
         {% endif %}
         {% if perms.dcim.change_site %}
-            <a href="{% url 'dcim:site_edit' slug=site.slug %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span>
-                Edit this site
-            </a>
+            {% edit_button site %}
         {% endif %}
         {% if perms.dcim.delete_site %}
-            <a href="{% url 'dcim:site_delete' slug=site.slug %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>
-                Delete this site
-            </a>
+            {% delete_button site %}
         {% endif %}
     </div>
     <h1>{% block title %}{{ site }}{% endblock %}</h1>

@@ -34,19 +34,13 @@
             </div>
         {% endif %}
         {% if perms.dcim.add_devicetype %}
-            {% clone_button 'dcim:devicetype_add' devicetype %}
+            {% clone_button devicetype %}
         {% endif %}
         {% if perms.dcim.change_devicetype %}
-            <a href="{% url 'dcim:devicetype_edit' pk=devicetype.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span>
-                Edit this device type
-            </a>
+            {% edit_button devicetype use_pk=True %}
         {% endif %}
         {% if perms.dcim.delete_devicetype %}
-            <a href="{% url 'dcim:devicetype_delete' pk=devicetype.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>
-                Delete this device type
-            </a>
+            {% delete_button devicetype use_pk=True %}
         {% endif %}
     </div>
     <h1>{{ devicetype.manufacturer }} {{ devicetype.model }}</h1>
