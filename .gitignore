@@ -12,7 +12,7 @@
 fabfile.py
 *.swp
 gunicorn_config.py
-gunicorn.conf
+gunicorn.py
 netbox.log
 netbox.pid
 .DS_Store

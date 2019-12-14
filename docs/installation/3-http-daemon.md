@@ -107,7 +107,7 @@ Install gunicorn:
 # pip3 install gunicorn
 ```
 
-Copy `contrib/gunicorn.conf` to `/opt/netbox/gunicorn.conf`. We make a copy of this file to ensure that any changes to it do not get overwritten by a future upgrade.
+Copy `contrib/gunicorn.py` to `/opt/netbox/gunicorn.py`. We make a copy of this file to ensure that any changes to it do not get overwritten by a future upgrade.
 
 ```no-highlight
 # cp contrib/gunicorn.py /opt/netbox/gunicorn.py
