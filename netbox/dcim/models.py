@@ -9,7 +9,7 @@ from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, F, ProtectedError, Q, Sum
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
@@ -2729,6 +2729,24 @@ class VirtualChassis(ChangeLoggedModel):
             raise ValidationError({
                 'master': "The selected master is not assigned to this virtual chassis."
             })
+
+    def delete(self, *args, **kwargs):
+
+        # Check for LAG interfaces split across member chassis
+        interfaces = Interface.objects.filter(
+            device__in=self.members.all(),
+            lag__isnull=False
+        ).exclude(
+            lag__device=F('device')
+        )
+        if interfaces:
+            raise ProtectedError(
+                "Unable to delete virtual chassis {}. There are member interfaces which form a cross-chassis "
+                "LAG".format(self),
+                interfaces
+            )
+
+        return super().delete(*args, **kwargs)
 
     def to_csv(self):
         return (

@@ -116,6 +116,23 @@ SEARCH_TYPES = OrderedDict((
         'table': PowerFeedTable,
         'url': 'dcim:powerfeed_list',
     }),
+    # Virtualization
+    ('cluster', {
+        'permission': 'virtualization.view_cluster',
+        'queryset': Cluster.objects.prefetch_related('type', 'group'),
+        'filter': ClusterFilter,
+        'table': ClusterTable,
+        'url': 'virtualization:cluster_list',
+    }),
+    ('virtualmachine', {
+        'permission': 'virtualization.view_virtualmachine',
+        'queryset': VirtualMachine.objects.prefetch_related(
+            'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
+        ),
+        'filter': VirtualMachineFilter,
+        'table': VirtualMachineDetailTable,
+        'url': 'virtualization:virtualmachine_list',
+    }),
     # IPAM
     ('vrf', {
         'permission': 'ipam.view_vrf',
@@ -167,23 +184,6 @@ SEARCH_TYPES = OrderedDict((
         'filter': TenantFilter,
         'table': TenantTable,
         'url': 'tenancy:tenant_list',
-    }),
-    # Virtualization
-    ('cluster', {
-        'permission': 'virtualization.view_cluster',
-        'queryset': Cluster.objects.prefetch_related('type', 'group'),
-        'filter': ClusterFilter,
-        'table': ClusterTable,
-        'url': 'virtualization:cluster_list',
-    }),
-    ('virtualmachine', {
-        'permission': 'virtualization.view_virtualmachine',
-        'queryset': VirtualMachine.objects.prefetch_related(
-            'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
-        ),
-        'filter': VirtualMachineFilter,
-        'table': VirtualMachineDetailTable,
-        'url': 'virtualization:virtualmachine_list',
     }),
 ))
 

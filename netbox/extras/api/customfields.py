@@ -22,7 +22,9 @@ class CustomFieldsSerializer(serializers.BaseSerializer):
     def to_internal_value(self, data):
 
         content_type = ContentType.objects.get_for_model(self.parent.Meta.model)
-        custom_fields = {field.name: field for field in CustomField.objects.filter(obj_type=content_type)}
+        custom_fields = {
+            field.name: field for field in CustomField.objects.filter(obj_type=content_type)
+        }
 
         for field_name, value in data.items():
 
@@ -107,11 +109,11 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
 
         super().__init__(*args, **kwargs)
 
-        if self.instance is not None:
+        # Retrieve the set of CustomFields which apply to this type of object
+        content_type = ContentType.objects.get_for_model(self.Meta.model)
+        fields = CustomField.objects.filter(obj_type=content_type)
 
-            # Retrieve the set of CustomFields which apply to this type of object
-            content_type = ContentType.objects.get_for_model(self.Meta.model)
-            fields = CustomField.objects.filter(obj_type=content_type)
+        if self.instance is not None:
 
             # Populate CustomFieldValues for each instance from database
             try:
@@ -119,6 +121,23 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
                     _populate_custom_fields(obj, fields)
             except TypeError:
                 _populate_custom_fields(self.instance, fields)
+
+        else:
+
+            # Populate default values
+            if fields and 'custom_fields' not in self.initial_data:
+                self.initial_data['custom_fields'] = {}
+
+            # Populate initial data using custom field default values
+            for field in fields:
+                if field.name not in self.initial_data['custom_fields'] and field.default:
+                    if field.type == CF_TYPE_SELECT:
+                        field_value = field.choices.get(value=field.default).pk
+                    elif field.type == CF_TYPE_BOOLEAN:
+                        field_value = bool(field.default)
+                    else:
+                        field_value = field.default
+                    self.initial_data['custom_fields'][field.name] = field_value
 
     def _save_custom_fields(self, instance, custom_fields):
         content_type = ContentType.objects.get_for_model(self.Meta.model)
