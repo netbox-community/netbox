@@ -413,7 +413,7 @@ class ScriptView(PermissionRequiredMixin, View):
 
         if form.is_valid():
             commit = form.cleaned_data.pop('_commit')
-            output, execution_time = run_script(script, form.cleaned_data, request.FILES, commit)
+            output, execution_time = run_script(script, form.cleaned_data, request, commit)
 
         return render(request, 'extras/script.html', {
             'module': module,
