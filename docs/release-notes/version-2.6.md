@@ -1,3 +1,11 @@
+# v2.6.10 (FUTURE)
+
+## Bug Fixes
+
+* [#3780](https://github.com/netbox-community/netbox/issues/3780) - Fix AttributeError exception in API docs
+
+---
+
 # v2.6.9 (2019-12-16)
 
 ## Enhancements
@@ -12,6 +20,8 @@
 * [#2358](https://github.com/netbox-community/netbox/issues/2358) - Respect custom field default values when creating objects via the REST API
 * [#3749](https://github.com/netbox-community/netbox/issues/3749) - Fix exception on password change page for local users
 * [#3757](https://github.com/netbox-community/netbox/issues/3757) - Fix unable to assign IP to interface
+
+---
 
 # v2.6.8 (2019-12-10)
 
@@ -34,6 +44,8 @@
 * [#3720](https://github.com/netbox-community/netbox/issues/3720) - Correctly indicate power feed terminations on cable list
 * [#3724](https://github.com/netbox-community/netbox/issues/3724) - Fix API filtering of interfaces by more than one device name
 * [#3725](https://github.com/netbox-community/netbox/issues/3725) - Enforce client validation for minimum service port number
+
+---
 
 # v2.6.7 (2019-11-01)
 
