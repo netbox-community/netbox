@@ -1,8 +1,11 @@
+import time
+import datetime
+
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework import status
 
-from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Region, Site
+from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Region, Site, RackGroup, RackRole, Rack
 from extras.constants import GRAPH_TYPE_SITE
 from extras.models import ConfigContext, Graph, ExportTemplate, Tag
 from tenancy.models import Tenant, TenantGroup
@@ -520,3 +523,76 @@ class ConfigContextTest(APITestCase):
         configcontext6.sites.add(site2)
         rendered_context = device.get_config_context()
         self.assertEqual(rendered_context['bar'], 456)
+
+
+class CreatedUpdatedFilterTest(APITestCase):
+
+    def setUp(self):
+
+        super().setUp()
+
+        self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        self.rackgroup1 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 1', slug='test-rack-group-1')
+        self.rackrole1 = RackRole.objects.create(name='Test Rack Role 1', slug='test-rack-role-1', color='ff0000')
+        self.rack1 = Rack.objects.create(
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 1', u_height=42,
+        )
+        self.rack2 = Rack.objects.create(
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 2', u_height=42,
+        )
+
+        # change the created and last_updated of one
+        time.sleep(2)  # to have a difference on the last_updated
+        self.rack2.created = datetime.datetime(2001, 2, 3)
+        self.rack2.save()
+
+    def test_get_rack_meta(self):
+        url = reverse('dcim-api:rack-detail', kwargs={'pk': self.rack1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['created'], self.rack1.created.strftime("%Y-%m-%d"))
+        self.assertEqual(response.data['last_updated'], self.rack1.last_updated.strftime("%Y-%m-%dT%H:%M:%S.%fZ"))
+
+    def test_get_rack_created(self):
+        url = reverse('dcim-api:rack-list')
+        response = self.client.get('{}?created=2001-02-03'.format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 1)
+
+    def test_get_rack_created_gte(self):
+        url = reverse('dcim-api:rack-list')
+        response = self.client.get('{}?created__gte=2001-02-04'.format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 1)
+
+    def test_get_rack_created_lte(self):
+        url = reverse('dcim-api:rack-list')
+        response = self.client.get('{}?created__lte=2001-02-04'.format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 1)
+
+    def test_get_rack_last_updated(self):
+        last_updated = self.rack2.last_updated.strftime("%Y-%m-%d %H:%M:%S.%f")
+
+        url = reverse('dcim-api:rack-list')
+        response = self.client.get(('{}?last_updated='+last_updated).format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 1)
+
+    def test_get_rack_last_updated_gte(self):
+        last_updated_delta = self.rack1.last_updated + datetime.timedelta(0, 1)
+        last_updated = last_updated_delta.strftime("%Y-%m-%d %H:%M:%S")
+
+        url = reverse('dcim-api:rack-list')
+        response = self.client.get(('{}?last_updated__gte='+last_updated).format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 1)
+
+    def test_get_rack_last_updated_lte(self):
+        last_updated_delta = self.rack1.last_updated + datetime.timedelta(0, 1)
+        last_updated = last_updated_delta.strftime("%Y-%m-%d %H:%M:%S")
+
+        url = reverse('dcim-api:rack-list')
+        response = self.client.get(('{}?last_updated__lte=' + last_updated).format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 1)
