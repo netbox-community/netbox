@@ -1,5 +1,9 @@
 # v2.6.10 (FUTURE)
 
+## Enhancements
+
+* [#3705](https://github.com/netbox-community/netbox/issues/3705) - Provide request context when executing custom scripts
+
 ## Bug Fixes
 
 * [#3780](https://github.com/netbox-community/netbox/issues/3780) - Fix AttributeError exception in API docs
