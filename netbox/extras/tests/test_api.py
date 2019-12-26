@@ -575,7 +575,7 @@ class CreatedUpdatedFilterTest(APITestCase):
         last_updated = self.rack2.last_updated.strftime("%Y-%m-%d %H:%M:%S.%f")
 
         url = reverse('dcim-api:rack-list')
-        response = self.client.get(('{}?last_updated='+last_updated).format(url), **self.header)
+        response = self.client.get(('{}?last_updated=' + last_updated).format(url), **self.header)
 
         self.assertEqual(response.data['count'], 1)
 
@@ -584,7 +584,7 @@ class CreatedUpdatedFilterTest(APITestCase):
         last_updated = last_updated_delta.strftime("%Y-%m-%d %H:%M:%S")
 
         url = reverse('dcim-api:rack-list')
-        response = self.client.get(('{}?last_updated__gte='+last_updated).format(url), **self.header)
+        response = self.client.get(('{}?last_updated__gte=' + last_updated).format(url), **self.header)
 
         self.assertEqual(response.data['count'], 1)
 
