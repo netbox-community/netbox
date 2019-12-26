@@ -235,6 +235,9 @@ class BaseScript:
         # Initiate the log
         self.log = []
 
+        # Declare the placeholder for the current request
+        self.request = None
+
         # Grab some info about the script
         self.filename = inspect.getfile(self.__class__)
         self.source = inspect.getsource(self.__class__)
@@ -337,7 +340,7 @@ def is_variable(obj):
     return isinstance(obj, ScriptVariable)
 
 
-def run_script(script, data, files, commit=True):
+def run_script(script, data, request, commit=True):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
     exists outside of the Script class to ensure it cannot be overridden by a script author.
@@ -347,8 +350,12 @@ def run_script(script, data, files, commit=True):
     end_time = None
 
     # Add files to form data
+    files = request.FILES
     for field_name, fileobj in files.items():
         data[field_name] = fileobj
+
+    # Add the current request as a property of the script
+    script.request = request
 
     try:
         with transaction.atomic():
