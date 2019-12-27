@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from django.db.models import Count, F
+from django.db.models import Count, F, OuterRef, Subquery
 from django.shortcuts import render
 from django.views.generic import View
 from rest_framework.response import Response
@@ -8,7 +8,7 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 from circuits.filters import CircuitFilter, ProviderFilter
-from circuits.models import Circuit, Provider
+from circuits.models import Circuit, CircuitTermination, Provider
 from circuits.tables import CircuitTable, ProviderTable
 from dcim.filters import (
     CableFilter, DeviceFilter, DeviceTypeFilter, PowerFeedFilter, RackFilter, RackGroupFilter, SiteFilter,
@@ -49,9 +49,15 @@ SEARCH_TYPES = OrderedDict((
     ('circuit', {
         'permission': 'circuits.view_circuit',
         'queryset': Circuit.objects.prefetch_related(
-            'type', 'provider', 'tenant'
-        ).prefetch_related(
-            'terminations__site'
+            'type', 'provider', 'tenant', 'terminations__site'
+        ).annotate(
+            # Annotate A/Z terminations
+            a_side=Subquery(
+                CircuitTermination.objects.filter(circuit=OuterRef('pk')).filter(term_side='A').values('site__name')[:1]
+            ),
+            z_side=Subquery(
+                CircuitTermination.objects.filter(circuit=OuterRef('pk')).filter(term_side='Z').values('site__name')[:1]
+            ),
         ),
         'filter': CircuitFilter,
         'table': CircuitTable,
