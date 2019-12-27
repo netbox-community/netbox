@@ -16,7 +16,7 @@ For real-time discussion, you can join the #netbox Slack channel on [NetworkToCo
 
 ## Reporting Bugs
 
-* First, ensure that you've installed the [latest stable version](https://github.com/netbox-community/netbox/releases)
+* First, ensure that you're running the [latest stable version](https://github.com/netbox-community/netbox/releases)
 of NetBox. If you're running an older version, it's possible that the bug has
 already been fixed.
 
@@ -28,26 +28,25 @@ up (+1). You might also want to add a comment describing how it's affecting your
 installation. This will allow us to prioritize bugs based on how many users are
 affected.
 
-* If you haven't found an existing issue that describes your suspected bug,
-please inquire about it on the mailing list. **Do not** file an issue until you
-have received confirmation that it is in fact a bug. Invalid issues are very
-distracting and slow the pace at which NetBox is developed.
-
 * When submitting an issue, please be as descriptive as possible. Be sure to
-include:
+provide all information request in the issue template, including:
 
     * The environment in which NetBox is running
-    * The exact steps that can be taken to reproduce the issue (if applicable)
+    * The exact steps that can be taken to reproduce the issue
+    * Expected and observed behavior
     * Any error messages generated
     * Screenshots (if applicable)
 
 * Please avoid prepending any sort of tag (e.g. "[Bug]") to the issue title.
-The issue will be reviewed by a moderator after submission and the appropriate
+The issue will be reviewed by a maintainer after submission and the appropriate
 labels will be applied for categorization.
 
 * Keep in mind that we prioritize bugs based on their severity and how much
 work is required to resolve them. It may take some time for someone to address
 your issue.
+
+* For more information on how bug reports are handled, please see our [issue
+intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Policy).
 
 ## Feature Requests
 
@@ -61,10 +60,10 @@ free to add a comment with any additional justification for the feature.
 (However, note that comments with no substance other than a "+1" will be
 deleted. Please use GitHub's reactions feature to indicate your support.)
 
-* Due to an excessive backlog of feature requests, we are not currently
-accepting any proposals which substantially extend NetBox's functionality
-beyond its current feature set. This includes the introduction of any new views
-or models which have not already been proposed in an existing feature request.
+* Due to a large backlog of feature requests, we are not currently accepting
+any proposals which substantially extend NetBox's functionality beyond its
+current feature set. This includes the introduction of any new views or models
+which have not already been proposed in an existing feature request.
 
 * Before filing a new feature request, consider raising your idea on the
 mailing list first. Feedback you receive there will help validate and shape the
@@ -75,8 +74,8 @@ describe the functionality and data model(s) being proposed. The more effort
 you put into writing a feature request, the better its chance is of being
 implemented. Overly broad feature requests will be closed.
 
-* When submitting a feature request on GitHub, be sure to include the
-following:
+* When submitting a feature request on GitHub, be sure to include all
+information requested by the issue template, including:
 
     * A detailed description of the proposed functionality
     * A use case for the feature; who would use it and what value it would add
@@ -88,6 +87,9 @@ following:
 * Please avoid prepending any sort of tag (e.g. "[Feature]") to the issue
 title. The issue will be reviewed by a moderator after submission and the
 appropriate labels will be applied for categorization.
+
+* For more information on how feature requests are handled, please see our
+[issue intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Policy).
 
 ## Submitting Pull Requests
 
@@ -103,7 +105,7 @@ any work that's already in progress.
 
 * When submitting a pull request, please be sure to work off of the `develop`
 branch, rather than `master`. The `develop` branch is used for ongoing
-development, while `master` is used for tagging new stable releases.
+development, while `master` is used for tagging stable releases.
 
 * All code submissions should meet the following criteria (CI will enforce
 these checks):
@@ -122,27 +124,26 @@ reduce noise in the discussion.
 
 ## Issue Lifecycle
 
-When a correctly formatted issue is submitted it is evaluated by a moderator
-who may elect to immediately label the issue as accepted in addition to another
-issue type label. In other cases, the issue may be labeled as "status: gathering feedback"
-which will often be accompanied by a comment from a moderator asking for further dialog from the community.
-If an issue is labeled as "status: revisions needed" a moderator has identified a problem with
-the issue itself and is asking for the submitter himself to update the original post with
-the requested information. If the original post is not updated in a reasonable amount of time,
-the issue will be closed as invalid.
+New issues are handled according to our [issue intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Policy).
+Maintainers will assign label(s) and/or close new issues as the policy
+dictates. This helps ensure a productive development environment and avoid
+accumulating a large backlog of work.
 
-The core maintainers group has chosen to make use of the GitHub Stale bot to aid in issue management.
+The core maintainers group has chosen to make use of GitHub's [Stale bot](https://github.com/apps/stale)
+to aid in issue management.
 
 * Issues will be marked as stale after 14 days of no activity.
 * Then after 7 more days of inactivity, the issue will be closed.
-* Any issue bearing one of the following labels will be exempt from all Stale bot actions:
+* Any issue bearing one of the following labels will be exempt from all Stale
+  bot actions:
   * `status: accepted`
   * `status: gathering feedback`
   * `status: blocked`
 
-It is natural that some new issues get more attention than others. Often this is a metric of an issues's
-overall usefulness to the project. In other cases in which issues merely get lost in the shuffle,
-notifications from Stale bot can bring renewed attention to potentially meaningful issues.
+It is natural that some new issues get more attention than others. Often this
+is a metric of an issues's overall value to the project. In other cases in
+which issues merely get lost in the shuffle, notifications from Stale bot can
+bring renewed attention to potentially meaningful issues.
 
 ## Maintainer Guidance
 
