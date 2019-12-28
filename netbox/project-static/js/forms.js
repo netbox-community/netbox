@@ -251,6 +251,24 @@ $(document).ready(function() {
         }
     });
 
+    // Flatpickr selectors
+    $('.date-picker').flatpickr({
+        allowInput: true
+    });
+    $('.datetime-picker').flatpickr({
+        allowInput: true,
+        enableSeconds: true,
+        enableTime: true,
+        time_24hr: true
+    });
+    $('.time-picker').flatpickr({
+        allowInput: true,
+        enableSeconds: true,
+        enableTime: true,
+        noCalendar: true,
+        time_24hr: true
+    });
+
     // API backed tags
     var tags = $('#id_tags');
     if (tags.length > 0 && tags.val().length > 0){
