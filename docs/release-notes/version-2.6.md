@@ -3,6 +3,7 @@
 ## Enhancements
 
 * [#3705](https://github.com/netbox-community/netbox/issues/3705) - Provide request context when executing custom scripts
+* [#3762](https://github.com/netbox-community/netbox/issues/3762) - Added date/time pickers
 
 ## Bug Fixes
 
