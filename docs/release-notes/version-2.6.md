@@ -3,6 +3,7 @@
 ## Enhancements
 
 * [#3705](https://github.com/netbox-community/netbox/issues/3705) - Provide request context when executing custom scripts
+* [#3805](https://github.com/netbox-community/netbox/issues/3805) - Keep the select box open if the CTRL/CMD key is held down
 
 ## Bug Fixes
 
