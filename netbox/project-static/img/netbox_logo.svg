@@ -24,6 +24,6 @@
     <rect x="37" y="93" width="180" height="16"/>
     <rect x="212" y="101" width="16" height="180"/>
     <rect x="212" y="93" width="16" height="90" transform="rotate(225 220 101)"/>
-    <text x="380" y="150" alignment-baseline="middle" class="title">netbox</text>
+    <text x="380" y="160" alignment-baseline="middle" class="title">netbox</text>
   </g>
 </svg>
