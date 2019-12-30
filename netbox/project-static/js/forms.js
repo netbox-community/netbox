@@ -334,17 +334,17 @@ $(document).ready(function() {
                 $('select#id_untagged_vlan').parent().parent().hide();
                 $('select#id_tagged_vlans').parent().parent().hide();
             }
-            else if ($(this).val() == 100) {
+            else if ($(this).val() == 'access') {
                 $('select#id_tagged_vlans').val([]);
                 $('select#id_tagged_vlans').trigger('change');
                 $('select#id_untagged_vlan').parent().parent().show();
                 $('select#id_tagged_vlans').parent().parent().hide();
             }
-            else if ($(this).val() == 200) {
+            else if ($(this).val() == 'tagged') {
                 $('select#id_untagged_vlan').parent().parent().show();
                 $('select#id_tagged_vlans').parent().parent().show();
             }
-            else if ($(this).val() == 300) {
+            else if ($(this).val() == 'tagged-all') {
                 $('select#id_tagged_vlans').val([]);
                 $('select#id_tagged_vlans').trigger('change');
                 $('select#id_untagged_vlan').parent().parent().show();
