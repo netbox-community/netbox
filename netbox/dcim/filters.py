@@ -868,8 +868,8 @@ class InventoryItemFilter(DeviceComponentFilterSet):
         qs_filter = (
             Q(name__icontains=value) |
             Q(part_id__icontains=value) |
-            Q(serial__iexact=value) |
-            Q(asset_tag__iexact=value) |
+            Q(serial__icontains=value) |
+            Q(asset_tag__icontains=value) |
             Q(description__icontains=value)
         )
         return queryset.filter(qs_filter)
