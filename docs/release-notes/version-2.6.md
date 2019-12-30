@@ -3,7 +3,8 @@
 ## Enhancements
 
 * [#3705](https://github.com/netbox-community/netbox/issues/3705) - Provide request context when executing custom scripts
-* [#3788](https://github.com/netbox-community/netbox/issues/3788) - Enabled partial search for inventory items
+* [#3762](https://github.com/netbox-community/netbox/issues/3762) - Add date/time picker widgets
+* [#3788](https://github.com/netbox-community/netbox/issues/3788) - Enable partial search for inventory items
 
 ## Bug Fixes
 
