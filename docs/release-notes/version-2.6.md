@@ -8,6 +8,7 @@
 ## Bug Fixes
 
 * [#3695](https://github.com/netbox-community/netbox/issues/3695) - Include A/Z termination sites for circuits in global search
+* [#3712](https://github.com/netbox-community/netbox/issues/3712) - Scrolling to target (hash) did not account for the header size
 * [#3780](https://github.com/netbox-community/netbox/issues/3780) - Fix AttributeError exception in API docs
 
 ---
