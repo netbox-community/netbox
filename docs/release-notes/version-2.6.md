@@ -3,11 +3,13 @@
 ## Enhancements
 
 * [#3705](https://github.com/netbox-community/netbox/issues/3705) - Provide request context when executing custom scripts
-* [#3762](https://github.com/netbox-community/netbox/issues/3762) - Added date/time pickers
+* [#3762](https://github.com/netbox-community/netbox/issues/3762) - Add date/time picker widgets
+* [#3788](https://github.com/netbox-community/netbox/issues/3788) - Enable partial search for inventory items
 
 ## Bug Fixes
 
 * [#3695](https://github.com/netbox-community/netbox/issues/3695) - Include A/Z termination sites for circuits in global search
+* [#3712](https://github.com/netbox-community/netbox/issues/3712) - Scrolling to target (hash) did not account for the header size
 * [#3780](https://github.com/netbox-community/netbox/issues/3780) - Fix AttributeError exception in API docs
 
 ---
