@@ -701,16 +701,22 @@ class ChainedFieldsMixin(forms.BaseForm):
                     else:
                         break
 
+                # Limit field queryset by chained field values
                 if filters_dict:
                     field.queryset = field.queryset.filter(**filters_dict)
+                # Editing an existing instance; limit field to its current value
                 elif not self.is_bound and getattr(self, 'instance', None) and hasattr(self.instance, field_name):
                     obj = getattr(self.instance, field_name)
                     if obj is not None:
                         field.queryset = field.queryset.filter(pk=obj.pk)
                     else:
                         field.queryset = field.queryset.none()
-                elif not self.is_bound:
+                # Creating a new instance with no bound data; nullify queryset
+                elif not self.data.get(field_name):
                     field.queryset = field.queryset.none()
+                # Creating a new instance with bound data; limit queryset to the specified value
+                else:
+                    field.queryset = field.queryset.filter(pk=self.data.get(field_name))
 
 
 class ReturnURLForm(forms.Form):
