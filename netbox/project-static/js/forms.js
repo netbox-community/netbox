@@ -184,7 +184,15 @@ $(document).ready(function() {
                 $.each(element.attributes, function(index, attr){
                     if (attr.name.includes("data-additional-query-param-")){
                         var param_name = attr.name.split("data-additional-query-param-")[1];
-                        parameters[param_name] = attr.value;
+                        if (param_name in parameters) {
+                            if (Array.isArray(parameters[param_name])) {
+                                parameters[param_name].push(attr.value)
+                            } else {
+                                parameters[param_name] = [parameters[param_name], attr.value]
+                            }
+                        } else {
+                            parameters[param_name] = attr.value;
+                        }
                     }
                 });
 

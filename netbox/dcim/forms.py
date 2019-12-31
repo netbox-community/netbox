@@ -1339,7 +1339,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         widget=APISelect(
             api_url="/api/dcim/manufacturers/",
             filter_for={
-                'device_type': 'manufacturer_id'
+                'device_type': 'manufacturer_id',
+                'platform': 'manufacturer_id'
             }
         )
     )
@@ -1408,7 +1409,10 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             ),
             'status': StaticSelect2(),
             'platform': APISelect(
-                api_url="/api/dcim/platforms/"
+                api_url="/api/dcim/platforms/",
+                additional_query_params={
+                    "manufacturer_id": "null"
+                }
             ),
             'primary_ip4': StaticSelect2(),
             'primary_ip6': StaticSelect2(),
