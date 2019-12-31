@@ -2,6 +2,7 @@
 
 ## Enhancements
 
+* [#3062](https://github.com/netbox-community/netbox/issues/3062) - Add `assigned_to_interface` filter for IP addresses
 * [#3461](https://github.com/netbox-community/netbox/issues/3461) - Fail gracefully on custom link rendering exception
 * [#3705](https://github.com/netbox-community/netbox/issues/3705) - Provide request context when executing custom scripts
 * [#3762](https://github.com/netbox-community/netbox/issues/3762) - Add date/time picker widgets
