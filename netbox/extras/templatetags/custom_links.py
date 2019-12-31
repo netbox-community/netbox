@@ -3,9 +3,9 @@ from collections import OrderedDict
 from django import template
 from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
-from jinja2 import Environment
 
 from extras.models import CustomLink
+from utilities.utils import render_jinja2
 
 
 register = template.Library()
@@ -46,7 +46,7 @@ def custom_links(obj):
 
         # Add non-grouped links
         else:
-            text_rendered = Environment().from_string(source=cl.text).render(**context)
+            text_rendered = render_jinja2(cl.text, context)
             if text_rendered:
                 link_target = ' target="_blank"' if cl.new_window else ''
                 template_code += LINK_BUTTON.format(
@@ -59,7 +59,7 @@ def custom_links(obj):
         links_rendered = []
 
         for cl in links:
-            text_rendered = Environment().from_string(source=cl.text).render(**context)
+            text_rendered = render_jinja2(cl.text, context)
             if text_rendered:
                 link_target = ' target="_blank"' if cl.new_window else ''
                 links_rendered.append(
@@ -72,6 +72,6 @@ def custom_links(obj):
             )
 
     # Render template
-    rendered = Environment().from_string(source=template_code).render(**context)
+    rendered = render_jinja2(template_code, context)
 
     return mark_safe(rendered)
