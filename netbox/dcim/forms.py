@@ -74,6 +74,15 @@ class InterfaceCommonForm:
         elif self.cleaned_data['mode'] == IFACE_MODE_TAGGED_ALL:
             self.cleaned_data['tagged_vlans'] = []
 
+        # Validate tagged VLANs; must be a global VLAN or in the same site 
+        else:
+            for tagged_vlan in tagged_vlans:
+                if tagged_vlan.site not in [self.cleaned_data['device'].site, None]:
+                    raise forms.ValidationError({
+                        'tagged_vlans': "The tagged VLAN ({}) must belong to the same site as the interface's parent "
+                                         "device/VM, or it must be global".format(tagged_vlan)
+                    })
+
 
 class BulkRenameForm(forms.Form):
     """
