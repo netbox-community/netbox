@@ -12,6 +12,7 @@
 * [#3712](https://github.com/netbox-community/netbox/issues/3712) - Scrolling to target (hash) did not account for the header size
 * [#3780](https://github.com/netbox-community/netbox/issues/3780) - Fix AttributeError exception in API docs
 * [#3809](https://github.com/netbox-community/netbox/issues/3809) - Filter platform by manufacturer when editing devices
+* [#3811](https://github.com/netbox-community/netbox/issues/3811) - Fix filtering of racks by group on device list
 
 ---
 

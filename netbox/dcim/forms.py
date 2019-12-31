@@ -1729,7 +1729,7 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldFilterForm):
     model = Device
     field_order = [
-        'q', 'region', 'site', 'rack_group_id', 'rack_id', 'status', 'role', 'tenant_group', 'tenant',
+        'q', 'region', 'site', 'group_id', 'rack_id', 'status', 'role', 'tenant_group', 'tenant',
         'manufacturer_id', 'device_type_id', 'mac_address', 'has_primary_ip',
     ]
     q = forms.CharField(
@@ -1755,12 +1755,12 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
             api_url="/api/dcim/sites/",
             value_field="slug",
             filter_for={
-                'rack_group_id': 'site',
+                'group_id': 'site',
                 'rack_id': 'site',
             }
         )
     )
-    rack_group_id = FilterChoiceField(
+    group_id = FilterChoiceField(
         queryset=RackGroup.objects.prefetch_related(
             'site'
         ),
@@ -1768,7 +1768,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-groups/",
             filter_for={
-                'rack_id': 'rack_group_id',
+                'rack_id': 'group_id',
             }
         )
     )
