@@ -76,12 +76,14 @@ class InterfaceCommonForm:
 
         # Validate tagged VLANs; must be a global VLAN or in the same site
         else:
-            for tagged_vlan in tagged_vlans:
-                if tagged_vlan.site not in [self.cleaned_data['device'].site, None]:
-                    raise forms.ValidationError({
-                        'tagged_vlans': "The tagged VLAN ({}) must belong to the same site as the interface's parent "
-                                         "device/VM, or it must be global".format(tagged_vlan)
-                    })
+            valid_sites = [None, self.cleaned_data['device'].site]
+            invalid_vlans = [str(v) for v in tagged_vlans if v.site not in valid_sites]
+
+            if invalid_vlans:
+                raise forms.ValidationError({
+                    'tagged_vlans': "The tagged VLANs ({}) must belong to the same site as the interface's parent "
+                                    "device/VM, or they must be global".format(', '.join(invalid_vlans))
+                })
 
 
 class BulkRenameForm(forms.Form):
