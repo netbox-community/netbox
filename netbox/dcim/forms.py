@@ -74,7 +74,7 @@ class InterfaceCommonForm:
         elif self.cleaned_data['mode'] == IFACE_MODE_TAGGED_ALL:
             self.cleaned_data['tagged_vlans'] = []
 
-        # Validate tagged VLANs; must be a global VLAN or in the same site 
+        # Validate tagged VLANs; must be a global VLAN or in the same site
         else:
             for tagged_vlan in tagged_vlans:
                 if tagged_vlan.site not in [self.cleaned_data['device'].site, None]:
