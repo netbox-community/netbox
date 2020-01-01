@@ -3,6 +3,7 @@
 ## Enhancements
 
 * [#3705](https://github.com/netbox-community/netbox/issues/3705) - Provide request context when executing custom scripts
+* [#2288](https://github.com/netbox-community/netbox/issues/2288) - Ability to move inventory items between devices
 * [#3762](https://github.com/netbox-community/netbox/issues/3762) - Add date/time picker widgets
 * [#3788](https://github.com/netbox-community/netbox/issues/3788) - Enable partial search for inventory items
 
