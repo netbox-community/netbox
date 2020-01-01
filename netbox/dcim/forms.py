@@ -2185,6 +2185,9 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         widget=APISelect(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
+            additional_query_params={
+                'site_id': 'null'
+            },
             full=True
         )
     )
@@ -2194,6 +2197,9 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         widget=APISelectMultiple(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
+            additional_query_params={
+                'site_id': 'null'
+            },
             full=True
         )
     )
@@ -2235,6 +2241,10 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
             self.fields['lag'].queryset = Interface.objects.filter(
                 device__in=[self.instance.device, self.instance.device.get_vc_master()], type=IFACE_TYPE_LAG
             )
+
+        # Add the current site to the list of filtered VLANs
+        self.fields['untagged_vlan'].widget.attrs['1-data-additional-query-param-site_id'] = self.instance.device.site.pk
+        self.fields['tagged_vlans'].widget.attrs['1-data-additional-query-param-site_id'] = self.instance.device.site.pk
 
 
 class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
@@ -2287,6 +2297,9 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
         widget=APISelect(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
+            additional_query_params={
+                'site_id': 'null'
+            },
             full=True
         )
     )
@@ -2296,6 +2309,9 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
         widget=APISelectMultiple(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
+            additional_query_params={
+                'site_id': 'null'
+            },
             full=True
         )
     )
@@ -2315,6 +2331,10 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
             )
         else:
             self.fields['lag'].queryset = Interface.objects.none()
+
+        # Add the current site to the list of filtered VLANs
+        self.fields['untagged_vlan'].widget.attrs['1-data-additional-query-param-site_id'] = self.parent.site.pk
+        self.fields['tagged_vlans'].widget.attrs['1-data-additional-query-param-site_id'] = self.parent.site.pk
 
 
 class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
@@ -2367,6 +2387,9 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
         widget=APISelect(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
+            additional_query_params={
+                'site_id': 'null'
+            },
             full=True
         )
     )
@@ -2376,6 +2399,9 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
         widget=APISelectMultiple(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
+            additional_query_params={
+                'site_id': 'null'
+            },
             full=True
         )
     )
@@ -2397,6 +2423,10 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
             )
         else:
             self.fields['lag'].choices = []
+
+        # Add the current site to the list of filtered VLANs
+        self.fields['untagged_vlan'].widget.attrs['1-data-additional-query-param-site_id'] = self.parent_obj.site.pk
+        self.fields['tagged_vlans'].widget.attrs['1-data-additional-query-param-site_id'] = self.parent_obj.site.pk
 
 
 class InterfaceBulkRenameForm(BulkRenameForm):
