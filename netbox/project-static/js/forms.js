@@ -302,6 +302,7 @@ $(document).ready(function() {
         multiple: true,
         allowClear: true,
         placeholder: "Tags",
+        theme: "bootstrap",
         width: "off",
         ajax: {
             delay: 250,
