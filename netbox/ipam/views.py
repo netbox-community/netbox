@@ -363,7 +363,7 @@ class AggregateView(PermissionRequiredMixin, View):
             'aggregate': aggregate,
             'prefix_table': prefix_table,
             'permissions': permissions,
-            'show_available': request.session.get('ipam_show_available'),
+            'show_available': request.session.get('ipam_show_available', False),
         })
 
 
@@ -551,7 +551,7 @@ class PrefixPrefixesView(PermissionRequiredMixin, View):
             'permissions': permissions,
             'bulk_querystring': 'vrf_id={}&within={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
             'active_tab': 'prefixes',
-            'show_available': request.session.get('ipam_show_available'),
+            'show_available': request.session.get('ipam_show_available', False),
         })
 
 
@@ -599,7 +599,7 @@ class PrefixIPAddressesView(PermissionRequiredMixin, View):
             'permissions': permissions,
             'bulk_querystring': 'vrf_id={}&parent={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
             'active_tab': 'ip-addresses',
-            'show_available': request.session.get('ipam_show_available'),
+            'show_available': request.session.get('ipam_show_available', False),
         })
 
 
