@@ -3171,9 +3171,12 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         required=False,
         widget=ColorSelect()
     )
-    device = forms.CharField(
+    device = forms.ChoiceField(
         required=False,
-        label='Device name'
+        widget=APISelect(
+            api_url='/api/dcim/devices/',
+            value_field='text',
+        )
     )
 
 
@@ -3243,9 +3246,12 @@ class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
         required=False,
         to_field_name='slug'
     )
-    device = forms.CharField(
+    device = forms.ChoiceField(
         required=False,
-        label='Device name'
+        widget=APISelect(
+            api_url='/api/dcim/devices/',
+            value_field='text',
+        )
     )
 
 
@@ -3255,9 +3261,12 @@ class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
         required=False,
         to_field_name='slug'
     )
-    device = forms.CharField(
+    device = forms.ChoiceField(
         required=False,
-        label='Device name'
+        widget=APISelect(
+            api_url='/api/dcim/devices/',
+            value_field='text',
+        )
     )
 
 
@@ -3267,9 +3276,12 @@ class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
         required=False,
         to_field_name='slug'
     )
-    device = forms.CharField(
+    device = forms.ChoiceField(
         required=False,
-        label='Device name'
+        widget=APISelect(
+            api_url='/api/dcim/devices/',
+            value_field='text',
+        )
     )
 
 
@@ -3349,9 +3361,12 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Search'
     )
-    device = forms.CharField(
+    device = forms.ChoiceField(
         required=False,
-        label='Device name'
+        widget=APISelect(
+            api_url='/api/dcim/devices/',
+            value_field='text',
+        )
     )
     manufacturer = FilterChoiceField(
         queryset=Manufacturer.objects.all(),
