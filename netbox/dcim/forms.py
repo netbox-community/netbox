@@ -3171,9 +3171,13 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         required=False,
         widget=ColorSelect()
     )
-    device = forms.CharField(
+    device_id = FilterChoiceField(
+        queryset=Device.objects.all(),
         required=False,
-        label='Device name'
+        label='Device',
+        widget=APISelect(
+            api_url='/api/dcim/devices/',
+        )
     )
 
 
@@ -3238,38 +3242,59 @@ class DeviceBayBulkRenameForm(BulkRenameForm):
 #
 
 class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
-    site = forms.ModelChoiceField(
+    site = FilterChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        to_field_name='slug'
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field="slug",
+        )
     )
-    device = forms.CharField(
+    device_id = FilterChoiceField(
+        queryset=Device.objects.all(),
         required=False,
-        label='Device name'
+        label='Device',
+        widget=APISelect(
+            api_url='/api/dcim/devices/',
+        )
     )
 
 
 class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
-    site = forms.ModelChoiceField(
+    site = FilterChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        to_field_name='slug'
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field="slug",
+        )
     )
-    device = forms.CharField(
+    device_id = FilterChoiceField(
+        queryset=Device.objects.all(),
         required=False,
-        label='Device name'
+        label='Device',
+        widget=APISelect(
+            api_url='/api/dcim/devices/',
+        )
     )
 
 
 class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
-    site = forms.ModelChoiceField(
+    site = FilterChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        to_field_name='slug'
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field="slug",
+        )
     )
-    device = forms.CharField(
+    device_id = FilterChoiceField(
+        queryset=Device.objects.all(),
         required=False,
-        label='Device name'
+        label='Device',
+        widget=APISelect(
+            api_url='/api/dcim/devices/',
+        )
     )
 
 
@@ -3362,9 +3387,13 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Search'
     )
-    device = forms.CharField(
+    device_id = FilterChoiceField(
+        queryset=Device.objects.all(),
         required=False,
-        label='Device name'
+        label='Device',
+        widget=APISelect(
+            api_url='/api/dcim/devices/',
+        )
     )
     manufacturer = FilterChoiceField(
         queryset=Manufacturer.objects.all(),
