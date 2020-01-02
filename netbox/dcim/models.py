@@ -2597,7 +2597,7 @@ class DeviceBay(ComponentModel):
         # Check that the installed device is not already installed elsewhere
         if self.installed_device:
             current_bay = DeviceBay.objects.filter(installed_device=self.installed_device).first()
-            if current_bay != self:
+            if current_bay and current_bay != self:
                 raise ValidationError({
                     'installed_device': "Cannot install the specified device; device is already installed in {}".format(
                         current_bay
