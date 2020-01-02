@@ -3242,10 +3242,13 @@ class DeviceBayBulkRenameForm(BulkRenameForm):
 #
 
 class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
-    site = forms.ModelChoiceField(
+    site = FilterChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        to_field_name='slug'
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field="slug",
+        )
     )
     device_id = FilterChoiceField(
         queryset=Device.objects.all(),
@@ -3258,10 +3261,13 @@ class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
 
 
 class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
-    site = forms.ModelChoiceField(
+    site = FilterChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        to_field_name='slug'
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field="slug",
+        )
     )
     device_id = FilterChoiceField(
         queryset=Device.objects.all(),
@@ -3274,10 +3280,13 @@ class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
 
 
 class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
-    site = forms.ModelChoiceField(
+    site = FilterChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        to_field_name='slug'
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field="slug",
+        )
     )
     device_id = FilterChoiceField(
         queryset=Device.objects.all(),
