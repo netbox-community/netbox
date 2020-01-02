@@ -3,6 +3,9 @@
 ## Enhancements
 
 * [#2365](https://github.com/netbox-community/netbox/issues/2365) - Toggle for showing available prefixes/ip addresses
+* [#2892](https://github.com/netbox-community/netbox/issues/2892) - Extend admin UI to allow deleting old report results
+* [#3062](https://github.com/netbox-community/netbox/issues/3062) - Add `assigned_to_interface` filter for IP addresses
+* [#3461](https://github.com/netbox-community/netbox/issues/3461) - Fail gracefully on custom link rendering exception
 * [#3705](https://github.com/netbox-community/netbox/issues/3705) - Provide request context when executing custom scripts
 * [#3762](https://github.com/netbox-community/netbox/issues/3762) - Add date/time picker widgets
 * [#3788](https://github.com/netbox-community/netbox/issues/3788) - Enable partial search for inventory items

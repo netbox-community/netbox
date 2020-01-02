@@ -938,7 +938,8 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
 class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = IPAddress
     field_order = [
-        'q', 'parent', 'family', 'mask_length', 'vrf_id', 'status', 'role', 'tenant_group', 'tenant',
+        'q', 'parent', 'family', 'mask_length', 'vrf_id', 'status', 'role', 'assigned_to_interface', 'tenant_group',
+        'tenant',
     ]
     q = forms.CharField(
         required=False,
@@ -983,6 +984,13 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
         choices=IPADDRESS_ROLE_CHOICES,
         required=False,
         widget=StaticSelect2Multiple()
+    )
+    assigned_to_interface = forms.NullBooleanField(
+        required=False,
+        label='Assigned to an interface',
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
 
 

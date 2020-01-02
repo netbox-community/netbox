@@ -915,6 +915,13 @@ class ReportResult(models.Model):
     class Meta:
         ordering = ['report']
 
+    def __str__(self):
+        return "{} {} at {}".format(
+            self.report,
+            "passed" if not self.failed else "failed",
+            self.created
+        )
+
 
 #
 # Change logging
