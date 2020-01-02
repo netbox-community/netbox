@@ -249,25 +249,28 @@
             <div class="panel-heading">
                 <strong>Rack Groups</strong>
             </div>
-            {% if rack_groups %}
-                <table class="table table-hover panel-body">
-                    {% for rg in rack_groups %}
-                        <tr>
-                            <td><i class="fa fa-fw fa-folder-o"></i> <a href="{{ rg.get_absolute_url }}">{{ rg }}</a></td>
-                            <td>{{ rg.rack_count }}</td>
-                            <td class="text-right noprint">
-                                <a href="{% url 'dcim:rack_elevation_list' %}?group_id={{ rg.pk }}" class="btn btn-xs btn-primary" title="View elevations">
-                                    <i class="fa fa-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            {% else %}
-                <div class="panel-body text-muted">
-                    None
-                </div>
-            {% endif %}
+            <table class="table table-hover panel-body">
+                {% for rg in rack_groups %}
+                    <tr>
+                        <td><i class="fa fa-fw fa-folder-o"></i> <a href="{{ rg.get_absolute_url }}">{{ rg }}</a></td>
+                        <td>{{ rg.rack_count }}</td>
+                        <td class="text-right noprint">
+                            <a href="{% url 'dcim:rack_elevation_list' %}?group_id={{ rg.pk }}" class="btn btn-xs btn-primary" title="View elevations">
+                                <i class="fa fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td><i class="fa fa-fw fa-folder-o"></i> All racks</td>
+                    <td>{{ stats.rack_count }}</td>
+                    <td class="text-right noprint">
+                        <a href="{% url 'dcim:rack_elevation_list' %}?site={{ site.slug }}" class="btn btn-xs btn-primary" title="View elevations">
+                            <i class="fa fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+            </table>
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">

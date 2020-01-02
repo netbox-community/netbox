@@ -301,6 +301,40 @@ class CustomFieldAPITest(APITestCase):
         cfv = self.site.custom_field_values.get(field=self.cf_select)
         self.assertEqual(cfv.value.pk, data['custom_fields']['magic_choice'])
 
+    def test_set_custom_field_defaults(self):
+        """
+        Create a new object with no custom field data. Custom field values should be created using the custom fields'
+        default values.
+        """
+        CUSTOM_FIELD_DEFAULTS = {
+            'magic_word': 'foobar',
+            'magic_number': '123',
+            'is_magic': 'true',
+            'magic_date': '2019-12-13',
+            'magic_url': 'http://example.com/',
+            'magic_choice': self.cf_select_choice1.value,
+        }
+
+        # Update CustomFields to set default values
+        for field_name, default_value in CUSTOM_FIELD_DEFAULTS.items():
+            CustomField.objects.filter(name=field_name).update(default=default_value)
+
+        data = {
+            'name': 'Test Site X',
+            'slug': 'test-site-x',
+        }
+
+        url = reverse('dcim-api:site-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['custom_fields']['magic_word'], CUSTOM_FIELD_DEFAULTS['magic_word'])
+        self.assertEqual(response.data['custom_fields']['magic_number'], str(CUSTOM_FIELD_DEFAULTS['magic_number']))
+        self.assertEqual(response.data['custom_fields']['is_magic'], bool(CUSTOM_FIELD_DEFAULTS['is_magic']))
+        self.assertEqual(response.data['custom_fields']['magic_date'], CUSTOM_FIELD_DEFAULTS['magic_date'])
+        self.assertEqual(response.data['custom_fields']['magic_url'], CUSTOM_FIELD_DEFAULTS['magic_url'])
+        self.assertEqual(response.data['custom_fields']['magic_choice'], self.cf_select_choice1.pk)
+
 
 class CustomFieldChoiceAPITest(APITestCase):
     def setUp(self):

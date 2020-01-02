@@ -309,6 +309,10 @@ class IPAddressFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilt
         queryset=Interface.objects.all(),
         label='Interface (ID)',
     )
+    assigned_to_interface = django_filters.BooleanFilter(
+        method='_assigned_to_interface',
+        label='Is assigned to an interface',
+    )
     status = django_filters.MultipleChoiceFilter(
         choices=IPAddressStatusChoices,
         null_value=None
@@ -365,6 +369,9 @@ class IPAddressFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilt
             return queryset.filter(interface_id__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()
+
+    def _assigned_to_interface(self, queryset, name, value):
+        return queryset.exclude(interface__isnull=value)
 
 
 class VLANGroupFilter(NameSlugSearchFilterSet):

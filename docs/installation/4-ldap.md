@@ -80,6 +80,7 @@ AUTH_LDAP_USER_ATTR_MAP = {
 ```
 
 # User Groups for Permissions
+
 !!! info
     When using Microsoft Active Directory, support for nested groups can be activated by using `NestedGroupOfNamesType()` instead of `GroupOfNamesType()` for `AUTH_LDAP_GROUP_TYPE`. You will also need to modify the import line to use `NestedGroupOfNamesType` instead of `GroupOfNamesType` .
 
@@ -116,6 +117,9 @@ AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
 * `is_active` - All users must be mapped to at least this group to enable authentication. Without this, users cannot log in.
 * `is_staff` - Users mapped to this group are enabled for access to the administration tools; this is the equivalent of checking the "staff status" box on a manually created user. This doesn't grant any specific permissions.
 * `is_superuser` - Users mapped to this group will be granted superuser status. Superusers are implicitly granted all permissions.
+
+!!! warning
+    Authentication will fail if the groups (the distinguished names) do not exist in the LDAP directory.
 
 # Troubleshooting LDAP
 

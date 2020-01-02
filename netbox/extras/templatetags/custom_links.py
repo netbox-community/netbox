@@ -3,9 +3,9 @@ from collections import OrderedDict
 from django import template
 from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
-from jinja2 import Environment
 
 from extras.models import CustomLink
+from utilities.utils import render_jinja2
 
 
 register = template.Library()
@@ -46,12 +46,17 @@ def custom_links(obj):
 
         # Add non-grouped links
         else:
-            text_rendered = Environment().from_string(source=cl.text).render(**context)
-            if text_rendered:
-                link_target = ' target="_blank"' if cl.new_window else ''
-                template_code += LINK_BUTTON.format(
-                    cl.url, link_target, cl.button_class, text_rendered
-                )
+            try:
+                text_rendered = render_jinja2(cl.text, context)
+                if text_rendered:
+                    link_rendered = render_jinja2(cl.url, context)
+                    link_target = ' target="_blank"' if cl.new_window else ''
+                    template_code += LINK_BUTTON.format(
+                        link_rendered, link_target, cl.button_class, text_rendered
+                    )
+            except Exception as e:
+                template_code += '<a class="btn btn-sm btn-default" disabled="disabled" title="{}">' \
+                                 '<i class="fa fa-warning"></i> {}</a>\n'.format(e, cl.name)
 
     # Add grouped links to template
     for group, links in group_names.items():
@@ -59,11 +64,17 @@ def custom_links(obj):
         links_rendered = []
 
         for cl in links:
-            text_rendered = Environment().from_string(source=cl.text).render(**context)
-            if text_rendered:
-                link_target = ' target="_blank"' if cl.new_window else ''
+            try:
+                text_rendered = render_jinja2(cl.text, context)
+                if text_rendered:
+                    link_target = ' target="_blank"' if cl.new_window else ''
+                    links_rendered.append(
+                        GROUP_LINK.format(cl.url, link_target, cl.text)
+                    )
+            except Exception as e:
                 links_rendered.append(
-                    GROUP_LINK.format(cl.url, link_target, cl.text)
+                    '<li><a disabled="disabled" title="{}"><span class="text-muted">'
+                    '<i class="fa fa-warning"></i> {}</span></a></li>'.format(e, cl.name)
                 )
 
         if links_rendered:
@@ -71,7 +82,4 @@ def custom_links(obj):
                 links[0].button_class, group, ''.join(links_rendered)
             )
 
-    # Render template
-    rendered = Environment().from_string(source=template_code).render(**context)
-
-    return mark_safe(rendered)
+    return mark_safe(template_code)

@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from django.db.models import Count, F
+from django.db.models import Count, F, OuterRef, Subquery
 from django.shortcuts import render
 from django.views.generic import View
 from rest_framework.response import Response
@@ -8,7 +8,7 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 from circuits.filters import CircuitFilter, ProviderFilter
-from circuits.models import Circuit, Provider
+from circuits.models import Circuit, CircuitTermination, Provider
 from circuits.tables import CircuitTable, ProviderTable
 from dcim.filters import (
     CableFilter, DeviceFilter, DeviceTypeFilter, PowerFeedFilter, RackFilter, RackGroupFilter, SiteFilter,
@@ -49,9 +49,15 @@ SEARCH_TYPES = OrderedDict((
     ('circuit', {
         'permission': 'circuits.view_circuit',
         'queryset': Circuit.objects.prefetch_related(
-            'type', 'provider', 'tenant'
-        ).prefetch_related(
-            'terminations__site'
+            'type', 'provider', 'tenant', 'terminations__site'
+        ).annotate(
+            # Annotate A/Z terminations
+            a_side=Subquery(
+                CircuitTermination.objects.filter(circuit=OuterRef('pk')).filter(term_side='A').values('site__name')[:1]
+            ),
+            z_side=Subquery(
+                CircuitTermination.objects.filter(circuit=OuterRef('pk')).filter(term_side='Z').values('site__name')[:1]
+            ),
         ),
         'filter': CircuitFilter,
         'table': CircuitTable,
@@ -116,6 +122,23 @@ SEARCH_TYPES = OrderedDict((
         'table': PowerFeedTable,
         'url': 'dcim:powerfeed_list',
     }),
+    # Virtualization
+    ('cluster', {
+        'permission': 'virtualization.view_cluster',
+        'queryset': Cluster.objects.prefetch_related('type', 'group'),
+        'filter': ClusterFilter,
+        'table': ClusterTable,
+        'url': 'virtualization:cluster_list',
+    }),
+    ('virtualmachine', {
+        'permission': 'virtualization.view_virtualmachine',
+        'queryset': VirtualMachine.objects.prefetch_related(
+            'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
+        ),
+        'filter': VirtualMachineFilter,
+        'table': VirtualMachineDetailTable,
+        'url': 'virtualization:virtualmachine_list',
+    }),
     # IPAM
     ('vrf', {
         'permission': 'ipam.view_vrf',
@@ -167,23 +190,6 @@ SEARCH_TYPES = OrderedDict((
         'filter': TenantFilter,
         'table': TenantTable,
         'url': 'tenancy:tenant_list',
-    }),
-    # Virtualization
-    ('cluster', {
-        'permission': 'virtualization.view_cluster',
-        'queryset': Cluster.objects.prefetch_related('type', 'group'),
-        'filter': ClusterFilter,
-        'table': ClusterTable,
-        'url': 'virtualization:cluster_list',
-    }),
-    ('virtualmachine', {
-        'permission': 'virtualization.view_virtualmachine',
-        'queryset': VirtualMachine.objects.prefetch_related(
-            'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
-        ),
-        'filter': VirtualMachineFilter,
-        'table': VirtualMachineDetailTable,
-        'url': 'virtualization:virtualmachine_list',
     }),
 ))
 

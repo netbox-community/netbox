@@ -1,7 +1,13 @@
+import urllib.parse
+
+from django.contrib.contenttypes.models import ContentType
+from django.test import Client, TestCase
 from django.urls import reverse
 from rest_framework import status
 
 from dcim.models import Region, Site
+from extras.choices import CustomFieldTypeChoices
+from extras.models import CustomField
 from ipam.models import VLAN
 from utilities.testing import APITestCase
 
@@ -117,3 +123,26 @@ class WritableNestedSerializerTest(APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(VLAN.objects.count(), 0)
+
+
+class APIDocsTestCase(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+
+        # Populate a CustomField to activate CustomFieldSerializer
+        content_type = ContentType.objects.get_for_model(Site)
+        self.cf_text = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='test')
+        self.cf_text.save()
+        self.cf_text.obj_type.set([content_type])
+        self.cf_text.save()
+
+    def test_api_docs(self):
+
+        url = reverse('api_docs')
+        params = {
+            "format": "openapi",
+        }
+
+        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
+        self.assertEqual(response.status_code, 200)

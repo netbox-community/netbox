@@ -9,8 +9,8 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField,
-    CSVChoiceField, ExpandableIPAddressField, FilterChoiceField, FlexibleModelChoiceField, ReturnURLForm, SlugField,
-    StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES
+    CSVChoiceField, DatePicker, ExpandableIPAddressField, FilterChoiceField, FlexibleModelChoiceField, ReturnURLForm,
+    SlugField, StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES
 )
 from virtualization.models import VirtualMachine
 from .choices import *
@@ -156,12 +156,12 @@ class AggregateForm(BootstrapMixin, CustomFieldForm):
         help_texts = {
             'prefix': "IPv4 or IPv6 network",
             'rir': "Regional Internet Registry responsible for this prefix",
-            'date_added': "Format: YYYY-MM-DD",
         }
         widgets = {
             'rir': APISelect(
                 api_url="/api/ipam/rirs/"
-            )
+            ),
+            'date_added': DatePicker(),
         }
 
 
@@ -205,6 +205,9 @@ class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         nullable_fields = [
             'date_added', 'description',
         ]
+        widgets = {
+            'date_added': DatePicker(),
+        }
 
 
 class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -935,7 +938,8 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
 class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = IPAddress
     field_order = [
-        'q', 'parent', 'family', 'mask_length', 'vrf_id', 'status', 'role', 'tenant_group', 'tenant',
+        'q', 'parent', 'family', 'mask_length', 'vrf_id', 'status', 'role', 'assigned_to_interface', 'tenant_group',
+        'tenant',
     ]
     q = forms.CharField(
         required=False,
@@ -980,6 +984,13 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
         choices=IPAddressRoleChoices,
         required=False,
         widget=StaticSelect2Multiple()
+    )
+    assigned_to_interface = forms.NullBooleanField(
+        required=False,
+        label='Assigned to an interface',
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
 
 

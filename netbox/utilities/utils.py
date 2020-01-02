@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
+from jinja2 import Environment
 
 from dcim.choices import CableLengthUnitChoices
 from extras.utils import is_taggable
@@ -181,6 +182,14 @@ def to_meters(length, unit):
         return length * 0.3048
     if unit == CableLengthUnitChoices.UNIT_INCH:
         return length * 0.3048 * 12
+    raise ValueError("Unknown unit {}. Must be 'm', 'cm', 'ft', or 'in'.".format(unit))
+
+
+def render_jinja2(template_code, context):
+    """
+    Render a Jinja2 template with the provided context. Return the rendered content.
+    """
+    return Environment().from_string(source=template_code).render(**context)
 
 
 def prepare_cloned_fields(instance):

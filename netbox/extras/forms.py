@@ -10,8 +10,8 @@ from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
-    CommentField, ContentTypeSelect, FilterChoiceField, LaxURLField, JSONField, SlugField, StaticSelect2,
-    BOOLEAN_WITH_BLANK_CHOICES,
+    CommentField, ContentTypeSelect, DatePicker, DateTimePicker, FilterChoiceField, LaxURLField, JSONField,
+    SlugField, StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from .choices import *
 from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachment, ObjectChange, Tag
@@ -52,12 +52,12 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
             else:
                 initial = None
             field = forms.NullBooleanField(
-                required=cf.required, initial=initial, widget=forms.Select(choices=choices)
+                required=cf.required, initial=initial, widget=StaticSelect2(choices=choices)
             )
 
         # Date
         elif cf.type == CustomFieldTypeChoices.TYPE_DATE:
-            field = forms.DateField(required=cf.required, initial=initial, help_text="Date format: YYYY-MM-DD")
+            field = forms.DateField(required=cf.required, initial=initial, widget=DatePicker())
 
         # Select
         elif cf.type == CustomFieldTypeChoices.TYPE_SELECT:
@@ -71,7 +71,9 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
                     default_choice = cf.choices.get(value=initial).pk
                 except ObjectDoesNotExist:
                     pass
-            field = forms.TypedChoiceField(choices=choices, coerce=int, required=cf.required, initial=default_choice)
+            field = forms.TypedChoiceField(
+                choices=choices, coerce=int, required=cf.required, initial=default_choice, widget=StaticSelect2()
+            )
 
         # URL
         elif cf.type == CustomFieldTypeChoices.TYPE_URL:
@@ -404,16 +406,12 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     time_after = forms.DateTimeField(
         label='After',
         required=False,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'YYYY-MM-DD hh:mm:ss'}
-        )
+        widget=DateTimePicker()
     )
     time_before = forms.DateTimeField(
         label='Before',
         required=False,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'YYYY-MM-DD hh:mm:ss'}
-        )
+        widget=DateTimePicker()
     )
     action = forms.ChoiceField(
         choices=add_blank_choice(ObjectChangeActionChoices),

@@ -1,8 +1,11 @@
+import datetime
+
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 
-from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Region, Site
+from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Rack, RackGroup, RackRole, Region, Site
 from extras.api.views import ScriptViewSet
 from extras.models import ConfigContext, Graph, ExportTemplate, Tag
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
@@ -598,3 +601,68 @@ class ScriptTest(APITestCase):
         self.assertEqual(response.data['log'][2]['status'], 'failure')
         self.assertEqual(response.data['log'][2]['message'], script_data['var3'])
         self.assertEqual(response.data['output'], 'Script complete')
+
+
+class CreatedUpdatedFilterTest(APITestCase):
+
+    def setUp(self):
+
+        super().setUp()
+
+        self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        self.rackgroup1 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 1', slug='test-rack-group-1')
+        self.rackrole1 = RackRole.objects.create(name='Test Rack Role 1', slug='test-rack-role-1', color='ff0000')
+        self.rack1 = Rack.objects.create(
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 1', u_height=42,
+        )
+        self.rack2 = Rack.objects.create(
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 2', u_height=42,
+        )
+
+        # change the created and last_updated of one
+        Rack.objects.filter(pk=self.rack2.pk).update(
+            last_updated=datetime.datetime(2001, 2, 3, 1, 2, 3, 4, tzinfo=timezone.utc),
+            created=datetime.datetime(2001, 2, 3)
+        )
+
+    def test_get_rack_created(self):
+        url = reverse('dcim-api:rack-list')
+        response = self.client.get('{}?created=2001-02-03'.format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
+
+    def test_get_rack_created_gte(self):
+        url = reverse('dcim-api:rack-list')
+        response = self.client.get('{}?created__gte=2001-02-04'.format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['id'], self.rack1.pk)
+
+    def test_get_rack_created_lte(self):
+        url = reverse('dcim-api:rack-list')
+        response = self.client.get('{}?created__lte=2001-02-04'.format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
+
+    def test_get_rack_last_updated(self):
+        url = reverse('dcim-api:rack-list')
+        response = self.client.get('{}?last_updated=2001-02-03%2001:02:03.000004'.format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
+
+    def test_get_rack_last_updated_gte(self):
+        url = reverse('dcim-api:rack-list')
+        response = self.client.get('{}?last_updated__gte=2001-02-04%2001:02:03.000004'.format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['id'], self.rack1.pk)
+
+    def test_get_rack_last_updated_lte(self):
+        url = reverse('dcim-api:rack-list')
+        response = self.client.get('{}?last_updated__lte=2001-02-04%2001:02:03.000004'.format(url), **self.header)
+
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)

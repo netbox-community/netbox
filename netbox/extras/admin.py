@@ -3,7 +3,8 @@ from django.contrib import admin
 
 from netbox.admin import admin_site
 from utilities.forms import LaxURLField
-from .models import CustomField, CustomFieldChoice, CustomLink, Graph, ExportTemplate, Webhook
+from .models import CustomField, CustomFieldChoice, CustomLink, Graph, ExportTemplate, ReportResult, Webhook
+from .reports import get_report
 
 
 def order_content_types(field):
@@ -164,3 +165,33 @@ class ExportTemplateAdmin(admin.ModelAdmin):
         'content_type',
     ]
     form = ExportTemplateForm
+
+
+#
+# Reports
+#
+
+@admin.register(ReportResult, site=admin_site)
+class ReportResultAdmin(admin.ModelAdmin):
+    list_display = [
+        'report', 'active', 'created', 'user', 'passing',
+    ]
+    fields = [
+        'report', 'user', 'passing', 'data',
+    ]
+    list_filter = [
+        'failed',
+    ]
+    readonly_fields = fields
+
+    def has_add_permission(self, request):
+        return False
+
+    def active(self, obj):
+        module, report_name = obj.report.split('.')
+        return True if get_report(module, report_name) else False
+    active.boolean = True
+
+    def passing(self, obj):
+        return not obj.failed
+    passing.boolean = True

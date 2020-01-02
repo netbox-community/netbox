@@ -14,7 +14,7 @@ This section of the documentation discusses installing and configuring the NetBo
 # yum install -y epel-release
 # yum install -y gcc python36 python36-devel python36-setuptools libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config redis
 # easy_install-3.6 pip
-# ln -s /usr/bin/python36 /usr/bin/python3
+# ln -s /usr/bin/python3.6 /usr/bin/python3
 ```
 
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
