@@ -3175,7 +3175,7 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         queryset=Device.objects.all(),
         required=False,
         label='Device',
-        widget=APISelect(
+        widget=APISelectMultiple(
             api_url='/api/dcim/devices/',
         )
     )
@@ -3254,7 +3254,7 @@ class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
         queryset=Device.objects.all(),
         required=False,
         label='Device',
-        widget=APISelect(
+        widget=APISelectMultiple(
             api_url='/api/dcim/devices/',
         )
     )
@@ -3273,7 +3273,7 @@ class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
         queryset=Device.objects.all(),
         required=False,
         label='Device',
-        widget=APISelect(
+        widget=APISelectMultiple(
             api_url='/api/dcim/devices/',
         )
     )
@@ -3292,7 +3292,7 @@ class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
         queryset=Device.objects.all(),
         required=False,
         label='Device',
-        widget=APISelect(
+        widget=APISelectMultiple(
             api_url='/api/dcim/devices/',
         )
     )
