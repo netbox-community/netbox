@@ -3189,10 +3189,11 @@ class DeviceBayForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = DeviceBay
         fields = [
-            'device', 'name', 'description', 'tags',
+            'device', 'installed_device', 'name', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
+            'installed_device': forms.HiddenInput(),
         }
 
 
