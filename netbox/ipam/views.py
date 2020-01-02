@@ -335,7 +335,7 @@ class AggregateView(PermissionRequiredMixin, View):
         )
 
         # Update the ipam_show_available cookie if request specifies it
-        if request.GET.get('show_available') is not None:
+        if request.GET.get('show_available'):
             request.session['ipam_show_available'] = request.GET.get('show_available') == 'true'
 
         # Add available prefixes to the table if the cookie requested it
@@ -520,7 +520,7 @@ class PrefixPrefixesView(PermissionRequiredMixin, View):
         ).annotate_depth(limit=0)
 
         # Update the ipam_show_available cookie if request specifies it
-        if request.GET.get('show_available') is not None:
+        if request.GET.get('show_available'):
             request.session['ipam_show_available'] = request.GET.get('show_available') == 'true'
 
         # Add available prefixes to the table if the cookie requested it
@@ -568,7 +568,7 @@ class PrefixIPAddressesView(PermissionRequiredMixin, View):
         )
 
         # Update the ipam_show_available cookie if request specifies it
-        if request.GET.get('show_available') is not None:
+        if request.GET.get('show_available'):
             request.session['ipam_show_available'] = request.GET.get('show_available') == 'true'
 
         # Add available IP addresses to the table if the cookie requested it
