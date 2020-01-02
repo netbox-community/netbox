@@ -8,6 +8,7 @@
 * [#3705](https://github.com/netbox-community/netbox/issues/3705) - Provide request context when executing custom scripts
 * [#3762](https://github.com/netbox-community/netbox/issues/3762) - Add date/time picker widgets
 * [#3788](https://github.com/netbox-community/netbox/issues/3788) - Enable partial search for inventory items
+* [#3812](https://github.com/netbox-community/netbox/issues/3812) - Optimize size of pages containing a dynamic selection field
 
 ## Bug Fixes
 
