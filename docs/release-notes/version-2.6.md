@@ -2,6 +2,7 @@
 
 ## Enhancements
 
+* [#2365](https://github.com/netbox-community/netbox/issues/2365) - Toggle for showing available prefixes/ip addresses
 * [#3705](https://github.com/netbox-community/netbox/issues/3705) - Provide request context when executing custom scripts
 * [#3762](https://github.com/netbox-community/netbox/issues/3762) - Add date/time picker widgets
 * [#3788](https://github.com/netbox-community/netbox/issues/3788) - Enable partial search for inventory items
