@@ -52,7 +52,7 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
             else:
                 initial = None
             field = forms.NullBooleanField(
-                required=cf.required, initial=initial, widget=forms.Select(choices=choices)
+                required=cf.required, initial=initial, widget=StaticSelect2(choices=choices)
             )
 
         # Date
@@ -71,7 +71,9 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
                     default_choice = cf.choices.get(value=initial).pk
                 except ObjectDoesNotExist:
                     pass
-            field = forms.TypedChoiceField(choices=choices, coerce=int, required=cf.required, initial=default_choice)
+            field = forms.TypedChoiceField(
+                choices=choices, coerce=int, required=cf.required, initial=default_choice, widget=StaticSelect2()
+            )
 
         # URL
         elif cf.type == CF_TYPE_URL:

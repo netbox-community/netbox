@@ -3297,9 +3297,12 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InventoryItem
         fields = [
-            'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'tags',
+            'name', 'device', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'tags',
         ]
         widgets = {
+            'device': APISelect(
+                api_url="/api/dcim/devices/"
+            ),
             'manufacturer': APISelect(
                 api_url="/api/dcim/manufacturers/"
             )
@@ -3335,9 +3338,19 @@ class InventoryItemBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=InventoryItem.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/devices/"
+        )
+    )
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/manufacturers/"
+        )
     )
     part_id = forms.CharField(
         max_length=50,
@@ -3371,11 +3384,14 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
     manufacturer = FilterChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
-        null_label='-- None --'
+        widget=APISelect(
+            api_url="/api/dcim/manufacturers/",
+            value_field="slug",
+        )
     )
     discovered = forms.NullBooleanField(
         required=False,
-        widget=forms.Select(
+        widget=StaticSelect2(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
