@@ -2,11 +2,11 @@
 
 ## Enhancements
 
+* [#2233](https://github.com/netbox-community/netbox/issues/2233) - Add ability to move inventory items between devices
 * [#2892](https://github.com/netbox-community/netbox/issues/2892) - Extend admin UI to allow deleting old report results
 * [#3062](https://github.com/netbox-community/netbox/issues/3062) - Add `assigned_to_interface` filter for IP addresses
 * [#3461](https://github.com/netbox-community/netbox/issues/3461) - Fail gracefully on custom link rendering exception
 * [#3705](https://github.com/netbox-community/netbox/issues/3705) - Provide request context when executing custom scripts
-* [#2288](https://github.com/netbox-community/netbox/issues/2288) - Ability to move inventory items between devices
 * [#3762](https://github.com/netbox-community/netbox/issues/3762) - Add date/time picker widgets
 * [#3788](https://github.com/netbox-community/netbox/issues/3788) - Enable partial search for inventory items
 * [#3812](https://github.com/netbox-community/netbox/issues/3812) - Optimize size of pages containing a dynamic selection field
