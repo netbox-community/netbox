@@ -17,6 +17,7 @@
 * [#3780](https://github.com/netbox-community/netbox/issues/3780) - Fix AttributeError exception in API docs
 * [#3809](https://github.com/netbox-community/netbox/issues/3809) - Filter platform by manufacturer when editing devices
 * [#3811](https://github.com/netbox-community/netbox/issues/3811) - Fix filtering of racks by group on device list
+* [#3822](https://github.com/netbox-community/netbox/issues/3822) - Fix exception when editing a device bay (regression from #3596)
 
 ---
 
