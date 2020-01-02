@@ -3171,11 +3171,12 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         required=False,
         widget=ColorSelect()
     )
-    device = forms.ChoiceField(
+    device_id = FilterChoiceField(
+        queryset=Device.objects.all(),
         required=False,
+        label='Device',
         widget=APISelect(
             api_url='/api/dcim/devices/',
-            value_field='text',
         )
     )
 
@@ -3246,11 +3247,12 @@ class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
         required=False,
         to_field_name='slug'
     )
-    device = forms.ChoiceField(
+    device_id = FilterChoiceField(
+        queryset=Device.objects.all(),
         required=False,
+        label='Device',
         widget=APISelect(
             api_url='/api/dcim/devices/',
-            value_field='text',
         )
     )
 
@@ -3261,11 +3263,12 @@ class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
         required=False,
         to_field_name='slug'
     )
-    device = forms.ChoiceField(
+    device_id = FilterChoiceField(
+        queryset=Device.objects.all(),
         required=False,
+        label='Device',
         widget=APISelect(
             api_url='/api/dcim/devices/',
-            value_field='text',
         )
     )
 
@@ -3276,11 +3279,12 @@ class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
         required=False,
         to_field_name='slug'
     )
-    device = forms.ChoiceField(
+    device_id = FilterChoiceField(
+        queryset=Device.objects.all(),
         required=False,
+        label='Device',
         widget=APISelect(
             api_url='/api/dcim/devices/',
-            value_field='text',
         )
     )
 
@@ -3374,11 +3378,12 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Search'
     )
-    device = forms.ChoiceField(
+    device_id = FilterChoiceField(
+        queryset=Device.objects.all(),
         required=False,
+        label='Device',
         widget=APISelect(
             api_url='/api/dcim/devices/',
-            value_field='text',
         )
     )
     manufacturer = FilterChoiceField(
