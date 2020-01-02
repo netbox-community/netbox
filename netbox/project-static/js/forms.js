@@ -103,14 +103,16 @@ $(document).ready(function() {
         placeholder: "---------",
         theme: "bootstrap",
         templateResult: colorPickerClassCopy,
-        templateSelection: colorPickerClassCopy
+        templateSelection: colorPickerClassCopy,
+        width: "off"
     });
 
     // Static choice selection
     $('.netbox-select2-static').select2({
         allowClear: true,
         placeholder: "---------",
-        theme: "bootstrap"
+        theme: "bootstrap",
+        width: "off"
     });
 
     // API backed selection
@@ -120,6 +122,7 @@ $(document).ready(function() {
         allowClear: true,
         placeholder: "---------",
         theme: "bootstrap",
+        width: "off",
         ajax: {
             delay: 500,
 
@@ -299,7 +302,8 @@ $(document).ready(function() {
         multiple: true,
         allowClear: true,
         placeholder: "Tags",
-
+        theme: "bootstrap",
+        width: "off",
         ajax: {
             delay: 250,
             url: netbox_api_path + "extras/tags/",
