@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
+from jinja2 import Environment
 
 from dcim.constants import LENGTH_UNIT_CENTIMETER, LENGTH_UNIT_FOOT, LENGTH_UNIT_INCH, LENGTH_UNIT_METER
 
@@ -174,3 +175,10 @@ def to_meters(length, unit):
     if unit == LENGTH_UNIT_INCH:
         return length * 0.3048 * 12
     raise ValueError("Unknown unit {}. Must be 'm', 'cm', 'ft', or 'in'.".format(unit))
+
+
+def render_jinja2(template_code, context):
+    """
+    Render a Jinja2 template with the provided context. Return the rendered content.
+    """
+    return Environment().from_string(source=template_code).render(**context)

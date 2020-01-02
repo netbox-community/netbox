@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as DjangoPasswordChangeForm
 
-from utilities.forms import BootstrapMixin
+from utilities.forms import BootstrapMixin, DateTimePicker
 from .models import Token
 
 
@@ -29,6 +29,6 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
         fields = [
             'key', 'write_enabled', 'expires', 'description',
         ]
-        help_texts = {
-            'expires': 'YYYY-MM-DD [HH:MM:SS]'
+        widgets = {
+            'expires': DateTimePicker(),
         }

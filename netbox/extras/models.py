@@ -12,12 +12,11 @@ from django.db.models import F, Q
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.urls import reverse
-from jinja2 import Environment
 from taggit.models import TagBase, GenericTaggedItemBase
 
 from dcim.constants import CONNECTION_STATUS_CONNECTED
 from utilities.fields import ColorField
-from utilities.utils import deepmerge, foreground_color, model_names_to_filter_dict
+from utilities.utils import deepmerge, foreground_color, model_names_to_filter_dict, render_jinja2
 from .constants import *
 from .querysets import ConfigContextQuerySet
 
@@ -502,8 +501,7 @@ class ExportTemplate(models.Model):
             output = template.render(Context(context))
 
         elif self.template_language == TEMPLATE_LANGUAGE_JINJA2:
-            template = Environment().from_string(source=self.template_code)
-            output = template.render(**context)
+            output = render_jinja2(self.template_code, context)
 
         else:
             return None
@@ -916,6 +914,13 @@ class ReportResult(models.Model):
 
     class Meta:
         ordering = ['report']
+
+    def __str__(self):
+        return "{} {} at {}".format(
+            self.report,
+            "passed" if not self.failed else "failed",
+            self.created
+        )
 
 
 #

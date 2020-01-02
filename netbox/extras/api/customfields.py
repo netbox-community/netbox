@@ -124,6 +124,9 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
 
         else:
 
+            if not hasattr(self, 'initial_data'):
+                self.initial_data = {}
+
             # Populate default values
             if fields and 'custom_fields' not in self.initial_data:
                 self.initial_data['custom_fields'] = {}

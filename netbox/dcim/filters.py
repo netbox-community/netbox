@@ -868,8 +868,8 @@ class InventoryItemFilter(DeviceComponentFilterSet):
         qs_filter = (
             Q(name__icontains=value) |
             Q(part_id__icontains=value) |
-            Q(serial__iexact=value) |
-            Q(asset_tag__iexact=value) |
+            Q(serial__icontains=value) |
+            Q(asset_tag__icontains=value) |
             Q(description__icontains=value)
         )
         return queryset.filter(qs_filter)
@@ -935,7 +935,7 @@ class CableFilter(django_filters.FilterSet):
     device_id = MultiValueNumberFilter(
         method='filter_device'
     )
-    device = MultiValueNumberFilter(
+    device = MultiValueCharFilter(
         method='filter_device',
         field_name='device__name'
     )
@@ -978,9 +978,12 @@ class ConsoleConnectionFilter(django_filters.FilterSet):
         method='filter_site',
         label='Site (slug)',
     )
-    device = django_filters.CharFilter(
+    device_id = MultiValueNumberFilter(
+        method='filter_device'
+    )
+    device = MultiValueCharFilter(
         method='filter_device',
-        label='Device',
+        field_name='device__name'
     )
 
     class Meta:
@@ -993,11 +996,11 @@ class ConsoleConnectionFilter(django_filters.FilterSet):
         return queryset.filter(connected_endpoint__device__site__slug=value)
 
     def filter_device(self, queryset, name, value):
-        if not value.strip():
+        if not value:
             return queryset
         return queryset.filter(
-            Q(device__name__icontains=value) |
-            Q(connected_endpoint__device__name__icontains=value)
+            Q(**{'{}__in'.format(name): value}) |
+            Q(**{'connected_endpoint__{}__in'.format(name): value})
         )
 
 
@@ -1006,9 +1009,12 @@ class PowerConnectionFilter(django_filters.FilterSet):
         method='filter_site',
         label='Site (slug)',
     )
-    device = django_filters.CharFilter(
+    device_id = MultiValueNumberFilter(
+        method='filter_device'
+    )
+    device = MultiValueCharFilter(
         method='filter_device',
-        label='Device',
+        field_name='device__name'
     )
 
     class Meta:
@@ -1021,11 +1027,11 @@ class PowerConnectionFilter(django_filters.FilterSet):
         return queryset.filter(_connected_poweroutlet__device__site__slug=value)
 
     def filter_device(self, queryset, name, value):
-        if not value.strip():
+        if not value:
             return queryset
         return queryset.filter(
-            Q(device__name__icontains=value) |
-            Q(_connected_poweroutlet__device__name__icontains=value)
+            Q(**{'{}__in'.format(name): value}) |
+            Q(**{'_connected_poweroutlet__{}__in'.format(name): value})
         )
 
 
@@ -1034,9 +1040,12 @@ class InterfaceConnectionFilter(django_filters.FilterSet):
         method='filter_site',
         label='Site (slug)',
     )
-    device = django_filters.CharFilter(
+    device_id = MultiValueNumberFilter(
+        method='filter_device'
+    )
+    device = MultiValueCharFilter(
         method='filter_device',
-        label='Device',
+        field_name='device__name'
     )
 
     class Meta:
@@ -1052,11 +1061,11 @@ class InterfaceConnectionFilter(django_filters.FilterSet):
         )
 
     def filter_device(self, queryset, name, value):
-        if not value.strip():
+        if not value:
             return queryset
         return queryset.filter(
-            Q(device__name__icontains=value) |
-            Q(_connected_interface__device__name__icontains=value)
+            Q(**{'{}__in'.format(name): value}) |
+            Q(**{'_connected_interface__{}__in'.format(name): value})
         )
 
 

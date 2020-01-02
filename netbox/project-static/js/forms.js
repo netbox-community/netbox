@@ -103,14 +103,16 @@ $(document).ready(function() {
         placeholder: "---------",
         theme: "bootstrap",
         templateResult: colorPickerClassCopy,
-        templateSelection: colorPickerClassCopy
+        templateSelection: colorPickerClassCopy,
+        width: "off"
     });
 
     // Static choice selection
     $('.netbox-select2-static').select2({
         allowClear: true,
         placeholder: "---------",
-        theme: "bootstrap"
+        theme: "bootstrap",
+        width: "off"
     });
 
     // API backed selection
@@ -120,6 +122,7 @@ $(document).ready(function() {
         allowClear: true,
         placeholder: "---------",
         theme: "bootstrap",
+        width: "off",
         ajax: {
             delay: 500,
 
@@ -184,7 +187,15 @@ $(document).ready(function() {
                 $.each(element.attributes, function(index, attr){
                     if (attr.name.includes("data-additional-query-param-")){
                         var param_name = attr.name.split("data-additional-query-param-")[1];
-                        parameters[param_name] = attr.value;
+                        if (param_name in parameters) {
+                            if (Array.isArray(parameters[param_name])) {
+                                parameters[param_name].push(attr.value)
+                            } else {
+                                parameters[param_name] = [parameters[param_name], attr.value]
+                            }
+                        } else {
+                            parameters[param_name] = attr.value;
+                        }
                     }
                 });
 
@@ -251,6 +262,24 @@ $(document).ready(function() {
         }
     });
 
+    // Flatpickr selectors
+    $('.date-picker').flatpickr({
+        allowInput: true
+    });
+    $('.datetime-picker').flatpickr({
+        allowInput: true,
+        enableSeconds: true,
+        enableTime: true,
+        time_24hr: true
+    });
+    $('.time-picker').flatpickr({
+        allowInput: true,
+        enableSeconds: true,
+        enableTime: true,
+        noCalendar: true,
+        time_24hr: true
+    });
+
     // API backed tags
     var tags = $('#id_tags');
     if (tags.length > 0 && tags.val().length > 0){
@@ -273,7 +302,8 @@ $(document).ready(function() {
         multiple: true,
         allowClear: true,
         placeholder: "Tags",
-
+        theme: "bootstrap",
+        width: "off",
         ajax: {
             delay: 250,
             url: netbox_api_path + "extras/tags/",
@@ -353,4 +383,19 @@ $(document).ready(function() {
         });
         $('select#id_mode').trigger('change');
     }
+
+    // Scroll up an offset equal to the first nav element if a hash is present
+    // Cannot use '#navbar' because it is not always visible, like in small windows
+    function headerOffsetScroll() {
+        if (window.location.hash) {
+            // Short wait needed to allow the page to scroll to the element
+            setTimeout(function() {
+                window.scrollBy(0, -$('nav').height())
+            }, 10);
+        }
+    }
+
+    // Account for the header height when hash-scrolling
+    window.addEventListener('load', headerOffsetScroll);
+    window.addEventListener('hashchange', headerOffsetScroll);
 });

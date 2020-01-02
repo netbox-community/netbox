@@ -1,3 +1,29 @@
+# v2.6.10 (2019-01-02)
+
+## Enhancements
+
+* [#2233](https://github.com/netbox-community/netbox/issues/2233) - Add ability to move inventory items between devices
+* [#2892](https://github.com/netbox-community/netbox/issues/2892) - Extend admin UI to allow deleting old report results
+* [#3062](https://github.com/netbox-community/netbox/issues/3062) - Add `assigned_to_interface` filter for IP addresses
+* [#3461](https://github.com/netbox-community/netbox/issues/3461) - Fail gracefully on custom link rendering exception
+* [#3705](https://github.com/netbox-community/netbox/issues/3705) - Provide request context when executing custom scripts
+* [#3762](https://github.com/netbox-community/netbox/issues/3762) - Add date/time picker widgets
+* [#3788](https://github.com/netbox-community/netbox/issues/3788) - Enable partial search for inventory items
+* [#3812](https://github.com/netbox-community/netbox/issues/3812) - Optimize size of pages containing a dynamic selection field
+* [#3827](https://github.com/netbox-community/netbox/issues/3827) - Allow filtering console/power/interface connections by device ID
+
+## Bug Fixes
+
+* [#3106](https://github.com/netbox-community/netbox/issues/3106) - Restrict queryset of chained fields when form validation fails
+* [#3695](https://github.com/netbox-community/netbox/issues/3695) - Include A/Z termination sites for circuits in global search
+* [#3712](https://github.com/netbox-community/netbox/issues/3712) - Scrolling to target (hash) did not account for the header size
+* [#3780](https://github.com/netbox-community/netbox/issues/3780) - Fix AttributeError exception in API docs
+* [#3809](https://github.com/netbox-community/netbox/issues/3809) - Filter platform by manufacturer when editing devices
+* [#3811](https://github.com/netbox-community/netbox/issues/3811) - Fix filtering of racks by group on device list
+* [#3822](https://github.com/netbox-community/netbox/issues/3822) - Fix exception when editing a device bay (regression from #3596)
+
+---
+
 # v2.6.9 (2019-12-16)
 
 ## Enhancements
@@ -12,6 +38,8 @@
 * [#2358](https://github.com/netbox-community/netbox/issues/2358) - Respect custom field default values when creating objects via the REST API
 * [#3749](https://github.com/netbox-community/netbox/issues/3749) - Fix exception on password change page for local users
 * [#3757](https://github.com/netbox-community/netbox/issues/3757) - Fix unable to assign IP to interface
+
+---
 
 # v2.6.8 (2019-12-10)
 
@@ -34,6 +62,8 @@
 * [#3720](https://github.com/netbox-community/netbox/issues/3720) - Correctly indicate power feed terminations on cable list
 * [#3724](https://github.com/netbox-community/netbox/issues/3724) - Fix API filtering of interfaces by more than one device name
 * [#3725](https://github.com/netbox-community/netbox/issues/3725) - Enforce client validation for minimum service port number
+
+---
 
 # v2.6.7 (2019-11-01)
 
