@@ -935,7 +935,7 @@ class CableFilter(django_filters.FilterSet):
     device_id = MultiValueNumberFilter(
         method='filter_device'
     )
-    device = MultiValueNumberFilter(
+    device = MultiValueCharFilter(
         method='filter_device',
         field_name='device__name'
     )
