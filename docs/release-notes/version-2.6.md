@@ -4,6 +4,8 @@
 
 * [#2589](https://github.com/netbox-community/netbox/issues/2589) - Toggle for showing available prefixes/ip addresses
 
+---
+
 # v2.6.11 (2020-01-03)
 
 ## Bug Fixes
