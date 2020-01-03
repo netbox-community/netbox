@@ -186,6 +186,29 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
 class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Cluster
     q = forms.CharField(required=False, label='Search')
+    region = FilterChoiceField(
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/dcim/regions/",
+            value_field="slug",
+            filter_for={
+                'site': 'region'
+            }
+        )
+    )
+    site = FilterChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        null_label='-- None --',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field='slug',
+            null_option=True,
+        )
+    )
     type = FilterChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
@@ -212,17 +235,6 @@ class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False,
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenants/",
-            null_option=True,
-        )
-    )
-    site = FilterChoiceField(
-        queryset=Site.objects.all(),
-        to_field_name='slug',
-        null_label='-- None --',
-        required=False,
-        widget=APISelectMultiple(
-            api_url="/api/dcim/sites/",
-            value_field='slug',
             null_option=True,
         )
     )
@@ -585,7 +597,9 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         widget=APISelectMultiple(
             api_url='/api/dcim/regions/',
             value_field="slug",
-            null_option=True,
+            filter_for={
+                'site': 'region'
+            }
         )
     )
     site = FilterChoiceField(
