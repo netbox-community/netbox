@@ -1,3 +1,9 @@
+# v2.6.12 (FUTURE)
+
+## Enhancements
+
+* [#3090](https://github.com/netbox-community/netbox/issues/3090) - Add filter field for device interfaces
+
 # v2.6.11 (2020-01-03)
 
 ## Bug Fixes
