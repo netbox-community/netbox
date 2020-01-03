@@ -3,6 +3,7 @@
 ## Bug Fixes
 
 * [#3831](https://github.com/netbox-community/netbox/issues/3831) - Fix API-driven filter field rendering (#3812 regression)
+* [#3833](https://github.com/netbox-community/netbox/issues/3833) - Add missing region filters for multiple objects
 
 ---
 
