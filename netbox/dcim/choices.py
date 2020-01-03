@@ -283,6 +283,19 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_ITA_M = 'ita-m'
     TYPE_ITA_N = 'ita-n'
     TYPE_ITA_O = 'ita-o'
+    # California Style
+    TYPE_CS_6360C = 'cs6360c'
+    TYPE_CS_6361C = 'cs6361c'
+    TYPE_CS_6364C = 'cs6364c'
+    TYPE_CS_6365C = 'cs6365c'
+    TYPE_CS_8164C = 'cs8164c'
+    TYPE_CS_8165C = 'cs8165c'
+    TYPE_CS_8264C = 'cs8264c'
+    TYPE_CS_8265C = 'cs8265c'
+    TYPE_CS_8364C = 'cs8364c'
+    TYPE_CS_8365C = 'cs8365c'
+    TYPE_CS_8464C = 'cs8464c'
+    TYPE_CS_8465C = 'cs8465c'
 
     CHOICES = (
         ('IEC 60320', (
@@ -338,6 +351,19 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_ITA_M, 'ITA Type M (BS 546)'),
             (TYPE_ITA_N, 'ITA Type N'),
             (TYPE_ITA_O, 'ITA Type O'),
+        ('California Style', (
+            (TYPE_CS_6360C, 'CS6360C'),
+            (TYPE_CS_6361C, 'CS6361C'),
+            (TYPE_CS_6364C, 'CS6364C'),
+            (TYPE_CS_6365C, 'CS6365C'),
+            (TYPE_CS_8164C, 'CS8164C'),
+            (TYPE_CS_8165C, 'CS8165C'),
+            (TYPE_CS_8264C, 'CS8264C'),
+            (TYPE_CS_8265C, 'CS8265C'),
+            (TYPE_CS_8364C, 'CS8364C'),
+            (TYPE_CS_8365C, 'CS8365C'),
+            (TYPE_CS_8464C, 'CS8464C'),
+            (TYPE_CS_8465C, 'CS8465C'),
         )),
     )
 
@@ -396,6 +422,19 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_ITA_M = 'ita-m'
     TYPE_ITA_N = 'ita-n'
     TYPE_ITA_O = 'ita-o'
+    # California Style
+    TYPE_CS_6360C = 'cs6360c'
+    TYPE_CS_6361C = 'cs6361c'
+    TYPE_CS_6364C = 'cs6364c'
+    TYPE_CS_6365C = 'cs6365c'
+    TYPE_CS_8164C = 'cs8164c'
+    TYPE_CS_8165C = 'cs8165c'
+    TYPE_CS_8264C = 'cs8264c'
+    TYPE_CS_8265C = 'cs8265c'
+    TYPE_CS_8364C = 'cs8364c'
+    TYPE_CS_8365C = 'cs8365c'
+    TYPE_CS_8464C = 'cs8464c'
+    TYPE_CS_8465C = 'cs8465c'
 
     CHOICES = (
         ('IEC 60320', (
@@ -451,6 +490,19 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_ITA_N, 'ITA Type N'),
             (TYPE_ITA_O, 'ITA Type O'),
         )),
+        ('California Style', (
+            (TYPE_CS_6360C, 'CS6360C'),
+            (TYPE_CS_6361C, 'CS6361C'),
+            (TYPE_CS_6364C, 'CS6364C'),
+            (TYPE_CS_6365C, 'CS6365C'),
+            (TYPE_CS_8164C, 'CS8164C'),
+            (TYPE_CS_8165C, 'CS8165C'),
+            (TYPE_CS_8264C, 'CS8264C'),
+            (TYPE_CS_8265C, 'CS8265C'),
+            (TYPE_CS_8364C, 'CS8364C'),
+            (TYPE_CS_8365C, 'CS8365C'),
+            (TYPE_CS_8464C, 'CS8464C'),
+            (TYPE_CS_8465C, 'CS8465C'),
     )
 
 
