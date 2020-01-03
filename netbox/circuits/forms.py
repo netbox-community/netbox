@@ -302,6 +302,9 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         widget=APISelectMultiple(
             api_url="/api/dcim/regions/",
             value_field="slug",
+            filter_for={
+                'site': 'region'
+            }
         )
     )
     site = FilterChoiceField(

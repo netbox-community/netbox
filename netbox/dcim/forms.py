@@ -651,16 +651,15 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             }
         )
     )
-    group_id = ChainedModelChoiceField(
-        label='Rack group',
-        queryset=RackGroup.objects.prefetch_related('site'),
-        chains=(
-            ('site', 'site'),
+    group_id = FilterChoiceField(
+        queryset=RackGroup.objects.prefetch_related(
+            'site'
         ),
-        required=False,
+        label='Rack group',
+        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-groups/",
-            null_option=True,
+            null_option=True
         )
     )
     status = forms.MultipleChoiceField(

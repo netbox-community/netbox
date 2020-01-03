@@ -563,7 +563,9 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         widget=APISelectMultiple(
             api_url='/api/dcim/regions/',
             value_field="slug",
-            null_option=True,
+            filter_for={
+                'site': 'region'
+            }
         )
     )
     site = FilterChoiceField(

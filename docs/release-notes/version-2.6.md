@@ -1,3 +1,11 @@
+# v2.6.11 (FUTURE)
+
+## Bug Fixes
+
+* [#3831](https://github.com/netbox-community/netbox/issues/3831) - Fix API-driven filter field rendering (#3812 regression)
+
+---
+
 # v2.6.10 (2020-01-02)
 
 ## Enhancements
