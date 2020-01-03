@@ -3,7 +3,7 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.core.validators import MaxValueValidator, MinValueValidator
 from taggit.forms import TagField
 
-from dcim.models import Site, Rack, Device, Interface
+from dcim.models import Device, Interface, Rack, Region, Site
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
@@ -492,8 +492,8 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Prefix
     field_order = [
-        'q', 'within_include', 'family', 'mask_length', 'vrf_id', 'status', 'site', 'role', 'tenant_group', 'tenant',
-        'is_pool', 'expand',
+        'q', 'within_include', 'family', 'mask_length', 'vrf_id', 'status', 'region', 'site', 'role', 'tenant_group',
+        'tenant', 'is_pool', 'expand',
     ]
     q = forms.CharField(
         required=False,
@@ -533,6 +533,18 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         choices=PREFIX_STATUS_CHOICES,
         required=False,
         widget=StaticSelect2Multiple()
+    )
+    region = FilterChoiceField(
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/dcim/regions/",
+            value_field="slug",
+            filter_for={
+                'site': 'region'
+            }
+        )
     )
     site = FilterChoiceField(
         queryset=Site.objects.all(),
@@ -938,7 +950,8 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
 class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = IPAddress
     field_order = [
-        'q', 'parent', 'family', 'mask_length', 'vrf_id', 'status', 'role', 'tenant_group', 'tenant',
+        'q', 'parent', 'family', 'mask_length', 'vrf_id', 'status', 'role', 'assigned_to_interface', 'tenant_group',
+        'tenant',
     ]
     q = forms.CharField(
         required=False,
@@ -984,6 +997,13 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
         required=False,
         widget=StaticSelect2Multiple()
     )
+    assigned_to_interface = forms.NullBooleanField(
+        required=False,
+        label='Assigned to an interface',
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
 
 
 #
@@ -1026,6 +1046,18 @@ class VLANGroupCSVForm(forms.ModelForm):
 
 
 class VLANGroupFilterForm(BootstrapMixin, forms.Form):
+    region = FilterChoiceField(
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/dcim/regions/",
+            value_field="slug",
+            filter_for={
+                'site': 'region',
+            }
+        )
+    )
     site = FilterChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
@@ -1207,10 +1239,23 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
 
 class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = VLAN
-    field_order = ['q', 'site', 'group_id', 'status', 'role', 'tenant_group', 'tenant']
+    field_order = ['q', 'region', 'site', 'group_id', 'status', 'role', 'tenant_group', 'tenant']
     q = forms.CharField(
         required=False,
         label='Search'
+    )
+    region = FilterChoiceField(
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/dcim/regions/",
+            value_field="slug",
+            filter_for={
+                'site': 'region',
+                'group_id': 'region'
+            }
+        )
     )
     site = FilterChoiceField(
         queryset=Site.objects.all(),

@@ -1,10 +1,25 @@
-# v2.6.10 (FUTURE)
+# v2.6.11 (2020-01-03)
+
+## Bug Fixes
+
+* [#3831](https://github.com/netbox-community/netbox/issues/3831) - Fix API-driven filter field rendering (#3812 regression)
+* [#3833](https://github.com/netbox-community/netbox/issues/3833) - Add missing region filters for multiple objects
+
+---
+
+# v2.6.10 (2020-01-02)
 
 ## Enhancements
 
+* [#2233](https://github.com/netbox-community/netbox/issues/2233) - Add ability to move inventory items between devices
+* [#2892](https://github.com/netbox-community/netbox/issues/2892) - Extend admin UI to allow deleting old report results
+* [#3062](https://github.com/netbox-community/netbox/issues/3062) - Add `assigned_to_interface` filter for IP addresses
+* [#3461](https://github.com/netbox-community/netbox/issues/3461) - Fail gracefully on custom link rendering exception
 * [#3705](https://github.com/netbox-community/netbox/issues/3705) - Provide request context when executing custom scripts
 * [#3762](https://github.com/netbox-community/netbox/issues/3762) - Add date/time picker widgets
 * [#3788](https://github.com/netbox-community/netbox/issues/3788) - Enable partial search for inventory items
+* [#3812](https://github.com/netbox-community/netbox/issues/3812) - Optimize size of pages containing a dynamic selection field
+* [#3827](https://github.com/netbox-community/netbox/issues/3827) - Allow filtering console/power/interface connections by device ID
 
 ## Bug Fixes
 
@@ -15,6 +30,7 @@
 * [#3780](https://github.com/netbox-community/netbox/issues/3780) - Fix AttributeError exception in API docs
 * [#3809](https://github.com/netbox-community/netbox/issues/3809) - Filter platform by manufacturer when editing devices
 * [#3811](https://github.com/netbox-community/netbox/issues/3811) - Fix filtering of racks by group on device list
+* [#3822](https://github.com/netbox-community/netbox/issues/3822) - Fix exception when editing a device bay (regression from #3596)
 
 ---
 
