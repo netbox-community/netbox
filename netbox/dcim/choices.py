@@ -503,6 +503,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_CS_8365C, 'CS8365C'),
             (TYPE_CS_8464C, 'CS8464C'),
             (TYPE_CS_8465C, 'CS8465C'),
+        )),
     )
 
 
