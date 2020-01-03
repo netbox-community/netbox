@@ -351,6 +351,7 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_ITA_M, 'ITA Type M (BS 546)'),
             (TYPE_ITA_N, 'ITA Type N'),
             (TYPE_ITA_O, 'ITA Type O'),
+        )),
         ('California Style', (
             (TYPE_CS_6360C, 'CS6360C'),
             (TYPE_CS_6361C, 'CS6361C'),
