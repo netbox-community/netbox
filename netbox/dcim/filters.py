@@ -93,6 +93,17 @@ class SiteFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet
 
 
 class RackGroupFilter(NameSlugSearchFilterSet):
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='site__region__in',
+        label='Region (ID)',
+    )
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='site__region__in',
+        to_field_name='slug',
+        label='Region (slug)',
+    )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         label='Site (ID)',
@@ -124,6 +135,17 @@ class RackFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='site__region__in',
+        label='Region (ID)',
+    )
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='site__region__in',
+        to_field_name='slug',
+        label='Region (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
@@ -831,6 +853,28 @@ class InventoryItemFilter(DeviceComponentFilterSet):
         method='search',
         label='Search',
     )
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='device__site__region__in',
+        label='Region (ID)',
+    )
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='device__site__region__in',
+        to_field_name='slug',
+        label='Region (slug)',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site',
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site name (slug)',
+    )
     device_id = django_filters.ModelChoiceFilter(
         queryset=Device.objects.all(),
         label='Device (ID)',
@@ -879,6 +923,17 @@ class VirtualChassisFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='master__site__region__in',
+        label='Region (ID)',
+    )
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='master__site__region__in',
+        to_field_name='slug',
+        label='Region (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='master__site',
@@ -935,7 +990,7 @@ class CableFilter(django_filters.FilterSet):
     device_id = MultiValueNumberFilter(
         method='filter_device'
     )
-    device = MultiValueNumberFilter(
+    device = MultiValueCharFilter(
         method='filter_device',
         field_name='device__name'
     )
@@ -978,9 +1033,12 @@ class ConsoleConnectionFilter(django_filters.FilterSet):
         method='filter_site',
         label='Site (slug)',
     )
-    device = django_filters.CharFilter(
+    device_id = MultiValueNumberFilter(
+        method='filter_device'
+    )
+    device = MultiValueCharFilter(
         method='filter_device',
-        label='Device',
+        field_name='device__name'
     )
 
     class Meta:
@@ -993,11 +1051,11 @@ class ConsoleConnectionFilter(django_filters.FilterSet):
         return queryset.filter(connected_endpoint__device__site__slug=value)
 
     def filter_device(self, queryset, name, value):
-        if not value.strip():
+        if not value:
             return queryset
         return queryset.filter(
-            Q(device__name__icontains=value) |
-            Q(connected_endpoint__device__name__icontains=value)
+            Q(**{'{}__in'.format(name): value}) |
+            Q(**{'connected_endpoint__{}__in'.format(name): value})
         )
 
 
@@ -1006,9 +1064,12 @@ class PowerConnectionFilter(django_filters.FilterSet):
         method='filter_site',
         label='Site (slug)',
     )
-    device = django_filters.CharFilter(
+    device_id = MultiValueNumberFilter(
+        method='filter_device'
+    )
+    device = MultiValueCharFilter(
         method='filter_device',
-        label='Device',
+        field_name='device__name'
     )
 
     class Meta:
@@ -1021,11 +1082,11 @@ class PowerConnectionFilter(django_filters.FilterSet):
         return queryset.filter(_connected_poweroutlet__device__site__slug=value)
 
     def filter_device(self, queryset, name, value):
-        if not value.strip():
+        if not value:
             return queryset
         return queryset.filter(
-            Q(device__name__icontains=value) |
-            Q(_connected_poweroutlet__device__name__icontains=value)
+            Q(**{'{}__in'.format(name): value}) |
+            Q(**{'_connected_poweroutlet__{}__in'.format(name): value})
         )
 
 
@@ -1034,9 +1095,12 @@ class InterfaceConnectionFilter(django_filters.FilterSet):
         method='filter_site',
         label='Site (slug)',
     )
-    device = django_filters.CharFilter(
+    device_id = MultiValueNumberFilter(
+        method='filter_device'
+    )
+    device = MultiValueCharFilter(
         method='filter_device',
-        label='Device',
+        field_name='device__name'
     )
 
     class Meta:
@@ -1052,11 +1116,11 @@ class InterfaceConnectionFilter(django_filters.FilterSet):
         )
 
     def filter_device(self, queryset, name, value):
-        if not value.strip():
+        if not value:
             return queryset
         return queryset.filter(
-            Q(device__name__icontains=value) |
-            Q(_connected_interface__device__name__icontains=value)
+            Q(**{'{}__in'.format(name): value}) |
+            Q(**{'_connected_interface__{}__in'.format(name): value})
         )
 
 
@@ -1068,6 +1132,17 @@ class PowerPanelFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='site__region__in',
+        label='Region (ID)',
+    )
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='site__region__in',
+        to_field_name='slug',
+        label='Region (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
@@ -1106,6 +1181,17 @@ class PowerFeedFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='power_panel__site__region__in',
+        label='Region (ID)',
+    )
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='power_panel__site__region__in',
+        to_field_name='slug',
+        label='Region (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='power_panel__site',

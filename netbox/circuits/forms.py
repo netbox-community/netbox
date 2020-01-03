@@ -104,6 +104,18 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False,
         label='Search'
     )
+    region = FilterChoiceField(
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/dcim/regions/",
+            value_field="slug",
+            filter_for={
+                'site': 'region'
+            }
+        )
+    )
     site = FilterChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
@@ -302,6 +314,9 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         widget=APISelectMultiple(
             api_url="/api/dcim/regions/",
             value_field="slug",
+            filter_for={
+                'site': 'region'
+            }
         )
     )
     site = FilterChoiceField(
