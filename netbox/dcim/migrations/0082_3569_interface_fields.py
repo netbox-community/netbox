@@ -33,6 +33,7 @@ INTERFACE_TYPE_CHOICES = (
     (2620, 'ieee802.11n'),
     (2630, 'ieee802.11ac'),
     (2640, 'ieee802.11ad'),
+    (2650, 'ieee802.11ax'),
     (2810, 'gsm'),
     (2820, 'cdma'),
     (2830, 'lte'),
