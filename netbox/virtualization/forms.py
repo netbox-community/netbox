@@ -183,9 +183,21 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         ]
 
 
-class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Cluster
+    field_order = [
+        'q', 'type', 'region', 'site', 'group', 'tenant_group', 'tenant'
+    ]
     q = forms.CharField(required=False, label='Search')
+    type = FilterChoiceField(
+        queryset=ClusterType.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/virtualization/cluster-types/",
+            value_field='slug',
+        )
+    )
     region = FilterChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
@@ -209,15 +221,6 @@ class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
-    type = FilterChoiceField(
-        queryset=ClusterType.objects.all(),
-        to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            api_url="/api/virtualization/cluster-types/",
-            value_field='slug',
-        )
-    )
     group = FilterChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
@@ -226,15 +229,6 @@ class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
         widget=APISelectMultiple(
             api_url="/api/virtualization/cluster-groups/",
             value_field='slug',
-            null_option=True,
-        )
-    )
-    tenant = FilterChoiceField(
-        queryset=Tenant.objects.all(),
-        null_label='-- None --',
-        required=False,
-        widget=APISelectMultiple(
-            api_url="/api/tenancy/tenants/",
             null_option=True,
         )
     )
