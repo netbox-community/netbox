@@ -1,3 +1,11 @@
+# v2.6.12 (FUTURE)
+
+## Enhancements
+
+* [#3187](https://github.com/netbox-community/netbox/issues/3187) - Add rack selection field to rack elevations
+
+---
+
 # v2.6.11 (2020-01-03)
 
 ## Bug Fixes
