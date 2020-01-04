@@ -1,3 +1,11 @@
+# v2.6.12 (FUTURE)
+
+## Enhancements
+
+* [#2050](https://github.com/netbox-community/netbox/issues/2050) - Preview image attachments when hovering the link
+
+---
+
 # v2.6.11 (2020-01-03)
 
 ## Bug Fixes
