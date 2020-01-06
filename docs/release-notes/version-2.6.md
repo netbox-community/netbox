@@ -5,6 +5,10 @@
 * [#2050](https://github.com/netbox-community/netbox/issues/2050) - Preview image attachments when hovering the link
 * [#3187](https://github.com/netbox-community/netbox/issues/3187) - Add rack selection field to rack elevations
 
+## Bug Fixes
+
+* [#3589](https://github.com/netbox-community/netbox/issues/3589) - Fix validation on tagged VLANs of an interface
+
 ---
 
 # v2.6.11 (2020-01-03)
