@@ -1,5 +1,9 @@
 # v2.6.12 (FUTURE)
 
+## Enhancements
+
+* [#3187](https://github.com/netbox-community/netbox/issues/3187) - Add rack selection field to rack elevations
+
 ## Bug Fixes
 
 * [#3589](https://github.com/netbox-community/netbox/issues/3589) - Fix validation on tagged VLANs of an interface
