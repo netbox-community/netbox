@@ -704,6 +704,34 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 
 
 #
+# Rack elevations
+#
+
+class RackElevationFilterForm(RackFilterForm):
+    field_order = ['q', 'region', 'site', 'group_id', 'id', 'status', 'role', 'tenant_group', 'tenant']
+    id = ChainedModelChoiceField(
+        queryset=Rack.objects.all(),
+        label='Rack',
+        chains=(
+            ('site', 'site'),
+            ('group_id', 'group_id'),
+        ),
+        required=False,
+        widget=APISelectMultiple(
+            api_url='/api/dcim/racks/',
+            display_field='display_name',
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Filter the rack field based on the site and group
+        self.fields['site'].widget.add_filter_for('id', 'site')
+        self.fields['group_id'].widget.add_filter_for('id', 'group_id')
+
+
+#
 # Rack reservations
 #
 
