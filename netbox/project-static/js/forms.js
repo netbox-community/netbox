@@ -7,7 +7,7 @@ $(document).ready(function() {
 
     // "Toggle" checkbox for object lists (PK column)
     $('input:checkbox.toggle').click(function() {
-        $(this).closest('table').find('input:checkbox[name=pk]').prop('checked', $(this).prop('checked'));
+        $(this).closest('table').find('input:checkbox[name=pk]:visible').prop('checked', $(this).prop('checked'));
 
         // Show the "select all" box if present
         if ($(this).is(':checked')) {
