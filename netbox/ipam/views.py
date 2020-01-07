@@ -334,12 +334,8 @@ class AggregateView(PermissionRequiredMixin, View):
             limit=0
         )
 
-        # Update the ipam_show_available cookie if request specifies it
-        if request.GET.get('show_available'):
-            request.session['ipam_show_available'] = request.GET.get('show_available') == 'true'
-
-        # Add available prefixes to the table if the cookie requested it
-        if request.session.get('ipam_show_available'):
+        # Add available prefixes to the table if requested
+        if request.GET.get('show_available', False):
             child_prefixes = add_available_prefixes(aggregate.prefix, child_prefixes)
 
         prefix_table = tables.PrefixDetailTable(child_prefixes)
@@ -363,7 +359,7 @@ class AggregateView(PermissionRequiredMixin, View):
             'aggregate': aggregate,
             'prefix_table': prefix_table,
             'permissions': permissions,
-            'show_available': request.session.get('ipam_show_available', False),
+            'show_available': request.GET.get('show_available', False),
         })
 
 
@@ -519,12 +515,8 @@ class PrefixPrefixesView(PermissionRequiredMixin, View):
             'site', 'vlan', 'role',
         ).annotate_depth(limit=0)
 
-        # Update the ipam_show_available cookie if request specifies it
-        if request.GET.get('show_available'):
-            request.session['ipam_show_available'] = request.GET.get('show_available') == 'true'
-
-        # Add available prefixes to the table if the cookie requested it
-        if child_prefixes and request.session.get('ipam_show_available'):
+        # Add available prefixes to the table if requested
+        if child_prefixes and request.GET.get('show_available', False):
             child_prefixes = add_available_prefixes(prefix.prefix, child_prefixes)
 
         prefix_table = tables.PrefixDetailTable(child_prefixes)
@@ -551,7 +543,7 @@ class PrefixPrefixesView(PermissionRequiredMixin, View):
             'permissions': permissions,
             'bulk_querystring': 'vrf_id={}&within={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
             'active_tab': 'prefixes',
-            'show_available': request.session.get('ipam_show_available', False),
+            'show_available': request.GET.get('show_available', False),
         })
 
 
@@ -567,12 +559,8 @@ class PrefixIPAddressesView(PermissionRequiredMixin, View):
             'vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for'
         )
 
-        # Update the ipam_show_available cookie if request specifies it
-        if request.GET.get('show_available'):
-            request.session['ipam_show_available'] = request.GET.get('show_available') == 'true'
-
-        # Add available IP addresses to the table if the cookie requested it
-        if request.session.get('ipam_show_available'):
+        # Add available IP addresses to the table if requested
+        if request.GET.get('show_available', False):
             ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses, prefix.is_pool)
 
         ip_table = tables.IPAddressTable(ipaddresses)
@@ -599,7 +587,7 @@ class PrefixIPAddressesView(PermissionRequiredMixin, View):
             'permissions': permissions,
             'bulk_querystring': 'vrf_id={}&parent={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
             'active_tab': 'ip-addresses',
-            'show_available': request.session.get('ipam_show_available', False),
+            'show_available': request.GET.get('show_available', False),
         })
 
 
