@@ -2,11 +2,11 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 from dcim.constants import *
-from dcim.filters import (
-    RackFilter, RackGroupFilter, RackReservationFilter, RackRoleFilter, RegionFilter, SiteFilter,
-)
+from dcim.filters import *
 from dcim.models import (
-    Rack, RackGroup, RackReservation, RackRole, Region, Site,
+    ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, DeviceType, FrontPortTemplate, InterfaceTemplate,
+    Manufacturer, PowerPortTemplate, PowerOutletTemplate, Rack, RackGroup, RackReservation, RackRole, RearPortTemplate,
+    Region, Site,
 )
 
 
@@ -425,3 +425,500 @@ class RackReservationTestCase(TestCase):
         # TODO: Filtering by username is broken
         # params = {'user': [users[0].username, users[1].username]}
         # self.assertEqual(RackReservationFilter(params, self.queryset).qs.count(), 2)
+
+
+class ManufacturerTestCase(TestCase):
+    queryset = Manufacturer.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(ManufacturerFilter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Manufacturer 1', 'Manufacturer 2']}
+        self.assertEqual(ManufacturerFilter(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['manufacturer-1', 'manufacturer-2']}
+        self.assertEqual(ManufacturerFilter(params, self.queryset).qs.count(), 2)
+
+
+class DeviceTypeTestCase(TestCase):
+    queryset = DeviceType.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        device_types = (
+            DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True, subdevice_role=None),
+            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SUBDEVICE_ROLE_PARENT),
+            DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3', u_height=3, is_full_depth=False, subdevice_role=SUBDEVICE_ROLE_CHILD),
+        )
+        DeviceType.objects.bulk_create(device_types)
+
+        # Add component templates for filtering
+        ConsolePortTemplate.objects.bulk_create((
+            ConsolePortTemplate(device_type=device_types[0], name='Console Port 1'),
+            ConsolePortTemplate(device_type=device_types[1], name='Console Port 2'),
+        ))
+        ConsoleServerPortTemplate.objects.bulk_create((
+            ConsoleServerPortTemplate(device_type=device_types[0], name='Console Server Port 1'),
+            ConsoleServerPortTemplate(device_type=device_types[1], name='Console Server Port 2'),
+        ))
+        PowerPortTemplate.objects.bulk_create((
+            PowerPortTemplate(device_type=device_types[0], name='Power Port 1'),
+            PowerPortTemplate(device_type=device_types[1], name='Power Port 2'),
+        ))
+        PowerOutletTemplate.objects.bulk_create((
+            PowerOutletTemplate(device_type=device_types[0], name='Power Outlet 1'),
+            PowerOutletTemplate(device_type=device_types[1], name='Power Outlet 2'),
+        ))
+        InterfaceTemplate.objects.bulk_create((
+            InterfaceTemplate(device_type=device_types[0], name='Interface 1'),
+            InterfaceTemplate(device_type=device_types[1], name='Interface 2'),
+        ))
+        rear_ports = (
+            RearPortTemplate(device_type=device_types[0], name='Rear Port 1', type=PORT_TYPE_8P8C),
+            RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PORT_TYPE_8P8C),
+        )
+        RearPortTemplate.objects.bulk_create(rear_ports)
+        FrontPortTemplate.objects.bulk_create((
+            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', type=PORT_TYPE_8P8C, rear_port=rear_ports[0]),
+            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', type=PORT_TYPE_8P8C, rear_port=rear_ports[1]),
+        ))
+        DeviceBayTemplate.objects.bulk_create((
+            DeviceBayTemplate(device_type=device_types[0], name='Device Bay 1'),
+            DeviceBayTemplate(device_type=device_types[1], name='Device Bay 2'),
+        ))
+
+    def test_model(self):
+        params = {'model': ['Model 1', 'Model 2']}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['model-1', 'model-2']}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+
+    def test_part_number(self):
+        params = {'part_number': ['Part Number 1', 'Part Number 2']}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+
+    def test_u_height(self):
+        params = {'u_height': [1, 2]}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+
+    def test_is_full_depth(self):
+        params = {'is_full_depth': 'true'}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        params = {'is_full_depth': 'false'}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+
+    def test_subdevice_role(self):
+        params = {'subdevice_role': SUBDEVICE_ROLE_PARENT}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+
+    def test_id__in(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id__in': ','.join([str(id) for id in id_list])}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+
+    def test_manufacturer(self):
+        manufacturers = Manufacturer.objects.all()[:2]
+        params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+
+    def test_console_ports(self):
+        params = {'console_ports': 'true'}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        params = {'console_ports': 'false'}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+
+    def test_console_server_ports(self):
+        params = {'console_server_ports': 'true'}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        params = {'console_server_ports': 'false'}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+
+    def test_power_ports(self):
+        params = {'power_ports': 'true'}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        params = {'power_ports': 'false'}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+
+    def test_power_outlets(self):
+        params = {'power_outlets': 'true'}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        params = {'power_outlets': 'false'}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+
+    def test_interfaces(self):
+        params = {'interfaces': 'true'}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        params = {'interfaces': 'false'}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+
+    def test_pass_through_ports(self):
+        params = {'pass_through_ports': 'true'}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        params = {'pass_through_ports': 'false'}
+        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+
+    # TODO: Add device_bay filter
+    # def test_device_bays(self):
+    #     params = {'device_bays': 'true'}
+    #     self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+    #     params = {'device_bays': 'false'}
+    #     self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+
+
+class ConsolePortTemplateTestCase(TestCase):
+    queryset = ConsolePortTemplate.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+
+        device_types = (
+            DeviceType(manufacturer=manufacturer, model='Model 1', slug='model-1'),
+            DeviceType(manufacturer=manufacturer, model='Model 2', slug='model-2'),
+            DeviceType(manufacturer=manufacturer, model='Model 3', slug='model-3'),
+        )
+        DeviceType.objects.bulk_create(device_types)
+
+        ConsolePortTemplate.objects.bulk_create((
+            ConsolePortTemplate(device_type=device_types[0], name='Console Port 1'),
+            ConsolePortTemplate(device_type=device_types[1], name='Console Port 2'),
+            ConsolePortTemplate(device_type=device_types[2], name='Console Port 3'),
+        ))
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(ConsolePortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Console Port 1', 'Console Port 2']}
+        self.assertEqual(ConsolePortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_devicetype_id(self):
+        device_types = DeviceType.objects.all()[:2]
+        params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
+        self.assertEqual(ConsolePortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+
+class ConsoleServerPortTemplateTestCase(TestCase):
+    queryset = ConsoleServerPortTemplate.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+
+        device_types = (
+            DeviceType(manufacturer=manufacturer, model='Model 1', slug='model-1'),
+            DeviceType(manufacturer=manufacturer, model='Model 2', slug='model-2'),
+            DeviceType(manufacturer=manufacturer, model='Model 3', slug='model-3'),
+        )
+        DeviceType.objects.bulk_create(device_types)
+
+        ConsoleServerPortTemplate.objects.bulk_create((
+            ConsoleServerPortTemplate(device_type=device_types[0], name='Console Server Port 1'),
+            ConsoleServerPortTemplate(device_type=device_types[1], name='Console Server Port 2'),
+            ConsoleServerPortTemplate(device_type=device_types[2], name='Console Server Port 3'),
+        ))
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(ConsoleServerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Console Server Port 1', 'Console Server Port 2']}
+        self.assertEqual(ConsoleServerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_devicetype_id(self):
+        device_types = DeviceType.objects.all()[:2]
+        params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
+        self.assertEqual(ConsoleServerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+
+class PowerPortTemplateTestCase(TestCase):
+    queryset = PowerPortTemplate.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+
+        device_types = (
+            DeviceType(manufacturer=manufacturer, model='Model 1', slug='model-1'),
+            DeviceType(manufacturer=manufacturer, model='Model 2', slug='model-2'),
+            DeviceType(manufacturer=manufacturer, model='Model 3', slug='model-3'),
+        )
+        DeviceType.objects.bulk_create(device_types)
+
+        PowerPortTemplate.objects.bulk_create((
+            PowerPortTemplate(device_type=device_types[0], name='Power Port 1', maximum_draw=100, allocated_draw=50),
+            PowerPortTemplate(device_type=device_types[1], name='Power Port 2', maximum_draw=200, allocated_draw=100),
+            PowerPortTemplate(device_type=device_types[2], name='Power Port 3', maximum_draw=300, allocated_draw=150),
+        ))
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(PowerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Power Port 1', 'Power Port 2']}
+        self.assertEqual(PowerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_devicetype_id(self):
+        device_types = DeviceType.objects.all()[:2]
+        params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
+        self.assertEqual(PowerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_maximum_draw(self):
+        params = {'maximum_draw': [100, 200]}
+        self.assertEqual(PowerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_allocated_draw(self):
+        params = {'allocated_draw': [50, 100]}
+        self.assertEqual(PowerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+
+class PowerOutletTemplateTestCase(TestCase):
+    queryset = PowerOutletTemplate.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+
+        device_types = (
+            DeviceType(manufacturer=manufacturer, model='Model 1', slug='model-1'),
+            DeviceType(manufacturer=manufacturer, model='Model 2', slug='model-2'),
+            DeviceType(manufacturer=manufacturer, model='Model 3', slug='model-3'),
+        )
+        DeviceType.objects.bulk_create(device_types)
+
+        PowerOutletTemplate.objects.bulk_create((
+            PowerOutletTemplate(device_type=device_types[0], name='Power Outlet 1', feed_leg=POWERFEED_LEG_A),
+            PowerOutletTemplate(device_type=device_types[1], name='Power Outlet 2', feed_leg=POWERFEED_LEG_B),
+            PowerOutletTemplate(device_type=device_types[2], name='Power Outlet 3', feed_leg=POWERFEED_LEG_C),
+        ))
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(PowerOutletTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Power Outlet 1', 'Power Outlet 2']}
+        self.assertEqual(PowerOutletTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_devicetype_id(self):
+        device_types = DeviceType.objects.all()[:2]
+        params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
+        self.assertEqual(PowerOutletTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_feed_leg(self):
+        # TODO: Support filtering for multiple values
+        params = {'feed_leg': POWERFEED_LEG_A}
+        self.assertEqual(PowerOutletTemplateFilter(params, self.queryset).qs.count(), 1)
+
+
+class InterfaceTemplateTestCase(TestCase):
+    queryset = InterfaceTemplate.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+
+        device_types = (
+            DeviceType(manufacturer=manufacturer, model='Model 1', slug='model-1'),
+            DeviceType(manufacturer=manufacturer, model='Model 2', slug='model-2'),
+            DeviceType(manufacturer=manufacturer, model='Model 3', slug='model-3'),
+        )
+        DeviceType.objects.bulk_create(device_types)
+
+        InterfaceTemplate.objects.bulk_create((
+            InterfaceTemplate(device_type=device_types[0], name='Interface 1', type=IFACE_TYPE_1GE_FIXED, mgmt_only=True),
+            InterfaceTemplate(device_type=device_types[1], name='Interface 2', type=IFACE_TYPE_1GE_GBIC, mgmt_only=False),
+            InterfaceTemplate(device_type=device_types[2], name='Interface 3', type=IFACE_TYPE_1GE_SFP, mgmt_only=False),
+        ))
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(InterfaceTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Interface 1', 'Interface 2']}
+        self.assertEqual(InterfaceTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_devicetype_id(self):
+        device_types = DeviceType.objects.all()[:2]
+        params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
+        self.assertEqual(InterfaceTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_type(self):
+        # TODO: Support filtering for multiple values
+        params = {'type': IFACE_TYPE_1GE_FIXED}
+        self.assertEqual(InterfaceTemplateFilter(params, self.queryset).qs.count(), 1)
+
+    def test_mgmt_only(self):
+        params = {'mgmt_only': 'true'}
+        self.assertEqual(InterfaceTemplateFilter(params, self.queryset).qs.count(), 1)
+        params = {'mgmt_only': 'false'}
+        self.assertEqual(InterfaceTemplateFilter(params, self.queryset).qs.count(), 2)
+
+
+class FrontPortTemplateTestCase(TestCase):
+    queryset = FrontPortTemplate.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+
+        device_types = (
+            DeviceType(manufacturer=manufacturer, model='Model 1', slug='model-1'),
+            DeviceType(manufacturer=manufacturer, model='Model 2', slug='model-2'),
+            DeviceType(manufacturer=manufacturer, model='Model 3', slug='model-3'),
+        )
+        DeviceType.objects.bulk_create(device_types)
+
+        rear_ports = (
+            RearPortTemplate(device_type=device_types[0], name='Rear Port 1', type=PORT_TYPE_8P8C),
+            RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PORT_TYPE_8P8C),
+            RearPortTemplate(device_type=device_types[2], name='Rear Port 3', type=PORT_TYPE_8P8C),
+        )
+        RearPortTemplate.objects.bulk_create(rear_ports)
+
+        FrontPortTemplate.objects.bulk_create((
+            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', rear_port=rear_ports[0], type=PORT_TYPE_8P8C),
+            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', rear_port=rear_ports[1], type=PORT_TYPE_110_PUNCH),
+            FrontPortTemplate(device_type=device_types[2], name='Front Port 3', rear_port=rear_ports[2], type=PORT_TYPE_BNC),
+        ))
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(FrontPortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Front Port 1', 'Front Port 2']}
+        self.assertEqual(FrontPortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_devicetype_id(self):
+        device_types = DeviceType.objects.all()[:2]
+        params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
+        self.assertEqual(FrontPortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_type(self):
+        # TODO: Support filtering for multiple values
+        params = {'type': PORT_TYPE_8P8C}
+        self.assertEqual(FrontPortTemplateFilter(params, self.queryset).qs.count(), 1)
+
+
+class RearPortTemplateTestCase(TestCase):
+    queryset = RearPortTemplate.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+
+        device_types = (
+            DeviceType(manufacturer=manufacturer, model='Model 1', slug='model-1'),
+            DeviceType(manufacturer=manufacturer, model='Model 2', slug='model-2'),
+            DeviceType(manufacturer=manufacturer, model='Model 3', slug='model-3'),
+        )
+        DeviceType.objects.bulk_create(device_types)
+
+        RearPortTemplate.objects.bulk_create((
+            RearPortTemplate(device_type=device_types[0], name='Rear Port 1', type=PORT_TYPE_8P8C, positions=1),
+            RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PORT_TYPE_110_PUNCH, positions=2),
+            RearPortTemplate(device_type=device_types[2], name='Rear Port 3', type=PORT_TYPE_BNC, positions=3),
+        ))
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(RearPortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Rear Port 1', 'Rear Port 2']}
+        self.assertEqual(RearPortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_devicetype_id(self):
+        device_types = DeviceType.objects.all()[:2]
+        params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
+        self.assertEqual(RearPortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_type(self):
+        # TODO: Support filtering for multiple values
+        params = {'type': PORT_TYPE_8P8C}
+        self.assertEqual(RearPortTemplateFilter(params, self.queryset).qs.count(), 1)
+
+    def test_positions(self):
+        params = {'positions': [1, 2]}
+        self.assertEqual(RearPortTemplateFilter(params, self.queryset).qs.count(), 2)
+
+
+class DeviceBayTemplateTestCase(TestCase):
+    queryset = DeviceBayTemplate.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+
+        device_types = (
+            DeviceType(manufacturer=manufacturer, model='Model 1', slug='model-1'),
+            DeviceType(manufacturer=manufacturer, model='Model 2', slug='model-2'),
+            DeviceType(manufacturer=manufacturer, model='Model 3', slug='model-3'),
+        )
+        DeviceType.objects.bulk_create(device_types)
+
+        DeviceBayTemplate.objects.bulk_create((
+            DeviceBayTemplate(device_type=device_types[0], name='Device Bay 1'),
+            DeviceBayTemplate(device_type=device_types[1], name='Device Bay 2'),
+            DeviceBayTemplate(device_type=device_types[2], name='Device Bay 3'),
+        ))
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(DeviceBayTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Device Bay 1', 'Device Bay 2']}
+        self.assertEqual(DeviceBayTemplateFilter(params, self.queryset).qs.count(), 2)
+
+    def test_devicetype_id(self):
+        device_types = DeviceType.objects.all()[:2]
+        params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
+        self.assertEqual(DeviceBayTemplateFilter(params, self.queryset).qs.count(), 2)
