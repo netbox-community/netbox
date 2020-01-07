@@ -335,7 +335,7 @@ class AggregateView(PermissionRequiredMixin, View):
         )
 
         # Add available prefixes to the table if requested
-        if request.GET.get('show_available', False):
+        if request.GET.get('show_available', 'true') == 'true':
             child_prefixes = add_available_prefixes(aggregate.prefix, child_prefixes)
 
         prefix_table = tables.PrefixDetailTable(child_prefixes)
@@ -359,7 +359,7 @@ class AggregateView(PermissionRequiredMixin, View):
             'aggregate': aggregate,
             'prefix_table': prefix_table,
             'permissions': permissions,
-            'show_available': request.GET.get('show_available', False),
+            'show_available': request.GET.get('show_available', 'true') == 'true',
         })
 
 
@@ -516,7 +516,7 @@ class PrefixPrefixesView(PermissionRequiredMixin, View):
         ).annotate_depth(limit=0)
 
         # Add available prefixes to the table if requested
-        if child_prefixes and request.GET.get('show_available', False):
+        if child_prefixes and request.GET.get('show_available', 'true') == 'true':
             child_prefixes = add_available_prefixes(prefix.prefix, child_prefixes)
 
         prefix_table = tables.PrefixDetailTable(child_prefixes)
@@ -543,7 +543,7 @@ class PrefixPrefixesView(PermissionRequiredMixin, View):
             'permissions': permissions,
             'bulk_querystring': 'vrf_id={}&within={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
             'active_tab': 'prefixes',
-            'show_available': request.GET.get('show_available', False),
+            'show_available': request.GET.get('show_available', 'true') == 'true',
         })
 
 
@@ -560,7 +560,7 @@ class PrefixIPAddressesView(PermissionRequiredMixin, View):
         )
 
         # Add available IP addresses to the table if requested
-        if request.GET.get('show_available', False):
+        if request.GET.get('show_available', 'true') == 'true':
             ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses, prefix.is_pool)
 
         ip_table = tables.IPAddressTable(ipaddresses)
@@ -587,7 +587,7 @@ class PrefixIPAddressesView(PermissionRequiredMixin, View):
             'permissions': permissions,
             'bulk_querystring': 'vrf_id={}&parent={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
             'active_tab': 'ip-addresses',
-            'show_available': request.GET.get('show_available', False),
+            'show_available': request.GET.get('show_available', 'true') == 'true',
         })
 
 
