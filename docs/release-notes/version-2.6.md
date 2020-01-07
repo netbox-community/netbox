@@ -8,6 +8,7 @@
 ## Bug Fixes
 
 * [#3589](https://github.com/netbox-community/netbox/issues/3589) - Fix validation on tagged VLANs of an interface
+* [#3853](https://github.com/netbox-community/netbox/issues/3853) - Fix device role link on config context view
 
 ---
 
