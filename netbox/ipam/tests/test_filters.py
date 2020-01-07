@@ -2,8 +2,11 @@ from django.test import TestCase
 
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Region, Site
 from ipam.constants import *
-from ipam.filters import AggregateFilter, IPAddressFilter, PrefixFilter, RIRFilter, RoleFilter, VLANFilter, VRFFilter
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, VLAN, VRF
+from ipam.filters import (
+    AggregateFilter, IPAddressFilter, PrefixFilter, RIRFilter, RoleFilter, ServiceFilter, VLANFilter, VLANGroupFilter,
+    VRFFilter,
+)
+from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from virtualization.models import Cluster, ClusterType, VirtualMachine
 
 
@@ -414,3 +417,223 @@ class IPAddressTestCase(TestCase):
     def test_role(self):
         params = {'role': [IPADDRESS_ROLE_SECONDARY, IPADDRESS_ROLE_VIP]}
         self.assertEqual(IPAddressFilter(params, self.queryset).qs.count(), 4)
+
+
+class VLANGroupTestCase(TestCase):
+    queryset = VLANGroup.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        regions = (
+            Region(name='Test Region 1', slug='test-region-1'),
+            Region(name='Test Region 2', slug='test-region-2'),
+            Region(name='Test Region 3', slug='test-region-3'),
+        )
+        # Can't use bulk_create for models with MPTT fields
+        for r in regions:
+            r.save()
+
+        sites = (
+            Site(name='Test Site 1', slug='test-site-1', region=regions[0]),
+            Site(name='Test Site 2', slug='test-site-2', region=regions[1]),
+            Site(name='Test Site 3', slug='test-site-3', region=regions[2]),
+        )
+        Site.objects.bulk_create(sites)
+
+        vlan_groups = (
+            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', site=sites[0]),
+            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', site=sites[1]),
+            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', site=sites[2]),
+            VLANGroup(name='VLAN Group 4', slug='vlan-group-4', site=None),
+        )
+        VLANGroup.objects.bulk_create(vlan_groups)
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(VLANGroupFilter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['VLAN Group 1', 'VLAN Group 2']}
+        self.assertEqual(VLANGroupFilter(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['vlan-group-1', 'vlan-group-2']}
+        self.assertEqual(VLANGroupFilter(params, self.queryset).qs.count(), 2)
+
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(VLANGroupFilter(params, self.queryset).qs.count(), 2)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(VLANGroupFilter(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(VLANGroupFilter(params, self.queryset).qs.count(), 2)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(VLANGroupFilter(params, self.queryset).qs.count(), 2)
+
+
+class VLANTestCase(TestCase):
+    queryset = VLAN.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        regions = (
+            Region(name='Test Region 1', slug='test-region-1'),
+            Region(name='Test Region 2', slug='test-region-2'),
+            Region(name='Test Region 3', slug='test-region-3'),
+        )
+        # Can't use bulk_create for models with MPTT fields
+        for r in regions:
+            r.save()
+
+        sites = (
+            Site(name='Test Site 1', slug='test-site-1', region=regions[0]),
+            Site(name='Test Site 2', slug='test-site-2', region=regions[1]),
+            Site(name='Test Site 3', slug='test-site-3', region=regions[2]),
+        )
+        Site.objects.bulk_create(sites)
+
+        roles = (
+            Role(name='Role 1', slug='role-1'),
+            Role(name='Role 2', slug='role-2'),
+            Role(name='Role 3', slug='role-3'),
+        )
+        Role.objects.bulk_create(roles)
+
+        groups = (
+            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', site=sites[0]),
+            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', site=sites[1]),
+            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', site=None),
+        )
+        VLANGroup.objects.bulk_create(groups)
+
+        vlans = (
+            VLAN(vid=101, name='VLAN 101', site=sites[0], group=groups[0], role=roles[0], status=VLAN_STATUS_ACTIVE),
+            VLAN(vid=102, name='VLAN 102', site=sites[0], group=groups[0], role=roles[0], status=VLAN_STATUS_ACTIVE),
+            VLAN(vid=201, name='VLAN 201', site=sites[1], group=groups[1], role=roles[1], status=VLAN_STATUS_DEPRECATED),
+            VLAN(vid=202, name='VLAN 202', site=sites[1], group=groups[1], role=roles[1], status=VLAN_STATUS_DEPRECATED),
+            VLAN(vid=301, name='VLAN 301', site=sites[2], group=groups[2], role=roles[2], status=VLAN_STATUS_RESERVED),
+            VLAN(vid=302, name='VLAN 302', site=sites[2], group=groups[2], role=roles[2], status=VLAN_STATUS_RESERVED),
+        )
+        VLAN.objects.bulk_create(vlans)
+
+    def test_name(self):
+        params = {'name': ['VLAN 101', 'VLAN 102']}
+        self.assertEqual(VLANFilter(params, self.queryset).qs.count(), 2)
+
+    def test_rd(self):
+        params = {'vid': ['101', '201', '301']}
+        self.assertEqual(VLANFilter(params, self.queryset).qs.count(), 3)
+
+    def test_id__in(self):
+        id_list = self.queryset.values_list('id', flat=True)[:3]
+        params = {'id__in': ','.join([str(id) for id in id_list])}
+        self.assertEqual(VLANFilter(params, self.queryset).qs.count(), 3)
+
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(VLANFilter(params, self.queryset).qs.count(), 4)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(VLANFilter(params, self.queryset).qs.count(), 4)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(VLANFilter(params, self.queryset).qs.count(), 4)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(VLANFilter(params, self.queryset).qs.count(), 4)
+
+    def test_group(self):
+        groups = VLANGroup.objects.all()[:2]
+        params = {'group_id': [groups[0].pk, groups[1].pk]}
+        self.assertEqual(VLANFilter(params, self.queryset).qs.count(), 4)
+        params = {'group': [groups[0].slug, groups[1].slug]}
+        self.assertEqual(VLANFilter(params, self.queryset).qs.count(), 4)
+
+    def test_role(self):
+        roles = Role.objects.all()[:2]
+        params = {'role_id': [roles[0].pk, roles[1].pk]}
+        self.assertEqual(VLANFilter(params, self.queryset).qs.count(), 4)
+        params = {'role': [roles[0].slug, roles[1].slug]}
+        self.assertEqual(VLANFilter(params, self.queryset).qs.count(), 4)
+
+    def test_status(self):
+        params = {'status': [VLAN_STATUS_ACTIVE, VLAN_STATUS_DEPRECATED]}
+        self.assertEqual(PrefixFilter(params, self.queryset).qs.count(), 4)
+
+
+class ServiceTestCase(TestCase):
+    queryset = Service.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        devices = (
+            Device(device_type=device_type, name='Device 1', site=site, device_role=device_role),
+            Device(device_type=device_type, name='Device 2', site=site, device_role=device_role),
+            Device(device_type=device_type, name='Device 3', site=site, device_role=device_role),
+        )
+        Device.objects.bulk_create(devices)
+
+        clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        cluster = Cluster.objects.create(type=clustertype, name='Cluster 1')
+
+        virtual_machines = (
+            VirtualMachine(name='Virtual Machine 1', cluster=cluster),
+            VirtualMachine(name='Virtual Machine 2', cluster=cluster),
+            VirtualMachine(name='Virtual Machine 3', cluster=cluster),
+        )
+        VirtualMachine.objects.bulk_create(virtual_machines)
+
+        services = (
+            Service(device=devices[0], name='Service 1', protocol=IP_PROTOCOL_TCP, port=1001),
+            Service(device=devices[1], name='Service 2', protocol=IP_PROTOCOL_TCP, port=1002),
+            Service(device=devices[2], name='Service 3', protocol=IP_PROTOCOL_UDP, port=1003),
+            Service(virtual_machine=virtual_machines[0], name='Service 4', protocol=IP_PROTOCOL_TCP, port=2001),
+            Service(virtual_machine=virtual_machines[1], name='Service 5', protocol=IP_PROTOCOL_TCP, port=2002),
+            Service(virtual_machine=virtual_machines[2], name='Service 6', protocol=IP_PROTOCOL_UDP, port=2003),
+        )
+        Service.objects.bulk_create(services)
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:3]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(ServiceFilter(params, self.queryset).qs.count(), 3)
+
+    def test_name(self):
+        params = {'name': ['Service 1', 'Service 2']}
+        self.assertEqual(ServiceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_protocol(self):
+        params = {'protocol': IP_PROTOCOL_TCP}
+        self.assertEqual(ServiceFilter(params, self.queryset).qs.count(), 4)
+
+    def test_port(self):
+        params = {'port': ['1001', '1002', '1003']}
+        self.assertEqual(ServiceFilter(params, self.queryset).qs.count(), 3)
+
+    def test_device(self):
+        devices = Device.objects.all()[:2]
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(ServiceFilter(params, self.queryset).qs.count(), 2)
+        params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(ServiceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_virtual_machine(self):
+        vms = VirtualMachine.objects.all()[:2]
+        params = {'virtual_machine_id': [vms[0].pk, vms[1].pk]}
+        self.assertEqual(ServiceFilter(params, self.queryset).qs.count(), 2)
+        params = {'virtual_machine': [vms[0].name, vms[1].name]}
+        self.assertEqual(ServiceFilter(params, self.queryset).qs.count(), 2)
