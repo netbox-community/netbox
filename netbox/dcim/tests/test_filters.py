@@ -1865,7 +1865,6 @@ class DeviceBayTestCase(TestCase):
             Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
             Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
             Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
-            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -1894,4 +1893,193 @@ class DeviceBayTestCase(TestCase):
         params = {'device_id': [devices[0].pk, devices[1].pk]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+
+class InventoryItemTestCase(TestCase):
+    queryset = InventoryItem.objects.all()
+    filter = InventoryItemFilter
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        device_type = DeviceType.objects.create(manufacturer=manufacturers[0], model='Model 1', slug='model-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
+
+        sites = (
+            Site(name='Site 1', slug='site-1', region=regions[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2]),
+        )
+        Site.objects.bulk_create(sites)
+
+        devices = (
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+        )
+        Device.objects.bulk_create(devices)
+
+        inventory_items = (
+            InventoryItem(device=devices[0], manufacturer=manufacturers[0], name='Inventory Item 1', part_id='1001', serial='ABC', asset_tag='1001', discovered=True, description='First'),
+            InventoryItem(device=devices[1], manufacturer=manufacturers[1], name='Inventory Item 2', part_id='1002', serial='DEF', asset_tag='1002', discovered=True, description='Second'),
+            InventoryItem(device=devices[2], manufacturer=manufacturers[2], name='Inventory Item 3', part_id='1003', serial='GHI', asset_tag='1003', discovered=False, description='Third'),
+        )
+        InventoryItem.objects.bulk_create(inventory_items)
+
+        child_inventory_items = (
+            InventoryItem(device=devices[0], name='Inventory Item 1A', parent=inventory_items[0]),
+            InventoryItem(device=devices[1], name='Inventory Item 2A', parent=inventory_items[1]),
+            InventoryItem(device=devices[2], name='Inventory Item 3A', parent=inventory_items[2]),
+        )
+        InventoryItem.objects.bulk_create(child_inventory_items)
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Inventory Item 1', 'Inventory Item 2']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_part_id(self):
+        params = {'part_id': ['1001', '1002']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_asset_tag(self):
+        params = {'asset_tag': ['1001', '1002']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_discovered(self):
+        # TODO: Fix boolean value
+        params = {'discovered': True}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'discovered': False}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+
+    def test_device(self):
+        # TODO: Allow multiple values
+        device = Device.objects.first()
+        params = {'device_id': device.pk}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'device': device.name}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_parent_id(self):
+        parent_items = InventoryItem.objects.filter(parent__isnull=True)[:2]
+        params = {'parent_id': [parent_items[0].pk, parent_items[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_manufacturer(self):
+        manufacturers = Manufacturer.objects.all()[:2]
+        params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_serial(self):
+        params = {'serial': 'ABC'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        params = {'serial': 'abc'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+
+class VirtualChassisTestCase(TestCase):
+    queryset = VirtualChassis.objects.all()
+    filter = VirtualChassisFilter
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
+
+        sites = (
+            Site(name='Site 1', slug='site-1', region=regions[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2]),
+        )
+        Site.objects.bulk_create(sites)
+
+        devices = (
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], vc_position=1),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], vc_position=2),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], vc_position=1),
+            Device(name='Device 4', device_type=device_type, device_role=device_role, site=sites[1], vc_position=2),
+            Device(name='Device 5', device_type=device_type, device_role=device_role, site=sites[2], vc_position=1),
+            Device(name='Device 6', device_type=device_type, device_role=device_role, site=sites[2], vc_position=2),
+        )
+        Device.objects.bulk_create(devices)
+
+        virtual_chassis = (
+            VirtualChassis(master=devices[0], domain='Domain 1'),
+            VirtualChassis(master=devices[2], domain='Domain 2'),
+            VirtualChassis(master=devices[4], domain='Domain 3'),
+        )
+        VirtualChassis.objects.bulk_create(virtual_chassis)
+
+        Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis[0])
+        Device.objects.filter(pk=devices[3].pk).update(virtual_chassis=virtual_chassis[1])
+        Device.objects.filter(pk=devices[5].pk).update(virtual_chassis=virtual_chassis[2])
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_domain(self):
+        params = {'domain': ['Domain 1', 'Domain 2']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
