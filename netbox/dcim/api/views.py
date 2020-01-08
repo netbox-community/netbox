@@ -402,7 +402,7 @@ class DeviceViewSet(CustomFieldModelViewSet):
         if device.platform.napalm_args is not None:
             optional_args.update(device.platform.napalm_args)
 
-        # Update NAPALM parameters according to the provided headers
+        # Update NAPALM parameters according to the request headers
         for header in request.headers:
             if header[:7].lower() != 'napalm-':
                 continue
@@ -413,7 +413,7 @@ class DeviceViewSet(CustomFieldModelViewSet):
             elif key.lower() == 'password':
                 password = request.headers[header]
             elif key:
-                optional_args[key.lower()] == request.headers[header]
+                optional_args[key.lower()] = request.headers[header]
 
         d = driver(
             hostname=ip_address,
