@@ -4,9 +4,11 @@ from django.test import TestCase
 from dcim.constants import *
 from dcim.filters import *
 from dcim.models import (
-    Cable, ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, DeviceRole, DeviceType, FrontPortTemplate,
-    InterfaceTemplate, Manufacturer, Platform, PowerFeed, PowerPanel, PowerPortTemplate, PowerOutletTemplate, Rack,
-    RackGroup, RackReservation, RackRole, RearPortTemplate, Region, Site, VirtualChassis,
+    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
+    InventoryItem, Manufacturer, Platform, PowerFeed, PowerPanel, PowerPort, PowerPortTemplate, PowerOutlet,
+    PowerOutletTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
+    VirtualChassis,
 )
 from ipam.models import IPAddress
 from virtualization.models import Cluster, ClusterType

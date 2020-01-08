@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from circuits.constants import CIRCUIT_STATUS_ACTIVE, CIRCUIT_STATUS_OFFLINE, CIRCUIT_STATUS_PLANNED
-from circuits.filters import CircuitFilter, CircuitTerminationFilter, CircuitTypeFilter, ProviderFilter
+from circuits.filters import *
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim.models import Region, Site
 

@@ -1,7 +1,5 @@
 import django_filters
 from django.db.models import Q
-from netaddr import EUI
-from netaddr.core import AddrFormatError
 
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
@@ -11,6 +9,15 @@ from utilities.filters import (
 )
 from .constants import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+
+
+__all__ = (
+    'ClusterFilter',
+    'ClusterGroupFilter',
+    'ClusterTypeFilter',
+    'InterfaceFilter',
+    'VirtualMachineFilter',
+)
 
 
 class ClusterTypeFilter(NameSlugSearchFilterSet):
