@@ -4,7 +4,7 @@ from django.test import TestCase
 from dcim.constants import *
 from dcim.filters import *
 from dcim.models import (
-    ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, DeviceRole, DeviceType, FrontPortTemplate,
+    Cable, ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, DeviceRole, DeviceType, FrontPortTemplate,
     InterfaceTemplate, Manufacturer, Platform, PowerPortTemplate, PowerOutletTemplate, Rack, RackGroup, RackReservation,
     RackRole, RearPortTemplate, Region, Site, VirtualChassis,
 )
@@ -1307,3 +1307,141 @@ class DeviceTestCase(TestCase):
     #     self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
     #     params = {'device_bays': 'false'}
     #     self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+
+
+class ConsolePortTestCase(TestCase):
+    queryset = ConsolePort.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        devices = (
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
+            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
+        )
+        Device.objects.bulk_create(devices)
+
+        console_server_ports = (
+            ConsoleServerPort(device=devices[3], name='Console Server Port 1'),
+            ConsoleServerPort(device=devices[3], name='Console Server Port 2'),
+        )
+        ConsoleServerPort.objects.bulk_create(console_server_ports)
+
+        console_ports = (
+            ConsolePort(device=devices[0], name='Console Port 1', description='First'),
+            ConsolePort(device=devices[1], name='Console Port 2', description='Second'),
+            ConsolePort(device=devices[2], name='Console Port 3', description='Third'),
+        )
+        ConsolePort.objects.bulk_create(console_ports)
+
+        # Cables
+        Cable(termination_a=console_ports[0], termination_b=console_server_ports[0]).save()
+        Cable(termination_a=console_ports[1], termination_b=console_server_ports[1]).save()
+        # Third port is not connected
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Console Port 1', 'Console Port 2']}
+        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['First', 'Second']}
+        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 2)
+
+    # TODO: Fix boolean value
+    def test_connection_status(self):
+        params = {'connection_status': 'True'}
+        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 2)
+
+    def test_device(self):
+        devices = Device.objects.all()[:2]
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 2)
+        params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 2)
+
+    def test_cabled(self):
+        params = {'cabled': 'true'}
+        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 2)
+        params = {'cabled': 'false'}
+        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 1)
+
+
+class ConsoleServerPortTestCase(TestCase):
+    queryset = ConsoleServerPort.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        devices = (
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
+            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
+        )
+        Device.objects.bulk_create(devices)
+
+        console_ports = (
+            ConsolePort(device=devices[3], name='Console Server Port 1'),
+            ConsolePort(device=devices[3], name='Console Server Port 2'),
+        )
+        ConsolePort.objects.bulk_create(console_ports)
+
+        console_server_ports = (
+            ConsoleServerPort(device=devices[0], name='Console Server Port 1', description='First'),
+            ConsoleServerPort(device=devices[1], name='Console Server Port 2', description='Second'),
+            ConsoleServerPort(device=devices[2], name='Console Server Port 3', description='Third'),
+        )
+        ConsoleServerPort.objects.bulk_create(console_server_ports)
+
+        # Cables
+        Cable(termination_a=console_server_ports[0], termination_b=console_ports[0]).save()
+        Cable(termination_a=console_server_ports[1], termination_b=console_ports[1]).save()
+        # Third port is not connected
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Console Server Port 1', 'Console Server Port 2']}
+        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['First', 'Second']}
+        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 2)
+
+    # TODO: Fix boolean value
+    def test_connection_status(self):
+        params = {'connection_status': 'True'}
+        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 2)
+
+    def test_device(self):
+        devices = Device.objects.all()[:2]
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 2)
+        params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 2)
+
+    def test_cabled(self):
+        params = {'cabled': 'true'}
+        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 2)
+        params = {'cabled': 'false'}
+        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 1)
