@@ -4,10 +4,12 @@ from django.test import TestCase
 from dcim.constants import *
 from dcim.filters import *
 from dcim.models import (
-    ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, DeviceType, FrontPortTemplate, InterfaceTemplate,
-    Manufacturer, PowerPortTemplate, PowerOutletTemplate, Rack, RackGroup, RackReservation, RackRole, RearPortTemplate,
-    Region, Site,
+    ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, DeviceRole, DeviceType, FrontPortTemplate,
+    InterfaceTemplate, Manufacturer, Platform, PowerPortTemplate, PowerOutletTemplate, Rack, RackGroup, RackReservation,
+    RackRole, RearPortTemplate, Region, Site, VirtualChassis,
 )
+from ipam.models import IPAddress
+from virtualization.models import Cluster, ClusterType
 
 
 class RegionTestCase(TestCase):
@@ -922,3 +924,386 @@ class DeviceBayTemplateTestCase(TestCase):
         device_types = DeviceType.objects.all()[:2]
         params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
         self.assertEqual(DeviceBayTemplateFilter(params, self.queryset).qs.count(), 2)
+
+
+class DeviceRoleTestCase(TestCase):
+    queryset = DeviceRole.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        device_roles = (
+            DeviceRole(name='Device Role 1', slug='device-role-1', color='ff0000', vm_role=True),
+            DeviceRole(name='Device Role 2', slug='device-role-2', color='00ff00', vm_role=True),
+            DeviceRole(name='Device Role 3', slug='device-role-3', color='0000ff', vm_role=False),
+        )
+        DeviceRole.objects.bulk_create(device_roles)
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(DeviceRoleFilter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Device Role 1', 'Device Role 2']}
+        self.assertEqual(DeviceRoleFilter(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['device-role-1', 'device-role-2']}
+        self.assertEqual(DeviceRoleFilter(params, self.queryset).qs.count(), 2)
+
+    def test_color(self):
+        params = {'color': ['ff0000', '00ff00']}
+        self.assertEqual(DeviceRoleFilter(params, self.queryset).qs.count(), 2)
+
+    def test_vm_role(self):
+        params = {'vm_role': 'true'}
+        self.assertEqual(DeviceRoleFilter(params, self.queryset).qs.count(), 2)
+        params = {'vm_role': 'false'}
+        self.assertEqual(DeviceRoleFilter(params, self.queryset).qs.count(), 1)
+
+
+class PlatformTestCase(TestCase):
+    queryset = Platform.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        platforms = (
+            Platform(name='Platform 1', slug='platform-1', manufacturer=manufacturers[0], napalm_driver='driver-1'),
+            Platform(name='Platform 2', slug='platform-2', manufacturer=manufacturers[1], napalm_driver='driver-2'),
+            Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturers[2], napalm_driver='driver-3'),
+        )
+        Platform.objects.bulk_create(platforms)
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(PlatformFilter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Platform 1', 'Platform 2']}
+        self.assertEqual(PlatformFilter(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['platform-1', 'platform-2']}
+        self.assertEqual(PlatformFilter(params, self.queryset).qs.count(), 2)
+
+    def test_napalm_driver(self):
+        params = {'napalm_driver': ['driver-1', 'driver-2']}
+        self.assertEqual(PlatformFilter(params, self.queryset).qs.count(), 2)
+
+    def test_manufacturer(self):
+        manufacturers = Manufacturer.objects.all()[:2]
+        params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
+        self.assertEqual(PlatformFilter(params, self.queryset).qs.count(), 2)
+        params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(PlatformFilter(params, self.queryset).qs.count(), 2)
+
+
+class DeviceTestCase(TestCase):
+    queryset = Device.objects.all()
+
+    @classmethod
+    def setUpTestData(cls):
+
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        device_types = (
+            DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', is_full_depth=True),
+            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', is_full_depth=True),
+            DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', is_full_depth=False),
+        )
+        DeviceType.objects.bulk_create(device_types)
+
+        device_roles = (
+            DeviceRole(name='Device Role 1', slug='device-role-1'),
+            DeviceRole(name='Device Role 2', slug='device-role-2'),
+            DeviceRole(name='Device Role 3', slug='device-role-3'),
+        )
+        DeviceRole.objects.bulk_create(device_roles)
+
+        platforms = (
+            Platform(name='Platform 1', slug='platform-1'),
+            Platform(name='Platform 2', slug='platform-2'),
+            Platform(name='Platform 3', slug='platform-3'),
+        )
+        Platform.objects.bulk_create(platforms)
+
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
+
+        sites = (
+            Site(name='Site 1', slug='site-1', region=regions[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2]),
+        )
+        Site.objects.bulk_create(sites)
+
+        rack_groups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
+            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
+            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2]),
+        )
+        RackGroup.objects.bulk_create(rack_groups)
+
+        racks = (
+            Rack(name='Rack 1', site=sites[0], group=rack_groups[0]),
+            Rack(name='Rack 2', site=sites[1], group=rack_groups[1]),
+            Rack(name='Rack 3', site=sites[2], group=rack_groups[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
+        cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        clusters = (
+            Cluster(name='Cluster 1', type=cluster_type),
+            Cluster(name='Cluster 2', type=cluster_type),
+            Cluster(name='Cluster 3', type=cluster_type),
+        )
+        Cluster.objects.bulk_create(clusters)
+
+        devices = (
+            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], platform=platforms[0], serial='ABC', asset_tag='1001', site=sites[0], rack=racks[0], position=1, face=RACK_FACE_FRONT, status=DEVICE_STATUS_ACTIVE),
+            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], platform=platforms[1], serial='DEF', asset_tag='1002', site=sites[1], rack=racks[1], position=2, face=RACK_FACE_FRONT, status=DEVICE_STATUS_STAGED),
+            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], platform=platforms[2], serial='GHI', asset_tag='1003', site=sites[2], rack=racks[2], position=3, face=RACK_FACE_REAR, status=DEVICE_STATUS_FAILED),
+        )
+        Device.objects.bulk_create(devices)
+
+        # Add components for filtering
+        ConsolePort.objects.bulk_create((
+            ConsolePort(device=devices[0], name='Console Port 1'),
+            ConsolePort(device=devices[1], name='Console Port 2'),
+        ))
+        ConsoleServerPort.objects.bulk_create((
+            ConsoleServerPort(device=devices[0], name='Console Server Port 1'),
+            ConsoleServerPort(device=devices[1], name='Console Server Port 2'),
+        ))
+        PowerPort.objects.bulk_create((
+            PowerPort(device=devices[0], name='Power Port 1'),
+            PowerPort(device=devices[1], name='Power Port 2'),
+        ))
+        PowerOutlet.objects.bulk_create((
+            PowerOutlet(device=devices[0], name='Power Outlet 1'),
+            PowerOutlet(device=devices[1], name='Power Outlet 2'),
+        ))
+        interfaces = (
+            Interface(device=devices[0], name='Interface 1', mac_address='00-00-00-00-00-01'),
+            Interface(device=devices[1], name='Interface 2', mac_address='00-00-00-00-00-02'),
+        )
+        Interface.objects.bulk_create(interfaces)
+        rear_ports = (
+            RearPort(device=devices[0], name='Rear Port 1', type=PORT_TYPE_8P8C),
+            RearPort(device=devices[1], name='Rear Port 2', type=PORT_TYPE_8P8C),
+        )
+        RearPort.objects.bulk_create(rear_ports)
+        FrontPort.objects.bulk_create((
+            FrontPort(device=devices[0], name='Front Port 1', type=PORT_TYPE_8P8C, rear_port=rear_ports[0]),
+            FrontPort(device=devices[1], name='Front Port 2', type=PORT_TYPE_8P8C, rear_port=rear_ports[1]),
+        ))
+        DeviceBay.objects.bulk_create((
+            DeviceBay(device=devices[0], name='Device Bay 1'),
+            DeviceBay(device=devices[1], name='Device Bay 2'),
+        ))
+
+        # Assign primary IPs for filtering
+        ipaddresses = (
+            IPAddress(family=4, address='192.0.2.1/24', interface=interfaces[0]),
+            IPAddress(family=4, address='192.0.2.2/24', interface=interfaces[1]),
+        )
+        IPAddress.objects.bulk_create(ipaddresses)
+        Device.objects.filter(pk=devices[0].pk).update(primary_ip4=ipaddresses[0])
+        Device.objects.filter(pk=devices[1].pk).update(primary_ip4=ipaddresses[1])
+
+        # VirtualChassis assignment for filtering
+        virtual_chassis = VirtualChassis.objects.create(master=devices[0])
+        Device.objects.filter(pk=devices[0].pk).update(virtual_chassis=virtual_chassis, vc_position=1, vc_priority=1)
+        Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis, vc_position=2, vc_priority=2)
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Device 1', 'Device 2']}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_asset_tag(self):
+        params = {'asset_tag': ['1001', '1002']}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_face(self):
+        params = {'face': RACK_FACE_FRONT}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_position(self):
+        params = {'position': [1, 2]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_vc_position(self):
+        params = {'vc_position': [1, 2]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_vc_priority(self):
+        params = {'vc_priority': [1, 2]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_id__in(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id__in': ','.join([str(id) for id in id_list])}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_manufacturer(self):
+        manufacturers = Manufacturer.objects.all()[:2]
+        params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_devicetype(self):
+        device_types = DeviceType.objects.all()[:2]
+        params = {'device_type_id': [device_types[0].pk, device_types[1].pk]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_devicerole(self):
+        device_roles = DeviceRole.objects.all()[:2]
+        params = {'role_id': [device_roles[0].pk, device_roles[1].pk]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        params = {'role': [device_roles[0].slug, device_roles[1].slug]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_platform(self):
+        platforms = Platform.objects.all()[:2]
+        params = {'platform_id': [platforms[0].pk, platforms[1].pk]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        params = {'platform': [platforms[0].slug, platforms[1].slug]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_rackgroup(self):
+        rack_groups = RackGroup.objects.all()[:2]
+        params = {'rack_group_id': [rack_groups[0].pk, rack_groups[1].pk]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_rack(self):
+        racks = Rack.objects.all()[:2]
+        params = {'rack_id': [racks[0].pk, racks[1].pk]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_cluster(self):
+        clusters = Cluster.objects.all()[:2]
+        params = {'rack_id': [clusters[0].pk, clusters[1].pk]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_model(self):
+        params = {'model': ['model-1', 'model-2']}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_status(self):
+        params = {'status': [DEVICE_STATUS_ACTIVE, DEVICE_STATUS_STAGED]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_is_full_depth(self):
+        params = {'is_full_depth': 'true'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        params = {'is_full_depth': 'false'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+
+    def test_mac_address(self):
+        params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_serial(self):
+        params = {'serial': 'ABC'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+        params = {'serial': 'abc'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+
+    def test_has_primary_ip(self):
+        params = {'has_primary_ip': 'true'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        params = {'has_primary_ip': 'false'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+
+    def test_virtual_chassis_id(self):
+        params = {'virtual_chassis_id': [VirtualChassis.objects.first().pk]}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+
+    def test_virtual_chassis_member(self):
+        params = {'virtual_chassis_member': 'true'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        params = {'virtual_chassis_member': 'false'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+
+    def test_console_ports(self):
+        params = {'console_ports': 'true'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        params = {'console_ports': 'false'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+
+    def test_console_server_ports(self):
+        params = {'console_server_ports': 'true'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        params = {'console_server_ports': 'false'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+
+    def test_power_ports(self):
+        params = {'power_ports': 'true'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        params = {'power_ports': 'false'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+
+    def test_power_outlets(self):
+        params = {'power_outlets': 'true'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        params = {'power_outlets': 'false'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+
+    def test_interfaces(self):
+        params = {'interfaces': 'true'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        params = {'interfaces': 'false'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+
+    def test_pass_through_ports(self):
+        params = {'pass_through_ports': 'true'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        params = {'pass_through_ports': 'false'}
+        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+
+    # TODO: Add device_bay filter
+    # def test_device_bays(self):
+    #     params = {'device_bays': 'true'}
+    #     self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+    #     params = {'device_bays': 'false'}
+    #     self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
