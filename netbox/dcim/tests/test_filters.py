@@ -60,6 +60,7 @@ class RegionTestCase(TestCase):
 
 class SiteTestCase(TestCase):
     queryset = Site.objects.all()
+    filterset = SiteFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -82,63 +83,64 @@ class SiteTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(SiteFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Site 1', 'Site 2']}
-        self.assertEqual(SiteFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_slug(self):
         params = {'slug': ['site-1', 'site-2']}
-        self.assertEqual(SiteFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_facility(self):
         params = {'facility': ['Facility 1', 'Facility 2']}
-        self.assertEqual(SiteFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_asn(self):
         params = {'asn': [65001, 65002]}
-        self.assertEqual(SiteFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_latitude(self):
         params = {'latitude': [10, 20]}
-        self.assertEqual(SiteFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_longitude(self):
         params = {'longitude': [10, 20]}
-        self.assertEqual(SiteFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_contact_name(self):
         params = {'contact_name': ['Contact 1', 'Contact 2']}
-        self.assertEqual(SiteFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_contact_phone(self):
         params = {'contact_phone': ['123-555-0001', '123-555-0002']}
-        self.assertEqual(SiteFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_contact_email(self):
         params = {'contact_email': ['contact1@example.com', 'contact2@example.com']}
-        self.assertEqual(SiteFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_id__in(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id__in': ','.join([str(id) for id in id_list])}
-        self.assertEqual(SiteFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):
         params = {'status': [SITE_STATUS_ACTIVE, SITE_STATUS_PLANNED]}
-        self.assertEqual(SiteFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
-        self.assertEqual(SiteFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
-        self.assertEqual(SiteFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class RackGroupTestCase(TestCase):
     queryset = RackGroup.objects.all()
+    filterset = RackGroupFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -168,33 +170,34 @@ class RackGroupTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(RackGroupFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Rack Group 1', 'Rack Group 2']}
-        self.assertEqual(RackGroupFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_slug(self):
         params = {'slug': ['rack-group-1', 'rack-group-2']}
-        self.assertEqual(RackGroupFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
-        self.assertEqual(RackGroupFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
-        self.assertEqual(RackGroupFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
-        self.assertEqual(RackGroupFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
-        self.assertEqual(RackGroupFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class RackRoleTestCase(TestCase):
     queryset = RackRole.objects.all()
+    filterset = RackRoleFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -209,23 +212,24 @@ class RackRoleTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(RackRoleFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Rack Role 1', 'Rack Role 2']}
-        self.assertEqual(RackRoleFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_slug(self):
         params = {'slug': ['rack-role-1', 'rack-role-2']}
-        self.assertEqual(RackRoleFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_color(self):
         params = {'color': ['ff0000', '00ff00']}
-        self.assertEqual(RackRoleFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class RackTestCase(TestCase):
     queryset = Rack.objects.all()
+    filterset = RackFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -269,99 +273,100 @@ class RackTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Rack 1', 'Rack 2']}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_facility_id(self):
         params = {'facility_id': ['rack-1', 'rack-2']}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_asset_tag(self):
         params = {'asset_tag': ['1001', '1002']}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
         # TODO: Test for multiple values
         params = {'type': RACK_TYPE_2POST}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_width(self):
         # TODO: Test for multiple values
         params = {'width': RACK_WIDTH_19IN}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_u_height(self):
         params = {'u_height': [42, 43]}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_desc_units(self):
         params = {'desc_units': 'true'}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'desc_units': 'false'}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_outer_width(self):
         params = {'outer_width': [100, 200]}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_outer_depth(self):
         params = {'outer_depth': [100, 200]}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_outer_unit(self):
         self.assertEqual(Rack.objects.filter(outer_unit__isnull=False).count(), 3)
         params = {'outer_unit': LENGTH_UNIT_MILLIMETER}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_id__in(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id__in': ','.join([str(id) for id in id_list])}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_group(self):
         groups = RackGroup.objects.all()[:2]
         params = {'group_id': [groups[0].pk, groups[1].pk]}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'group': [groups[0].slug, groups[1].slug]}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):
         params = {'status': [RACK_STATUS_ACTIVE, RACK_STATUS_PLANNED]}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_role(self):
         roles = RackRole.objects.all()[:2]
         params = {'role_id': [roles[0].pk, roles[1].pk]}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'role': [roles[0].slug, roles[1].slug]}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_serial(self):
         params = {'serial': 'ABC'}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'serial': 'abc'}
-        self.assertEqual(RackFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class RackReservationTestCase(TestCase):
     queryset = RackReservation.objects.all()
+    filterset = RackReservationFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -404,33 +409,34 @@ class RackReservationTestCase(TestCase):
     def test_id__in(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id__in': ','.join([str(id) for id in id_list])}
-        self.assertEqual(RackReservationFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
-        self.assertEqual(RackReservationFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
-        self.assertEqual(RackReservationFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_group(self):
         groups = RackGroup.objects.all()[:2]
         params = {'group_id': [groups[0].pk, groups[1].pk]}
-        self.assertEqual(RackReservationFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'group': [groups[0].slug, groups[1].slug]}
-        self.assertEqual(RackReservationFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_user(self):
         users = User.objects.all()[:2]
         params = {'user_id': [users[0].pk, users[1].pk]}
-        self.assertEqual(RackReservationFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         # TODO: Filtering by username is broken
         # params = {'user': [users[0].username, users[1].username]}
-        # self.assertEqual(RackReservationFilter(params, self.queryset).qs.count(), 2)
+        # self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class ManufacturerTestCase(TestCase):
     queryset = Manufacturer.objects.all()
+    filterset = ManufacturerFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -445,19 +451,20 @@ class ManufacturerTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(ManufacturerFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Manufacturer 1', 'Manufacturer 2']}
-        self.assertEqual(ManufacturerFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_slug(self):
         params = {'slug': ['manufacturer-1', 'manufacturer-2']}
-        self.assertEqual(ManufacturerFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class DeviceTypeTestCase(TestCase):
     queryset = DeviceType.objects.all()
+    filterset = DeviceTypeFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -513,88 +520,89 @@ class DeviceTypeTestCase(TestCase):
 
     def test_model(self):
         params = {'model': ['Model 1', 'Model 2']}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_slug(self):
         params = {'slug': ['model-1', 'model-2']}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_part_number(self):
         params = {'part_number': ['Part Number 1', 'Part Number 2']}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_u_height(self):
         params = {'u_height': [1, 2]}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_is_full_depth(self):
         params = {'is_full_depth': 'true'}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'is_full_depth': 'false'}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_subdevice_role(self):
         params = {'subdevice_role': SUBDEVICE_ROLE_PARENT}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_id__in(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id__in': ','.join([str(id) for id in id_list])}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_manufacturer(self):
         manufacturers = Manufacturer.objects.all()[:2]
         params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_console_ports(self):
         params = {'console_ports': 'true'}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'console_ports': 'false'}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_console_server_ports(self):
         params = {'console_server_ports': 'true'}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'console_server_ports': 'false'}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_power_ports(self):
         params = {'power_ports': 'true'}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'power_ports': 'false'}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_power_outlets(self):
         params = {'power_outlets': 'true'}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'power_outlets': 'false'}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_interfaces(self):
         params = {'interfaces': 'true'}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'interfaces': 'false'}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_pass_through_ports(self):
         params = {'pass_through_ports': 'true'}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'pass_through_ports': 'false'}
-        self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     # TODO: Add device_bay filter
     # def test_device_bays(self):
     #     params = {'device_bays': 'true'}
-    #     self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 2)
+    #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
     #     params = {'device_bays': 'false'}
-    #     self.assertEqual(DeviceTypeFilter(params, self.queryset).qs.count(), 1)
+    #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class ConsolePortTemplateTestCase(TestCase):
     queryset = ConsolePortTemplate.objects.all()
+    filterset = ConsolePortTemplateFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -617,20 +625,21 @@ class ConsolePortTemplateTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(ConsolePortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Console Port 1', 'Console Port 2']}
-        self.assertEqual(ConsolePortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_devicetype_id(self):
         device_types = DeviceType.objects.all()[:2]
         params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
-        self.assertEqual(ConsolePortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class ConsoleServerPortTemplateTestCase(TestCase):
     queryset = ConsoleServerPortTemplate.objects.all()
+    filterset = ConsoleServerPortTemplateFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -653,20 +662,21 @@ class ConsoleServerPortTemplateTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(ConsoleServerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Console Server Port 1', 'Console Server Port 2']}
-        self.assertEqual(ConsoleServerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_devicetype_id(self):
         device_types = DeviceType.objects.all()[:2]
         params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
-        self.assertEqual(ConsoleServerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class PowerPortTemplateTestCase(TestCase):
     queryset = PowerPortTemplate.objects.all()
+    filterset = PowerPortTemplateFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -689,28 +699,29 @@ class PowerPortTemplateTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(PowerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Power Port 1', 'Power Port 2']}
-        self.assertEqual(PowerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_devicetype_id(self):
         device_types = DeviceType.objects.all()[:2]
         params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
-        self.assertEqual(PowerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_maximum_draw(self):
         params = {'maximum_draw': [100, 200]}
-        self.assertEqual(PowerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_allocated_draw(self):
         params = {'allocated_draw': [50, 100]}
-        self.assertEqual(PowerPortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class PowerOutletTemplateTestCase(TestCase):
     queryset = PowerOutletTemplate.objects.all()
+    filterset = PowerOutletTemplateFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -733,25 +744,26 @@ class PowerOutletTemplateTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(PowerOutletTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Power Outlet 1', 'Power Outlet 2']}
-        self.assertEqual(PowerOutletTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_devicetype_id(self):
         device_types = DeviceType.objects.all()[:2]
         params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
-        self.assertEqual(PowerOutletTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_feed_leg(self):
         # TODO: Support filtering for multiple values
         params = {'feed_leg': POWERFEED_LEG_A}
-        self.assertEqual(PowerOutletTemplateFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class InterfaceTemplateTestCase(TestCase):
     queryset = InterfaceTemplate.objects.all()
+    filterset = InterfaceTemplateFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -774,31 +786,32 @@ class InterfaceTemplateTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(InterfaceTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Interface 1', 'Interface 2']}
-        self.assertEqual(InterfaceTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_devicetype_id(self):
         device_types = DeviceType.objects.all()[:2]
         params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
-        self.assertEqual(InterfaceTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
         # TODO: Support filtering for multiple values
         params = {'type': IFACE_TYPE_1GE_FIXED}
-        self.assertEqual(InterfaceTemplateFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_mgmt_only(self):
         params = {'mgmt_only': 'true'}
-        self.assertEqual(InterfaceTemplateFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'mgmt_only': 'false'}
-        self.assertEqual(InterfaceTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class FrontPortTemplateTestCase(TestCase):
     queryset = FrontPortTemplate.objects.all()
+    filterset = FrontPortTemplateFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -828,25 +841,26 @@ class FrontPortTemplateTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(FrontPortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Front Port 1', 'Front Port 2']}
-        self.assertEqual(FrontPortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_devicetype_id(self):
         device_types = DeviceType.objects.all()[:2]
         params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
-        self.assertEqual(FrontPortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
         # TODO: Support filtering for multiple values
         params = {'type': PORT_TYPE_8P8C}
-        self.assertEqual(FrontPortTemplateFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class RearPortTemplateTestCase(TestCase):
     queryset = RearPortTemplate.objects.all()
+    filterset = RearPortTemplateFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -869,29 +883,30 @@ class RearPortTemplateTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(RearPortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Rear Port 1', 'Rear Port 2']}
-        self.assertEqual(RearPortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_devicetype_id(self):
         device_types = DeviceType.objects.all()[:2]
         params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
-        self.assertEqual(RearPortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
         # TODO: Support filtering for multiple values
         params = {'type': PORT_TYPE_8P8C}
-        self.assertEqual(RearPortTemplateFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_positions(self):
         params = {'positions': [1, 2]}
-        self.assertEqual(RearPortTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class DeviceBayTemplateTestCase(TestCase):
     queryset = DeviceBayTemplate.objects.all()
+    filterset = DeviceBayTemplateFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -914,20 +929,21 @@ class DeviceBayTemplateTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(DeviceBayTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Device Bay 1', 'Device Bay 2']}
-        self.assertEqual(DeviceBayTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_devicetype_id(self):
         device_types = DeviceType.objects.all()[:2]
         params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
-        self.assertEqual(DeviceBayTemplateFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class DeviceRoleTestCase(TestCase):
     queryset = DeviceRole.objects.all()
+    filterset = DeviceRoleFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -942,29 +958,30 @@ class DeviceRoleTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(DeviceRoleFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Device Role 1', 'Device Role 2']}
-        self.assertEqual(DeviceRoleFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_slug(self):
         params = {'slug': ['device-role-1', 'device-role-2']}
-        self.assertEqual(DeviceRoleFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_color(self):
         params = {'color': ['ff0000', '00ff00']}
-        self.assertEqual(DeviceRoleFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_vm_role(self):
         params = {'vm_role': 'true'}
-        self.assertEqual(DeviceRoleFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'vm_role': 'false'}
-        self.assertEqual(DeviceRoleFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class PlatformTestCase(TestCase):
     queryset = Platform.objects.all()
+    filterset = PlatformFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -986,30 +1003,31 @@ class PlatformTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(PlatformFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Platform 1', 'Platform 2']}
-        self.assertEqual(PlatformFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_slug(self):
         params = {'slug': ['platform-1', 'platform-2']}
-        self.assertEqual(PlatformFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_napalm_driver(self):
         params = {'napalm_driver': ['driver-1', 'driver-2']}
-        self.assertEqual(PlatformFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_manufacturer(self):
         manufacturers = Manufacturer.objects.all()[:2]
         params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
-        self.assertEqual(PlatformFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
-        self.assertEqual(PlatformFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class DeviceTestCase(TestCase):
     queryset = Device.objects.all()
+    filterset = DeviceFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -1139,178 +1157,179 @@ class DeviceTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Device 1', 'Device 2']}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_asset_tag(self):
         params = {'asset_tag': ['1001', '1002']}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_face(self):
         params = {'face': RACK_FACE_FRONT}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_position(self):
         params = {'position': [1, 2]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_vc_position(self):
         params = {'vc_position': [1, 2]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_vc_priority(self):
         params = {'vc_priority': [1, 2]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_id__in(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id__in': ','.join([str(id) for id in id_list])}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_manufacturer(self):
         manufacturers = Manufacturer.objects.all()[:2]
         params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_devicetype(self):
         device_types = DeviceType.objects.all()[:2]
         params = {'device_type_id': [device_types[0].pk, device_types[1].pk]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_devicerole(self):
         device_roles = DeviceRole.objects.all()[:2]
         params = {'role_id': [device_roles[0].pk, device_roles[1].pk]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'role': [device_roles[0].slug, device_roles[1].slug]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_platform(self):
         platforms = Platform.objects.all()[:2]
         params = {'platform_id': [platforms[0].pk, platforms[1].pk]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'platform': [platforms[0].slug, platforms[1].slug]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_rackgroup(self):
         rack_groups = RackGroup.objects.all()[:2]
         params = {'rack_group_id': [rack_groups[0].pk, rack_groups[1].pk]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_rack(self):
         racks = Rack.objects.all()[:2]
         params = {'rack_id': [racks[0].pk, racks[1].pk]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cluster(self):
         clusters = Cluster.objects.all()[:2]
         params = {'cluster_id': [clusters[0].pk, clusters[1].pk]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_model(self):
         params = {'model': ['model-1', 'model-2']}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):
         params = {'status': [DEVICE_STATUS_ACTIVE, DEVICE_STATUS_STAGED]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_is_full_depth(self):
         params = {'is_full_depth': 'true'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'is_full_depth': 'false'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_mac_address(self):
         params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_serial(self):
         params = {'serial': 'ABC'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'serial': 'abc'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_has_primary_ip(self):
         params = {'has_primary_ip': 'true'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'has_primary_ip': 'false'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_virtual_chassis_id(self):
         params = {'virtual_chassis_id': [VirtualChassis.objects.first().pk]}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_virtual_chassis_member(self):
         params = {'virtual_chassis_member': 'true'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'virtual_chassis_member': 'false'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_console_ports(self):
         params = {'console_ports': 'true'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'console_ports': 'false'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_console_server_ports(self):
         params = {'console_server_ports': 'true'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'console_server_ports': 'false'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_power_ports(self):
         params = {'power_ports': 'true'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'power_ports': 'false'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_power_outlets(self):
         params = {'power_outlets': 'true'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'power_outlets': 'false'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_interfaces(self):
         params = {'interfaces': 'true'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'interfaces': 'false'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_pass_through_ports(self):
         params = {'pass_through_ports': 'true'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'pass_through_ports': 'false'}
-        self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     # TODO: Add device_bay filter
     # def test_device_bays(self):
     #     params = {'device_bays': 'true'}
-    #     self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 2)
+    #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
     #     params = {'device_bays': 'false'}
-    #     self.assertEqual(DeviceFilter(params, self.queryset).qs.count(), 1)
+    #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class ConsolePortTestCase(TestCase):
     queryset = ConsolePort.objects.all()
+    filterset = ConsolePortFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -1349,37 +1368,38 @@ class ConsolePortTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Console Port 1', 'Console Port 2']}
-        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
         params = {'description': ['First', 'Second']}
-        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     # TODO: Fix boolean value
     def test_connection_status(self):
         params = {'connection_status': 'True'}
-        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
-        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
-        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
         params = {'cabled': 'true'}
-        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'cabled': 'false'}
-        self.assertEqual(ConsolePortFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class ConsoleServerPortTestCase(TestCase):
     queryset = ConsoleServerPort.objects.all()
+    filterset = ConsoleServerPortFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -1418,38 +1438,38 @@ class ConsoleServerPortTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Console Server Port 1', 'Console Server Port 2']}
-        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
         params = {'description': ['First', 'Second']}
-        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     # TODO: Fix boolean value
     def test_connection_status(self):
         params = {'connection_status': 'True'}
-        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
-        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
-        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
         params = {'cabled': 'true'}
-        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'cabled': 'false'}
-        self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class PowerPortTestCase(TestCase):
     queryset = PowerPort.objects.all()
-    filter = PowerPortFilter
+    filterset = PowerPortFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -1488,46 +1508,46 @@ class PowerPortTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Power Port 1', 'Power Port 2']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
         params = {'description': ['First', 'Second']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_maximum_draw(self):
         params = {'maximum_draw': [100, 200]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_allocated_draw(self):
         params = {'allocated_draw': [50, 100]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     # TODO: Fix boolean value
     def test_connection_status(self):
         params = {'connection_status': 'True'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
         params = {'cabled': 'true'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'cabled': 'false'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class PowerOutletTestCase(TestCase):
     queryset = PowerOutlet.objects.all()
-    filter = PowerOutletFilter
+    filterset = PowerOutletFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -1566,43 +1586,43 @@ class PowerOutletTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Power Outlet 1', 'Power Outlet 2']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
         params = {'description': ['First', 'Second']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_feed_leg(self):
         # TODO: Support filtering for multiple values
         params = {'feed_leg': POWERFEED_LEG_A}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     # TODO: Fix boolean value
     def test_connection_status(self):
         params = {'connection_status': 'True'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
         params = {'cabled': 'true'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'cabled': 'false'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class InterfaceTestCase(TestCase):
     queryset = Interface.objects.all()
-    filter = InterfaceFilter
+    filterset = InterfaceFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -1638,72 +1658,72 @@ class InterfaceTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:3]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_name(self):
         params = {'name': ['Interface 1', 'Interface 2']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     # TODO: Fix boolean value
     def test_connection_status(self):
         params = {'connection_status': 'True'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_enabled(self):
         params = {'enabled': 'true'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'enabled': 'false'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_mtu(self):
         params = {'mtu': [100, 200]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_mgmt_only(self):
         params = {'mgmt_only': 'true'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'mgmt_only': 'false'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_mode(self):
         params = {'mode': IFACE_MODE_ACCESS}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):
         params = {'description': ['First', 'Second']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
         params = {'cabled': 'true'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'cabled': 'false'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_kind(self):
         params = {'kind': 'physical'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 6)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'kind': 'virtual'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_mac_address(self):
         params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
         params = {'type': [IFACE_TYPE_1GE_FIXED, IFACE_TYPE_1GE_GBIC]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class FrontPortTestCase(TestCase):
     queryset = FrontPort.objects.all()
-    filter = FrontPortFilter
+    filterset = FrontPortFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -1749,38 +1769,38 @@ class FrontPortTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Front Port 1', 'Front Port 2']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
         # TODO: Test for multiple values
         params = {'type': PORT_TYPE_8P8C}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):
         params = {'description': ['First', 'Second']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
         params = {'cabled': 'true'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'cabled': 'false'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class RearPortTestCase(TestCase):
     queryset = RearPort.objects.all()
-    filter = RearPortFilter
+    filterset = RearPortFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -1816,42 +1836,42 @@ class RearPortTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Rear Port 1', 'Rear Port 2']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
         # TODO: Test for multiple values
         params = {'type': PORT_TYPE_8P8C}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_positions(self):
         params = {'positions': [1, 2]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
         params = {'description': ['First', 'Second']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cabled(self):
         params = {'cabled': 'true'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'cabled': 'false'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class DeviceBayTestCase(TestCase):
     queryset = DeviceBay.objects.all()
-    filter = DeviceBayFilter
+    filterset = DeviceBayFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -1878,27 +1898,27 @@ class DeviceBayTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Device Bay 1', 'Device Bay 2']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
         params = {'description': ['First', 'Second']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class InventoryItemTestCase(TestCase):
     queryset = InventoryItem.objects.all()
-    filter = InventoryItemFilter
+    filterset = InventoryItemFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -1952,71 +1972,71 @@ class InventoryItemTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Inventory Item 1', 'Inventory Item 2']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_part_id(self):
         params = {'part_id': ['1001', '1002']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_asset_tag(self):
         params = {'asset_tag': ['1001', '1002']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_discovered(self):
         # TODO: Fix boolean value
         params = {'discovered': True}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'discovered': False}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'region': [regions[0].slug, regions[1].slug]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'site': [sites[0].slug, sites[1].slug]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_device(self):
         # TODO: Allow multiple values
         device = Device.objects.first()
         params = {'device_id': device.pk}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': device.name}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_parent_id(self):
         parent_items = InventoryItem.objects.filter(parent__isnull=True)[:2]
         params = {'parent_id': [parent_items[0].pk, parent_items[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_manufacturer(self):
         manufacturers = Manufacturer.objects.all()[:2]
         params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_serial(self):
         params = {'serial': 'ABC'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'serial': 'abc'}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class VirtualChassisTestCase(TestCase):
     queryset = VirtualChassis.objects.all()
-    filter = VirtualChassisFilter
+    filterset = VirtualChassisFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -2064,30 +2084,30 @@ class VirtualChassisTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_domain(self):
         params = {'domain': ['Domain 1', 'Domain 2']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class CableTestCase(TestCase):
     queryset = Cable.objects.all()
-    filter = CableFilter
+    filterset = CableFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -2147,57 +2167,57 @@ class CableTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_label(self):
         params = {'label': ['Cable 1', 'Cable 2']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_length(self):
         params = {'length': [10, 20]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_length_unit(self):
         params = {'length_unit': LENGTH_UNIT_FOOT}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_type(self):
         params = {'type': [CABLE_TYPE_CAT3, CABLE_TYPE_CAT5E]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_status(self):
         params = {'status': [CONNECTION_STATUS_CONNECTED]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_color(self):
         params = {'color': ['aa1409', 'f44336']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'device': [devices[0].name, devices[1].name]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_rack(self):
         racks = Rack.objects.all()[:2]
         params = {'rack_id': [racks[0].pk, racks[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
         params = {'rack': [racks[0].name, racks[1].name]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
     def test_site(self):
         site = Site.objects.all()[:2]
         params = {'site_id': [site[0].pk, site[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
         params = {'site': [site[0].slug, site[1].slug]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
 
 class PowerPanelTestCase(TestCase):
     queryset = PowerPanel.objects.all()
-    filter = PowerPanelFilter
+    filterset = PowerPanelFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -2233,31 +2253,31 @@ class PowerPanelTestCase(TestCase):
 
     def test_name(self):
         params = {'name': ['Power Panel 1', 'Power Panel 2']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_rack_group(self):
         rack_groups = RackGroup.objects.all()[:2]
         params = {'rack_group_id': [rack_groups[0].pk, rack_groups[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class PowerFeedTestCase(TestCase):
     queryset = PowerFeed.objects.all()
-    filter = PowerFeedFilter
+    filterset = PowerFeedFilter
 
     @classmethod
     def setUpTestData(cls):
@@ -2300,60 +2320,60 @@ class PowerFeedTestCase(TestCase):
 
     def test_name(self):
         params = {'name': ['Power Feed 1', 'Power Feed 2']}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):
         # TODO: Test for multiple values
         params = {'status': POWERFEED_STATUS_ACTIVE}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_type(self):
         params = {'type': POWERFEED_TYPE_PRIMARY}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_supply(self):
         params = {'supply': POWERFEED_SUPPLY_AC}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_phase(self):
         params = {'phase': POWERFEED_PHASE_3PHASE}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_voltage(self):
         params = {'voltage': [100, 200]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_amperage(self):
         params = {'amperage': [100, 200]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_max_utilization(self):
         params = {'max_utilization': [10, 20]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_power_panel_id(self):
         power_panels = PowerPanel.objects.all()[:2]
         params = {'power_panel_id': [power_panels[0].pk, power_panels[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_rack_id(self):
         racks = Rack.objects.all()[:2]
         params = {'rack_id': [racks[0].pk, racks[1].pk]}
-        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 # TODO: Connection filters
