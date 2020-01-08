@@ -60,8 +60,13 @@ def parse_alphanumeric_range(string):
             for n in list(range(int(begin), int(end) + 1)):
                 values.append(n)
         else:
-            for n in list(range(ord(begin), ord(end) + 1)):
-                values.append(chr(n))
+            # Value-based
+            if begin == end:
+                values.append(begin)
+            # Range-based
+            else:
+                for n in list(range(ord(begin), ord(end) + 1)):
+                    values.append(chr(n))
     return values
 
 
