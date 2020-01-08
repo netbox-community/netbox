@@ -2083,3 +2083,113 @@ class VirtualChassisTestCase(TestCase):
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+
+class CableTestCase(TestCase):
+    queryset = Cable.objects.all()
+    filter = CableFilter
+
+    @classmethod
+    def setUpTestData(cls):
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+            Rack(name='Rack 3', site=sites[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        devices = (
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=1),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=2),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=1),
+            Device(name='Device 4', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=2),
+            Device(name='Device 5', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=1),
+            Device(name='Device 6', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=2),
+        )
+        Device.objects.bulk_create(devices)
+
+        interfaces = (
+            Interface(device=devices[0], name='Interface 1', type=IFACE_TYPE_1GE_FIXED),
+            Interface(device=devices[0], name='Interface 2', type=IFACE_TYPE_1GE_FIXED),
+            Interface(device=devices[1], name='Interface 3', type=IFACE_TYPE_1GE_FIXED),
+            Interface(device=devices[1], name='Interface 4', type=IFACE_TYPE_1GE_FIXED),
+            Interface(device=devices[2], name='Interface 5', type=IFACE_TYPE_1GE_FIXED),
+            Interface(device=devices[2], name='Interface 6', type=IFACE_TYPE_1GE_FIXED),
+            Interface(device=devices[3], name='Interface 7', type=IFACE_TYPE_1GE_FIXED),
+            Interface(device=devices[3], name='Interface 8', type=IFACE_TYPE_1GE_FIXED),
+            Interface(device=devices[4], name='Interface 9', type=IFACE_TYPE_1GE_FIXED),
+            Interface(device=devices[4], name='Interface 10', type=IFACE_TYPE_1GE_FIXED),
+            Interface(device=devices[5], name='Interface 11', type=IFACE_TYPE_1GE_FIXED),
+            Interface(device=devices[5], name='Interface 12', type=IFACE_TYPE_1GE_FIXED),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        # Cables
+        Cable(termination_a=interfaces[1], termination_b=interfaces[2], label='Cable 1', type=CABLE_TYPE_CAT3, status=CONNECTION_STATUS_CONNECTED, color='aa1409', length=10, length_unit=LENGTH_UNIT_FOOT).save()
+        Cable(termination_a=interfaces[3], termination_b=interfaces[4], label='Cable 2', type=CABLE_TYPE_CAT3, status=CONNECTION_STATUS_CONNECTED, color='aa1409', length=20, length_unit=LENGTH_UNIT_FOOT).save()
+        Cable(termination_a=interfaces[5], termination_b=interfaces[6], label='Cable 3', type=CABLE_TYPE_CAT5E, status=CONNECTION_STATUS_CONNECTED, color='f44336', length=30, length_unit=LENGTH_UNIT_FOOT).save()
+        Cable(termination_a=interfaces[7], termination_b=interfaces[8], label='Cable 4', type=CABLE_TYPE_CAT5E, status=CONNECTION_STATUS_PLANNED, color='f44336', length=40, length_unit=LENGTH_UNIT_FOOT).save()
+        Cable(termination_a=interfaces[9], termination_b=interfaces[10], label='Cable 5', type=CABLE_TYPE_CAT6, status=CONNECTION_STATUS_PLANNED, color='e91e63', length=10, length_unit=LENGTH_UNIT_METER).save()
+        Cable(termination_a=interfaces[11], termination_b=interfaces[0], label='Cable 6', type=CABLE_TYPE_CAT6, status=CONNECTION_STATUS_PLANNED, color='e91e63', length=20, length_unit=LENGTH_UNIT_METER).save()
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_label(self):
+        params = {'label': ['Cable 1', 'Cable 2']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_length(self):
+        params = {'length': [10, 20]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+
+    def test_length_unit(self):
+        params = {'length_unit': LENGTH_UNIT_FOOT}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+
+    def test_type(self):
+        params = {'type': [CABLE_TYPE_CAT3, CABLE_TYPE_CAT5E]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+
+    def test_status(self):
+        params = {'status': [CONNECTION_STATUS_CONNECTED]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+
+    def test_color(self):
+        params = {'color': ['aa1409', 'f44336']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+
+    def test_device(self):
+        devices = Device.objects.all()[:2]
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+        params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+
+    def test_rack(self):
+        racks = Rack.objects.all()[:2]
+        params = {'rack_id': [racks[0].pk, racks[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 5)
+        params = {'rack': [racks[0].name, racks[1].name]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 5)
+
+    def test_site(self):
+        site = Site.objects.all()[:2]
+        params = {'site_id': [site[0].pk, site[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 5)
+        params = {'site': [site[0].slug, site[1].slug]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 5)
