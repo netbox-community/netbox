@@ -359,7 +359,6 @@ class InterfaceTestCase(TestCase):
         params = {'virtual_machine': [vms[0].name, vms[1].name]}
         self.assertEqual(InterfaceFilter(params, self.queryset).qs.count(), 2)
 
-    # TODO: Test for multiple values
     def test_mac_address(self):
-        params = {'mac_address': '00-00-00-00-00-01'}
-        self.assertEqual(InterfaceFilter(params, self.queryset).qs.count(), 1)
+        params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
+        self.assertEqual(InterfaceFilter(params, self.queryset).qs.count(), 2)
