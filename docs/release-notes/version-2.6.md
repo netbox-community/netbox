@@ -3,6 +3,7 @@
 ## Enhancements
 
 * [#2050](https://github.com/netbox-community/netbox/issues/2050) - Preview image attachments when hovering the link
+* [#2113](https://github.com/netbox-community/netbox/issues/2113) - Allow NAPALM driver settings to be changed with request headers
 * [#3187](https://github.com/netbox-community/netbox/issues/3187) - Add rack selection field to rack elevations
 
 ## Bug Fixes
