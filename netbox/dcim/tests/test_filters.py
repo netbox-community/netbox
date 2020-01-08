@@ -1445,3 +1445,453 @@ class ConsoleServerPortTestCase(TestCase):
         self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 2)
         params = {'cabled': 'false'}
         self.assertEqual(ConsoleServerPortFilter(params, self.queryset).qs.count(), 1)
+
+
+class PowerPortTestCase(TestCase):
+    queryset = PowerPort.objects.all()
+    filter = PowerPortFilter
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        devices = (
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
+            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
+        )
+        Device.objects.bulk_create(devices)
+
+        power_outlets = (
+            PowerOutlet(device=devices[3], name='Power Outlet 1'),
+            PowerOutlet(device=devices[3], name='Power Outlet 2'),
+        )
+        PowerOutlet.objects.bulk_create(power_outlets)
+
+        power_ports = (
+            PowerPort(device=devices[0], name='Power Port 1', maximum_draw=100, allocated_draw=50, description='First'),
+            PowerPort(device=devices[1], name='Power Port 2', maximum_draw=200, allocated_draw=100, description='Second'),
+            PowerPort(device=devices[2], name='Power Port 3', maximum_draw=300, allocated_draw=150, description='Third'),
+        )
+        PowerPort.objects.bulk_create(power_ports)
+
+        # Cables
+        Cable(termination_a=power_ports[0], termination_b=power_outlets[0]).save()
+        Cable(termination_a=power_ports[1], termination_b=power_outlets[1]).save()
+        # Third port is not connected
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Power Port 1', 'Power Port 2']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['First', 'Second']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_maximum_draw(self):
+        params = {'maximum_draw': [100, 200]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_allocated_draw(self):
+        params = {'allocated_draw': [50, 100]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    # TODO: Fix boolean value
+    def test_connection_status(self):
+        params = {'connection_status': 'True'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_device(self):
+        devices = Device.objects.all()[:2]
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_cabled(self):
+        params = {'cabled': 'true'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'cabled': 'false'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+
+class PowerOutletTestCase(TestCase):
+    queryset = PowerOutlet.objects.all()
+    filter = PowerOutletFilter
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        devices = (
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
+            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
+        )
+        Device.objects.bulk_create(devices)
+
+        power_ports = (
+            PowerPort(device=devices[3], name='Power Outlet 1'),
+            PowerPort(device=devices[3], name='Power Outlet 2'),
+        )
+        PowerPort.objects.bulk_create(power_ports)
+
+        power_outlets = (
+            PowerOutlet(device=devices[0], name='Power Outlet 1', feed_leg=POWERFEED_LEG_A, description='First'),
+            PowerOutlet(device=devices[1], name='Power Outlet 2', feed_leg=POWERFEED_LEG_B, description='Second'),
+            PowerOutlet(device=devices[2], name='Power Outlet 3', feed_leg=POWERFEED_LEG_C, description='Third'),
+        )
+        PowerOutlet.objects.bulk_create(power_outlets)
+
+        # Cables
+        Cable(termination_a=power_outlets[0], termination_b=power_ports[0]).save()
+        Cable(termination_a=power_outlets[1], termination_b=power_ports[1]).save()
+        # Third port is not connected
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Power Outlet 1', 'Power Outlet 2']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['First', 'Second']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_feed_leg(self):
+        # TODO: Support filtering for multiple values
+        params = {'feed_leg': POWERFEED_LEG_A}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+    # TODO: Fix boolean value
+    def test_connection_status(self):
+        params = {'connection_status': 'True'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_device(self):
+        devices = Device.objects.all()[:2]
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_cabled(self):
+        params = {'cabled': 'true'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'cabled': 'false'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+
+class InterfaceTestCase(TestCase):
+    queryset = Interface.objects.all()
+    filter = InterfaceFilter
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        devices = (
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
+            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
+        )
+        Device.objects.bulk_create(devices)
+
+        interfaces = (
+            Interface(device=devices[0], name='Interface 1', type=IFACE_TYPE_1GE_SFP, enabled=True, mgmt_only=True, mtu=100, mode=IFACE_MODE_ACCESS, mac_address='00-00-00-00-00-01', description='First'),
+            Interface(device=devices[1], name='Interface 2', type=IFACE_TYPE_1GE_GBIC, enabled=True, mgmt_only=True, mtu=200, mode=IFACE_MODE_TAGGED, mac_address='00-00-00-00-00-02', description='Second'),
+            Interface(device=devices[2], name='Interface 3', type=IFACE_TYPE_1GE_FIXED, enabled=False, mgmt_only=False, mtu=300, mode=IFACE_MODE_TAGGED_ALL, mac_address='00-00-00-00-00-03', description='Third'),
+            Interface(device=devices[3], name='Interface 4', type=IFACE_TYPE_OTHER, enabled=True, mgmt_only=True),
+            Interface(device=devices[3], name='Interface 5', type=IFACE_TYPE_OTHER, enabled=True, mgmt_only=True),
+            Interface(device=devices[3], name='Interface 6', type=IFACE_TYPE_OTHER, enabled=False, mgmt_only=False),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        # Cables
+        Cable(termination_a=interfaces[0], termination_b=interfaces[3]).save()
+        Cable(termination_a=interfaces[1], termination_b=interfaces[4]).save()
+        # Third pair is not connected
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:3]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 3)
+
+    def test_name(self):
+        params = {'name': ['Interface 1', 'Interface 2']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    # TODO: Fix boolean value
+    def test_connection_status(self):
+        params = {'connection_status': 'True'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+
+    def test_enabled(self):
+        params = {'enabled': 'true'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        params = {'enabled': 'false'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_mtu(self):
+        params = {'mtu': [100, 200]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_mgmt_only(self):
+        params = {'mgmt_only': 'true'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        params = {'mgmt_only': 'false'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_mode(self):
+        params = {'mode': IFACE_MODE_ACCESS}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+    def test_description(self):
+        params = {'description': ['First', 'Second']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_device(self):
+        devices = Device.objects.all()[:2]
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_cabled(self):
+        params = {'cabled': 'true'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        params = {'cabled': 'false'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_kind(self):
+        params = {'kind': 'physical'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 6)
+        params = {'kind': 'virtual'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 0)
+
+    def test_mac_address(self):
+        params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_type(self):
+        params = {'type': [IFACE_TYPE_1GE_FIXED, IFACE_TYPE_1GE_GBIC]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+
+class FrontPortTestCase(TestCase):
+    queryset = FrontPort.objects.all()
+    filter = FrontPortFilter
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        devices = (
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
+            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
+        )
+        Device.objects.bulk_create(devices)
+
+        rear_ports = (
+            RearPort(device=devices[0], name='Rear Port 1', type=PORT_TYPE_8P8C, positions=6),
+            RearPort(device=devices[1], name='Rear Port 2', type=PORT_TYPE_8P8C, positions=6),
+            RearPort(device=devices[2], name='Rear Port 3', type=PORT_TYPE_8P8C, positions=6),
+            RearPort(device=devices[3], name='Rear Port 4', type=PORT_TYPE_8P8C, positions=6),
+            RearPort(device=devices[3], name='Rear Port 5', type=PORT_TYPE_8P8C, positions=6),
+            RearPort(device=devices[3], name='Rear Port 6', type=PORT_TYPE_8P8C, positions=6),
+        )
+        RearPort.objects.bulk_create(rear_ports)
+
+        front_ports = (
+            FrontPort(device=devices[0], name='Front Port 1', type=PORT_TYPE_8P8C, rear_port=rear_ports[0], rear_port_position=1, description='First'),
+            FrontPort(device=devices[1], name='Front Port 2', type=PORT_TYPE_110_PUNCH, rear_port=rear_ports[1], rear_port_position=2, description='Second'),
+            FrontPort(device=devices[2], name='Front Port 3', type=PORT_TYPE_BNC, rear_port=rear_ports[2], rear_port_position=3, description='Third'),
+            FrontPort(device=devices[3], name='Front Port 4', type=PORT_TYPE_FC, rear_port=rear_ports[3], rear_port_position=1),
+            FrontPort(device=devices[3], name='Front Port 5', type=PORT_TYPE_FC, rear_port=rear_ports[4], rear_port_position=1),
+            FrontPort(device=devices[3], name='Front Port 6', type=PORT_TYPE_FC, rear_port=rear_ports[5], rear_port_position=1),
+        )
+        FrontPort.objects.bulk_create(front_ports)
+
+        # Cables
+        Cable(termination_a=front_ports[0], termination_b=front_ports[3]).save()
+        Cable(termination_a=front_ports[1], termination_b=front_ports[4]).save()
+        # Third port is not connected
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Front Port 1', 'Front Port 2']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_type(self):
+        # TODO: Test for multiple values
+        params = {'type': PORT_TYPE_8P8C}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+    def test_description(self):
+        params = {'description': ['First', 'Second']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_device(self):
+        devices = Device.objects.all()[:2]
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_cabled(self):
+        params = {'cabled': 'true'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        params = {'cabled': 'false'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+
+class RearPortTestCase(TestCase):
+    queryset = RearPort.objects.all()
+    filter = RearPortFilter
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        devices = (
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
+            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
+        )
+        Device.objects.bulk_create(devices)
+
+        rear_ports = (
+            RearPort(device=devices[0], name='Rear Port 1', type=PORT_TYPE_8P8C, positions=1, description='First'),
+            RearPort(device=devices[1], name='Rear Port 2', type=PORT_TYPE_110_PUNCH, positions=2, description='Second'),
+            RearPort(device=devices[2], name='Rear Port 3', type=PORT_TYPE_BNC, positions=3, description='Third'),
+            RearPort(device=devices[3], name='Rear Port 4', type=PORT_TYPE_FC, positions=4),
+            RearPort(device=devices[3], name='Rear Port 5', type=PORT_TYPE_FC, positions=5),
+            RearPort(device=devices[3], name='Rear Port 6', type=PORT_TYPE_FC, positions=6),
+        )
+        RearPort.objects.bulk_create(rear_ports)
+
+        # Cables
+        Cable(termination_a=rear_ports[0], termination_b=rear_ports[3]).save()
+        Cable(termination_a=rear_ports[1], termination_b=rear_ports[4]).save()
+        # Third port is not connected
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Rear Port 1', 'Rear Port 2']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_type(self):
+        # TODO: Test for multiple values
+        params = {'type': PORT_TYPE_8P8C}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+    def test_positions(self):
+        params = {'positions': [1, 2]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['First', 'Second']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_device(self):
+        devices = Device.objects.all()[:2]
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_cabled(self):
+        params = {'cabled': 'true'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 4)
+        params = {'cabled': 'false'}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+
+class DeviceBayTestCase(TestCase):
+    queryset = DeviceBay.objects.all()
+    filter = DeviceBayFilter
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        devices = (
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
+            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
+        )
+        Device.objects.bulk_create(devices)
+
+        device_bays = (
+            DeviceBay(device=devices[0], name='Device Bay 1', description='First'),
+            DeviceBay(device=devices[1], name='Device Bay 2', description='Second'),
+            DeviceBay(device=devices[2], name='Device Bay 3', description='Third'),
+        )
+        DeviceBay.objects.bulk_create(device_bays)
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Device Bay 1', 'Device Bay 2']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['First', 'Second']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_device(self):
+        devices = Device.objects.all()[:2]
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
