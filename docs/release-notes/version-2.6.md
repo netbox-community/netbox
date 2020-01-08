@@ -10,6 +10,7 @@
 * [#3589](https://github.com/netbox-community/netbox/issues/3589) - Fix validation on tagged VLANs of an interface
 * [#3853](https://github.com/netbox-community/netbox/issues/3853) - Fix device role link on config context view
 * [#3856](https://github.com/netbox-community/netbox/issues/3856) - Allow filtering VM interfaces by multiple MAC addresses
+* [#3857](https://github.com/netbox-community/netbox/issues/3857) - Fix group custom links rendering
 
 ---
 
