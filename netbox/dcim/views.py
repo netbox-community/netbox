@@ -388,7 +388,7 @@ class RackElevationListView(PermissionRequiredMixin, View):
             'page': page,
             'total_count': total_count,
             'face_id': face_id,
-            'filter_form': forms.RackFilterForm(request.GET),
+            'filter_form': forms.RackElevationFilterForm(request.GET),
         })
 
 
