@@ -5,8 +5,8 @@ from dcim.constants import *
 from dcim.filters import *
 from dcim.models import (
     Cable, ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, DeviceRole, DeviceType, FrontPortTemplate,
-    InterfaceTemplate, Manufacturer, Platform, PowerPortTemplate, PowerOutletTemplate, Rack, RackGroup, RackReservation,
-    RackRole, RearPortTemplate, Region, Site, VirtualChassis,
+    InterfaceTemplate, Manufacturer, Platform, PowerFeed, PowerPanel, PowerPortTemplate, PowerOutletTemplate, Rack,
+    RackGroup, RackReservation, RackRole, RearPortTemplate, Region, Site, VirtualChassis,
 )
 from ipam.models import IPAddress
 from virtualization.models import Cluster, ClusterType
@@ -2193,3 +2193,167 @@ class CableTestCase(TestCase):
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 5)
         params = {'site': [site[0].slug, site[1].slug]}
         self.assertEqual(self.filter(params, self.queryset).qs.count(), 5)
+
+
+class PowerPanelTestCase(TestCase):
+    queryset = PowerPanel.objects.all()
+    filter = PowerPanelFilter
+
+    @classmethod
+    def setUpTestData(cls):
+
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
+
+        sites = (
+            Site(name='Site 1', slug='site-1', region=regions[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2]),
+        )
+        Site.objects.bulk_create(sites)
+
+        rack_groups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
+            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
+            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2]),
+        )
+        RackGroup.objects.bulk_create(rack_groups)
+
+        power_panels = (
+            PowerPanel(name='Power Panel 1', site=sites[0], rack_group=rack_groups[0]),
+            PowerPanel(name='Power Panel 2', site=sites[1], rack_group=rack_groups[1]),
+            PowerPanel(name='Power Panel 3', site=sites[2], rack_group=rack_groups[2]),
+        )
+        PowerPanel.objects.bulk_create(power_panels)
+
+    def test_name(self):
+        params = {'name': ['Power Panel 1', 'Power Panel 2']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_rack_group(self):
+        rack_groups = RackGroup.objects.all()[:2]
+        params = {'rack_group_id': [rack_groups[0].pk, rack_groups[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+
+class PowerFeedTestCase(TestCase):
+    queryset = PowerFeed.objects.all()
+    filter = PowerFeedFilter
+
+    @classmethod
+    def setUpTestData(cls):
+
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
+
+        sites = (
+            Site(name='Site 1', slug='site-1', region=regions[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2]),
+        )
+        Site.objects.bulk_create(sites)
+
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+            Rack(name='Rack 3', site=sites[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
+        power_panels = (
+            PowerPanel(name='Power Panel 1', site=sites[0]),
+            PowerPanel(name='Power Panel 2', site=sites[1]),
+            PowerPanel(name='Power Panel 3', site=sites[2]),
+        )
+        PowerPanel.objects.bulk_create(power_panels)
+
+        power_feeds = (
+            PowerFeed(power_panel=power_panels[0], rack=racks[0], name='Power Feed 1', status=POWERFEED_STATUS_ACTIVE, type=POWERFEED_TYPE_PRIMARY, supply=POWERFEED_SUPPLY_AC, phase=POWERFEED_PHASE_3PHASE, voltage=100, amperage=100, max_utilization=10),
+            PowerFeed(power_panel=power_panels[1], rack=racks[1], name='Power Feed 2', status=POWERFEED_STATUS_FAILED, type=POWERFEED_TYPE_PRIMARY, supply=POWERFEED_SUPPLY_AC, phase=POWERFEED_PHASE_3PHASE, voltage=200, amperage=200, max_utilization=20),
+            PowerFeed(power_panel=power_panels[2], rack=racks[2], name='Power Feed 3', status=POWERFEED_STATUS_OFFLINE, type=POWERFEED_TYPE_REDUNDANT, supply=POWERFEED_SUPPLY_DC, phase=POWERFEED_PHASE_SINGLE, voltage=300, amperage=300, max_utilization=30),
+        )
+        PowerFeed.objects.bulk_create(power_feeds)
+
+    def test_name(self):
+        params = {'name': ['Power Feed 1', 'Power Feed 2']}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_status(self):
+        # TODO: Test for multiple values
+        params = {'status': POWERFEED_STATUS_ACTIVE}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 1)
+
+    def test_type(self):
+        params = {'type': POWERFEED_TYPE_PRIMARY}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_supply(self):
+        params = {'supply': POWERFEED_SUPPLY_AC}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_phase(self):
+        params = {'phase': POWERFEED_PHASE_3PHASE}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_voltage(self):
+        params = {'voltage': [100, 200]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_amperage(self):
+        params = {'amperage': [100, 200]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_max_utilization(self):
+        params = {'max_utilization': [10, 20]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_power_panel_id(self):
+        power_panels = PowerPanel.objects.all()[:2]
+        params = {'power_panel_id': [power_panels[0].pk, power_panels[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+    def test_rack_id(self):
+        racks = Rack.objects.all()[:2]
+        params = {'rack_id': [racks[0].pk, racks[1].pk]}
+        self.assertEqual(self.filter(params, self.queryset).qs.count(), 2)
+
+
+# TODO: Connection filters
