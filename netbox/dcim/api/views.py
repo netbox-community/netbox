@@ -396,13 +396,29 @@ class DeviceViewSet(CustomFieldModelViewSet):
         napalm_methods = request.GET.getlist('method')
         response = OrderedDict([(m, None) for m in napalm_methods])
         ip_address = str(device.primary_ip.address.ip)
+        username = settings.NAPALM_USERNAME
+        password = settings.NAPALM_PASSWORD
         optional_args = settings.NAPALM_ARGS.copy()
         if device.platform.napalm_args is not None:
             optional_args.update(device.platform.napalm_args)
+
+        # Update NAPALM parameters according to the provided headers
+        for header in request.headers:
+            if header[:7].lower() != 'napalm-':
+                continue
+
+            key = header[7:]
+            if key.lower() == 'username':
+                username = request.headers[header]
+            elif key.lower() == 'password':
+                password = request.headers[header]
+            elif key:
+                optional_args[key.lower()] == request.headers[header]
+
         d = driver(
             hostname=ip_address,
-            username=settings.NAPALM_USERNAME,
-            password=settings.NAPALM_PASSWORD,
+            username=username,
+            password=password,
             timeout=settings.NAPALM_TIMEOUT,
             optional_args=optional_args
         )
