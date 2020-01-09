@@ -3,8 +3,18 @@
 ## Enhancements
 
 * [#2050](https://github.com/netbox-community/netbox/issues/2050) - Preview image attachments when hovering the link
+* [#2589](https://github.com/netbox-community/netbox/issues/2589) - Toggle for showing available prefixes/ip addresses
 * [#3090](https://github.com/netbox-community/netbox/issues/3090) - Add filter field for device interfaces
 * [#3187](https://github.com/netbox-community/netbox/issues/3187) - Add rack selection field to rack elevations
+* [#3851](https://github.com/netbox-community/netbox/issues/3851) - Allow passing initial data to custom script forms
+
+## Bug Fixes
+
+* [#3589](https://github.com/netbox-community/netbox/issues/3589) - Fix validation on tagged VLANs of an interface
+* [#3853](https://github.com/netbox-community/netbox/issues/3853) - Fix device role link on config context view
+* [#3856](https://github.com/netbox-community/netbox/issues/3856) - Allow filtering VM interfaces by multiple MAC addresses
+* [#3857](https://github.com/netbox-community/netbox/issues/3857) - Fix group custom links rendering
+* [#3862](https://github.com/netbox-community/netbox/issues/3862) - Allow filtering device components by multiple device names
 
 ---
 

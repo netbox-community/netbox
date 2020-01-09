@@ -1,7 +1,5 @@
 import django_filters
 from django.db.models import Q
-from netaddr import EUI
-from netaddr.core import AddrFormatError
 
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
@@ -11,6 +9,15 @@ from utilities.filters import (
 )
 from .constants import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+
+
+__all__ = (
+    'ClusterFilter',
+    'ClusterGroupFilter',
+    'ClusterTypeFilter',
+    'InterfaceFilter',
+    'VirtualMachineFilter',
+)
 
 
 class ClusterTypeFilter(NameSlugSearchFilterSet):
@@ -208,24 +215,13 @@ class InterfaceFilter(django_filters.FilterSet):
         to_field_name='name',
         label='Virtual machine',
     )
-    mac_address = django_filters.CharFilter(
-        method='_mac_address',
+    mac_address = MultiValueMACAddressFilter(
         label='MAC address',
     )
 
     class Meta:
         model = Interface
         fields = ['id', 'name', 'enabled', 'mtu']
-
-    def _mac_address(self, queryset, name, value):
-        value = value.strip()
-        if not value:
-            return queryset
-        try:
-            mac = EUI(value.strip())
-            return queryset.filter(mac_address=mac)
-        except AddrFormatError:
-            return queryset.none()
 
     def search(self, queryset, name, value):
         if not value.strip():

@@ -112,7 +112,7 @@
                             {% if configcontext.roles.all %}
                                 <ul>
                                     {% for role in configcontext.roles.all %}
-                                        <li><a href="{{ role.get_absolute_url }}">{{ role }}</a></li>
+                                        <li><a href="{% url 'dcim:device_list' %}?role={{ role.slug }}">{{ role }}</a></li>
                                     {% endfor %}
                                 </ul>
                             {% else %}
