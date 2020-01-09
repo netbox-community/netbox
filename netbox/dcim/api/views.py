@@ -327,13 +327,6 @@ class DeviceViewSet(CustomFieldModelViewSet):
     )
     filterset_class = filters.DeviceFilter
 
-    _method = Parameter(
-        name='method',
-        in_='query',
-        required=True,
-        type=openapi.TYPE_STRING
-    )
-
     def get_serializer_class(self):
         """
         Select the specific serializer based on the request context.
@@ -365,7 +358,17 @@ class DeviceViewSet(CustomFieldModelViewSet):
 
         return Response(serializer.data)
 
-    @swagger_auto_schema(manual_parameters=[_method], responses={'200': serializers.DeviceNAPALMSerializer})
+    @swagger_auto_schema(
+        manual_parameters=[
+            Parameter(
+                name='method',
+                in_='query',
+                required=True,
+                type=openapi.TYPE_STRING
+            )
+        ],
+        responses={'200': serializers.DeviceNAPALMSerializer}
+    )
     @action(detail=True, url_path='napalm')
     def napalm(self, request, pk):
         """
