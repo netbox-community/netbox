@@ -17,15 +17,15 @@ GET /api/dcim/devices/1/napalm/?method=get_environment
 
 ## Authentication
 
-By default, the [`NAPALM_USERNAME`](../../configuration/optional-settings/#napalm_username) and [`NAPALM_PASSWORD`](../../configuration/optional-settings/#napalm_password) are used for NAPALM authentication. They can be overridden for an individual API call through the `NAPALM-Username` and `NAPALM-Password` headers.
+By default, the [`NAPALM_USERNAME`](../../configuration/optional-settings/#napalm_username) and [`NAPALM_PASSWORD`](../../configuration/optional-settings/#napalm_password) are used for NAPALM authentication. They can be overridden for an individual API call through the `X-NAPALM-Username` and `X-NAPALM-Password` headers.
 
 ```
 $ curl "http://localhost/api/dcim/devices/1/napalm/?method=get_environment" \
 -H "Authorization: Token f4b378553dacfcfd44c5a0b9ae49b57e29c552b5" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json; indent=4" \
--H "NAPALM-Username: foo" \
--H "NAPALM-Password: bar"
+-H "X-NAPALM-Username: foo" \
+-H "X-NAPALM-Password: bar"
 ```
 
 ## Method Support
@@ -51,7 +51,7 @@ GET /api/dcim/devices/1/napalm/?method=get_ntp_servers&method=get_ntp_peers
 
 ## Optional Arguments
 
-The behavior of NAPALM drivers can be adjusted according to the [optional arguments](https://napalm.readthedocs.io/en/latest/support/index.html#optional-arguments). NetBox exposes those arguments using headers prefixed with `NAPALM-`.
+The behavior of NAPALM drivers can be adjusted according to the [optional arguments](https://napalm.readthedocs.io/en/latest/support/index.html#optional-arguments). NetBox exposes those arguments using headers prefixed with `X-NAPALM-`.
 
 
 For instance, the SSH port is changed to 2222 in this API call:
@@ -61,5 +61,5 @@ $ curl "http://localhost/api/dcim/devices/1/napalm/?method=get_environment" \
 -H "Authorization: Token f4b378553dacfcfd44c5a0b9ae49b57e29c552b5" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json; indent=4" \
--H "NAPALM-port: 2222"
+-H "X-NAPALM-port: 2222"
 ```

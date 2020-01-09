@@ -404,10 +404,10 @@ class DeviceViewSet(CustomFieldModelViewSet):
 
         # Update NAPALM parameters according to the request headers
         for header in request.headers:
-            if header[:7].lower() != 'napalm-':
+            if header[:9].lower() != 'x-napalm-':
                 continue
 
-            key = header[7:]
+            key = header[9:]
             if key.lower() == 'username':
                 username = request.headers[header]
             elif key.lower() == 'password':
