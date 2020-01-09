@@ -270,6 +270,13 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_NEMA_L620P = 'nema-l6-20p'
     TYPE_NEMA_L630P = 'nema-l6-30p'
     TYPE_NEMA_L650P = 'nema-l6-50p'
+    # California style
+    TYPE_CS6361C = 'cs6361c'
+    TYPE_CS6365C = 'cs6365c'
+    TYPE_CS8165C = 'cs8165c'
+    TYPE_CS8265C = 'cs8265c'
+    TYPE_CS8365C = 'cs8365c'
+    TYPE_CS8465C = 'cs8465c'
     # ITA/international
     TYPE_ITA_E = 'ita-e'
     TYPE_ITA_F = 'ita-f'
@@ -324,6 +331,14 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_NEMA_L620P, 'NEMA L6-20P'),
             (TYPE_NEMA_L630P, 'NEMA L6-30P'),
             (TYPE_NEMA_L650P, 'NEMA L6-50P'),
+        )),
+        ('California Style', (
+            (TYPE_CS6361C, 'CS6361C'),
+            (TYPE_CS6365C, 'CS6365C'),
+            (TYPE_CS8165C, 'CS8165C'),
+            (TYPE_CS8265C, 'CS8265C'),
+            (TYPE_CS8365C, 'CS8365C'),
+            (TYPE_CS8465C, 'CS8465C'),
         )),
         ('International/ITA', (
             (TYPE_ITA_E, 'ITA Type E (CEE 7/5)'),
@@ -384,6 +399,13 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_NEMA_L620R = 'nema-l6-20r'
     TYPE_NEMA_L630R = 'nema-l6-30r'
     TYPE_NEMA_L650R = 'nema-l6-50r'
+    # California style
+    TYPE_CS6360C = 'CS6360C'
+    TYPE_CS6364C = 'CS6364C'
+    TYPE_CS8164C = 'CS8164C'
+    TYPE_CS8264C = 'CS8264C'
+    TYPE_CS8364C = 'CS8364C'
+    TYPE_CS8464C = 'CS8464C'
     # ITA/international
     TYPE_ITA_E = 'ita-e'
     TYPE_ITA_F = 'ita-f'
@@ -437,6 +459,14 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_NEMA_L620R, 'NEMA L6-20R'),
             (TYPE_NEMA_L630R, 'NEMA L6-30R'),
             (TYPE_NEMA_L650R, 'NEMA L6-50R'),
+        )),
+        ('California Style', (
+            (TYPE_CS6360C, 'CS6360C'),
+            (TYPE_CS6364C, 'CS6364C'),
+            (TYPE_CS8164C, 'CS8164C'),
+            (TYPE_CS8264C, 'CS8264C'),
+            (TYPE_CS8364C, 'CS8364C'),
+            (TYPE_CS8464C, 'CS8464C'),
         )),
         ('ITA/International', (
             (TYPE_ITA_E, 'ITA Type E (CEE7/5)'),
