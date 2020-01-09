@@ -168,7 +168,7 @@ def to_meters(length, unit):
     if length < 0:
         raise ValueError("Length must be a positive integer")
 
-    valid_units = [u[0] for u in CableLengthUnitChoices]
+    valid_units = CableLengthUnitChoices.values()
     if unit not in valid_units:
         raise ValueError(
             "Unknown unit {}. Must be one of the following: {}".format(unit, ', '.join(valid_units))
