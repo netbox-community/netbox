@@ -358,6 +358,17 @@ class DeviceViewSet(CustomFieldModelViewSet):
 
         return Response(serializer.data)
 
+    @swagger_auto_schema(
+        manual_parameters=[
+            Parameter(
+                name='method',
+                in_='query',
+                required=True,
+                type=openapi.TYPE_STRING
+            )
+        ],
+        responses={'200': serializers.DeviceNAPALMSerializer}
+    )
     @action(detail=True, url_path='napalm')
     def napalm(self, request, pk):
         """
