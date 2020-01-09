@@ -374,9 +374,6 @@ class DeviceViewSet(CustomFieldModelViewSet):
         """
         Execute a NAPALM method on a Device
         """
-        if not request.GET.get('method'):
-            raise ServiceUnavailable('No NAPALM methods were specified.')
-
         device = get_object_or_404(Device, pk=pk)
         if not device.primary_ip:
             raise ServiceUnavailable("This device does not have a primary IP address configured.")
