@@ -11,6 +11,11 @@ class ASNField(models.BigIntegerField):
         MaxValueValidator(4294967295),
     ]
 
+    def formfield(self, **kwargs):
+        defaults = {'min_value': 1, 'max_value': 4294967295}
+        defaults.update(**kwargs)
+        return super().formfield(**defaults)
+
 
 class mac_unix_expanded_uppercase(mac_unix_expanded):
     word_fmt = '%.2X'
