@@ -2950,6 +2950,8 @@ class Cable(ChangeLoggedModel):
         # Store the given length (if any) in meters for use in database ordering
         if self.length and self.length_unit:
             self._abs_length = to_meters(self.length, self.length_unit)
+        else:
+            self._abs_length = None
 
         # Store the parent Device for the A and B terminations (if applicable) to enable filtering
         if hasattr(self.termination_a, 'device'):
