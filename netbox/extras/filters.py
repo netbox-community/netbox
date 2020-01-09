@@ -18,7 +18,6 @@ __all__ = (
     'LocalConfigContextFilter',
     'ObjectChangeFilter',
     'TagFilter',
-    'TopologyMapFilter',
 )
 
 
