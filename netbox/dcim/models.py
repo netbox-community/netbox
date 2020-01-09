@@ -3256,6 +3256,11 @@ class Cable(ChangeLoggedModel):
         'color', 'length', 'length_unit',
     ]
 
+    STATUS_CLASS_MAP = {
+        CableStatusChoices.STATUS_CONNECTED: 'success',
+        CableStatusChoices.STATUS_PLANNED: 'info',
+    }
+
     class Meta:
         ordering = ['pk']
         unique_together = (
@@ -3393,7 +3398,7 @@ class Cable(ChangeLoggedModel):
         )
 
     def get_status_class(self):
-        return 'success' if self.status else 'info'
+        return self.STATUS_CLASS_MAP.get(self.status)
 
     def get_compatible_types(self):
         """
