@@ -676,7 +676,7 @@ class IPAddressView(PermissionRequiredMixin, View):
             address=str(ipaddress.address)
         ).filter(
             vrf=ipaddress.vrf, address__net_contained_or_equal=str(ipaddress.address)
-        )
+        )[:50]
         related_ips_table = tables.IPAddressTable(list(related_ips), orderable=False)
 
         return render(request, 'ipam/ipaddress.html', {
