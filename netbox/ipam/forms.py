@@ -943,7 +943,12 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
         )
     )
     address = forms.CharField(
-        label='IP Address'
+        label='IP Address',
+        required=False,
+    )
+    dns_name = forms.CharField(
+        label='DNS Name',
+        required=False,
     )
 
 

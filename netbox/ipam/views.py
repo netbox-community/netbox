@@ -745,6 +745,7 @@ class IPAddressAssignView(PermissionRequiredMixin, View):
             ).filter(
                 vrf=form.cleaned_data['vrf'],
                 address__istartswith=form.cleaned_data['address'],
+                dns_name__icontains=form.cleaned_data['dns_name'],
             )[:100]  # Limit to 100 results
             table = tables.IPAddressAssignTable(queryset)
 
