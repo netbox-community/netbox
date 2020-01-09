@@ -40,6 +40,7 @@
     </div>
     <h1>{% block title %}{{ aggregate }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=aggregate %}
+    {% include 'ipam/inc/toggle_available.html' %}
     <div class="pull-right noprint">
         {% custom_links aggregate %}
     </div>

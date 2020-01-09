@@ -68,8 +68,9 @@ def custom_links(obj):
                 text_rendered = render_jinja2(cl.text, context)
                 if text_rendered:
                     link_target = ' target="_blank"' if cl.new_window else ''
+                    link_rendered = render_jinja2(cl.url, context)
                     links_rendered.append(
-                        GROUP_LINK.format(cl.url, link_target, cl.text)
+                        GROUP_LINK.format(link_rendered, link_target, text_rendered)
                     )
             except Exception as e:
                 links_rendered.append(
