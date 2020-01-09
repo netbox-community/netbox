@@ -412,6 +412,10 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
         return obj.get_config_context()
 
 
+class DeviceNAPALMSerializer(serializers.Serializer):
+    method = serializers.DictField()
+
+
 class ConsoleServerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(

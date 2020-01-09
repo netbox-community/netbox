@@ -1,3 +1,29 @@
+# v2.6.12 (FUTURE)
+
+## Enhancements
+
+* [#1982](https://github.com/netbox-community/netbox/issues/1982) - Improved NAPALM method documentation in Swagger
+* [#2050](https://github.com/netbox-community/netbox/issues/2050) - Preview image attachments when hovering the link
+* [#2113](https://github.com/netbox-community/netbox/issues/2113) - Allow NAPALM driver settings to be changed with request headers
+* [#2589](https://github.com/netbox-community/netbox/issues/2589) - Toggle for showing available prefixes/ip addresses
+* [#3090](https://github.com/netbox-community/netbox/issues/3090) - Add filter field for device interfaces
+* [#3187](https://github.com/netbox-community/netbox/issues/3187) - Add rack selection field to rack elevations
+* [#3440](https://github.com/netbox-community/netbox/issues/3440) - Add total length to cable trace
+* [#3851](https://github.com/netbox-community/netbox/issues/3851) - Allow passing initial data to custom script forms
+
+## Bug Fixes
+
+* [#3589](https://github.com/netbox-community/netbox/issues/3589) - Fix validation on tagged VLANs of an interface
+* [#3849](https://github.com/netbox-community/netbox/issues/3849) - Fix ordering of models when dumping data to JSON
+* [#3853](https://github.com/netbox-community/netbox/issues/3853) - Fix device role link on config context view
+* [#3856](https://github.com/netbox-community/netbox/issues/3856) - Allow filtering VM interfaces by multiple MAC addresses
+* [#3857](https://github.com/netbox-community/netbox/issues/3857) - Fix group custom links rendering
+* [#3862](https://github.com/netbox-community/netbox/issues/3862) - Allow filtering device components by multiple device names
+* [#3864](https://github.com/netbox-community/netbox/issues/3864) - Disallow /0 masks
+* [#3872](https://github.com/netbox-community/netbox/issues/3872) - Paginate related IPs of an address
+
+---
+
 # v2.6.11 (2020-01-03)
 
 ## Bug Fixes

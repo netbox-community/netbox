@@ -35,6 +35,7 @@ pages:
         - Custom Scripts: 'additional-features/custom-scripts.md'
         - Export Templates: 'additional-features/export-templates.md'
         - Graphs: 'additional-features/graphs.md'
+        - NAPALM: 'additional-features/napalm.md'
         - Prometheus Metrics: 'additional-features/prometheus-metrics.md'
         - Reports: 'additional-features/reports.md'
         - Tags: 'additional-features/tags.md'

@@ -158,7 +158,7 @@
         {% if duplicate_ips_table.rows %}
             {% include 'panel_table.html' with table=duplicate_ips_table heading='Duplicate IP Addresses' panel_class='danger' %}
         {% endif %}
-        {% include 'panel_table.html' with table=related_ips_table heading='Related IP Addresses' panel_class='default noprint' %}
+        {% include 'utilities/obj_table.html' with table=related_ips_table table_template='panel_table.html' heading='Related IP Addresses' panel_class='default noprint' %}
 	</div>
 </div>
 {% endblock %}

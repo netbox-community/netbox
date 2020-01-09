@@ -556,6 +556,9 @@
                                 <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Show IPs
                             </button>
                         </div>
+                        <div class="col-md-2 pull-right noprint">
+                            <input class="form-control interface-filter" type="text" placeholder="Filter" title="RegEx-enabled" style="height: 23px" />
+                        </div>
                     </div>
                     <table id="interfaces_table" class="table table-hover table-headings panel-body component-list">
                         <thead>
@@ -902,19 +905,8 @@ function toggleConnection(elem) {
 $(".cable-toggle").click(function() {
     return toggleConnection($(this));
 });
-// Toggle the display of IP addresses under interfaces
-$('button.toggle-ips').click(function() {
-    var selected = $(this).attr('selected');
-    if (selected) {
-        $('#interfaces_table tr.ipaddresses').hide();
-    } else {
-        $('#interfaces_table tr.ipaddresses').show();
-    }
-    $(this).attr('selected', !selected);
-    $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
-    return false;
-});
 </script>
+<script src="{% static 'js/interface_toggles.js' %}?v{{ settings.VERSION }}"></script>
 <script src="{% static 'js/graphs.js' %}?v{{ settings.VERSION }}"></script>
 <script src="{% static 'js/secrets.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

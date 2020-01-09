@@ -268,12 +268,12 @@ class BaseScript:
     def run(self, data):
         raise NotImplementedError("The script must define a run() method.")
 
-    def as_form(self, data=None, files=None):
+    def as_form(self, data=None, files=None, initial=None):
         """
         Return a Django form suitable for populating the context data required to run this Script.
         """
         vars = self._get_vars()
-        form = ScriptForm(vars, data, files, commit_default=getattr(self.Meta, 'commit_default', True))
+        form = ScriptForm(vars, data, files, initial=initial, commit_default=getattr(self.Meta, 'commit_default', True))
 
         return form
 
