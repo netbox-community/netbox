@@ -39,8 +39,10 @@ class ProviderView(PermissionRequiredMixin, View):
 
         provider = get_object_or_404(Provider, slug=slug)
         circuits = Circuit.objects.filter(provider=provider).prefetch_related('type', 'tenant', 'terminations__site')
-        circuits_table = tables.CircuitTable(circuits, orderable=False)
         show_graphs = Graph.objects.filter(type=GRAPH_TYPE_PROVIDER).exists()
+
+        circuits_table = tables.CircuitTable(circuits, orderable=False)
+        circuits_table.columns.hide('provider')
 
         paginate = {
             'paginator_class': EnhancedPaginator,
