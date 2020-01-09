@@ -13,6 +13,7 @@
 * [#3856](https://github.com/netbox-community/netbox/issues/3856) - Allow filtering VM interfaces by multiple MAC addresses
 * [#3857](https://github.com/netbox-community/netbox/issues/3857) - Fix group custom links rendering
 * [#3862](https://github.com/netbox-community/netbox/issues/3862) - Allow filtering device components by multiple device names
+* [#3872](https://github.com/netbox-community/netbox/issues/3872) - Limit number of related IPs
 
 ---
 
