@@ -53,6 +53,7 @@
     </div>
     <h1>{% block title %}{{ prefix }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=prefix %}
+    {% include 'ipam/inc/toggle_available.html' %}
     <div class="pull-right noprint">
         {% custom_links prefix %}
     </div>
