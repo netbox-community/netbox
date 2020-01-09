@@ -7,7 +7,7 @@ $(document).ready(function() {
 
     // "Toggle" checkbox for object lists (PK column)
     $('input:checkbox.toggle').click(function() {
-        $(this).closest('table').find('input:checkbox[name=pk]').prop('checked', $(this).prop('checked'));
+        $(this).closest('table').find('input:checkbox[name=pk]:visible').prop('checked', $(this).prop('checked'));
 
         // Show the "select all" box if present
         if ($(this).is(':checked')) {
@@ -400,8 +400,8 @@ $(document).ready(function() {
     window.addEventListener('hashchange', headerOffsetScroll);
 
     // Offset between the preview window and the window edges
-    const IMAGE_PREVIEW_OFFSET_X = 20
-    const IMAGE_PREVIEW_OFFSET_Y = 10
+    const IMAGE_PREVIEW_OFFSET_X = 20;
+    const IMAGE_PREVIEW_OFFSET_Y = 10;
 
     // Preview an image attachment when the link is hovered over
     $('a.image-preview').on('mouseover', function(e) {
@@ -435,6 +435,6 @@ $(document).ready(function() {
 
     // Fade the image out; it will be deleted when another one is previewed
     $('a.image-preview').on('mouseout', function() {
-        $('#image-preview-window').fadeOut('fast')
+        $('#image-preview-window').fadeOut('fast');
     });
 });
