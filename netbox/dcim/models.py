@@ -22,6 +22,7 @@ from utilities.fields import ColorField
 from utilities.managers import NaturalOrderingManager
 from utilities.models import ChangeLoggedModel
 from utilities.utils import foreground_color, serialize_object, to_meters
+from virtualization.choices import VMInterfaceTypeChoices
 
 from .choices import *
 from .constants import *
@@ -2510,9 +2511,9 @@ class Interface(CableTermination, ComponentModel):
             raise ValidationError("An interface must belong to either a device or a virtual machine.")
 
         # VM interfaces must be virtual
-        if self.virtual_machine and self.type is not InterfaceTypeChoices.TYPE_VIRTUAL:
+        if self.virtual_machine and self.type not in VMInterfaceTypeChoices.values():
             raise ValidationError({
-                'type': "Virtual machines can only have virtual interfaces."
+                'type': "Invalid interface type for a virtual machine: {}".format(self.type)
             })
 
         # Virtual interfaces cannot be connected

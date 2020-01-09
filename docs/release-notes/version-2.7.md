@@ -235,6 +235,10 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 * [#3706](https://github.com/digitalocean/netbox/issues/3706) - Increase `available_power` maximum value on PowerFeed
 * [#3731](https://github.com/digitalocean/netbox/issues/3731) - Change Graph.type to a ContentType foreign key field
 
+## Bug Fixes (From Beta)
+
+* [#3868](https://github.com/digitalocean/netbox/issues/3868) - Fix creation of interfaces for virtual machines
+
 ## API Changes
 
 * Choice fields now use human-friendly strings for their values instead of integers (see

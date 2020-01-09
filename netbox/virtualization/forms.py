@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
-from dcim.choices import InterfaceModeChoices, InterfaceTypeChoices
+from dcim.choices import InterfaceModeChoices
 from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
 from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
@@ -17,10 +17,6 @@ from utilities.forms import (
 )
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
-
-VIFACE_TYPE_CHOICES = (
-    (InterfaceTypeChoices.TYPE_VIRTUAL, 'Virtual'),
-)
 
 
 #
@@ -740,8 +736,8 @@ class InterfaceCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=VIFACE_TYPE_CHOICES,
-        initial=InterfaceTypeChoices.TYPE_VIRTUAL,
+        choices=VMInterfaceTypeChoices,
+        initial=VMInterfaceTypeChoices.TYPE_VIRTUAL,
         widget=forms.HiddenInput()
     )
     enabled = forms.BooleanField(
@@ -925,8 +921,8 @@ class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
 
 class VirtualMachineBulkAddInterfaceForm(VirtualMachineBulkAddComponentForm):
     type = forms.ChoiceField(
-        choices=VIFACE_TYPE_CHOICES,
-        initial=InterfaceTypeChoices.TYPE_VIRTUAL,
+        choices=VMInterfaceTypeChoices,
+        initial=VMInterfaceTypeChoices.TYPE_VIRTUAL,
         widget=forms.HiddenInput()
     )
     enabled = forms.BooleanField(

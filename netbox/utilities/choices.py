@@ -17,6 +17,10 @@ class ChoiceSet(metaclass=ChoiceSetMeta):
     LEGACY_MAP = dict()
 
     @classmethod
+    def values(cls):
+        return [c[0] for c in cls.CHOICES]
+
+    @classmethod
     def slug_to_id(cls, slug):
         """
         Return the legacy integer value corresponding to a slug.

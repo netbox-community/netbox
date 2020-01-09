@@ -99,7 +99,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 
 class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
     virtual_machine = NestedVirtualMachineSerializer()
-    type = ChoiceField(choices=InterfaceTypeChoices, default=InterfaceTypeChoices.TYPE_VIRTUAL, required=False)
+    type = ChoiceField(choices=VMInterfaceTypeChoices, default=VMInterfaceTypeChoices.TYPE_VIRTUAL, required=False)
     mode = ChoiceField(choices=InterfaceModeChoices, required=False, allow_null=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
