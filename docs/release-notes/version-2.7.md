@@ -238,6 +238,7 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 ## Bug Fixes (From Beta)
 
 * [#3868](https://github.com/digitalocean/netbox/issues/3868) - Fix creation of interfaces for virtual machines
+* [#3878](https://github.com/digitalocean/netbox/issues/3878) - Fix database migration for cable status field
 
 ## API Changes
 

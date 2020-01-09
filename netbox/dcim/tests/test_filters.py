@@ -2188,6 +2188,8 @@ class CableTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_status(self):
+        params = {'status': [CableStatusChoices.STATUS_CONNECTED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'status': [CableStatusChoices.STATUS_PLANNED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 

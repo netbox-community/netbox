@@ -24,8 +24,8 @@ CABLE_TYPE_CHOICES = (
 )
 
 CABLE_STATUS_CHOICES = (
-    (True, 'connected'),
-    (False, 'planned'),
+    ('true', 'connected'),
+    ('false', 'planned'),
 )
 
 CABLE_LENGTH_UNIT_CHOICES = (
@@ -44,8 +44,8 @@ def cable_type_to_slug(apps, schema_editor):
 
 def cable_status_to_slug(apps, schema_editor):
     Cable = apps.get_model('dcim', 'Cable')
-    for bool, slug in CABLE_STATUS_CHOICES:
-        Cable.objects.filter(status=str(bool)).update(status=slug)
+    for bool_str, slug in CABLE_STATUS_CHOICES:
+        Cable.objects.filter(status=bool_str).update(status=slug)
 
 
 def cable_length_unit_to_slug(apps, schema_editor):
