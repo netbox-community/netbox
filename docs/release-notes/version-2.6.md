@@ -4,6 +4,7 @@
 
 * [#2050](https://github.com/netbox-community/netbox/issues/2050) - Preview image attachments when hovering the link
 * [#2589](https://github.com/netbox-community/netbox/issues/2589) - Toggle for showing available prefixes/ip addresses
+* [#3090](https://github.com/netbox-community/netbox/issues/3090) - Add filter field for device interfaces
 * [#3187](https://github.com/netbox-community/netbox/issues/3187) - Add rack selection field to rack elevations
 * [#3851](https://github.com/netbox-community/netbox/issues/3851) - Allow passing initial data to custom script forms
 
