@@ -292,8 +292,8 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         )
     )
     asn = forms.IntegerField(
-        min_value=1,
-        max_value=4294967295,
+        min_value=BGP_ASN_MIN,
+        max_value=BGP_ASN_MAX,
         required=False,
         label='ASN'
     )
