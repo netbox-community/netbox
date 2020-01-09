@@ -676,8 +676,15 @@ class IPAddressView(PermissionRequiredMixin, View):
             address=str(ipaddress.address)
         ).filter(
             vrf=ipaddress.vrf, address__net_contained_or_equal=str(ipaddress.address)
-        )[:50]
-        related_ips_table = tables.IPAddressTable(list(related_ips), orderable=False)
+        )
+
+        related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
+
+        paginate = {
+            'paginator_class': EnhancedPaginator,
+            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+        }
+        RequestConfig(request, paginate).configure(related_ips_table)
 
         return render(request, 'ipam/ipaddress.html', {
             'ipaddress': ipaddress,
