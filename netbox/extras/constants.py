@@ -42,6 +42,14 @@ CUSTOMLINK_MODELS = [
     'virtualization.virtualmachine',
 ]
 
+# Models which can have Graphs associated with them
+GRAPH_MODELS = (
+    'circuits.provider',
+    'dcim.device',
+    'dcim.interface',
+    'dcim.site',
+)
+
 # Models which support export templates
 EXPORTTEMPLATE_MODELS = [
     'circuits.circuit',

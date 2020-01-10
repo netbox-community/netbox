@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
             model_name='graph',
             name='type',
             field=models.ForeignKey(
-                limit_choices_to={'model__in': ['device', 'interface', 'provider', 'site']},
+                limit_choices_to={'model__in': ['provider', 'device', 'interface', 'site']},
                 on_delete=django.db.models.deletion.CASCADE,
                 to='contenttypes.ContentType'
             ),

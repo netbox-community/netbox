@@ -410,9 +410,7 @@ class Graph(models.Model):
     type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to={
-            'model__in': ['device', 'interface', 'provider', 'site']
-        }
+        limit_choices_to=model_names_to_filter_dict(GRAPH_MODELS)
     )
     weight = models.PositiveSmallIntegerField(
         default=1000
