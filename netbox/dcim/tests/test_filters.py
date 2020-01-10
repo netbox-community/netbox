@@ -1100,7 +1100,7 @@ class DeviceTestCase(TestCase):
         Cluster.objects.bulk_create(clusters)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], platform=platforms[0], serial='ABC', asset_tag='1001', site=sites[0], rack=racks[0], position=1, face=RACK_FACE_FRONT, status=DEVICE_STATUS_ACTIVE, cluster=clusters[0]),
+            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], platform=platforms[0], serial='ABC', asset_tag='1001', site=sites[0], rack=racks[0], position=1, face=RACK_FACE_FRONT, status=DEVICE_STATUS_ACTIVE, cluster=clusters[0], local_context_data={"foo": 123}),
             Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], platform=platforms[1], serial='DEF', asset_tag='1002', site=sites[1], rack=racks[1], position=2, face=RACK_FACE_FRONT, status=DEVICE_STATUS_STAGED, cluster=clusters[1]),
             Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], platform=platforms[2], serial='GHI', asset_tag='1003', site=sites[2], rack=racks[2], position=3, face=RACK_FACE_REAR, status=DEVICE_STATUS_FAILED, cluster=clusters[2]),
         )
@@ -1327,6 +1327,12 @@ class DeviceTestCase(TestCase):
     #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
     #     params = {'device_bays': 'false'}
     #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_local_context_data(self):
+        params = {'local_context_data': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'local_context_data': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class ConsolePortTestCase(TestCase):

@@ -2,7 +2,7 @@ import django_filters
 from django.db.models import Q
 
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
-from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
+from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet, LocalConfigContextFilter
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import (
     MultiValueMACAddressFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
@@ -99,7 +99,7 @@ class ClusterFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
         )
 
 
-class VirtualMachineFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class VirtualMachineFilter(LocalConfigContextFilter, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'

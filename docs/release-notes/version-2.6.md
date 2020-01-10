@@ -14,6 +14,7 @@
 * [#3623](https://github.com/netbox-community/netbox/issues/3623) - Add word expansion during interface creation
 * [#3668](https://github.com/netbox-community/netbox/issues/3668) - Search by DNS name when assigning IP address
 * [#3851](https://github.com/netbox-community/netbox/issues/3851) - Allow passing initial data to custom script forms
+* [#3891](https://github.com/netbox-community/netbox/issues/3891) - Add `local_context_data` filter for virtual machines
 
 ## Bug Fixes
 
