@@ -18,9 +18,9 @@ class GraphTestCase(TestCase):
         content_types = ContentType.objects.filter(model__in=['site', 'device', 'interface'])
 
         graphs = (
-            Graph(name='Graph 1', type=content_types[0], source='http://example.com/1'),
-            Graph(name='Graph 2', type=content_types[1], source='http://example.com/2'),
-            Graph(name='Graph 3', type=content_types[2], source='http://example.com/3'),
+            Graph(name='Graph 1', type=content_types[0], template_language=ExportTemplateLanguageChoices.LANGUAGE_DJANGO, source='http://example.com/1'),
+            Graph(name='Graph 2', type=content_types[1], template_language=ExportTemplateLanguageChoices.LANGUAGE_JINJA2, source='http://example.com/2'),
+            Graph(name='Graph 3', type=content_types[2], template_language=ExportTemplateLanguageChoices.LANGUAGE_JINJA2, source='http://example.com/3'),
         )
         Graph.objects.bulk_create(graphs)
 
@@ -31,6 +31,11 @@ class GraphTestCase(TestCase):
     def test_type(self):
         params = {'type': ContentType.objects.get(model='site').pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    # TODO: Remove in v2.8
+    def test_template_language(self):
+        params = {'template_language': ExportTemplateLanguageChoices.LANGUAGE_JINJA2}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class ExportTemplateTestCase(TestCase):

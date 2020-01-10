@@ -227,6 +227,7 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 * [#2669](https://github.com/digitalocean/netbox/issues/2669) - Relax uniqueness constraint on device and VM names
 * [#2902](https://github.com/digitalocean/netbox/issues/2902) - Replace `supervisord` with `systemd`
 * [#3455](https://github.com/digitalocean/netbox/issues/3455) - Add tenant assignment to cluster
+* [#3520](https://github.com/digitalocean/netbox/issues/3520) - Add Jinja2 template support for Graphs
 * [#3564](https://github.com/digitalocean/netbox/issues/3564) - Add list views for device components
 * [#3538](https://github.com/digitalocean/netbox/issues/3538) - Introduce a REST API endpoint for executing custom
   scripts
@@ -256,6 +257,7 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 * dcim.PowerOutlet: Added field `type`
 * dcim.PowerOutletTemplate: Added field `type`
 * dcim.RackRole: Added field `description`
+* extras.Graph: Added field `template_language` (to indicate `django` or `jinja2`)
 * extras.Graph: The `type` field has been changed to a content type foreign key. Models are specified as
   `<app>.<model>`; e.g. `dcim.site`.
 * ipam.Role: Added field `description`

@@ -131,10 +131,10 @@ class CustomLinkAdmin(admin.ModelAdmin):
 @admin.register(Graph, site=admin_site)
 class GraphAdmin(admin.ModelAdmin):
     list_display = [
-        'name', 'type', 'weight', 'source',
+        'name', 'type', 'weight', 'template_language', 'source',
     ]
     list_filter = [
-        'type',
+        'type', 'template_language',
     ]
 
 

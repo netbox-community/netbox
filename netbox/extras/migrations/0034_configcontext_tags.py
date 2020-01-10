@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0033_graph_type_to_fk'),
+        ('extras', '0033_graph_type_template_language'),
     ]
 
     operations = [

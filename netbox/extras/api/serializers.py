@@ -34,7 +34,7 @@ class GraphSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = Graph
-        fields = ['id', 'type', 'weight', 'name', 'source', 'link']
+        fields = ['id', 'type', 'weight', 'name', 'template_language', 'source', 'link']
 
 
 class RenderedGraphSerializer(serializers.ModelSerializer):
