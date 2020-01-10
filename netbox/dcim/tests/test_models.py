@@ -1,5 +1,8 @@
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
+from dcim.choices import *
+from dcim.constants import CONNECTION_STATUS_CONNECTED, CONNECTION_STATUS_PLANNED
 from dcim.models import *
 from tenancy.models import Tenant
 
@@ -498,7 +501,7 @@ class CablePathTestCase(TestCase):
         self.assertEqual(interface1.connection_status, CONNECTION_STATUS_PLANNED)
 
         # Switch third segment from planned to connected
-        cable3.status = CONNECTION_STATUS_CONNECTED
+        cable3.status = CableStatusChoices.STATUS_CONNECTED
         cable3.save()
         interface1 = Interface.objects.get(pk=self.interface1.pk)
         self.assertEqual(interface1.connected_endpoint, self.interface2)
