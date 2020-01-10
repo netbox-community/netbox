@@ -2,7 +2,7 @@ import django_filters
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-from extras.filters import CustomFieldFilterSet, LocalConfigContextFilter, CreatedUpdatedFilterSet
+from extras.filters import CustomFieldFilterSet, LocalConfigContextFilterSet, CreatedUpdatedFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
@@ -485,7 +485,7 @@ class PlatformFilterSet(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'napalm_driver']
 
 
-class DeviceFilterSet(LocalConfigContextFilter, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class DeviceFilterSet(LocalConfigContextFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'

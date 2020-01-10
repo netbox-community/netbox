@@ -10,7 +10,7 @@ from tenancy.models import Tenant, TenantGroup
 
 class GraphTestCase(TestCase):
     queryset = Graph.objects.all()
-    filterset = GraphFilter
+    filterset = GraphFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -35,7 +35,7 @@ class GraphTestCase(TestCase):
 
 class ExportTemplateTestCase(TestCase):
     queryset = ExportTemplate.objects.all()
-    filterset = ExportTemplateFilter
+    filterset = ExportTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -64,7 +64,7 @@ class ExportTemplateTestCase(TestCase):
 
 class ConfigContextTestCase(TestCase):
     queryset = ConfigContext.objects.all()
-    filterset = ConfigContextFilter
+    filterset = ConfigContextFilterSet
 
     @classmethod
     def setUpTestData(cls):
