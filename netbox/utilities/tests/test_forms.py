@@ -62,7 +62,72 @@ class ExpandIPAddress(TestCase):
 
         self.assertEqual(sorted(expand_ipaddress_pattern(input, 4)), output)
 
-    # TODO: IPv6
+    def test_ipv6_range(self):
+        input = 'fec::abcd:[9-b]/64'
+        output = sorted([
+            'fec::abcd:9/64',
+            'fec::abcd:a/64',
+            'fec::abcd:b/64',
+        ])
+
+        self.assertEqual(sorted(expand_ipaddress_pattern(input, 6)), output)
+
+    def test_ipv6_range_multichar_field(self):
+        input = 'fec::abcd:[f-11]/64'
+        output = sorted([
+            'fec::abcd:f/64',
+            'fec::abcd:10/64',
+            'fec::abcd:11/64',
+        ])
+
+        self.assertEqual(sorted(expand_ipaddress_pattern(input, 6)), output)
+
+    def test_ipv6_set(self):
+        input = 'fec::abcd:[9,ab]/64'
+        output = sorted([
+            'fec::abcd:9/64',
+            'fec::abcd:ab/64',
+        ])
+
+        self.assertEqual(sorted(expand_ipaddress_pattern(input, 6)), output)
+
+    def test_ipv6_multiple_ranges(self):
+        input = 'fec::[1-2]bcd:[9-b]/64'
+        output = sorted([
+            'fec::1bcd:9/64',
+            'fec::1bcd:a/64',
+            'fec::1bcd:b/64',
+            'fec::2bcd:9/64',
+            'fec::2bcd:a/64',
+            'fec::2bcd:b/64',
+        ])
+
+        self.assertEqual(sorted(expand_ipaddress_pattern(input, 6)), output)
+
+    def test_ipv6_multiple_sets(self):
+        input = 'fec::[a,f]bcd:[9,ab]/64'
+        output = sorted([
+            'fec::abcd:9/64',
+            'fec::abcd:ab/64',
+            'fec::fbcd:9/64',
+            'fec::fbcd:ab/64',
+        ])
+
+        self.assertEqual(sorted(expand_ipaddress_pattern(input, 6)), output)
+
+    def test_ipv6_set_and_range(self):
+        input = 'fec::[dead,beaf]:[9-b]/64'
+        output = sorted([
+            'fec::dead:9/64',
+            'fec::dead:a/64',
+            'fec::dead:b/64',
+            'fec::beaf:9/64',
+            'fec::beaf:a/64',
+            'fec::beaf:b/64',
+        ])
+
+        self.assertEqual(sorted(expand_ipaddress_pattern(input, 6)), output)
+
     # TODO: negative tests
 
 # TODO: alphanumeric
