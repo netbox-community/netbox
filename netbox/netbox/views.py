@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
-from circuits.filters import CircuitFilter, ProviderFilter
+from circuits.filters import CircuitFilterSet, ProviderFilterSet
 from circuits.models import Circuit, CircuitTermination, Provider
 from circuits.tables import CircuitTable, ProviderTable
 from dcim.filters import (
@@ -42,7 +42,7 @@ SEARCH_TYPES = OrderedDict((
     ('provider', {
         'permission': 'circuits.view_provider',
         'queryset': Provider.objects.all(),
-        'filter': ProviderFilter,
+        'filter': ProviderFilterSet,
         'table': ProviderTable,
         'url': 'circuits:provider_list',
     }),
@@ -59,7 +59,7 @@ SEARCH_TYPES = OrderedDict((
                 CircuitTermination.objects.filter(circuit=OuterRef('pk')).filter(term_side='Z').values('site__name')[:1]
             ),
         ),
-        'filter': CircuitFilter,
+        'filter': CircuitFilterSet,
         'table': CircuitTable,
         'url': 'circuits:circuit_list',
     }),

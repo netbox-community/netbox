@@ -8,7 +8,7 @@ from dcim.models import Region, Site
 
 class ProviderTestCase(TestCase):
     queryset = Provider.objects.all()
-    filterset = ProviderFilter
+    filterset = ProviderFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -91,7 +91,7 @@ class ProviderTestCase(TestCase):
 
 class CircuitTypeTestCase(TestCase):
     queryset = CircuitType.objects.all()
-    filterset = CircuitTypeFilter
+    filterset = CircuitTypeFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -117,7 +117,7 @@ class CircuitTypeTestCase(TestCase):
 
 class CircuitTestCase(TestCase):
     queryset = Circuit.objects.all()
-    filterset = CircuitFilter
+    filterset = CircuitFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -219,7 +219,7 @@ class CircuitTestCase(TestCase):
 
 class CircuitTerminationTestCase(TestCase):
     queryset = CircuitTermination.objects.all()
-    filterset = CircuitTerminationFilter
+    filterset = CircuitTerminationFilterSet
 
     @classmethod
     def setUpTestData(cls):

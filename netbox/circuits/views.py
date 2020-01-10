@@ -23,7 +23,7 @@ from .models import Circuit, CircuitTermination, CircuitType, Provider
 class ProviderListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'circuits.view_provider'
     queryset = Provider.objects.annotate(count_circuits=Count('circuits'))
-    filter = filters.ProviderFilter
+    filter = filters.ProviderFilterSet
     filter_form = forms.ProviderFilterForm
     table = tables.ProviderDetailTable
     template_name = 'circuits/provider_list.html'
@@ -73,7 +73,7 @@ class ProviderBulkImportView(PermissionRequiredMixin, BulkImportView):
 class ProviderBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'circuits.change_provider'
     queryset = Provider.objects.all()
-    filter = filters.ProviderFilter
+    filter = filters.ProviderFilterSet
     table = tables.ProviderTable
     form = forms.ProviderBulkEditForm
     default_return_url = 'circuits:provider_list'
@@ -82,7 +82,7 @@ class ProviderBulkEditView(PermissionRequiredMixin, BulkEditView):
 class ProviderBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_provider'
     queryset = Provider.objects.all()
-    filter = filters.ProviderFilter
+    filter = filters.ProviderFilterSet
     table = tables.ProviderTable
     default_return_url = 'circuits:provider_list'
 
@@ -136,7 +136,7 @@ class CircuitListView(PermissionRequiredMixin, ObjectListView):
         a_side=Subquery(_terminations.filter(term_side='A').values('site__name')[:1]),
         z_side=Subquery(_terminations.filter(term_side='Z').values('site__name')[:1]),
     )
-    filter = filters.CircuitFilter
+    filter = filters.CircuitFilterSet
     filter_form = forms.CircuitFilterForm
     table = tables.CircuitTable
     template_name = 'circuits/circuit_list.html'
@@ -194,7 +194,7 @@ class CircuitBulkImportView(PermissionRequiredMixin, BulkImportView):
 class CircuitBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'circuits.change_circuit'
     queryset = Circuit.objects.prefetch_related('provider', 'type', 'tenant').prefetch_related('terminations__site')
-    filter = filters.CircuitFilter
+    filter = filters.CircuitFilterSet
     table = tables.CircuitTable
     form = forms.CircuitBulkEditForm
     default_return_url = 'circuits:circuit_list'
@@ -203,7 +203,7 @@ class CircuitBulkEditView(PermissionRequiredMixin, BulkEditView):
 class CircuitBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_circuit'
     queryset = Circuit.objects.prefetch_related('provider', 'type', 'tenant').prefetch_related('terminations__site')
-    filter = filters.CircuitFilter
+    filter = filters.CircuitFilterSet
     table = tables.CircuitTable
     default_return_url = 'circuits:circuit_list'
 
