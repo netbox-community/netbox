@@ -933,7 +933,7 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
 
 
 class IPAddressAssignForm(BootstrapMixin, forms.Form):
-    vrf = forms.ModelChoiceField(
+    vrf_id = forms.ModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
         label='VRF',
@@ -942,8 +942,9 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
             api_url="/api/ipam/vrfs/"
         )
     )
-    address = forms.CharField(
-        label='IP Address'
+    q = forms.CharField(
+        required=False,
+        label='Search',
     )
 
 

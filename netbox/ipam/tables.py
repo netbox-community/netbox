@@ -377,7 +377,7 @@ class IPAddressAssignTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = IPAddress
-        fields = ('address', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface', 'description')
+        fields = ('address', 'dns_name', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface', 'description')
         orderable = False
 
 

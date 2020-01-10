@@ -61,8 +61,16 @@ def parse_alphanumeric_range(string):
             for n in list(range(int(begin), int(end) + 1)):
                 values.append(n)
         else:
-            for n in list(range(ord(begin), ord(end) + 1)):
-                values.append(chr(n))
+            # Value-based
+            if begin == end:
+                values.append(begin)
+            # Range-based
+            else:
+                # Not a valid range (more than a single character)
+                if not len(begin) == len(end) == 1:
+                    raise forms.ValidationError('Range "{}" is invalid.'.format(dash_range))
+                for n in list(range(ord(begin), ord(end) + 1)):
+                    values.append(chr(n))
     return values
 
 
@@ -482,6 +490,7 @@ class ExpandableNameField(forms.CharField):
                              'Mixed cases and types within a single range are not supported.<br />' \
                              'Examples:<ul><li><code>ge-0/0/[0-23,25,30]</code></li>' \
                              '<li><code>e[0-3][a-d,f]</code></li>' \
+                             '<li><code>[xe,ge]-0/0/0</code></li>' \
                              '<li><code>e[0-3,a-d,f]</code></li></ul>'
 
     def to_python(self, value):
