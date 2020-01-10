@@ -22,7 +22,7 @@ from dcim.tables import (
     VirtualChassisTable,
 )
 from extras.models import ObjectChange, ReportResult
-from ipam.filters import AggregateFilter, IPAddressFilter, PrefixFilter, VLANFilter, VRFFilter
+from ipam.filters import AggregateFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from ipam.tables import AggregateTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
 from secrets.filters import SecretFilter
@@ -143,35 +143,35 @@ SEARCH_TYPES = OrderedDict((
     ('vrf', {
         'permission': 'ipam.view_vrf',
         'queryset': VRF.objects.prefetch_related('tenant'),
-        'filter': VRFFilter,
+        'filter': VRFFilterSet,
         'table': VRFTable,
         'url': 'ipam:vrf_list',
     }),
     ('aggregate', {
         'permission': 'ipam.view_aggregate',
         'queryset': Aggregate.objects.prefetch_related('rir'),
-        'filter': AggregateFilter,
+        'filter': AggregateFilterSet,
         'table': AggregateTable,
         'url': 'ipam:aggregate_list',
     }),
     ('prefix', {
         'permission': 'ipam.view_prefix',
         'queryset': Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role'),
-        'filter': PrefixFilter,
+        'filter': PrefixFilterSet,
         'table': PrefixTable,
         'url': 'ipam:prefix_list',
     }),
     ('ipaddress', {
         'permission': 'ipam.view_ipaddress',
         'queryset': IPAddress.objects.prefetch_related('vrf__tenant', 'tenant'),
-        'filter': IPAddressFilter,
+        'filter': IPAddressFilterSet,
         'table': IPAddressTable,
         'url': 'ipam:ipaddress_list',
     }),
     ('vlan', {
         'permission': 'ipam.view_vlan',
         'queryset': VLAN.objects.prefetch_related('site', 'group', 'tenant', 'role'),
-        'filter': VLANFilter,
+        'filter': VLANFilterSet,
         'table': VLANTable,
         'url': 'ipam:vlan_list',
     }),
