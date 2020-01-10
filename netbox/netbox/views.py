@@ -31,7 +31,7 @@ from secrets.tables import SecretTable
 from tenancy.filters import TenantFilterSet
 from tenancy.models import Tenant
 from tenancy.tables import TenantTable
-from virtualization.filters import ClusterFilter, VirtualMachineFilter
+from virtualization.filters import ClusterFilterSet, VirtualMachineFilterSet
 from virtualization.models import Cluster, VirtualMachine
 from virtualization.tables import ClusterTable, VirtualMachineDetailTable
 from .forms import SearchForm
@@ -126,7 +126,7 @@ SEARCH_TYPES = OrderedDict((
     ('cluster', {
         'permission': 'virtualization.view_cluster',
         'queryset': Cluster.objects.prefetch_related('type', 'group'),
-        'filter': ClusterFilter,
+        'filter': ClusterFilterSet,
         'table': ClusterTable,
         'url': 'virtualization:cluster_list',
     }),
@@ -135,7 +135,7 @@ SEARCH_TYPES = OrderedDict((
         'queryset': VirtualMachine.objects.prefetch_related(
             'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
         ),
-        'filter': VirtualMachineFilter,
+        'filter': VirtualMachineFilterSet,
         'table': VirtualMachineDetailTable,
         'url': 'virtualization:virtualmachine_list',
     }),

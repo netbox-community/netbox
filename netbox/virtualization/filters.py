@@ -13,29 +13,29 @@ from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
 __all__ = (
-    'ClusterFilter',
-    'ClusterGroupFilter',
-    'ClusterTypeFilter',
-    'InterfaceFilter',
-    'VirtualMachineFilter',
+    'ClusterFilterSet',
+    'ClusterGroupFilterSet',
+    'ClusterTypeFilterSet',
+    'InterfaceFilterSet',
+    'VirtualMachineFilterSet',
 )
 
 
-class ClusterTypeFilter(NameSlugSearchFilterSet):
+class ClusterTypeFilterSet(NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterType
         fields = ['id', 'name', 'slug']
 
 
-class ClusterGroupFilter(NameSlugSearchFilterSet):
+class ClusterGroupFilterSet(NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterGroup
         fields = ['id', 'name', 'slug']
 
 
-class ClusterFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class ClusterFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -104,7 +104,7 @@ class ClusterFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
         )
 
 
-class VirtualMachineFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class VirtualMachineFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -204,7 +204,7 @@ class VirtualMachineFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdate
         )
 
 
-class InterfaceFilter(django_filters.FilterSet):
+class InterfaceFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
