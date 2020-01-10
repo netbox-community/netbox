@@ -11,8 +11,8 @@ from circuits.filters import CircuitFilterSet, ProviderFilterSet
 from circuits.models import Circuit, CircuitTermination, Provider
 from circuits.tables import CircuitTable, ProviderTable
 from dcim.filters import (
-    CableFilter, DeviceFilter, DeviceTypeFilter, PowerFeedFilter, RackFilter, RackGroupFilter, SiteFilter,
-    VirtualChassisFilter,
+    CableFilterSet, DeviceFilterSet, DeviceTypeFilterSet, PowerFeedFilterSet, RackFilterSet, RackGroupFilterSet, SiteFilterSet,
+    VirtualChassisFilterSet,
 )
 from dcim.models import (
     Cable, ConsolePort, Device, DeviceType, Interface, PowerPanel, PowerFeed, PowerPort, Rack, RackGroup, Site, VirtualChassis
@@ -67,28 +67,28 @@ SEARCH_TYPES = OrderedDict((
     ('site', {
         'permission': 'dcim.view_site',
         'queryset': Site.objects.prefetch_related('region', 'tenant'),
-        'filter': SiteFilter,
+        'filter': SiteFilterSet,
         'table': SiteTable,
         'url': 'dcim:site_list',
     }),
     ('rack', {
         'permission': 'dcim.view_rack',
         'queryset': Rack.objects.prefetch_related('site', 'group', 'tenant', 'role'),
-        'filter': RackFilter,
+        'filter': RackFilterSet,
         'table': RackTable,
         'url': 'dcim:rack_list',
     }),
     ('rackgroup', {
         'permission': 'dcim.view_rackgroup',
         'queryset': RackGroup.objects.prefetch_related('site').annotate(rack_count=Count('racks')),
-        'filter': RackGroupFilter,
+        'filter': RackGroupFilterSet,
         'table': RackGroupTable,
         'url': 'dcim:rackgroup_list',
     }),
     ('devicetype', {
         'permission': 'dcim.view_devicetype',
         'queryset': DeviceType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances')),
-        'filter': DeviceTypeFilter,
+        'filter': DeviceTypeFilterSet,
         'table': DeviceTypeTable,
         'url': 'dcim:devicetype_list',
     }),
@@ -97,28 +97,28 @@ SEARCH_TYPES = OrderedDict((
         'queryset': Device.objects.prefetch_related(
             'device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack', 'primary_ip4', 'primary_ip6',
         ),
-        'filter': DeviceFilter,
+        'filter': DeviceFilterSet,
         'table': DeviceDetailTable,
         'url': 'dcim:device_list',
     }),
     ('virtualchassis', {
         'permission': 'dcim.view_virtualchassis',
         'queryset': VirtualChassis.objects.prefetch_related('master').annotate(member_count=Count('members')),
-        'filter': VirtualChassisFilter,
+        'filter': VirtualChassisFilterSet,
         'table': VirtualChassisTable,
         'url': 'dcim:virtualchassis_list',
     }),
     ('cable', {
         'permission': 'dcim.view_cable',
         'queryset': Cable.objects.all(),
-        'filter': CableFilter,
+        'filter': CableFilterSet,
         'table': CableTable,
         'url': 'dcim:cable_list',
     }),
     ('powerfeed', {
         'permission': 'dcim.view_powerfeed',
         'queryset': PowerFeed.objects.all(),
-        'filter': PowerFeedFilter,
+        'filter': PowerFeedFilterSet,
         'table': PowerFeedTable,
         'url': 'dcim:powerfeed_list',
     }),
