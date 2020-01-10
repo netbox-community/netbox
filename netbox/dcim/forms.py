@@ -739,7 +739,7 @@ class RackElevationFilterForm(RackFilterForm):
 
         # Filter the rack field based on the site and group
         self.fields['site'].widget.add_filter_for('id', 'site')
-        self.fields['group_id'].widget.add_filter_for('id', 'group_id')
+        self.fields['rack_group_id'].widget.add_filter_for('id', 'group_id')
 
 
 #
@@ -1791,7 +1791,7 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldFilterForm):
     model = Device
     field_order = [
-        'q', 'region', 'site', 'group_id', 'rack_id', 'status', 'role', 'tenant_group', 'tenant',
+        'q', 'region', 'site', 'rack_group_id', 'rack_id', 'status', 'role', 'tenant_group', 'tenant',
         'manufacturer_id', 'device_type_id', 'mac_address', 'has_primary_ip',
     ]
     q = forms.CharField(
@@ -1817,12 +1817,12 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
             api_url="/api/dcim/sites/",
             value_field="slug",
             filter_for={
-                'group_id': 'site',
+                'rack_group_id': 'site',
                 'rack_id': 'site',
             }
         )
     )
-    group_id = FilterChoiceField(
+    rack_group_id = FilterChoiceField(
         queryset=RackGroup.objects.prefetch_related(
             'site'
         ),
