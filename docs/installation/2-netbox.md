@@ -21,7 +21,7 @@ You may opt to install NetBox either from a numbered release or by cloning the m
 
 ## Option A: Download a Release
 
-Download the [latest stable release](https://github.com/netbox-community/netbox/releases) from GitHub as a tarball or ZIP archive and extract it to your desired path. In this example, we'll use `/opt/netbox`.
+Download the [latest stable release](https://github.com/netbox-community/netbox/releases/latest) from GitHub as a tarball or ZIP archive and extract it to your desired path. In this example, we'll use `/opt/netbox`.
 
 ```no-highlight
 # wget https://github.com/netbox-community/netbox/archive/vX.Y.Z.tar.gz
