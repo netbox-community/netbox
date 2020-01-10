@@ -92,7 +92,7 @@ class GraphFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = Graph
-        fields = ['type', 'name']
+        fields = ['type', 'name', 'template_language']
 
 
 class ExportTemplateFilterSet(django_filters.FilterSet):

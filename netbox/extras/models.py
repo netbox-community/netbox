@@ -421,6 +421,11 @@ class Graph(models.Model):
         max_length=100,
         verbose_name='Name'
     )
+    template_language = models.CharField(
+        max_length=50,
+        choices=ExportTemplateLanguageChoices,
+        default=ExportTemplateLanguageChoices.LANGUAGE_JINJA2
+    )
     source = models.CharField(
         max_length=500,
         verbose_name='Source URL'
@@ -437,14 +442,29 @@ class Graph(models.Model):
         return self.name
 
     def embed_url(self, obj):
-        template = Template(self.source)
-        return template.render(Context({'obj': obj}))
+        context = {'obj': obj}
+
+        # TODO: Remove in v2.8
+        if self.template_language == ExportTemplateLanguageChoices.LANGUAGE_DJANGO:
+            template = Template(self.source)
+            return template.render(Context(context))
+
+        elif self.template_language == ExportTemplateLanguageChoices.LANGUAGE_JINJA2:
+            return render_jinja2(self.source, context)
 
     def embed_link(self, obj):
         if self.link is None:
             return ''
-        template = Template(self.link)
-        return template.render(Context({'obj': obj}))
+
+        context = {'obj': obj}
+
+        # TODO: Remove in v2.8
+        if self.template_language == ExportTemplateLanguageChoices.LANGUAGE_DJANGO:
+            template = Template(self.link)
+            return template.render(Context(context))
+
+        elif self.template_language == ExportTemplateLanguageChoices.LANGUAGE_JINJA2:
+            return render_jinja2(self.link, context)
 
 
 #

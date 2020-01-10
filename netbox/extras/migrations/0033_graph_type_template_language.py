@@ -43,4 +43,17 @@ class Migration(migrations.Migration):
                 to='contenttypes.ContentType'
             ),
         ),
+
+        # Add the template_language field with an initial default of Django to preserve current behavior. Then,
+        # alter the field to set the default for any *new* Graphs to Jinja2.
+        migrations.AddField(
+            model_name='graph',
+            name='template_language',
+            field=models.CharField(default='django', max_length=50),
+        ),
+        migrations.AlterField(
+            model_name='graph',
+            name='template_language',
+            field=models.CharField(default='jinja2', max_length=50),
+        ),
     ]
