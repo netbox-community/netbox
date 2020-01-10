@@ -100,6 +100,25 @@ class NetHost(Lookup):
         return 'HOST(%s) = %s' % (lhs, rhs), params
 
 
+class NetHostIn(Lookup):
+    lookup_name = 'net_host_in'
+
+    def as_sql(self, qn, connection):
+        lhs, lhs_params = self.process_lhs(qn, connection)
+        rhs, rhs_params = self.process_rhs(qn, connection)
+        in_elements = ['HOST(%s) IN (' % lhs]
+        params = []
+        for offset in range(0, len(rhs_params[0])):
+            if offset > 0:
+                in_elements.append(', ')
+            params.extend(lhs_params)
+            sqls_params = rhs_params[0][offset]
+            in_elements.append(rhs)
+            params.append(sqls_params)
+        in_elements.append(')')
+        return ''.join(in_elements), params
+
+
 class NetHostContained(Lookup):
     """
     Check for the host portion of an IP address without regard to its mask. This allows us to find e.g. 192.0.2.1/24
