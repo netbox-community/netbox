@@ -42,7 +42,7 @@ SEARCH_TYPES = OrderedDict((
     ('provider', {
         'permission': 'circuits.view_provider',
         'queryset': Provider.objects.all(),
-        'filter': ProviderFilterSet,
+        'filterset': ProviderFilterSet,
         'table': ProviderTable,
         'url': 'circuits:provider_list',
     }),
@@ -59,7 +59,7 @@ SEARCH_TYPES = OrderedDict((
                 CircuitTermination.objects.filter(circuit=OuterRef('pk')).filter(term_side='Z').values('site__name')[:1]
             ),
         ),
-        'filter': CircuitFilterSet,
+        'filterset': CircuitFilterSet,
         'table': CircuitTable,
         'url': 'circuits:circuit_list',
     }),
@@ -67,28 +67,28 @@ SEARCH_TYPES = OrderedDict((
     ('site', {
         'permission': 'dcim.view_site',
         'queryset': Site.objects.prefetch_related('region', 'tenant'),
-        'filter': SiteFilterSet,
+        'filterset': SiteFilterSet,
         'table': SiteTable,
         'url': 'dcim:site_list',
     }),
     ('rack', {
         'permission': 'dcim.view_rack',
         'queryset': Rack.objects.prefetch_related('site', 'group', 'tenant', 'role'),
-        'filter': RackFilterSet,
+        'filterset': RackFilterSet,
         'table': RackTable,
         'url': 'dcim:rack_list',
     }),
     ('rackgroup', {
         'permission': 'dcim.view_rackgroup',
         'queryset': RackGroup.objects.prefetch_related('site').annotate(rack_count=Count('racks')),
-        'filter': RackGroupFilterSet,
+        'filterset': RackGroupFilterSet,
         'table': RackGroupTable,
         'url': 'dcim:rackgroup_list',
     }),
     ('devicetype', {
         'permission': 'dcim.view_devicetype',
         'queryset': DeviceType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances')),
-        'filter': DeviceTypeFilterSet,
+        'filterset': DeviceTypeFilterSet,
         'table': DeviceTypeTable,
         'url': 'dcim:devicetype_list',
     }),
@@ -97,28 +97,28 @@ SEARCH_TYPES = OrderedDict((
         'queryset': Device.objects.prefetch_related(
             'device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack', 'primary_ip4', 'primary_ip6',
         ),
-        'filter': DeviceFilterSet,
+        'filterset': DeviceFilterSet,
         'table': DeviceDetailTable,
         'url': 'dcim:device_list',
     }),
     ('virtualchassis', {
         'permission': 'dcim.view_virtualchassis',
         'queryset': VirtualChassis.objects.prefetch_related('master').annotate(member_count=Count('members')),
-        'filter': VirtualChassisFilterSet,
+        'filterset': VirtualChassisFilterSet,
         'table': VirtualChassisTable,
         'url': 'dcim:virtualchassis_list',
     }),
     ('cable', {
         'permission': 'dcim.view_cable',
         'queryset': Cable.objects.all(),
-        'filter': CableFilterSet,
+        'filterset': CableFilterSet,
         'table': CableTable,
         'url': 'dcim:cable_list',
     }),
     ('powerfeed', {
         'permission': 'dcim.view_powerfeed',
         'queryset': PowerFeed.objects.all(),
-        'filter': PowerFeedFilterSet,
+        'filterset': PowerFeedFilterSet,
         'table': PowerFeedTable,
         'url': 'dcim:powerfeed_list',
     }),
@@ -126,7 +126,7 @@ SEARCH_TYPES = OrderedDict((
     ('cluster', {
         'permission': 'virtualization.view_cluster',
         'queryset': Cluster.objects.prefetch_related('type', 'group'),
-        'filter': ClusterFilterSet,
+        'filterset': ClusterFilterSet,
         'table': ClusterTable,
         'url': 'virtualization:cluster_list',
     }),
@@ -135,7 +135,7 @@ SEARCH_TYPES = OrderedDict((
         'queryset': VirtualMachine.objects.prefetch_related(
             'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
         ),
-        'filter': VirtualMachineFilterSet,
+        'filterset': VirtualMachineFilterSet,
         'table': VirtualMachineDetailTable,
         'url': 'virtualization:virtualmachine_list',
     }),
@@ -143,35 +143,35 @@ SEARCH_TYPES = OrderedDict((
     ('vrf', {
         'permission': 'ipam.view_vrf',
         'queryset': VRF.objects.prefetch_related('tenant'),
-        'filter': VRFFilterSet,
+        'filterset': VRFFilterSet,
         'table': VRFTable,
         'url': 'ipam:vrf_list',
     }),
     ('aggregate', {
         'permission': 'ipam.view_aggregate',
         'queryset': Aggregate.objects.prefetch_related('rir'),
-        'filter': AggregateFilterSet,
+        'filterset': AggregateFilterSet,
         'table': AggregateTable,
         'url': 'ipam:aggregate_list',
     }),
     ('prefix', {
         'permission': 'ipam.view_prefix',
         'queryset': Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role'),
-        'filter': PrefixFilterSet,
+        'filterset': PrefixFilterSet,
         'table': PrefixTable,
         'url': 'ipam:prefix_list',
     }),
     ('ipaddress', {
         'permission': 'ipam.view_ipaddress',
         'queryset': IPAddress.objects.prefetch_related('vrf__tenant', 'tenant'),
-        'filter': IPAddressFilterSet,
+        'filterset': IPAddressFilterSet,
         'table': IPAddressTable,
         'url': 'ipam:ipaddress_list',
     }),
     ('vlan', {
         'permission': 'ipam.view_vlan',
         'queryset': VLAN.objects.prefetch_related('site', 'group', 'tenant', 'role'),
-        'filter': VLANFilterSet,
+        'filterset': VLANFilterSet,
         'table': VLANTable,
         'url': 'ipam:vlan_list',
     }),
@@ -179,7 +179,7 @@ SEARCH_TYPES = OrderedDict((
     ('secret', {
         'permission': 'secrets.view_secret',
         'queryset': Secret.objects.prefetch_related('role', 'device'),
-        'filter': SecretFilterSet,
+        'filterset': SecretFilterSet,
         'table': SecretTable,
         'url': 'secrets:secret_list',
     }),
@@ -187,7 +187,7 @@ SEARCH_TYPES = OrderedDict((
     ('tenant', {
         'permission': 'tenancy.view_tenant',
         'queryset': Tenant.objects.prefetch_related('group'),
-        'filter': TenantFilterSet,
+        'filterset': TenantFilterSet,
         'table': TenantTable,
         'url': 'tenancy:tenant_list',
     }),
@@ -286,12 +286,12 @@ class SearchView(View):
             for obj_type in obj_types:
 
                 queryset = SEARCH_TYPES[obj_type]['queryset']
-                filter_cls = SEARCH_TYPES[obj_type]['filter']
+                filterset = SEARCH_TYPES[obj_type]['filterset']
                 table = SEARCH_TYPES[obj_type]['table']
                 url = SEARCH_TYPES[obj_type]['url']
 
                 # Construct the results table for this object type
-                filtered_queryset = filter_cls({'q': form.cleaned_data['q']}, queryset=queryset).qs
+                filtered_queryset = filterset({'q': form.cleaned_data['q']}, queryset=queryset).qs
                 table = table(filtered_queryset, orderable=False)
                 table.paginate(per_page=SEARCH_MAX_RESULTS)
 
