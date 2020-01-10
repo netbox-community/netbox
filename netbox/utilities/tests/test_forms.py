@@ -128,6 +128,38 @@ class ExpandIPAddress(TestCase):
 
         self.assertEqual(sorted(expand_ipaddress_pattern(input, 6)), output)
 
-    # TODO: negative tests
+    def test_invalid_address_family(self):
+        with self.assertRaisesRegex(Exception, 'Invalid IP address family: 5'):
+            sorted(expand_ipaddress_pattern(None, 5))
+
+    def test_invalid_non_pattern(self):
+        with self.assertRaises(ValueError):
+            sorted(expand_ipaddress_pattern('1.2.3.4/32', 4))
+
+    def test_invalid_range(self):
+        with self.assertRaises(ValueError):
+            sorted(expand_ipaddress_pattern('1.2.3.[4-]/32', 4))
+
+        with self.assertRaises(ValueError):
+            sorted(expand_ipaddress_pattern('1.2.3.[-4]/32', 4))
+
+        with self.assertRaises(ValueError):
+            sorted(expand_ipaddress_pattern('1.2.3.[4--5]/32', 4))
+
+    def test_invalid_range_bounds(self):
+        self.assertEqual(sorted(expand_ipaddress_pattern('1.2.3.[4-3]/32', 6)), [])
+
+    def test_invalid_set(self):
+        with self.assertRaises(ValueError):
+            sorted(expand_ipaddress_pattern('1.2.3.[4]/32', 4))
+
+        with self.assertRaises(ValueError):
+            sorted(expand_ipaddress_pattern('1.2.3.[4,]/32', 4))
+
+        with self.assertRaises(ValueError):
+            sorted(expand_ipaddress_pattern('1.2.3.[,4]/32', 4))
+
+        with self.assertRaises(ValueError):
+            sorted(expand_ipaddress_pattern('1.2.3.[4,,5]/32', 4))
 
 # TODO: alphanumeric
