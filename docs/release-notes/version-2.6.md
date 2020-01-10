@@ -10,6 +10,7 @@
 * [#3187](https://github.com/netbox-community/netbox/issues/3187) - Add rack selection field to rack elevations
 * [#3393](https://github.com/netbox-community/netbox/issues/3393) - Paginate the circuits at the provider details view
 * [#3440](https://github.com/netbox-community/netbox/issues/3440) - Add total length to cable trace
+* [#3623](https://github.com/netbox-community/netbox/issues/3623) - Add word expansion during interface creation
 * [#3851](https://github.com/netbox-community/netbox/issues/3851) - Allow passing initial data to custom script forms
 
 ## Bug Fixes
