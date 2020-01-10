@@ -7,19 +7,19 @@ from .models import Tenant, TenantGroup
 
 
 __all__ = (
-    'TenantFilter',
-    'TenantGroupFilter',
+    'TenantFilterSet',
+    'TenantGroupFilterSet',
 )
 
 
-class TenantGroupFilter(NameSlugSearchFilterSet):
+class TenantGroupFilterSet(NameSlugSearchFilterSet):
 
     class Meta:
         model = TenantGroup
         fields = ['id', 'name', 'slug']
 
 
-class TenantFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class TenantFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'

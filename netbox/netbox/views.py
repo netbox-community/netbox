@@ -28,7 +28,7 @@ from ipam.tables import AggregateTable, IPAddressTable, PrefixTable, VLANTable, 
 from secrets.filters import SecretFilterSet
 from secrets.models import Secret
 from secrets.tables import SecretTable
-from tenancy.filters import TenantFilter
+from tenancy.filters import TenantFilterSet
 from tenancy.models import Tenant
 from tenancy.tables import TenantTable
 from virtualization.filters import ClusterFilter, VirtualMachineFilter
@@ -187,7 +187,7 @@ SEARCH_TYPES = OrderedDict((
     ('tenant', {
         'permission': 'tenancy.view_tenant',
         'queryset': Tenant.objects.prefetch_related('group'),
-        'filter': TenantFilter,
+        'filter': TenantFilterSet,
         'table': TenantTable,
         'url': 'tenancy:tenant_list',
     }),
