@@ -25,7 +25,7 @@ from extras.models import ObjectChange, ReportResult
 from ipam.filters import AggregateFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from ipam.tables import AggregateTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
-from secrets.filters import SecretFilter
+from secrets.filters import SecretFilterSet
 from secrets.models import Secret
 from secrets.tables import SecretTable
 from tenancy.filters import TenantFilter
@@ -179,7 +179,7 @@ SEARCH_TYPES = OrderedDict((
     ('secret', {
         'permission': 'secrets.view_secret',
         'queryset': Secret.objects.prefetch_related('role', 'device'),
-        'filter': SecretFilter,
+        'filter': SecretFilterSet,
         'table': SecretTable,
         'url': 'secrets:secret_list',
     }),
