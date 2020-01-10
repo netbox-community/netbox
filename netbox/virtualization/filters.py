@@ -3,7 +3,7 @@ from django.db.models import Q
 
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
-from tenancy.filtersets import TenancyFilterSet
+from tenancy.filters import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.filters import (
     MultiValueMACAddressFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,

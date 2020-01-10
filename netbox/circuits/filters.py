@@ -3,7 +3,7 @@ from django.db.models import Q
 
 from dcim.models import Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
-from tenancy.filtersets import TenancyFilterSet
+from tenancy.filters import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import Circuit, CircuitTermination, CircuitType, Provider

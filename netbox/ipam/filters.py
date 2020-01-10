@@ -6,7 +6,7 @@ from netaddr.core import AddrFormatError
 
 from dcim.models import Device, Interface, Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
-from tenancy.filtersets import TenancyFilterSet
+from tenancy.filters import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
 from virtualization.models import VirtualMachine
 from .choices import *

@@ -7,6 +7,7 @@ from .models import Tenant, TenantGroup
 
 
 __all__ = (
+    'TenancyFilterSet',
     'TenantFilterSet',
     'TenantGroupFilterSet',
 )
@@ -53,3 +54,31 @@ class TenantFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
             Q(description__icontains=value) |
             Q(comments__icontains=value)
         )
+
+
+class TenancyFilterSet(django_filters.FilterSet):
+    """
+    An inheritable FilterSet for models which support Tenant assignment.
+    """
+    tenant_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenant__group__id',
+        queryset=TenantGroup.objects.all(),
+        to_field_name='id',
+        label='Tenant Group (ID)',
+    )
+    tenant_group = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenant__group__slug',
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        label='Tenant Group (slug)',
+    )
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Tenant.objects.all(),
+        label='Tenant (ID)',
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenant__slug',
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        label='Tenant (slug)',
+    )
