@@ -1,3 +1,4 @@
+from django import forms
 from django.test import TestCase
 
 from utilities.forms import *
@@ -162,4 +163,121 @@ class ExpandIPAddress(TestCase):
         with self.assertRaises(ValueError):
             sorted(expand_ipaddress_pattern('1.2.3.[4,,5]/32', 4))
 
-# TODO: alphanumeric
+
+class ExpandAlphanumeric(TestCase):
+    """
+    Validate the operation of expand_alphanumeric_pattern().
+    """
+    def test_range_numberic(self):
+        input = 'r[9-11]a'
+        output = sorted([
+            'r9a',
+            'r10a',
+            'r11a',
+        ])
+
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
+
+    def test_range_alpha(self):
+        input = '[r-t]1a'
+        output = sorted([
+            'r1a',
+            's1a',
+            't1a',
+        ])
+
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
+
+    def test_set(self):
+        input = '[r,t]1a'
+        output = sorted([
+            'r1a',
+            't1a',
+        ])
+
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
+
+    def test_set_multichar(self):
+        input = '[ra,tb]1a'
+        output = sorted([
+            'ra1a',
+            'tb1a',
+        ])
+
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
+
+    def test_multiple_ranges(self):
+        input = '[r-t]1[a-b]'
+        output = sorted([
+            'r1a',
+            'r1b',
+            's1a',
+            's1b',
+            't1a',
+            't1b',
+        ])
+
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
+
+    def test_multiple_sets(self):
+        input = '[ra,tb]1[ax,by]'
+        output = sorted([
+            'ra1ax',
+            'ra1by',
+            'tb1ax',
+            'tb1by',
+        ])
+
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
+
+    def test_set_and_range(self):
+        input = '[ra,tb]1[a-c]'
+        output = sorted([
+            'ra1a',
+            'ra1b',
+            'ra1c',
+            'tb1a',
+            'tb1b',
+            'tb1c',
+        ])
+
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
+
+    def test_invalid_non_pattern(self):
+        with self.assertRaises(ValueError):
+            sorted(expand_alphanumeric_pattern('r9a'))
+
+    def test_invalid_range(self):
+        with self.assertRaises(ValueError):
+            sorted(expand_alphanumeric_pattern('r[8-]a'))
+
+        with self.assertRaises(ValueError):
+            sorted(expand_alphanumeric_pattern('r[-8]a'))
+
+        with self.assertRaises(ValueError):
+            sorted(expand_alphanumeric_pattern('r[8--9]a'))
+
+    def test_invalid_range_alphanumeric(self):
+        self.assertEqual(sorted(expand_alphanumeric_pattern('r[9-a]a')), [])
+        self.assertEqual(sorted(expand_alphanumeric_pattern('r[a-9]a')), [])
+
+    def test_invalid_range_bounds(self):
+        self.assertEqual(sorted(expand_alphanumeric_pattern('r[9-8]a')), [])
+        self.assertEqual(sorted(expand_alphanumeric_pattern('r[b-a]a')), [])
+
+    def test_invalid_range_len(self):
+        with self.assertRaises(forms.ValidationError):
+            sorted(expand_alphanumeric_pattern('r[a-bb]a'))
+
+    def test_invalid_set(self):
+        with self.assertRaises(ValueError):
+            sorted(expand_alphanumeric_pattern('r[a]a'))
+
+        with self.assertRaises(ValueError):
+            sorted(expand_alphanumeric_pattern('r[a,]a'))
+
+        with self.assertRaises(ValueError):
+            sorted(expand_alphanumeric_pattern('r[,a]a'))
+
+        with self.assertRaises(ValueError):
+            sorted(expand_alphanumeric_pattern('r[a,,b]a'))
