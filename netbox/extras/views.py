@@ -31,8 +31,8 @@ class TagListView(PermissionRequiredMixin, ObjectListView):
     ).order_by(
         'name'
     )
-    filter = filters.TagFilterSet
-    filter_form = forms.TagFilterForm
+    filterset = filters.TagFilterSet
+    filterset_form = forms.TagFilterForm
     table = TagTable
     template_name = 'extras/tag_list.html'
 
@@ -108,8 +108,8 @@ class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class ConfigContextListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'extras.view_configcontext'
     queryset = ConfigContext.objects.all()
-    filter = filters.ConfigContextFilterSet
-    filter_form = forms.ConfigContextFilterForm
+    filterset = filters.ConfigContextFilterSet
+    filterset_form = forms.ConfigContextFilterForm
     table = ConfigContextTable
     template_name = 'extras/configcontext_list.html'
 
@@ -141,7 +141,7 @@ class ConfigContextEditView(ConfigContextCreateView):
 class ConfigContextBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'extras.change_configcontext'
     queryset = ConfigContext.objects.all()
-    filter = filters.ConfigContextFilterSet
+    filterset = filters.ConfigContextFilterSet
     table = ConfigContextTable
     form = forms.ConfigContextBulkEditForm
     default_return_url = 'extras:configcontext_list'
@@ -187,8 +187,8 @@ class ObjectConfigContextView(View):
 class ObjectChangeListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'extras.view_objectchange'
     queryset = ObjectChange.objects.prefetch_related('user', 'changed_object_type')
-    filter = filters.ObjectChangeFilterSet
-    filter_form = forms.ObjectChangeFilterForm
+    filterset = filters.ObjectChangeFilterSet
+    filterset_form = forms.ObjectChangeFilterForm
     table = ObjectChangeTable
     template_name = 'extras/objectchange_list.html'
 
