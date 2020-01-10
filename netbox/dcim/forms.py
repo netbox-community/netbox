@@ -3119,6 +3119,17 @@ class CableFilterForm(BootstrapMixin, forms.Form):
             }
         )
     )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenants/",
+            value_field='slug',
+            filter_for={
+                'device_id': 'tenant',
+            }
+        )
+    )
     rack_id = FilterChoiceField(
         queryset=Rack.objects.all(),
         label='Rack',

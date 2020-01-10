@@ -7,6 +7,7 @@
 * [#2113](https://github.com/netbox-community/netbox/issues/2113) - Allow NAPALM driver settings to be changed with request headers
 * [#2589](https://github.com/netbox-community/netbox/issues/2589) - Toggle for showing available prefixes/ip addresses
 * [#3009](https://github.com/netbox-community/netbox/issues/3009) - Search by description when assigning IP address
+* [#3021](https://github.com/netbox-community/netbox/issues/3021) - Add tenant filter field for cables
 * [#3090](https://github.com/netbox-community/netbox/issues/3090) - Add filter field for device interfaces
 * [#3187](https://github.com/netbox-community/netbox/issues/3187) - Add rack selection field to rack elevations
 * [#3393](https://github.com/netbox-community/netbox/issues/3393) - Paginate the circuits at the provider details view
