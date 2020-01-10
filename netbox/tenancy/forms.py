@@ -23,7 +23,7 @@ class TenantGroupForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class TenantGroupCSVForm(forms.ModelForm):
+class TenantGroupCSVForm(CustomFieldForm):
     slug = SlugField()
 
     class Meta:
@@ -57,7 +57,7 @@ class TenantForm(BootstrapMixin, CustomFieldForm):
         }
 
 
-class TenantCSVForm(forms.ModelForm):
+class TenantCSVForm(CustomFieldForm):
     slug = SlugField()
     group = forms.ModelChoiceField(
         queryset=TenantGroup.objects.all(),

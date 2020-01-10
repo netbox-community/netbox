@@ -48,7 +48,7 @@ class VRFForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class VRFCSVForm(forms.ModelForm):
+class VRFCSVForm(CustomFieldForm):
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -118,7 +118,7 @@ class RIRForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class RIRCSVForm(forms.ModelForm):
+class RIRCSVForm(CustomFieldForm):
     slug = SlugField()
 
     class Meta:
@@ -165,7 +165,7 @@ class AggregateForm(BootstrapMixin, CustomFieldForm):
         }
 
 
-class AggregateCSVForm(forms.ModelForm):
+class AggregateCSVForm(CustomFieldForm):
     rir = forms.ModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
@@ -247,7 +247,7 @@ class RoleForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class RoleCSVForm(forms.ModelForm):
+class RoleCSVForm(CustomFieldForm):
     slug = SlugField()
 
     class Meta:
@@ -340,7 +340,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         self.fields['vrf'].empty_label = 'Global'
 
 
-class PrefixCSVForm(forms.ModelForm):
+class PrefixCSVForm(CustomFieldForm):
     vrf = FlexibleModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='rd',
@@ -759,7 +759,7 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         self.fields['vrf'].empty_label = 'Global'
 
 
-class IPAddressCSVForm(forms.ModelForm):
+class IPAddressCSVForm(CustomFieldForm):
     vrf = FlexibleModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='rd',
@@ -1025,7 +1025,7 @@ class VLANGroupForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class VLANGroupCSVForm(forms.ModelForm):
+class VLANGroupCSVForm(CustomFieldForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -1122,7 +1122,7 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class VLANCSVForm(forms.ModelForm):
+class VLANCSVForm(CustomFieldForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,

@@ -37,7 +37,7 @@ class ClusterTypeForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class ClusterTypeCSVForm(forms.ModelForm):
+class ClusterTypeCSVForm(CustomFieldForm):
     slug = SlugField()
 
     class Meta:
@@ -62,7 +62,7 @@ class ClusterGroupForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class ClusterGroupCSVForm(forms.ModelForm):
+class ClusterGroupCSVForm(CustomFieldForm):
     slug = SlugField()
 
     class Meta:
@@ -101,7 +101,7 @@ class ClusterForm(BootstrapMixin, CustomFieldForm):
         }
 
 
-class ClusterCSVForm(forms.ModelForm):
+class ClusterCSVForm(CustomFieldForm):
     type = forms.ModelChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='name',
@@ -416,7 +416,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.fields['primary_ip6'].widget.attrs['readonly'] = True
 
 
-class VirtualMachineCSVForm(forms.ModelForm):
+class VirtualMachineCSVForm(CustomFieldForm):
     status = CSVChoiceField(
         choices=VM_STATUS_CHOICES,
         required=False,

@@ -50,7 +50,7 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class SecretRoleCSVForm(forms.ModelForm):
+class SecretRoleCSVForm(CustomFieldForm):
     slug = SlugField()
 
     class Meta:
@@ -113,7 +113,7 @@ class SecretForm(BootstrapMixin, CustomFieldForm):
             })
 
 
-class SecretCSVForm(forms.ModelForm):
+class SecretCSVForm(CustomFieldForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',

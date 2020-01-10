@@ -151,7 +151,7 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class RegionCSVForm(forms.ModelForm):
+class RegionCSVForm(CustomFieldForm):
     parent = forms.ModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -231,7 +231,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class SiteCSVForm(forms.ModelForm):
+class SiteCSVForm(CustomFieldForm):
     status = CSVChoiceField(
         choices=SITE_STATUS_CHOICES,
         required=False,
@@ -355,7 +355,7 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class RackGroupCSVForm(forms.ModelForm):
+class RackGroupCSVForm(CustomFieldForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -411,7 +411,7 @@ class RackRoleForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class RackRoleCSVForm(forms.ModelForm):
+class RackRoleCSVForm(CustomFieldForm):
     slug = SlugField()
 
     class Meta:
@@ -472,7 +472,7 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class RackCSVForm(forms.ModelForm):
+class RackCSVForm(CustomFieldForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -852,7 +852,7 @@ class ManufacturerForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class ManufacturerCSVForm(forms.ModelForm):
+class ManufacturerCSVForm(CustomFieldForm):
 
     class Meta:
         model = Manufacturer
@@ -890,7 +890,7 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
         }
 
 
-class DeviceTypeCSVForm(forms.ModelForm):
+class DeviceTypeCSVForm(CustomFieldForm):
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
         required=True,
@@ -1308,7 +1308,7 @@ class DeviceRoleForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class DeviceRoleCSVForm(forms.ModelForm):
+class DeviceRoleCSVForm(CustomFieldForm):
     slug = SlugField()
 
     class Meta:
@@ -1342,7 +1342,7 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PlatformCSVForm(forms.ModelForm):
+class PlatformCSVForm(CustomFieldForm):
     slug = SlugField()
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
@@ -1564,7 +1564,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.initial['rack'] = self.instance.parent_bay.device.rack_id
 
 
-class BaseDeviceCSVForm(forms.ModelForm):
+class BaseDeviceCSVForm(CustomFieldForm):
     device_role = forms.ModelChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
@@ -2919,7 +2919,7 @@ class CableForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class CableCSVForm(forms.ModelForm):
+class CableCSVForm(CustomFieldForm):
 
     # Termination A
     side_a_device = FlexibleModelChoiceField(
@@ -3294,7 +3294,7 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class InventoryItemCSVForm(forms.ModelForm):
+class InventoryItemCSVForm(CustomFieldForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -3623,7 +3623,7 @@ class PowerPanelForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPanelCSVForm(forms.ModelForm):
+class PowerPanelCSVForm(CustomFieldForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -3747,7 +3747,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldForm):
             self.initial['site'] = self.instance.power_panel.site
 
 
-class PowerFeedCSVForm(forms.ModelForm):
+class PowerFeedCSVForm(CustomFieldForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',

@@ -149,6 +149,9 @@ def example_choices(field, arg=3):
             break
         if not value or not label:
             continue
+        # Handling for custom fields
+        if hasattr(label, 'value'):
+            label = label.value
         examples.append(label)
     return ', '.join(examples) or 'None'
 
