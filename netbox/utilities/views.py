@@ -70,8 +70,8 @@ class ObjectListView(View):
     template_name: The name of the template
     """
     queryset = None
-    filter = None
-    filter_form = None
+    filterset = None
+    filterset_form = None
     table = None
     template_name = None
 
@@ -97,8 +97,8 @@ class ObjectListView(View):
         model = self.queryset.model
         content_type = ContentType.objects.get_for_model(model)
 
-        if self.filter:
-            self.queryset = self.filter(request.GET, self.queryset).qs
+        if self.filterset:
+            self.queryset = self.filterset(request.GET, self.queryset).qs
 
         # If this type of object has one or more custom fields, prefetch any relevant custom field values
         custom_fields = CustomField.objects.filter(
@@ -161,7 +161,7 @@ class ObjectListView(View):
             'content_type': content_type,
             'table': table,
             'permissions': permissions,
-            'filter_form': self.filter_form(request.GET, label_suffix='') if self.filter_form else None,
+            'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
             'tags': tags,
         }
         context.update(self.extra_context())
@@ -598,7 +598,7 @@ class BulkEditView(GetReturnURLMixin, View):
     """
     queryset = None
     parent_model = None
-    filter = None
+    filterset = None
     table = None
     form = None
     template_name = 'utilities/obj_bulk_edit.html'
@@ -617,8 +617,8 @@ class BulkEditView(GetReturnURLMixin, View):
             parent_obj = None
 
         # Are we editing *all* objects in the queryset or just a selected subset?
-        if request.POST.get('_all') and self.filter is not None:
-            pk_list = [obj.pk for obj in self.filter(request.GET, model.objects.only('pk')).qs]
+        if request.POST.get('_all') and self.filterset is not None:
+            pk_list = [obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs]
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
@@ -719,7 +719,7 @@ class BulkDeleteView(GetReturnURLMixin, View):
     """
     queryset = None
     parent_model = None
-    filter = None
+    filterset = None
     table = None
     form = None
     template_name = 'utilities/obj_bulk_delete.html'
@@ -739,8 +739,8 @@ class BulkDeleteView(GetReturnURLMixin, View):
 
         # Are we deleting *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all'):
-            if self.filter is not None:
-                pk_list = [obj.pk for obj in self.filter(request.GET, model.objects.only('pk')).qs]
+            if self.filterset is not None:
+                pk_list = [obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs]
             else:
                 pk_list = model.objects.values_list('pk', flat=True)
         else:
@@ -883,7 +883,7 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
     form = None
     model = None
     model_form = None
-    filter = None
+    filterset = None
     table = None
     template_name = 'utilities/obj_bulk_add_component.html'
 
@@ -893,8 +893,8 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
         model_name = self.model._meta.verbose_name_plural
 
         # Are we editing *all* objects in the queryset or just a selected subset?
-        if request.POST.get('_all') and self.filter is not None:
-            pk_list = [obj.pk for obj in self.filter(request.GET, self.parent_model.objects.only('pk')).qs]
+        if request.POST.get('_all') and self.filterset is not None:
+            pk_list = [obj.pk for obj in self.filterset(request.GET, self.parent_model.objects.only('pk')).qs]
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 

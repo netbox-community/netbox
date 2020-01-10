@@ -6,7 +6,7 @@ from netaddr.core import AddrFormatError
 
 from dcim.models import Device, Interface, Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
-from tenancy.filtersets import TenancyFilterSet
+from tenancy.filters import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
 from virtualization.models import VirtualMachine
 from .choices import *
@@ -14,19 +14,19 @@ from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLAN
 
 
 __all__ = (
-    'AggregateFilter',
-    'IPAddressFilter',
-    'PrefixFilter',
-    'RIRFilter',
-    'RoleFilter',
-    'ServiceFilter',
-    'VLANFilter',
-    'VLANGroupFilter',
-    'VRFFilter',
+    'AggregateFilterSet',
+    'IPAddressFilterSet',
+    'PrefixFilterSet',
+    'RIRFilterSet',
+    'RoleFilterSet',
+    'ServiceFilterSet',
+    'VLANFilterSet',
+    'VLANGroupFilterSet',
+    'VRFFilterSet',
 )
 
 
-class VRFFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class VRFFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -51,7 +51,7 @@ class VRFFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet)
         fields = ['name', 'rd', 'enforce_unique']
 
 
-class RIRFilter(NameSlugSearchFilterSet):
+class RIRFilterSet(NameSlugSearchFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -62,7 +62,7 @@ class RIRFilter(NameSlugSearchFilterSet):
         fields = ['name', 'slug', 'is_private']
 
 
-class AggregateFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class AggregateFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -112,7 +112,7 @@ class AggregateFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
             return queryset.none()
 
 
-class RoleFilter(NameSlugSearchFilterSet):
+class RoleFilterSet(NameSlugSearchFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -123,7 +123,7 @@ class RoleFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class PrefixFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class PrefixFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -271,7 +271,7 @@ class PrefixFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterS
         return queryset.filter(prefix__net_mask_length=value)
 
 
-class IPAddressFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class IPAddressFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -398,7 +398,7 @@ class IPAddressFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilt
         return queryset.exclude(interface__isnull=value)
 
 
-class VLANGroupFilter(NameSlugSearchFilterSet):
+class VLANGroupFilterSet(NameSlugSearchFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region__in',
@@ -426,7 +426,7 @@ class VLANGroupFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class VLANFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class VLANFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -497,7 +497,7 @@ class VLANFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet
         return queryset.filter(qs_filter)
 
 
-class ServiceFilter(CreatedUpdatedFilterSet):
+class ServiceFilterSet(CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

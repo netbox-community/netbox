@@ -8,7 +8,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMac
 
 class ClusterTypeTestCase(TestCase):
     queryset = ClusterType.objects.all()
-    filterset = ClusterTypeFilter
+    filterset = ClusterTypeFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -36,7 +36,7 @@ class ClusterTypeTestCase(TestCase):
 
 class ClusterGroupTestCase(TestCase):
     queryset = ClusterGroup.objects.all()
-    filterset = ClusterGroupFilter
+    filterset = ClusterGroupFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -64,7 +64,7 @@ class ClusterGroupTestCase(TestCase):
 
 class ClusterTestCase(TestCase):
     queryset = Cluster.objects.all()
-    filterset = ClusterFilter
+    filterset = ClusterFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -146,7 +146,7 @@ class ClusterTestCase(TestCase):
 
 class VirtualMachineTestCase(TestCase):
     queryset = VirtualMachine.objects.all()
-    filterset = VirtualMachineFilter
+    filterset = VirtualMachineFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -303,7 +303,7 @@ class VirtualMachineTestCase(TestCase):
 
 class InterfaceTestCase(TestCase):
     queryset = Interface.objects.all()
-    filterset = InterfaceFilter
+    filterset = InterfaceFilterSet
 
     @classmethod
     def setUpTestData(cls):

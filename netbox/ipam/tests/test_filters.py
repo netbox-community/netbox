@@ -9,7 +9,7 @@ from virtualization.models import Cluster, ClusterType, VirtualMachine
 
 class VRFTestCase(TestCase):
     queryset = VRF.objects.all()
-    filterset = VRFFilter
+    filterset = VRFFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -46,7 +46,7 @@ class VRFTestCase(TestCase):
 
 class RIRTestCase(TestCase):
     queryset = RIR.objects.all()
-    filterset = RIRFilter
+    filterset = RIRFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -83,7 +83,7 @@ class RIRTestCase(TestCase):
 
 class AggregateTestCase(TestCase):
     queryset = Aggregate.objects.all()
-    filterset = AggregateFilter
+    filterset = AggregateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -128,7 +128,7 @@ class AggregateTestCase(TestCase):
 
 class RoleTestCase(TestCase):
     queryset = Role.objects.all()
-    filterset = RoleFilter
+    filterset = RoleFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -156,7 +156,7 @@ class RoleTestCase(TestCase):
 
 class PrefixTestCase(TestCase):
     queryset = Prefix.objects.all()
-    filterset = PrefixFilter
+    filterset = PrefixFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -288,7 +288,7 @@ class PrefixTestCase(TestCase):
 
 class IPAddressTestCase(TestCase):
     queryset = IPAddress.objects.all()
-    filterset = IPAddressFilter
+    filterset = IPAddressFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -424,7 +424,7 @@ class IPAddressTestCase(TestCase):
 
 class VLANGroupTestCase(TestCase):
     queryset = VLANGroup.objects.all()
-    filterset = VLANGroupFilter
+    filterset = VLANGroupFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -483,7 +483,7 @@ class VLANGroupTestCase(TestCase):
 
 class VLANTestCase(TestCase):
     queryset = VLAN.objects.all()
-    filterset = VLANFilter
+    filterset = VLANFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -576,7 +576,7 @@ class VLANTestCase(TestCase):
 
 class ServiceTestCase(TestCase):
     queryset = Service.objects.all()
-    filterset = ServiceFilter
+    filterset = ServiceFilterSet
 
     @classmethod
     def setUpTestData(cls):

@@ -38,7 +38,7 @@ class SecretRoleViewSet(ModelViewSet):
     )
     serializer_class = serializers.SecretRoleSerializer
     permission_classes = [IsAuthenticated]
-    filterset_class = filters.SecretRoleFilter
+    filterset_class = filters.SecretRoleFilterSet
 
 
 #
@@ -50,7 +50,7 @@ class SecretViewSet(ModelViewSet):
         'device__primary_ip4', 'device__primary_ip6', 'role', 'role__users', 'role__groups', 'tags',
     )
     serializer_class = serializers.SecretSerializer
-    filterset_class = filters.SecretFilter
+    filterset_class = filters.SecretFilterSet
 
     master_key = None
 

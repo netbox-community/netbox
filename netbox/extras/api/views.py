@@ -102,7 +102,7 @@ class CustomFieldModelViewSet(ModelViewSet):
 class GraphViewSet(ModelViewSet):
     queryset = Graph.objects.all()
     serializer_class = serializers.GraphSerializer
-    filterset_class = filters.GraphFilter
+    filterset_class = filters.GraphFilterSet
 
 
 #
@@ -112,7 +112,7 @@ class GraphViewSet(ModelViewSet):
 class ExportTemplateViewSet(ModelViewSet):
     queryset = ExportTemplate.objects.all()
     serializer_class = serializers.ExportTemplateSerializer
-    filterset_class = filters.ExportTemplateFilter
+    filterset_class = filters.ExportTemplateFilterSet
 
 
 #
@@ -124,7 +124,7 @@ class TagViewSet(ModelViewSet):
         tagged_items=Count('extras_taggeditem_items', distinct=True)
     )
     serializer_class = serializers.TagSerializer
-    filterset_class = filters.TagFilter
+    filterset_class = filters.TagFilterSet
 
 
 #
@@ -145,7 +145,7 @@ class ConfigContextViewSet(ModelViewSet):
         'regions', 'sites', 'roles', 'platforms', 'tenant_groups', 'tenants',
     )
     serializer_class = serializers.ConfigContextSerializer
-    filterset_class = filters.ConfigContextFilter
+    filterset_class = filters.ConfigContextFilterSet
 
 
 #
@@ -284,4 +284,4 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     """
     queryset = ObjectChange.objects.prefetch_related('user')
     serializer_class = serializers.ObjectChangeSerializer
-    filterset_class = filters.ObjectChangeFilter
+    filterset_class = filters.ObjectChangeFilterSet

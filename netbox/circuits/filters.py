@@ -3,20 +3,20 @@ from django.db.models import Q
 
 from dcim.models import Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
-from tenancy.filtersets import TenancyFilterSet
+from tenancy.filters import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import Circuit, CircuitTermination, CircuitType, Provider
 
 __all__ = (
-    'CircuitFilter',
-    'CircuitTerminationFilter',
-    'CircuitTypeFilter',
-    'ProviderFilter',
+    'CircuitFilterSet',
+    'CircuitTerminationFilterSet',
+    'CircuitTypeFilterSet',
+    'ProviderFilterSet',
 )
 
 
-class ProviderFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class ProviderFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -65,14 +65,14 @@ class ProviderFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
         )
 
 
-class CircuitTypeFilter(NameSlugSearchFilterSet):
+class CircuitTypeFilterSet(NameSlugSearchFilterSet):
 
     class Meta:
         model = CircuitType
         fields = ['id', 'name', 'slug']
 
 
-class CircuitFilter(CustomFieldFilterSet, TenancyFilterSet, CreatedUpdatedFilterSet):
+class CircuitFilterSet(CustomFieldFilterSet, TenancyFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -146,7 +146,7 @@ class CircuitFilter(CustomFieldFilterSet, TenancyFilterSet, CreatedUpdatedFilter
         ).distinct()
 
 
-class CircuitTerminationFilter(django_filters.FilterSet):
+class CircuitTerminationFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

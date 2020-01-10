@@ -38,7 +38,7 @@ class VRFViewSet(CustomFieldModelViewSet):
         prefix_count=get_subquery(Prefix, 'vrf')
     )
     serializer_class = serializers.VRFSerializer
-    filterset_class = filters.VRFFilter
+    filterset_class = filters.VRFFilterSet
 
 
 #
@@ -50,7 +50,7 @@ class RIRViewSet(ModelViewSet):
         aggregate_count=Count('aggregates')
     )
     serializer_class = serializers.RIRSerializer
-    filterset_class = filters.RIRFilter
+    filterset_class = filters.RIRFilterSet
 
 
 #
@@ -60,7 +60,7 @@ class RIRViewSet(ModelViewSet):
 class AggregateViewSet(CustomFieldModelViewSet):
     queryset = Aggregate.objects.prefetch_related('rir').prefetch_related('tags')
     serializer_class = serializers.AggregateSerializer
-    filterset_class = filters.AggregateFilter
+    filterset_class = filters.AggregateFilterSet
 
 
 #
@@ -73,7 +73,7 @@ class RoleViewSet(ModelViewSet):
         vlan_count=get_subquery(VLAN, 'role')
     )
     serializer_class = serializers.RoleSerializer
-    filterset_class = filters.RoleFilter
+    filterset_class = filters.RoleFilterSet
 
 
 #
@@ -83,7 +83,7 @@ class RoleViewSet(ModelViewSet):
 class PrefixViewSet(CustomFieldModelViewSet):
     queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role', 'tags')
     serializer_class = serializers.PrefixSerializer
-    filterset_class = filters.PrefixFilter
+    filterset_class = filters.PrefixFilterSet
 
     @action(detail=True, url_path='available-prefixes', methods=['get', 'post'])
     def available_prefixes(self, request, pk=None):
@@ -264,7 +264,7 @@ class IPAddressViewSet(CustomFieldModelViewSet):
         'nat_outside', 'tags',
     )
     serializer_class = serializers.IPAddressSerializer
-    filterset_class = filters.IPAddressFilter
+    filterset_class = filters.IPAddressFilterSet
 
 
 #
@@ -276,7 +276,7 @@ class VLANGroupViewSet(ModelViewSet):
         vlan_count=Count('vlans')
     )
     serializer_class = serializers.VLANGroupSerializer
-    filterset_class = filters.VLANGroupFilter
+    filterset_class = filters.VLANGroupFilterSet
 
 
 #
@@ -290,7 +290,7 @@ class VLANViewSet(CustomFieldModelViewSet):
         prefix_count=get_subquery(Prefix, 'role')
     )
     serializer_class = serializers.VLANSerializer
-    filterset_class = filters.VLANFilter
+    filterset_class = filters.VLANFilterSet
 
 
 #
@@ -300,4 +300,4 @@ class VLANViewSet(CustomFieldModelViewSet):
 class ServiceViewSet(ModelViewSet):
     queryset = Service.objects.prefetch_related('device').prefetch_related('tags')
     serializer_class = serializers.ServiceSerializer
-    filterset_class = filters.ServiceFilter
+    filterset_class = filters.ServiceFilterSet

@@ -9,15 +9,15 @@ from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectCha
 
 
 __all__ = (
-    'ConfigContextFilter',
+    'ConfigContextFilterSet',
     'CreatedUpdatedFilterSet',
     'CustomFieldFilter',
     'CustomFieldFilterSet',
-    'ExportTemplateFilter',
-    'GraphFilter',
-    'LocalConfigContextFilter',
-    'ObjectChangeFilter',
-    'TagFilter',
+    'ExportTemplateFilterSet',
+    'GraphFilterSet',
+    'LocalConfigContextFilterSet',
+    'ObjectChangeFilterSet',
+    'TagFilterSet',
 )
 
 
@@ -88,21 +88,21 @@ class CustomFieldFilterSet(django_filters.FilterSet):
             self.filters['cf_{}'.format(cf.name)] = CustomFieldFilter(field_name=cf.name, custom_field=cf)
 
 
-class GraphFilter(django_filters.FilterSet):
+class GraphFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = Graph
         fields = ['type', 'name']
 
 
-class ExportTemplateFilter(django_filters.FilterSet):
+class ExportTemplateFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = ExportTemplate
         fields = ['content_type', 'name', 'template_language']
 
 
-class TagFilter(django_filters.FilterSet):
+class TagFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -121,7 +121,7 @@ class TagFilter(django_filters.FilterSet):
         )
 
 
-class ConfigContextFilter(django_filters.FilterSet):
+class ConfigContextFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -217,7 +217,7 @@ class ConfigContextFilter(django_filters.FilterSet):
 # Filter for Local Config Context Data
 #
 
-class LocalConfigContextFilter(django_filters.FilterSet):
+class LocalConfigContextFilterSet(django_filters.FilterSet):
     local_context_data = django_filters.BooleanFilter(
         method='_local_context_data',
         label='Has local config context data',
@@ -227,7 +227,7 @@ class LocalConfigContextFilter(django_filters.FilterSet):
         return queryset.exclude(local_context_data__isnull=value)
 
 
-class ObjectChangeFilter(django_filters.FilterSet):
+class ObjectChangeFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

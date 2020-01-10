@@ -42,27 +42,27 @@ class RegionTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(RegionFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(RegionFilterSet(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Region 1', 'Region 2']}
-        self.assertEqual(RegionFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(RegionFilterSet(params, self.queryset).qs.count(), 2)
 
     def test_slug(self):
         params = {'slug': ['region-1', 'region-2']}
-        self.assertEqual(RegionFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(RegionFilterSet(params, self.queryset).qs.count(), 2)
 
     def test_parent(self):
         parent_regions = Region.objects.filter(parent__isnull=True)[:2]
         params = {'parent_id': [parent_regions[0].pk, parent_regions[1].pk]}
-        self.assertEqual(RegionFilter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(RegionFilterSet(params, self.queryset).qs.count(), 4)
         params = {'parent': [parent_regions[0].slug, parent_regions[1].slug]}
-        self.assertEqual(RegionFilter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(RegionFilterSet(params, self.queryset).qs.count(), 4)
 
 
 class SiteTestCase(TestCase):
     queryset = Site.objects.all()
-    filterset = SiteFilter
+    filterset = SiteFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -142,7 +142,7 @@ class SiteTestCase(TestCase):
 
 class RackGroupTestCase(TestCase):
     queryset = RackGroup.objects.all()
-    filterset = RackGroupFilter
+    filterset = RackGroupFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -199,7 +199,7 @@ class RackGroupTestCase(TestCase):
 
 class RackRoleTestCase(TestCase):
     queryset = RackRole.objects.all()
-    filterset = RackRoleFilter
+    filterset = RackRoleFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -231,7 +231,7 @@ class RackRoleTestCase(TestCase):
 
 class RackTestCase(TestCase):
     queryset = Rack.objects.all()
-    filterset = RackFilter
+    filterset = RackFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -368,7 +368,7 @@ class RackTestCase(TestCase):
 
 class RackReservationTestCase(TestCase):
     queryset = RackReservation.objects.all()
-    filterset = RackReservationFilter
+    filterset = RackReservationFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -438,7 +438,7 @@ class RackReservationTestCase(TestCase):
 
 class ManufacturerTestCase(TestCase):
     queryset = Manufacturer.objects.all()
-    filterset = ManufacturerFilter
+    filterset = ManufacturerFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -466,7 +466,7 @@ class ManufacturerTestCase(TestCase):
 
 class DeviceTypeTestCase(TestCase):
     queryset = DeviceType.objects.all()
-    filterset = DeviceTypeFilter
+    filterset = DeviceTypeFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -604,7 +604,7 @@ class DeviceTypeTestCase(TestCase):
 
 class ConsolePortTemplateTestCase(TestCase):
     queryset = ConsolePortTemplate.objects.all()
-    filterset = ConsolePortTemplateFilter
+    filterset = ConsolePortTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -641,7 +641,7 @@ class ConsolePortTemplateTestCase(TestCase):
 
 class ConsoleServerPortTemplateTestCase(TestCase):
     queryset = ConsoleServerPortTemplate.objects.all()
-    filterset = ConsoleServerPortTemplateFilter
+    filterset = ConsoleServerPortTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -678,7 +678,7 @@ class ConsoleServerPortTemplateTestCase(TestCase):
 
 class PowerPortTemplateTestCase(TestCase):
     queryset = PowerPortTemplate.objects.all()
-    filterset = PowerPortTemplateFilter
+    filterset = PowerPortTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -723,7 +723,7 @@ class PowerPortTemplateTestCase(TestCase):
 
 class PowerOutletTemplateTestCase(TestCase):
     queryset = PowerOutletTemplate.objects.all()
-    filterset = PowerOutletTemplateFilter
+    filterset = PowerOutletTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -765,7 +765,7 @@ class PowerOutletTemplateTestCase(TestCase):
 
 class InterfaceTemplateTestCase(TestCase):
     queryset = InterfaceTemplate.objects.all()
-    filterset = InterfaceTemplateFilter
+    filterset = InterfaceTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -813,7 +813,7 @@ class InterfaceTemplateTestCase(TestCase):
 
 class FrontPortTemplateTestCase(TestCase):
     queryset = FrontPortTemplate.objects.all()
-    filterset = FrontPortTemplateFilter
+    filterset = FrontPortTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -862,7 +862,7 @@ class FrontPortTemplateTestCase(TestCase):
 
 class RearPortTemplateTestCase(TestCase):
     queryset = RearPortTemplate.objects.all()
-    filterset = RearPortTemplateFilter
+    filterset = RearPortTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -908,7 +908,7 @@ class RearPortTemplateTestCase(TestCase):
 
 class DeviceBayTemplateTestCase(TestCase):
     queryset = DeviceBayTemplate.objects.all()
-    filterset = DeviceBayTemplateFilter
+    filterset = DeviceBayTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -945,7 +945,7 @@ class DeviceBayTemplateTestCase(TestCase):
 
 class DeviceRoleTestCase(TestCase):
     queryset = DeviceRole.objects.all()
-    filterset = DeviceRoleFilter
+    filterset = DeviceRoleFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -983,7 +983,7 @@ class DeviceRoleTestCase(TestCase):
 
 class PlatformTestCase(TestCase):
     queryset = Platform.objects.all()
-    filterset = PlatformFilter
+    filterset = PlatformFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1029,7 +1029,7 @@ class PlatformTestCase(TestCase):
 
 class DeviceTestCase(TestCase):
     queryset = Device.objects.all()
-    filterset = DeviceFilter
+    filterset = DeviceFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1331,7 +1331,7 @@ class DeviceTestCase(TestCase):
 
 class ConsolePortTestCase(TestCase):
     queryset = ConsolePort.objects.all()
-    filterset = ConsolePortFilter
+    filterset = ConsolePortFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1401,7 +1401,7 @@ class ConsolePortTestCase(TestCase):
 
 class ConsoleServerPortTestCase(TestCase):
     queryset = ConsoleServerPort.objects.all()
-    filterset = ConsoleServerPortFilter
+    filterset = ConsoleServerPortFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1471,7 +1471,7 @@ class ConsoleServerPortTestCase(TestCase):
 
 class PowerPortTestCase(TestCase):
     queryset = PowerPort.objects.all()
-    filterset = PowerPortFilter
+    filterset = PowerPortFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1549,7 +1549,7 @@ class PowerPortTestCase(TestCase):
 
 class PowerOutletTestCase(TestCase):
     queryset = PowerOutlet.objects.all()
-    filterset = PowerOutletFilter
+    filterset = PowerOutletFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1624,7 +1624,7 @@ class PowerOutletTestCase(TestCase):
 
 class InterfaceTestCase(TestCase):
     queryset = Interface.objects.all()
-    filterset = InterfaceFilter
+    filterset = InterfaceFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1725,7 +1725,7 @@ class InterfaceTestCase(TestCase):
 
 class FrontPortTestCase(TestCase):
     queryset = FrontPort.objects.all()
-    filterset = FrontPortFilter
+    filterset = FrontPortFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1802,7 +1802,7 @@ class FrontPortTestCase(TestCase):
 
 class RearPortTestCase(TestCase):
     queryset = RearPort.objects.all()
-    filterset = RearPortFilter
+    filterset = RearPortFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1873,7 +1873,7 @@ class RearPortTestCase(TestCase):
 
 class DeviceBayTestCase(TestCase):
     queryset = DeviceBay.objects.all()
-    filterset = DeviceBayFilter
+    filterset = DeviceBayFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1920,7 +1920,7 @@ class DeviceBayTestCase(TestCase):
 
 class InventoryItemTestCase(TestCase):
     queryset = InventoryItem.objects.all()
-    filterset = InventoryItemFilter
+    filterset = InventoryItemFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -2038,7 +2038,7 @@ class InventoryItemTestCase(TestCase):
 
 class VirtualChassisTestCase(TestCase):
     queryset = VirtualChassis.objects.all()
-    filterset = VirtualChassisFilter
+    filterset = VirtualChassisFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -2109,7 +2109,7 @@ class VirtualChassisTestCase(TestCase):
 
 class CableTestCase(TestCase):
     queryset = Cable.objects.all()
-    filterset = CableFilter
+    filterset = CableFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -2221,7 +2221,7 @@ class CableTestCase(TestCase):
 
 class PowerPanelTestCase(TestCase):
     queryset = PowerPanel.objects.all()
-    filterset = PowerPanelFilter
+    filterset = PowerPanelFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -2281,7 +2281,7 @@ class PowerPanelTestCase(TestCase):
 
 class PowerFeedTestCase(TestCase):
     queryset = PowerFeed.objects.all()
-    filterset = PowerFeedFilter
+    filterset = PowerFeedFilterSet
 
     @classmethod
     def setUpTestData(cls):
