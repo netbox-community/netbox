@@ -2756,6 +2756,187 @@ class VirtualChassis(ChangeLoggedModel):
 
 
 #
+# Power
+#
+
+class PowerPanel(ChangeLoggedModel):
+    """
+    A distribution point for electrical power; e.g. a data center RPP.
+    """
+    site = models.ForeignKey(
+        to='Site',
+        on_delete=models.PROTECT
+    )
+    rack_group = models.ForeignKey(
+        to='RackGroup',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
+    name = models.CharField(
+        max_length=50
+    )
+
+    csv_headers = ['site', 'rack_group_name', 'name']
+
+    class Meta:
+        ordering = ['site', 'name']
+        unique_together = ['site', 'name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('dcim:powerpanel', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.site.name,
+            self.rack_group.name if self.rack_group else None,
+            self.name,
+        )
+
+    def clean(self):
+
+        # RackGroup must belong to assigned Site
+        if self.rack_group and self.rack_group.site != self.site:
+            raise ValidationError("Rack group {} ({}) is in a different site than {}".format(
+                self.rack_group, self.rack_group.site, self.site
+            ))
+
+
+class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
+    """
+    An electrical circuit delivered from a PowerPanel.
+    """
+    power_panel = models.ForeignKey(
+        to='PowerPanel',
+        on_delete=models.PROTECT,
+        related_name='powerfeeds'
+    )
+    rack = models.ForeignKey(
+        to='Rack',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
+    connected_endpoint = models.OneToOneField(
+        to='dcim.PowerPort',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    connection_status = models.NullBooleanField(
+        choices=CONNECTION_STATUS_CHOICES,
+        blank=True
+    )
+    name = models.CharField(
+        max_length=50
+    )
+    status = models.PositiveSmallIntegerField(
+        choices=POWERFEED_STATUS_CHOICES,
+        default=POWERFEED_STATUS_ACTIVE
+    )
+    type = models.PositiveSmallIntegerField(
+        choices=POWERFEED_TYPE_CHOICES,
+        default=POWERFEED_TYPE_PRIMARY
+    )
+    supply = models.PositiveSmallIntegerField(
+        choices=POWERFEED_SUPPLY_CHOICES,
+        default=POWERFEED_SUPPLY_AC
+    )
+    phase = models.PositiveSmallIntegerField(
+        choices=POWERFEED_PHASE_CHOICES,
+        default=POWERFEED_PHASE_SINGLE
+    )
+    voltage = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)],
+        default=120
+    )
+    amperage = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)],
+        default=20
+    )
+    max_utilization = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        default=80,
+        help_text="Maximum permissible draw (percentage)"
+    )
+    available_power = models.PositiveSmallIntegerField(
+        default=0,
+        editable=False
+    )
+    comments = models.TextField(
+        blank=True
+    )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
+    )
+
+    tags = TaggableManager(through=TaggedItem)
+
+    csv_headers = [
+        'site', 'panel_name', 'rack_group', 'rack_name', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
+        'amperage', 'max_utilization', 'comments',
+    ]
+
+    class Meta:
+        ordering = ['power_panel', 'name']
+        unique_together = ['power_panel', 'name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('dcim:powerfeed', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.power_panel.site.name,
+            self.power_panel.name,
+            self.rack.group.name if self.rack and self.rack.group else None,
+            self.rack.name if self.rack else None,
+            self.name,
+            self.get_status_display(),
+            self.get_type_display(),
+            self.get_supply_display(),
+            self.get_phase_display(),
+            self.voltage,
+            self.amperage,
+            self.max_utilization,
+            self.comments,
+        )
+
+    def clean(self):
+
+        # Rack must belong to same Site as PowerPanel
+        if self.rack and self.rack.site != self.power_panel.site:
+            raise ValidationError("Rack {} ({}) and power panel {} ({}) are in different sites".format(
+                self.rack, self.rack.site, self.power_panel, self.power_panel.site
+            ))
+
+    def save(self, *args, **kwargs):
+
+        # Cache the available_power property on the instance
+        kva = self.voltage * self.amperage * (self.max_utilization / 100)
+        if self.phase == POWERFEED_PHASE_3PHASE:
+            self.available_power = round(kva * 1.732)
+        else:
+            self.available_power = round(kva)
+
+        super().save(*args, **kwargs)
+
+    def get_type_class(self):
+        return STATUS_CLASSES[self.type]
+
+    def get_status_class(self):
+        return STATUS_CLASSES[self.status]
+
+
+#
 # Cables
 #
 
@@ -3008,184 +3189,3 @@ class Cable(ChangeLoggedModel):
         b_endpoint = b_path[-1][2]
 
         return a_endpoint, b_endpoint, path_status
-
-
-#
-# Power
-#
-
-class PowerPanel(ChangeLoggedModel):
-    """
-    A distribution point for electrical power; e.g. a data center RPP.
-    """
-    site = models.ForeignKey(
-        to='Site',
-        on_delete=models.PROTECT
-    )
-    rack_group = models.ForeignKey(
-        to='RackGroup',
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True
-    )
-    name = models.CharField(
-        max_length=50
-    )
-
-    csv_headers = ['site', 'rack_group_name', 'name']
-
-    class Meta:
-        ordering = ['site', 'name']
-        unique_together = ['site', 'name']
-
-    def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return reverse('dcim:powerpanel', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.site.name,
-            self.rack_group.name if self.rack_group else None,
-            self.name,
-        )
-
-    def clean(self):
-
-        # RackGroup must belong to assigned Site
-        if self.rack_group and self.rack_group.site != self.site:
-            raise ValidationError("Rack group {} ({}) is in a different site than {}".format(
-                self.rack_group, self.rack_group.site, self.site
-            ))
-
-
-class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
-    """
-    An electrical circuit delivered from a PowerPanel.
-    """
-    power_panel = models.ForeignKey(
-        to='PowerPanel',
-        on_delete=models.PROTECT,
-        related_name='powerfeeds'
-    )
-    rack = models.ForeignKey(
-        to='Rack',
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True
-    )
-    connected_endpoint = models.OneToOneField(
-        to='dcim.PowerPort',
-        on_delete=models.SET_NULL,
-        related_name='+',
-        blank=True,
-        null=True
-    )
-    connection_status = models.NullBooleanField(
-        choices=CONNECTION_STATUS_CHOICES,
-        blank=True
-    )
-    name = models.CharField(
-        max_length=50
-    )
-    status = models.PositiveSmallIntegerField(
-        choices=POWERFEED_STATUS_CHOICES,
-        default=POWERFEED_STATUS_ACTIVE
-    )
-    type = models.PositiveSmallIntegerField(
-        choices=POWERFEED_TYPE_CHOICES,
-        default=POWERFEED_TYPE_PRIMARY
-    )
-    supply = models.PositiveSmallIntegerField(
-        choices=POWERFEED_SUPPLY_CHOICES,
-        default=POWERFEED_SUPPLY_AC
-    )
-    phase = models.PositiveSmallIntegerField(
-        choices=POWERFEED_PHASE_CHOICES,
-        default=POWERFEED_PHASE_SINGLE
-    )
-    voltage = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1)],
-        default=120
-    )
-    amperage = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1)],
-        default=20
-    )
-    max_utilization = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(100)],
-        default=80,
-        help_text="Maximum permissible draw (percentage)"
-    )
-    available_power = models.PositiveSmallIntegerField(
-        default=0,
-        editable=False
-    )
-    comments = models.TextField(
-        blank=True
-    )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
-
-    tags = TaggableManager(through=TaggedItem)
-
-    csv_headers = [
-        'site', 'panel_name', 'rack_group', 'rack_name', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
-        'amperage', 'max_utilization', 'comments',
-    ]
-
-    class Meta:
-        ordering = ['power_panel', 'name']
-        unique_together = ['power_panel', 'name']
-
-    def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return reverse('dcim:powerfeed', args=[self.pk])
-
-    def to_csv(self):
-        return (
-            self.power_panel.site.name,
-            self.power_panel.name,
-            self.rack.group.name if self.rack and self.rack.group else None,
-            self.rack.name if self.rack else None,
-            self.name,
-            self.get_status_display(),
-            self.get_type_display(),
-            self.get_supply_display(),
-            self.get_phase_display(),
-            self.voltage,
-            self.amperage,
-            self.max_utilization,
-            self.comments,
-        )
-
-    def clean(self):
-
-        # Rack must belong to same Site as PowerPanel
-        if self.rack and self.rack.site != self.power_panel.site:
-            raise ValidationError("Rack {} ({}) and power panel {} ({}) are in different sites".format(
-                self.rack, self.rack.site, self.power_panel, self.power_panel.site
-            ))
-
-    def save(self, *args, **kwargs):
-
-        # Cache the available_power property on the instance
-        kva = self.voltage * self.amperage * (self.max_utilization / 100)
-        if self.phase == POWERFEED_PHASE_3PHASE:
-            self.available_power = round(kva * 1.732)
-        else:
-            self.available_power = round(kva)
-
-        super().save(*args, **kwargs)
-
-    def get_type_class(self):
-        return STATUS_CLASSES[self.type]
-
-    def get_status_class(self):
-        return STATUS_CLASSES[self.status]
