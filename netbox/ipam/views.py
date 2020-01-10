@@ -756,13 +756,12 @@ class IPAddressAssignView(PermissionRequiredMixin, View):
 
         if form.is_valid():
 
-            queryset = IPAddress.objects.prefetch_related(
+            addresses = IPAddress.objects.prefetch_related(
                 'vrf', 'tenant', 'interface__device', 'interface__virtual_machine'
-            ).filter(
-                vrf=form.cleaned_data['vrf'],
-                address__istartswith=form.cleaned_data['address'],
-            )[:100]  # Limit to 100 results
-            table = tables.IPAddressAssignTable(queryset)
+            )
+            # Limit to 100 results
+            addresses = filters.IPAddressFilter(request.POST, addresses).qs[:100]
+            table = tables.IPAddressAssignTable(addresses)
 
         return render(request, 'ipam/ipaddress_assign.html', {
             'form': form,
