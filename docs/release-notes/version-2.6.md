@@ -6,6 +6,7 @@
 * [#2050](https://github.com/netbox-community/netbox/issues/2050) - Preview image attachments when hovering the link
 * [#2113](https://github.com/netbox-community/netbox/issues/2113) - Allow NAPALM driver settings to be changed with request headers
 * [#2589](https://github.com/netbox-community/netbox/issues/2589) - Toggle for showing available prefixes/ip addresses
+* [#2921](https://github.com/netbox-community/netbox/issues/2921) - Replace tags filter with Select2 widget
 * [#3009](https://github.com/netbox-community/netbox/issues/3009) - Search by description when assigning IP address
 * [#3090](https://github.com/netbox-community/netbox/issues/3090) - Add filter field for device interfaces
 * [#3187](https://github.com/netbox-community/netbox/issues/3187) - Add rack selection field to rack elevations

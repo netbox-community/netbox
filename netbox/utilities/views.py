@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import Count, ProtectedError
 from django.db.models.query import QuerySet
-from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
+from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleChoiceField, MultipleHiddenInput, Textarea
 from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
@@ -24,7 +24,7 @@ from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
-from utilities.forms import BootstrapMixin, CSVDataField
+from utilities.forms import BootstrapMixin, CSVDataField, StaticSelect2Multiple
 from utilities.utils import csv_format
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
@@ -94,6 +94,7 @@ class ObjectListView(View):
 
         model = self.queryset.model
         content_type = ContentType.objects.get_for_model(model)
+        filter_form = self.filter_form(request.GET, label_suffix='') if self.filter_form else None
 
         if self.filter:
             self.queryset = self.filter(request.GET, self.queryset).qs
@@ -142,11 +143,17 @@ class ObjectListView(View):
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
 
-        # Construct queryset for tags list
-        if hasattr(model, 'tags'):
+        # Add the tags filter field to the from if the model has tags
+        if hasattr(model, 'tags') and filter_form:
             tags = model.tags.annotate(count=Count('extras_taggeditem_items')).order_by('name')
-        else:
-            tags = None
+            choices = [(str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags]
+
+            filter_form.fields['tag'] = MultipleChoiceField(
+                label='Tags',
+                choices=choices,
+                required=False,
+                widget=StaticSelect2Multiple(),
+            )
 
         # Apply the request context
         paginate = {
@@ -159,8 +166,7 @@ class ObjectListView(View):
             'content_type': content_type,
             'table': table,
             'permissions': permissions,
-            'filter_form': self.filter_form(request.GET, label_suffix='') if self.filter_form else None,
-            'tags': tags,
+            'filter_form': filter_form,
         }
         context.update(self.extra_context())
 
