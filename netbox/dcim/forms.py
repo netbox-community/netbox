@@ -2726,6 +2726,18 @@ class ConnectCableToDeviceForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFo
             'label', 'color', 'length', 'length_unit',
         ]
 
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        # Initialize site and rack fields to match that of the existing temination
+        if self.instance and self.instance.termination_a:
+            termination_a_parent = self.instance.termination_a.parent
+            if hasattr(termination_a_parent, 'site'):
+                self.initial['termination_b_site'] = termination_a_parent.site
+            if hasattr(termination_a_parent, 'rack'):
+                self.initial['termination_b_rack'] = termination_a_parent.rack
+
 
 class ConnectCableToConsolePortForm(ConnectCableToDeviceForm):
     termination_b_id = forms.IntegerField(

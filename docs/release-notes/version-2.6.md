@@ -9,6 +9,7 @@
 * [#3009](https://github.com/netbox-community/netbox/issues/3009) - Search by description when assigning IP address
 * [#3090](https://github.com/netbox-community/netbox/issues/3090) - Add filter field for device interfaces
 * [#3187](https://github.com/netbox-community/netbox/issues/3187) - Add rack selection field to rack elevations
+* [#3310](https://github.com/netbox-community/netbox/issues/3310) - Preselect site and rack when connecting cable
 * [#3393](https://github.com/netbox-community/netbox/issues/3393) - Paginate the circuits at the provider details view
 * [#3440](https://github.com/netbox-community/netbox/issues/3440) - Add total length to cable trace
 * [#3623](https://github.com/netbox-community/netbox/issues/3623) - Add word expansion during interface creation
