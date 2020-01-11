@@ -2725,6 +2725,11 @@ class ConnectCableToDeviceForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFo
             'termination_b_site', 'termination_b_rack', 'termination_b_device', 'termination_b_id', 'type', 'status',
             'label', 'color', 'length', 'length_unit',
         ]
+        widgets = {
+            'type': StaticSelect2(),
+            'status': StaticSelect2(),
+            'length_unit': StaticSelect2(),
+        }
 
     def __init__(self, *args, **kwargs):
 
@@ -2929,6 +2934,11 @@ class CableForm(BootstrapMixin, forms.ModelForm):
         fields = [
             'type', 'status', 'label', 'color', 'length', 'length_unit',
         ]
+        widgets = {
+            'type': StaticSelect2(),
+            'status': StaticSelect2(),
+            'length_unit': StaticSelect2(),
+        }
 
 
 class CableCSVForm(forms.ModelForm):
