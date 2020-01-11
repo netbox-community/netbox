@@ -3099,6 +3099,43 @@ class Cable(ChangeLoggedModel):
         if self.termination_a == self.termination_b:
             raise ValidationError("Cannot connect {} to itself".format(self.termination_a_type))
 
+        # A power loop is prohibited. Power feeds cannot create loops as they're downstream-only. Cannot use power
+        # ports as one end may not have a device, like a power feed. This leaves power outlets which are always a part
+        # of a loop since they exist on a device and connect to another.
+        if 'poweroutlet' in [type_a, type_b]:
+            poweroutlet_type = ContentType.objects.get_for_model(PowerOutlet)
+
+            # Using PK as the use of `.values` on the queryset will return IDs
+            destination = self.termination_b.device.pk
+            nodes = None
+            next_nodes = set([self.termination_a.device.pk])
+
+            # Pseudo-implementation of the Bellman-Ford algorithm
+            while nodes != next_nodes:
+                nodes = next_nodes
+
+                # Destination found in the nodes; this cable would create a loop
+                if destination in nodes:
+                    raise ValidationError('Creating this cable will introduce a power loop')
+
+                # All power-outlet cables. Only the devices at each end of the cable are needed
+                poweroutlet_cables = Cable.objects.filter(
+                    Q(termination_a_type=poweroutlet_type) | Q(termination_b_type=poweroutlet_type)
+                ).values('_termination_a_device', '_termination_b_device')
+
+                # The next ring in the search will include the nodes of the previous ring. Otherwise, an existing
+                # loop (i.e. before this was implemented) will ping-pong the search forever as current and next rings
+                # will almost never match in order to break the loop (the exception is when the devices causing the
+                # loop are connected to the same exact set of devices).
+                next_nodes = nodes.copy()
+
+                # Node is temination a
+                for cable in poweroutlet_cables.filter(_termination_a_device__in=nodes):
+                    next_nodes.add(cable['_termination_b_device'])
+                # Node is termination b
+                for cable in poweroutlet_cables.filter(_termination_b_device__in=nodes):
+                    next_nodes.add(cable['_termination_a_device'])
+
         # A front port cannot be connected to its corresponding rear port
         if (
             type_a in ['frontport', 'rearport'] and

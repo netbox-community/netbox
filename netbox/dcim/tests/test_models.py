@@ -300,12 +300,23 @@ class CableTestCase(TestCase):
         self.device2 = Device.objects.create(
             device_type=devicetype, device_role=devicerole, name='TestDevice2', site=site
         )
+        self.device3 = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='TestDevice3', site=site
+        )
         self.interface1 = Interface.objects.create(device=self.device1, name='eth0')
         self.interface2 = Interface.objects.create(device=self.device2, name='eth0')
         self.cable = Cable(termination_a=self.interface1, termination_b=self.interface2)
         self.cable.save()
 
         self.power_port1 = PowerPort.objects.create(device=self.device2, name='psu1')
+        self.power_port11 = PowerPort.objects.create(device=self.device1, name='psu11')
+        self.power_port21 = PowerPort.objects.create(device=self.device2, name='psu21')
+        self.power_port31 = PowerPort.objects.create(device=self.device3, name='psu31')
+        self.power_port32 = PowerPort.objects.create(device=self.device3, name='psu32')
+        self.power_outlet11 = PowerOutlet.objects.create(device=self.device1, name='outlet11')
+        self.power_outlet21 = PowerOutlet.objects.create(device=self.device2, name='outlet21')
+        self.power_outlet22 = PowerOutlet.objects.create(device=self.device2, name='outlet22')
+        self.power_outlet31 = PowerOutlet.objects.create(device=self.device3, name='outlet31')
         self.patch_pannel = Device.objects.create(
             device_type=devicetype, device_role=devicerole, name='TestPatchPannel', site=site
         )
@@ -357,6 +368,25 @@ class CableTestCase(TestCase):
         cable = Cable(termination_a=self.interface1, termination_b=self.interface1)
         with self.assertRaises(ValidationError):
             cable.clean()
+
+    def test_cable_cannot_create_power_loop(self):
+        """
+        A power loop is prohibited, be it direct (device to itself) or indirect (spanning multiple devices)
+        """
+        # Direct loop
+        with self.assertRaises(ValidationError):
+            Cable(termination_a=self.power_outlet11, termination_b=self.power_port11).clean()
+
+        # Intentionally reversing the type on the terminations to ensure queryset functionality
+        Cable.objects.create(termination_a=self.power_outlet11, termination_b=self.power_port21)
+        Cable.objects.create(termination_b=self.power_outlet21, termination_a=self.power_port31)
+
+        # Redundant connections are acceptable
+        Cable.objects.create(termination_a=self.power_outlet22, termination_b=self.power_port32)
+
+        # Indirect loop
+        with self.assertRaises(ValidationError):
+            Cable(termination_a=self.power_outlet31, termination_b=self.power_port11).clean()
 
     def test_cable_front_port_cannot_connect_to_corresponding_rear_port(self):
         """
