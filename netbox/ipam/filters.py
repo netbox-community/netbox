@@ -372,10 +372,7 @@ class IPAddressFilter(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilt
 
     def filter_address(self, queryset, name, value):
         try:
-            return queryset.filter(
-                Q(address__in=value) |
-                Q(address__net_host_in=value)
-            )
+            return queryset.filter(address__net_in=value)
         except ValidationError:
             return queryset.none()
 
