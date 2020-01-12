@@ -3040,6 +3040,11 @@ class Cable(ChangeLoggedModel):
     def get_absolute_url(self):
         return reverse('dcim:cable', args=[self.pk])
 
+    def delete(self, *args, **kwargs):
+        # Trigger the __str__ method to save the pk into `self.id_string`
+        str(self)
+        super().delete(*args, **kwargs)
+
     def clean(self):
 
         # Validate that termination A exists

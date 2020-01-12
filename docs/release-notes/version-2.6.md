@@ -28,6 +28,7 @@
 * [#3872](https://github.com/netbox-community/netbox/issues/3872) - Paginate related IPs of an address
 * [#3876](https://github.com/netbox-community/netbox/issues/3876) - Fixed min/max to ASN input field at the site creation page
 * [#3882](https://github.com/netbox-community/netbox/issues/3882) - Fix filtering of devices by rack group
+* [#3898](https://github.com/netbox-community/netbox/issues/3898) - Fix deleted message being set to None for cable 
 
 ---
 
