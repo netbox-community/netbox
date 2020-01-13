@@ -2804,6 +2804,7 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, f
     termination_b_provider = forms.ModelChoiceField(
         queryset=Provider.objects.all(),
         label='Provider',
+        required=False,
         widget=APISelect(
             api_url='/api/circuits/providers/',
             filter_for={
@@ -2857,6 +2858,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, ChainedFieldsMixin, forms.Mode
     termination_b_site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         label='Site',
+        required=False,
         widget=APISelect(
             api_url='/api/dcim/sites/',
             display_field='cid',
@@ -2888,6 +2890,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, ChainedFieldsMixin, forms.Mode
             ('rack_group', 'termination_b_rackgroup'),
         ),
         label='Power Panel',
+        required=False,
         widget=APISelect(
             api_url='/api/dcim/power-panels/',
             filter_for={

@@ -15,6 +15,7 @@
 * [#3668](https://github.com/netbox-community/netbox/issues/3668) - Search by DNS name when assigning IP address
 * [#3851](https://github.com/netbox-community/netbox/issues/3851) - Allow passing initial data to custom script forms
 * [#3891](https://github.com/netbox-community/netbox/issues/3891) - Add `local_context_data` filter for virtual machines
+* [#3902](https://github.com/netbox-community/netbox/issues/3902) - Relax the non-essential required fields when connecting cable to circuit or power feed
 
 ## Bug Fixes
 
