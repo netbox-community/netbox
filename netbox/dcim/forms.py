@@ -1791,7 +1791,7 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldFilterForm):
     model = Device
     field_order = [
-        'q', 'region', 'site', 'group_id', 'rack_id', 'status', 'role', 'tenant_group', 'tenant',
+        'q', 'region', 'site', 'rack_group_id', 'rack_id', 'status', 'role', 'tenant_group', 'tenant',
         'manufacturer_id', 'device_type_id', 'mac_address', 'has_primary_ip',
     ]
     q = forms.CharField(
@@ -1817,12 +1817,12 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
             api_url="/api/dcim/sites/",
             value_field="slug",
             filter_for={
-                'group_id': 'site',
+                'rack_group_id': 'site',
                 'rack_id': 'site',
             }
         )
     )
-    group_id = FilterChoiceField(
+    rack_group_id = FilterChoiceField(
         queryset=RackGroup.objects.prefetch_related(
             'site'
         ),
@@ -2804,6 +2804,7 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, f
     termination_b_provider = forms.ModelChoiceField(
         queryset=Provider.objects.all(),
         label='Provider',
+        required=False,
         widget=APISelect(
             api_url='/api/circuits/providers/',
             filter_for={
@@ -2857,6 +2858,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, ChainedFieldsMixin, forms.Mode
     termination_b_site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         label='Site',
+        required=False,
         widget=APISelect(
             api_url='/api/dcim/sites/',
             display_field='cid',
@@ -2888,6 +2890,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, ChainedFieldsMixin, forms.Mode
             ('rack_group', 'termination_b_rackgroup'),
         ),
         label='Power Panel',
+        required=False,
         widget=APISelect(
             api_url='/api/dcim/power-panels/',
             filter_for={
@@ -3116,6 +3119,17 @@ class CableFilterForm(BootstrapMixin, forms.Form):
             value_field="slug",
             filter_for={
                 'rack_id': 'site',
+            }
+        )
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenants/",
+            value_field='slug',
+            filter_for={
+                'device_id': 'tenant',
             }
         )
     )

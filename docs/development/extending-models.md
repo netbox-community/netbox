@@ -69,6 +69,14 @@ If the new field will be included in the object list view, add a column to the m
 
 Edit the object's view template to display the new field. There may also be a custom add/edit form template that needs to be updated.
 
-### 11. Adjust API and model tests
+### 11. Create/extend test cases
 
-Extend the model and/or API tests to verify that the new field and any accompanying validation logic perform as expected. This is especially important for relational fields.
+Create or extend the relevant test cases to verify that the new field and any accompanying validation logic perform as expected. This is especially important for relational fields. NetBox incorporates various test suites, including:
+
+* API serializer/view tests
+* Filter tests
+* Form tests
+* Model tests
+* View tests
+
+Be diligent to ensure all of the relevant test suites are adapted or extended as necessary to test any new functionality.
