@@ -29,6 +29,7 @@
 * [#3872](https://github.com/netbox-community/netbox/issues/3872) - Paginate related IPs of an address
 * [#3876](https://github.com/netbox-community/netbox/issues/3876) - Fixed min/max to ASN input field at the site creation page
 * [#3882](https://github.com/netbox-community/netbox/issues/3882) - Fix filtering of devices by rack group
+* [#3905](https://github.com/netbox-community/netbox/issues/3905) - Fix divide-by-zero on power feeds with low power values
 
 ---
 
