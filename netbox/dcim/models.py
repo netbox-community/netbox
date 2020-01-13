@@ -3141,6 +3141,9 @@ class Cable(ChangeLoggedModel):
 
         super().save(*args, **kwargs)
 
+        # Update the private pk used in __str__ in case this is a new object (i.e. just got its pk)
+        self._pk = self.pk
+
     def to_csv(self):
         return (
             '{}.{}'.format(self.termination_a_type.app_label, self.termination_a_type.model),
