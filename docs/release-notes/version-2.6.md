@@ -15,6 +15,7 @@
 * [#3668](https://github.com/netbox-community/netbox/issues/3668) - Search by DNS name when assigning IP address
 * [#3851](https://github.com/netbox-community/netbox/issues/3851) - Allow passing initial data to custom script forms
 * [#3891](https://github.com/netbox-community/netbox/issues/3891) - Add `local_context_data` filter for virtual machines
+* [#3902](https://github.com/netbox-community/netbox/issues/3902) - Relax the non-essential required fields when connecting cable to circuit or power feed
 
 ## Bug Fixes
 
@@ -29,6 +30,7 @@
 * [#3876](https://github.com/netbox-community/netbox/issues/3876) - Fixed min/max to ASN input field at the site creation page
 * [#3882](https://github.com/netbox-community/netbox/issues/3882) - Fix filtering of devices by rack group
 * [#3898](https://github.com/netbox-community/netbox/issues/3898) - Fix deleted message being set to None for cable 
+* [#3905](https://github.com/netbox-community/netbox/issues/3905) - Fix divide-by-zero on power feeds with low power values
 
 ---
 
