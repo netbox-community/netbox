@@ -739,7 +739,7 @@ class RackElevationFilterForm(RackFilterForm):
 
         # Filter the rack field based on the site and group
         self.fields['site'].widget.add_filter_for('id', 'site')
-        self.fields['rack_group_id'].widget.add_filter_for('id', 'group_id')
+        self.fields['group_id'].widget.add_filter_for('id', 'group_id')
 
 
 #
