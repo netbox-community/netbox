@@ -7,7 +7,7 @@ from dcim.models import Device
 from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldForm
 from utilities.forms import (
     APISelect, APISelectMultiple, BootstrapMixin, FilterChoiceField, FlexibleModelChoiceField, SlugField,
-    StaticSelect2Multiple
+    StaticSelect2Multiple, TagFilterField
 )
 from .models import Secret, SecretRole, UserKey
 
@@ -184,6 +184,10 @@ class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
             value_field="slug",
         )
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tag'] = TagFilterField(self.model)
 
 
 #

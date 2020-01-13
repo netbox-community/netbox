@@ -10,7 +10,7 @@ from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField,
     CSVChoiceField, DatePicker, ExpandableIPAddressField, FilterChoiceField, FlexibleModelChoiceField, ReturnURLForm,
-    SlugField, StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES
+    SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES
 )
 from virtualization.models import VirtualMachine
 from .constants import *
@@ -102,6 +102,10 @@ class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         required=False,
         label='Search'
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tag'] = TagFilterField(self.model)
 
 
 #
@@ -231,6 +235,10 @@ class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
             value_field="slug",
         )
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tag'] = TagFilterField(self.model)
 
 
 #
@@ -577,6 +585,10 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         required=False,
         label='Expand prefix hierarchy'
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tag'] = TagFilterField(self.model)
 
 
 #
@@ -1006,6 +1018,10 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
         )
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tag'] = TagFilterField(self.model)
+
 
 #
 # VLAN groups
@@ -1293,6 +1309,10 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         )
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tag'] = TagFilterField(self.model)
+
 
 #
 # Services
@@ -1352,6 +1372,10 @@ class ServiceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     port = forms.IntegerField(
         required=False,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tag'] = TagFilterField(self.model)
 
 
 class ServiceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):

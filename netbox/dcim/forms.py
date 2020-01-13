@@ -23,7 +23,8 @@ from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField, ComponentForm,
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, JSONField,
-    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES
+    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    BOOLEAN_WITH_BLANK_CHOICES
 )
 from virtualization.models import Cluster, ClusterGroup
 from .constants import *
@@ -334,6 +335,10 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             value_field="slug",
         )
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tag'] = TagFilterField(self.model)
 
 
 #
@@ -713,6 +718,10 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         )
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tag'] = TagFilterField(self.model)
+
 
 #
 # Rack elevations
@@ -1004,6 +1013,10 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tag'] = TagFilterField(self.model)
 
 
 #
@@ -1946,6 +1959,10 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tag'] = TagFilterField(self.model)
 
 
 #
@@ -3405,6 +3422,10 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
         )
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tag'] = TagFilterField(self.model)
+
 
 #
 # Virtual chassis
@@ -3590,6 +3611,10 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tag'] = TagFilterField(self.model)
 
 
 #
@@ -3967,3 +3992,7 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
     max_utilization = forms.IntegerField(
         required=False
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tag'] = TagFilterField(self.model)

@@ -4,7 +4,7 @@ from taggit.forms import TagField
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from utilities.forms import (
     APISelect, APISelectMultiple, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField,
-    FilterChoiceField, SlugField,
+    FilterChoiceField, SlugField, TagFilterField
 )
 from .models import Tenant, TenantGroup
 
@@ -113,6 +113,10 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tag'] = TagFilterField(self.model)
 
 
 #

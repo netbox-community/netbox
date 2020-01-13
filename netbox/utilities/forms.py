@@ -6,6 +6,7 @@ from io import StringIO
 from django import forms
 from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
+from django.db.models import Count
 from mptt.forms import TreeNodeMultipleChoiceField
 
 from .constants import *
@@ -594,6 +595,22 @@ class SlugField(forms.SlugField):
         help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
         super().__init__(label=label, help_text=help_text, *args, **kwargs)
         self.widget.attrs['slug-source'] = slug_source
+
+
+class TagFilterField(forms.MultipleChoiceField):
+    """
+    A filter field for the tags of a model. Only the tags used by a model are displayed.
+
+    :param model: The model of the filter
+    """
+    widget = StaticSelect2Multiple
+
+    def __init__(self, model, *args, **kwargs):
+        if hasattr(model, 'tags'):
+            tags = model.tags.annotate(count=Count('extras_taggeditem_items')).order_by('name')
+            choices = [(str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags]
+
+            super().__init__(label='Tags', choices=choices, required=False, *args, **kwargs)
 
 
 class FilterChoiceIterator(forms.models.ModelChoiceIterator):
