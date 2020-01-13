@@ -177,6 +177,12 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
             # Clear host bits from prefix
             self.prefix = self.prefix.cidr
 
+            # /0 masks are not acceptable
+            if self.prefix.prefixlen == 0:
+                raise ValidationError({
+                    'prefix': "Cannot create aggregate with /0 mask."
+                })
+
             # Ensure that the aggregate being added is not covered by an existing aggregate
             covering_aggregates = Aggregate.objects.filter(prefix__net_contains_or_equals=str(self.prefix))
             if self.pk:
@@ -346,6 +352,12 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     def clean(self):
 
         if self.prefix:
+
+            # /0 masks are not acceptable
+            if self.prefix.prefixlen == 0:
+                raise ValidationError({
+                    'prefix': "Cannot create prefix with /0 mask."
+                })
 
             # Disallow host masks
             if self.prefix.version == 4 and self.prefix.prefixlen == 32:
@@ -621,6 +633,12 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
     def clean(self):
 
         if self.address:
+
+            # /0 masks are not acceptable
+            if self.address.prefixlen == 0:
+                raise ValidationError({
+                    'address': "Cannot create IP address with /0 mask."
+                })
 
             # Enforce unique IP space (if applicable)
             if self.role not in IPADDRESS_ROLES_NONUNIQUE and ((

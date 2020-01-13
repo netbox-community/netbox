@@ -7,6 +7,12 @@ from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilte
 from .models import Secret, SecretRole
 
 
+__all__ = (
+    'SecretFilter',
+    'SecretRoleFilter',
+)
+
+
 class SecretRoleFilter(NameSlugSearchFilterSet):
 
     class Meta:

@@ -1,3 +1,40 @@
+# v2.6.12 (2020-01-13)
+
+## Enhancements
+
+* [#1982](https://github.com/netbox-community/netbox/issues/1982) - Improved NAPALM method documentation in Swagger (OpenAPI)
+* [#2050](https://github.com/netbox-community/netbox/issues/2050) - Preview image attachments when hovering over the link
+* [#2113](https://github.com/netbox-community/netbox/issues/2113) - Allow NAPALM driver settings to be changed with request headers
+* [#2589](https://github.com/netbox-community/netbox/issues/2589) - Toggle the display of child prefixes/IP addresses
+* [#3009](https://github.com/netbox-community/netbox/issues/3009) - Search by description when assigning IP address to interfaces
+* [#3021](https://github.com/netbox-community/netbox/issues/3021) - Add `tenant` filter field for cables
+* [#3090](https://github.com/netbox-community/netbox/issues/3090) - Enable filtering of interfaces by name on the device view
+* [#3187](https://github.com/netbox-community/netbox/issues/3187) - Add rack selection field to rack elevations view
+* [#3393](https://github.com/netbox-community/netbox/issues/3393) - Paginate assigned circuits at the provider details view
+* [#3440](https://github.com/netbox-community/netbox/issues/3440) - Add total path length to cable trace
+* [#3491](https://github.com/netbox-community/netbox/issues/3491) - Include content of response on webhook error
+* [#3623](https://github.com/netbox-community/netbox/issues/3623) - Enable word expansion during interface creation
+* [#3668](https://github.com/netbox-community/netbox/issues/3668) - Enable searching by DNS name when assigning IP address
+* [#3851](https://github.com/netbox-community/netbox/issues/3851) - Allow passing initial data to custom script forms
+* [#3891](https://github.com/netbox-community/netbox/issues/3891) - Add `local_context_data` filter for virtual machines
+
+## Bug Fixes
+
+* [#3589](https://github.com/netbox-community/netbox/issues/3589) - Fix validation on tagged VLANs of an interface
+* [#3849](https://github.com/netbox-community/netbox/issues/3849) - Fix ordering of models when dumping data to JSON
+* [#3853](https://github.com/netbox-community/netbox/issues/3853) - Fix device role link on config context view
+* [#3856](https://github.com/netbox-community/netbox/issues/3856) - Allow filtering VM interfaces by multiple MAC addresses
+* [#3857](https://github.com/netbox-community/netbox/issues/3857) - Fix rendering of grouped custom links
+* [#3862](https://github.com/netbox-community/netbox/issues/3862) - Allow filtering device components by multiple device names
+* [#3864](https://github.com/netbox-community/netbox/issues/3864) - Disallow /0 masks for prefixes and IP addresses
+* [#3872](https://github.com/netbox-community/netbox/issues/3872) - Paginate related IPs on the IP address view
+* [#3876](https://github.com/netbox-community/netbox/issues/3876) - Fix minimum/maximum value rendering for site ASN field
+* [#3882](https://github.com/netbox-community/netbox/issues/3882) - Fix filtering of devices by rack group
+* [#3898](https://github.com/netbox-community/netbox/issues/3898) - Fix references to deleted cables without a label 
+* [#3905](https://github.com/netbox-community/netbox/issues/3905) - Fix divide-by-zero on power feeds with low power values
+
+---
+
 # v2.6.11 (2020-01-03)
 
 ## Bug Fixes

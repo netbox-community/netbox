@@ -21,6 +21,45 @@ from .models import (
 )
 
 
+__all__ = (
+    'CableFilter',
+    'ConsoleConnectionFilter',
+    'ConsolePortFilter',
+    'ConsolePortTemplateFilter',
+    'ConsoleServerPortFilter',
+    'ConsoleServerPortTemplateFilter',
+    'DeviceBayFilter',
+    'DeviceBayTemplateFilter',
+    'DeviceFilter',
+    'DeviceRoleFilter',
+    'DeviceTypeFilter',
+    'FrontPortFilter',
+    'FrontPortTemplateFilter',
+    'InterfaceConnectionFilter',
+    'InterfaceFilter',
+    'InterfaceTemplateFilter',
+    'InventoryItemFilter',
+    'ManufacturerFilter',
+    'PlatformFilter',
+    'PowerConnectionFilter',
+    'PowerFeedFilter',
+    'PowerOutletFilter',
+    'PowerOutletTemplateFilter',
+    'PowerPanelFilter',
+    'PowerPortFilter',
+    'PowerPortTemplateFilter',
+    'RackFilter',
+    'RackGroupFilter',
+    'RackReservationFilter',
+    'RackRoleFilter',
+    'RearPortFilter',
+    'RearPortTemplateFilter',
+    'RegionFilter',
+    'SiteFilter',
+    'VirtualChassisFilter',
+)
+
+
 class RegionFilter(NameSlugSearchFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Region.objects.all(),
@@ -646,7 +685,8 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         queryset=Device.objects.all(),
         label='Device (ID)',
     )
-    device = django_filters.ModelChoiceFilter(
+    device = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__name',
         queryset=Device.objects.all(),
         to_field_name='name',
         label='Device (name)',
@@ -1009,6 +1049,14 @@ class CableFilter(django_filters.FilterSet):
     site = MultiValueNumberFilter(
         method='filter_device',
         field_name='device__site__slug'
+    )
+    tenant_id = MultiValueNumberFilter(
+        method='filter_device',
+        field_name='device__tenant_id'
+    )
+    tenant = MultiValueNumberFilter(
+        method='filter_device',
+        field_name='device__tenant__slug'
     )
 
     class Meta:

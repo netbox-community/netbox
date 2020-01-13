@@ -388,7 +388,7 @@ class RackElevationListView(PermissionRequiredMixin, View):
             'page': page,
             'total_count': total_count,
             'face_id': face_id,
-            'filter_form': forms.RackFilterForm(request.GET),
+            'filter_form': forms.RackElevationFilterForm(request.GET),
         })
 
 
@@ -1754,10 +1754,13 @@ class CableTraceView(PermissionRequiredMixin, View):
     def get(self, request, model, pk):
 
         obj = get_object_or_404(model, pk=pk)
+        trace = obj.trace(follow_circuits=True)
+        total_length = sum([entry[1]._abs_length for entry in trace if entry[1] and entry[1]._abs_length])
 
         return render(request, 'dcim/cable_trace.html', {
             'obj': obj,
-            'trace': obj.trace(follow_circuits=True),
+            'trace': trace,
+            'total_length': total_length,
         })
 
 

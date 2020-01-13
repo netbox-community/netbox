@@ -7,7 +7,7 @@ $(document).ready(function() {
 
     // "Toggle" checkbox for object lists (PK column)
     $('input:checkbox.toggle').click(function() {
-        $(this).closest('table').find('input:checkbox[name=pk]').prop('checked', $(this).prop('checked'));
+        $(this).closest('table').find('input:checkbox[name=pk]:visible').prop('checked', $(this).prop('checked'));
 
         // Show the "select all" box if present
         if ($(this).is(':checked')) {
@@ -398,4 +398,43 @@ $(document).ready(function() {
     // Account for the header height when hash-scrolling
     window.addEventListener('load', headerOffsetScroll);
     window.addEventListener('hashchange', headerOffsetScroll);
+
+    // Offset between the preview window and the window edges
+    const IMAGE_PREVIEW_OFFSET_X = 20;
+    const IMAGE_PREVIEW_OFFSET_Y = 10;
+
+    // Preview an image attachment when the link is hovered over
+    $('a.image-preview').on('mouseover', function(e) {
+        // Twice the offset to account for all sides of the picture
+        var maxWidth = window.innerWidth - (e.clientX + (IMAGE_PREVIEW_OFFSET_X * 2));
+        var maxHeight = window.innerHeight - (e.clientY + (IMAGE_PREVIEW_OFFSET_Y * 2));
+        var img = $('<img>').attr('id', 'image-preview-window').css({
+            display: 'none',
+            position: 'absolute',
+            maxWidth: maxWidth + 'px',
+            maxHeight: maxHeight + 'px',
+            left: e.pageX + IMAGE_PREVIEW_OFFSET_X + 'px',
+            top: e.pageY + IMAGE_PREVIEW_OFFSET_Y + 'px',
+            boxShadow: '0 0px 12px 3px rgba(0, 0, 0, 0.4)',
+        });
+
+        // Remove any existing preview windows and add the current one
+        $('#image-preview-window').remove();
+        $('body').append(img);
+
+        // Once loaded, show the preview if the image is indeed an image
+        img.on('load', function(e) {
+            if (e.target.complete && e.target.naturalWidth) {
+                $('#image-preview-window').fadeIn('fast');
+            }
+        });
+
+        // Begin loading
+        img.attr('src', e.target.href);
+    });
+
+    // Fade the image out; it will be deleted when another one is previewed
+    $('a.image-preview').on('mouseout', function() {
+        $('#image-preview-window').fadeOut('fast');
+    });
 });

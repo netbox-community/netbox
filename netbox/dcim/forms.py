@@ -74,6 +74,17 @@ class InterfaceCommonForm:
         elif self.cleaned_data['mode'] == IFACE_MODE_TAGGED_ALL:
             self.cleaned_data['tagged_vlans'] = []
 
+        # Validate tagged VLANs; must be a global VLAN or in the same site
+        elif self.cleaned_data['mode'] == IFACE_MODE_TAGGED:
+            valid_sites = [None, self.cleaned_data['device'].site]
+            invalid_vlans = [str(v) for v in tagged_vlans if v.site not in valid_sites]
+
+            if invalid_vlans:
+                raise forms.ValidationError({
+                    'tagged_vlans': "The tagged VLANs ({}) must belong to the same site as the interface's parent "
+                                    "device/VM, or they must be global".format(', '.join(invalid_vlans))
+                })
+
 
 class BulkRenameForm(forms.Form):
     """
@@ -281,8 +292,8 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         )
     )
     asn = forms.IntegerField(
-        min_value=1,
-        max_value=4294967295,
+        min_value=BGP_ASN_MIN,
+        max_value=BGP_ASN_MAX,
         required=False,
         label='ASN'
     )
@@ -701,6 +712,34 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             null_option=True,
         )
     )
+
+
+#
+# Rack elevations
+#
+
+class RackElevationFilterForm(RackFilterForm):
+    field_order = ['q', 'region', 'site', 'group_id', 'id', 'status', 'role', 'tenant_group', 'tenant']
+    id = ChainedModelChoiceField(
+        queryset=Rack.objects.all(),
+        label='Rack',
+        chains=(
+            ('site', 'site'),
+            ('group_id', 'group_id'),
+        ),
+        required=False,
+        widget=APISelectMultiple(
+            api_url='/api/dcim/racks/',
+            display_field='display_name',
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Filter the rack field based on the site and group
+        self.fields['site'].widget.add_filter_for('id', 'site')
+        self.fields['group_id'].widget.add_filter_for('id', 'group_id')
 
 
 #
@@ -1752,7 +1791,7 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldFilterForm):
     model = Device
     field_order = [
-        'q', 'region', 'site', 'group_id', 'rack_id', 'status', 'role', 'tenant_group', 'tenant',
+        'q', 'region', 'site', 'rack_group_id', 'rack_id', 'status', 'role', 'tenant_group', 'tenant',
         'manufacturer_id', 'device_type_id', 'mac_address', 'has_primary_ip',
     ]
     q = forms.CharField(
@@ -1778,12 +1817,12 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
             api_url="/api/dcim/sites/",
             value_field="slug",
             filter_for={
-                'group_id': 'site',
+                'rack_group_id': 'site',
                 'rack_id': 'site',
             }
         )
     )
-    group_id = FilterChoiceField(
+    rack_group_id = FilterChoiceField(
         queryset=RackGroup.objects.prefetch_related(
             'site'
         ),
@@ -2250,36 +2289,6 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
                 device__in=[self.instance.device, self.instance.device.get_vc_master()], type=IFACE_TYPE_LAG
             )
 
-        # Limit VLan choices to those in: global vlans, global groups, the current site's group, the current site
-        vlan_choices = []
-        global_vlans = VLAN.objects.filter(site=None, group=None)
-        vlan_choices.append(
-            ('Global', [(vlan.pk, vlan) for vlan in global_vlans])
-        )
-        for group in VLANGroup.objects.filter(site=None):
-            global_group_vlans = VLAN.objects.filter(group=group)
-            vlan_choices.append(
-                (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
-            )
-
-        site = getattr(self.instance.parent, 'site', None)
-        if site is not None:
-
-            # Add non-grouped site VLANs
-            site_vlans = VLAN.objects.filter(site=site, group=None)
-            vlan_choices.append((site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
-
-            # Add grouped site VLANs
-            for group in VLANGroup.objects.filter(site=site):
-                site_group_vlans = VLAN.objects.filter(group=group)
-                vlan_choices.append((
-                    '{} / {}'.format(group.site.name, group.name),
-                    [(vlan.pk, vlan) for vlan in site_group_vlans]
-                ))
-
-        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
-        self.fields['tagged_vlans'].choices = vlan_choices
-
 
 class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
     name_pattern = ExpandableNameField(
@@ -2359,36 +2368,6 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
             )
         else:
             self.fields['lag'].queryset = Interface.objects.none()
-
-        # Limit VLan choices to those in: global vlans, global groups, the current site's group, the current site
-        vlan_choices = []
-        global_vlans = VLAN.objects.filter(site=None, group=None)
-        vlan_choices.append(
-            ('Global', [(vlan.pk, vlan) for vlan in global_vlans])
-        )
-        for group in VLANGroup.objects.filter(site=None):
-            global_group_vlans = VLAN.objects.filter(group=group)
-            vlan_choices.append(
-                (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
-            )
-
-        site = getattr(self.parent, 'site', None)
-        if site is not None:
-
-            # Add non-grouped site VLANs
-            site_vlans = VLAN.objects.filter(site=site, group=None)
-            vlan_choices.append((site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
-
-            # Add grouped site VLANs
-            for group in VLANGroup.objects.filter(site=site):
-                site_group_vlans = VLAN.objects.filter(group=group)
-                vlan_choices.append((
-                    '{} / {}'.format(group.site.name, group.name),
-                    [(vlan.pk, vlan) for vlan in site_group_vlans]
-                ))
-
-        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
-        self.fields['tagged_vlans'].choices = vlan_choices
 
 
 class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
@@ -2471,36 +2450,6 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
             )
         else:
             self.fields['lag'].choices = []
-
-        # Limit VLan choices to those in: global vlans, global groups, the current site's group, the current site
-        vlan_choices = []
-        global_vlans = VLAN.objects.filter(site=None, group=None)
-        vlan_choices.append(
-            ('Global', [(vlan.pk, vlan) for vlan in global_vlans])
-        )
-        for group in VLANGroup.objects.filter(site=None):
-            global_group_vlans = VLAN.objects.filter(group=group)
-            vlan_choices.append(
-                (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
-            )
-        if self.parent_obj is not None:
-            site = getattr(self.parent_obj, 'site', None)
-            if site is not None:
-
-                # Add non-grouped site VLANs
-                site_vlans = VLAN.objects.filter(site=site, group=None)
-                vlan_choices.append((site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
-
-                # Add grouped site VLANs
-                for group in VLANGroup.objects.filter(site=site):
-                    site_group_vlans = VLAN.objects.filter(group=group)
-                    vlan_choices.append((
-                        '{} / {}'.format(group.site.name, group.name),
-                        [(vlan.pk, vlan) for vlan in site_group_vlans]
-                    ))
-
-        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
-        self.fields['tagged_vlans'].choices = vlan_choices
 
 
 class InterfaceBulkRenameForm(BulkRenameForm):
@@ -2855,6 +2804,7 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, f
     termination_b_provider = forms.ModelChoiceField(
         queryset=Provider.objects.all(),
         label='Provider',
+        required=False,
         widget=APISelect(
             api_url='/api/circuits/providers/',
             filter_for={
@@ -2908,6 +2858,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, ChainedFieldsMixin, forms.Mode
     termination_b_site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         label='Site',
+        required=False,
         widget=APISelect(
             api_url='/api/dcim/sites/',
             display_field='cid',
@@ -2939,6 +2890,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, ChainedFieldsMixin, forms.Mode
             ('rack_group', 'termination_b_rackgroup'),
         ),
         label='Power Panel',
+        required=False,
         widget=APISelect(
             api_url='/api/dcim/power-panels/',
             filter_for={
@@ -3167,6 +3119,17 @@ class CableFilterForm(BootstrapMixin, forms.Form):
             value_field="slug",
             filter_for={
                 'rack_id': 'site',
+            }
+        )
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenants/",
+            value_field='slug',
+            filter_for={
+                'device_id': 'tenant',
             }
         )
     )

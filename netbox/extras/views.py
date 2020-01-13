@@ -392,7 +392,7 @@ class ScriptView(PermissionRequiredMixin, View):
     def get(self, request, module, name):
 
         script = self._get_script(module, name)
-        form = script.as_form()
+        form = script.as_form(initial=request.GET)
 
         return render(request, 'extras/script.html', {
             'module': module,

@@ -60,5 +60,5 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
         return 'Status {} returned, webhook successfully processed.'.format(response.status_code)
     else:
         raise requests.exceptions.RequestException(
-            "Status {} returned, webhook FAILED to process.".format(response.status_code)
+            "Status {} returned with content '{}', webhook FAILED to process.".format(response.status_code, response.content)
         )

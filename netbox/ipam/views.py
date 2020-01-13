@@ -333,7 +333,10 @@ class AggregateView(PermissionRequiredMixin, View):
         ).annotate_depth(
             limit=0
         )
-        child_prefixes = add_available_prefixes(aggregate.prefix, child_prefixes)
+
+        # Add available prefixes to the table if requested
+        if request.GET.get('show_available', 'true') == 'true':
+            child_prefixes = add_available_prefixes(aggregate.prefix, child_prefixes)
 
         prefix_table = tables.PrefixDetailTable(child_prefixes)
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
@@ -356,6 +359,7 @@ class AggregateView(PermissionRequiredMixin, View):
             'aggregate': aggregate,
             'prefix_table': prefix_table,
             'permissions': permissions,
+            'show_available': request.GET.get('show_available', 'true') == 'true',
         })
 
 
@@ -511,8 +515,8 @@ class PrefixPrefixesView(PermissionRequiredMixin, View):
             'site', 'vlan', 'role',
         ).annotate_depth(limit=0)
 
-        # Annotate available prefixes
-        if child_prefixes:
+        # Add available prefixes to the table if requested
+        if child_prefixes and request.GET.get('show_available', 'true') == 'true':
             child_prefixes = add_available_prefixes(prefix.prefix, child_prefixes)
 
         prefix_table = tables.PrefixDetailTable(child_prefixes)
@@ -539,6 +543,7 @@ class PrefixPrefixesView(PermissionRequiredMixin, View):
             'permissions': permissions,
             'bulk_querystring': 'vrf_id={}&within={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
             'active_tab': 'prefixes',
+            'show_available': request.GET.get('show_available', 'true') == 'true',
         })
 
 
@@ -553,7 +558,10 @@ class PrefixIPAddressesView(PermissionRequiredMixin, View):
         ipaddresses = prefix.get_child_ips().prefetch_related(
             'vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for'
         )
-        ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses, prefix.is_pool)
+
+        # Add available IP addresses to the table if requested
+        if request.GET.get('show_available', 'true') == 'true':
+            ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses, prefix.is_pool)
 
         ip_table = tables.IPAddressTable(ipaddresses)
         if request.user.has_perm('ipam.change_ipaddress') or request.user.has_perm('ipam.delete_ipaddress'):
@@ -579,6 +587,7 @@ class PrefixIPAddressesView(PermissionRequiredMixin, View):
             'permissions': permissions,
             'bulk_querystring': 'vrf_id={}&parent={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
             'active_tab': 'ip-addresses',
+            'show_available': request.GET.get('show_available', 'true') == 'true',
         })
 
 
@@ -677,7 +686,14 @@ class IPAddressView(PermissionRequiredMixin, View):
         ).filter(
             vrf=ipaddress.vrf, address__net_contained_or_equal=str(ipaddress.address)
         )
-        related_ips_table = tables.IPAddressTable(list(related_ips), orderable=False)
+
+        related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
+
+        paginate = {
+            'paginator_class': EnhancedPaginator,
+            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+        }
+        RequestConfig(request, paginate).configure(related_ips_table)
 
         return render(request, 'ipam/ipaddress.html', {
             'ipaddress': ipaddress,
@@ -740,13 +756,12 @@ class IPAddressAssignView(PermissionRequiredMixin, View):
 
         if form.is_valid():
 
-            queryset = IPAddress.objects.prefetch_related(
+            addresses = IPAddress.objects.prefetch_related(
                 'vrf', 'tenant', 'interface__device', 'interface__virtual_machine'
-            ).filter(
-                vrf=form.cleaned_data['vrf'],
-                address__istartswith=form.cleaned_data['address'],
-            )[:100]  # Limit to 100 results
-            table = tables.IPAddressAssignTable(queryset)
+            )
+            # Limit to 100 results
+            addresses = filters.IPAddressFilter(request.POST, addresses).qs[:100]
+            table = tables.IPAddressAssignTable(addresses)
 
         return render(request, 'ipam/ipaddress_assign.html', {
             'form': form,
