@@ -1,4 +1,4 @@
-# v2.6.12 (FUTURE)
+# v2.6.13 (FUTURE)
 
 ## Enhancements
 
