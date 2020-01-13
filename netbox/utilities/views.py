@@ -75,6 +75,14 @@ class ObjectListView(View):
     table = None
     template_name = None
 
+    def queryset_to_yaml(self):
+        """
+        Export the queryset of objects as concatenated YAML documents.
+        """
+        yaml_data = [obj.to_yaml() for obj in self.queryset]
+
+        return '---\n'.join(yaml_data)
+
     def queryset_to_csv(self):
         """
         Export the queryset of objects as comma-separated value (CSV), using the model's to_csv() method.
@@ -90,7 +98,7 @@ class ObjectListView(View):
             data = csv_format(obj.to_csv())
             csv_data.append(data)
 
-        return csv_data
+        return '\n'.join(csv_data)
 
     def get(self, request):
 
@@ -121,13 +129,16 @@ class ObjectListView(View):
                     )
                 )
 
+        # Check for YAML export support
+        elif 'export' in request.GET and hasattr(model, 'to_yaml'):
+            response = HttpResponse(self.queryset_to_yaml(), content_type='text/yaml')
+            filename = 'netbox_{}.yaml'.format(self.queryset.model._meta.verbose_name_plural)
+            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+            return response
+
         # Fall back to built-in CSV formatting if export requested but no template specified
         elif 'export' in request.GET and hasattr(model, 'to_csv'):
-            data = self.queryset_to_csv()
-            response = HttpResponse(
-                '\n'.join(data),
-                content_type='text/csv'
-            )
+            response = HttpResponse(self.queryset_to_csv(), content_type='text/csv')
             filename = 'netbox_{}.csv'.format(self.queryset.model._meta.verbose_name_plural)
             response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
             return response
