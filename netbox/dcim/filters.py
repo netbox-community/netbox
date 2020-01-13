@@ -1108,6 +1108,14 @@ class CableFilterSet(django_filters.FilterSet):
         method='filter_device',
         field_name='device__site__slug'
     )
+    tenant_id = MultiValueNumberFilter(
+        method='filter_device',
+        field_name='device__tenant_id'
+    )
+    tenant = MultiValueNumberFilter(
+        method='filter_device',
+        field_name='device__tenant__slug'
+    )
 
     class Meta:
         model = Cable

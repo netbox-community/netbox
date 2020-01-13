@@ -203,7 +203,7 @@ class VirtualMachineTestCase(TestCase):
         DeviceRole.objects.bulk_create(roles)
 
         vms = (
-            VirtualMachine(name='Virtual Machine 1', cluster=clusters[0], platform=platforms[0], role=roles[0], status=VirtualMachineStatusChoices.STATUS_ACTIVE, vcpus=1, memory=1, disk=1),
+            VirtualMachine(name='Virtual Machine 1', cluster=clusters[0], platform=platforms[0], role=roles[0], status=VirtualMachineStatusChoices.STATUS_ACTIVE, vcpus=1, memory=1, disk=1, local_context_data={"foo": 123}),
             VirtualMachine(name='Virtual Machine 2', cluster=clusters[1], platform=platforms[1], role=roles[1], status=VirtualMachineStatusChoices.STATUS_STAGED, vcpus=2, memory=2, disk=2),
             VirtualMachine(name='Virtual Machine 3', cluster=clusters[2], platform=platforms[2], role=roles[2], status=VirtualMachineStatusChoices.STATUS_OFFLINE, vcpus=3, memory=3, disk=3),
         )
@@ -298,6 +298,12 @@ class VirtualMachineTestCase(TestCase):
 
     def test_mac_address(self):
         params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_local_context_data(self):
+        params = {'local_context_data': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'local_context_data': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

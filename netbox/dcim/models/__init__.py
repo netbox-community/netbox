@@ -1949,15 +1949,14 @@ class Cable(ChangeLoggedModel):
             ('termination_b_type', 'termination_b_id'),
         )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # A copy of the PK to be used by __str__ in case the object is deleted
+        self._pk = self.pk
+
     def __str__(self):
-        if self.label:
-            return self.label
-
-        # Save a copy of the PK on the instance since it's nullified if .delete() is called
-        if not hasattr(self, 'id_string'):
-            self.id_string = '#{}'.format(self.pk)
-
-        return self.id_string
+        return self.label or '#{}'.format(self._pk)
 
     def get_absolute_url(self):
         return reverse('dcim:cable', args=[self.pk])
@@ -2063,6 +2062,9 @@ class Cable(ChangeLoggedModel):
             self._termination_b_device = self.termination_b.device
 
         super().save(*args, **kwargs)
+
+        # Update the private pk used in __str__ in case this is a new object (i.e. just got its pk)
+        self._pk = self.pk
 
     def to_csv(self):
         return (
