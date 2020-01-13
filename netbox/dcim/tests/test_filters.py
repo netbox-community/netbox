@@ -11,6 +11,7 @@ from dcim.models import (
     VirtualChassis,
 )
 from ipam.models import IPAddress
+from tenancy.models import Tenant
 from virtualization.models import Cluster, ClusterType
 
 
@@ -2127,6 +2128,12 @@ class CableTestCase(TestCase):
         )
         Site.objects.bulk_create(sites)
 
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         racks = (
             Rack(name='Rack 1', site=sites[0]),
             Rack(name='Rack 2', site=sites[1]),
@@ -2139,9 +2146,9 @@ class CableTestCase(TestCase):
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=1),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=2),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=1),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=1, tenant=tenants[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=2, tenant=tenants[0]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=1, tenant=tenants[1]),
             Device(name='Device 4', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=2),
             Device(name='Device 5', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=1),
             Device(name='Device 6', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=2),
@@ -2221,6 +2228,13 @@ class CableTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
         params = {'site': [site[0].slug, site[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+
+    def test_tenant(self):
+        tenant = Tenant.objects.all()[:2]
+        params = {'tenant_id': [tenant[0].pk, tenant[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'tenant': [tenant[0].slug, tenant[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class PowerPanelTestCase(TestCase):
