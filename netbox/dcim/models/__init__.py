@@ -2,6 +2,7 @@ from collections import OrderedDict
 from itertools import count, groupby
 
 import svgwrite
+import yaml
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -25,15 +26,14 @@ from utilities.fields import ColorField
 from utilities.managers import NaturalOrderingManager
 from utilities.models import ChangeLoggedModel
 from utilities.utils import foreground_color, to_meters
-from .device_components import (
-    CableTermination, ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, PowerOutlet,
-    PowerPort, RearPort,
-)
 from .device_component_templates import (
     ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, FrontPortTemplate, InterfaceTemplate,
     PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
-
+from .device_components import (
+    CableTermination, ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, PowerOutlet,
+    PowerPort, RearPort,
+)
 
 __all__ = (
     'Cable',
@@ -1003,17 +1003,92 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
 
-    def to_csv(self):
-        return (
-            self.manufacturer.name,
-            self.model,
-            self.slug,
-            self.part_number,
-            self.u_height,
-            self.is_full_depth,
-            self.get_subdevice_role_display(),
-            self.comments,
-        )
+    def to_yaml(self):
+        data = OrderedDict((
+            ('manufacturer', self.manufacturer.name),
+            ('model', self.model),
+            ('slug', self.slug),
+            ('part_number', self.part_number),
+            ('u_height', self.u_height),
+            ('is_full_depth', self.is_full_depth),
+            ('subdevice_role', self.subdevice_role),
+            ('comments', self.comments),
+        ))
+
+        # Component templates
+        if self.consoleport_templates.exists():
+            data['console-ports'] = [
+                {
+                    'name': c.name,
+                    'type': c.type,
+                }
+                for c in self.consoleport_templates.all()
+            ]
+        if self.consoleserverport_templates.exists():
+            data['console-server-ports'] = [
+                {
+                    'name': c.name,
+                    'type': c.type,
+                }
+                for c in self.consoleserverport_templates.all()
+            ]
+        if self.powerport_templates.exists():
+            data['power-ports'] = [
+                {
+                    'name': c.name,
+                    'type': c.type,
+                    'maximum_draw': c.maximum_draw,
+                    'allocated_draw': c.allocated_draw,
+                }
+                for c in self.powerport_templates.all()
+            ]
+        if self.poweroutlet_templates.exists():
+            data['power-outlets'] = [
+                {
+                    'name': c.name,
+                    'type': c.type,
+                    'power_port': c.power_port.name if c.power_port else None,
+                    'feed_leg': c.feed_leg,
+                }
+                for c in self.poweroutlet_templates.all()
+            ]
+        if self.interface_templates.exists():
+            data['interfaces'] = [
+                {
+                    'name': c.name,
+                    'type': c.type,
+                    'mgmt_only': c.mgmt_only,
+                }
+                for c in self.interface_templates.all()
+            ]
+        if self.frontport_templates.exists():
+            data['front-ports'] = [
+                {
+                    'name': c.name,
+                    'type': c.type,
+                    'rear_port': c.rear_port.name,
+                    'rear_port_position': c.rear_port_position,
+                }
+                for c in self.frontport_templates.all()
+            ]
+        if self.rearport_templates.exists():
+            data['rear-ports'] = [
+                {
+                    'name': c.name,
+                    'type': c.type,
+                    'positions': c.positions,
+                }
+                for c in self.rearport_templates.all()
+            ]
+        if self.device_bay_templates.exists():
+            data['device-bays'] = [
+                {
+                    'name': c.name,
+                }
+                for c in self.device_bay_templates.all()
+            ]
+
+        return yaml.dump(dict(data), sort_keys=False)
 
     def clean(self):
 

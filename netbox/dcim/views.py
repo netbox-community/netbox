@@ -2056,7 +2056,8 @@ class ConsoleConnectionsListView(PermissionRequiredMixin, ObjectListView):
                 obj.get_connection_status_display(),
             ])
             csv_data.append(csv)
-        return csv_data
+
+        return '\n'.join(csv_data)
 
 
 class PowerConnectionsListView(PermissionRequiredMixin, ObjectListView):
@@ -2087,7 +2088,8 @@ class PowerConnectionsListView(PermissionRequiredMixin, ObjectListView):
                 obj.get_connection_status_display(),
             ])
             csv_data.append(csv)
-        return csv_data
+
+        return '\n'.join(csv_data)
 
 
 class InterfaceConnectionsListView(PermissionRequiredMixin, ObjectListView):
@@ -2126,7 +2128,8 @@ class InterfaceConnectionsListView(PermissionRequiredMixin, ObjectListView):
                 obj.get_connection_status_display(),
             ])
             csv_data.append(csv)
-        return csv_data
+
+        return '\n'.join(csv_data)
 
 
 #

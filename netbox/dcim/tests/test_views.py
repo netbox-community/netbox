@@ -1,5 +1,6 @@
 import urllib.parse
 
+import yaml
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -326,6 +327,17 @@ class DeviceTypeTestCase(TestCase):
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
         self.assertEqual(response.status_code, 200)
+
+    def test_devicetype_export(self):
+
+        url = reverse('dcim:devicetype_list')
+
+        response = self.client.get('{}?export'.format(url))
+        self.assertEqual(response.status_code, 200)
+        data = list(yaml.load_all(response.content, Loader=yaml.SafeLoader))
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]['manufacturer'], 'Manufacturer 1')
+        self.assertEqual(data[0]['model'], 'Device Type 1')
 
     def test_devicetype(self):
 
