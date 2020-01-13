@@ -1,3 +1,11 @@
+# v2.6.13 (FUTURE)
+
+## Bug Fixes
+
+* [#3909](https://github.com/netbox-community/netbox/issues/3909) - Fixed a regression caused by [#3898](https://github.com/netbox-community/netbox/issues/3898) when browsing to device details page
+
+---
+
 # v2.6.12 (2020-01-13)
 
 ## Enhancements
@@ -30,7 +38,7 @@
 * [#3872](https://github.com/netbox-community/netbox/issues/3872) - Paginate related IPs on the IP address view
 * [#3876](https://github.com/netbox-community/netbox/issues/3876) - Fix minimum/maximum value rendering for site ASN field
 * [#3882](https://github.com/netbox-community/netbox/issues/3882) - Fix filtering of devices by rack group
-* [#3898](https://github.com/netbox-community/netbox/issues/3898) - Fix references to deleted cables without a label 
+* [#3898](https://github.com/netbox-community/netbox/issues/3898) - Fix references to deleted cables without a label
 * [#3905](https://github.com/netbox-community/netbox/issues/3905) - Fix divide-by-zero on power feeds with low power values
 
 ---
