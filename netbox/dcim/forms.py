@@ -2739,9 +2739,9 @@ class ConnectCableToDeviceForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFo
         if self.instance and self.instance.termination_a:
             termination_a_parent = self.instance.termination_a.parent
             if hasattr(termination_a_parent, 'site'):
-                self.initial['termination_b_site'] = termination_a_parent.site
+                self.initial['termination_b_site'] = self.initial.get('termination_b_site', termination_a_parent.site)
             if hasattr(termination_a_parent, 'rack'):
-                self.initial['termination_b_rack'] = termination_a_parent.rack
+                self.initial['termination_b_rack'] = self.initial.get('termination_b_rack', termination_a_parent.rack)
 
 
 class ConnectCableToConsolePortForm(ConnectCableToDeviceForm):
