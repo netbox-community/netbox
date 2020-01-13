@@ -5,7 +5,7 @@
 * [#1982](https://github.com/netbox-community/netbox/issues/1982) - Improved NAPALM method documentation in Swagger (OpenAPI)
 * [#2050](https://github.com/netbox-community/netbox/issues/2050) - Preview image attachments when hovering over the link
 * [#2113](https://github.com/netbox-community/netbox/issues/2113) - Allow NAPALM driver settings to be changed with request headers
-* [#2589](https://github.com/netbox-community/netbox/issues/2589) - Toggle the display of child prefixes/IP addresses
+* [#2598](https://github.com/netbox-community/netbox/issues/2598) - Toggle the display of child prefixes/IP addresses
 * [#3009](https://github.com/netbox-community/netbox/issues/3009) - Search by description when assigning IP address to interfaces
 * [#3021](https://github.com/netbox-community/netbox/issues/3021) - Add `tenant` filter field for cables
 * [#3090](https://github.com/netbox-community/netbox/issues/3090) - Enable filtering of interfaces by name on the device view
