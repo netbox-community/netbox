@@ -21,9 +21,9 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
-    BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField, ComponentForm,
-    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, JSONField,
-    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES
+    BulkEditNullBooleanSelect, ColorSelect, CommentField, ComponentForm, ConfirmationForm, CSVChoiceField,
+    ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, JSONField, SelectWithPK, SmallTextarea,
+    SlugField, StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES
 )
 from virtualization.models import Cluster, ClusterGroup
 from .constants import *
@@ -428,11 +428,8 @@ class RackRoleCSVForm(forms.ModelForm):
 #
 
 class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
-    group = ChainedModelChoiceField(
+    group = forms.ModelChoiceField(
         queryset=RackGroup.objects.all(),
-        chains=(
-            ('site', 'site'),
-        ),
         required=False,
         widget=APISelect(
             api_url='/api/dcim/rack-groups/',
@@ -720,13 +717,9 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 
 class RackElevationFilterForm(RackFilterForm):
     field_order = ['q', 'region', 'site', 'group_id', 'id', 'status', 'role', 'tenant_group', 'tenant']
-    id = ChainedModelChoiceField(
+    id = forms.ModelChoiceField(
         queryset=Rack.objects.all(),
         label='Rack',
-        chains=(
-            ('site', 'site'),
-            ('group_id', 'group_id'),
-        ),
         required=False,
         widget=APISelectMultiple(
             api_url='/api/dcim/racks/',
@@ -1376,11 +1369,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             }
         )
     )
-    rack = ChainedModelChoiceField(
+    rack = forms.ModelChoiceField(
         queryset=Rack.objects.all(),
-        chains=(
-            ('site', 'site'),
-        ),
         required=False,
         widget=APISelect(
             api_url='/api/dcim/racks/',
@@ -1406,11 +1396,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             }
         )
     )
-    device_type = ChainedModelChoiceField(
+    device_type = forms.ModelChoiceField(
         queryset=DeviceType.objects.all(),
-        chains=(
-            ('manufacturer', 'manufacturer'),
-        ),
         label='Device type',
         widget=APISelect(
             api_url='/api/dcim/device-types/',
@@ -1430,11 +1417,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             }
         )
     )
-    cluster = ChainedModelChoiceField(
+    cluster = forms.ModelChoiceField(
         queryset=Cluster.objects.all(),
-        chains=(
-            ('group', 'cluster_group'),
-        ),
         required=False,
         widget=APISelect(
             api_url='/api/virtualization/clusters/',
@@ -2669,7 +2653,7 @@ class RearPortBulkDisconnectForm(ConfirmationForm):
 # Cables
 #
 
-class ConnectCableToDeviceForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
+class ConnectCableToDeviceForm(BootstrapMixin, forms.ModelForm):
     """
     Base form for connecting a Cable to a Device component
     """
@@ -2685,11 +2669,8 @@ class ConnectCableToDeviceForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFo
             }
         )
     )
-    termination_b_rack = ChainedModelChoiceField(
+    termination_b_rack = forms.ModelChoiceField(
         queryset=Rack.objects.all(),
-        chains=(
-            ('site', 'termination_b_site'),
-        ),
         label='Rack',
         required=False,
         widget=APISelect(
@@ -2702,12 +2683,8 @@ class ConnectCableToDeviceForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFo
             }
         )
     )
-    termination_b_device = ChainedModelChoiceField(
+    termination_b_device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
-        chains=(
-            ('site', 'termination_b_site'),
-            ('rack', 'termination_b_rack'),
-        ),
         label='Device',
         required=False,
         widget=APISelect(
@@ -2800,7 +2777,7 @@ class ConnectCableToRearPortForm(ConnectCableToDeviceForm):
     )
 
 
-class ConnectCableToCircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
+class ConnectCableToCircuitTerminationForm(BootstrapMixin, forms.ModelForm):
     termination_b_provider = forms.ModelChoiceField(
         queryset=Provider.objects.all(),
         label='Provider',
@@ -2823,11 +2800,8 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, f
             }
         )
     )
-    termination_b_circuit = ChainedModelChoiceField(
+    termination_b_circuit = forms.ModelChoiceField(
         queryset=Circuit.objects.all(),
-        chains=(
-            ('provider', 'termination_b_provider'),
-        ),
         label='Circuit',
         widget=APISelect(
             api_url='/api/circuits/circuits/',
@@ -2854,7 +2828,7 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, f
         ]
 
 
-class ConnectCableToPowerFeedForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
+class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
     termination_b_site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         label='Site',
@@ -2868,12 +2842,9 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, ChainedFieldsMixin, forms.Mode
             }
         )
     )
-    termination_b_rackgroup = ChainedModelChoiceField(
+    termination_b_rackgroup = forms.ModelChoiceField(
         queryset=RackGroup.objects.all(),
         label='Rack Group',
-        chains=(
-            ('site', 'termination_b_site'),
-        ),
         required=False,
         widget=APISelect(
             api_url='/api/dcim/rack-groups/',
@@ -2883,12 +2854,8 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, ChainedFieldsMixin, forms.Mode
             }
         )
     )
-    termination_b_powerpanel = ChainedModelChoiceField(
+    termination_b_powerpanel = forms.ModelChoiceField(
         queryset=PowerPanel.objects.all(),
-        chains=(
-            ('site', 'termination_b_site'),
-            ('rack_group', 'termination_b_rackgroup'),
-        ),
         label='Power Panel',
         required=False,
         widget=APISelect(
@@ -3500,7 +3467,7 @@ class DeviceVCMembershipForm(forms.ModelForm):
         return vc_position
 
 
-class VCMemberSelectForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
+class VCMemberSelectForm(BootstrapMixin, forms.Form):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         label='Site',
@@ -3513,11 +3480,8 @@ class VCMemberSelectForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
             }
         )
     )
-    rack = ChainedModelChoiceField(
+    rack = forms.ModelChoiceField(
         queryset=Rack.objects.all(),
-        chains=(
-            ('site', 'site'),
-        ),
         label='Rack',
         required=False,
         widget=APISelect(
@@ -3530,13 +3494,9 @@ class VCMemberSelectForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
             }
         )
     )
-    device = ChainedModelChoiceField(
+    device = forms.ModelChoiceField(
         queryset=Device.objects.filter(
             virtual_chassis__isnull=True
-        ),
-        chains=(
-            ('site', 'site'),
-            ('rack', 'rack'),
         ),
         label='Device',
         widget=APISelect(
@@ -3611,11 +3571,8 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
 #
 
 class PowerPanelForm(BootstrapMixin, forms.ModelForm):
-    rack_group = ChainedModelChoiceField(
+    rack_group = forms.ModelChoiceField(
         queryset=RackGroup.objects.all(),
-        chains=(
-            ('site', 'site'),
-        ),
         required=False,
         widget=APISelect(
             api_url='/api/dcim/rack-groups/',
@@ -3717,7 +3674,7 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
 #
 
 class PowerFeedForm(BootstrapMixin, CustomFieldForm):
-    site = ChainedModelChoiceField(
+    site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         widget=APISelect(

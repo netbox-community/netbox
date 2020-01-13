@@ -2,10 +2,7 @@ from django import forms
 from taggit.forms import TagField
 
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from utilities.forms import (
-    APISelect, APISelectMultiple, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField,
-    FilterChoiceField, SlugField,
-)
+from utilities.forms import APISelect, APISelectMultiple, BootstrapMixin, CommentField, FilterChoiceField, SlugField
 from .models import Tenant, TenantGroup
 
 
@@ -119,7 +116,7 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Form extensions
 #
 
-class TenancyForm(ChainedFieldsMixin, forms.Form):
+class TenancyForm(forms.Form):
     tenant_group = forms.ModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
@@ -133,11 +130,8 @@ class TenancyForm(ChainedFieldsMixin, forms.Form):
             }
         )
     )
-    tenant = ChainedModelChoiceField(
+    tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
-        chains=(
-            ('group', 'tenant_group'),
-        ),
         required=False,
         widget=APISelect(
             api_url='/api/tenancy/tenants/'
