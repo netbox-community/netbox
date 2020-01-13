@@ -325,9 +325,12 @@ class CableTestCase(TestCase):
 
     def test_cable_deletion(self):
         """
-        When a Cable is deleted, the `cable` field on its termination points must be nullified.
+        When a Cable is deleted, the `cable` field on its termination points must be nullified. The str() method
+        should still return the PK of the string even after being nullified.
         """
         self.cable.delete()
+        self.assertIsNone(self.cable.pk)
+        self.assertNotEqual(str(self.cable), '#None')
         interface1 = Interface.objects.get(pk=self.interface1.pk)
         self.assertIsNone(interface1.cable)
         interface2 = Interface.objects.get(pk=self.interface2.pk)
