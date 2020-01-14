@@ -8,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import connection, models
 from django.db.models import Count, F, ProtectedError, Q, Sum
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
@@ -24,6 +24,35 @@ from .constants import *
 from .exceptions import LoopDetected
 from .fields import ASNField, MACAddressField
 from .managers import InterfaceManager
+
+QUERY_POWER_DRAW_BASE = """
+WITH RECURSIVE power_connection(outlet_id, port_id, allocated_draw, maximum_draw, _path, _cycle) AS (
+    -- Non-recursive term: get all outlets and connected port pairs for a given root_powerport.
+    SELECT outlet.id, connected_powerport.id, connected_powerport.allocated_draw, connected_powerport.maximum_draw,
+        ARRAY[outlet.id], false
+    FROM dcim_powerport AS root_powerport
+    JOIN dcim_poweroutlet AS outlet ON outlet.device_id = root_powerport.device_id
+    JOIN dcim_powerport AS connected_powerport ON connected_powerport._connected_poweroutlet_id=outlet.id
+    {}
+
+    UNION ALL
+
+    -- Recursive term: for each row in the previous iteration (initially the non-recursive term), get connections.
+    SELECT outlet.id, connected_powerport.id, connected_powerport.allocated_draw, connected_powerport.maximum_draw,
+        _path || outlet.id, outlet.id = ANY(_path)
+    FROM power_connection
+    JOIN dcim_powerport AS root_powerport ON root_powerport.id = power_connection.port_id
+    JOIN dcim_poweroutlet AS outlet ON outlet.device_id = root_powerport.device_id
+    JOIN dcim_powerport AS connected_powerport ON connected_powerport._connected_poweroutlet_id=outlet.id
+    WHERE NOT _cycle
+)
+-- Any cycle-causing rows are kept in the results, though they are not used in next iteration.
+SELECT SUM(allocated_draw) as total_allocated_draw, SUM(maximum_draw) as total_maximum_draw
+FROM power_connection
+WHERE NOT _cycle;
+"""
+QUERY_POWER_DRAW_PORT = QUERY_POWER_DRAW_BASE.format('WHERE root_powerport.id = %s')
+QUERY_POWER_DRAW_PORT_LEG = QUERY_POWER_DRAW_BASE.format('WHERE root_powerport.id = %s AND outlet.feed_leg = %s')
 
 
 class ComponentTemplateModel(models.Model):
@@ -754,19 +783,16 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         """
         Determine the utilization rate of power in the rack and return it as a percentage.
         """
-        power_stats = PowerFeed.objects.filter(
-            rack=self
-        ).annotate(
-            allocated_draw_total=Sum('connected_endpoint__poweroutlets__connected_endpoint__allocated_draw'),
-        ).values(
-            'allocated_draw_total',
-            'available_power'
-        )
+        # Sum up all of the available power from the power feeds assigned to the rack
+        available_power = PowerFeed.objects.filter(rack=self).aggregate(total=Sum('available_power'))
 
-        if power_stats:
-            allocated_draw_total = sum(x['allocated_draw_total'] for x in power_stats)
-            available_power_total = sum(x['available_power'] for x in power_stats)
-            return int(allocated_draw_total / available_power_total * 100) or 0
+        # Get the power draw of the power ports from the power feeds assigned to the rack
+        feeds_stats = [x.get_power_draw() for x in PowerPort.objects.filter(_connected_powerfeed__rack=self)]
+
+        if available_power.get('total') and feeds_stats:
+            available_power_total = available_power.get('total')
+            allocated_draw_total = sum([x.get('allocated') or 0 for x in feeds_stats])
+            return round(allocated_draw_total / available_power_total * 100)
         return 0
 
 
@@ -2041,34 +2067,34 @@ class PowerPort(CableTermination, ComponentModel):
         """
         # Calculate aggregate draw of all child power outlets if no numbers have been defined manually
         if self.allocated_draw is None and self.maximum_draw is None:
-            outlet_ids = PowerOutlet.objects.filter(power_port=self).values_list('pk', flat=True)
-            utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
-                maximum_draw_total=Sum('maximum_draw'),
-                allocated_draw_total=Sum('allocated_draw'),
-            )
-            ret = {
-                'allocated': utilization['allocated_draw_total'] or 0,
-                'maximum': utilization['maximum_draw_total'] or 0,
-                'outlet_count': len(outlet_ids),
-                'legs': [],
-            }
+            cursor = connection.cursor()
+            try:
+                cursor.execute(QUERY_POWER_DRAW_PORT, [self.pk])
+                allocated_draw_total, maximum_draw_total = cursor.fetchone()
 
-            # Calculate per-leg aggregates for three-phase feeds
-            if self._connected_powerfeed and self._connected_powerfeed.phase == POWERFEED_PHASE_3PHASE:
-                for leg, leg_name in POWERFEED_LEG_CHOICES:
-                    outlet_ids = PowerOutlet.objects.filter(power_port=self, feed_leg=leg).values_list('pk', flat=True)
-                    utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
-                        maximum_draw_total=Sum('maximum_draw'),
-                        allocated_draw_total=Sum('allocated_draw'),
-                    )
-                    ret['legs'].append({
-                        'name': leg_name,
-                        'allocated': utilization['allocated_draw_total'] or 0,
-                        'maximum': utilization['maximum_draw_total'] or 0,
-                        'outlet_count': len(outlet_ids),
-                    })
+                ret = {
+                    'allocated': allocated_draw_total or 0,
+                    'maximum': maximum_draw_total or 0,
+                    'outlet_count': PowerOutlet.objects.filter(power_port=self).count(),
+                    'legs': [],
+                }
 
-            return ret
+                # Calculate per-leg aggregates for three-phase feeds
+                if self._connected_powerfeed and self._connected_powerfeed.phase == POWERFEED_PHASE_3PHASE:
+                    for leg, leg_name in POWERFEED_LEG_CHOICES:
+                        cursor.execute(QUERY_POWER_DRAW_PORT_LEG, [self.pk, leg])
+                        allocated_draw_total, maximum_draw_total = cursor.fetchone()
+
+                        ret['legs'].append({
+                            'name': leg_name,
+                            'allocated': allocated_draw_total or 0,
+                            'maximum': maximum_draw_total or 0,
+                            'outlet_count': PowerOutlet.objects.filter(power_port=self, feed_leg=leg).count(),
+                        })
+
+                return ret
+            finally:
+                cursor.close()
 
         # Default to administratively defined values
         return {

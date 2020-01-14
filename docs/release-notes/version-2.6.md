@@ -1,3 +1,11 @@
+# v2.6.13 (FUTURE)
+
+## Enhancements
+
+* [#3377](https://github.com/netbox-community/netbox/issues/3377) - Include children devices when calculating power utilization
+
+---
+
 # v2.6.12 (2020-01-13)
 
 ## Enhancements
