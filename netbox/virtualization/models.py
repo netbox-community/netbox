@@ -11,6 +11,14 @@ from utilities.models import ChangeLoggedModel
 from .choices import *
 
 
+__all__ = (
+    'Cluster',
+    'ClusterGroup',
+    'ClusterType',
+    'VirtualMachine',
+)
+
+
 #
 # Cluster types
 #

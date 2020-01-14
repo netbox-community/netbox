@@ -21,6 +21,14 @@ from .hashers import SecretValidationHasher
 from .querysets import UserKeyQuerySet
 
 
+__all__ = (
+    'Secret',
+    'SecretRole',
+    'SessionKey',
+    'UserKey',
+)
+
+
 def generate_random_key(bits=256):
     """
     Generate a random encryption key. Sizes is given in bits and must be in increments of 32.

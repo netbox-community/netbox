@@ -15,6 +15,7 @@ from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
 from virtualization.models import VirtualMachine
 from .choices import *
+from .constants import IPADDRESS_ROLES_NONUNIQUE
 from .fields import IPNetworkField, IPAddressField
 from .querysets import PrefixQuerySet
 from .validators import DNSValidator
@@ -26,14 +27,17 @@ AF_CHOICES = (
     (6, 'IPv6'),
 )
 
-IPADDRESS_ROLES_NONUNIQUE = (
-    # IPAddress roles which are exempt from unique address enforcement
-    IPAddressRoleChoices.ROLE_ANYCAST,
-    IPAddressRoleChoices.ROLE_VIP,
-    IPAddressRoleChoices.ROLE_VRRP,
-    IPAddressRoleChoices.ROLE_HSRP,
-    IPAddressRoleChoices.ROLE_GLBP,
-    IPAddressRoleChoices.ROLE_CARP,
+
+__all__ = (
+    'Aggregate',
+    'IPAddress',
+    'Prefix',
+    'RIR',
+    'Role',
+    'Service',
+    'VLAN',
+    'VLANGroup',
+    'VRF',
 )
 
 

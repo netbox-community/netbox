@@ -7,6 +7,12 @@ from extras.models import CustomFieldModel, TaggedItem
 from utilities.models import ChangeLoggedModel
 
 
+__all__ = (
+    'Tenant',
+    'TenantGroup',
+)
+
+
 class TenantGroup(ChangeLoggedModel):
     """
     An arbitrary collection of Tenants.
