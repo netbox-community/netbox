@@ -1,7 +1,7 @@
 import os
 import sys
 
-from Crypto.Cipher import AES, PKCS1_OAEP
+from Crypto.Cipher import AES
 from Crypto.PublicKey import RSA
 from Crypto.Util import strxor
 from django.conf import settings
@@ -19,6 +19,7 @@ from utilities.models import ChangeLoggedModel
 from .exceptions import InvalidKey
 from .hashers import SecretValidationHasher
 from .querysets import UserKeyQuerySet
+from .utils import encrypt_master_key, decrypt_master_key, generate_random_key
 
 
 __all__ = (
@@ -27,33 +28,6 @@ __all__ = (
     'SessionKey',
     'UserKey',
 )
-
-
-def generate_random_key(bits=256):
-    """
-    Generate a random encryption key. Sizes is given in bits and must be in increments of 32.
-    """
-    if bits % 32:
-        raise Exception("Invalid key size ({}). Key sizes must be in increments of 32 bits.".format(bits))
-    return os.urandom(int(bits / 8))
-
-
-def encrypt_master_key(master_key, public_key):
-    """
-    Encrypt a secret key with the provided public RSA key.
-    """
-    key = RSA.importKey(public_key)
-    cipher = PKCS1_OAEP.new(key)
-    return cipher.encrypt(master_key)
-
-
-def decrypt_master_key(master_key_cipher, private_key):
-    """
-    Decrypt a secret key with the provided private RSA key.
-    """
-    key = RSA.importKey(private_key)
-    cipher = PKCS1_OAEP.new(key)
-    return cipher.decrypt(master_key_cipher)
 
 
 class UserKey(models.Model):
