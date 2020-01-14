@@ -5,7 +5,8 @@ import taggit.managers
 from django.db import migrations, models
 
 import dcim.fields
-from dcim.constants import CONNECTION_STATUS_CONNECTED
+
+CONNECTION_STATUS_CONNECTED = True
 
 CIRCUIT_STATUS_CHOICES = (
     (0, 'deprovisioning'),
