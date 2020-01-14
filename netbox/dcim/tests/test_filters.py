@@ -11,6 +11,7 @@ from dcim.models import (
     VirtualChassis,
 )
 from ipam.models import IPAddress
+from tenancy.models import Tenant
 from virtualization.models import Cluster, ClusterType
 
 
@@ -1100,7 +1101,7 @@ class DeviceTestCase(TestCase):
         Cluster.objects.bulk_create(clusters)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], platform=platforms[0], serial='ABC', asset_tag='1001', site=sites[0], rack=racks[0], position=1, face=RACK_FACE_FRONT, status=DEVICE_STATUS_ACTIVE, cluster=clusters[0]),
+            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], platform=platforms[0], serial='ABC', asset_tag='1001', site=sites[0], rack=racks[0], position=1, face=RACK_FACE_FRONT, status=DEVICE_STATUS_ACTIVE, cluster=clusters[0], local_context_data={"foo": 123}),
             Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], platform=platforms[1], serial='DEF', asset_tag='1002', site=sites[1], rack=racks[1], position=2, face=RACK_FACE_FRONT, status=DEVICE_STATUS_STAGED, cluster=clusters[1]),
             Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], platform=platforms[2], serial='GHI', asset_tag='1003', site=sites[2], rack=racks[2], position=3, face=RACK_FACE_REAR, status=DEVICE_STATUS_FAILED, cluster=clusters[2]),
         )
@@ -1327,6 +1328,12 @@ class DeviceTestCase(TestCase):
     #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
     #     params = {'device_bays': 'false'}
     #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_local_context_data(self):
+        params = {'local_context_data': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'local_context_data': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class ConsolePortTestCase(TestCase):
@@ -2121,6 +2128,12 @@ class CableTestCase(TestCase):
         )
         Site.objects.bulk_create(sites)
 
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         racks = (
             Rack(name='Rack 1', site=sites[0]),
             Rack(name='Rack 2', site=sites[1]),
@@ -2133,9 +2146,9 @@ class CableTestCase(TestCase):
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=1),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=2),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=1),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=1, tenant=tenants[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=2, tenant=tenants[0]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=1, tenant=tenants[1]),
             Device(name='Device 4', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=2),
             Device(name='Device 5', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=1),
             Device(name='Device 6', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=2),
@@ -2215,6 +2228,13 @@ class CableTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
         params = {'site': [site[0].slug, site[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+
+    def test_tenant(self):
+        tenant = Tenant.objects.all()[:2]
+        params = {'tenant_id': [tenant[0].pk, tenant[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'tenant': [tenant[0].slug, tenant[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class PowerPanelTestCase(TestCase):

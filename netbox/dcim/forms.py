@@ -739,7 +739,7 @@ class RackElevationFilterForm(RackFilterForm):
 
         # Filter the rack field based on the site and group
         self.fields['site'].widget.add_filter_for('id', 'site')
-        self.fields['rack_group_id'].widget.add_filter_for('id', 'group_id')
+        self.fields['group_id'].widget.add_filter_for('id', 'group_id')
 
 
 #
@@ -2804,6 +2804,7 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, f
     termination_b_provider = forms.ModelChoiceField(
         queryset=Provider.objects.all(),
         label='Provider',
+        required=False,
         widget=APISelect(
             api_url='/api/circuits/providers/',
             filter_for={
@@ -2857,6 +2858,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, ChainedFieldsMixin, forms.Mode
     termination_b_site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         label='Site',
+        required=False,
         widget=APISelect(
             api_url='/api/dcim/sites/',
             display_field='cid',
@@ -2888,6 +2890,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, ChainedFieldsMixin, forms.Mode
             ('rack_group', 'termination_b_rackgroup'),
         ),
         label='Power Panel',
+        required=False,
         widget=APISelect(
             api_url='/api/dcim/power-panels/',
             filter_for={
@@ -3116,6 +3119,17 @@ class CableFilterForm(BootstrapMixin, forms.Form):
             value_field="slug",
             filter_for={
                 'rack_id': 'site',
+            }
+        )
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenants/",
+            value_field='slug',
+            filter_for={
+                'device_id': 'tenant',
             }
         )
     )
