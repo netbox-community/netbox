@@ -4,6 +4,10 @@
 
 * [#3377](https://github.com/netbox-community/netbox/issues/3377) - Include children devices when calculating power utilization
 
+## Bug Fixes
+
+* [#3914](https://github.com/netbox-community/netbox/issues/3914) - Fix interface filter field when unauthenticated
+
 ---
 
 # v2.6.12 (2020-01-13)
