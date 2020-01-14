@@ -5,7 +5,6 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import F, Q
-from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
@@ -17,6 +16,7 @@ from virtualization.models import VirtualMachine
 from .choices import *
 from .constants import IPADDRESS_ROLES_NONUNIQUE
 from .fields import IPNetworkField, IPAddressField
+from .managers import IPAddressManager
 from .querysets import PrefixQuerySet
 from .validators import DNSValidator
 
@@ -556,20 +556,6 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
             if self.family == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
                 prefix_size -= 2
             return int(float(child_count) / prefix_size * 100)
-
-
-class IPAddressManager(models.Manager):
-
-    def get_queryset(self):
-        """
-        By default, PostgreSQL will order INETs with shorter (larger) prefix lengths ahead of those with longer
-        (smaller) masks. This makes no sense when ordering IPs, which should be ordered solely by family and host
-        address. We can use HOST() to extract just the host portion of the address (ignoring its mask), but we must
-        then re-cast this value to INET() so that records will be ordered properly. We are essentially re-casting each
-        IP address as a /32 or /128.
-        """
-        qs = super().get_queryset()
-        return qs.annotate(host=RawSQL('INET(HOST(ipam_ipaddress.address))', [])).order_by('family', 'host')
 
 
 class IPAddress(ChangeLoggedModel, CustomFieldModel):
