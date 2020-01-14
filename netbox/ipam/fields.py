@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from netaddr import AddrFormatError, IPNetwork
+from netaddr import AddrFormatError, IPNetwork, IPAddress
 
 from . import lookups
 from .formfields import IPFormField
@@ -23,7 +23,10 @@ class BaseIPField(models.Field):
         if not value:
             return value
         try:
-            return IPNetwork(value)
+            if '/' in str(value):
+                return IPNetwork(value)
+            else:
+                return IPAddress(value)
         except AddrFormatError as e:
             raise ValidationError("Invalid IP address format: {}".format(value))
         except (TypeError, ValueError) as e:
@@ -32,6 +35,8 @@ class BaseIPField(models.Field):
     def get_prep_value(self, value):
         if not value:
             return None
+        if isinstance(value, list):
+            return [str(self.to_python(v)) for v in value]
         return str(self.to_python(value))
 
     def form_class(self):
@@ -90,5 +95,6 @@ IPAddressField.register_lookup(lookups.NetContainedOrEqual)
 IPAddressField.register_lookup(lookups.NetContains)
 IPAddressField.register_lookup(lookups.NetContainsOrEquals)
 IPAddressField.register_lookup(lookups.NetHost)
+IPAddressField.register_lookup(lookups.NetIn)
 IPAddressField.register_lookup(lookups.NetHostContained)
 IPAddressField.register_lookup(lookups.NetMaskLength)
