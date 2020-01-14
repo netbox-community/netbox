@@ -111,7 +111,7 @@ class VLANStatusChoices(ChoiceSet):
 
 
 #
-# VLANs
+# Services
 #
 
 class ServiceProtocolChoices(ChoiceSet):

@@ -32,19 +32,19 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name='virtualmachine',
-            name='status',
-            field=models.CharField(default='active', max_length=50),
-        ),
-        migrations.RunPython(
-            code=virtualmachine_status_to_slug,
-        ),
-        migrations.AlterField(
-            model_name='virtualmachine',
             name='name',
             field=models.CharField(max_length=64),
         ),
         migrations.AlterUniqueTogether(
             name='virtualmachine',
             unique_together={('cluster', 'tenant', 'name')},
+        ),
+        migrations.AlterField(
+            model_name='virtualmachine',
+            name='status',
+            field=models.CharField(default='active', max_length=50),
+        ),
+        migrations.RunPython(
+            code=virtualmachine_status_to_slug,
         ),
     ]
