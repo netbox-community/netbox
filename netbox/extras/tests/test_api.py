@@ -8,10 +8,12 @@ from rest_framework import status
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Rack, RackGroup, RackRole, Region, Site
 from extras.api.views import ScriptViewSet
 from extras.choices import *
+from extras.constants import GRAPH_MODELS
 from extras.models import ConfigContext, Graph, ExportTemplate, Tag
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import APITestCase, choices_to_dict
+from utilities.utils import model_names_to_filter_dict
 
 
 class ChoicesTest(APITestCase):
@@ -27,7 +29,11 @@ class ChoicesTest(APITestCase):
         self.assertEqual(choices_to_dict(response.data.get('export-template:template_language')), ExportTemplateLanguageChoices.as_dict())
 
         # Graph
-        # self.assertEqual(choices_to_dict(response.data.get('graph:type')), )
+        content_types = ContentType.objects.filter(**model_names_to_filter_dict(GRAPH_MODELS))
+        graph_type_choices = {
+            "{}.{}".format(ct.app_label, ct.model): ct.name for ct in content_types
+        }
+        self.assertEqual(choices_to_dict(response.data.get('graph:type')), graph_type_choices)
         self.assertEqual(choices_to_dict(response.data.get('graph:template_language')), ExportTemplateLanguageChoices.as_dict())
 
         # ObjectChange

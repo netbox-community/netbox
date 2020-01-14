@@ -30,8 +30,12 @@ class ChoicesTest(APITestCase):
         # Cable
         self.assertEqual(choices_to_dict(response.data.get('cable:length_unit')), CableLengthUnitChoices.as_dict())
         self.assertEqual(choices_to_dict(response.data.get('cable:status')), CableStatusChoices.as_dict())
-        # self.assertEqual(choices_to_dict(response.data.get('cable:termination_a_type')), )
-        # self.assertEqual(choices_to_dict(response.data.get('cable:termination_b_type')), )
+        content_types = ContentType.objects.filter(model__in=CABLE_TERMINATION_TYPES)
+        cable_termination_choices = {
+            "{}.{}".format(ct.app_label, ct.model): ct.name for ct in content_types
+        }
+        self.assertEqual(choices_to_dict(response.data.get('cable:termination_a_type')), cable_termination_choices)
+        self.assertEqual(choices_to_dict(response.data.get('cable:termination_b_type')), cable_termination_choices)
         self.assertEqual(choices_to_dict(response.data.get('cable:type')), CableTypeChoices.as_dict())
 
         # Console ports
