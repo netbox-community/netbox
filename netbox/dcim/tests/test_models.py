@@ -487,3 +487,141 @@ class CablePathTestCase(TestCase):
         interface2 = Interface.objects.get(pk=self.interface2.pk)
         self.assertIsNone(interface2.connected_endpoint)
         self.assertIsNone(interface2.connection_status)
+
+
+class PowerCalculationTestCase(TestCase):
+
+    def setUp(self):
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1', color='ff0000')
+        power_panel = PowerPanel.objects.create(name='Power Panel 1', site=site)
+
+        self.device1 = Device.objects.create(
+            site=site,
+            device_type=device_type,
+            device_role=device_role,
+            name='Device 1'
+        )
+        self.device2 = Device.objects.create(
+            site=site,
+            device_type=device_type,
+            device_role=device_role,
+            name='Device 2'
+        )
+        self.device3 = Device.objects.create(
+            site=site,
+            device_type=device_type,
+            device_role=device_role,
+            name='Device 3'
+        )
+        self.device4 = Device.objects.create(
+            site=site,
+            device_type=device_type,
+            device_role=device_role,
+            name='Device 4'
+        )
+
+        # Power from power feed to device 1
+        self.power_feed = PowerFeed.objects.create(
+            name='Power Feed 1',
+            power_panel=power_panel,
+            phase=POWERFEED_PHASE_3PHASE
+        )
+        self.power_port1 = PowerPort.objects.create(device=self.device1, name='Power Port 1')
+        Cable.objects.create(termination_a=self.power_port1, termination_b=self.power_feed)
+
+        # Power from device 1 to device 2
+        self.power_outlet12 = PowerOutlet.objects.create(
+            device=self.device1,
+            name='Power Outlet 12',
+            power_port=self.power_port1,
+            feed_leg=POWERFEED_LEG_A,
+        )
+        self.power_port21 = PowerPort.objects.create(
+            device=self.device2,
+            name='Power Port 21',
+            maximum_draw=25,
+            allocated_draw=10,
+        )
+        Cable.objects.create(termination_a=self.power_outlet12, termination_b=self.power_port21)
+
+        # Power from device 1 to device 3
+        self.power_outlet13 = PowerOutlet.objects.create(
+            device=self.device1,
+            name='Power Outlet 13',
+            power_port=self.power_port1,
+            feed_leg=POWERFEED_LEG_B,
+        )
+        self.power_port31 = PowerPort.objects.create(
+            device=self.device3,
+            name='Power Port 31',
+            maximum_draw=7,
+            allocated_draw=5,
+        )
+        Cable.objects.create(termination_a=self.power_outlet13, termination_b=self.power_port31)
+
+        # Power from device 3 to device 4
+        self.power_outlet34 = PowerOutlet.objects.create(
+            device=self.device3,
+            name='Power Outlet 34',
+            power_port=self.power_port31,
+        )
+        self.power_port43 = PowerPort.objects.create(
+            device=self.device4,
+            name='Power Port 43',
+            maximum_draw=4,
+            allocated_draw=3,
+        )
+        Cable.objects.create(termination_a=self.power_outlet34, termination_b=self.power_port43)
+
+    def test_power_cascade(self):
+        """
+        Ensure the power calculation cascades over all children. The outlet count is local-only.
+        """
+        stats = self.power_port1.get_power_draw()
+
+        # Global stats: all devices 2
+        self.assertEqual(stats['maximum'], 25 + 7 + 4)
+        self.assertEqual(stats['allocated'], 10 + 5 + 3)
+        self.assertEqual(stats['outlet_count'], 2)
+
+        # Feed A stats: device 2
+        self.assertEqual(stats['legs'][0]['maximum'], 25)
+        self.assertEqual(stats['legs'][0]['allocated'], 10)
+        self.assertEqual(stats['legs'][0]['outlet_count'], 1)
+
+        # Feed B stats: devices 3 and 4 (through 3)
+        self.assertEqual(stats['legs'][1]['maximum'], 7 + 4)
+        self.assertEqual(stats['legs'][1]['allocated'], 5 + 3)
+        self.assertEqual(stats['legs'][1]['outlet_count'], 1)
+
+        # Feed C stats: no devices
+        self.assertEqual(stats['legs'][2]['maximum'], 0)
+        self.assertEqual(stats['legs'][2]['allocated'], 0)
+        self.assertEqual(stats['legs'][2]['outlet_count'], 0)
+
+    def test_power_loop(self):
+        """
+        Loop device 4 back to 3. It will count it but will not go around in circles.
+        """
+        # Power from device 4 to device 3
+        self.power_outlet43 = PowerOutlet.objects.create(
+            device=self.device4,
+            name='Power Outlet 43',
+            power_port=self.power_port43,
+        )
+        self.power_port34 = PowerPort.objects.create(
+            device=self.device3,
+            name='Power Port 34',
+            maximum_draw=2,
+            allocated_draw=1,
+        )
+        Cable.objects.create(termination_a=self.power_outlet43, termination_b=self.power_port34)
+
+        stats = self.power_port1.get_power_draw()
+
+        self.assertEqual(stats['maximum'], 25 + 7 + 4 + 2)
+        self.assertEqual(stats['allocated'], 10 + 5 + 3 + 1)
