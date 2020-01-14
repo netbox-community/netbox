@@ -5,6 +5,16 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.testing import APITestCase
 
 
+class ChoicesTest(APITestCase):
+
+    def test_choices(self):
+
+        url = reverse('tenancy-api:field-choice-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.status_code, 200)
+
+
 class TenantGroupTest(APITestCase):
 
     def setUp(self):

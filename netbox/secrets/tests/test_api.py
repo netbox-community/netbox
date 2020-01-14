@@ -9,6 +9,16 @@ from utilities.testing import APITestCase
 from .constants import PRIVATE_KEY, PUBLIC_KEY
 
 
+class ChoicesTest(APITestCase):
+
+    def test_choices(self):
+
+        url = reverse('secrets-api:field-choice-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.status_code, 200)
+
+
 class SecretRoleTest(APITestCase):
 
     def setUp(self):

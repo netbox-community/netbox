@@ -14,8 +14,80 @@ from dcim.models import (
 )
 from ipam.models import IPAddress, VLAN
 from extras.models import Graph
-from utilities.testing import APITestCase
+from utilities.testing import APITestCase, choices_to_dict
 from virtualization.models import Cluster, ClusterType
+
+
+class ChoicesTest(APITestCase):
+
+    def test_choices(self):
+
+        url = reverse('dcim-api:field-choice-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.status_code, 200)
+
+        # Cable
+        self.assertEqual(choices_to_dict(response.data.get('cable:length_unit')), CableLengthUnitChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('cable:status')), CableStatusChoices.as_dict())
+        # self.assertEqual(choices_to_dict(response.data.get('cable:termination_a_type')), )
+        # self.assertEqual(choices_to_dict(response.data.get('cable:termination_b_type')), )
+        self.assertEqual(choices_to_dict(response.data.get('cable:type')), CableTypeChoices.as_dict())
+
+        # Console ports
+        self.assertEqual(choices_to_dict(response.data.get('console-port:type')), ConsolePortTypeChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('console-port:connection_status')), dict(CONNECTION_STATUS_CHOICES))
+        self.assertEqual(choices_to_dict(response.data.get('console-port-template:type')), ConsolePortTypeChoices.as_dict())
+
+        # Console server ports
+        self.assertEqual(choices_to_dict(response.data.get('console-server-port:type')), ConsolePortTypeChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('console-server-port-template:type')), ConsolePortTypeChoices.as_dict())
+
+        # Device
+        self.assertEqual(choices_to_dict(response.data.get('device:face')), DeviceFaceChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('device:status')), DeviceStatusChoices.as_dict())
+
+        # Device type
+        self.assertEqual(choices_to_dict(response.data.get('device-type:subdevice_role')), SubdeviceRoleChoices.as_dict())
+
+        # Front ports
+        self.assertEqual(choices_to_dict(response.data.get('front-port:type')), PortTypeChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('front-port-template:type')), PortTypeChoices.as_dict())
+
+        # Interfaces
+        self.assertEqual(choices_to_dict(response.data.get('interface:type')), InterfaceTypeChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('interface:mode')), InterfaceModeChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('interface-template:type')), InterfaceTypeChoices.as_dict())
+
+        # Power feed
+        self.assertEqual(choices_to_dict(response.data.get('power-feed:phase')), PowerFeedPhaseChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('power-feed:status')), PowerFeedStatusChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('power-feed:supply')), PowerFeedSupplyChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('power-feed:type')), PowerFeedTypeChoices.as_dict())
+
+        # Power outlets
+        self.assertEqual(choices_to_dict(response.data.get('power-outlet:type')), PowerOutletTypeChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('power-outlet:feed_leg')), PowerOutletFeedLegChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('power-outlet-template:type')), PowerOutletTypeChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('power-outlet-template:feed_leg')), PowerOutletFeedLegChoices.as_dict())
+
+        # Power ports
+        self.assertEqual(choices_to_dict(response.data.get('power-port:type')), PowerPortTypeChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('power-port:connection_status')), dict(CONNECTION_STATUS_CHOICES))
+        self.assertEqual(choices_to_dict(response.data.get('power-port-template:type')), PowerPortTypeChoices.as_dict())
+
+        # Rack
+        self.assertEqual(choices_to_dict(response.data.get('rack:type')), RackTypeChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('rack:width')), RackWidthChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('rack:status')), RackStatusChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('rack:outer_unit')), RackDimensionUnitChoices.as_dict())
+
+        # Rear ports
+        self.assertEqual(choices_to_dict(response.data.get('rear-port:type')), PortTypeChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('rear-port-template:type')), PortTypeChoices.as_dict())
+
+        # Site
+        self.assertEqual(choices_to_dict(response.data.get('site:status')), SiteStatusChoices.as_dict())
 
 
 class RegionTest(APITestCase):

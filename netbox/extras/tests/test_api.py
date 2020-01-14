@@ -7,10 +7,31 @@ from rest_framework import status
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Rack, RackGroup, RackRole, Region, Site
 from extras.api.views import ScriptViewSet
+from extras.choices import *
 from extras.models import ConfigContext, Graph, ExportTemplate, Tag
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from tenancy.models import Tenant, TenantGroup
-from utilities.testing import APITestCase
+from utilities.testing import APITestCase, choices_to_dict
+
+
+class ChoicesTest(APITestCase):
+
+    def test_choices(self):
+
+        url = reverse('extras-api:field-choice-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.status_code, 200)
+
+        # ExportTemplate
+        self.assertEqual(choices_to_dict(response.data.get('export-template:template_language')), ExportTemplateLanguageChoices.as_dict())
+
+        # Graph
+        # self.assertEqual(choices_to_dict(response.data.get('graph:type')), )
+        self.assertEqual(choices_to_dict(response.data.get('graph:template_language')), ExportTemplateLanguageChoices.as_dict())
+
+        # ObjectChange
+        self.assertEqual(choices_to_dict(response.data.get('object-change:action')), ObjectChangeActionChoices.as_dict())
 
 
 class GraphTest(APITestCase):

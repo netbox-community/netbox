@@ -1,3 +1,6 @@
+from utilities.forms import unpack_grouped_choices
+
+
 class ChoiceSetMeta(type):
     """
     Metaclass for ChoiceSet
@@ -19,6 +22,11 @@ class ChoiceSet(metaclass=ChoiceSetMeta):
     @classmethod
     def values(cls):
         return [c[0] for c in cls.CHOICES]
+
+    @classmethod
+    def as_dict(cls):
+        # Unpack grouped choices before casting as a dict
+        return dict(unpack_grouped_choices(cls.CHOICES))
 
     @classmethod
     def slug_to_id(cls, slug):

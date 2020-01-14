@@ -5,8 +5,22 @@ from rest_framework import status
 from dcim.choices import InterfaceModeChoices, InterfaceTypeChoices
 from dcim.models import Interface
 from ipam.models import IPAddress, VLAN
-from utilities.testing import APITestCase
+from utilities.testing import APITestCase, choices_to_dict
+from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+
+
+class ChoicesTest(APITestCase):
+
+    def test_choices(self):
+
+        url = reverse('virtualization-api:field-choice-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.status_code, 200)
+
+        # VirtualMachine
+        self.assertEqual(choices_to_dict(response.data.get('virtual-machine:status')), VirtualMachineStatusChoices.as_dict())
 
 
 class ClusterTypeTest(APITestCase):
