@@ -25,21 +25,22 @@ from .exceptions import LoopDetected
 from .fields import ASNField, MACAddressField
 from .managers import InterfaceManager
 
-QUERY_POWER_DRAW_BASE = """
-WITH RECURSIVE power_connection(outlet_id, port_id, allocated_draw, maximum_draw, _path, _cycle) AS (
+QUERY_POWER_DRAW = """
+WITH RECURSIVE power_connection(outlet_id, port_id, feed_leg, allocated_draw, maximum_draw, _path, _cycle) AS (
     -- Non-recursive term: get all outlets and connected port pairs for a given root_powerport.
-    SELECT outlet.id, connected_powerport.id, connected_powerport.allocated_draw, connected_powerport.maximum_draw,
-        ARRAY[outlet.id], false
+    SELECT outlet.id, connected_powerport.id, outlet.feed_leg, connected_powerport.allocated_draw,
+        connected_powerport.maximum_draw, ARRAY[outlet.id], false
     FROM dcim_powerport AS root_powerport
     JOIN dcim_poweroutlet AS outlet ON outlet.device_id = root_powerport.device_id
     JOIN dcim_powerport AS connected_powerport ON connected_powerport._connected_poweroutlet_id=outlet.id
-    {}
+    WHERE root_powerport.id = %s
 
     UNION ALL
 
     -- Recursive term: for each row in the previous iteration (initially the non-recursive term), get connections.
-    SELECT outlet.id, connected_powerport.id, connected_powerport.allocated_draw, connected_powerport.maximum_draw,
-        _path || outlet.id, outlet.id = ANY(_path)
+    -- The feed_leg is set to match that of the parent in the non-recursive term to help with grouping
+    SELECT outlet.id, connected_powerport.id, power_connection.feed_leg, connected_powerport.allocated_draw,
+        connected_powerport.maximum_draw, _path || outlet.id, outlet.id = ANY(_path)
     FROM power_connection
     JOIN dcim_powerport AS root_powerport ON root_powerport.id = power_connection.port_id
     JOIN dcim_poweroutlet AS outlet ON outlet.device_id = root_powerport.device_id
@@ -47,12 +48,11 @@ WITH RECURSIVE power_connection(outlet_id, port_id, allocated_draw, maximum_draw
     WHERE NOT _cycle
 )
 -- Any cycle-causing rows are kept in the results, though they are not used in next iteration.
-SELECT SUM(allocated_draw) as total_allocated_draw, SUM(maximum_draw) as total_maximum_draw
+SELECT feed_leg, SUM(allocated_draw) as total_allocated_draw, SUM(maximum_draw) as total_maximum_draw
 FROM power_connection
-WHERE NOT _cycle;
+WHERE NOT _cycle
+GROUP BY feed_leg;
 """
-QUERY_POWER_DRAW_PORT = QUERY_POWER_DRAW_BASE.format('WHERE root_powerport.id = %s')
-QUERY_POWER_DRAW_PORT_LEG = QUERY_POWER_DRAW_BASE.format('WHERE root_powerport.id = %s AND outlet.feed_leg = %s')
 
 
 class ComponentTemplateModel(models.Model):
@@ -2065,36 +2065,50 @@ class PowerPort(CableTermination, ComponentModel):
         """
         Return the allocated and maximum power draw (in VA) and child PowerOutlet count for this PowerPort.
         """
+        def get_power_feed_stats(feed, results):
+            allocated_draw_total = maximum_draw_total = 0
+
+            for result in results:
+                result_feed, result_allocated_draw_total, result_maximum_draw_total = result
+
+                # Specific feed or global one
+                if feed in [result_feed, None]:
+                    allocated_draw_total += result_allocated_draw_total or 0
+                    maximum_draw_total += result_maximum_draw_total or 0
+
+            return allocated_draw_total, maximum_draw_total
+
         # Calculate aggregate draw of all child power outlets if no numbers have been defined manually
         if self.allocated_draw is None and self.maximum_draw is None:
-            cursor = connection.cursor()
-            try:
-                cursor.execute(QUERY_POWER_DRAW_PORT, [self.pk])
-                allocated_draw_total, maximum_draw_total = cursor.fetchone()
+            power_outlets = PowerOutlet.objects.filter(power_port=self)
 
-                ret = {
-                    'allocated': allocated_draw_total or 0,
-                    'maximum': maximum_draw_total or 0,
-                    'outlet_count': PowerOutlet.objects.filter(power_port=self).count(),
-                    'legs': [],
-                }
+            with connection.cursor() as cursor:
+                cursor.execute(QUERY_POWER_DRAW, [self.pk])
 
-                # Calculate per-leg aggregates for three-phase feeds
-                if self._connected_powerfeed and self._connected_powerfeed.phase == POWERFEED_PHASE_3PHASE:
-                    for leg, leg_name in POWERFEED_LEG_CHOICES:
-                        cursor.execute(QUERY_POWER_DRAW_PORT_LEG, [self.pk, leg])
-                        allocated_draw_total, maximum_draw_total = cursor.fetchone()
+                # Maximum number of power feeds + the global one
+                results = cursor.fetchmany(len(POWERFEED_LEG_CHOICES) + 1)
 
-                        ret['legs'].append({
-                            'name': leg_name,
-                            'allocated': allocated_draw_total or 0,
-                            'maximum': maximum_draw_total or 0,
-                            'outlet_count': PowerOutlet.objects.filter(power_port=self, feed_leg=leg).count(),
-                        })
+            # Global results
+            allocated_draw_total, maximum_draw_total = get_power_feed_stats(None, results)
+            ret = {
+                'allocated': allocated_draw_total,
+                'maximum': maximum_draw_total,
+                'outlet_count': power_outlets.count(),
+                'legs': [],
+            }
 
-                return ret
-            finally:
-                cursor.close()
+            # Calculate per-leg aggregates for three-phase feeds
+            if self._connected_powerfeed and self._connected_powerfeed.phase == POWERFEED_PHASE_3PHASE:
+                for leg, leg_name in POWERFEED_LEG_CHOICES:
+                    allocated_draw_total, maximum_draw_total = get_power_feed_stats(leg, results)
+                    ret['legs'].append({
+                        'name': leg_name,
+                        'allocated': allocated_draw_total,
+                        'maximum': maximum_draw_total,
+                        'outlet_count': power_outlets.filter(feed_leg=leg).count(),
+                    })
+
+            return ret
 
         # Default to administratively defined values
         return {
