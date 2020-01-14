@@ -113,10 +113,7 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 #

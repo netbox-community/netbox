@@ -335,10 +335,7 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             value_field="slug",
         )
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 #
@@ -717,10 +714,7 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             null_option=True,
         )
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 #
@@ -1013,10 +1007,7 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 #
@@ -1959,10 +1950,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 #
@@ -3435,10 +3423,7 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 #
@@ -3625,10 +3610,7 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 #
@@ -4006,7 +3988,4 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
     max_utilization = forms.IntegerField(
         required=False
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)

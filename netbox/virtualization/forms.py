@@ -216,10 +216,7 @@ class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
@@ -626,10 +623,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         required=False,
         label='MAC address'
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 #

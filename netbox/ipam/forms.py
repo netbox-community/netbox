@@ -102,10 +102,7 @@ class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         required=False,
         label='Search'
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 #
@@ -235,10 +232,7 @@ class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
             value_field="slug",
         )
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 #
@@ -585,10 +579,7 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         required=False,
         label='Expand prefix hierarchy'
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 #
@@ -1017,10 +1008,7 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 #
@@ -1308,10 +1296,7 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             null_option=True,
         )
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 #
@@ -1372,10 +1357,7 @@ class ServiceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     port = forms.IntegerField(
         required=False,
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 class ServiceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):

@@ -184,10 +184,7 @@ class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
             value_field="slug",
         )
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tag'] = TagFilterField(self.model)
+    tag = TagFilterField(model)
 
 
 #
