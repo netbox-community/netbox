@@ -104,7 +104,7 @@ class ObjectChangeActionChoices(ChoiceSet):
 # ExportTemplates
 #
 
-class ExportTemplateLanguageChoices(ChoiceSet):
+class TemplateLanguageChoices(ChoiceSet):
 
     LANGUAGE_DJANGO = 'django'
     LANGUAGE_JINJA2 = 'jinja2'

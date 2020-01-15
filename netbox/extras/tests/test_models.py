@@ -2,7 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from dcim.models import Site
-from extras.choices import ExportTemplateLanguageChoices
+from extras.choices import TemplateLanguageChoices
 from extras.models import Graph
 
 
@@ -21,7 +21,7 @@ class GraphTest(TestCase):
         graph = Graph(
             type=ContentType.objects.get(app_label='dcim', model='site'),
             name='Graph 1',
-            template_language=ExportTemplateLanguageChoices.LANGUAGE_DJANGO,
+            template_language=TemplateLanguageChoices.LANGUAGE_DJANGO,
             source=TEMPLATE_TEXT,
             link=TEMPLATE_TEXT
         )
@@ -37,7 +37,7 @@ class GraphTest(TestCase):
         graph = Graph(
             type=ContentType.objects.get(app_label='dcim', model='site'),
             name='Graph 1',
-            template_language=ExportTemplateLanguageChoices.LANGUAGE_JINJA2,
+            template_language=TemplateLanguageChoices.LANGUAGE_JINJA2,
             source=TEMPLATE_TEXT,
             link=TEMPLATE_TEXT
         )

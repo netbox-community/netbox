@@ -26,7 +26,7 @@ class ChoicesTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
         # ExportTemplate
-        self.assertEqual(choices_to_dict(response.data.get('export-template:template_language')), ExportTemplateLanguageChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('export-template:template_language')), TemplateLanguageChoices.as_dict())
 
         # Graph
         content_types = ContentType.objects.filter(**model_names_to_filter_dict(GRAPH_MODELS))
@@ -34,7 +34,7 @@ class ChoicesTest(APITestCase):
             "{}.{}".format(ct.app_label, ct.model): ct.name for ct in content_types
         }
         self.assertEqual(choices_to_dict(response.data.get('graph:type')), graph_type_choices)
-        self.assertEqual(choices_to_dict(response.data.get('graph:template_language')), ExportTemplateLanguageChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('graph:template_language')), TemplateLanguageChoices.as_dict())
 
         # ObjectChange
         self.assertEqual(choices_to_dict(response.data.get('object-change:action')), ObjectChangeActionChoices.as_dict())

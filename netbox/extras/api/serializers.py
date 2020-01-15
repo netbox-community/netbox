@@ -62,8 +62,8 @@ class RenderedGraphSerializer(serializers.ModelSerializer):
 
 class ExportTemplateSerializer(ValidatedModelSerializer):
     template_language = ChoiceField(
-        choices=ExportTemplateLanguageChoices,
-        default=ExportTemplateLanguageChoices.LANGUAGE_JINJA2
+        choices=TemplateLanguageChoices,
+        default=TemplateLanguageChoices.LANGUAGE_JINJA2
     )
 
     class Meta:

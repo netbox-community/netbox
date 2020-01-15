@@ -441,8 +441,8 @@ class Graph(models.Model):
     )
     template_language = models.CharField(
         max_length=50,
-        choices=ExportTemplateLanguageChoices,
-        default=ExportTemplateLanguageChoices.LANGUAGE_JINJA2
+        choices=TemplateLanguageChoices,
+        default=TemplateLanguageChoices.LANGUAGE_JINJA2
     )
     source = models.CharField(
         max_length=500,
@@ -463,11 +463,11 @@ class Graph(models.Model):
         context = {'obj': obj}
 
         # TODO: Remove in v2.8
-        if self.template_language == ExportTemplateLanguageChoices.LANGUAGE_DJANGO:
+        if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
             template = Template(self.source)
             return template.render(Context(context))
 
-        elif self.template_language == ExportTemplateLanguageChoices.LANGUAGE_JINJA2:
+        elif self.template_language == TemplateLanguageChoices.LANGUAGE_JINJA2:
             return render_jinja2(self.source, context)
 
     def embed_link(self, obj):
@@ -477,11 +477,11 @@ class Graph(models.Model):
         context = {'obj': obj}
 
         # TODO: Remove in v2.8
-        if self.template_language == ExportTemplateLanguageChoices.LANGUAGE_DJANGO:
+        if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
             template = Template(self.link)
             return template.render(Context(context))
 
-        elif self.template_language == ExportTemplateLanguageChoices.LANGUAGE_JINJA2:
+        elif self.template_language == TemplateLanguageChoices.LANGUAGE_JINJA2:
             return render_jinja2(self.link, context)
 
 
@@ -508,8 +508,8 @@ class ExportTemplate(models.Model):
     )
     template_language = models.CharField(
         max_length=50,
-        choices=ExportTemplateLanguageChoices,
-        default=ExportTemplateLanguageChoices.LANGUAGE_JINJA2
+        choices=TemplateLanguageChoices,
+        default=TemplateLanguageChoices.LANGUAGE_JINJA2
     )
     template_code = models.TextField(
         help_text='The list of objects being exported is passed as a context variable named <code>queryset</code>.'
@@ -543,11 +543,11 @@ class ExportTemplate(models.Model):
             'queryset': queryset
         }
 
-        if self.template_language == ExportTemplateLanguageChoices.LANGUAGE_DJANGO:
+        if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
             template = Template(self.template_code)
             output = template.render(Context(context))
 
-        elif self.template_language == ExportTemplateLanguageChoices.LANGUAGE_JINJA2:
+        elif self.template_language == TemplateLanguageChoices.LANGUAGE_JINJA2:
             output = render_jinja2(self.template_code, context)
 
         else:
