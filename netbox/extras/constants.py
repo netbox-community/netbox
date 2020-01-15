@@ -70,11 +70,15 @@ CUSTOMLINK_MODELS = Q(
 )
 
 # Models which can have Graphs associated with them
-GRAPH_MODELS = (
-    'circuits.provider',
-    'dcim.device',
-    'dcim.interface',
-    'dcim.site',
+GRAPH_MODELS = Q(
+    Q(app_label='circuits', model__in=[
+        'provider',
+    ]) |
+    Q(app_label='dcim', model__in=[
+        'device',
+        'interface',
+        'site',
+    ])
 )
 
 # Models which support export templates

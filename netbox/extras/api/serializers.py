@@ -30,7 +30,7 @@ from .nested_serializers import *
 
 class GraphSerializer(ValidatedModelSerializer):
     type = ContentTypeField(
-        queryset=ContentType.objects.filter(**model_names_to_filter_dict(GRAPH_MODELS)),
+        queryset=ContentType.objects.filter(GRAPH_MODELS),
     )
 
     class Meta:
