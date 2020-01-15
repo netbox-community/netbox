@@ -8,6 +8,7 @@
 
 * [#3900](https://github.com/netbox-community/netbox/issues/3900) - Fix exception when deleting device types
 * [#3914](https://github.com/netbox-community/netbox/issues/3914) - Fix interface filter field when unauthenticated
+* [#3919](https://github.com/netbox-community/netbox/issues/3919) - Fix utilization graph extending out of bounds when utilization > 100%
 * [#3927](https://github.com/netbox-community/netbox/issues/3927) - Fix exception when deleting devices with secrets assigned
 
 ---
@@ -44,7 +45,7 @@
 * [#3872](https://github.com/netbox-community/netbox/issues/3872) - Paginate related IPs on the IP address view
 * [#3876](https://github.com/netbox-community/netbox/issues/3876) - Fix minimum/maximum value rendering for site ASN field
 * [#3882](https://github.com/netbox-community/netbox/issues/3882) - Fix filtering of devices by rack group
-* [#3898](https://github.com/netbox-community/netbox/issues/3898) - Fix references to deleted cables without a label 
+* [#3898](https://github.com/netbox-community/netbox/issues/3898) - Fix references to deleted cables without a label
 * [#3905](https://github.com/netbox-community/netbox/issues/3905) - Fix divide-by-zero on power feeds with low power values
 
 ---
