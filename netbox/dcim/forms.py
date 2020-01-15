@@ -3374,9 +3374,7 @@ class CableCSVForm(forms.ModelForm):
     )
     side_a_type = forms.ModelChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to={
-            'model__in': CABLE_TERMINATION_TYPES,
-        },
+        limit_choices_to=CABLE_TERMINATION_MODELS,
         to_field_name='model',
         help_text='Side A type'
     )
@@ -3395,9 +3393,7 @@ class CableCSVForm(forms.ModelForm):
     )
     side_b_type = forms.ModelChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to={
-            'model__in': CABLE_TERMINATION_TYPES,
-        },
+        limit_choices_to=CABLE_TERMINATION_MODELS,
         to_field_name='model',
         help_text='Side B type'
     )
