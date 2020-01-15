@@ -237,6 +237,10 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 * [#3731](https://github.com/digitalocean/netbox/issues/3731) - Change Graph.type to a ContentType foreign key field
 * [#3801](https://github.com/digitalocean/netbox/issues/3801) - Use YAML for export of device types
 
+## Bug Fixes
+
+* [#3830](https://github.com/digitalocean/netbox/issues/3830) - Ensure deterministic ordering for all models
+
 ## Bug Fixes (From Beta)
 
 * [#3868](https://github.com/digitalocean/netbox/issues/3868) - Fix creation of interfaces for virtual machines
