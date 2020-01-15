@@ -1,23 +1,38 @@
+from django.db.models import Q
+
+
 # Models which support custom fields
-CUSTOMFIELD_MODELS = [
-    'circuits.circuit',
-    'circuits.provider',
-    'dcim.device',
-    'dcim.devicetype',
-    'dcim.powerfeed',
-    'dcim.rack',
-    'dcim.site',
-    'ipam.aggregate',
-    'ipam.ipaddress',
-    'ipam.prefix',
-    'ipam.service',
-    'ipam.vlan',
-    'ipam.vrf',
-    'secrets.secret',
-    'tenancy.tenant',
-    'virtualization.cluster',
-    'virtualization.virtualmachine',
-]
+CUSTOMFIELD_MODELS = Q(
+    Q(app_label='circuits', model__in=[
+        'circuit',
+        'provider',
+    ]) |
+    Q(app_label='dcim', model__in=[
+        'device',
+        'devicetype',
+        'powerfeed',
+        'rack',
+        'site',
+    ]) |
+    Q(app_label='ipam', model__in=[
+        'aggregate',
+        'ipaddress',
+        'prefix',
+        'service',
+        'vlan',
+        'vrf',
+    ]) |
+    Q(app_label='secrets', model__in=[
+        'secret',
+    ]) |
+    Q(app_label='tenancy', model__in=[
+        'tenant',
+    ]) |
+    Q(app_label='virtualization', model__in=[
+        'cluster',
+        'virtualmachine',
+    ])
+)
 
 # Custom links
 CUSTOMLINK_MODELS = [

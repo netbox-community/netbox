@@ -192,16 +192,12 @@ class CustomFieldModel(models.Model):
             return OrderedDict([(field, None) for field in fields])
 
 
-def get_custom_field_models():
-    return model_names_to_filter_dict(CUSTOMFIELD_MODELS)
-
-
 class CustomField(models.Model):
     obj_type = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
         verbose_name='Object(s)',
-        limit_choices_to=get_custom_field_models,
+        limit_choices_to=CUSTOMFIELD_MODELS,
         help_text='The object(s) to which this field applies.'
     )
     type = models.CharField(

@@ -115,7 +115,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customfield',
             name='obj_type',
-            field=models.ManyToManyField(limit_choices_to=extras.models.get_custom_field_models, related_name='custom_fields', to='contenttypes.ContentType'),
+            field=models.ManyToManyField(related_name='custom_fields', to='contenttypes.ContentType'),
         ),
         migrations.AlterField(
             model_name='exporttemplate',
