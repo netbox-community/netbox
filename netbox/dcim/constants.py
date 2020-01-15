@@ -4,6 +4,15 @@ from .choices import InterfaceTypeChoices
 BGP_ASN_MIN = 1
 BGP_ASN_MAX = 2**32 - 1
 
+
+#
+# Rack elevation rendering
+#
+
+RACK_ELEVATION_UNIT_WIDTH_DEFAULT = 230
+RACK_ELEVATION_UNIT_HEIGHT_DEFAULT = 20
+
+
 #
 # Interface type groups
 #
@@ -23,6 +32,12 @@ WIRELESS_IFACE_TYPES = [
 
 NONCONNECTABLE_IFACE_TYPES = VIRTUAL_IFACE_TYPES + WIRELESS_IFACE_TYPES
 
+
+#
+# Cabling and connections
+#
+
+# TODO: Replace with CableStatusChoices?
 # Console/power/interface connection statuses
 CONNECTION_STATUS_PLANNED = False
 CONNECTION_STATUS_CONNECTED = True
@@ -37,17 +52,6 @@ CABLE_TERMINATION_TYPES = [
     'circuittermination', 'powerfeed',
 ]
 
-CABLE_TERMINATION_TYPE_CHOICES = {
-    # (API endpoint, human-friendly name)
-    'consoleport': ('console-ports', 'Console port'),
-    'consoleserverport': ('console-server-ports', 'Console server port'),
-    'powerport': ('power-ports', 'Power port'),
-    'poweroutlet': ('power-outlets', 'Power outlet'),
-    'interface': ('interfaces', 'Interface'),
-    'frontport': ('front-ports', 'Front panel port'),
-    'rearport': ('rear-ports', 'Rear panel port'),
-}
-
 COMPATIBLE_TERMINATION_TYPES = {
     'consoleport': ['consoleserverport', 'frontport', 'rearport'],
     'consoleserverport': ['consoleport', 'frontport', 'rearport'],
@@ -58,8 +62,3 @@ COMPATIBLE_TERMINATION_TYPES = {
     'rearport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport', 'circuittermination'],
     'circuittermination': ['interface', 'frontport', 'rearport'],
 }
-
-
-# Rack Elevation SVG Size
-RACK_ELEVATION_UNIT_WIDTH_DEFAULT = 230
-RACK_ELEVATION_UNIT_HEIGHT_DEFAULT = 20
