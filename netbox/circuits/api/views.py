@@ -18,8 +18,8 @@ from . import serializers
 
 class CircuitsFieldChoicesViewSet(FieldChoicesViewSet):
     fields = (
-        (Circuit, ['status']),
-        (CircuitTermination, ['term_side']),
+        (serializers.CircuitSerializer, ['status']),
+        (serializers.CircuitTerminationSerializer, ['term_side']),
     )
 
 

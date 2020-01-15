@@ -2,8 +2,8 @@ from collections import OrderedDict
 
 from django.conf import settings
 from django.db.models import Count, F
-from django.http import HttpResponseForbidden, HttpResponseBadRequest, HttpResponse
-from django.shortcuts import get_object_or_404, reverse
+from django.http import HttpResponseForbidden, HttpResponse
+from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.openapi import Parameter
 from drf_yasg.utils import swagger_auto_schema
@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ViewSet
 
 from circuits.models import Circuit
-from dcim import constants, filters
+from dcim import filters
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
@@ -28,7 +28,6 @@ from ipam.models import Prefix, VLAN
 from utilities.api import (
     get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, FieldChoicesViewSet, ModelViewSet, ServiceUnavailable,
 )
-from utilities.custom_inspectors import NullablePaginatorInspector
 from utilities.utils import get_subquery
 from virtualization.models import VirtualMachine
 from . import serializers
@@ -41,26 +40,26 @@ from .exceptions import MissingFilterException
 
 class DCIMFieldChoicesViewSet(FieldChoicesViewSet):
     fields = (
-        (Cable, ['length_unit', 'status', 'termination_a_type', 'termination_b_type', 'type']),
-        (ConsolePort, ['type', 'connection_status']),
-        (ConsolePortTemplate, ['type']),
-        (ConsoleServerPort, ['type']),
-        (ConsoleServerPortTemplate, ['type']),
-        (Device, ['face', 'status']),
-        (DeviceType, ['subdevice_role']),
-        (FrontPort, ['type']),
-        (FrontPortTemplate, ['type']),
-        (Interface, ['type', 'mode']),
-        (InterfaceTemplate, ['type']),
-        (PowerFeed, ['phase', 'status', 'supply', 'type']),
-        (PowerOutlet, ['type', 'feed_leg']),
-        (PowerOutletTemplate, ['type', 'feed_leg']),
-        (PowerPort, ['type', 'connection_status']),
-        (PowerPortTemplate, ['type']),
-        (Rack, ['outer_unit', 'status', 'type', 'width']),
-        (RearPort, ['type']),
-        (RearPortTemplate, ['type']),
-        (Site, ['status']),
+        (serializers.CableSerializer, ['length_unit', 'status', 'termination_a_type', 'termination_b_type', 'type']),
+        (serializers.ConsolePortSerializer, ['type', 'connection_status']),
+        (serializers.ConsolePortTemplateSerializer, ['type']),
+        (serializers.ConsoleServerPortSerializer, ['type']),
+        (serializers.ConsoleServerPortTemplateSerializer, ['type']),
+        (serializers.DeviceSerializer, ['face', 'status']),
+        (serializers.DeviceTypeSerializer, ['subdevice_role']),
+        (serializers.FrontPortSerializer, ['type']),
+        (serializers.FrontPortTemplateSerializer, ['type']),
+        (serializers.InterfaceSerializer, ['type', 'mode']),
+        (serializers.InterfaceTemplateSerializer, ['type']),
+        (serializers.PowerFeedSerializer, ['phase', 'status', 'supply', 'type']),
+        (serializers.PowerOutletSerializer, ['type', 'feed_leg']),
+        (serializers.PowerOutletTemplateSerializer, ['type', 'feed_leg']),
+        (serializers.PowerPortSerializer, ['type', 'connection_status']),
+        (serializers.PowerPortTemplateSerializer, ['type']),
+        (serializers.RackSerializer, ['outer_unit', 'status', 'type', 'width']),
+        (serializers.RearPortSerializer, ['type']),
+        (serializers.RearPortTemplateSerializer, ['type']),
+        (serializers.SiteSerializer, ['status']),
     )
 
 

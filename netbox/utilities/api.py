@@ -329,13 +329,12 @@ class FieldChoicesViewSet(ViewSet):
 
         # Compile a dict of all fields in this view
         self._fields = OrderedDict()
-        for cls, field_list in self.fields:
+        for serializer_class, field_list in self.fields:
             for field_name in field_list:
 
-                model_name = cls._meta.verbose_name.lower().replace(' ', '-')
-                key = ':'.join([model_name, field_name])
-
-                serializer = get_serializer_for_model(cls)()
+                model_name = serializer_class.Meta.model._meta.verbose_name
+                key = ':'.join([model_name.lower().replace(' ', '-'), field_name])
+                serializer = serializer_class()
                 choices = []
 
                 for k, v in serializer.get_fields()[field_name].choices.items():

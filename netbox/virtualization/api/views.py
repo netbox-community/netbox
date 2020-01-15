@@ -15,7 +15,8 @@ from . import serializers
 
 class VirtualizationFieldChoicesViewSet(FieldChoicesViewSet):
     fields = (
-        (VirtualMachine, ['status']),
+        (serializers.VirtualMachineSerializer, ['status']),
+        (serializers.InterfaceSerializer, ['type']),
     )
 
 

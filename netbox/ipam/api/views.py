@@ -20,11 +20,11 @@ from . import serializers
 
 class IPAMFieldChoicesViewSet(FieldChoicesViewSet):
     fields = (
-        (Aggregate, ['family']),
-        (Prefix, ['family', 'status']),
-        (IPAddress, ['family', 'status', 'role']),
-        (VLAN, ['status']),
-        (Service, ['protocol']),
+        (serializers.AggregateSerializer, ['family']),
+        (serializers.PrefixSerializer, ['family', 'status']),
+        (serializers.IPAddressSerializer, ['family', 'status', 'role']),
+        (serializers.VLANSerializer, ['status']),
+        (serializers.ServiceSerializer, ['protocol']),
     )
 
 

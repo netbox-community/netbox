@@ -25,9 +25,9 @@ from . import serializers
 
 class ExtrasFieldChoicesViewSet(FieldChoicesViewSet):
     fields = (
-        (ExportTemplate, ['template_language']),
-        (Graph, ['type', 'template_language']),
-        (ObjectChange, ['action']),
+        (serializers.ExportTemplateSerializer, ['template_language']),
+        (serializers.GraphSerializer, ['type', 'template_language']),
+        (serializers.ObjectChangeSerializer, ['action']),
     )
 
 
