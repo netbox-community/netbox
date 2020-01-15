@@ -191,14 +191,14 @@ $(document).ready(function() {
                         $.each($.parseJSON(attr.value), function(index, value) {
                             if (param_name in parameters) {
                                 if (Array.isArray(parameters[param_name])) {
-                                    parameters[param_name].push(value)
+                                    parameters[param_name].push(value);
                                 } else {
-                                    parameters[param_name] = [parameters[param_name], value]
+                                    parameters[param_name] = [parameters[param_name], value];
                                 }
                             } else {
                                 parameters[param_name] = value;
                             }
-                        })
+                        });
                     }
                 });
 
