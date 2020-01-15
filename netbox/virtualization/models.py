@@ -273,7 +273,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     }
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name', 'pk')  # Name may be non-unique
         unique_together = [
             ['cluster', 'tenant', 'name']
         ]

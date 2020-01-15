@@ -87,7 +87,7 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
     ]
 
     class Meta:
-        ordering = ['name', 'rd']
+        ordering = ('name', 'rd', 'pk')  # (name, rd) may be non-unique
         verbose_name = 'VRF'
         verbose_name_plural = 'VRFs'
 
@@ -189,7 +189,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
     ]
 
     class Meta:
-        ordering = ['family', 'prefix']
+        ordering = ('family', 'prefix', 'pk')  # (family, prefix) may be non-unique
 
     def __str__(self):
         return str(self.prefix)
@@ -383,7 +383,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     }
 
     class Meta:
-        ordering = [F('vrf').asc(nulls_first=True), 'family', 'prefix']
+        ordering = (F('vrf').asc(nulls_first=True), 'family', 'prefix', 'pk')  # (vrf, family, prefix) may be non-unique
         verbose_name_plural = 'prefixes'
 
     def __str__(self):
@@ -666,7 +666,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
     }
 
     class Meta:
-        ordering = ['family', 'address']
+        ordering = ('family', 'address', 'pk')  # (family, address) may be non-unique
         verbose_name = 'IP address'
         verbose_name_plural = 'IP addresses'
 
@@ -829,7 +829,7 @@ class VLANGroup(ChangeLoggedModel):
     csv_headers = ['name', 'slug', 'site']
 
     class Meta:
-        ordering = ['site', 'name']
+        ordering = ('site', 'name', 'pk')  # (site, name) may be non-unique
         unique_together = [
             ['site', 'name'],
             ['site', 'slug'],
@@ -934,7 +934,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
     }
 
     class Meta:
-        ordering = ['site', 'group', 'vid']
+        ordering = ('site', 'group', 'vid', 'pk')  # (site, group, vid) may be non-unique
         unique_together = [
             ['group', 'vid'],
             ['group', 'name'],
@@ -1037,7 +1037,7 @@ class Service(ChangeLoggedModel, CustomFieldModel):
     csv_headers = ['device', 'virtual_machine', 'name', 'protocol', 'description']
 
     class Meta:
-        ordering = ['protocol', 'port']
+        ordering = ('protocol', 'port', 'pk')  # (protocol, port) may be non-unique
 
     def __str__(self):
         return '{} ({}/{})'.format(self.name, self.port, self.get_protocol_display())
