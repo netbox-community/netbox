@@ -367,10 +367,6 @@ class CustomFieldChoice(models.Model):
 # Custom links
 #
 
-def get_custom_link_models():
-    return model_names_to_filter_dict(CUSTOMLINK_MODELS)
-
-
 class CustomLink(models.Model):
     """
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
@@ -379,7 +375,7 @@ class CustomLink(models.Model):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=get_custom_link_models
+        limit_choices_to=CUSTOMLINK_MODELS
     )
     name = models.CharField(
         max_length=100,

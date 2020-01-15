@@ -35,27 +35,39 @@ CUSTOMFIELD_MODELS = Q(
 )
 
 # Custom links
-CUSTOMLINK_MODELS = [
-    'circuits.circuit',
-    'circuits.provider',
-    'dcim.cable',
-    'dcim.device',
-    'dcim.devicetype',
-    'dcim.powerpanel',
-    'dcim.powerfeed',
-    'dcim.rack',
-    'dcim.site',
-    'ipam.aggregate',
-    'ipam.ipaddress',
-    'ipam.prefix',
-    'ipam.service',
-    'ipam.vlan',
-    'ipam.vrf',
-    'secrets.secret',
-    'tenancy.tenant',
-    'virtualization.cluster',
-    'virtualization.virtualmachine',
-]
+CUSTOMLINK_MODELS = Q(
+    Q(app_label='circuits', model__in=[
+        'circuit',
+        'provider',
+    ]) |
+    Q(app_label='dcim', model__in=[
+        'cable',
+        'device',
+        'devicetype',
+        'powerpanel',
+        'powerfeed',
+        'rack',
+        'site',
+    ]) |
+    Q(app_label='ipam', model__in=[
+        'aggregate',
+        'ipaddress',
+        'prefix',
+        'service',
+        'vlan',
+        'vrf',
+    ]) |
+    Q(app_label='secrets', model__in=[
+        'secret',
+    ]) |
+    Q(app_label='tenancy', model__in=[
+        'tenant',
+    ]) |
+    Q(app_label='virtualization', model__in=[
+        'cluster',
+        'virtualmachine',
+    ])
+)
 
 # Models which can have Graphs associated with them
 GRAPH_MODELS = (
