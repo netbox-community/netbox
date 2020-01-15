@@ -9,7 +9,7 @@ from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerial
 from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.choices import *
-from ipam.models import AF_CHOICES, Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import (
     ChoiceField, SerializedPKRelatedField, ValidatedModelSerializer, WritableNestedSerializer,
@@ -49,6 +49,7 @@ class RIRSerializer(ValidatedModelSerializer):
 
 
 class AggregateSerializer(TaggitSerializer, CustomFieldModelSerializer):
+    family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     rir = NestedRIRSerializer()
     tags = TagListSerializerField(required=False)
 
@@ -135,7 +136,7 @@ class VLANSerializer(TaggitSerializer, CustomFieldModelSerializer):
 #
 
 class PrefixSerializer(TaggitSerializer, CustomFieldModelSerializer):
-    family = ChoiceField(choices=AF_CHOICES, read_only=True)
+    family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     site = NestedSiteSerializer(required=False, allow_null=True)
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
@@ -197,7 +198,7 @@ class IPAddressInterfaceSerializer(WritableNestedSerializer):
 
 
 class IPAddressSerializer(TaggitSerializer, CustomFieldModelSerializer):
-    family = ChoiceField(choices=AF_CHOICES, read_only=True)
+    family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=IPAddressStatusChoices, required=False)

@@ -264,6 +264,7 @@ class AggregateTest(APITestCase):
         url = reverse('ipam-api:aggregate-detail', kwargs={'pk': self.aggregate1.pk})
         response = self.client.get(url, **self.header)
 
+        self.assertEqual(response.data['family']['value'], 4)
         self.assertEqual(response.data['prefix'], str(self.aggregate1.prefix))
 
     def test_list_aggregates(self):
@@ -470,6 +471,7 @@ class PrefixTest(APITestCase):
         url = reverse('ipam-api:prefix-detail', kwargs={'pk': self.prefix1.pk})
         response = self.client.get(url, **self.header)
 
+        self.assertEqual(response.data['family']['value'], 4)
         self.assertEqual(response.data['prefix'], str(self.prefix1.prefix))
 
     def test_list_prefixes(self):
@@ -706,6 +708,7 @@ class IPAddressTest(APITestCase):
         url = reverse('ipam-api:ipaddress-detail', kwargs={'pk': self.ipaddress1.pk})
         response = self.client.get(url, **self.header)
 
+        self.assertEqual(response.data['family']['value'], 4)
         self.assertEqual(response.data['address'], str(self.ipaddress1.address))
 
     def test_list_ipaddresss(self):

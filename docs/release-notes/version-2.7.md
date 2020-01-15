@@ -240,6 +240,7 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 ## Bug Fixes
 
 * [#3830](https://github.com/digitalocean/netbox/issues/3830) - Ensure deterministic ordering for all models
+* [#3930](https://github.com/digitalocean/netbox/issues/3930) - Fix API rendering of the `family` field for aggregates
 
 ## Bug Fixes (From Beta)
 

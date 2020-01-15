@@ -1,6 +1,17 @@
 from utilities.choices import ChoiceSet
 
 
+class IPAddressFamilyChoices(ChoiceSet):
+
+    FAMILY_4 = 4
+    FAMILY_6 = 6
+
+    CHOICES = (
+        (FAMILY_4, 'IPv4'),
+        (FAMILY_6, 'IPv6'),
+    )
+
+
 #
 # Prefixes
 #

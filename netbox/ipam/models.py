@@ -21,13 +21,6 @@ from .querysets import PrefixQuerySet
 from .validators import DNSValidator
 
 
-# IP address families
-AF_CHOICES = (
-    (4, 'IPv4'),
-    (6, 'IPv6'),
-)
-
-
 __all__ = (
     'Aggregate',
     'IPAddress',
@@ -158,7 +151,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
     the hierarchy and track the overall utilization of available address space. Each Aggregate is assigned to a RIR.
     """
     family = models.PositiveSmallIntegerField(
-        choices=AF_CHOICES
+        choices=IPAddressFamilyChoices
     )
     prefix = IPNetworkField()
     rir = models.ForeignKey(
@@ -299,7 +292,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     assigned to a VLAN where appropriate.
     """
     family = models.PositiveSmallIntegerField(
-        choices=AF_CHOICES,
+        choices=IPAddressFamilyChoices,
         editable=False
     )
     prefix = IPNetworkField(
@@ -570,7 +563,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
     which has a NAT outside IP, that Interface's Device can use either the inside or outside IP as its primary IP.
     """
     family = models.PositiveSmallIntegerField(
-        choices=AF_CHOICES,
+        choices=IPAddressFamilyChoices,
         editable=False
     )
     address = IPAddressField(
