@@ -2,7 +2,7 @@ from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
 
-from dcim.choices import InterfaceModeChoices, InterfaceTypeChoices
+from dcim.choices import InterfaceModeChoices
 from dcim.models import Interface
 from ipam.models import IPAddress, VLAN
 from utilities.testing import APITestCase, choices_to_dict
@@ -21,6 +21,9 @@ class ChoicesTest(APITestCase):
 
         # VirtualMachine
         self.assertEqual(choices_to_dict(response.data.get('virtual-machine:status')), VirtualMachineStatusChoices.as_dict())
+
+        # Interface
+        self.assertEqual(choices_to_dict(response.data.get('interface:type')), VMInterfaceTypeChoices.as_dict())
 
 
 class ClusterTypeTest(APITestCase):
