@@ -375,7 +375,8 @@ class RackElevationHelperMixin:
         drawing = svgwrite.Drawing(size=(width, height))
 
         # add the stylesheet
-        drawing.defs.add(drawing.style(RACK_ELEVATION_STYLE))
+        with open('{}/css/rack_elevation.css'.format(settings.STATICFILES_DIRS[0])) as css_file:
+            drawing.defs.add(drawing.style(css_file.read()))
 
         # add gradients
         RackElevationHelperMixin._add_gradient(drawing, 'reserved', '#c7c7ff')
