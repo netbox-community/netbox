@@ -124,7 +124,7 @@ Arbitrary text of any length. Renders as multi-line text input field.
 
 Stored a numeric integer. Options include:
 
-* `min_value:` - Minimum value
+* `min_value` - Minimum value
 * `max_value` - Maximum value
 
 ### BooleanVar
@@ -158,9 +158,16 @@ A NetBox object. The list of available objects is defined by the queryset parame
 
 An uploaded file. Note that uploaded files are present in memory only for the duration of the script's execution: They will not be save for future use.
 
+### IPAddressVar
+
+An IPv4 or IPv6 address (CIDR mask not allowed).
+
 ### IPNetworkVar
 
-An IPv4 or IPv6 network with a mask.
+An IPv4 or IPv6 network with a mask. Options include:
+
+* `min_prefix_length` - Minimum length of the mask (default: none)
+* `max_prefix_length` - Maximum length of the mask (default: none)
 
 ### Default Options
 
