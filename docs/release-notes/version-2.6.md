@@ -3,6 +3,7 @@
 ## Enhancements
 
 * [#3310](https://github.com/netbox-community/netbox/issues/3310) - Preselect site and rack when connecting cable
+* [#3525](https://github.com/netbox-community/netbox/issues/3525) - Enable IP address filtering with multiple address terms
 
 ## Bug Fixes
 
