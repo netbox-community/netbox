@@ -482,15 +482,11 @@ class Graph(models.Model):
 # Export templates
 #
 
-def get_export_template_models():
-    return model_names_to_filter_dict(EXPORTTEMPLATE_MODELS)
-
-
 class ExportTemplate(models.Model):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=get_export_template_models
+        limit_choices_to=EXPORTTEMPLATE_MODELS
     )
     name = models.CharField(
         max_length=100

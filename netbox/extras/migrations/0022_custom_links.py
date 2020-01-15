@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='exporttemplate',
             name='content_type',
-            field=models.ForeignKey(limit_choices_to=extras.models.get_export_template_models, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
         ),
         migrations.AlterField(
             model_name='webhook',

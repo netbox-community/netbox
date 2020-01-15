@@ -82,35 +82,47 @@ GRAPH_MODELS = Q(
 )
 
 # Models which support export templates
-EXPORTTEMPLATE_MODELS = [
-    'circuits.circuit',
-    'circuits.provider',
-    'dcim.cable',
-    'dcim.consoleport',
-    'dcim.device',
-    'dcim.devicetype',
-    'dcim.interface',
-    'dcim.inventoryitem',
-    'dcim.manufacturer',
-    'dcim.powerpanel',
-    'dcim.powerport',
-    'dcim.powerfeed',
-    'dcim.rack',
-    'dcim.rackgroup',
-    'dcim.region',
-    'dcim.site',
-    'dcim.virtualchassis',
-    'ipam.aggregate',
-    'ipam.ipaddress',
-    'ipam.prefix',
-    'ipam.service',
-    'ipam.vlan',
-    'ipam.vrf',
-    'secrets.secret',
-    'tenancy.tenant',
-    'virtualization.cluster',
-    'virtualization.virtualmachine',
-]
+EXPORTTEMPLATE_MODELS = Q(
+    Q(app_label='circuits', model__in=[
+        'circuit',
+        'provider',
+    ]) |
+    Q(app_label='dcim', model__in=[
+        'cable',
+        'consoleport',
+        'device',
+        'devicetype',
+        'interface',
+        'inventoryitem',
+        'manufacturer',
+        'powerpanel',
+        'powerport',
+        'powerfeed',
+        'rack',
+        'rackgroup',
+        'region',
+        'site',
+        'virtualchassis',
+    ]) |
+    Q(app_label='ipam', model__in=[
+        'aggregate',
+        'ipaddress',
+        'prefix',
+        'service',
+        'vlan',
+        'vrf',
+    ]) |
+    Q(app_label='secrets', model__in=[
+        'secret',
+    ]) |
+    Q(app_label='tenancy', model__in=[
+        'tenant',
+    ]) |
+    Q(app_label='virtualization', model__in=[
+        'cluster',
+        'virtualmachine',
+    ])
+)
 
 # Report logging levels
 LOG_DEFAULT = 0
