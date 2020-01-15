@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
 from mptt.forms import TreeNodeMultipleChoiceField
 
+from .choices import unpack_grouped_choices
 from .constants import *
 from .validators import EnhancedURLValidator
 
@@ -117,43 +118,6 @@ def add_blank_choice(choices):
     Add a blank choice to the beginning of a choices list.
     """
     return ((None, '---------'),) + tuple(choices)
-
-
-def unpack_grouped_choices(choices):
-    """
-    Unpack a grouped choices hierarchy into a flat list of two-tuples. For example:
-
-    choices = (
-        ('Foo', (
-            (1, 'A'),
-            (2, 'B')
-        )),
-        ('Bar', (
-            (3, 'C'),
-            (4, 'D')
-        ))
-    )
-
-    becomes:
-
-    choices = (
-        (1, 'A'),
-        (2, 'B'),
-        (3, 'C'),
-        (4, 'D')
-    )
-    """
-    unpacked_choices = []
-    for key, value in choices:
-        if key == 1300:
-            breakme = True
-        if isinstance(value, (list, tuple)):
-            # Entered an optgroup
-            for optgroup_key, optgroup_value in value:
-                unpacked_choices.append((optgroup_key, optgroup_value))
-        else:
-            unpacked_choices.append((key, value))
-    return unpacked_choices
 
 
 #

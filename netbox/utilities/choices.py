@@ -1,6 +1,3 @@
-from utilities.forms import unpack_grouped_choices
-
-
 class ChoiceSetMeta(type):
     """
     Metaclass for ChoiceSet
@@ -46,3 +43,38 @@ class ChoiceSet(metaclass=ChoiceSetMeta):
                 (id, slug) for slug, id in cls.LEGACY_MAP.items()
             ])
             return legacy_map.get(legacy_id)
+
+
+def unpack_grouped_choices(choices):
+    """
+    Unpack a grouped choices hierarchy into a flat list of two-tuples. For example:
+
+    choices = (
+        ('Foo', (
+            (1, 'A'),
+            (2, 'B')
+        )),
+        ('Bar', (
+            (3, 'C'),
+            (4, 'D')
+        ))
+    )
+
+    becomes:
+
+    choices = (
+        (1, 'A'),
+        (2, 'B'),
+        (3, 'C'),
+        (4, 'D')
+    )
+    """
+    unpacked_choices = []
+    for key, value in choices:
+        if isinstance(value, (list, tuple)):
+            # Entered an optgroup
+            for optgroup_key, optgroup_value in value:
+                unpacked_choices.append((optgroup_key, optgroup_value))
+        else:
+            unpacked_choices.append((key, value))
+    return unpacked_choices
