@@ -1,6 +1,6 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
-from netaddr import IPNetwork
+from netaddr import IPAddress, IPNetwork
 
 from dcim.models import DeviceRole
 from extras.scripts import *
@@ -185,6 +185,30 @@ class ScriptVariablesTest(TestCase):
         form = TestScript().as_form(None, file_data)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data['var1'], testfile)
+
+    def test_ipaddressvar(self):
+
+        class TestScript(Script):
+
+            var1 = IPAddressVar()
+
+        # Validate IP address enforcement
+        data = {'var1': '1.2.3.2555'}
+        form = TestScript().as_form(data, None)
+        self.assertFalse(form.is_valid())
+        self.assertIn('var1', form.errors)
+
+        # Subnet masks are not accepted
+        data = {'var1': '192.0.2.0/24'}
+        form = TestScript().as_form(data, None)
+        self.assertFalse(form.is_valid())
+        self.assertIn('var1', form.errors)
+
+        # Validate valid data
+        data = {'var1': '192.0.2.0'}
+        form = TestScript().as_form(data, None)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['var1'], IPAddress(data['var1']))
 
     def test_ipnetworkvar(self):
 
