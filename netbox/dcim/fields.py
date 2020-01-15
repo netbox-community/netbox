@@ -3,7 +3,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from netaddr import AddrFormatError, EUI, mac_unix_expanded
 
-from .constants import *
+from ipam.constants import BGP_ASN_MAX, BGP_ASN_MIN
 
 
 class ASNField(models.BigIntegerField):
@@ -14,7 +14,10 @@ class ASNField(models.BigIntegerField):
     ]
 
     def formfield(self, **kwargs):
-        defaults = {'min_value': BGP_ASN_MIN, 'max_value': BGP_ASN_MAX}
+        defaults = {
+            'min_value': BGP_ASN_MIN,
+            'max_value': BGP_ASN_MAX,
+        }
         defaults.update(**kwargs)
         return super().formfield(**defaults)
 

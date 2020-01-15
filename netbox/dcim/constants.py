@@ -1,9 +1,5 @@
 from .choices import InterfaceTypeChoices
 
-# BGP ASN bounds
-BGP_ASN_MIN = 1
-BGP_ASN_MAX = 2**32 - 1
-
 
 #
 # Rack elevation rendering

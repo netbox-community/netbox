@@ -16,7 +16,8 @@ from circuits.models import Circuit, Provider
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm, LocalConfigContextFilterForm
 )
-from ipam.models import IPAddress, VLAN, VLANGroup
+from ipam.constants import BGP_ASN_MAX, BGP_ASN_MIN
+from ipam.models import IPAddress, VLAN
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
