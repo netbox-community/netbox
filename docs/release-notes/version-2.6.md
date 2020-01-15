@@ -6,8 +6,10 @@
 
 ## Bug Fixes
 
+* [#3900](https://github.com/netbox-community/netbox/issues/3900) - Fix exception when deleting device types
 * [#3914](https://github.com/netbox-community/netbox/issues/3914) - Fix interface filter field when unauthenticated
 * [#3919](https://github.com/netbox-community/netbox/issues/3919) - Fix utilization graph extending out of bounds when utilization > 100%
+* [#3927](https://github.com/netbox-community/netbox/issues/3927) - Fix exception when deleting devices with secrets assigned
 
 ---
 

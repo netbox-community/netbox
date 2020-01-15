@@ -38,11 +38,18 @@ class ComponentTemplateModel(models.Model):
         raise NotImplementedError()
 
     def to_objectchange(self, action):
+        # Annotate the parent DeviceType
+        try:
+            parent = getattr(self, 'device_type', None)
+        except ObjectDoesNotExist:
+            # The parent DeviceType has already been deleted
+            parent = None
+
         return ObjectChange(
             changed_object=self,
             object_repr=str(self),
             action=action,
-            related_object=self.device_type,
+            related_object=parent,
             object_data=serialize_object(self)
         )
 

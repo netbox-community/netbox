@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from taggit.managers import TaggableManager
 
+from dcim.models import Device
 from extras.models import CustomFieldModel, TaggedItem
 from utilities.models import ChangeLoggedModel
 from .exceptions import InvalidKey
@@ -359,10 +360,14 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
         super().__init__(*args, **kwargs)
 
     def __str__(self):
-        if self.role and self.device and self.name:
+        try:
+            device = self.device
+        except Device.DoesNotExist:
+            device = None
+        if self.role and device and self.name:
             return '{} for {} ({})'.format(self.role, self.device, self.name)
         # Return role and device if no name is set
-        if self.role and self.device:
+        if self.role and device:
             return '{} for {}'.format(self.role, self.device)
         return 'Secret'
 
