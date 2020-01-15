@@ -2238,7 +2238,10 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         widget=APISelect(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
     tagged_vlans = forms.ModelMultipleChoiceField(
@@ -2247,7 +2250,10 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         widget=APISelectMultiple(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
 
@@ -2288,6 +2294,10 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
             self.fields['lag'].queryset = Interface.objects.filter(
                 device__in=[self.instance.device, self.instance.device.get_vc_master()], type=IFACE_TYPE_LAG
             )
+
+        # Add current site to VLANs query params
+        self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', device.site.pk)
+        self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', device.site.pk)
 
 
 class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
@@ -2340,7 +2350,10 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
         widget=APISelect(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
     tagged_vlans = forms.ModelMultipleChoiceField(
@@ -2349,7 +2362,10 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
         widget=APISelectMultiple(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
 
@@ -2366,6 +2382,10 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
             self.fields['lag'].queryset = Interface.objects.filter(
                 device__in=[self.parent, self.parent.get_vc_master()], type=IFACE_TYPE_LAG
             )
+
+            # Add current site to VLANs query params
+            self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', self.parent.site.pk)
+            self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', self.parent.site.pk)
         else:
             self.fields['lag'].queryset = Interface.objects.none()
 
@@ -2420,7 +2440,10 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
         widget=APISelect(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
     tagged_vlans = forms.ModelMultipleChoiceField(
@@ -2429,7 +2452,10 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
         widget=APISelectMultiple(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
 
@@ -2448,6 +2474,10 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
                 device__in=[device, device.get_vc_master()],
                 type=IFACE_TYPE_LAG
             )
+
+            # Add current site to VLANs query params
+            self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', device.site.pk)
+            self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', device.site.pk)
         else:
             self.fields['lag'].choices = []
 

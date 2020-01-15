@@ -3,6 +3,7 @@
 ## Enhancements
 
 * [#3525](https://github.com/netbox-community/netbox/issues/3525) - Enable IP address filtering with multiple address terms
+* [#3840](https://github.com/netbox-community/netbox/issues/3840) - Only show the valid list of interface VLAN choices
 
 ## Bug Fixes
 
@@ -42,7 +43,7 @@
 * [#3872](https://github.com/netbox-community/netbox/issues/3872) - Paginate related IPs on the IP address view
 * [#3876](https://github.com/netbox-community/netbox/issues/3876) - Fix minimum/maximum value rendering for site ASN field
 * [#3882](https://github.com/netbox-community/netbox/issues/3882) - Fix filtering of devices by rack group
-* [#3898](https://github.com/netbox-community/netbox/issues/3898) - Fix references to deleted cables without a label 
+* [#3898](https://github.com/netbox-community/netbox/issues/3898) - Fix references to deleted cables without a label
 * [#3905](https://github.com/netbox-community/netbox/issues/3905) - Fix divide-by-zero on power feeds with low power values
 
 ---
