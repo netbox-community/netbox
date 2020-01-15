@@ -120,6 +120,7 @@ class Webhook(models.Model):
     )
 
     class Meta:
+        ordering = ('name',)
         unique_together = ('payload_url', 'type_create', 'type_update', 'type_delete',)
 
     def __str__(self):
@@ -308,8 +309,8 @@ class CustomFieldValue(models.Model):
     )
 
     class Meta:
-        ordering = ['obj_type', 'obj_id']
-        unique_together = ['field', 'obj_type', 'obj_id']
+        ordering = ('obj_type', 'obj_id', 'pk')  # (obj_type, obj_id) may be non-unique
+        unique_together = ('field', 'obj_type', 'obj_id')
 
     def __str__(self):
         return '{} {}'.format(self.obj, self.field)
@@ -454,7 +455,7 @@ class Graph(models.Model):
     )
 
     class Meta:
-        ordering = ['type', 'weight', 'name']
+        ordering = ('type', 'weight', 'name', 'pk')  # (type, weight, name) may be non-unique
 
     def __str__(self):
         return self.name
@@ -623,7 +624,7 @@ class ImageAttachment(models.Model):
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name', 'pk')  # name may be non-unique
 
     def __str__(self):
         if self.name:

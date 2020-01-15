@@ -594,8 +594,9 @@ class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
     }
 
     class Meta:
-        ordering = ['site', 'group', 'name']
+        ordering = ('site', 'group', 'name', 'pk')  # (site, group, name) may be non-unique
         unique_together = [
+            # Name and facility_id must be unique *only* within a RackGroup
             ['group', 'name'],
             ['group', 'facility_id'],
         ]
@@ -1392,7 +1393,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     }
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name', 'pk')  # Name may be NULL
         unique_together = [
             ['site', 'tenant', 'name'],  # See validate_unique below
             ['rack', 'position', 'face'],
