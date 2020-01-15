@@ -12,7 +12,7 @@
                     <li><a href="{{ objectchange.related_object.get_absolute_url }}changelog/">{{ objectchange.related_object }}</a></li>
                 {% elif objectchange.changed_object.get_absolute_url %}
                     <li><a href="{{ objectchange.changed_object.get_absolute_url }}changelog/">{{ objectchange.changed_object }}</a></li>
-                {% else %}
+                {% elif objectchange.changed_object %}
                     <li>{{ objectchange.changed_object }}</li>
                 {% endif %}
                 <li>{{ objectchange }}</li>
