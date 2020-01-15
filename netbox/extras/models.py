@@ -43,10 +43,6 @@ __all__ = (
 # Webhooks
 #
 
-def get_webhook_models():
-    return model_names_to_filter_dict(WEBHOOK_MODELS)
-
-
 class Webhook(models.Model):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
@@ -58,7 +54,7 @@ class Webhook(models.Model):
         to=ContentType,
         related_name='webhooks',
         verbose_name='Object types',
-        limit_choices_to=get_webhook_models,
+        limit_choices_to=WEBHOOK_MODELS,
         help_text="The object(s) to which this Webhook applies."
     )
     name = models.CharField(

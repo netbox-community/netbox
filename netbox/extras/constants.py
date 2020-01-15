@@ -139,36 +139,48 @@ LOG_LEVEL_CODES = {
 }
 
 # Models which support registered webhooks
-WEBHOOK_MODELS = [
-    'circuits.circuit',
-    'circuits.provider',
-    'dcim.cable',
-    'dcim.consoleport',
-    'dcim.consoleserverport',
-    'dcim.device',
-    'dcim.devicebay',
-    'dcim.devicetype',
-    'dcim.interface',
-    'dcim.inventoryitem',
-    'dcim.frontport',
-    'dcim.manufacturer',
-    'dcim.poweroutlet',
-    'dcim.powerpanel',
-    'dcim.powerport',
-    'dcim.powerfeed',
-    'dcim.rack',
-    'dcim.rearport',
-    'dcim.region',
-    'dcim.site',
-    'dcim.virtualchassis',
-    'ipam.aggregate',
-    'ipam.ipaddress',
-    'ipam.prefix',
-    'ipam.service',
-    'ipam.vlan',
-    'ipam.vrf',
-    'secrets.secret',
-    'tenancy.tenant',
-    'virtualization.cluster',
-    'virtualization.virtualmachine',
-]
+WEBHOOK_MODELS = Q(
+    Q(app_label='circuits', model__in=[
+        'circuit',
+        'provider',
+    ]) |
+    Q(app_label='dcim', model__in=[
+        'cable',
+        'consoleport',
+        'consoleserverport',
+        'device',
+        'devicebay',
+        'devicetype',
+        'frontport',
+        'interface',
+        'inventoryitem',
+        'manufacturer',
+        'poweroutlet',
+        'powerpanel',
+        'powerport',
+        'powerfeed',
+        'rack',
+        'rearport',
+        'region',
+        'site',
+        'virtualchassis',
+    ]) |
+    Q(app_label='ipam', model__in=[
+        'aggregate',
+        'ipaddress',
+        'prefix',
+        'service',
+        'vlan',
+        'vrf',
+    ]) |
+    Q(app_label='secrets', model__in=[
+        'secret',
+    ]) |
+    Q(app_label='tenancy', model__in=[
+        'tenant',
+    ]) |
+    Q(app_label='virtualization', model__in=[
+        'cluster',
+        'virtualmachine',
+    ])
+)

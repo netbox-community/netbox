@@ -43,6 +43,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='webhook',
             name='obj_type',
-            field=models.ManyToManyField(limit_choices_to=extras.models.get_webhook_models, related_name='webhooks', to='contenttypes.ContentType'),
+            field=models.ManyToManyField(related_name='webhooks', to='contenttypes.ContentType'),
         ),
     ]
