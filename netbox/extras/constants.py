@@ -1,85 +1,128 @@
+from django.db.models import Q
+
+
 # Models which support custom fields
-CUSTOMFIELD_MODELS = [
-    'circuits.circuit',
-    'circuits.provider',
-    'dcim.device',
-    'dcim.devicetype',
-    'dcim.powerfeed',
-    'dcim.rack',
-    'dcim.site',
-    'ipam.aggregate',
-    'ipam.ipaddress',
-    'ipam.prefix',
-    'ipam.service',
-    'ipam.vlan',
-    'ipam.vrf',
-    'secrets.secret',
-    'tenancy.tenant',
-    'virtualization.cluster',
-    'virtualization.virtualmachine',
-]
+CUSTOMFIELD_MODELS = Q(
+    Q(app_label='circuits', model__in=[
+        'circuit',
+        'provider',
+    ]) |
+    Q(app_label='dcim', model__in=[
+        'device',
+        'devicetype',
+        'powerfeed',
+        'rack',
+        'site',
+    ]) |
+    Q(app_label='ipam', model__in=[
+        'aggregate',
+        'ipaddress',
+        'prefix',
+        'service',
+        'vlan',
+        'vrf',
+    ]) |
+    Q(app_label='secrets', model__in=[
+        'secret',
+    ]) |
+    Q(app_label='tenancy', model__in=[
+        'tenant',
+    ]) |
+    Q(app_label='virtualization', model__in=[
+        'cluster',
+        'virtualmachine',
+    ])
+)
 
 # Custom links
-CUSTOMLINK_MODELS = [
-    'circuits.circuit',
-    'circuits.provider',
-    'dcim.cable',
-    'dcim.device',
-    'dcim.devicetype',
-    'dcim.powerpanel',
-    'dcim.powerfeed',
-    'dcim.rack',
-    'dcim.site',
-    'ipam.aggregate',
-    'ipam.ipaddress',
-    'ipam.prefix',
-    'ipam.service',
-    'ipam.vlan',
-    'ipam.vrf',
-    'secrets.secret',
-    'tenancy.tenant',
-    'virtualization.cluster',
-    'virtualization.virtualmachine',
-]
+CUSTOMLINK_MODELS = Q(
+    Q(app_label='circuits', model__in=[
+        'circuit',
+        'provider',
+    ]) |
+    Q(app_label='dcim', model__in=[
+        'cable',
+        'device',
+        'devicetype',
+        'powerpanel',
+        'powerfeed',
+        'rack',
+        'site',
+    ]) |
+    Q(app_label='ipam', model__in=[
+        'aggregate',
+        'ipaddress',
+        'prefix',
+        'service',
+        'vlan',
+        'vrf',
+    ]) |
+    Q(app_label='secrets', model__in=[
+        'secret',
+    ]) |
+    Q(app_label='tenancy', model__in=[
+        'tenant',
+    ]) |
+    Q(app_label='virtualization', model__in=[
+        'cluster',
+        'virtualmachine',
+    ])
+)
 
 # Models which can have Graphs associated with them
-GRAPH_MODELS = (
-    'circuits.provider',
-    'dcim.device',
-    'dcim.interface',
-    'dcim.site',
+GRAPH_MODELS = Q(
+    Q(app_label='circuits', model__in=[
+        'provider',
+    ]) |
+    Q(app_label='dcim', model__in=[
+        'device',
+        'interface',
+        'site',
+    ])
 )
 
 # Models which support export templates
-EXPORTTEMPLATE_MODELS = [
-    'circuits.circuit',
-    'circuits.provider',
-    'dcim.cable',
-    'dcim.consoleport',
-    'dcim.device',
-    'dcim.devicetype',
-    'dcim.interface',
-    'dcim.inventoryitem',
-    'dcim.manufacturer',
-    'dcim.powerpanel',
-    'dcim.powerport',
-    'dcim.powerfeed',
-    'dcim.rack',
-    'dcim.rackgroup',
-    'dcim.region',
-    'dcim.site',
-    'dcim.virtualchassis',
-    'ipam.aggregate',
-    'ipam.ipaddress',
-    'ipam.prefix',
-    'ipam.service',
-    'ipam.vlan',
-    'ipam.vrf',
-    'secrets.secret',
-    'tenancy.tenant',
-    'virtualization.cluster',
-    'virtualization.virtualmachine',
-]
+EXPORTTEMPLATE_MODELS = Q(
+    Q(app_label='circuits', model__in=[
+        'circuit',
+        'provider',
+    ]) |
+    Q(app_label='dcim', model__in=[
+        'cable',
+        'consoleport',
+        'device',
+        'devicetype',
+        'interface',
+        'inventoryitem',
+        'manufacturer',
+        'powerpanel',
+        'powerport',
+        'powerfeed',
+        'rack',
+        'rackgroup',
+        'region',
+        'site',
+        'virtualchassis',
+    ]) |
+    Q(app_label='ipam', model__in=[
+        'aggregate',
+        'ipaddress',
+        'prefix',
+        'service',
+        'vlan',
+        'vrf',
+    ]) |
+    Q(app_label='secrets', model__in=[
+        'secret',
+    ]) |
+    Q(app_label='tenancy', model__in=[
+        'tenant',
+    ]) |
+    Q(app_label='virtualization', model__in=[
+        'cluster',
+        'virtualmachine',
+    ])
+)
 
 # Report logging levels
 LOG_DEFAULT = 0
@@ -96,36 +139,48 @@ LOG_LEVEL_CODES = {
 }
 
 # Models which support registered webhooks
-WEBHOOK_MODELS = [
-    'circuits.circuit',
-    'circuits.provider',
-    'dcim.cable',
-    'dcim.consoleport',
-    'dcim.consoleserverport',
-    'dcim.device',
-    'dcim.devicebay',
-    'dcim.devicetype',
-    'dcim.interface',
-    'dcim.inventoryitem',
-    'dcim.frontport',
-    'dcim.manufacturer',
-    'dcim.poweroutlet',
-    'dcim.powerpanel',
-    'dcim.powerport',
-    'dcim.powerfeed',
-    'dcim.rack',
-    'dcim.rearport',
-    'dcim.region',
-    'dcim.site',
-    'dcim.virtualchassis',
-    'ipam.aggregate',
-    'ipam.ipaddress',
-    'ipam.prefix',
-    'ipam.service',
-    'ipam.vlan',
-    'ipam.vrf',
-    'secrets.secret',
-    'tenancy.tenant',
-    'virtualization.cluster',
-    'virtualization.virtualmachine',
-]
+WEBHOOK_MODELS = Q(
+    Q(app_label='circuits', model__in=[
+        'circuit',
+        'provider',
+    ]) |
+    Q(app_label='dcim', model__in=[
+        'cable',
+        'consoleport',
+        'consoleserverport',
+        'device',
+        'devicebay',
+        'devicetype',
+        'frontport',
+        'interface',
+        'inventoryitem',
+        'manufacturer',
+        'poweroutlet',
+        'powerpanel',
+        'powerport',
+        'powerfeed',
+        'rack',
+        'rearport',
+        'region',
+        'site',
+        'virtualchassis',
+    ]) |
+    Q(app_label='ipam', model__in=[
+        'aggregate',
+        'ipaddress',
+        'prefix',
+        'service',
+        'vlan',
+        'vrf',
+    ]) |
+    Q(app_label='secrets', model__in=[
+        'secret',
+    ]) |
+    Q(app_label='tenancy', model__in=[
+        'tenant',
+    ]) |
+    Q(app_label='virtualization', model__in=[
+        'cluster',
+        'virtualmachine',
+    ])
+)

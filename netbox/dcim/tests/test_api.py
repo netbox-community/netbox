@@ -30,7 +30,7 @@ class ChoicesTest(APITestCase):
         # Cable
         self.assertEqual(choices_to_dict(response.data.get('cable:length_unit')), CableLengthUnitChoices.as_dict())
         self.assertEqual(choices_to_dict(response.data.get('cable:status')), CableStatusChoices.as_dict())
-        content_types = ContentType.objects.filter(model__in=CABLE_TERMINATION_TYPES)
+        content_types = ContentType.objects.filter(CABLE_TERMINATION_MODELS)
         cable_termination_choices = {
             "{}.{}".format(ct.app_label, ct.model): ct.name for ct in content_types
         }

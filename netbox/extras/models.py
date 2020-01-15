@@ -13,7 +13,7 @@ from django.urls import reverse
 from taggit.models import TagBase, GenericTaggedItemBase
 
 from utilities.fields import ColorField
-from utilities.utils import deepmerge, model_names_to_filter_dict, render_jinja2
+from utilities.utils import deepmerge, render_jinja2
 from .choices import *
 from .constants import *
 from .querysets import ConfigContextQuerySet
@@ -43,10 +43,6 @@ __all__ = (
 # Webhooks
 #
 
-def get_webhook_models():
-    return model_names_to_filter_dict(WEBHOOK_MODELS)
-
-
 class Webhook(models.Model):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
@@ -58,7 +54,7 @@ class Webhook(models.Model):
         to=ContentType,
         related_name='webhooks',
         verbose_name='Object types',
-        limit_choices_to=get_webhook_models,
+        limit_choices_to=WEBHOOK_MODELS,
         help_text="The object(s) to which this Webhook applies."
     )
     name = models.CharField(
@@ -192,16 +188,12 @@ class CustomFieldModel(models.Model):
             return OrderedDict([(field, None) for field in fields])
 
 
-def get_custom_field_models():
-    return model_names_to_filter_dict(CUSTOMFIELD_MODELS)
-
-
 class CustomField(models.Model):
     obj_type = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
         verbose_name='Object(s)',
-        limit_choices_to=get_custom_field_models,
+        limit_choices_to=CUSTOMFIELD_MODELS,
         help_text='The object(s) to which this field applies.'
     )
     type = models.CharField(
@@ -371,10 +363,6 @@ class CustomFieldChoice(models.Model):
 # Custom links
 #
 
-def get_custom_link_models():
-    return model_names_to_filter_dict(CUSTOMLINK_MODELS)
-
-
 class CustomLink(models.Model):
     """
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
@@ -383,7 +371,7 @@ class CustomLink(models.Model):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=get_custom_link_models
+        limit_choices_to=CUSTOMLINK_MODELS
     )
     name = models.CharField(
         max_length=100,
@@ -431,7 +419,7 @@ class Graph(models.Model):
     type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=model_names_to_filter_dict(GRAPH_MODELS)
+        limit_choices_to=GRAPH_MODELS
     )
     weight = models.PositiveSmallIntegerField(
         default=1000
@@ -490,15 +478,11 @@ class Graph(models.Model):
 # Export templates
 #
 
-def get_export_template_models():
-    return model_names_to_filter_dict(EXPORTTEMPLATE_MODELS)
-
-
 class ExportTemplate(models.Model):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=get_export_template_models
+        limit_choices_to=EXPORTTEMPLATE_MODELS
     )
     name = models.CharField(
         max_length=100

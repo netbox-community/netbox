@@ -20,7 +20,6 @@ from utilities.api import (
     ChoiceField, ContentTypeField, get_serializer_for_model, SerializerNotFound, SerializedPKRelatedField,
     ValidatedModelSerializer,
 )
-from utilities.utils import model_names_to_filter_dict
 from .nested_serializers import *
 
 
@@ -30,7 +29,7 @@ from .nested_serializers import *
 
 class GraphSerializer(ValidatedModelSerializer):
     type = ContentTypeField(
-        queryset=ContentType.objects.filter(**model_names_to_filter_dict(GRAPH_MODELS)),
+        queryset=ContentType.objects.filter(GRAPH_MODELS),
     )
 
     class Meta:

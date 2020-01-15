@@ -609,10 +609,10 @@ class InventoryItemSerializer(TaggitSerializer, ValidatedModelSerializer):
 
 class CableSerializer(ValidatedModelSerializer):
     termination_a_type = ContentTypeField(
-        queryset=ContentType.objects.filter(model__in=CABLE_TERMINATION_TYPES)
+        queryset=ContentType.objects.filter(CABLE_TERMINATION_MODELS)
     )
     termination_b_type = ContentTypeField(
-        queryset=ContentType.objects.filter(model__in=CABLE_TERMINATION_TYPES)
+        queryset=ContentType.objects.filter(CABLE_TERMINATION_MODELS)
     )
     termination_a = serializers.SerializerMethodField(read_only=True)
     termination_b = serializers.SerializerMethodField(read_only=True)

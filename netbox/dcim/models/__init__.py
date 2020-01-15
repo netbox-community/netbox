@@ -1939,7 +1939,7 @@ class Cable(ChangeLoggedModel):
     """
     termination_a_type = models.ForeignKey(
         to=ContentType,
-        limit_choices_to={'model__in': CABLE_TERMINATION_TYPES},
+        limit_choices_to=CABLE_TERMINATION_MODELS,
         on_delete=models.PROTECT,
         related_name='+'
     )
@@ -1950,7 +1950,7 @@ class Cable(ChangeLoggedModel):
     )
     termination_b_type = models.ForeignKey(
         to=ContentType,
-        limit_choices_to={'model__in': CABLE_TERMINATION_TYPES},
+        limit_choices_to=CABLE_TERMINATION_MODELS,
         on_delete=models.PROTECT,
         related_name='+'
     )

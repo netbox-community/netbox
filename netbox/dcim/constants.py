@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from .choices import InterfaceTypeChoices
 
 
@@ -43,10 +45,21 @@ CONNECTION_STATUS_CHOICES = [
 ]
 
 # Cable endpoint types
-CABLE_TERMINATION_TYPES = [
-    'consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontport', 'rearport',
-    'circuittermination', 'powerfeed',
-]
+CABLE_TERMINATION_MODELS = Q(
+    Q(app_label='circuits', model__in=(
+        'circuittermination',
+    )) |
+    Q(app_label='dcim', model__in=(
+        'consoleport',
+        'consoleserverport',
+        'frontport',
+        'interface',
+        'powerfeed',
+        'poweroutlet',
+        'powerport',
+        'rearport',
+    ))
+)
 
 COMPATIBLE_TERMINATION_TYPES = {
     'consoleport': ['consoleserverport', 'frontport', 'rearport'],
