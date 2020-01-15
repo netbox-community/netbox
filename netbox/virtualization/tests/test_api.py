@@ -10,7 +10,14 @@ from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
-class ChoicesTest(APITestCase):
+class AppTest(APITestCase):
+
+    def test_root(self):
+
+        url = reverse('virtualization-api:api-root')
+        response = self.client.get('{}?format=api'.format(url), **self.header)
+
+        self.assertEqual(response.status_code, 200)
 
     def test_choices(self):
 

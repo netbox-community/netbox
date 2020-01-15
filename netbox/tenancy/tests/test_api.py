@@ -5,7 +5,14 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.testing import APITestCase
 
 
-class ChoicesTest(APITestCase):
+class AppTest(APITestCase):
+
+    def test_root(self):
+
+        url = reverse('tenancy-api:api-root')
+        response = self.client.get('{}?format=api'.format(url), **self.header)
+
+        self.assertEqual(response.status_code, 200)
 
     def test_choices(self):
 

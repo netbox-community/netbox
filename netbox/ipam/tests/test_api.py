@@ -10,7 +10,14 @@ from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, 
 from utilities.testing import APITestCase, choices_to_dict
 
 
-class ChoicesTest(APITestCase):
+class AppTest(APITestCase):
+
+    def test_root(self):
+
+        url = reverse('ipam-api:api-root')
+        response = self.client.get('{}?format=api'.format(url), **self.header)
+
+        self.assertEqual(response.status_code, 200)
 
     def test_choices(self):
 
