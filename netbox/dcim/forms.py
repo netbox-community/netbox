@@ -104,7 +104,7 @@ class InterfaceCommonForm:
             self.cleaned_data['tagged_vlans'] = []
 
         # Validate tagged VLANs; must be a global VLAN or in the same site
-        elif self.cleaned_data['mode'] == IFACE_MODE_TAGGED:
+        elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED:
             valid_sites = [None, self.cleaned_data['device'].site]
             invalid_vlans = [str(v) for v in tagged_vlans if v.site not in valid_sites]
 
