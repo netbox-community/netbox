@@ -14,7 +14,7 @@ from django.db import transaction
 from mptt.forms import TreeNodeChoiceField, TreeNodeMultipleChoiceField
 from mptt.models import MPTTModel
 
-from ipam.formfields import IPFormField
+from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from utilities.exceptions import AbortTransaction
 from utilities.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
@@ -27,6 +27,7 @@ __all__ = [
     'ChoiceVar',
     'FileVar',
     'IntegerVar',
+    'IPAddressVar',
     'IPNetworkVar',
     'MultiObjectVar',
     'ObjectVar',
@@ -196,11 +197,18 @@ class FileVar(ScriptVariable):
     form_field = forms.FileField
 
 
+class IPAddressVar(ScriptVariable):
+    """
+    An IPv4 or IPv6 address.
+    """
+    form_field = IPAddressFormField
+
+
 class IPNetworkVar(ScriptVariable):
     """
     An IPv4 or IPv6 prefix.
     """
-    form_field = IPFormField
+    form_field = IPNetworkFormField
 
     def __init__(self, min_prefix_length=None, max_prefix_length=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
