@@ -8,6 +8,7 @@
 
 * [#3900](https://github.com/netbox-community/netbox/issues/3900) - Fix exception when deleting device types
 * [#3914](https://github.com/netbox-community/netbox/issues/3914) - Fix interface filter field when unauthenticated
+* [#3927](https://github.com/netbox-community/netbox/issues/3927) - Fix exception when deleting devices with secrets assigned
 
 ---
 
