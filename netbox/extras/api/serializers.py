@@ -20,7 +20,6 @@ from utilities.api import (
     ChoiceField, ContentTypeField, get_serializer_for_model, SerializerNotFound, SerializedPKRelatedField,
     ValidatedModelSerializer,
 )
-from utilities.utils import model_names_to_filter_dict
 from .nested_serializers import *
 
 

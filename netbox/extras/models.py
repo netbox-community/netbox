@@ -13,7 +13,7 @@ from django.urls import reverse
 from taggit.models import TagBase, GenericTaggedItemBase
 
 from utilities.fields import ColorField
-from utilities.utils import deepmerge, model_names_to_filter_dict, render_jinja2
+from utilities.utils import deepmerge, render_jinja2
 from .choices import *
 from .constants import *
 from .querysets import ConfigContextQuerySet
