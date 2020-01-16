@@ -1,4 +1,14 @@
-# v2.7.0 (FUTURE)
+# v2.7.1 (FUTURE)
+
+## Enhancements
+
+* [#568](https://github.com/netbox-community/netbox/issues/568) - Allow custom fields to be imported and exported using CSV
+
+---
+
+# v2.7.0 (2020-01-16)
+
+**Note:** This release completely removes the topology map feature ([#2745](https://github.com/netbox-community/netbox/issues/2745)).
 
 **Note:** NetBox v2.7 is the last major release that will support Python 3.5. Beginning with NetBox v2.8, Python 3.6 or
 higher will be required.
@@ -7,7 +17,7 @@ higher will be required.
 
 ### Enhanced Device Type Import ([#451](https://github.com/netbox-community/netbox/issues/451))
 
-NetBox now supports the import of device types and related component templates using a definition written in YAML or
+NetBox now supports the import of device types and related component templates using definitions written in YAML or
 JSON. For example, the following will create a new device type with four network interfaces, two power ports, and a
 console port:
 
@@ -32,14 +42,13 @@ console-ports:
   - name: Console
 ```
 
-This new functionality replaces the existing CSV-based import form, which did not allow for component template import.
+This new functionality replaces the old CSV-based import form, which did not allow for bulk import of component
+templates.
 
 ### Bulk Import of Device Components ([#822](https://github.com/netbox-community/netbox/issues/822))
 
-NetBox now supports the bulk import of device components such as console ports, power ports, and interfaces across
-multiple devices. Device components can be imported in CSV-format.
-
-Here's an example bulk import of interfaces to several devices:
+Device components such as console ports, power ports, and interfaces can now be imported in bulk to multiple devices in
+CSV format. Here's an example showing the bulk import of interfaces to several devices:
 
 ```
 device,name,type
@@ -48,6 +57,8 @@ Switch1,Vlan200,Virtual
 Switch2,Vlan100,Virtual
 Switch2,Vlan200,Virtual
 ```
+
+The import form for each type of device component is available under the "Devices" item in the navigation menu.
 
 ### External File Storage ([#1814](https://github.com/netbox-community/netbox/issues/1814))
 
@@ -64,7 +75,7 @@ filesystem on the NetBox server. This release introduces support for several rem
 * Google Cloud Storage
 * SFTP
 
-To enable remote file storage, first install `django-storages`:
+To enable remote file storage, first install the `django-storages` package:
 
 ```
 pip install django-storages
@@ -85,15 +96,13 @@ STORAGE_CONFIG = {
 
 Thanks to [@steffann](https://github.com/steffann) for contributing this work!
 
-## Changes
-
 ### Rack Elevations Rendered via SVG ([#2248](https://github.com/netbox-community/netbox/issues/2248))
 
 NetBox v2.7 introduces a new method of rendering rack elevations as an
-[SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics) via a REST API endpoint. This replaces the prior method of
-rendering elevations using pure HTML which was cumbersome and had several shortcomings. Allowing elevations to be
-rendered as an SVG image in the API allows users to retrieve and make use of the drawings in their own tooling. This
-also opens the door to other feature requests related to rack elevations in the NetBox backlog.
+[SVG image](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics) via a REST API endpoint. This replaces the prior
+method of rendering elevations using pure HTML and CSS, which was cumbersome and had several shortcomings. Rendering
+rack elevations as SVG images via the REST API allows users to retrieve and make use of the drawings in their own
+tooling. This also opens the door to other feature requests related to rack elevations in the NetBox backlog.
 
 This feature implements a new REST API endpoint:
 
@@ -102,28 +111,13 @@ This feature implements a new REST API endpoint:
 ```
 
 By default, this endpoint returns a paginated JSON response representing each rack unit in the given elevation. This is
-the same response returned by the rack units detail endpoint and for this reason the rack units endpoint has been
-deprecated and will be removed in v2.8 (see [#3753](https://github.com/netbox-community/netbox/issues/3753)):
+the same response returned by the existing rack units detail endpoint at `/api/dcim/racks/<id>/units/`, which will be
+removed in v2.8 (see [#3753](https://github.com/netbox-community/netbox/issues/3753)).
 
-```
-/api/dcim/racks/<id>/units/
-```
-
-In order to render the elevation as an SVG, include the `render=svg` query parameter in the request. You may also
-control the width of the elevation drawing in pixels with `unit_width=<width in pixels>` and the height of each rack
-unit with `unit_height=<height in pixels>`. The `unit_width` defaults to `230` and the `unit_height` default to `20`
-which produces elevations the same size as those that appear in the NetBox Web UI. The query parameter `face` is used to
-request either the `front` or `rear` of the elevation and defaults to `front`.
-
-Here is an example of the request url for an SVG rendering using the default parameters to render the front of the
-elevation:
-
-```
-/api/dcim/racks/<id>/elevation/?render=svg
-```
-
-Here is an example of the request url for an SVG rendering of the rear of the elevation having a width of 300 pixels and
-per unit height of 35 pixels:
+To render the elevation as an SVG image, include the `render=svg` query parameter in the request. You may also control
+the width and height of the elevation drawing (in pixels) by passing the `unit_width` and `unit_height` parameters. (The
+default values for these parameters are 230 and 20, respectively.) Additionally, the `face` parameter may be used to
+request either the `front` or `rear` of the elevation. Below is in example request:
 
 ```
 /api/dcim/racks/<id>/elevation/?render=svg&face=rear&unit_width=300&unit_height=35
@@ -131,18 +125,28 @@ per unit height of 35 pixels:
 
 Thanks to [@hellerve](https://github.com/hellerve) for doing the heavy lifting on this!
 
+## Changes
+
 ### Topology Maps Removed ([#2745](https://github.com/netbox-community/netbox/issues/2745))
 
-The topology maps feature has been removed to help focus NetBox development efforts.
+The topology maps feature has been removed to help focus NetBox development efforts. Please replicate any required data
+to another source before upgrading NetBox to v2.7, as any existing topology maps will be deleted.
+
+### Supervisor Replaced with systemd ([#2902](https://github.com/netbox-community/netbox/issues/2902))
+
+The NetBox [installation documentation](https://netbox.readthedocs.io/en/stable/installation/) has been updated to
+provide instructions for managing the WSGI and RQ services using systemd instead of supervisor. This removes the need to
+install supervisor and simplifies administration of the processes.
 
 ### Redis Configuration ([#3282](https://github.com/netbox-community/netbox/issues/3282))
 
-v2.6.0 introduced caching and added the `CACHE_DATABASE` option to the existing `REDIS` database configuration section.
-This did not however, allow for using two different Redis connections for the seperate caching and webhooks features.
-This change separates the Redis connection configurations in the `REDIS` section into distinct `webhooks` and `caching`
-subsections. This requires modification of the `REDIS` section of the `configuration.py` file as follows:
+NetBox v2.6 introduced request caching and added the `CACHE_DATABASE` option to the existing `REDIS` database
+configuration parameter. This did not, however, allow for using two different Redis connections for the separate caching
+and webhook queuing functions. This release modifies the `REDIS` parameter to accept two discrete subsections named
+`webhooks` and `caching`. This requires modification of the `REDIS` parameter in `configuration.py` as follows:
 
 Old Redis configuration:
+
 ```python
 REDIS = {
     'HOST': 'localhost',
@@ -156,6 +160,7 @@ REDIS = {
 ```
 
 New Redis configuration:
+
 ```python
 REDIS = {
     'webhooks': {
@@ -175,11 +180,11 @@ REDIS = {
         'SSL': False,
     }
 }
-```
+``` 
 
-Note that `CACHE_DATABASE` has been removed and the connection settings have been duplicated for both `webhooks` and
-`caching`. This allows the user to make use of separate Redis instances and/or databases if desired. Full connection
-details are required in both sections, even if they are the same.
+Note that the `CACHE_DATABASE` parameter has been removed and the connection settings have been duplicated for both
+`webhooks` and `caching`. This allows the user to make use of separate Redis instances if desired. It is fine to use the
+same Redis service for both functions, although the database identifiers should be different.
 
 ### WEBHOOKS_ENABLED Configuration Setting Removed ([#3408](https://github.com/netbox-community/netbox/issues/3408))
 
@@ -191,10 +196,10 @@ installations.
 ### API Choice Fields Now Use String Values ([#3569](https://github.com/netbox-community/netbox/issues/3569))
 
 NetBox's REST API presents fields which reference a particular choice as a dictionary with two keys: `value` and
-`label`. In previous versions, `value` was an integer which represented the particular choice in the database. This has
+`label`. In previous versions, `value` was an integer which represented a particular choice in the database. This has
 been changed to a more human-friendly "slug" string, which is essentially a simplified version of the choice's `label`.
 
-For example, The site status field was previously represented as:
+For example, The site model's `status` field was previously represented as:
 
 ```json
 "status": {
@@ -203,39 +208,43 @@ For example, The site status field was previously represented as:
 },
 ```
 
-Beginning with v2.7.0, it now looks like this:
+In NetBox v2.7, it now looks like this:
 
 ```json
 "status": {
     "value": "active",
-    "label": "Active"
+    "label": "Active",
+    "id": 1
 },
 ```
 
-This change allows for much more intuitive representation of values, and obviates the need for API consumers to maintain
-a mapping of static integer values.
+This change allows for much more intuitive representation and manipulation of values, and removes the need for API
+consumers to maintain local mappings of static integer values.
 
-Note that that all v2.7 releases will continue to accept the legacy integer values in write requests (POST, PUT, and
-PATCH) to maintain backward compatibility. This behavior will be discontinued beginning in v2.8.0.
+Note that that all v2.7 releases will continue to accept the legacy integer values in write requests (`POST`, `PUT`, and
+`PATCH`) to maintain backward compatibility. Additionally, the legacy numeric identifier is conveyed in the `id` field
+for convenient reference as consumers adopt to the new string values. This behavior will be discontinued in NetBox v2.8.
 
 ## Enhancements
 
 * [#33](https://github.com/netbox-community/netbox/issues/33) - Add ability to clone objects (pre-populate form fields)
-* [#568](https://github.com/netbox-community/netbox/issues/568) - Allow custom fields to be imported and exported using CSV
-* [#648](https://github.com/netbox-community/netbox/issues/648) - Pre-populate forms when selecting "create and add another"
+* [#648](https://github.com/netbox-community/netbox/issues/648) - Pre-populate form fields when selecting "create and
+  add another"
 * [#792](https://github.com/netbox-community/netbox/issues/792) - Add power port and power outlet types
 * [#1865](https://github.com/netbox-community/netbox/issues/1865) - Add console port and console server port types
 * [#2669](https://github.com/netbox-community/netbox/issues/2669) - Relax uniqueness constraint on device and VM names
 * [#2902](https://github.com/netbox-community/netbox/issues/2902) - Replace `supervisord` with `systemd`
-* [#3455](https://github.com/netbox-community/netbox/issues/3455) - Add tenant assignment to cluster
-* [#3520](https://github.com/netbox-community/netbox/issues/3520) - Add Jinja2 template support for Graphs
-* [#3525](https://github.com/netbox-community/netbox/issues/3525) - Enable IP address filtering with multiple address terms
-* [#3564](https://github.com/netbox-community/netbox/issues/3564) - Add list views for device components
+* [#3455](https://github.com/netbox-community/netbox/issues/3455) - Add tenant assignment to virtual machine clusters
+* [#3520](https://github.com/netbox-community/netbox/issues/3520) - Add Jinja2 template support for graphs
+* [#3525](https://github.com/netbox-community/netbox/issues/3525) - Enable IP address filtering using multiple address
+  parameters
+* [#3564](https://github.com/netbox-community/netbox/issues/3564) - Add list views for all device components
 * [#3538](https://github.com/netbox-community/netbox/issues/3538) - Introduce a REST API endpoint for executing custom
   scripts
 * [#3655](https://github.com/netbox-community/netbox/issues/3655) - Add `description` field to organizational models
 * [#3664](https://github.com/netbox-community/netbox/issues/3664) - Enable applying configuration contexts by tags
-* [#3706](https://github.com/netbox-community/netbox/issues/3706) - Increase `available_power` maximum value on PowerFeed
+* [#3706](https://github.com/netbox-community/netbox/issues/3706) - Increase `available_power` maximum value on
+  PowerFeed
 * [#3731](https://github.com/netbox-community/netbox/issues/3731) - Change Graph.type to a ContentType foreign key field
 * [#3801](https://github.com/netbox-community/netbox/issues/3801) - Use YAML for export of device types
 
@@ -244,9 +253,12 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 * [#3830](https://github.com/netbox-community/netbox/issues/3830) - Ensure deterministic ordering for all models
 * [#3900](https://github.com/netbox-community/netbox/issues/3900) - Fix exception when deleting device types
 * [#3914](https://github.com/netbox-community/netbox/issues/3914) - Fix interface filter field when unauthenticated
-* [#3919](https://github.com/netbox-community/netbox/issues/3919) - Fix utilization graph extending out of bounds when utilization > 100%
-* [#3927](https://github.com/netbox-community/netbox/issues/3927) - Fix exception when deleting devices with secrets assigned
-* [#3930](https://github.com/netbox-community/netbox/issues/3930) - Fix API rendering of the `family` field for aggregates
+* [#3919](https://github.com/netbox-community/netbox/issues/3919) - Fix utilization graph extending out of bounds when
+  utilization > 100%
+* [#3927](https://github.com/netbox-community/netbox/issues/3927) - Fix exception when deleting devices with secrets
+  assigned
+* [#3930](https://github.com/netbox-community/netbox/issues/3930) - Fix API rendering of the `family` field for
+  aggregates
 
 ## Bug Fixes (From Beta)
 
@@ -257,7 +269,7 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 
 * Choice fields now use human-friendly strings for their values instead of integers (see
   [#3569](https://github.com/netbox-community/netbox/issues/3569)).
-* Introduced `/api/extras/scripts/` endpoint for retrieving and executing custom scripts
+* Introduced the `/api/extras/scripts/` endpoint for retrieving and executing custom scripts
 * circuits.CircuitType: Added field `description`
 * dcim.ConsolePort: Added field `type`
 * dcim.ConsolePortTemplate: Added field `type`

@@ -1009,8 +1009,7 @@ class VLANTest(APITestCase):
         url = reverse('ipam-api:vlan-detail', kwargs={'pk': self.vlan1.pk})
         response = self.client.delete(url, **self.header)
 
-        # can't use assertHttpStatus here because we don't have response.data
-        self.assertEqual(response.status_code, 409)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
 
         content = json.loads(response.content.decode('utf-8'))
         self.assertIn('detail', content)
