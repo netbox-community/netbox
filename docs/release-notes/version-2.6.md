@@ -1,11 +1,3 @@
-# v2.6.13 (FUTURE)
-
-## Enhancements
-
-* [#568](https://github.com/netbox-community/netbox/issues/568) - Allow custom fields to be imported and exported using CSV
-
----
-
 # v2.6.12 (2020-01-13)
 
 ## Enhancements

@@ -221,6 +221,7 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 ## Enhancements
 
 * [#33](https://github.com/netbox-community/netbox/issues/33) - Add ability to clone objects (pre-populate form fields)
+* [#568](https://github.com/netbox-community/netbox/issues/568) - Allow custom fields to be imported and exported using CSV
 * [#648](https://github.com/netbox-community/netbox/issues/648) - Pre-populate forms when selecting "create and add another"
 * [#792](https://github.com/netbox-community/netbox/issues/792) - Add power port and power outlet types
 * [#1865](https://github.com/netbox-community/netbox/issues/1865) - Add console port and console server port types
