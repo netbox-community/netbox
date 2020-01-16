@@ -193,7 +193,7 @@ class ScriptVariablesTest(TestCase):
             var1 = IPAddressVar()
 
         # Validate IP address enforcement
-        data = {'var1': '1.2.3.2555'}
+        data = {'var1': '1.2.3'}
         form = TestScript().as_form(data, None)
         self.assertFalse(form.is_valid())
         self.assertIn('var1', form.errors)
