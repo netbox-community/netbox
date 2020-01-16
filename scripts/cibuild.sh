@@ -41,10 +41,18 @@ sed -i -e "s/ALLOWED_HOSTS = \[\]/ALLOWED_HOSTS = \['*'\]/g" $CONFIG
 sed -i -e "s/SECRET_KEY = ''/SECRET_KEY = 'netboxci'/g" $CONFIG
 
 # Run NetBox tests
-./netbox/manage.py test netbox/
+coverage run --source="netbox/" netbox/manage.py test netbox/
 RC=$?
 if [[ $RC != 0 ]]; then
 	echo -e "\n$(info) one or more tests failed, failing build."
+	EXIT=$RC
+fi
+
+# Show code coverage report
+coverage report --skip-covered --omit *migrations*
+RC=$?
+if [[ $RC != 0 ]]; then
+	echo -e "\n$(info) failed to generate code coverage report."
 	EXIT=$RC
 fi
 

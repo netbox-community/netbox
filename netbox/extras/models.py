@@ -1,33 +1,47 @@
 from collections import OrderedDict
 from datetime import date
 
-import graphviz
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import ValidationError
 from django.db import models
-from django.db.models import F, Q
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.urls import reverse
 from taggit.models import TagBase, GenericTaggedItemBase
 
-from dcim.constants import CONNECTION_STATUS_CONNECTED
 from utilities.fields import ColorField
-from utilities.utils import deepmerge, foreground_color, model_names_to_filter_dict, render_jinja2
+from utilities.utils import deepmerge, render_jinja2
+from .choices import *
 from .constants import *
 from .querysets import ConfigContextQuerySet
+
+
+__all__ = (
+    'ConfigContext',
+    'ConfigContextModel',
+    'CustomField',
+    'CustomFieldChoice',
+    'CustomFieldModel',
+    'CustomFieldValue',
+    'CustomLink',
+    'ExportTemplate',
+    'Graph',
+    'ImageAttachment',
+    'ObjectChange',
+    'ReportResult',
+    'Script',
+    'Tag',
+    'TaggedItem',
+    'Webhook',
+)
 
 
 #
 # Webhooks
 #
-
-def get_webhook_models():
-    return model_names_to_filter_dict(WEBHOOK_MODELS)
-
 
 class Webhook(models.Model):
     """
@@ -40,7 +54,7 @@ class Webhook(models.Model):
         to=ContentType,
         related_name='webhooks',
         verbose_name='Object types',
-        limit_choices_to=get_webhook_models,
+        limit_choices_to=WEBHOOK_MODELS,
         help_text="The object(s) to which this Webhook applies."
     )
     name = models.CharField(
@@ -64,9 +78,10 @@ class Webhook(models.Model):
         verbose_name='URL',
         help_text="A POST will be sent to this URL when the webhook is called."
     )
-    http_content_type = models.PositiveSmallIntegerField(
-        choices=WEBHOOK_CT_CHOICES,
-        default=WEBHOOK_CT_JSON,
+    http_content_type = models.CharField(
+        max_length=50,
+        choices=WebhookContentTypeChoices,
+        default=WebhookContentTypeChoices.CONTENTTYPE_JSON,
         verbose_name='HTTP content type'
     )
     additional_headers = JSONField(
@@ -101,6 +116,7 @@ class Webhook(models.Model):
     )
 
     class Meta:
+        ordering = ('name',)
         unique_together = ('payload_url', 'type_create', 'type_update', 'type_delete',)
 
     def __str__(self):
@@ -172,21 +188,18 @@ class CustomFieldModel(models.Model):
             return OrderedDict([(field, None) for field in fields])
 
 
-def get_custom_field_models():
-    return model_names_to_filter_dict(CUSTOMFIELD_MODELS)
-
-
 class CustomField(models.Model):
     obj_type = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
         verbose_name='Object(s)',
-        limit_choices_to=get_custom_field_models,
+        limit_choices_to=CUSTOMFIELD_MODELS,
         help_text='The object(s) to which this field applies.'
     )
-    type = models.PositiveSmallIntegerField(
-        choices=CUSTOMFIELD_TYPE_CHOICES,
-        default=CF_TYPE_TEXT
+    type = models.CharField(
+        max_length=50,
+        choices=CustomFieldTypeChoices,
+        default=CustomFieldTypeChoices.TYPE_TEXT
     )
     name = models.CharField(
         max_length=50,
@@ -207,9 +220,10 @@ class CustomField(models.Model):
         help_text='If true, this field is required when creating new objects '
                   'or editing an existing object.'
     )
-    filter_logic = models.PositiveSmallIntegerField(
-        choices=CF_FILTER_CHOICES,
-        default=CF_FILTER_LOOSE,
+    filter_logic = models.CharField(
+        max_length=50,
+        choices=CustomFieldFilterLogicChoices,
+        default=CustomFieldFilterLogicChoices.FILTER_LOOSE,
         help_text='Loose matches any instance of a given string; exact '
                   'matches the entire field.'
     )
@@ -235,15 +249,15 @@ class CustomField(models.Model):
         """
         if value is None:
             return ''
-        if self.type == CF_TYPE_BOOLEAN:
+        if self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
             return str(int(bool(value)))
-        if self.type == CF_TYPE_DATE:
+        if self.type == CustomFieldTypeChoices.TYPE_DATE:
             # Could be date/datetime object or string
             try:
                 return value.strftime('%Y-%m-%d')
             except AttributeError:
                 return value
-        if self.type == CF_TYPE_SELECT:
+        if self.type == CustomFieldTypeChoices.TYPE_SELECT:
             # Could be ModelChoiceField or TypedChoiceField
             return str(value.id) if hasattr(value, 'id') else str(value)
         return value
@@ -254,14 +268,14 @@ class CustomField(models.Model):
         """
         if serialized_value == '':
             return None
-        if self.type == CF_TYPE_INTEGER:
+        if self.type == CustomFieldTypeChoices.TYPE_INTEGER:
             return int(serialized_value)
-        if self.type == CF_TYPE_BOOLEAN:
+        if self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
             return bool(int(serialized_value))
-        if self.type == CF_TYPE_DATE:
+        if self.type == CustomFieldTypeChoices.TYPE_DATE:
             # Read date as YYYY-MM-DD
             return date(*[int(n) for n in serialized_value.split('-')])
-        if self.type == CF_TYPE_SELECT:
+        if self.type == CustomFieldTypeChoices.TYPE_SELECT:
             return self.choices.get(pk=int(serialized_value))
         return serialized_value
 
@@ -287,8 +301,8 @@ class CustomFieldValue(models.Model):
     )
 
     class Meta:
-        ordering = ['obj_type', 'obj_id']
-        unique_together = ['field', 'obj_type', 'obj_id']
+        ordering = ('obj_type', 'obj_id', 'pk')  # (obj_type, obj_id) may be non-unique
+        unique_together = ('field', 'obj_type', 'obj_id')
 
     def __str__(self):
         return '{} {}'.format(self.obj, self.field)
@@ -314,7 +328,7 @@ class CustomFieldChoice(models.Model):
         to='extras.CustomField',
         on_delete=models.CASCADE,
         related_name='choices',
-        limit_choices_to={'type': CF_TYPE_SELECT}
+        limit_choices_to={'type': CustomFieldTypeChoices.TYPE_SELECT}
     )
     value = models.CharField(
         max_length=100
@@ -332,23 +346,22 @@ class CustomFieldChoice(models.Model):
         return self.value
 
     def clean(self):
-        if self.field.type != CF_TYPE_SELECT:
+        if self.field.type != CustomFieldTypeChoices.TYPE_SELECT:
             raise ValidationError("Custom field choices can only be assigned to selection fields.")
 
     def delete(self, using=None, keep_parents=False):
         # When deleting a CustomFieldChoice, delete all CustomFieldValues which point to it
         pk = self.pk
         super().delete(using, keep_parents)
-        CustomFieldValue.objects.filter(field__type=CF_TYPE_SELECT, serialized_value=str(pk)).delete()
+        CustomFieldValue.objects.filter(
+            field__type=CustomFieldTypeChoices.TYPE_SELECT,
+            serialized_value=str(pk)
+        ).delete()
 
 
 #
 # Custom links
 #
-
-def get_custom_link_models():
-    return model_names_to_filter_dict(CUSTOMLINK_MODELS)
-
 
 class CustomLink(models.Model):
     """
@@ -358,7 +371,7 @@ class CustomLink(models.Model):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=get_custom_link_models
+        limit_choices_to=CUSTOMLINK_MODELS
     )
     name = models.CharField(
         max_length=100,
@@ -383,8 +396,8 @@ class CustomLink(models.Model):
     )
     button_class = models.CharField(
         max_length=30,
-        choices=BUTTON_CLASS_CHOICES,
-        default=BUTTON_CLASS_DEFAULT,
+        choices=CustomLinkButtonClassChoices,
+        default=CustomLinkButtonClassChoices.CLASS_DEFAULT,
         help_text="The class of the first link in a group will be used for the dropdown button"
     )
     new_window = models.BooleanField(
@@ -403,8 +416,10 @@ class CustomLink(models.Model):
 #
 
 class Graph(models.Model):
-    type = models.PositiveSmallIntegerField(
-        choices=GRAPH_TYPE_CHOICES
+    type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to=GRAPH_MODELS
     )
     weight = models.PositiveSmallIntegerField(
         default=1000
@@ -412,6 +427,11 @@ class Graph(models.Model):
     name = models.CharField(
         max_length=100,
         verbose_name='Name'
+    )
+    template_language = models.CharField(
+        max_length=50,
+        choices=TemplateLanguageChoices,
+        default=TemplateLanguageChoices.LANGUAGE_JINJA2
     )
     source = models.CharField(
         max_length=500,
@@ -423,35 +443,46 @@ class Graph(models.Model):
     )
 
     class Meta:
-        ordering = ['type', 'weight', 'name']
+        ordering = ('type', 'weight', 'name', 'pk')  # (type, weight, name) may be non-unique
 
     def __str__(self):
         return self.name
 
     def embed_url(self, obj):
-        template = Template(self.source)
-        return template.render(Context({'obj': obj}))
+        context = {'obj': obj}
+
+        # TODO: Remove in v2.8
+        if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
+            template = Template(self.source)
+            return template.render(Context(context))
+
+        elif self.template_language == TemplateLanguageChoices.LANGUAGE_JINJA2:
+            return render_jinja2(self.source, context)
 
     def embed_link(self, obj):
         if self.link is None:
             return ''
-        template = Template(self.link)
-        return template.render(Context({'obj': obj}))
+
+        context = {'obj': obj}
+
+        # TODO: Remove in v2.8
+        if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
+            template = Template(self.link)
+            return template.render(Context(context))
+
+        elif self.template_language == TemplateLanguageChoices.LANGUAGE_JINJA2:
+            return render_jinja2(self.link, context)
 
 
 #
 # Export templates
 #
 
-def get_export_template_models():
-    return model_names_to_filter_dict(EXPORTTEMPLATE_MODELS)
-
-
 class ExportTemplate(models.Model):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=get_export_template_models
+        limit_choices_to=EXPORTTEMPLATE_MODELS
     )
     name = models.CharField(
         max_length=100
@@ -460,9 +491,10 @@ class ExportTemplate(models.Model):
         max_length=200,
         blank=True
     )
-    template_language = models.PositiveSmallIntegerField(
-        choices=TEMPLATE_LANGUAGE_CHOICES,
-        default=TEMPLATE_LANGUAGE_JINJA2
+    template_language = models.CharField(
+        max_length=50,
+        choices=TemplateLanguageChoices,
+        default=TemplateLanguageChoices.LANGUAGE_JINJA2
     )
     template_code = models.TextField(
         help_text='The list of objects being exported is passed as a context variable named <code>queryset</code>.'
@@ -496,11 +528,11 @@ class ExportTemplate(models.Model):
             'queryset': queryset
         }
 
-        if self.template_language == TEMPLATE_LANGUAGE_DJANGO:
+        if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
             template = Template(self.template_code)
             output = template.render(Context(context))
 
-        elif self.template_language == TEMPLATE_LANGUAGE_JINJA2:
+        elif self.template_language == TemplateLanguageChoices.LANGUAGE_JINJA2:
             output = render_jinja2(self.template_code, context)
 
         else:
@@ -527,154 +559,6 @@ class ExportTemplate(models.Model):
         response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
 
         return response
-
-
-#
-# Topology maps
-#
-
-class TopologyMap(models.Model):
-    name = models.CharField(
-        max_length=50,
-        unique=True
-    )
-    slug = models.SlugField(
-        unique=True
-    )
-    type = models.PositiveSmallIntegerField(
-        choices=TOPOLOGYMAP_TYPE_CHOICES,
-        default=TOPOLOGYMAP_TYPE_NETWORK
-    )
-    site = models.ForeignKey(
-        to='dcim.Site',
-        on_delete=models.CASCADE,
-        related_name='topology_maps',
-        blank=True,
-        null=True
-    )
-    device_patterns = models.TextField(
-        help_text='Identify devices to include in the diagram using regular '
-                  'expressions, one per line. Each line will result in a new '
-                  'tier of the drawing. Separate multiple regexes within a '
-                  'line using semicolons. Devices will be rendered in the '
-                  'order they are defined.'
-    )
-    description = models.CharField(
-        max_length=100,
-        blank=True
-    )
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-
-    @property
-    def device_sets(self):
-        if not self.device_patterns:
-            return None
-        return [line.strip() for line in self.device_patterns.split('\n')]
-
-    def render(self, img_format='png'):
-
-        from dcim.models import Device
-
-        # Construct the graph
-        if self.type == TOPOLOGYMAP_TYPE_NETWORK:
-            G = graphviz.Graph
-        else:
-            G = graphviz.Digraph
-        self.graph = G()
-        self.graph.graph_attr['ranksep'] = '1'
-        seen = set()
-        for i, device_set in enumerate(self.device_sets):
-
-            subgraph = G(name='sg{}'.format(i))
-            subgraph.graph_attr['rank'] = 'same'
-            subgraph.graph_attr['directed'] = 'true'
-
-            # Add a pseudonode for each device_set to enforce hierarchical layout
-            subgraph.node('set{}'.format(i), label='', shape='none', width='0')
-            if i:
-                self.graph.edge('set{}'.format(i - 1), 'set{}'.format(i), style='invis')
-
-            # Add each device to the graph
-            devices = []
-            for query in device_set.strip(';').split(';'):  # Split regexes on semicolons
-                devices += Device.objects.filter(name__regex=query).prefetch_related('device_role')
-            # Remove duplicate devices
-            devices = [d for d in devices if d.id not in seen]
-            seen.update([d.id for d in devices])
-            for d in devices:
-                bg_color = '#{}'.format(d.device_role.color)
-                fg_color = '#{}'.format(foreground_color(d.device_role.color))
-                subgraph.node(d.name, style='filled', fillcolor=bg_color, fontcolor=fg_color, fontname='sans')
-
-            # Add an invisible connection to each successive device in a set to enforce horizontal order
-            for j in range(0, len(devices) - 1):
-                subgraph.edge(devices[j].name, devices[j + 1].name, style='invis')
-
-            self.graph.subgraph(subgraph)
-
-        # Compile list of all devices
-        device_superset = Q()
-        for device_set in self.device_sets:
-            for query in device_set.split(';'):  # Split regexes on semicolons
-                device_superset = device_superset | Q(name__regex=query)
-        devices = Device.objects.filter(*(device_superset,))
-
-        # Draw edges depending on graph type
-        if self.type == TOPOLOGYMAP_TYPE_NETWORK:
-            self.add_network_connections(devices)
-        elif self.type == TOPOLOGYMAP_TYPE_CONSOLE:
-            self.add_console_connections(devices)
-        elif self.type == TOPOLOGYMAP_TYPE_POWER:
-            self.add_power_connections(devices)
-
-        return self.graph.pipe(format=img_format)
-
-    def add_network_connections(self, devices):
-
-        from circuits.models import CircuitTermination
-        from dcim.models import Interface
-
-        # Add all interface connections to the graph
-        connected_interfaces = Interface.objects.prefetch_related(
-            '_connected_interface__device'
-        ).filter(
-            Q(device__in=devices) | Q(_connected_interface__device__in=devices),
-            _connected_interface__isnull=False,
-            pk__lt=F('_connected_interface')
-        )
-        for interface in connected_interfaces:
-            style = 'solid' if interface.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
-            self.graph.edge(interface.device.name, interface.connected_endpoint.device.name, style=style)
-
-        # Add all circuits to the graph
-        for termination in CircuitTermination.objects.filter(term_side='A', connected_endpoint__device__in=devices):
-            peer_termination = termination.get_peer_termination()
-            if (peer_termination is not None and peer_termination.interface is not None and
-                    peer_termination.interface.device in devices):
-                self.graph.edge(termination.interface.device.name, peer_termination.interface.device.name, color='blue')
-
-    def add_console_connections(self, devices):
-
-        from dcim.models import ConsolePort
-
-        # Add all console connections to the graph
-        for cp in ConsolePort.objects.filter(device__in=devices, connected_endpoint__device__in=devices):
-            style = 'solid' if cp.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
-            self.graph.edge(cp.connected_endpoint.device.name, cp.device.name, style=style)
-
-    def add_power_connections(self, devices):
-
-        from dcim.models import PowerPort
-
-        # Add all power connections to the graph
-        for pp in PowerPort.objects.filter(device__in=devices, _connected_poweroutlet__device__in=devices):
-            style = 'solid' if pp.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
-            self.graph.edge(pp.connected_endpoint.device.name, pp.device.name, style=style)
 
 
 #
@@ -724,7 +608,7 @@ class ImageAttachment(models.Model):
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name', 'pk')  # name may be non-unique
 
     def __str__(self):
         if self.name:
@@ -748,11 +632,20 @@ class ImageAttachment(models.Model):
     @property
     def size(self):
         """
-        Wrapper around `image.size` to suppress an OSError in case the file is inaccessible.
+        Wrapper around `image.size` to suppress an OSError in case the file is inaccessible. Also opportunistically
+        catch other exceptions that we know other storage back-ends to throw.
         """
+        expected_exceptions = [OSError]
+
+        try:
+            from botocore.exceptions import ClientError
+            expected_exceptions.append(ClientError)
+        except ImportError:
+            pass
+
         try:
             return self.image.size
-        except OSError:
+        except tuple(expected_exceptions):
             return None
 
 
@@ -807,6 +700,11 @@ class ConfigContext(models.Model):
     )
     tenants = models.ManyToManyField(
         to='tenancy.Tenant',
+        related_name='+',
+        blank=True
+    )
+    tags = models.ManyToManyField(
+        to='extras.Tag',
         related_name='+',
         blank=True
     )
@@ -952,8 +850,9 @@ class ObjectChange(models.Model):
     request_id = models.UUIDField(
         editable=False
     )
-    action = models.PositiveSmallIntegerField(
-        choices=OBJECTCHANGE_ACTION_CHOICES
+    action = models.CharField(
+        max_length=50,
+        choices=ObjectChangeActionChoices
     )
     changed_object_type = models.ForeignKey(
         to=ContentType,

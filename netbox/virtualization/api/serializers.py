@@ -3,14 +3,14 @@ from rest_framework import serializers
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from dcim.api.nested_serializers import NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer
-from dcim.constants import IFACE_TYPE_CHOICES, IFACE_TYPE_VIRTUAL, IFACE_MODE_CHOICES
+from dcim.choices import InterfaceModeChoices, InterfaceTypeChoices
 from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
 from ipam.models import VLAN
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import ChoiceField, SerializedPKRelatedField, ValidatedModelSerializer
-from virtualization.constants import VM_STATUS_CHOICES
+from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 from .nested_serializers import *
 
@@ -38,6 +38,7 @@ class ClusterGroupSerializer(ValidatedModelSerializer):
 class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
     type = NestedClusterTypeSerializer()
     group = NestedClusterGroupSerializer(required=False, allow_null=True)
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
     device_count = serializers.IntegerField(read_only=True)
@@ -46,7 +47,7 @@ class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
     class Meta:
         model = Cluster
         fields = [
-            'id', 'name', 'type', 'group', 'site', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'name', 'type', 'group', 'tenant', 'site', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
             'device_count', 'virtualmachine_count',
         ]
 
@@ -56,7 +57,7 @@ class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
 #
 
 class VirtualMachineSerializer(TaggitSerializer, CustomFieldModelSerializer):
-    status = ChoiceField(choices=VM_STATUS_CHOICES, required=False)
+    status = ChoiceField(choices=VirtualMachineStatusChoices, required=False)
     site = NestedSiteSerializer(read_only=True)
     cluster = NestedClusterSerializer()
     role = NestedDeviceRoleSerializer(required=False, allow_null=True)
@@ -74,6 +75,7 @@ class VirtualMachineSerializer(TaggitSerializer, CustomFieldModelSerializer):
             'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'local_context_data', 'tags', 'custom_fields',
             'created', 'last_updated',
         ]
+        validators = []
 
 
 class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
@@ -97,8 +99,8 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 
 class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
     virtual_machine = NestedVirtualMachineSerializer()
-    type = ChoiceField(choices=IFACE_TYPE_CHOICES, default=IFACE_TYPE_VIRTUAL, required=False)
-    mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False, allow_null=True)
+    type = ChoiceField(choices=VMInterfaceTypeChoices, default=VMInterfaceTypeChoices.TYPE_VIRTUAL, required=False)
+    mode = ChoiceField(choices=InterfaceModeChoices, required=False, allow_null=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),

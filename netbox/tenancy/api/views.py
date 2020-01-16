@@ -27,7 +27,7 @@ class TenantGroupViewSet(ModelViewSet):
         tenant_count=get_subquery(Tenant, 'group')
     )
     serializer_class = serializers.TenantGroupSerializer
-    filterset_class = filters.TenantGroupFilter
+    filterset_class = filters.TenantGroupFilterSet
 
 
 #
@@ -49,4 +49,4 @@ class TenantViewSet(CustomFieldModelViewSet):
         vrf_count=get_subquery(VRF, 'tenant')
     )
     serializer_class = serializers.TenantSerializer
-    filterset_class = filters.TenantFilter
+    filterset_class = filters.TenantFilterSet

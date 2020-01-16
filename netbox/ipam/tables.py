@@ -292,11 +292,15 @@ class RoleTable(BaseTable):
         orderable=False,
         verbose_name='VLANs'
     )
-    actions = tables.TemplateColumn(template_code=ROLE_ACTIONS, attrs={'td': {'class': 'text-right noprint'}}, verbose_name='')
+    actions = tables.TemplateColumn(
+        template_code=ROLE_ACTIONS,
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = Role
-        fields = ('pk', 'name', 'prefix_count', 'vlan_count', 'slug', 'weight', 'actions')
+        fields = ('pk', 'name', 'prefix_count', 'vlan_count', 'description', 'slug', 'weight', 'actions')
 
 
 #

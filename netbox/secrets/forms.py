@@ -42,7 +42,7 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = SecretRole
         fields = [
-            'name', 'slug', 'users', 'groups',
+            'name', 'slug', 'description', 'users', 'groups',
         ]
         widgets = {
             'users': StaticSelect2Multiple(),

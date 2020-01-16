@@ -10,6 +10,7 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install pycodestyle
+  - pip install coverage
 before_script:
   - psql --version
   - psql -U postgres -c 'SELECT version();'

@@ -6,10 +6,44 @@ from django.utils import timezone
 from rest_framework import status
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Rack, RackGroup, RackRole, Region, Site
-from extras.constants import GRAPH_TYPE_SITE
+from extras.api.views import ScriptViewSet
+from extras.choices import *
+from extras.constants import GRAPH_MODELS
 from extras.models import ConfigContext, Graph, ExportTemplate, Tag
+from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from tenancy.models import Tenant, TenantGroup
-from utilities.testing import APITestCase
+from utilities.testing import APITestCase, choices_to_dict
+
+
+class AppTest(APITestCase):
+
+    def test_root(self):
+
+        url = reverse('extras-api:api-root')
+        response = self.client.get('{}?format=api'.format(url), **self.header)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_choices(self):
+
+        url = reverse('extras-api:field-choice-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.status_code, 200)
+
+        # ExportTemplate
+        self.assertEqual(choices_to_dict(response.data.get('export-template:template_language')), TemplateLanguageChoices.as_dict())
+
+        # Graph
+        content_types = ContentType.objects.filter(GRAPH_MODELS)
+        graph_type_choices = {
+            "{}.{}".format(ct.app_label, ct.model): ct.name for ct in content_types
+        }
+        self.assertEqual(choices_to_dict(response.data.get('graph:type')), graph_type_choices)
+        self.assertEqual(choices_to_dict(response.data.get('graph:template_language')), TemplateLanguageChoices.as_dict())
+
+        # ObjectChange
+        self.assertEqual(choices_to_dict(response.data.get('object-change:action')), ObjectChangeActionChoices.as_dict())
 
 
 class GraphTest(APITestCase):
@@ -18,14 +52,21 @@ class GraphTest(APITestCase):
 
         super().setUp()
 
+        site_ct = ContentType.objects.get_for_model(Site)
         self.graph1 = Graph.objects.create(
-            type=GRAPH_TYPE_SITE, name='Test Graph 1', source='http://example.com/graphs.py?site={{ obj.name }}&foo=1'
+            type=site_ct,
+            name='Test Graph 1',
+            source='http://example.com/graphs.py?site={{ obj.name }}&foo=1'
         )
         self.graph2 = Graph.objects.create(
-            type=GRAPH_TYPE_SITE, name='Test Graph 2', source='http://example.com/graphs.py?site={{ obj.name }}&foo=2'
+            type=site_ct,
+            name='Test Graph 2',
+            source='http://example.com/graphs.py?site={{ obj.name }}&foo=2'
         )
         self.graph3 = Graph.objects.create(
-            type=GRAPH_TYPE_SITE, name='Test Graph 3', source='http://example.com/graphs.py?site={{ obj.name }}&foo=3'
+            type=site_ct,
+            name='Test Graph 3',
+            source='http://example.com/graphs.py?site={{ obj.name }}&foo=3'
         )
 
     def test_get_graph(self):
@@ -45,7 +86,7 @@ class GraphTest(APITestCase):
     def test_create_graph(self):
 
         data = {
-            'type': GRAPH_TYPE_SITE,
+            'type': 'dcim.site',
             'name': 'Test Graph 4',
             'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=4',
         }
@@ -56,7 +97,7 @@ class GraphTest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Graph.objects.count(), 4)
         graph4 = Graph.objects.get(pk=response.data['id'])
-        self.assertEqual(graph4.type, data['type'])
+        self.assertEqual(graph4.type, ContentType.objects.get_for_model(Site))
         self.assertEqual(graph4.name, data['name'])
         self.assertEqual(graph4.source, data['source'])
 
@@ -64,17 +105,17 @@ class GraphTest(APITestCase):
 
         data = [
             {
-                'type': GRAPH_TYPE_SITE,
+                'type': 'dcim.site',
                 'name': 'Test Graph 4',
                 'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=4',
             },
             {
-                'type': GRAPH_TYPE_SITE,
+                'type': 'dcim.site',
                 'name': 'Test Graph 5',
                 'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=5',
             },
             {
-                'type': GRAPH_TYPE_SITE,
+                'type': 'dcim.site',
                 'name': 'Test Graph 6',
                 'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=6',
             },
@@ -92,7 +133,7 @@ class GraphTest(APITestCase):
     def test_update_graph(self):
 
         data = {
-            'type': GRAPH_TYPE_SITE,
+            'type': 'dcim.site',
             'name': 'Test Graph X',
             'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=99',
         }
@@ -103,7 +144,7 @@ class GraphTest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Graph.objects.count(), 3)
         graph1 = Graph.objects.get(pk=response.data['id'])
-        self.assertEqual(graph1.type, data['type'])
+        self.assertEqual(graph1.type, ContentType.objects.get_for_model(Site))
         self.assertEqual(graph1.name, data['name'])
         self.assertEqual(graph1.source, data['source'])
 
@@ -365,6 +406,8 @@ class ConfigContextTest(APITestCase):
         tenantgroup2 = TenantGroup.objects.create(name='Test Tenant Group 2', slug='test-tenant-group-2')
         tenant1 = Tenant.objects.create(name='Test Tenant 1', slug='test-tenant-1')
         tenant2 = Tenant.objects.create(name='Test Tenant 2', slug='test-tenant-2')
+        tag1 = Tag.objects.create(name='Test Tag 1', slug='test-tag-1')
+        tag2 = Tag.objects.create(name='Test Tag 2', slug='test-tag-2')
 
         data = {
             'name': 'Test Config Context 4',
@@ -375,6 +418,7 @@ class ConfigContextTest(APITestCase):
             'platforms': [platform1.pk, platform2.pk],
             'tenant_groups': [tenantgroup1.pk, tenantgroup2.pk],
             'tenants': [tenant1.pk, tenant2.pk],
+            'tags': [tag1.slug, tag2.slug],
             'data': {'foo': 'XXX'}
         }
 
@@ -397,6 +441,8 @@ class ConfigContextTest(APITestCase):
         self.assertEqual(tenantgroup2.pk, data['tenant_groups'][1])
         self.assertEqual(tenant1.pk, data['tenants'][0])
         self.assertEqual(tenant2.pk, data['tenants'][1])
+        self.assertEqual(tag1.slug, data['tags'][0])
+        self.assertEqual(tag2.slug, data['tags'][1])
         self.assertEqual(configcontext4.data, data['data'])
 
     def test_create_configcontext_bulk(self):
@@ -523,6 +569,71 @@ class ConfigContextTest(APITestCase):
         configcontext6.sites.add(site2)
         rendered_context = device.get_config_context()
         self.assertEqual(rendered_context['bar'], 456)
+
+
+class ScriptTest(APITestCase):
+
+    class TestScript(Script):
+
+        class Meta:
+            name = "Test script"
+
+        var1 = StringVar()
+        var2 = IntegerVar()
+        var3 = BooleanVar()
+
+        def run(self, data):
+
+            self.log_info(data['var1'])
+            self.log_success(data['var2'])
+            self.log_failure(data['var3'])
+
+            return 'Script complete'
+
+    def get_test_script(self, *args):
+        return self.TestScript
+
+    def setUp(self):
+
+        super().setUp()
+
+        # Monkey-patch the API viewset's _get_script method to return our test script above
+        ScriptViewSet._get_script = self.get_test_script
+
+    def test_get_script(self):
+
+        url = reverse('extras-api:script-detail', kwargs={'pk': None})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.TestScript.Meta.name)
+        self.assertEqual(response.data['vars']['var1'], 'StringVar')
+        self.assertEqual(response.data['vars']['var2'], 'IntegerVar')
+        self.assertEqual(response.data['vars']['var3'], 'BooleanVar')
+
+    def test_run_script(self):
+
+        script_data = {
+            'var1': 'FooBar',
+            'var2': 123,
+            'var3': False,
+        }
+
+        data = {
+            'data': script_data,
+            'commit': True,
+        }
+
+        url = reverse('extras-api:script-detail', kwargs={'pk': None})
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['log'][0]['status'], 'info')
+        self.assertEqual(response.data['log'][0]['message'], script_data['var1'])
+        self.assertEqual(response.data['log'][1]['status'], 'success')
+        self.assertEqual(response.data['log'][1]['message'], script_data['var2'])
+        self.assertEqual(response.data['log'][2]['status'], 'failure')
+        self.assertEqual(response.data['log'][2]['message'], script_data['var3'])
+        self.assertEqual(response.data['output'], 'Script complete')
 
 
 class CreatedUpdatedFilterTest(APITestCase):
