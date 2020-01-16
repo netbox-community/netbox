@@ -337,12 +337,12 @@ class IPAddressTestCase(TestCase):
             IPAddress(family=4, address='10.0.0.2/24', vrf=vrfs[0], interface=interfaces[0], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
             IPAddress(family=4, address='10.0.0.3/24', vrf=vrfs[1], interface=interfaces[1], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
             IPAddress(family=4, address='10.0.0.4/24', vrf=vrfs[2], interface=interfaces[2], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
-            IPAddress(family=4, address='10.0.0.1/25', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, role=None),
+            IPAddress(family=4, address='10.0.0.1/25', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
             IPAddress(family=6, address='2001:db8::1/64', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
             IPAddress(family=6, address='2001:db8::2/64', vrf=vrfs[0], interface=interfaces[3], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
             IPAddress(family=6, address='2001:db8::3/64', vrf=vrfs[1], interface=interfaces[4], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
             IPAddress(family=6, address='2001:db8::4/64', vrf=vrfs[2], interface=interfaces[5], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
-            IPAddress(family=6, address='2001:db8::1/65', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, role=None),
+            IPAddress(family=6, address='2001:db8::1/65', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
 
         )
         IPAddress.objects.bulk_create(ipaddresses)
