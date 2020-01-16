@@ -1,3 +1,11 @@
+# v2.7.1 (FUTURE)
+
+## Enhancements
+
+* [#3509](https://github.com/netbox-community/netbox/issues/3509) - Added IPAddressVar for custom scripts
+
+---
+
 # v2.7.0 (FUTURE)
 
 **Note:** NetBox v2.7 is the last major release that will support Python 3.5. Beginning with NetBox v2.8, Python 3.6 or
