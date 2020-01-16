@@ -1,17 +1,24 @@
+import base64
 import urllib.parse
 
 from django.test import Client, TestCase
 from django.urls import reverse
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
-from secrets.models import Secret, SecretRole
+from secrets.models import Secret, SecretRole, SessionKey, UserKey
 from utilities.testing import create_test_user
+from .constants import PRIVATE_KEY, PUBLIC_KEY
 
 
 class SecretRoleTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['secrets.view_secretrole'])
+        user = create_test_user(
+            permissions=[
+                'secrets.view_secretrole',
+                'secrets.add_secretrole',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -28,11 +35,38 @@ class SecretRoleTestCase(TestCase):
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
 
+    def test_secretrole_import(self):
+
+        csv_data = (
+            "name,slug",
+            "Secret Role 4,secret-role-4",
+            "Secret Role 5,secret-role-5",
+            "Secret Role 6,secret-role-6",
+        )
+
+        response = self.client.post(reverse('secrets:secretrole_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(SecretRole.objects.count(), 6)
+
 
 class SecretTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['secrets.view_secret'])
+        user = create_test_user(
+            permissions=[
+                'secrets.view_secret',
+                'secrets.add_secret',
+            ]
+        )
+
+        # Set up a master key
+        userkey = UserKey(user=user, public_key=PUBLIC_KEY)
+        userkey.save()
+        master_key = userkey.get_master_key(PRIVATE_KEY)
+        self.session_key = SessionKey(userkey=userkey)
+        self.session_key.save(master_key)
+
         self.client = Client()
         self.client.force_login(user)
 
@@ -75,3 +109,21 @@ class SecretTestCase(TestCase):
         secret = Secret.objects.first()
         response = self.client.get(secret.get_absolute_url(), follow=True)
         self.assertEqual(response.status_code, 200)
+
+    def test_secret_import(self):
+
+        csv_data = (
+            "device,role,name,plaintext",
+            "Device 1,Secret Role 1,Secret 4,abcdefghij",
+            "Device 1,Secret Role 1,Secret 5,abcdefghij",
+            "Device 1,Secret Role 1,Secret 6,abcdefghij",
+        )
+
+        # Set the session_key cookie on the request
+        session_key = base64.b64encode(self.session_key.key).decode('utf-8')
+        self.client.cookies['session_key'] = session_key
+
+        response = self.client.post(reverse('secrets:secret_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Secret.objects.count(), 6)

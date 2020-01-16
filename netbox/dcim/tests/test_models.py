@@ -1,6 +1,10 @@
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
+from dcim.choices import *
+from dcim.constants import CONNECTION_STATUS_CONNECTED, CONNECTION_STATUS_PLANNED
 from dcim.models import *
+from tenancy.models import Tenant
 
 
 class RackTestCase(TestCase):
@@ -87,7 +91,7 @@ class RackTestCase(TestCase):
             site=self.site1,
             rack=rack1,
             position=43,
-            face=RACK_FACE_FRONT,
+            face=DeviceFaceChoices.FACE_FRONT,
         )
         device1.save()
 
@@ -117,7 +121,7 @@ class RackTestCase(TestCase):
             site=self.site1,
             rack=self.rack,
             position=10,
-            face=RACK_FACE_REAR,
+            face=DeviceFaceChoices.FACE_REAR,
         )
         device1.save()
 
@@ -125,14 +129,14 @@ class RackTestCase(TestCase):
         self.assertEqual(list(self.rack.units), list(reversed(range(1, 43))))
 
         # Validate inventory (front face)
-        rack1_inventory_front = self.rack.get_front_elevation()
+        rack1_inventory_front = self.rack.get_rack_units(face=DeviceFaceChoices.FACE_FRONT)
         self.assertEqual(rack1_inventory_front[-10]['device'], device1)
         del(rack1_inventory_front[-10])
         for u in rack1_inventory_front:
             self.assertIsNone(u['device'])
 
         # Validate inventory (rear face)
-        rack1_inventory_rear = self.rack.get_rear_elevation()
+        rack1_inventory_rear = self.rack.get_rack_units(face=DeviceFaceChoices.FACE_REAR)
         self.assertEqual(rack1_inventory_rear[-10]['device'], device1)
         del(rack1_inventory_rear[-10])
         for u in rack1_inventory_rear:
@@ -146,7 +150,7 @@ class RackTestCase(TestCase):
             site=self.site1,
             rack=self.rack,
             position=None,
-            face=None,
+            face='',
         )
         self.assertTrue(pdu)
 
@@ -187,20 +191,20 @@ class DeviceTestCase(TestCase):
             device_type=self.device_type,
             name='Power Outlet 1',
             power_port=ppt,
-            feed_leg=POWERFEED_LEG_A
+            feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A
         ).save()
 
         InterfaceTemplate(
             device_type=self.device_type,
             name='Interface 1',
-            type=IFACE_TYPE_1GE_FIXED,
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
             mgmt_only=True
         ).save()
 
         rpt = RearPortTemplate(
             device_type=self.device_type,
             name='Rear Port 1',
-            type=PORT_TYPE_8P8C,
+            type=PortTypeChoices.TYPE_8P8C,
             positions=8
         )
         rpt.save()
@@ -208,7 +212,7 @@ class DeviceTestCase(TestCase):
         FrontPortTemplate(
             device_type=self.device_type,
             name='Front Port 1',
-            type=PORT_TYPE_8P8C,
+            type=PortTypeChoices.TYPE_8P8C,
             rear_port=rpt,
             rear_port_position=2
         ).save()
@@ -251,27 +255,27 @@ class DeviceTestCase(TestCase):
             device=d,
             name='Power Outlet 1',
             power_port=pp,
-            feed_leg=POWERFEED_LEG_A
+            feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A
         )
 
         Interface.objects.get(
             device=d,
             name='Interface 1',
-            type=IFACE_TYPE_1GE_FIXED,
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
             mgmt_only=True
         )
 
         rp = RearPort.objects.get(
             device=d,
             name='Rear Port 1',
-            type=PORT_TYPE_8P8C,
+            type=PortTypeChoices.TYPE_8P8C,
             positions=8
         )
 
         FrontPort.objects.get(
             device=d,
             name='Front Port 1',
-            type=PORT_TYPE_8P8C,
+            type=PortTypeChoices.TYPE_8P8C,
             rear_port=rp,
             rear_port_position=2
         )
@@ -280,6 +284,42 @@ class DeviceTestCase(TestCase):
             device=d,
             name='Device Bay 1'
         )
+
+    def test_device_duplicate_name_per_site(self):
+
+        device1 = Device(
+            site=self.site,
+            device_type=self.device_type,
+            device_role=self.device_role,
+            name='Test Device 1'
+        )
+        device1.save()
+
+        device2 = Device(
+            site=device1.site,
+            device_type=device1.device_type,
+            device_role=device1.device_role,
+            name=device1.name
+        )
+
+        # Two devices assigned to the same Site and no Tenant should fail validation
+        with self.assertRaises(ValidationError):
+            device2.full_clean()
+
+        tenant = Tenant.objects.create(name='Test Tenant 1', slug='test-tenant-1')
+        device1.tenant = tenant
+        device1.save()
+        device2.tenant = tenant
+
+        # Two devices assigned to the same Site and the same Tenant should fail validation
+        with self.assertRaises(ValidationError):
+            device2.full_clean()
+
+        device2.tenant = None
+
+        # Two devices assigned to the same Site and different Tenants should pass validation
+        device2.full_clean()
+        device2.save()
 
 
 class CableTestCase(TestCase):
@@ -382,7 +422,7 @@ class CableTestCase(TestCase):
         """
         A cable cannot terminate to a virtual interface
         """
-        virtual_interface = Interface(device=self.device1, name="V1", type=IFACE_TYPE_VIRTUAL)
+        virtual_interface = Interface(device=self.device1, name="V1", type=InterfaceTypeChoices.TYPE_VIRTUAL)
         cable = Cable(termination_a=self.interface2, termination_b=virtual_interface)
         with self.assertRaises(ValidationError):
             cable.clean()
@@ -391,7 +431,7 @@ class CableTestCase(TestCase):
         """
         A cable cannot terminate to a wireless interface
         """
-        wireless_interface = Interface(device=self.device1, name="W1", type=IFACE_TYPE_80211A)
+        wireless_interface = Interface(device=self.device1, name="W1", type=InterfaceTypeChoices.TYPE_80211A)
         cable = Cable(termination_a=self.interface2, termination_b=wireless_interface)
         with self.assertRaises(ValidationError):
             cable.clean()
@@ -424,16 +464,16 @@ class CablePathTestCase(TestCase):
             device_type=devicetype, device_role=devicerole, name='Test Panel 2', site=site
         )
         self.rear_port1 = RearPort.objects.create(
-            device=self.panel1, name='Rear Port 1', type=PORT_TYPE_8P8C
+            device=self.panel1, name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C
         )
         self.front_port1 = FrontPort.objects.create(
-            device=self.panel1, name='Front Port 1', type=PORT_TYPE_8P8C, rear_port=self.rear_port1
+            device=self.panel1, name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=self.rear_port1
         )
         self.rear_port2 = RearPort.objects.create(
-            device=self.panel2, name='Rear Port 2', type=PORT_TYPE_8P8C
+            device=self.panel2, name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C
         )
         self.front_port2 = FrontPort.objects.create(
-            device=self.panel2, name='Front Port 2', type=PORT_TYPE_8P8C, rear_port=self.rear_port2
+            device=self.panel2, name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=self.rear_port2
         )
 
     def test_path_completion(self):
@@ -453,14 +493,18 @@ class CablePathTestCase(TestCase):
         self.assertIsNone(interface1.connection_status)
 
         # Third segment
-        cable3 = Cable(termination_a=self.front_port2, termination_b=self.interface2, status=CONNECTION_STATUS_PLANNED)
+        cable3 = Cable(
+            termination_a=self.front_port2,
+            termination_b=self.interface2,
+            status=CableStatusChoices.STATUS_PLANNED
+        )
         cable3.save()
         interface1 = Interface.objects.get(pk=self.interface1.pk)
         self.assertEqual(interface1.connected_endpoint, self.interface2)
         self.assertEqual(interface1.connection_status, CONNECTION_STATUS_PLANNED)
 
         # Switch third segment from planned to connected
-        cable3.status = CONNECTION_STATUS_CONNECTED
+        cable3.status = CableStatusChoices.STATUS_CONNECTED
         cable3.save()
         interface1 = Interface.objects.get(pk=self.interface1.pk)
         self.assertEqual(interface1.connected_endpoint, self.interface2)

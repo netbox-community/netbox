@@ -1,15 +1,3 @@
-# v2.6.13 (FUTURE)
-
-## Enhancements
-
-* [#3377](https://github.com/netbox-community/netbox/issues/3377) - Include children devices when calculating power utilization
-
-## Bug Fixes
-
-* [#3914](https://github.com/netbox-community/netbox/issues/3914) - Fix interface filter field when unauthenticated
-
----
-
 # v2.6.12 (2020-01-13)
 
 ## Enhancements
@@ -42,7 +30,7 @@
 * [#3872](https://github.com/netbox-community/netbox/issues/3872) - Paginate related IPs on the IP address view
 * [#3876](https://github.com/netbox-community/netbox/issues/3876) - Fix minimum/maximum value rendering for site ASN field
 * [#3882](https://github.com/netbox-community/netbox/issues/3882) - Fix filtering of devices by rack group
-* [#3898](https://github.com/netbox-community/netbox/issues/3898) - Fix references to deleted cables without a label 
+* [#3898](https://github.com/netbox-community/netbox/issues/3898) - Fix references to deleted cables without a label
 * [#3905](https://github.com/netbox-community/netbox/issues/3905) - Fix divide-by-zero on power feeds with low power values
 
 ---

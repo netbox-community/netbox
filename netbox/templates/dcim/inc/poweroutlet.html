@@ -14,6 +14,11 @@
         <i class="fa fa-fw fa-bolt"></i> {{ po }}
     </td>
 
+    {# Type #}
+    <td>
+        {{ po.get_type_display }}
+    </td>
+
     {# Input/leg #}
     <td>
         {% if po.power_port %}

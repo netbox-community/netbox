@@ -10,7 +10,12 @@ from utilities.testing import create_test_user
 class TenantGroupTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['tenancy.view_tenantgroup'])
+        user = create_test_user(
+            permissions=[
+                'tenancy.view_tenantgroup',
+                'tenancy.add_tenantgroup',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -27,11 +32,30 @@ class TenantGroupTestCase(TestCase):
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
 
+    def test_tenantgroup_import(self):
+
+        csv_data = (
+            "name,slug",
+            "Tenant Group 4,tenant-group-4",
+            "Tenant Group 5,tenant-group-5",
+            "Tenant Group 6,tenant-group-6",
+        )
+
+        response = self.client.post(reverse('tenancy:tenantgroup_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(TenantGroup.objects.count(), 6)
+
 
 class TenantTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['tenancy.view_tenant'])
+        user = create_test_user(
+            permissions=[
+                'tenancy.view_tenant',
+                'tenancy.add_tenant',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -59,3 +83,17 @@ class TenantTestCase(TestCase):
         tenant = Tenant.objects.first()
         response = self.client.get(tenant.get_absolute_url(), follow=True)
         self.assertEqual(response.status_code, 200)
+
+    def test_tenant_import(self):
+
+        csv_data = (
+            "name,slug",
+            "Tenant 4,tenant-4",
+            "Tenant 5,tenant-5",
+            "Tenant 6,tenant-6",
+        )
+
+        response = self.client.post(reverse('tenancy:tenant_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Tenant.objects.count(), 6)

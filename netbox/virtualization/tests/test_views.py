@@ -10,7 +10,12 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMac
 class ClusterGroupTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['virtualization.view_clustergroup'])
+        user = create_test_user(
+            permissions=[
+                'virtualization.view_clustergroup',
+                'virtualization.add_clustergroup',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -27,11 +32,30 @@ class ClusterGroupTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_clustergroup_import(self):
+
+        csv_data = (
+            "name,slug",
+            "Cluster Group 4,cluster-group-4",
+            "Cluster Group 5,cluster-group-5",
+            "Cluster Group 6,cluster-group-6",
+        )
+
+        response = self.client.post(reverse('virtualization:clustergroup_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ClusterGroup.objects.count(), 6)
+
 
 class ClusterTypeTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['virtualization.view_clustertype'])
+        user = create_test_user(
+            permissions=[
+                'virtualization.view_clustertype',
+                'virtualization.add_clustertype',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -48,11 +72,30 @@ class ClusterTypeTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_clustertype_import(self):
+
+        csv_data = (
+            "name,slug",
+            "Cluster Type 4,cluster-type-4",
+            "Cluster Type 5,cluster-type-5",
+            "Cluster Type 6,cluster-type-6",
+        )
+
+        response = self.client.post(reverse('virtualization:clustertype_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ClusterType.objects.count(), 6)
+
 
 class ClusterTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['virtualization.view_cluster'])
+        user = create_test_user(
+            permissions=[
+                'virtualization.view_cluster',
+                'virtualization.add_cluster',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -85,11 +128,30 @@ class ClusterTestCase(TestCase):
         response = self.client.get(cluster.get_absolute_url())
         self.assertEqual(response.status_code, 200)
 
+    def test_cluster_import(self):
+
+        csv_data = (
+            "name,type",
+            "Cluster 4,Cluster Type 1",
+            "Cluster 5,Cluster Type 1",
+            "Cluster 6,Cluster Type 1",
+        )
+
+        response = self.client.post(reverse('virtualization:cluster_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Cluster.objects.count(), 6)
+
 
 class VirtualMachineTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['virtualization.view_virtualmachine'])
+        user = create_test_user(
+            permissions=[
+                'virtualization.view_virtualmachine',
+                'virtualization.add_virtualmachine',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -120,3 +182,17 @@ class VirtualMachineTestCase(TestCase):
         virtualmachine = VirtualMachine.objects.first()
         response = self.client.get(virtualmachine.get_absolute_url())
         self.assertEqual(response.status_code, 200)
+
+    def test_virtualmachine_import(self):
+
+        csv_data = (
+            "name,cluster",
+            "Virtual Machine 4,Cluster 1",
+            "Virtual Machine 5,Cluster 1",
+            "Virtual Machine 6,Cluster 1",
+        )
+
+        response = self.client.post(reverse('virtualization:virtualmachine_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(VirtualMachine.objects.count(), 6)
