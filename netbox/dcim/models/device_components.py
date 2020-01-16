@@ -427,7 +427,7 @@ class PowerPort(CableTermination, ComponentModel):
                 cursor.execute(QUERY_POWER_DRAW, [self.pk])
 
                 # Maximum number of power feeds + the global one
-                results = cursor.fetchmany(len(POWERFEED_LEG_CHOICES) + 1)
+                results = cursor.fetchmany(len(PowerOutletFeedLegChoices.CHOICES) + 1)
 
             # Global results
             allocated_draw_total, maximum_draw_total = get_power_feed_stats(None, results)
@@ -439,8 +439,8 @@ class PowerPort(CableTermination, ComponentModel):
             }
 
             # Calculate per-leg aggregates for three-phase feeds
-            if self._connected_powerfeed and self._connected_powerfeed.phase == POWERFEED_PHASE_3PHASE:
-                for leg, leg_name in POWERFEED_LEG_CHOICES:
+            if self._connected_powerfeed and self._connected_powerfeed.phase == PowerFeedPhaseChoices.PHASE_3PHASE:
+                for leg, leg_name in PowerOutletFeedLegChoices.CHOICES:
                     allocated_draw_total, maximum_draw_total = get_power_feed_stats(leg, results)
                     ret['legs'].append({
                         'name': leg_name,

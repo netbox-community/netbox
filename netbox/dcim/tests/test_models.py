@@ -572,7 +572,7 @@ class PowerCalculationTestCase(TestCase):
         self.power_feed = PowerFeed.objects.create(
             name='Power Feed 1',
             power_panel=power_panel,
-            phase=POWERFEED_PHASE_3PHASE
+            phase=PowerFeedPhaseChoices.PHASE_3PHASE
         )
         self.power_port1 = PowerPort.objects.create(device=self.device1, name='Power Port 1')
         Cable.objects.create(termination_a=self.power_port1, termination_b=self.power_feed)
@@ -582,7 +582,7 @@ class PowerCalculationTestCase(TestCase):
             device=self.device1,
             name='Power Outlet 12',
             power_port=self.power_port1,
-            feed_leg=POWERFEED_LEG_A,
+            feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A,
         )
         self.power_port21 = PowerPort.objects.create(
             device=self.device2,
@@ -597,7 +597,7 @@ class PowerCalculationTestCase(TestCase):
             device=self.device1,
             name='Power Outlet 13',
             power_port=self.power_port1,
-            feed_leg=POWERFEED_LEG_B,
+            feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B,
         )
         self.power_port31 = PowerPort.objects.create(
             device=self.device3,
