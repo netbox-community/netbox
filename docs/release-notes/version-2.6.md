@@ -1,11 +1,3 @@
-# v2.6.13 (FUTURE)
-
-## Enhancements
-
-* [#2921](https://github.com/netbox-community/netbox/issues/2921) - Replace tags filter with Select2 widget
-
----
-
 # v2.6.12 (2020-01-13)
 
 ## Enhancements
