@@ -1,4 +1,4 @@
-# v2.7.0 (FUTURE)
+# v2.7.0 (2020-01-16)
 
 **Note:** This release completely removes the topology map feature ([#2745](https://github.com/netbox-community/netbox/issues/2745)).
 
