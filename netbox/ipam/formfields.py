@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from netaddr import IPAddress, IPNetwork, AddrFormatError
+from netaddr import IPNetwork, AddrFormatError
 
 
 #
