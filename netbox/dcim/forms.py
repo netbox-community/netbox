@@ -2175,7 +2175,7 @@ class ConsolePortCreateForm(ComponentForm):
     )
 
 
-class ConsolePortCSVForm(forms.ModelForm):
+class ConsolePortCSVForm(CustomFieldForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -2267,7 +2267,7 @@ class ConsoleServerPortBulkDisconnectForm(ConfirmationForm):
     )
 
 
-class ConsoleServerPortCSVForm(forms.ModelForm):
+class ConsoleServerPortCSVForm(CustomFieldForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -2334,7 +2334,7 @@ class PowerPortCreateForm(ComponentForm):
     )
 
 
-class PowerPortCSVForm(forms.ModelForm):
+class PowerPortCSVForm(CustomFieldForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -2419,7 +2419,7 @@ class PowerOutletCreateForm(ComponentForm):
         self.fields['power_port'].queryset = PowerPort.objects.filter(device=self.parent)
 
 
-class PowerOutletCSVForm(forms.ModelForm):
+class PowerOutletCSVForm(CustomFieldForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -2668,7 +2668,7 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
             self.fields['lag'].queryset = Interface.objects.none()
 
 
-class InterfaceCSVForm(forms.ModelForm):
+class InterfaceCSVForm(CustomFieldForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
@@ -2925,7 +2925,7 @@ class FrontPortCreateForm(ComponentForm):
         }
 
 
-class FrontPortCSVForm(forms.ModelForm):
+class FrontPortCSVForm(CustomFieldForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -3051,7 +3051,7 @@ class RearPortCreateForm(ComponentForm):
     )
 
 
-class RearPortCSVForm(forms.ModelForm):
+class RearPortCSVForm(CustomFieldForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -3655,7 +3655,7 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
         ).exclude(pk=device_bay.device.pk)
 
 
-class DeviceBayCSVForm(forms.ModelForm):
+class DeviceBayCSVForm(CustomFieldForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
