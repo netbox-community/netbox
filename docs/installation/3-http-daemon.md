@@ -1,4 +1,4 @@
-We'll set up a simple WSGI front end using [gunicorn](http://gunicorn.org/) for the purposes of this guide. For web servers, we provide example configurations for both [nginx](https://www.nginx.com/resources/wiki/) and [Apache](http://httpd.apache.org/docs/2.4). (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) to enable service persistence.
+We'll set up a simple WSGI front end using [gunicorn](http://gunicorn.org/) for the purposes of this guide. For web servers, we provide example configurations for both [nginx](https://www.nginx.com/resources/wiki/) and [Apache](http://httpd.apache.org/docs/2.4). (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll use systemd to enable service persistence.
 
 !!! info
     For the sake of brevity, only Ubuntu 18.04 instructions are provided here, but this sort of web server and WSGI configuration is not unique to NetBox. Please consult your distribution's documentation for assistance if needed.
@@ -107,47 +107,53 @@ Install gunicorn:
 # pip3 install gunicorn
 ```
 
-Save the following configuration in the root netbox installation path as `gunicorn_config.py` (e.g. `/opt/netbox/gunicorn_config.py` per our example installation). Be sure to verify the location of the gunicorn executable on your server (e.g. `which gunicorn`) and to update the `pythonpath` variable if needed. If using CentOS/RHEL, change the username from `www-data` to `nginx` or `apache`. More info on `max_requests` can be found in the [gunicorn docs](https://docs.gunicorn.org/en/stable/settings.html#max-requests).
+Copy `contrib/gunicorn.py` to `/opt/netbox/gunicorn.py`. We make a copy of this file to ensure that any changes to it do not get overwritten by a future upgrade.
 
 ```no-highlight
-command = '/usr/bin/gunicorn'
-pythonpath = '/opt/netbox/netbox'
-bind = '127.0.0.1:8001'
-workers = 3
-user = 'www-data'
-max_requests = 5000
-max_requests_jitter = 500
+# cp contrib/gunicorn.py /opt/netbox/gunicorn.py
 ```
 
-# supervisord Installation
+You may wish to edit this file to change the bound IP address or port number, or to make performance-related adjustments.
 
-Install supervisor:
+# systemd configuration
+
+We'll use systemd to control the daemonization of NetBox services. First, copy `contrib/netbox.service` and `contrib/netbox-rq.service` to the `/etc/systemd/system/` directory:
 
 ```no-highlight
-# apt-get install -y supervisor
+# cp contrib/*.service /etc/systemd/system/
 ```
 
-Save the following as `/etc/supervisor/conf.d/netbox.conf`. Update the `command` and `directory` paths as needed. If using CentOS/RHEL, change the username from `www-data` to `nginx` or `apache`.
+!!! note
+    These service files assume that gunicorn is installed at `/usr/local/bin/gunicorn`. If the output of `which gunicorn` indicates a different path, you'll need to correct the `ExecStart` path in both files.
+
+Then, start the `netbox` and `netbox-rq` services and enable them to initiate at boot time:
 
 ```no-highlight
-[program:netbox]
-command = gunicorn -c /opt/netbox/gunicorn_config.py netbox.wsgi
-directory = /opt/netbox/netbox/
-user = www-data
-
-[program:netbox-rqworker]
-command = python3 /opt/netbox/netbox/manage.py rqworker
-directory = /opt/netbox/netbox/
-user = www-data
+# systemctl daemon-reload
+# systemctl start netbox.service
+# systemctl start netbox-rq.service
+# systemctl enable netbox.service
+# systemctl enable netbox-rq.service
 ```
 
-Then, restart the supervisor service to detect and run the gunicorn service:
+You can use the command `systemctl status netbox` to verify that the WSGI service is running:
 
-```no-highlight
-# service supervisor restart
+```
+# systemctl status netbox.service
+● netbox.service - NetBox WSGI Service
+   Loaded: loaded (/etc/systemd/system/netbox.service; enabled; vendor preset: enabled)
+   Active: active (running) since Thu 2019-12-12 19:23:40 UTC; 25s ago
+     Docs: https://netbox.readthedocs.io/en/stable/
+ Main PID: 11993 (gunicorn)
+    Tasks: 6 (limit: 2362)
+   CGroup: /system.slice/netbox.service
+           ├─11993 /usr/bin/python3 /usr/local/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/...
+           ├─12015 /usr/bin/python3 /usr/local/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/...
+           ├─12016 /usr/bin/python3 /usr/local/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/...
+...
 ```
 
-At this point, you should be able to connect to the nginx HTTP service at the server name or IP address you provided. If you are unable to connect, check that the nginx service is running and properly configured. If you receive a 502 (bad gateway) error, this indicates that gunicorn is misconfigured or not running.
+At this point, you should be able to connect to the HTTP service at the server name or IP address you provided. If you are unable to connect, check that the nginx service is running and properly configured. If you receive a 502 (bad gateway) error, this indicates that gunicorn is misconfigured or not running.
 
 !!! info
-    Please keep in mind that the configurations provided here are bare minimums required to get NetBox up and running. You will almost certainly want to make some changes to better suit your production environment.
+    Please keep in mind that the configurations provided here are bare minimums required to get NetBox up and running. You may want to make adjustments to better suit your production environment.

@@ -6,7 +6,7 @@ from tenancy.models import Tenant, TenantGroup
 
 class TenantGroupTestCase(TestCase):
     queryset = TenantGroup.objects.all()
-    filterset = TenantGroupFilter
+    filterset = TenantGroupFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -34,7 +34,7 @@ class TenantGroupTestCase(TestCase):
 
 class TenantTestCase(TestCase):
     queryset = Tenant.objects.all()
-    filterset = TenantFilter
+    filterset = TenantFilterSet
 
     @classmethod
     def setUpTestData(cls):

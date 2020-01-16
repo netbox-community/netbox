@@ -46,5 +46,6 @@ class ConfigContextQuerySet(QuerySet):
             Q(platforms=obj.platform) | Q(platforms=None),
             Q(tenant_groups=tenant_group) | Q(tenant_groups=None),
             Q(tenants=obj.tenant) | Q(tenants=None),
+            Q(tags__slug__in=obj.tags.slugs()) | Q(tags=None),
             is_active=True,
         ).order_by('weight', 'name')

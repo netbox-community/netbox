@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load buttons %}
 {% load custom_links %}
 {% load helpers %}
 
@@ -27,17 +28,14 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% if perms.virtualization.add_cluster %}
+            {% clone_button cluster %}
+        {% endif %}
         {% if perms.virtualization.change_cluster %}
-            <a href="{% url 'virtualization:cluster_edit' pk=cluster.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span>
-                Edit this cluster
-            </a>
+            {% edit_button cluster %}
         {% endif %}
         {% if perms.virtualization.delete_cluster %}
-            <a href="{% url 'virtualization:cluster_delete' pk=cluster.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>
-                Delete this cluster
-            </a>
+            {% delete_button cluster %}
         {% endif %}
     </div>
     <h1>{% block title %}{{ cluster }}{% endblock %}</h1>
@@ -78,6 +76,16 @@
                     <td>
                         {% if cluster.group %}
                             <a href="{{ cluster.group.get_absolute_url }}">{{ cluster.group }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Tenant</td>
+                    <td>
+                        {% if cluster.tenant %}
+                            <a href="{{ cluster.tenant.get_absolute_url }}">{{ cluster.tenant }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}

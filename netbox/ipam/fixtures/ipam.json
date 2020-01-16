@@ -40,7 +40,7 @@
         "site": 1,
         "vrf": null,
         "vlan": null,
-        "status": 1,
+        "status": "active",
         "role": 1,
         "description": ""
     }
@@ -56,7 +56,7 @@
         "site": 1,
         "vrf": null,
         "vlan": null,
-        "status": 1,
+        "status": "active",
         "role": 1,
         "description": ""
     }
@@ -322,7 +322,7 @@
         "site": 1,
         "vid": 999,
         "name": "TEST",
-        "status": 1,
+        "status": "active",
         "role": 1
     }
 }

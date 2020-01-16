@@ -1,10 +1,10 @@
 import datetime
 
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
 from extras.models import Webhook
 from utilities.api import get_serializer_for_model
+from .choices import *
 from .constants import *
 
 
@@ -13,16 +13,18 @@ def enqueue_webhooks(instance, user, request_id, action):
     Find Webhook(s) assigned to this instance + action and enqueue them
     to be processed
     """
-    if not settings.WEBHOOKS_ENABLED or instance._meta.label.lower() not in WEBHOOK_MODELS:
+    obj_type = ContentType.objects.get_for_model(instance.__class__)
+
+    webhook_models = ContentType.objects.filter(WEBHOOK_MODELS)
+    if obj_type not in webhook_models:
         return
 
     # Retrieve any applicable Webhooks
     action_flag = {
-        OBJECTCHANGE_ACTION_CREATE: 'type_create',
-        OBJECTCHANGE_ACTION_UPDATE: 'type_update',
-        OBJECTCHANGE_ACTION_DELETE: 'type_delete',
+        ObjectChangeActionChoices.ACTION_CREATE: 'type_create',
+        ObjectChangeActionChoices.ACTION_UPDATE: 'type_update',
+        ObjectChangeActionChoices.ACTION_DELETE: 'type_delete',
     }[action]
-    obj_type = ContentType.objects.get_for_model(instance.__class__)
     webhooks = Webhook.objects.filter(obj_type=obj_type, enabled=True, **{action_flag: True})
 
     if webhooks.exists():

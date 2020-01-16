@@ -1,16 +1,3 @@
-# v2.6.13 (FUTURE)
-
-## Enhancements
-
-* [#3509](https://github.com/netbox-community/netbox/issues/3509) - Added IPAddressVar for custom scripts
-* [#3525](https://github.com/netbox-community/netbox/issues/3525) - Enable IP address filtering with multiple address terms
-
-## Bug Fixes
-
-* [#3914](https://github.com/netbox-community/netbox/issues/3914) - Fix interface filter field when unauthenticated
-
----
-
 # v2.6.12 (2020-01-13)
 
 ## Enhancements

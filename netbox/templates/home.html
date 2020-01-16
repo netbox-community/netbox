@@ -261,29 +261,6 @@
     <div class="col-sm-6 col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <strong>Global Topology Maps</strong>
-            </div>
-            {% if topology_maps and perms.extras.view_topologymap %}
-                <table class="table table-hover panel-body">
-                    {% for tm in topology_maps %}
-                        <tr>
-                            <td><i class="fa fa-fw fa-map-o"></i> <a href="{% url 'extras-api:topologymap-render' pk=tm.pk %}" target="_blank">{{ tm }}</a></td>
-                            <td>{{ tm.description }}</td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            {% elif perms.extras.view_topologymap %}
-                <div class="panel-body text-muted">
-                    None found
-                </div>
-            {% else %}
-                <div class="panel-body text-muted">
-                    <i class="fa fa-lock"></i> No permission
-                </div>
-            {% endif %}
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
                 <strong>Reports</strong>
             </div>
             {% if report_results and perms.extras.view_reportresult %}
