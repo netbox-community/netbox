@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import re
 
 from django.conf import settings
@@ -16,8 +17,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from circuits.models import Circuit
-from extras.constants import GRAPH_TYPE_DEVICE, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
-from extras.models import Graph, TopologyMap
+from extras.models import Graph
 from extras.views import ObjectConfigContextView
 from ipam.models import Prefix, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
@@ -26,7 +26,7 @@ from utilities.paginator import EnhancedPaginator
 from utilities.utils import csv_format
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, GetReturnURLMixin,
-    ObjectDeleteView, ObjectEditView, ObjectListView,
+    ObjectImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
@@ -148,8 +148,8 @@ class RegionListView(PermissionRequiredMixin, ObjectListView):
         'site_count',
         cumulative=True
     )
-    filter = filters.RegionFilter
-    filter_form = forms.RegionFilterForm
+    filterset = filters.RegionFilterSet
+    filterset_form = forms.RegionFilterForm
     table = tables.RegionTable
     template_name = 'dcim/region_list.html'
 
@@ -175,7 +175,7 @@ class RegionBulkImportView(PermissionRequiredMixin, BulkImportView):
 class RegionBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_region'
     queryset = Region.objects.all()
-    filter = filters.RegionFilter
+    filterset = filters.RegionFilterSet
     table = tables.RegionTable
     default_return_url = 'dcim:region_list'
 
@@ -187,8 +187,8 @@ class RegionBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class SiteListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_site'
     queryset = Site.objects.prefetch_related('region', 'tenant')
-    filter = filters.SiteFilter
-    filter_form = forms.SiteFilterForm
+    filterset = filters.SiteFilterSet
+    filterset_form = forms.SiteFilterForm
     table = tables.SiteTable
     template_name = 'dcim/site_list.html'
 
@@ -208,14 +208,12 @@ class SiteView(PermissionRequiredMixin, View):
             'vm_count': VirtualMachine.objects.filter(cluster__site=site).count(),
         }
         rack_groups = RackGroup.objects.filter(site=site).annotate(rack_count=Count('racks'))
-        topology_maps = TopologyMap.objects.filter(site=site)
-        show_graphs = Graph.objects.filter(type=GRAPH_TYPE_SITE).exists()
+        show_graphs = Graph.objects.filter(type__model='site').exists()
 
         return render(request, 'dcim/site.html', {
             'site': site,
             'stats': stats,
             'rack_groups': rack_groups,
-            'topology_maps': topology_maps,
             'show_graphs': show_graphs,
         })
 
@@ -248,7 +246,7 @@ class SiteBulkImportView(PermissionRequiredMixin, BulkImportView):
 class SiteBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_site'
     queryset = Site.objects.prefetch_related('region', 'tenant')
-    filter = filters.SiteFilter
+    filterset = filters.SiteFilterSet
     table = tables.SiteTable
     form = forms.SiteBulkEditForm
     default_return_url = 'dcim:site_list'
@@ -257,7 +255,7 @@ class SiteBulkEditView(PermissionRequiredMixin, BulkEditView):
 class SiteBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_site'
     queryset = Site.objects.prefetch_related('region', 'tenant')
-    filter = filters.SiteFilter
+    filterset = filters.SiteFilterSet
     table = tables.SiteTable
     default_return_url = 'dcim:site_list'
 
@@ -269,8 +267,8 @@ class SiteBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class RackGroupListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_rackgroup'
     queryset = RackGroup.objects.prefetch_related('site').annotate(rack_count=Count('racks'))
-    filter = filters.RackGroupFilter
-    filter_form = forms.RackGroupFilterForm
+    filterset = filters.RackGroupFilterSet
+    filterset_form = forms.RackGroupFilterForm
     table = tables.RackGroupTable
     template_name = 'dcim/rackgroup_list.html'
 
@@ -296,7 +294,7 @@ class RackGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
 class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rackgroup'
     queryset = RackGroup.objects.prefetch_related('site').annotate(rack_count=Count('racks'))
-    filter = filters.RackGroupFilter
+    filterset = filters.RackGroupFilterSet
     table = tables.RackGroupTable
     default_return_url = 'dcim:rackgroup_list'
 
@@ -348,8 +346,8 @@ class RackListView(PermissionRequiredMixin, ObjectListView):
     ).annotate(
         device_count=Count('devices')
     )
-    filter = filters.RackFilter
-    filter_form = forms.RackFilterForm
+    filterset = filters.RackFilterSet
+    filterset_form = forms.RackFilterForm
     table = tables.RackDetailTable
     template_name = 'dcim/rack_list.html'
 
@@ -363,7 +361,7 @@ class RackElevationListView(PermissionRequiredMixin, View):
     def get(self, request):
 
         racks = Rack.objects.prefetch_related('site', 'group', 'tenant', 'role', 'devices__device_type')
-        racks = filters.RackFilter(request.GET, racks).qs
+        racks = filters.RackFilterSet(request.GET, racks).qs
         total_count = racks.count()
 
         # Pagination
@@ -421,8 +419,6 @@ class RackView(PermissionRequiredMixin, View):
             'nonracked_devices': nonracked_devices,
             'next_rack': next_rack,
             'prev_rack': prev_rack,
-            'front_elevation': rack.get_front_elevation(),
-            'rear_elevation': rack.get_rear_elevation(),
         })
 
 
@@ -454,7 +450,7 @@ class RackBulkImportView(PermissionRequiredMixin, BulkImportView):
 class RackBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_rack'
     queryset = Rack.objects.prefetch_related('site', 'group', 'tenant', 'role')
-    filter = filters.RackFilter
+    filterset = filters.RackFilterSet
     table = tables.RackTable
     form = forms.RackBulkEditForm
     default_return_url = 'dcim:rack_list'
@@ -463,7 +459,7 @@ class RackBulkEditView(PermissionRequiredMixin, BulkEditView):
 class RackBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rack'
     queryset = Rack.objects.prefetch_related('site', 'group', 'tenant', 'role')
-    filter = filters.RackFilter
+    filterset = filters.RackFilterSet
     table = tables.RackTable
     default_return_url = 'dcim:rack_list'
 
@@ -475,8 +471,8 @@ class RackBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class RackReservationListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_rackreservation'
     queryset = RackReservation.objects.prefetch_related('rack__site')
-    filter = filters.RackReservationFilter
-    filter_form = forms.RackReservationFilterForm
+    filterset = filters.RackReservationFilterSet
+    filterset_form = forms.RackReservationFilterForm
     table = tables.RackReservationTable
     template_name = 'dcim/rackreservation_list.html'
 
@@ -511,7 +507,7 @@ class RackReservationDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 class RackReservationBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_rackreservation'
     queryset = RackReservation.objects.prefetch_related('rack', 'user')
-    filter = filters.RackReservationFilter
+    filterset = filters.RackReservationFilterSet
     table = tables.RackReservationTable
     form = forms.RackReservationBulkEditForm
     default_return_url = 'dcim:rackreservation_list'
@@ -520,7 +516,7 @@ class RackReservationBulkEditView(PermissionRequiredMixin, BulkEditView):
 class RackReservationBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rackreservation'
     queryset = RackReservation.objects.prefetch_related('rack', 'user')
-    filter = filters.RackReservationFilter
+    filterset = filters.RackReservationFilterSet
     table = tables.RackReservationTable
     default_return_url = 'dcim:rackreservation_list'
 
@@ -572,8 +568,8 @@ class ManufacturerBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class DeviceTypeListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_devicetype'
     queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances'))
-    filter = filters.DeviceTypeFilter
-    filter_form = forms.DeviceTypeFilterForm
+    filterset = filters.DeviceTypeFilterSet
+    filterset_form = forms.DeviceTypeFilterForm
     table = tables.DeviceTypeTable
     template_name = 'dcim/devicetype_list.html'
 
@@ -659,17 +655,37 @@ class DeviceTypeDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'dcim:devicetype_list'
 
 
-class DeviceTypeBulkImportView(PermissionRequiredMixin, BulkImportView):
-    permission_required = 'dcim.add_devicetype'
-    model_form = forms.DeviceTypeCSVForm
-    table = tables.DeviceTypeTable
-    default_return_url = 'dcim:devicetype_list'
+class DeviceTypeImportView(PermissionRequiredMixin, ObjectImportView):
+    permission_required = [
+        'dcim.add_devicetype',
+        'dcim.add_consoleporttemplate',
+        'dcim.add_consoleserverporttemplate',
+        'dcim.add_powerporttemplate',
+        'dcim.add_poweroutlettemplate',
+        'dcim.add_interfacetemplate',
+        'dcim.add_frontporttemplate',
+        'dcim.add_rearporttemplate',
+        'dcim.add_devicebaytemplate',
+    ]
+    model = DeviceType
+    model_form = forms.DeviceTypeImportForm
+    related_object_forms = OrderedDict((
+        ('console-ports', forms.ConsolePortTemplateImportForm),
+        ('console-server-ports', forms.ConsoleServerPortTemplateImportForm),
+        ('power-ports', forms.PowerPortTemplateImportForm),
+        ('power-outlets', forms.PowerOutletTemplateImportForm),
+        ('interfaces', forms.InterfaceTemplateImportForm),
+        ('rear-ports', forms.RearPortTemplateImportForm),
+        ('front-ports', forms.FrontPortTemplateImportForm),
+        ('device-bays', forms.DeviceBayTemplateImportForm),
+    ))
+    default_return_url = 'dcim:devicetype_import'
 
 
 class DeviceTypeBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_devicetype'
     queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances'))
-    filter = filters.DeviceTypeFilter
+    filterset = filters.DeviceTypeFilterSet
     table = tables.DeviceTypeTable
     form = forms.DeviceTypeBulkEditForm
     default_return_url = 'dcim:devicetype_list'
@@ -678,7 +694,7 @@ class DeviceTypeBulkEditView(PermissionRequiredMixin, BulkEditView):
 class DeviceTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_devicetype'
     queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances'))
-    filter = filters.DeviceTypeFilter
+    filterset = filters.DeviceTypeFilterSet
     table = tables.DeviceTypeTable
     default_return_url = 'dcim:devicetype_list'
 
@@ -960,8 +976,8 @@ class DeviceListView(PermissionRequiredMixin, ObjectListView):
     queryset = Device.objects.prefetch_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack', 'primary_ip4', 'primary_ip6'
     )
-    filter = filters.DeviceFilter
-    filter_form = forms.DeviceFilterForm
+    filterset = filters.DeviceFilterSet
+    filterset_form = forms.DeviceFilterForm
     table = tables.DeviceDetailTable
     template_name = 'dcim/device_list.html'
 
@@ -1039,8 +1055,8 @@ class DeviceView(PermissionRequiredMixin, View):
             'secrets': secrets,
             'vc_members': vc_members,
             'related_devices': related_devices,
-            'show_graphs': Graph.objects.filter(type=GRAPH_TYPE_DEVICE).exists(),
-            'show_interface_graphs': Graph.objects.filter(type=GRAPH_TYPE_INTERFACE).exists(),
+            'show_graphs': Graph.objects.filter(type__model='device').exists(),
+            'show_interface_graphs': Graph.objects.filter(type__model='interface').exists(),
         })
 
 
@@ -1160,7 +1176,7 @@ class ChildDeviceBulkImportView(PermissionRequiredMixin, BulkImportView):
 class DeviceBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_device'
     queryset = Device.objects.prefetch_related('tenant', 'site', 'rack', 'device_role', 'device_type__manufacturer')
-    filter = filters.DeviceFilter
+    filterset = filters.DeviceFilterSet
     table = tables.DeviceTable
     form = forms.DeviceBulkEditForm
     default_return_url = 'dcim:device_list'
@@ -1169,7 +1185,7 @@ class DeviceBulkEditView(PermissionRequiredMixin, BulkEditView):
 class DeviceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_device'
     queryset = Device.objects.prefetch_related('tenant', 'site', 'rack', 'device_role', 'device_type__manufacturer')
-    filter = filters.DeviceFilter
+    filterset = filters.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
 
@@ -1177,6 +1193,15 @@ class DeviceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 # Console ports
 #
+
+class ConsolePortListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_consoleport'
+    queryset = ConsolePort.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
+    filterset = filters.ConsolePortFilterSet
+    filterset_form = forms.ConsolePortFilterForm
+    table = tables.ConsolePortDetailTable
+    template_name = 'dcim/device_component_list.html'
+
 
 class ConsolePortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_consoleport'
@@ -1199,6 +1224,13 @@ class ConsolePortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = ConsolePort
 
 
+class ConsolePortBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_consoleport'
+    model_form = forms.ConsolePortCSVForm
+    table = tables.ConsolePortImportTable
+    default_return_url = 'dcim:consoleport_list'
+
+
 class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_consoleport'
     queryset = ConsolePort.objects.all()
@@ -1209,6 +1241,15 @@ class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 # Console server ports
 #
+
+class ConsoleServerPortListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_consoleserverport'
+    queryset = ConsoleServerPort.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
+    filterset = filters.ConsoleServerPortFilterSet
+    filterset_form = forms.ConsoleServerPortFilterForm
+    table = tables.ConsoleServerPortDetailTable
+    template_name = 'dcim/device_component_list.html'
+
 
 class ConsoleServerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_consoleserverport'
@@ -1229,6 +1270,13 @@ class ConsoleServerPortEditView(PermissionRequiredMixin, ObjectEditView):
 class ConsoleServerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_consoleserverport'
     model = ConsoleServerPort
+
+
+class ConsoleServerPortBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_consoleserverport'
+    model_form = forms.ConsoleServerPortCSVForm
+    table = tables.ConsoleServerPortImportTable
+    default_return_url = 'dcim:consoleserverport_list'
 
 
 class ConsoleServerPortBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -1262,6 +1310,15 @@ class ConsoleServerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Power ports
 #
 
+class PowerPortListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_powerport'
+    queryset = PowerPort.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
+    filterset = filters.PowerPortFilterSet
+    filterset_form = forms.PowerPortFilterForm
+    table = tables.PowerPortDetailTable
+    template_name = 'dcim/device_component_list.html'
+
+
 class PowerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_powerport'
     parent_model = Device
@@ -1283,6 +1340,13 @@ class PowerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = PowerPort
 
 
+class PowerPortBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_powerport'
+    model_form = forms.PowerPortCSVForm
+    table = tables.PowerPortImportTable
+    default_return_url = 'dcim:powerport_list'
+
+
 class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_powerport'
     queryset = PowerPort.objects.all()
@@ -1293,6 +1357,15 @@ class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 # Power outlets
 #
+
+class PowerOutletListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_poweroutlet'
+    queryset = PowerOutlet.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
+    filterset = filters.PowerOutletFilterSet
+    filterset_form = forms.PowerOutletFilterForm
+    table = tables.PowerOutletDetailTable
+    template_name = 'dcim/device_component_list.html'
+
 
 class PowerOutletCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_poweroutlet'
@@ -1313,6 +1386,13 @@ class PowerOutletEditView(PermissionRequiredMixin, ObjectEditView):
 class PowerOutletDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_poweroutlet'
     model = PowerOutlet
+
+
+class PowerOutletBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_poweroutlet'
+    model_form = forms.PowerOutletCSVForm
+    table = tables.PowerOutletImportTable
+    default_return_url = 'dcim:poweroutlet_list'
 
 
 class PowerOutletBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -1345,6 +1425,15 @@ class PowerOutletBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 # Interfaces
 #
+
+class InterfaceListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_interface'
+    queryset = Interface.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
+    filterset = filters.InterfaceFilterSet
+    filterset_form = forms.InterfaceFilterForm
+    table = tables.InterfaceDetailTable
+    template_name = 'dcim/device_component_list.html'
+
 
 class InterfaceView(PermissionRequiredMixin, View):
     permission_required = 'dcim.view_interface'
@@ -1404,6 +1493,13 @@ class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = Interface
 
 
+class InterfaceBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_interface'
+    model_form = forms.InterfaceCSVForm
+    table = tables.InterfaceImportTable
+    default_return_url = 'dcim:interface_list'
+
+
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_interface'
     queryset = Interface.objects.all()
@@ -1435,6 +1531,15 @@ class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Front ports
 #
 
+class FrontPortListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_frontport'
+    queryset = FrontPort.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
+    filterset = filters.FrontPortFilterSet
+    filterset_form = forms.FrontPortFilterForm
+    table = tables.FrontPortDetailTable
+    template_name = 'dcim/device_component_list.html'
+
+
 class FrontPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_frontport'
     parent_model = Device
@@ -1454,6 +1559,13 @@ class FrontPortEditView(PermissionRequiredMixin, ObjectEditView):
 class FrontPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_frontport'
     model = FrontPort
+
+
+class FrontPortBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_frontport'
+    model_form = forms.FrontPortCSVForm
+    table = tables.FrontPortImportTable
+    default_return_url = 'dcim:frontport_list'
 
 
 class FrontPortBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -1487,6 +1599,15 @@ class FrontPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Rear ports
 #
 
+class RearPortListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_rearport'
+    queryset = RearPort.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
+    filterset = filters.RearPortFilterSet
+    filterset_form = forms.RearPortFilterForm
+    table = tables.RearPortDetailTable
+    template_name = 'dcim/device_component_list.html'
+
+
 class RearPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_rearport'
     parent_model = Device
@@ -1506,6 +1627,13 @@ class RearPortEditView(PermissionRequiredMixin, ObjectEditView):
 class RearPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_rearport'
     model = RearPort
+
+
+class RearPortBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_rearport'
+    model_form = forms.RearPortCSVForm
+    table = tables.RearPortImportTable
+    default_return_url = 'dcim:rearport_list'
 
 
 class RearPortBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -1538,6 +1666,17 @@ class RearPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 # Device bays
 #
+
+class DeviceBayListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_devicebay'
+    queryset = DeviceBay.objects.prefetch_related(
+        'device', 'device__site', 'installed_device', 'installed_device__site'
+    )
+    filterset = filters.DeviceBayFilterSet
+    filterset_form = forms.DeviceBayFilterForm
+    table = tables.DeviceBayDetailTable
+    template_name = 'dcim/device_component_list.html'
+
 
 class DeviceBayCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_devicebay'
@@ -1629,6 +1768,13 @@ class DeviceBayDepopulateView(PermissionRequiredMixin, View):
         })
 
 
+class DeviceBayBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_devicebay'
+    model_form = forms.DeviceBayCSVForm
+    table = tables.DeviceBayImportTable
+    default_return_url = 'dcim:devicebay_list'
+
+
 class DeviceBayBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_devicebay'
     queryset = DeviceBay.objects.all()
@@ -1653,7 +1799,7 @@ class DeviceBulkAddConsolePortView(PermissionRequiredMixin, BulkComponentCreateV
     form = forms.DeviceBulkAddComponentForm
     model = ConsolePort
     model_form = forms.ConsolePortForm
-    filter = filters.DeviceFilter
+    filterset = filters.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
 
@@ -1665,7 +1811,7 @@ class DeviceBulkAddConsoleServerPortView(PermissionRequiredMixin, BulkComponentC
     form = forms.DeviceBulkAddComponentForm
     model = ConsoleServerPort
     model_form = forms.ConsoleServerPortForm
-    filter = filters.DeviceFilter
+    filterset = filters.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
 
@@ -1677,7 +1823,7 @@ class DeviceBulkAddPowerPortView(PermissionRequiredMixin, BulkComponentCreateVie
     form = forms.DeviceBulkAddComponentForm
     model = PowerPort
     model_form = forms.PowerPortForm
-    filter = filters.DeviceFilter
+    filterset = filters.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
 
@@ -1689,7 +1835,7 @@ class DeviceBulkAddPowerOutletView(PermissionRequiredMixin, BulkComponentCreateV
     form = forms.DeviceBulkAddComponentForm
     model = PowerOutlet
     model_form = forms.PowerOutletForm
-    filter = filters.DeviceFilter
+    filterset = filters.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
 
@@ -1701,7 +1847,7 @@ class DeviceBulkAddInterfaceView(PermissionRequiredMixin, BulkComponentCreateVie
     form = forms.DeviceBulkAddInterfaceForm
     model = Interface
     model_form = forms.InterfaceForm
-    filter = filters.DeviceFilter
+    filterset = filters.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
 
@@ -1713,7 +1859,7 @@ class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, BulkComponentCreateVie
     form = forms.DeviceBulkAddComponentForm
     model = DeviceBay
     model_form = forms.DeviceBayForm
-    filter = filters.DeviceFilter
+    filterset = filters.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
 
@@ -1727,8 +1873,8 @@ class CableListView(PermissionRequiredMixin, ObjectListView):
     queryset = Cable.objects.prefetch_related(
         'termination_a', 'termination_b'
     )
-    filter = filters.CableFilter
-    filter_form = forms.CableFilterForm
+    filterset = filters.CableFilterSet
+    filterset_form = forms.CableFilterForm
     table = tables.CableTable
     template_name = 'dcim/cable_list.html'
 
@@ -1864,7 +2010,7 @@ class CableBulkImportView(PermissionRequiredMixin, BulkImportView):
 class CableBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_cable'
     queryset = Cable.objects.prefetch_related('termination_a', 'termination_b')
-    filter = filters.CableFilter
+    filterset = filters.CableFilterSet
     table = tables.CableTable
     form = forms.CableBulkEditForm
     default_return_url = 'dcim:cable_list'
@@ -1873,7 +2019,7 @@ class CableBulkEditView(PermissionRequiredMixin, BulkEditView):
 class CableBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_cable'
     queryset = Cable.objects.prefetch_related('termination_a', 'termination_b')
-    filter = filters.CableFilter
+    filterset = filters.CableFilterSet
     table = tables.CableTable
     default_return_url = 'dcim:cable_list'
 
@@ -1891,8 +2037,8 @@ class ConsoleConnectionsListView(PermissionRequiredMixin, ObjectListView):
     ).order_by(
         'cable', 'connected_endpoint__device__name', 'connected_endpoint__name'
     )
-    filter = filters.ConsoleConnectionFilter
-    filter_form = forms.ConsoleConnectionFilterForm
+    filterset = filters.ConsoleConnectionFilterSet
+    filterset_form = forms.ConsoleConnectionFilterForm
     table = tables.ConsoleConnectionTable
     template_name = 'dcim/console_connections_list.html'
 
@@ -1910,7 +2056,8 @@ class ConsoleConnectionsListView(PermissionRequiredMixin, ObjectListView):
                 obj.get_connection_status_display(),
             ])
             csv_data.append(csv)
-        return csv_data
+
+        return '\n'.join(csv_data)
 
 
 class PowerConnectionsListView(PermissionRequiredMixin, ObjectListView):
@@ -1922,8 +2069,8 @@ class PowerConnectionsListView(PermissionRequiredMixin, ObjectListView):
     ).order_by(
         'cable', '_connected_poweroutlet__device__name', '_connected_poweroutlet__name'
     )
-    filter = filters.PowerConnectionFilter
-    filter_form = forms.PowerConnectionFilterForm
+    filterset = filters.PowerConnectionFilterSet
+    filterset_form = forms.PowerConnectionFilterForm
     table = tables.PowerConnectionTable
     template_name = 'dcim/power_connections_list.html'
 
@@ -1941,7 +2088,8 @@ class PowerConnectionsListView(PermissionRequiredMixin, ObjectListView):
                 obj.get_connection_status_display(),
             ])
             csv_data.append(csv)
-        return csv_data
+
+        return '\n'.join(csv_data)
 
 
 class InterfaceConnectionsListView(PermissionRequiredMixin, ObjectListView):
@@ -1955,8 +2103,8 @@ class InterfaceConnectionsListView(PermissionRequiredMixin, ObjectListView):
     ).order_by(
         'device'
     )
-    filter = filters.InterfaceConnectionFilter
-    filter_form = forms.InterfaceConnectionFilterForm
+    filterset = filters.InterfaceConnectionFilterSet
+    filterset_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
     template_name = 'dcim/interface_connections_list.html'
 
@@ -1980,7 +2128,8 @@ class InterfaceConnectionsListView(PermissionRequiredMixin, ObjectListView):
                 obj.get_connection_status_display(),
             ])
             csv_data.append(csv)
-        return csv_data
+
+        return '\n'.join(csv_data)
 
 
 #
@@ -1990,8 +2139,8 @@ class InterfaceConnectionsListView(PermissionRequiredMixin, ObjectListView):
 class InventoryItemListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_inventoryitem'
     queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
-    filter = filters.InventoryItemFilter
-    filter_form = forms.InventoryItemFilterForm
+    filterset = filters.InventoryItemFilterSet
+    filterset_form = forms.InventoryItemFilterForm
     table = tables.InventoryItemTable
     template_name = 'dcim/inventoryitem_list.html'
 
@@ -2025,7 +2174,7 @@ class InventoryItemBulkImportView(PermissionRequiredMixin, BulkImportView):
 class InventoryItemBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_inventoryitem'
     queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
-    filter = filters.InventoryItemFilter
+    filterset = filters.InventoryItemFilterSet
     table = tables.InventoryItemTable
     form = forms.InventoryItemBulkEditForm
     default_return_url = 'dcim:inventoryitem_list'
@@ -2047,8 +2196,8 @@ class VirtualChassisListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_virtualchassis'
     queryset = VirtualChassis.objects.prefetch_related('master').annotate(member_count=Count('members'))
     table = tables.VirtualChassisTable
-    filter = filters.VirtualChassisFilter
-    filter_form = forms.VirtualChassisFilterForm
+    filterset = filters.VirtualChassisFilterSet
+    filterset_form = forms.VirtualChassisFilterForm
     template_name = 'dcim/virtualchassis_list.html'
 
 
@@ -2290,8 +2439,8 @@ class PowerPanelListView(PermissionRequiredMixin, ObjectListView):
     ).annotate(
         powerfeed_count=Count('powerfeeds')
     )
-    filter = filters.PowerPanelFilter
-    filter_form = forms.PowerPanelFilterForm
+    filterset = filters.PowerPanelFilterSet
+    filterset_form = forms.PowerPanelFilterForm
     table = tables.PowerPanelTable
     template_name = 'dcim/powerpanel_list.html'
 
@@ -2345,7 +2494,7 @@ class PowerPanelBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     ).annotate(
         rack_count=Count('powerfeeds')
     )
-    filter = filters.PowerPanelFilter
+    filterset = filters.PowerPanelFilterSet
     table = tables.PowerPanelTable
     default_return_url = 'dcim:powerpanel_list'
 
@@ -2359,8 +2508,8 @@ class PowerFeedListView(PermissionRequiredMixin, ObjectListView):
     queryset = PowerFeed.objects.prefetch_related(
         'power_panel', 'rack'
     )
-    filter = filters.PowerFeedFilter
-    filter_form = forms.PowerFeedFilterForm
+    filterset = filters.PowerFeedFilterSet
+    filterset_form = forms.PowerFeedFilterForm
     table = tables.PowerFeedTable
     template_name = 'dcim/powerfeed_list.html'
 
@@ -2405,7 +2554,7 @@ class PowerFeedBulkImportView(PermissionRequiredMixin, BulkImportView):
 class PowerFeedBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_powerfeed'
     queryset = PowerFeed.objects.prefetch_related('power_panel', 'rack')
-    filter = filters.PowerFeedFilter
+    filterset = filters.PowerFeedFilterSet
     table = tables.PowerFeedTable
     form = forms.PowerFeedBulkEditForm
     default_return_url = 'dcim:powerfeed_list'
@@ -2414,6 +2563,6 @@ class PowerFeedBulkEditView(PermissionRequiredMixin, BulkEditView):
 class PowerFeedBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_powerfeed'
     queryset = PowerFeed.objects.prefetch_related('power_panel', 'rack')
-    filter = filters.PowerFeedFilter
+    filterset = filters.PowerFeedFilterSet
     table = tables.PowerFeedTable
     default_return_url = 'dcim:powerfeed_list'

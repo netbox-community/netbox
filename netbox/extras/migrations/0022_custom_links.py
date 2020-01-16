@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('group_name', models.CharField(blank=True, max_length=50)),
                 ('button_class', models.CharField(default='default', max_length=30)),
                 ('new_window', models.BooleanField()),
-                ('content_type', models.ForeignKey(limit_choices_to=extras.models.get_custom_link_models, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
+                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
             ],
             options={
                 'ordering': ['group_name', 'weight', 'name'],
@@ -33,16 +33,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customfield',
             name='obj_type',
-            field=models.ManyToManyField(limit_choices_to=extras.models.get_custom_field_models, related_name='custom_fields', to='contenttypes.ContentType'),
+            field=models.ManyToManyField(related_name='custom_fields', to='contenttypes.ContentType'),
         ),
         migrations.AlterField(
             model_name='exporttemplate',
             name='content_type',
-            field=models.ForeignKey(limit_choices_to=extras.models.get_export_template_models, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
         ),
         migrations.AlterField(
             model_name='webhook',
             name='obj_type',
-            field=models.ManyToManyField(limit_choices_to=extras.models.get_webhook_models, related_name='webhooks', to='contenttypes.ContentType'),
+            field=models.ManyToManyField(related_name='webhooks', to='contenttypes.ContentType'),
         ),
     ]

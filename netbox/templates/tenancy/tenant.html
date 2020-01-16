@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load buttons %}
 {% load custom_links %}
 {% load helpers %}
 
@@ -27,17 +28,14 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% if perms.tenancy.add_tenant %}
+            {% clone_button tenant %}
+        {% endif %}
         {% if perms.tenancy.change_tenant %}
-            <a href="{% url 'tenancy:tenant_edit' slug=tenant.slug %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span>
-                Edit this tenant
-            </a>
+            {% edit_button tenant %}
         {% endif %}
         {% if perms.tenancy.delete_tenant %}
-            <a href="{% url 'tenancy:tenant_delete' slug=tenant.slug %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>
-                Delete this tenant
-            </a>
+            {% delete_button tenant %}
         {% endif %}
     </div>
     <h1>{% block title %}{{ tenant }}{% endblock %}</h1>
@@ -141,6 +139,10 @@
                 <div class="col-md-4 text-center">
                     <h2><a href="{% url 'virtualization:virtualmachine_list' %}?tenant={{ tenant.slug }}" class="btn {% if stats.virtualmachine_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.virtualmachine_count }}</a></h2>
                     <p>Virtual machines</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h2><a href="{% url 'virtualization:cluster_list' %}?tenant={{ tenant.slug }}" class="btn {% if stats.cluster_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.cluster_count }}</a></h2>
+                    <p>Clusters</p>
                 </div>
             </div>
         </div>

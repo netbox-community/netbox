@@ -50,12 +50,14 @@ class CircuitTypeTable(BaseTable):
     name = tables.LinkColumn()
     circuit_count = tables.Column(verbose_name='Circuits')
     actions = tables.TemplateColumn(
-        template_code=CIRCUITTYPE_ACTIONS, attrs={'td': {'class': 'text-right noprint'}}, verbose_name=''
+        template_code=CIRCUITTYPE_ACTIONS,
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
     )
 
     class Meta(BaseTable.Meta):
         model = CircuitType
-        fields = ('pk', 'name', 'circuit_count', 'slug', 'actions')
+        fields = ('pk', 'name', 'circuit_count', 'description', 'slug', 'actions')
 
 
 #

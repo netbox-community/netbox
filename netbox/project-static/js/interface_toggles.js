@@ -15,7 +15,7 @@ $('button.toggle-ips').click(function() {
 $('input.interface-filter').on('input', function() {
     var filter = new RegExp(this.value);
 
-    for (interface of $(this).closest('form').find('tbody > tr')) {
+    for (interface of $(this).closest('div.panel').find('tbody > tr')) {
         // Slice off 'interface_' at the start of the ID
         if (filter && filter.test(interface.id.slice(10))) {
             // Match the toggle in case the filter now matches the interface

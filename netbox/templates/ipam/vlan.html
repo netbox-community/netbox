@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load buttons %}
 {% load custom_links %}
 {% load helpers %}
 
@@ -30,17 +31,14 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% if perms.ipam.add_vlan %}
+            {% clone_button vlan %}
+        {% endif %}
         {% if perms.ipam.change_vlan %}
-            <a href="{% url 'ipam:vlan_edit' pk=vlan.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span>
-                Edit this VLAN
-            </a>
+            {% edit_button vlan %}
         {% endif %}
         {% if perms.ipam.delete_vlan %}
-            <a href="{% url 'ipam:vlan_delete' pk=vlan.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>
-                Delete this VLAN
-            </a>
+            {% delete_button vlan %}
         {% endif %}
     </div>
     <h1>{% block title %}VLAN {{ vlan.display_name }}{% endblock %}</h1>

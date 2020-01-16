@@ -8,7 +8,7 @@ from taggit_serializer.serializers import TaggitSerializer, TagListSerializerFie
 from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerializer
 from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
-from ipam.constants import *
+from ipam.choices import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import (
@@ -49,6 +49,7 @@ class RIRSerializer(ValidatedModelSerializer):
 
 
 class AggregateSerializer(TaggitSerializer, CustomFieldModelSerializer):
+    family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     rir = NestedRIRSerializer()
     tags = TagListSerializerField(required=False)
 
@@ -71,7 +72,7 @@ class RoleSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = Role
-        fields = ['id', 'name', 'slug', 'weight', 'prefix_count', 'vlan_count']
+        fields = ['id', 'name', 'slug', 'weight', 'description', 'prefix_count', 'vlan_count']
 
 
 class VLANGroupSerializer(ValidatedModelSerializer):
@@ -102,7 +103,7 @@ class VLANSerializer(TaggitSerializer, CustomFieldModelSerializer):
     site = NestedSiteSerializer(required=False, allow_null=True)
     group = NestedVLANGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    status = ChoiceField(choices=VLAN_STATUS_CHOICES, required=False)
+    status = ChoiceField(choices=VLANStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
     prefix_count = serializers.IntegerField(read_only=True)
@@ -135,12 +136,12 @@ class VLANSerializer(TaggitSerializer, CustomFieldModelSerializer):
 #
 
 class PrefixSerializer(TaggitSerializer, CustomFieldModelSerializer):
-    family = ChoiceField(choices=AF_CHOICES, read_only=True)
+    family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     site = NestedSiteSerializer(required=False, allow_null=True)
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     vlan = NestedVLANSerializer(required=False, allow_null=True)
-    status = ChoiceField(choices=PREFIX_STATUS_CHOICES, required=False)
+    status = ChoiceField(choices=PrefixStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
 
@@ -197,11 +198,11 @@ class IPAddressInterfaceSerializer(WritableNestedSerializer):
 
 
 class IPAddressSerializer(TaggitSerializer, CustomFieldModelSerializer):
-    family = ChoiceField(choices=AF_CHOICES, read_only=True)
+    family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    status = ChoiceField(choices=IPADDRESS_STATUS_CHOICES, required=False)
-    role = ChoiceField(choices=IPADDRESS_ROLE_CHOICES, required=False, allow_null=True)
+    status = ChoiceField(choices=IPAddressStatusChoices, required=False)
+    role = ChoiceField(choices=IPAddressRoleChoices, required=False, allow_null=True)
     interface = IPAddressInterfaceSerializer(required=False, allow_null=True)
     nat_inside = NestedIPAddressSerializer(required=False, allow_null=True)
     nat_outside = NestedIPAddressSerializer(read_only=True)
@@ -239,7 +240,7 @@ class AvailableIPSerializer(serializers.Serializer):
 class ServiceSerializer(CustomFieldModelSerializer):
     device = NestedDeviceSerializer(required=False, allow_null=True)
     virtual_machine = NestedVirtualMachineSerializer(required=False, allow_null=True)
-    protocol = ChoiceField(choices=IP_PROTOCOL_CHOICES)
+    protocol = ChoiceField(choices=ServiceProtocolChoices)
     ipaddresses = SerializedPKRelatedField(
         queryset=IPAddress.objects.all(),
         serializer=NestedIPAddressSerializer,
