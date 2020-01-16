@@ -224,9 +224,7 @@ class IPNetworkVar(IPAddressVar):
     """
     An IPv4 or IPv6 prefix.
     """
-    form_field = IPFormField
-
-    def __init__(self, min_prefix_length=None, max_prefix_length=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Reject prefixes with any host-bits set
