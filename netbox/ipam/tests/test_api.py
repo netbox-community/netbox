@@ -5,9 +5,44 @@ from netaddr import IPNetwork
 from rest_framework import status
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
-from ipam.constants import IP_PROTOCOL_TCP, IP_PROTOCOL_UDP
+from ipam.choices import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
-from utilities.testing import APITestCase
+from utilities.testing import APITestCase, choices_to_dict
+
+
+class AppTest(APITestCase):
+
+    def test_root(self):
+
+        url = reverse('ipam-api:api-root')
+        response = self.client.get('{}?format=api'.format(url), **self.header)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_choices(self):
+
+        url = reverse('ipam-api:field-choice-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.status_code, 200)
+
+        # Aggregate
+        # self.assertEqual(choices_to_dict(response.data.get('aggregate:family')), )
+
+        # Prefix
+        # self.assertEqual(choices_to_dict(response.data.get('prefix:family')), )
+        self.assertEqual(choices_to_dict(response.data.get('prefix:status')), PrefixStatusChoices.as_dict())
+
+        # IPAddress
+        # self.assertEqual(choices_to_dict(response.data.get('ip-address:family')), )
+        self.assertEqual(choices_to_dict(response.data.get('ip-address:role')), IPAddressRoleChoices.as_dict())
+        self.assertEqual(choices_to_dict(response.data.get('ip-address:status')), IPAddressStatusChoices.as_dict())
+
+        # VLAN
+        self.assertEqual(choices_to_dict(response.data.get('vlan:status')), VLANStatusChoices.as_dict())
+
+        # Service
+        self.assertEqual(choices_to_dict(response.data.get('service:protocol')), ServiceProtocolChoices.as_dict())
 
 
 class VRFTest(APITestCase):
@@ -236,6 +271,7 @@ class AggregateTest(APITestCase):
         url = reverse('ipam-api:aggregate-detail', kwargs={'pk': self.aggregate1.pk})
         response = self.client.get(url, **self.header)
 
+        self.assertEqual(response.data['family']['value'], 4)
         self.assertEqual(response.data['prefix'], str(self.aggregate1.prefix))
 
     def test_list_aggregates(self):
@@ -442,6 +478,7 @@ class PrefixTest(APITestCase):
         url = reverse('ipam-api:prefix-detail', kwargs={'pk': self.prefix1.pk})
         response = self.client.get(url, **self.header)
 
+        self.assertEqual(response.data['family']['value'], 4)
         self.assertEqual(response.data['prefix'], str(self.prefix1.prefix))
 
     def test_list_prefixes(self):
@@ -678,6 +715,7 @@ class IPAddressTest(APITestCase):
         url = reverse('ipam-api:ipaddress-detail', kwargs={'pk': self.ipaddress1.pk})
         response = self.client.get(url, **self.header)
 
+        self.assertEqual(response.data['family']['value'], 4)
         self.assertEqual(response.data['address'], str(self.ipaddress1.address))
 
     def test_list_ipaddresss(self):
@@ -996,13 +1034,13 @@ class ServiceTest(APITestCase):
             name='Test Device 2', site=site, device_type=devicetype, device_role=devicerole
         )
         self.service1 = Service.objects.create(
-            device=self.device1, name='Test Service 1', protocol=IP_PROTOCOL_TCP, port=1
+            device=self.device1, name='Test Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=1
         )
         self.service1 = Service.objects.create(
-            device=self.device1, name='Test Service 2', protocol=IP_PROTOCOL_TCP, port=2
+            device=self.device1, name='Test Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=2
         )
         self.service1 = Service.objects.create(
-            device=self.device1, name='Test Service 3', protocol=IP_PROTOCOL_TCP, port=3
+            device=self.device1, name='Test Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=3
         )
 
     def test_get_service(self):
@@ -1024,7 +1062,7 @@ class ServiceTest(APITestCase):
         data = {
             'device': self.device1.pk,
             'name': 'Test Service 4',
-            'protocol': IP_PROTOCOL_TCP,
+            'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
             'port': 4,
         }
 
@@ -1045,19 +1083,19 @@ class ServiceTest(APITestCase):
             {
                 'device': self.device1.pk,
                 'name': 'Test Service 4',
-                'protocol': IP_PROTOCOL_TCP,
+                'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
                 'port': 4,
             },
             {
                 'device': self.device1.pk,
                 'name': 'Test Service 5',
-                'protocol': IP_PROTOCOL_TCP,
+                'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
                 'port': 5,
             },
             {
                 'device': self.device1.pk,
                 'name': 'Test Service 6',
-                'protocol': IP_PROTOCOL_TCP,
+                'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
                 'port': 6,
             },
         ]
@@ -1076,7 +1114,7 @@ class ServiceTest(APITestCase):
         data = {
             'device': self.device2.pk,
             'name': 'Test Service X',
-            'protocol': IP_PROTOCOL_UDP,
+            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
             'port': 99,
         }
 

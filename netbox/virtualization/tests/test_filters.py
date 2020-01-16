@@ -1,14 +1,14 @@
 from django.test import TestCase
 
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
-from virtualization.constants import *
+from virtualization.choices import *
 from virtualization.filters import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
 class ClusterTypeTestCase(TestCase):
     queryset = ClusterType.objects.all()
-    filterset = ClusterTypeFilter
+    filterset = ClusterTypeFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -36,7 +36,7 @@ class ClusterTypeTestCase(TestCase):
 
 class ClusterGroupTestCase(TestCase):
     queryset = ClusterGroup.objects.all()
-    filterset = ClusterGroupFilter
+    filterset = ClusterGroupFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -64,7 +64,7 @@ class ClusterGroupTestCase(TestCase):
 
 class ClusterTestCase(TestCase):
     queryset = Cluster.objects.all()
-    filterset = ClusterFilter
+    filterset = ClusterFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -146,7 +146,7 @@ class ClusterTestCase(TestCase):
 
 class VirtualMachineTestCase(TestCase):
     queryset = VirtualMachine.objects.all()
-    filterset = VirtualMachineFilter
+    filterset = VirtualMachineFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -203,9 +203,9 @@ class VirtualMachineTestCase(TestCase):
         DeviceRole.objects.bulk_create(roles)
 
         vms = (
-            VirtualMachine(name='Virtual Machine 1', cluster=clusters[0], platform=platforms[0], role=roles[0], status=DEVICE_STATUS_ACTIVE, vcpus=1, memory=1, disk=1, local_context_data={"foo": 123}),
-            VirtualMachine(name='Virtual Machine 2', cluster=clusters[1], platform=platforms[1], role=roles[1], status=DEVICE_STATUS_STAGED, vcpus=2, memory=2, disk=2),
-            VirtualMachine(name='Virtual Machine 3', cluster=clusters[2], platform=platforms[2], role=roles[2], status=DEVICE_STATUS_OFFLINE, vcpus=3, memory=3, disk=3),
+            VirtualMachine(name='Virtual Machine 1', cluster=clusters[0], platform=platforms[0], role=roles[0], status=VirtualMachineStatusChoices.STATUS_ACTIVE, vcpus=1, memory=1, disk=1, local_context_data={"foo": 123}),
+            VirtualMachine(name='Virtual Machine 2', cluster=clusters[1], platform=platforms[1], role=roles[1], status=VirtualMachineStatusChoices.STATUS_STAGED, vcpus=2, memory=2, disk=2),
+            VirtualMachine(name='Virtual Machine 3', cluster=clusters[2], platform=platforms[2], role=roles[2], status=VirtualMachineStatusChoices.STATUS_OFFLINE, vcpus=3, memory=3, disk=3),
         )
         VirtualMachine.objects.bulk_create(vms)
 
@@ -243,7 +243,7 @@ class VirtualMachineTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):
-        params = {'status': [DEVICE_STATUS_ACTIVE, DEVICE_STATUS_STAGED]}
+        params = {'status': [VirtualMachineStatusChoices.STATUS_ACTIVE, VirtualMachineStatusChoices.STATUS_STAGED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cluster_group(self):
@@ -309,7 +309,7 @@ class VirtualMachineTestCase(TestCase):
 
 class InterfaceTestCase(TestCase):
     queryset = Interface.objects.all()
-    filterset = InterfaceFilter
+    filterset = InterfaceFilterSet
 
     @classmethod
     def setUpTestData(cls):

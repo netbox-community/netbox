@@ -156,10 +156,6 @@ DEVICE_PRIMARY_IP = """
 {{ record.primary_ip4.address.ip|default:"" }}
 """
 
-SUBDEVICE_ROLE_TEMPLATE = """
-{% if record.subdevice_role == True %}Parent{% elif record.subdevice_role == False %}Child{% else %}&mdash;{% endif %}
-"""
-
 DEVICETYPE_INSTANCES_TEMPLATE = """
 <a href="{% url 'dcim:device_list' %}?manufacturer_id={{ record.manufacturer_id }}&device_type_id={{ record.pk }}">{{ record.instance_count }}</a>
 """
@@ -276,16 +272,17 @@ class RackGroupTable(BaseTable):
 
 class RackRoleTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(verbose_name='Name')
     rack_count = tables.Column(verbose_name='Racks')
-    color = tables.TemplateColumn(COLOR_LABEL, verbose_name='Color')
-    slug = tables.Column(verbose_name='Slug')
-    actions = tables.TemplateColumn(template_code=RACKROLE_ACTIONS, attrs={'td': {'class': 'text-right noprint'}},
-                                    verbose_name='')
+    color = tables.TemplateColumn(COLOR_LABEL)
+    actions = tables.TemplateColumn(
+        template_code=RACKROLE_ACTIONS,
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = RackRole
-        fields = ('pk', 'name', 'rack_count', 'color', 'slug', 'actions')
+        fields = ('pk', 'name', 'rack_count', 'color', 'description', 'slug', 'actions')
 
 
 #
@@ -393,10 +390,6 @@ class DeviceTypeTable(BaseTable):
         verbose_name='Device Type'
     )
     is_full_depth = BooleanColumn(verbose_name='Full Depth')
-    subdevice_role = tables.TemplateColumn(
-        template_code=SUBDEVICE_ROLE_TEMPLATE,
-        verbose_name='Subdevice Role'
-    )
     instance_count = tables.TemplateColumn(
         template_code=DEVICETYPE_INSTANCES_TEMPLATE,
         verbose_name='Instances'
@@ -424,8 +417,17 @@ class ConsolePortTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConsolePortTemplate
-        fields = ('pk', 'name', 'actions')
+        fields = ('pk', 'name', 'type', 'actions')
         empty_text = "None"
+
+
+class ConsolePortImportTable(BaseTable):
+    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+
+    class Meta(BaseTable.Meta):
+        model = ConsolePort
+        fields = ('device', 'name', 'description')
+        empty_text = False
 
 
 class ConsoleServerPortTemplateTable(BaseTable):
@@ -442,6 +444,15 @@ class ConsoleServerPortTemplateTable(BaseTable):
         empty_text = "None"
 
 
+class ConsoleServerPortImportTable(BaseTable):
+    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+
+    class Meta(BaseTable.Meta):
+        model = ConsoleServerPort
+        fields = ('device', 'name', 'description')
+        empty_text = False
+
+
 class PowerPortTemplateTable(BaseTable):
     pk = ToggleColumn()
     actions = tables.TemplateColumn(
@@ -452,8 +463,17 @@ class PowerPortTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerPortTemplate
-        fields = ('pk', 'name', 'maximum_draw', 'allocated_draw', 'actions')
+        fields = ('pk', 'name', 'type', 'maximum_draw', 'allocated_draw', 'actions')
         empty_text = "None"
+
+
+class PowerPortImportTable(BaseTable):
+    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+
+    class Meta(BaseTable.Meta):
+        model = PowerPort
+        fields = ('device', 'name', 'description', 'maximum_draw', 'allocated_draw')
+        empty_text = False
 
 
 class PowerOutletTemplateTable(BaseTable):
@@ -466,8 +486,17 @@ class PowerOutletTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerOutletTemplate
-        fields = ('pk', 'name', 'power_port', 'feed_leg', 'actions')
+        fields = ('pk', 'name', 'type', 'power_port', 'feed_leg', 'actions')
         empty_text = "None"
+
+
+class PowerOutletImportTable(BaseTable):
+    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+
+    class Meta(BaseTable.Meta):
+        model = PowerOutlet
+        fields = ('device', 'name', 'description', 'power_port', 'feed_leg')
+        empty_text = False
 
 
 class InterfaceTemplateTable(BaseTable):
@@ -483,6 +512,16 @@ class InterfaceTemplateTable(BaseTable):
         model = InterfaceTemplate
         fields = ('pk', 'name', 'mgmt_only', 'type', 'actions')
         empty_text = "None"
+
+
+class InterfaceImportTable(BaseTable):
+    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+    virtual_machine = tables.LinkColumn('virtualization:virtualmachine', args=[Accessor('virtual_machine.pk')], verbose_name='Virtual Machine')
+
+    class Meta(BaseTable.Meta):
+        model = Interface
+        fields = ('device', 'virtual_machine', 'name', 'description', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only', 'mode')
+        empty_text = False
 
 
 class FrontPortTemplateTable(BaseTable):
@@ -502,6 +541,15 @@ class FrontPortTemplateTable(BaseTable):
         empty_text = "None"
 
 
+class FrontPortImportTable(BaseTable):
+    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+
+    class Meta(BaseTable.Meta):
+        model = FrontPort
+        fields = ('device', 'name', 'description', 'type', 'rear_port', 'rear_port_position')
+        empty_text = False
+
+
 class RearPortTemplateTable(BaseTable):
     pk = ToggleColumn()
     actions = tables.TemplateColumn(
@@ -514,6 +562,15 @@ class RearPortTemplateTable(BaseTable):
         model = RearPortTemplate
         fields = ('pk', 'name', 'type', 'positions', 'actions')
         empty_text = "None"
+
+
+class RearPortImportTable(BaseTable):
+    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+
+    class Meta(BaseTable.Meta):
+        model = RearPort
+        fields = ('device', 'name', 'description', 'type', 'position')
+        empty_text = False
 
 
 class DeviceBayTemplateTable(BaseTable):
@@ -558,7 +615,7 @@ class DeviceRoleTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
-        fields = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'slug', 'actions')
+        fields = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description', 'slug', 'actions')
 
 
 #
@@ -645,11 +702,28 @@ class DeviceImportTable(BaseTable):
 # Device components
 #
 
+class DeviceComponentDetailTable(BaseTable):
+    pk = ToggleColumn()
+    cable = tables.LinkColumn()
+
+    class Meta(BaseTable.Meta):
+        order_by = ('device', 'name')
+        fields = ('pk', 'device', 'name', 'type', 'description', 'cable')
+        sequence = ('pk', 'device', 'name', 'type', 'description', 'cable')
+
+
 class ConsolePortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConsolePort
-        fields = ('name',)
+        fields = ('name', 'type')
+
+
+class ConsolePortDetailTable(DeviceComponentDetailTable):
+    device = tables.LinkColumn()
+
+    class Meta(DeviceComponentDetailTable.Meta, ConsolePortTable.Meta):
+        pass
 
 
 class ConsoleServerPortTable(BaseTable):
@@ -659,18 +733,39 @@ class ConsoleServerPortTable(BaseTable):
         fields = ('name', 'description')
 
 
+class ConsoleServerPortDetailTable(DeviceComponentDetailTable):
+    device = tables.LinkColumn()
+
+    class Meta(DeviceComponentDetailTable.Meta, ConsoleServerPortTable.Meta):
+        pass
+
+
 class PowerPortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerPort
-        fields = ('name',)
+        fields = ('name', 'type')
+
+
+class PowerPortDetailTable(DeviceComponentDetailTable):
+    device = tables.LinkColumn()
+
+    class Meta(DeviceComponentDetailTable.Meta, PowerPortTable.Meta):
+        pass
 
 
 class PowerOutletTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerOutlet
-        fields = ('name', 'description')
+        fields = ('name', 'type', 'description')
+
+
+class PowerOutletDetailTable(DeviceComponentDetailTable):
+    device = tables.LinkColumn()
+
+    class Meta(DeviceComponentDetailTable.Meta, PowerOutletTable.Meta):
+        pass
 
 
 class InterfaceTable(BaseTable):
@@ -678,6 +773,15 @@ class InterfaceTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Interface
         fields = ('name', 'type', 'lag', 'enabled', 'mgmt_only', 'description')
+
+
+class InterfaceDetailTable(DeviceComponentDetailTable):
+    parent = tables.LinkColumn(order_by=('device', 'virtual_machine'))
+
+    class Meta(InterfaceTable.Meta):
+        order_by = ('parent', 'name')
+        fields = ('pk', 'parent', 'name', 'type', 'description', 'cable')
+        sequence = ('pk', 'parent', 'name', 'type', 'description', 'cable')
 
 
 class FrontPortTable(BaseTable):
@@ -688,6 +792,13 @@ class FrontPortTable(BaseTable):
         empty_text = "None"
 
 
+class FrontPortDetailTable(DeviceComponentDetailTable):
+    device = tables.LinkColumn()
+
+    class Meta(DeviceComponentDetailTable.Meta, FrontPortTable.Meta):
+        pass
+
+
 class RearPortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
@@ -696,11 +807,38 @@ class RearPortTable(BaseTable):
         empty_text = "None"
 
 
+class RearPortDetailTable(DeviceComponentDetailTable):
+    device = tables.LinkColumn()
+
+    class Meta(DeviceComponentDetailTable.Meta, RearPortTable.Meta):
+        pass
+
+
 class DeviceBayTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = DeviceBay
         fields = ('name',)
+
+
+class DeviceBayDetailTable(DeviceComponentDetailTable):
+    device = tables.LinkColumn()
+    installed_device = tables.LinkColumn()
+
+    class Meta(DeviceBayTable.Meta):
+        fields = ('pk', 'name', 'device', 'installed_device')
+        sequence = ('pk', 'name', 'device', 'installed_device')
+        exclude = ('cable',)
+
+
+class DeviceBayImportTable(BaseTable):
+    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+    installed_device = tables.LinkColumn('dcim:device', args=[Accessor('installed_device.pk')], verbose_name='Installed Device')
+
+    class Meta(BaseTable.Meta):
+        model = DeviceBay
+        fields = ('device', 'name', 'installed_device', 'description')
+        empty_text = False
 
 
 #

@@ -26,9 +26,6 @@ router.register(r'graphs', views.GraphViewSet)
 # Export templates
 router.register(r'export-templates', views.ExportTemplateViewSet)
 
-# Topology maps
-router.register(r'topology-maps', views.TopologyMapViewSet)
-
 # Tags
 router.register(r'tags', views.TagViewSet)
 
@@ -40,6 +37,9 @@ router.register(r'config-contexts', views.ConfigContextViewSet)
 
 # Reports
 router.register(r'reports', views.ReportViewSet, basename='report')
+
+# Scripts
+router.register(r'scripts', views.ScriptViewSet, basename='script')
 
 # Change logging
 router.register(r'object-changes', views.ObjectChangeViewSet)

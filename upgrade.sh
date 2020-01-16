@@ -45,3 +45,8 @@ eval $COMMAND
 COMMAND="${PYTHON} netbox/manage.py collectstatic --no-input"
 echo "Collecting static files ($COMMAND)..."
 eval $COMMAND
+
+# Clear all cached data
+COMMAND="${PYTHON} netbox/manage.py invalidate all"
+echo "Clearing cache data ($COMMAND)..."
+eval $COMMAND

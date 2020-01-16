@@ -59,13 +59,9 @@ _patterns = [
 
     # Admin
     path(r'admin/', admin_site.urls),
+    path(r'admin/webhook-backend-status/', include('django_rq.urls')),
 
 ]
-
-if settings.WEBHOOKS_ENABLED:
-    _patterns += [
-        path(r'admin/webhook-backend-status/', include('django_rq.urls')),
-    ]
 
 if settings.DEBUG:
     import debug_toolbar

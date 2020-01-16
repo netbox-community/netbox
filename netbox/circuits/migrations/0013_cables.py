@@ -3,7 +3,7 @@ import sys
 from django.db import migrations, models
 import django.db.models.deletion
 
-from dcim.constants import CONNECTION_STATUS_CONNECTED
+CONNECTION_STATUS_CONNECTED = True
 
 
 def circuit_terminations_to_cables(apps, schema_editor):

@@ -55,6 +55,7 @@ pages:
         - Utility Views: 'development/utility-views.md'
         - Extending Models: 'development/extending-models.md'
         - Release Checklist: 'development/release-checklist.md'
+        - Squashing Migrations: 'development/squashing-migrations.md'
     - Release Notes:
         - Version 2.6: 'release-notes/version-2.6.md'
         - Version 2.5: 'release-notes/version-2.5.md'

@@ -14,7 +14,7 @@ from utilities.views import (
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
-from .constants import *
+from .choices import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 
@@ -117,8 +117,8 @@ def add_available_vlans(vlan_group, vlans):
 class VRFListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'ipam.view_vrf'
     queryset = VRF.objects.prefetch_related('tenant')
-    filter = filters.VRFFilter
-    filter_form = forms.VRFFilterForm
+    filterset = filters.VRFFilterSet
+    filterset_form = forms.VRFFilterForm
     table = tables.VRFTable
     template_name = 'ipam/vrf_list.html'
 
@@ -165,7 +165,7 @@ class VRFBulkImportView(PermissionRequiredMixin, BulkImportView):
 class VRFBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_vrf'
     queryset = VRF.objects.prefetch_related('tenant')
-    filter = filters.VRFFilter
+    filterset = filters.VRFFilterSet
     table = tables.VRFTable
     form = forms.VRFBulkEditForm
     default_return_url = 'ipam:vrf_list'
@@ -174,7 +174,7 @@ class VRFBulkEditView(PermissionRequiredMixin, BulkEditView):
 class VRFBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_vrf'
     queryset = VRF.objects.prefetch_related('tenant')
-    filter = filters.VRFFilter
+    filterset = filters.VRFFilterSet
     table = tables.VRFTable
     default_return_url = 'ipam:vrf_list'
 
@@ -186,8 +186,8 @@ class VRFBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class RIRListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'ipam.view_rir'
     queryset = RIR.objects.annotate(aggregate_count=Count('aggregates'))
-    filter = filters.RIRFilter
-    filter_form = forms.RIRFilterForm
+    filterset = filters.RIRFilterSet
+    filterset_form = forms.RIRFilterForm
     table = tables.RIRDetailTable
     template_name = 'ipam/rir_list.html'
 
@@ -217,13 +217,13 @@ class RIRListView(PermissionRequiredMixin, ObjectListView):
 
                 # Find all consumed space for each prefix status (we ignore containers for this purpose).
                 active_prefixes = netaddr.cidr_merge(
-                    [p.prefix for p in queryset.filter(status=PREFIX_STATUS_ACTIVE)]
+                    [p.prefix for p in queryset.filter(status=PrefixStatusChoices.STATUS_ACTIVE)]
                 )
                 reserved_prefixes = netaddr.cidr_merge(
-                    [p.prefix for p in queryset.filter(status=PREFIX_STATUS_RESERVED)]
+                    [p.prefix for p in queryset.filter(status=PrefixStatusChoices.STATUS_RESERVED)]
                 )
                 deprecated_prefixes = netaddr.cidr_merge(
-                    [p.prefix for p in queryset.filter(status=PREFIX_STATUS_DEPRECATED)]
+                    [p.prefix for p in queryset.filter(status=PrefixStatusChoices.STATUS_DEPRECATED)]
                 )
 
                 # Find all available prefixes by subtracting each of the existing prefix sets from the aggregate prefix.
@@ -281,7 +281,7 @@ class RIRBulkImportView(PermissionRequiredMixin, BulkImportView):
 class RIRBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_rir'
     queryset = RIR.objects.annotate(aggregate_count=Count('aggregates'))
-    filter = filters.RIRFilter
+    filterset = filters.RIRFilterSet
     table = tables.RIRTable
     default_return_url = 'ipam:rir_list'
 
@@ -296,8 +296,8 @@ class AggregateListView(PermissionRequiredMixin, ObjectListView):
         child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
     )
 
-    filter = filters.AggregateFilter
-    filter_form = forms.AggregateFilterForm
+    filterset = filters.AggregateFilterSet
+    filterset_form = forms.AggregateFilterForm
     table = tables.AggregateDetailTable
     template_name = 'ipam/aggregate_list.html'
 
@@ -391,7 +391,7 @@ class AggregateBulkImportView(PermissionRequiredMixin, BulkImportView):
 class AggregateBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_aggregate'
     queryset = Aggregate.objects.prefetch_related('rir')
-    filter = filters.AggregateFilter
+    filterset = filters.AggregateFilterSet
     table = tables.AggregateTable
     form = forms.AggregateBulkEditForm
     default_return_url = 'ipam:aggregate_list'
@@ -400,7 +400,7 @@ class AggregateBulkEditView(PermissionRequiredMixin, BulkEditView):
 class AggregateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_aggregate'
     queryset = Aggregate.objects.prefetch_related('rir')
-    filter = filters.AggregateFilter
+    filterset = filters.AggregateFilterSet
     table = tables.AggregateTable
     default_return_url = 'ipam:aggregate_list'
 
@@ -448,8 +448,8 @@ class RoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class PrefixListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'ipam.view_prefix'
     queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
-    filter = filters.PrefixFilter
-    filter_form = forms.PrefixFilterForm
+    filterset = filters.PrefixFilterSet
+    filterset_form = forms.PrefixFilterForm
     table = tables.PrefixDetailTable
     template_name = 'ipam/prefix_list.html'
 
@@ -620,7 +620,7 @@ class PrefixBulkImportView(PermissionRequiredMixin, BulkImportView):
 class PrefixBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_prefix'
     queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
-    filter = filters.PrefixFilter
+    filterset = filters.PrefixFilterSet
     table = tables.PrefixTable
     form = forms.PrefixBulkEditForm
     default_return_url = 'ipam:prefix_list'
@@ -629,7 +629,7 @@ class PrefixBulkEditView(PermissionRequiredMixin, BulkEditView):
 class PrefixBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_prefix'
     queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
-    filter = filters.PrefixFilter
+    filterset = filters.PrefixFilterSet
     table = tables.PrefixTable
     default_return_url = 'ipam:prefix_list'
 
@@ -643,8 +643,8 @@ class IPAddressListView(PermissionRequiredMixin, ObjectListView):
     queryset = IPAddress.objects.prefetch_related(
         'vrf__tenant', 'tenant', 'nat_inside', 'interface__device', 'interface__virtual_machine'
     )
-    filter = filters.IPAddressFilter
-    filter_form = forms.IPAddressFilterForm
+    filterset = filters.IPAddressFilterSet
+    filterset_form = forms.IPAddressFilterForm
     table = tables.IPAddressDetailTable
     template_name = 'ipam/ipaddress_list.html'
 
@@ -674,8 +674,8 @@ class IPAddressView(PermissionRequiredMixin, View):
             'nat_inside', 'interface__device'
         )
         # Exclude anycast IPs if this IP is anycast
-        if ipaddress.role == IPADDRESS_ROLE_ANYCAST:
-            duplicate_ips = duplicate_ips.exclude(role=IPADDRESS_ROLE_ANYCAST)
+        if ipaddress.role == IPAddressRoleChoices.ROLE_ANYCAST:
+            duplicate_ips = duplicate_ips.exclude(role=IPAddressRoleChoices.ROLE_ANYCAST)
         duplicate_ips_table = tables.IPAddressTable(list(duplicate_ips), orderable=False)
 
         # Related IP table
@@ -795,7 +795,7 @@ class IPAddressBulkImportView(PermissionRequiredMixin, BulkImportView):
 class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_ipaddress'
     queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant').prefetch_related('interface__device')
-    filter = filters.IPAddressFilter
+    filterset = filters.IPAddressFilterSet
     table = tables.IPAddressTable
     form = forms.IPAddressBulkEditForm
     default_return_url = 'ipam:ipaddress_list'
@@ -804,7 +804,7 @@ class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
 class IPAddressBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_ipaddress'
     queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant').prefetch_related('interface__device')
-    filter = filters.IPAddressFilter
+    filterset = filters.IPAddressFilterSet
     table = tables.IPAddressTable
     default_return_url = 'ipam:ipaddress_list'
 
@@ -816,8 +816,8 @@ class IPAddressBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class VLANGroupListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'ipam.view_vlangroup'
     queryset = VLANGroup.objects.prefetch_related('site').annotate(vlan_count=Count('vlans'))
-    filter = filters.VLANGroupFilter
-    filter_form = forms.VLANGroupFilterForm
+    filterset = filters.VLANGroupFilterSet
+    filterset_form = forms.VLANGroupFilterForm
     table = tables.VLANGroupTable
     template_name = 'ipam/vlangroup_list.html'
 
@@ -843,7 +843,7 @@ class VLANGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
 class VLANGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_vlangroup'
     queryset = VLANGroup.objects.prefetch_related('site').annotate(vlan_count=Count('vlans'))
-    filter = filters.VLANGroupFilter
+    filterset = filters.VLANGroupFilterSet
     table = tables.VLANGroupTable
     default_return_url = 'ipam:vlangroup_list'
 
@@ -892,8 +892,8 @@ class VLANGroupVLANsView(PermissionRequiredMixin, View):
 class VLANListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'ipam.view_vlan'
     queryset = VLAN.objects.prefetch_related('site', 'group', 'tenant', 'role').prefetch_related('prefixes')
-    filter = filters.VLANFilter
-    filter_form = forms.VLANFilterForm
+    filterset = filters.VLANFilterSet
+    filterset_form = forms.VLANFilterForm
     table = tables.VLANDetailTable
     template_name = 'ipam/vlan_list.html'
 
@@ -967,7 +967,7 @@ class VLANBulkImportView(PermissionRequiredMixin, BulkImportView):
 class VLANBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_vlan'
     queryset = VLAN.objects.prefetch_related('site', 'group', 'tenant', 'role')
-    filter = filters.VLANFilter
+    filterset = filters.VLANFilterSet
     table = tables.VLANTable
     form = forms.VLANBulkEditForm
     default_return_url = 'ipam:vlan_list'
@@ -976,7 +976,7 @@ class VLANBulkEditView(PermissionRequiredMixin, BulkEditView):
 class VLANBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_vlan'
     queryset = VLAN.objects.prefetch_related('site', 'group', 'tenant', 'role')
-    filter = filters.VLANFilter
+    filterset = filters.VLANFilterSet
     table = tables.VLANTable
     default_return_url = 'ipam:vlan_list'
 
@@ -988,8 +988,8 @@ class VLANBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class ServiceListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'ipam.view_service'
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
-    filter = filters.ServiceFilter
-    filter_form = forms.ServiceFilterForm
+    filterset = filters.ServiceFilterSet
+    filterset_form = forms.ServiceFilterForm
     table = tables.ServiceTable
     template_name = 'ipam/service_list.html'
 
@@ -1035,7 +1035,7 @@ class ServiceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 class ServiceBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_service'
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
-    filter = filters.ServiceFilter
+    filterset = filters.ServiceFilterSet
     table = tables.ServiceTable
     form = forms.ServiceBulkEditForm
     default_return_url = 'ipam:service_list'
@@ -1044,6 +1044,6 @@ class ServiceBulkEditView(PermissionRequiredMixin, BulkEditView):
 class ServiceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_service'
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
-    filter = filters.ServiceFilter
+    filterset = filters.ServiceFilterSet
     table = tables.ServiceTable
     default_return_url = 'ipam:service_list'

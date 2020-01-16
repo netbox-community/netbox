@@ -7,7 +7,7 @@ from secrets.models import Secret, SecretRole
 
 class SecretRoleTestCase(TestCase):
     queryset = SecretRole.objects.all()
-    filterset = SecretRoleFilter
+    filterset = SecretRoleFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -35,7 +35,7 @@ class SecretRoleTestCase(TestCase):
 
 class SecretTestCase(TestCase):
     queryset = Secret.objects.all()
-    filterset = SecretFilter
+    filterset = SecretFilterSet
 
     @classmethod
     def setUpTestData(cls):

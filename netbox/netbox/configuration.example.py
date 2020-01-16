@@ -20,22 +20,33 @@ DATABASE = {
     'CONN_MAX_AGE': 300,      # Max database connection age
 }
 
+# Redis database settings. The Redis database is used for caching and background processing such as webhooks
+# Seperate sections for webhooks and caching allow for connecting to seperate Redis instances/datbases if desired.
+# Full connection details are required in both sections, even if they are the same.
+REDIS = {
+    'webhooks': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'PASSWORD': '',
+        'DATABASE': 0,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    },
+    'caching': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'PASSWORD': '',
+        'DATABASE': 1,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    }
+}
+
 # This key is used for secure generation of random numbers and strings. It must never be exposed outside of this file.
 # For optimal security, SECRET_KEY should be at least 50 characters in length and contain a mix of letters, numbers, and
 # symbols. NetBox will not run without this defined. For more information, see
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-SECRET_KEY
 SECRET_KEY = ''
-
-# Redis database settings. The Redis database is used for caching and background processing such as webhooks
-REDIS = {
-    'HOST': 'localhost',
-    'PORT': 6379,
-    'PASSWORD': '',
-    'DATABASE': 0,
-    'CACHE_DATABASE': 1,
-    'DEFAULT_TIMEOUT': 300,
-    'SSL': False,
-}
 
 
 #########################
@@ -130,6 +141,16 @@ MAX_PAGE_SIZE = 1000
 # the default value of this setting is derived from the installed location.
 # MEDIA_ROOT = '/opt/netbox/netbox/media'
 
+# By default uploaded media is stored on the local filesystem. Using Django-storages is also supported. Provide the
+# class path of the storage driver in STORAGE_BACKEND and any configuration options in STORAGE_CONFIG. For example:
+# STORAGE_BACKEND = 'storages.backends.s3boto3.S3Boto3Storage'
+# STORAGE_CONFIG = {
+#     'AWS_ACCESS_KEY_ID': 'Key ID',
+#     'AWS_SECRET_ACCESS_KEY': 'Secret',
+#     'AWS_STORAGE_BUCKET_NAME': 'netbox',
+#     'AWS_S3_REGION_NAME': 'eu-west-1',
+# }
+
 # Expose Prometheus monitoring metrics at the HTTP endpoint '/metrics'
 METRICS_ENABLED = False
 
@@ -166,10 +187,6 @@ SESSION_FILE_PATH = None
 
 # Time zone (default: UTC)
 TIME_ZONE = 'UTC'
-
-# The webhooks backend is disabled by default. Set this to True to enable it. Note that this requires a Redis
-# database be configured and accessible by NetBox.
-WEBHOOKS_ENABLED = False
 
 # Date/time formatting. See the following link for supported formats:
 # https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date

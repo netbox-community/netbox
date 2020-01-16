@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load buttons %}
 {% load custom_links %}
 {% load helpers %}
 
@@ -31,15 +32,14 @@
         <a {% if next_rack %}href="{% url 'dcim:rack' pk=next_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
             <span class="fa fa-chevron-right" aria-hidden="true"></span> Next Rack
         </a>
+        {% if perms.dcim.add_rack %}
+            {% clone_button rack %}
+        {% endif %}
         {% if perms.dcim.change_rack %}
-            <a href="{% url 'dcim:rack_edit' pk=rack.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span> Edit this rack
-            </a>
+            {% edit_button rack %}
         {% endif %}
         {% if perms.dcim.delete_rack %}
-            <a href="{% url 'dcim:rack_delete' pk=rack.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span> Delete this rack
-            </a>
+            {% delete_button rack %}
         {% endif %}
     </div>
     <h1>{% block title %}Rack {{ rack }}{% endblock %}</h1>
@@ -313,13 +313,13 @@
                 <div class="rack_header">
                     <h4>Front</h4>
                 </div>
-                {% include 'dcim/inc/rack_elevation.html' with primary_face=front_elevation secondary_face=rear_elevation face_id=0 reserved_units=rack.get_reserved_units %}
+                {% include 'dcim/inc/rack_elevation.html' with face='front' %}
             </div>
             <div class="col-md-6 col-sm-6 col-xs-12">
                 <div class="rack_header">
                     <h4>Rear</h4>
                 </div>
-                {% include 'dcim/inc/rack_elevation.html' with primary_face=rear_elevation secondary_face=front_elevation face_id=1 reserved_units=rack.get_reserved_units %}
+                {% include 'dcim/inc/rack_elevation.html' with face='rear' %}
             </div>
         </div>
         <div class="panel panel-default">
