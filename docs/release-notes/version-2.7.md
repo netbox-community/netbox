@@ -1,3 +1,11 @@
+# v2.7.1 (FUTURE)
+
+## Enhancements
+
+* [#2921](https://github.com/netbox-community/netbox/issues/2921) - Replace tags filter with Select2 widget
+
+---
+
 # v2.7.0 (FUTURE)
 
 **Note:** NetBox v2.7 is the last major release that will support Python 3.5. Beginning with NetBox v2.8, Python 3.6 or
@@ -226,7 +234,6 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 * [#1865](https://github.com/netbox-community/netbox/issues/1865) - Add console port and console server port types
 * [#2669](https://github.com/netbox-community/netbox/issues/2669) - Relax uniqueness constraint on device and VM names
 * [#2902](https://github.com/netbox-community/netbox/issues/2902) - Replace `supervisord` with `systemd`
-* [#2921](https://github.com/netbox-community/netbox/issues/2921) - Replace tags filter with Select2 widget
 * [#3455](https://github.com/netbox-community/netbox/issues/3455) - Add tenant assignment to cluster
 * [#3520](https://github.com/netbox-community/netbox/issues/3520) - Add Jinja2 template support for Graphs
 * [#3525](https://github.com/netbox-community/netbox/issues/3525) - Enable IP address filtering with multiple address terms
