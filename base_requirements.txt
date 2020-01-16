@@ -54,6 +54,10 @@ djangorestframework
 # https://github.com/axnsan12/drf-yasg
 drf-yasg[validation]
 
+# Platform-agnostic template rendering engine
+# https://github.com/pallets/jinja
+Jinja2
+
 # Simple markup language for rendering HTML
 # https://github.com/Python-Markdown/markdown
 # py-gfm requires Markdown<3.0
@@ -79,10 +83,14 @@ py-gfm
 # https://github.com/Legrandin/pycryptodome
 pycryptodome
 
+# YAML rendering library
+# https://github.com/yaml/pyyaml
+PyYAML
+
 # In-memory key/value store used for caching and queuing
 # https://github.com/andymccurdy/redis-py
 redis
 
-# Python Package to write SVG files - used for rack elevations
+# SVG image rendering (used for rack elevations)
 # https://github.com/mozman/svgwrite
 svgwrite
