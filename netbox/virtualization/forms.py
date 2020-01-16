@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
-from dcim.constants import IFACE_TYPE_VIRTUAL, IFACE_MODE_ACCESS, IFACE_MODE_TAGGED_ALL, IFACE_MODE_CHOICES
+from dcim.choices import InterfaceModeChoices
 from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
 from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
@@ -15,12 +15,8 @@ from utilities.forms import (
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField,
     SmallTextarea, StaticSelect2, StaticSelect2Multiple
 )
-from .constants import *
+from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
-
-VIFACE_TYPE_CHOICES = (
-    (IFACE_TYPE_VIRTUAL, 'Virtual'),
-)
 
 
 #
@@ -77,7 +73,7 @@ class ClusterGroupCSVForm(CustomFieldForm):
 # Clusters
 #
 
-class ClusterForm(BootstrapMixin, CustomFieldForm):
+class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     comments = CommentField()
     tags = TagField(
         required=False
@@ -86,7 +82,7 @@ class ClusterForm(BootstrapMixin, CustomFieldForm):
     class Meta:
         model = Cluster
         fields = [
-            'name', 'type', 'group', 'site', 'comments', 'tags',
+            'name', 'type', 'group', 'tenant', 'site', 'comments', 'tags',
         ]
         widgets = {
             'type': APISelect(
@@ -128,6 +124,15 @@ class ClusterCSVForm(CustomFieldForm):
             'invalid_choice': 'Invalid site name.',
         }
     )
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Name of assigned tenant',
+        error_messages={
+            'invalid_choice': 'Invalid tenant name'
+        }
+    )
 
     class Meta:
         model = Cluster
@@ -153,6 +158,10 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
             api_url="/api/virtualization/cluster-groups/"
         )
     )
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -166,13 +175,25 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
 
     class Meta:
         nullable_fields = [
-            'group', 'site', 'comments',
+            'group', 'site', 'comments', 'tenant',
         ]
 
 
-class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Cluster
+    field_order = [
+        'q', 'type', 'region', 'site', 'group', 'tenant_group', 'tenant'
+    ]
     q = forms.CharField(required=False, label='Search')
+    type = FilterChoiceField(
+        queryset=ClusterType.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/virtualization/cluster-types/",
+            value_field='slug',
+        )
+    )
     region = FilterChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
@@ -194,15 +215,6 @@ class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
             api_url="/api/dcim/sites/",
             value_field='slug',
             null_option=True,
-        )
-    )
-    type = FilterChoiceField(
-        queryset=ClusterType.objects.all(),
-        to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            api_url="/api/virtualization/cluster-types/",
-            value_field='slug',
         )
     )
     group = FilterChoiceField(
@@ -418,7 +430,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
 class VirtualMachineCSVForm(CustomFieldForm):
     status = CSVChoiceField(
-        choices=VM_STATUS_CHOICES,
+        choices=VirtualMachineStatusChoices,
         required=False,
         help_text='Operational status of device'
     )
@@ -471,7 +483,7 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
         widget=forms.MultipleHiddenInput()
     )
     status = forms.ChoiceField(
-        choices=add_blank_choice(VM_STATUS_CHOICES),
+        choices=add_blank_choice(VirtualMachineStatusChoices),
         required=False,
         initial='',
         widget=StaticSelect2(),
@@ -604,7 +616,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         )
     )
     status = forms.MultipleChoiceField(
-        choices=VM_STATUS_CHOICES,
+        choices=VirtualMachineStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )
@@ -709,13 +721,13 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         tagged_vlans = self.cleaned_data['tagged_vlans']
 
         # Untagged interfaces cannot be assigned tagged VLANs
-        if self.cleaned_data['mode'] == IFACE_MODE_ACCESS and tagged_vlans:
+        if self.cleaned_data['mode'] == InterfaceModeChoices.MODE_ACCESS and tagged_vlans:
             raise forms.ValidationError({
                 'mode': "An access interface cannot have tagged VLANs assigned."
             })
 
         # Remove all tagged VLAN assignments from "tagged all" interfaces
-        elif self.cleaned_data['mode'] == IFACE_MODE_TAGGED_ALL:
+        elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED_ALL:
             self.cleaned_data['tagged_vlans'] = []
 
 
@@ -724,8 +736,8 @@ class InterfaceCreateForm(ComponentForm):
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=VIFACE_TYPE_CHOICES,
-        initial=IFACE_TYPE_VIRTUAL,
+        choices=VMInterfaceTypeChoices,
+        initial=VMInterfaceTypeChoices.TYPE_VIRTUAL,
         widget=forms.HiddenInput()
     )
     enabled = forms.BooleanField(
@@ -746,7 +758,7 @@ class InterfaceCreateForm(ComponentForm):
         required=False
     )
     mode = forms.ChoiceField(
-        choices=add_blank_choice(IFACE_MODE_CHOICES),
+        choices=add_blank_choice(InterfaceModeChoices),
         required=False,
         widget=StaticSelect2(),
     )
@@ -831,7 +843,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False
     )
     mode = forms.ChoiceField(
-        choices=add_blank_choice(IFACE_MODE_CHOICES),
+        choices=add_blank_choice(InterfaceModeChoices),
         required=False,
         widget=StaticSelect2()
     )
@@ -909,8 +921,8 @@ class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
 
 class VirtualMachineBulkAddInterfaceForm(VirtualMachineBulkAddComponentForm):
     type = forms.ChoiceField(
-        choices=VIFACE_TYPE_CHOICES,
-        initial=IFACE_TYPE_VIRTUAL,
+        choices=VMInterfaceTypeChoices,
+        initial=VMInterfaceTypeChoices.TYPE_VIRTUAL,
         widget=forms.HiddenInput()
     )
     enabled = forms.BooleanField(

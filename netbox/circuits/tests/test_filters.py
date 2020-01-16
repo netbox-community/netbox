@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from circuits.constants import CIRCUIT_STATUS_ACTIVE, CIRCUIT_STATUS_OFFLINE, CIRCUIT_STATUS_PLANNED
+from circuits.choices import *
 from circuits.filters import *
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim.models import Region, Site
@@ -8,7 +8,7 @@ from dcim.models import Region, Site
 
 class ProviderTestCase(TestCase):
     queryset = Provider.objects.all()
-    filterset = ProviderFilter
+    filterset = ProviderFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -91,7 +91,7 @@ class ProviderTestCase(TestCase):
 
 class CircuitTypeTestCase(TestCase):
     queryset = CircuitType.objects.all()
-    filterset = CircuitTypeFilter
+    filterset = CircuitTypeFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -117,7 +117,7 @@ class CircuitTypeTestCase(TestCase):
 
 class CircuitTestCase(TestCase):
     queryset = Circuit.objects.all()
-    filterset = CircuitFilter
+    filterset = CircuitFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -151,12 +151,12 @@ class CircuitTestCase(TestCase):
         Provider.objects.bulk_create(providers)
 
         circuits = (
-            Circuit(provider=providers[0], type=circuit_types[0], cid='Test Circuit 1', install_date='2020-01-01', commit_rate=1000, status=CIRCUIT_STATUS_ACTIVE),
-            Circuit(provider=providers[0], type=circuit_types[0], cid='Test Circuit 2', install_date='2020-01-02', commit_rate=2000, status=CIRCUIT_STATUS_ACTIVE),
-            Circuit(provider=providers[0], type=circuit_types[0], cid='Test Circuit 3', install_date='2020-01-03', commit_rate=3000, status=CIRCUIT_STATUS_PLANNED),
-            Circuit(provider=providers[1], type=circuit_types[1], cid='Test Circuit 4', install_date='2020-01-04', commit_rate=4000, status=CIRCUIT_STATUS_PLANNED),
-            Circuit(provider=providers[1], type=circuit_types[1], cid='Test Circuit 5', install_date='2020-01-05', commit_rate=5000, status=CIRCUIT_STATUS_OFFLINE),
-            Circuit(provider=providers[1], type=circuit_types[1], cid='Test Circuit 6', install_date='2020-01-06', commit_rate=6000, status=CIRCUIT_STATUS_OFFLINE),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Test Circuit 1', install_date='2020-01-01', commit_rate=1000, status=CircuitStatusChoices.STATUS_ACTIVE),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Test Circuit 2', install_date='2020-01-02', commit_rate=2000, status=CircuitStatusChoices.STATUS_ACTIVE),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Test Circuit 3', install_date='2020-01-03', commit_rate=3000, status=CircuitStatusChoices.STATUS_PLANNED),
+            Circuit(provider=providers[1], type=circuit_types[1], cid='Test Circuit 4', install_date='2020-01-04', commit_rate=4000, status=CircuitStatusChoices.STATUS_PLANNED),
+            Circuit(provider=providers[1], type=circuit_types[1], cid='Test Circuit 5', install_date='2020-01-05', commit_rate=5000, status=CircuitStatusChoices.STATUS_OFFLINE),
+            Circuit(provider=providers[1], type=circuit_types[1], cid='Test Circuit 6', install_date='2020-01-06', commit_rate=6000, status=CircuitStatusChoices.STATUS_OFFLINE),
         )
         Circuit.objects.bulk_create(circuits)
 
@@ -199,7 +199,7 @@ class CircuitTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_status(self):
-        params = {'status': [CIRCUIT_STATUS_ACTIVE, CIRCUIT_STATUS_PLANNED]}
+        params = {'status': [CircuitStatusChoices.STATUS_ACTIVE, CircuitStatusChoices.STATUS_PLANNED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_region(self):
@@ -219,7 +219,7 @@ class CircuitTestCase(TestCase):
 
 class CircuitTerminationTestCase(TestCase):
     queryset = CircuitTermination.objects.all()
-    filterset = CircuitTerminationFilter
+    filterset = CircuitTerminationFilterSet
 
     @classmethod
     def setUpTestData(cls):

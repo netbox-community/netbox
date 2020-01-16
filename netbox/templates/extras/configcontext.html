@@ -162,6 +162,20 @@
                             {% endif %}
                         </td>
                     </tr>
+                    <tr>
+                        <td>Tags</td>
+                        <td>
+                            {% if configcontext.tags.all %}
+                                <ul>
+                                    {% for tag in configcontext.tags.all %}
+                                        <li><a href="{{ tag.get_absolute_url }}">{{ tag }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
                 </table>
             </div>
         </div>

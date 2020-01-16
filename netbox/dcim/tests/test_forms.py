@@ -21,10 +21,10 @@ class DeviceTestCase(TestCase):
             'device_type': get_id(DeviceType, 'qfx5100-48s'),
             'site': get_id(Site, 'test1'),
             'rack': '1',
-            'face': RACK_FACE_FRONT,
+            'face': DeviceFaceChoices.FACE_FRONT,
             'position': 41,
             'platform': get_id(Platform, 'juniper-junos'),
-            'status': DEVICE_STATUS_ACTIVE,
+            'status': DeviceStatusChoices.STATUS_ACTIVE,
         })
         self.assertTrue(test.is_valid(), test.fields['position'].choices)
         self.assertTrue(test.save())
@@ -38,10 +38,10 @@ class DeviceTestCase(TestCase):
             'device_type': get_id(DeviceType, 'qfx5100-48s'),
             'site': get_id(Site, 'test1'),
             'rack': '1',
-            'face': RACK_FACE_FRONT,
+            'face': DeviceFaceChoices.FACE_FRONT,
             'position': 1,
             'platform': get_id(Platform, 'juniper-junos'),
-            'status': DEVICE_STATUS_ACTIVE,
+            'status': DeviceStatusChoices.STATUS_ACTIVE,
         })
         self.assertFalse(test.is_valid())
 
@@ -54,10 +54,10 @@ class DeviceTestCase(TestCase):
             'device_type': get_id(DeviceType, 'cwg-24vym415c9'),
             'site': get_id(Site, 'test1'),
             'rack': '1',
-            'face': None,
+            'face': '',
             'position': None,
             'platform': None,
-            'status': DEVICE_STATUS_ACTIVE,
+            'status': DeviceStatusChoices.STATUS_ACTIVE,
         })
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())
@@ -71,10 +71,10 @@ class DeviceTestCase(TestCase):
             'device_type': get_id(DeviceType, 'cwg-24vym415c9'),
             'site': get_id(Site, 'test1'),
             'rack': '1',
-            'face': RACK_FACE_REAR,
+            'face': DeviceFaceChoices.FACE_REAR,
             'position': None,
             'platform': None,
-            'status': DEVICE_STATUS_ACTIVE,
+            'status': DeviceStatusChoices.STATUS_ACTIVE,
         })
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())

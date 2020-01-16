@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load buttons %}
 {% load custom_links %}
 {% load helpers %}
 
@@ -24,14 +25,14 @@
         </form>
     </div>
 </div>
-{% if perms.dcim.change_service %}
-    <div class="pull-right">
-        <a href="{% url 'ipam:service_edit' pk=service.pk %}" class="btn btn-warning">
-          <span class="fa fa-pencil" aria-hidden="true"></span>
-          Edit this service
-        </a>
-    </div>
-{% endif %}
+<div class="pull-right">
+    {% if perms.dcim.change_service %}
+        {% edit_button service %}
+    {% endif %}
+    {% if perms.dcim.delete_service %}
+        {% delete_button service %}
+    {% endif %}
+</div>
 <h1>{% block title %}{{ service }}{% endblock %}</h1>
 {% include 'inc/created_updated.html' with obj=service %}
 <div class="pull-right noprint">

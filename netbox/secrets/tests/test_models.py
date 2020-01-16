@@ -7,7 +7,8 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from secrets.hashers import SecretValidationHasher
-from secrets.models import UserKey, Secret, encrypt_master_key, decrypt_master_key, generate_random_key
+from secrets.models import Secret, UserKey
+from secrets.utils import encrypt_master_key, decrypt_master_key, generate_random_key
 
 
 class UserKeyTestCase(TestCase):

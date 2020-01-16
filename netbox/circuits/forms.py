@@ -9,7 +9,7 @@ from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField,
     DatePicker, FilterChoiceField, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple
 )
-from .constants import *
+from .choices import CircuitStatusChoices
 from .models import Circuit, CircuitTermination, CircuitType, Provider
 
 
@@ -140,7 +140,7 @@ class CircuitTypeForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = CircuitType
         fields = [
-            'name', 'slug',
+            'name', 'slug', 'description',
         ]
 
 
@@ -205,7 +205,7 @@ class CircuitCSVForm(CustomFieldForm):
         }
     )
     status = CSVChoiceField(
-        choices=CIRCUIT_STATUS_CHOICES,
+        choices=CircuitStatusChoices,
         required=False,
         help_text='Operational status'
     )
@@ -246,7 +246,7 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         )
     )
     status = forms.ChoiceField(
-        choices=add_blank_choice(CIRCUIT_STATUS_CHOICES),
+        choices=add_blank_choice(CircuitStatusChoices),
         required=False,
         initial='',
         widget=StaticSelect2()
@@ -303,7 +303,7 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         )
     )
     status = forms.MultipleChoiceField(
-        choices=CIRCUIT_STATUS_CHOICES,
+        choices=CircuitStatusChoices,
         required=False,
         widget=StaticSelect2Multiple()
     )
