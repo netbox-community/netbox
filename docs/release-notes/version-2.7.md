@@ -1,3 +1,11 @@
+# v2.7.1 (FUTURE)
+
+## Enhancements
+
+* [#3840](https://github.com/netbox-community/netbox/issues/3840) - Only show the valid list of interface VLAN choices
+
+---
+
 # v2.7.0 (FUTURE)
 
 **Note:** NetBox v2.7 is the last major release that will support Python 3.5. Beginning with NetBox v2.8, Python 3.6 or
@@ -237,7 +245,6 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 * [#3706](https://github.com/netbox-community/netbox/issues/3706) - Increase `available_power` maximum value on PowerFeed
 * [#3731](https://github.com/netbox-community/netbox/issues/3731) - Change Graph.type to a ContentType foreign key field
 * [#3801](https://github.com/netbox-community/netbox/issues/3801) - Use YAML for export of device types
-* [#3840](https://github.com/netbox-community/netbox/issues/3840) - Only show the valid list of interface VLAN choices
 
 ## Bug Fixes
 
