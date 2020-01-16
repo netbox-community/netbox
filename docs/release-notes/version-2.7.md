@@ -237,6 +237,7 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 * [#3706](https://github.com/netbox-community/netbox/issues/3706) - Increase `available_power` maximum value on PowerFeed
 * [#3731](https://github.com/netbox-community/netbox/issues/3731) - Change Graph.type to a ContentType foreign key field
 * [#3801](https://github.com/netbox-community/netbox/issues/3801) - Use YAML for export of device types
+* [#3840](https://github.com/netbox-community/netbox/issues/3840) - Only show the valid list of interface VLAN choices
 
 ## Bug Fixes
 
