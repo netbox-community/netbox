@@ -13,7 +13,7 @@ from utilities.forms import (
     CommentField, ContentTypeSelect, DatePicker, DateTimePicker, FilterChoiceField, LaxURLField, JSONField,
     SlugField, StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
 )
-from .constants import *
+from .choices import *
 from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachment, ObjectChange, Tag
 
 
@@ -28,18 +28,18 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
     field_dict = OrderedDict()
     custom_fields = CustomField.objects.filter(obj_type=content_type)
     if filterable_only:
-        custom_fields = custom_fields.exclude(filter_logic=CF_FILTER_DISABLED)
+        custom_fields = custom_fields.exclude(filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED)
 
     for cf in custom_fields:
         field_name = 'cf_{}'.format(str(cf.name))
         initial = cf.default if not bulk_edit else None
 
         # Integer
-        if cf.type == CF_TYPE_INTEGER:
+        if cf.type == CustomFieldTypeChoices.TYPE_INTEGER:
             field = forms.IntegerField(required=cf.required, initial=initial)
 
         # Boolean
-        elif cf.type == CF_TYPE_BOOLEAN:
+        elif cf.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
             choices = (
                 (None, '---------'),
                 (1, 'True'),
@@ -56,11 +56,11 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
             )
 
         # Date
-        elif cf.type == CF_TYPE_DATE:
+        elif cf.type == CustomFieldTypeChoices.TYPE_DATE:
             field = forms.DateField(required=cf.required, initial=initial, widget=DatePicker())
 
         # Select
-        elif cf.type == CF_TYPE_SELECT:
+        elif cf.type == CustomFieldTypeChoices.TYPE_SELECT:
             choices = [(cfc.pk, cfc) for cfc in cf.choices.all()]
             if not cf.required or bulk_edit or filterable_only:
                 choices = [(None, '---------')] + choices
@@ -76,7 +76,7 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
             )
 
         # URL
-        elif cf.type == CF_TYPE_URL:
+        elif cf.type == CustomFieldTypeChoices.TYPE_URL:
             field = LaxURLField(required=cf.required, initial=initial)
 
         # Text
@@ -239,6 +239,14 @@ class TagBulkEditForm(BootstrapMixin, BulkEditForm):
 #
 
 class ConfigContextForm(BootstrapMixin, forms.ModelForm):
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/extras/tags/"
+        )
+    )
     data = JSONField(
         label=''
     )
@@ -247,7 +255,7 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
         model = ConfigContext
         fields = [
             'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'tenant_groups',
-            'tenants', 'data',
+            'tenants', 'tags', 'data',
         ]
         widgets = {
             'regions': APISelectMultiple(
@@ -267,7 +275,7 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
             ),
             'tenants': APISelectMultiple(
                 api_url="/api/tenancy/tenants/"
-            )
+            ),
         }
 
 
@@ -348,6 +356,14 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
             value_field="slug",
         )
     )
+    tag = FilterChoiceField(
+        queryset=Tag.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/extras/tags/",
+            value_field="slug",
+        )
+    )
 
 
 #
@@ -398,7 +414,7 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         widget=DateTimePicker()
     )
     action = forms.ChoiceField(
-        choices=add_blank_choice(OBJECTCHANGE_ACTION_CHOICES),
+        choices=add_blank_choice(ObjectChangeActionChoices),
         required=False
     )
     user = forms.ModelChoiceField(

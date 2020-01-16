@@ -5,7 +5,6 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import F, Q
-from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
@@ -14,10 +13,25 @@ from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
 from virtualization.models import VirtualMachine
-from .constants import *
+from .choices import *
+from .constants import IPADDRESS_ROLES_NONUNIQUE
 from .fields import IPNetworkField, IPAddressField
+from .managers import IPAddressManager
 from .querysets import PrefixQuerySet
 from .validators import DNSValidator
+
+
+__all__ = (
+    'Aggregate',
+    'IPAddress',
+    'Prefix',
+    'RIR',
+    'Role',
+    'Service',
+    'VLAN',
+    'VLANGroup',
+    'VRF',
+)
 
 
 class VRF(ChangeLoggedModel, CustomFieldModel):
@@ -61,9 +75,12 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
+    clone_fields = [
+        'tenant', 'enforce_unique', 'description',
+    ]
 
     class Meta:
-        ordering = ['name', 'rd']
+        ordering = ('name', 'rd', 'pk')  # (name, rd) may be non-unique
         verbose_name = 'VRF'
         verbose_name_plural = 'VRFs'
 
@@ -134,7 +151,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
     the hierarchy and track the overall utilization of available address space. Each Aggregate is assigned to a RIR.
     """
     family = models.PositiveSmallIntegerField(
-        choices=AF_CHOICES
+        choices=IPAddressFamilyChoices
     )
     prefix = IPNetworkField()
     rir = models.ForeignKey(
@@ -160,9 +177,12 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['prefix', 'rir', 'date_added', 'description']
+    clone_fields = [
+        'rir', 'date_added', 'description',
+    ]
 
     class Meta:
-        ordering = ['family', 'prefix']
+        ordering = ('family', 'prefix', 'pk')  # (family, prefix) may be non-unique
 
     def __str__(self):
         return str(self.prefix)
@@ -243,8 +263,12 @@ class Role(ChangeLoggedModel):
     weight = models.PositiveSmallIntegerField(
         default=1000
     )
+    description = models.CharField(
+        max_length=100,
+        blank=True,
+    )
 
-    csv_headers = ['name', 'slug', 'weight']
+    csv_headers = ['name', 'slug', 'weight', 'description']
 
     class Meta:
         ordering = ['weight', 'name']
@@ -257,6 +281,7 @@ class Role(ChangeLoggedModel):
             self.name,
             self.slug,
             self.weight,
+            self.description,
         )
 
 
@@ -267,7 +292,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     assigned to a VLAN where appropriate.
     """
     family = models.PositiveSmallIntegerField(
-        choices=AF_CHOICES,
+        choices=IPAddressFamilyChoices,
         editable=False
     )
     prefix = IPNetworkField(
@@ -303,9 +328,10 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         null=True,
         verbose_name='VLAN'
     )
-    status = models.PositiveSmallIntegerField(
-        choices=PREFIX_STATUS_CHOICES,
-        default=PREFIX_STATUS_ACTIVE,
+    status = models.CharField(
+        max_length=50,
+        choices=PrefixStatusChoices,
+        default=PrefixStatusChoices.STATUS_ACTIVE,
         verbose_name='Status',
         help_text='Operational status of this prefix'
     )
@@ -338,9 +364,19 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     csv_headers = [
         'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
     ]
+    clone_fields = [
+        'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
+    ]
+
+    STATUS_CLASS_MAP = {
+        'container': 'default',
+        'active': 'primary',
+        'reserved': 'info',
+        'deprecated': 'danger',
+    }
 
     class Meta:
-        ordering = [F('vrf').asc(nulls_first=True), 'family', 'prefix']
+        ordering = (F('vrf').asc(nulls_first=True), 'family', 'prefix', 'pk')  # (vrf, family, prefix) may be non-unique
         verbose_name_plural = 'prefixes'
 
     def __str__(self):
@@ -416,7 +452,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     prefix_length = property(fset=_set_prefix_length)
 
     def get_status_class(self):
-        return STATUS_CHOICE_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)
 
     def get_duplicates(self):
         return Prefix.objects.filter(vrf=self.vrf, prefix=str(self.prefix)).exclude(pk=self.pk)
@@ -426,7 +462,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         Return all Prefixes within this Prefix and VRF. If this Prefix is a container in the global table, return child
         Prefixes belonging to any VRF.
         """
-        if self.vrf is None and self.status == PREFIX_STATUS_CONTAINER:
+        if self.vrf is None and self.status == PrefixStatusChoices.STATUS_CONTAINER:
             return Prefix.objects.filter(prefix__net_contained=str(self.prefix))
         else:
             return Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
@@ -436,7 +472,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         Return all IPAddresses within this Prefix and VRF. If this Prefix is a container in the global table, return
         child IPAddresses belonging to any VRF.
         """
-        if self.vrf is None and self.status == PREFIX_STATUS_CONTAINER:
+        if self.vrf is None and self.status == PrefixStatusChoices.STATUS_CONTAINER:
             return IPAddress.objects.filter(address__net_host_contained=str(self.prefix))
         else:
             return IPAddress.objects.filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
@@ -502,7 +538,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         Determine the utilization of the prefix and return it as a percentage. For Prefixes with a status of
         "container", calculate utilization based on child prefixes. For all others, count child IP addresses.
         """
-        if self.status == PREFIX_STATUS_CONTAINER:
+        if self.status == PrefixStatusChoices.STATUS_CONTAINER:
             queryset = Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
             child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
             return int(float(child_prefixes.size) / self.prefix.size * 100)
@@ -513,20 +549,6 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
             if self.family == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
                 prefix_size -= 2
             return int(float(child_count) / prefix_size * 100)
-
-
-class IPAddressManager(models.Manager):
-
-    def get_queryset(self):
-        """
-        By default, PostgreSQL will order INETs with shorter (larger) prefix lengths ahead of those with longer
-        (smaller) masks. This makes no sense when ordering IPs, which should be ordered solely by family and host
-        address. We can use HOST() to extract just the host portion of the address (ignoring its mask), but we must
-        then re-cast this value to INET() so that records will be ordered properly. We are essentially re-casting each
-        IP address as a /32 or /128.
-        """
-        qs = super().get_queryset()
-        return qs.annotate(host=RawSQL('INET(HOST(ipam_ipaddress.address))', [])).order_by('family', 'host')
 
 
 class IPAddress(ChangeLoggedModel, CustomFieldModel):
@@ -541,7 +563,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
     which has a NAT outside IP, that Interface's Device can use either the inside or outside IP as its primary IP.
     """
     family = models.PositiveSmallIntegerField(
-        choices=AF_CHOICES,
+        choices=IPAddressFamilyChoices,
         editable=False
     )
     address = IPAddressField(
@@ -562,17 +584,16 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         null=True
     )
-    status = models.PositiveSmallIntegerField(
-        choices=IPADDRESS_STATUS_CHOICES,
-        default=IPADDRESS_STATUS_ACTIVE,
-        verbose_name='Status',
+    status = models.CharField(
+        max_length=50,
+        choices=IPAddressStatusChoices,
+        default=IPAddressStatusChoices.STATUS_ACTIVE,
         help_text='The operational status of this IP'
     )
-    role = models.PositiveSmallIntegerField(
-        verbose_name='Role',
-        choices=IPADDRESS_ROLE_CHOICES,
+    role = models.CharField(
+        max_length=50,
+        choices=IPAddressRoleChoices,
         blank=True,
-        null=True,
         help_text='The functional role of this IP'
     )
     interface = models.ForeignKey(
@@ -615,9 +636,30 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface_name', 'is_primary',
         'dns_name', 'description',
     ]
+    clone_fields = [
+        'vrf', 'tenant', 'status', 'role', 'description',
+    ]
+
+    STATUS_CLASS_MAP = {
+        'active': 'primary',
+        'reserved': 'info',
+        'deprecated': 'danger',
+        'dhcp': 'success',
+    }
+
+    ROLE_CLASS_MAP = {
+        'loopback': 'default',
+        'secondary': 'primary',
+        'anycast': 'warning',
+        'vip': 'success',
+        'vrrp': 'success',
+        'hsrp': 'success',
+        'glbp': 'success',
+        'carp': 'success',
+    }
 
     class Meta:
-        ordering = ['family', 'address']
+        ordering = ('family', 'address', 'pk')  # (family, address) may be non-unique
         verbose_name = 'IP address'
         verbose_name_plural = 'IP addresses'
 
@@ -755,10 +797,10 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         return None
 
     def get_status_class(self):
-        return STATUS_CHOICE_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP.get(self.status)
 
     def get_role_class(self):
-        return ROLE_CHOICE_CLASSES[self.role]
+        return self.ROLE_CLASS_MAP[self.role]
 
 
 class VLANGroup(ChangeLoggedModel):
@@ -780,7 +822,7 @@ class VLANGroup(ChangeLoggedModel):
     csv_headers = ['name', 'slug', 'site']
 
     class Meta:
-        ordering = ['site', 'name']
+        ordering = ('site', 'name', 'pk')  # (site, name) may be non-unique
         unique_together = [
             ['site', 'name'],
             ['site', 'slug'],
@@ -849,10 +891,10 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         null=True
     )
-    status = models.PositiveSmallIntegerField(
-        choices=VLAN_STATUS_CHOICES,
-        default=1,
-        verbose_name='Status'
+    status = models.CharField(
+        max_length=50,
+        choices=VLANStatusChoices,
+        default=VLANStatusChoices.STATUS_ACTIVE
     )
     role = models.ForeignKey(
         to='ipam.Role',
@@ -874,9 +916,18 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
+    clone_fields = [
+        'site', 'group', 'tenant', 'status', 'role', 'description',
+    ]
+
+    STATUS_CLASS_MAP = {
+        'active': 'primary',
+        'reserved': 'info',
+        'deprecated': 'danger',
+    }
 
     class Meta:
-        ordering = ['site', 'group', 'vid']
+        ordering = ('site', 'group', 'vid', 'pk')  # (site, group, vid) may be non-unique
         unique_together = [
             ['group', 'vid'],
             ['group', 'name'],
@@ -917,7 +968,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         return None
 
     def get_status_class(self):
-        return STATUS_CHOICE_CLASSES[self.status]
+        return self.STATUS_CLASS_MAP[self.status]
 
     def get_members(self):
         # Return all interfaces assigned to this VLAN
@@ -950,8 +1001,9 @@ class Service(ChangeLoggedModel, CustomFieldModel):
     name = models.CharField(
         max_length=30
     )
-    protocol = models.PositiveSmallIntegerField(
-        choices=IP_PROTOCOL_CHOICES
+    protocol = models.CharField(
+        max_length=50,
+        choices=ServiceProtocolChoices
     )
     port = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(65535)],
@@ -978,7 +1030,7 @@ class Service(ChangeLoggedModel, CustomFieldModel):
     csv_headers = ['device', 'virtual_machine', 'name', 'protocol', 'description']
 
     class Meta:
-        ordering = ['protocol', 'port']
+        ordering = ('protocol', 'port', 'pk')  # (protocol, port) may be non-unique
 
     def __str__(self):
         return '{} ({}/{})'.format(self.name, self.port, self.get_protocol_display())

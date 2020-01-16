@@ -7,6 +7,11 @@ from django.db import models
 from django.utils import timezone
 
 
+__all__ = (
+    'Token',
+)
+
+
 class Token(models.Model):
     """
     An API token used for user authentication. This extends the stock model to allow each user to have multiple tokens.

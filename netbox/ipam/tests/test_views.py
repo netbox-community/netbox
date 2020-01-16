@@ -5,7 +5,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
-from ipam.constants import IP_PROTOCOL_TCP
+from ipam.choices import ServiceProtocolChoices
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from utilities.testing import create_test_user
 
@@ -13,7 +13,12 @@ from utilities.testing import create_test_user
 class VRFTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['ipam.view_vrf'])
+        user = create_test_user(
+            permissions=[
+                'ipam.view_vrf',
+                'ipam.add_vrf',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -33,17 +38,36 @@ class VRFTestCase(TestCase):
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
         self.assertEqual(response.status_code, 200)
 
-    def test_configcontext(self):
+    def test_vrf(self):
 
         vrf = VRF.objects.first()
         response = self.client.get(vrf.get_absolute_url())
         self.assertEqual(response.status_code, 200)
 
+    def test_vrf_import(self):
+
+        csv_data = (
+            "name",
+            "VRF 4",
+            "VRF 5",
+            "VRF 6",
+        )
+
+        response = self.client.post(reverse('ipam:vrf_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(VRF.objects.count(), 6)
+
 
 class RIRTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['ipam.view_rir'])
+        user = create_test_user(
+            permissions=[
+                'ipam.view_rir',
+                'ipam.add_rir',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -60,11 +84,30 @@ class RIRTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_rir_import(self):
+
+        csv_data = (
+            "name,slug",
+            "RIR 4,rir-4",
+            "RIR 5,rir-5",
+            "RIR 6,rir-6",
+        )
+
+        response = self.client.post(reverse('ipam:rir_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(RIR.objects.count(), 6)
+
 
 class AggregateTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['ipam.view_aggregate'])
+        user = create_test_user(
+            permissions=[
+                'ipam.view_aggregate',
+                'ipam.add_aggregate',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -93,11 +136,30 @@ class AggregateTestCase(TestCase):
         response = self.client.get(aggregate.get_absolute_url())
         self.assertEqual(response.status_code, 200)
 
+    def test_aggregate_import(self):
+
+        csv_data = (
+            "prefix,rir",
+            "10.4.0.0/16,RIR 1",
+            "10.5.0.0/16,RIR 1",
+            "10.6.0.0/16,RIR 1",
+        )
+
+        response = self.client.post(reverse('ipam:aggregate_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Aggregate.objects.count(), 6)
+
 
 class RoleTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['ipam.view_role'])
+        user = create_test_user(
+            permissions=[
+                'ipam.view_role',
+                'ipam.add_role',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -114,11 +176,30 @@ class RoleTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_role_import(self):
+
+        csv_data = (
+            "name,slug,weight",
+            "Role 4,role-4,1000",
+            "Role 5,role-5,1000",
+            "Role 6,role-6,1000",
+        )
+
+        response = self.client.post(reverse('ipam:role_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Role.objects.count(), 6)
+
 
 class PrefixTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['ipam.view_prefix'])
+        user = create_test_user(
+            permissions=[
+                'ipam.view_prefix',
+                'ipam.add_prefix',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -147,11 +228,30 @@ class PrefixTestCase(TestCase):
         response = self.client.get(prefix.get_absolute_url())
         self.assertEqual(response.status_code, 200)
 
+    def test_prefix_import(self):
+
+        csv_data = (
+            "prefix,status",
+            "10.4.0.0/16,Active",
+            "10.5.0.0/16,Active",
+            "10.6.0.0/16,Active",
+        )
+
+        response = self.client.post(reverse('ipam:prefix_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Prefix.objects.count(), 6)
+
 
 class IPAddressTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['ipam.view_ipaddress'])
+        user = create_test_user(
+            permissions=[
+                'ipam.view_ipaddress',
+                'ipam.add_ipaddress',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -159,9 +259,9 @@ class IPAddressTestCase(TestCase):
         vrf.save()
 
         IPAddress.objects.bulk_create([
-            IPAddress(family=4, address=IPNetwork('10.1.0.0/16'), vrf=vrf),
-            IPAddress(family=4, address=IPNetwork('10.2.0.0/16'), vrf=vrf),
-            IPAddress(family=4, address=IPNetwork('10.3.0.0/16'), vrf=vrf),
+            IPAddress(family=4, address=IPNetwork('192.0.2.1/24'), vrf=vrf),
+            IPAddress(family=4, address=IPNetwork('192.0.2.2/24'), vrf=vrf),
+            IPAddress(family=4, address=IPNetwork('192.0.2.3/24'), vrf=vrf),
         ])
 
     def test_ipaddress_list(self):
@@ -180,11 +280,30 @@ class IPAddressTestCase(TestCase):
         response = self.client.get(ipaddress.get_absolute_url())
         self.assertEqual(response.status_code, 200)
 
+    def test_ipaddress_import(self):
+
+        csv_data = (
+            "address,status",
+            "192.0.2.4/24,Active",
+            "192.0.2.5/24,Active",
+            "192.0.2.6/24,Active",
+        )
+
+        response = self.client.post(reverse('ipam:ipaddress_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(IPAddress.objects.count(), 6)
+
 
 class VLANGroupTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['ipam.view_vlangroup'])
+        user = create_test_user(
+            permissions=[
+                'ipam.view_vlangroup',
+                'ipam.add_vlangroup',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -207,11 +326,30 @@ class VLANGroupTestCase(TestCase):
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
         self.assertEqual(response.status_code, 200)
 
+    def test_vlangroup_import(self):
+
+        csv_data = (
+            "name,slug",
+            "VLAN Group 4,vlan-group-4",
+            "VLAN Group 5,vlan-group-5",
+            "VLAN Group 6,vlan-group-6",
+        )
+
+        response = self.client.post(reverse('ipam:vlangroup_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(VLANGroup.objects.count(), 6)
+
 
 class VLANTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['ipam.view_vlan'])
+        user = create_test_user(
+            permissions=[
+                'ipam.view_vlan',
+                'ipam.add_vlan',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -240,6 +378,20 @@ class VLANTestCase(TestCase):
         response = self.client.get(vlan.get_absolute_url())
         self.assertEqual(response.status_code, 200)
 
+    def test_vlan_import(self):
+
+        csv_data = (
+            "vid,name,status",
+            "104,VLAN104,Active",
+            "105,VLAN105,Active",
+            "106,VLAN106,Active",
+        )
+
+        response = self.client.post(reverse('ipam:vlan_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(VLAN.objects.count(), 6)
+
 
 class ServiceTestCase(TestCase):
 
@@ -264,9 +416,9 @@ class ServiceTestCase(TestCase):
         device.save()
 
         Service.objects.bulk_create([
-            Service(device=device, name='Service 1', protocol=IP_PROTOCOL_TCP, port=101),
-            Service(device=device, name='Service 2', protocol=IP_PROTOCOL_TCP, port=102),
-            Service(device=device, name='Service 3', protocol=IP_PROTOCOL_TCP, port=103),
+            Service(device=device, name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=101),
+            Service(device=device, name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=102),
+            Service(device=device, name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=103),
         ])
 
     def test_service_list(self):

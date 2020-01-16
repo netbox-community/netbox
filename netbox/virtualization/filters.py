@@ -2,39 +2,39 @@ import django_filters
 from django.db.models import Q
 
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
-from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet, LocalConfigContextFilter
-from tenancy.filtersets import TenancyFilterSet
+from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet, LocalConfigContextFilterSet
+from tenancy.filters import TenancyFilterSet
+from tenancy.models import Tenant
 from utilities.filters import (
     MultiValueMACAddressFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
 )
-from .constants import *
+from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
-
 __all__ = (
-    'ClusterFilter',
-    'ClusterGroupFilter',
-    'ClusterTypeFilter',
-    'InterfaceFilter',
-    'VirtualMachineFilter',
+    'ClusterFilterSet',
+    'ClusterGroupFilterSet',
+    'ClusterTypeFilterSet',
+    'InterfaceFilterSet',
+    'VirtualMachineFilterSet',
 )
 
 
-class ClusterTypeFilter(NameSlugSearchFilterSet):
+class ClusterTypeFilterSet(NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterType
         fields = ['id', 'name', 'slug']
 
 
-class ClusterGroupFilter(NameSlugSearchFilterSet):
+class ClusterGroupFilterSet(NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterGroup
         fields = ['id', 'name', 'slug']
 
 
-class ClusterFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class ClusterFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -84,6 +84,10 @@ class ClusterFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
         to_field_name='slug',
         label='Cluster type (slug)',
     )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        queryset=Tenant.objects.all(),
+        label="Tenant (ID)"
+    )
     tag = TagFilter()
 
     class Meta:
@@ -99,7 +103,12 @@ class ClusterFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
         )
 
 
-class VirtualMachineFilter(LocalConfigContextFilter, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class VirtualMachineFilterSet(
+    LocalConfigContextFilterSet,
+    TenancyFilterSet,
+    CustomFieldFilterSet,
+    CreatedUpdatedFilterSet
+):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -109,7 +118,7 @@ class VirtualMachineFilter(LocalConfigContextFilter, TenancyFilterSet, CustomFie
         label='Search',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=VM_STATUS_CHOICES,
+        choices=VirtualMachineStatusChoices,
         null_value=None
     )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(
@@ -199,7 +208,7 @@ class VirtualMachineFilter(LocalConfigContextFilter, TenancyFilterSet, CustomFie
         )
 
 
-class InterfaceFilter(django_filters.FilterSet):
+class InterfaceFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

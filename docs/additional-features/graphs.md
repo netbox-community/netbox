@@ -8,6 +8,11 @@ NetBox does not have the ability to generate graphs natively, but this feature a
 * **Source URL:** The source of the image to be embedded. The associated object will be available as a template variable named `obj`.
 * **Link URL (optional):** A URL to which the graph will be linked. The associated object will be available as a template variable named `obj`.
 
+Graph names and links can be rendered using the Django or Jinja2 template languages.
+
+!!! warning
+    Support for the Django templating language will be removed in NetBox v2.8. Jinja2 is recommended.
+
 ## Examples
 
 You only need to define one graph object for each graph you want to include when viewing an object. For example, if you want to include a graph of traffic through an interface over the past five minutes, your graph source might looks like this:

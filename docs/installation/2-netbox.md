@@ -5,14 +5,14 @@ This section of the documentation discusses installing and configuring the NetBo
 **Ubuntu**
 
 ```no-highlight
-# apt-get install -y python3 python3-pip python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev redis-server zlib1g-dev
+# apt-get install -y python3 python3-pip python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev redis-server zlib1g-dev
 ```
 
 **CentOS**
 
 ```no-highlight
 # yum install -y epel-release
-# yum install -y gcc python36 python36-devel python36-setuptools libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel redhat-rpm-config redis
+# yum install -y gcc python36 python36-devel python36-setuptools libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config redis
 # easy_install-3.6 pip
 # ln -s /usr/bin/python3.6 /usr/bin/python3
 ```
@@ -90,6 +90,14 @@ NetBox supports integration with the [NAPALM automation](https://napalm-automati
 # pip3 install napalm
 ```
 
+## Remote File Storage (Optional)
+
+By default, NetBox will use the local filesystem to storage uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired backend](../../configuration/optional-settings/#storage_backend) in `configuration.py`.
+
+```no-highlight
+# pip3 install django-storages
+```
+
 # Configuration
 
 Move into the NetBox configuration directory and make a copy of `configuration.example.py` named `configuration.py`.
@@ -139,13 +147,22 @@ Redis is a in-memory key-value store required as part of the NetBox installation
 
 ```python
 REDIS = {
-    'HOST': 'localhost',
-    'PORT': 6379,
-    'PASSWORD': '',
-    'DATABASE': 0,
-    'CACHE_DATABASE': 1,
-    'DEFAULT_TIMEOUT': 300,
-    'SSL': False,
+    'webhooks': {
+        'HOST': 'redis.example.com',
+        'PORT': 1234,
+        'PASSWORD': 'foobar',
+        'DATABASE': 0,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    },
+    'caching': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'PASSWORD': '',
+        'DATABASE': 1,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    }
 }
 ```
 
@@ -195,27 +212,7 @@ Superuser created successfully.
 ```no-highlight
 # python3 manage.py collectstatic --no-input
 
-You have requested to collect static files at the destination
-location as specified in your settings:
-
-    /opt/netbox/netbox/static
-
-This will overwrite existing files!
-Are you sure you want to do this?
-
-Type 'yes' to continue, or 'no' to cancel: yes
-```
-
-# Load Initial Data (Optional)
-
-NetBox ships with some initial data to help you get started: RIR definitions, common devices roles, etc. You can delete any seed data that you don't want to keep.
-
-!!! note
-    This step is optional. It's perfectly fine to start using NetBox without using this initial data if you'd rather create everything from scratch.
-
-```no-highlight
-# python3 manage.py loaddata initial_data
-Installed 43 object(s) from 4 fixture(s)
+959 static files copied to '/opt/netbox/netbox/static'.
 ```
 
 # Test the Application
@@ -237,3 +234,11 @@ Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on
 
 !!! warning
     If the test service does not run, or you cannot reach the NetBox home page, something has gone wrong. Do not proceed with the rest of this guide until the installation has been corrected.
+
+Note that the initial UI will be locked down for non-authenticated users.
+
+![NetBox UI as seen by a non-authenticated user](../media/installation/netbox_ui_guest.png)
+
+After logging in as the superuser you created earlier, all areas of the UI will be available.
+
+![NetBox UI as seen by an administrator](../media/installation/netbox_ui_admin.png)

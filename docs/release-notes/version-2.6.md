@@ -1,16 +1,3 @@
-# v2.6.13 (FUTURE)
-
-## Enhancements
-
-* [#3525](https://github.com/netbox-community/netbox/issues/3525) - Enable IP address filtering with multiple address terms
-* [#3840](https://github.com/netbox-community/netbox/issues/3840) - Only show the valid list of interface VLAN choices
-
-## Bug Fixes
-
-* [#3914](https://github.com/netbox-community/netbox/issues/3914) - Fix interface filter field when unauthenticated
-
----
-
 # v2.6.12 (2020-01-13)
 
 ## Enhancements

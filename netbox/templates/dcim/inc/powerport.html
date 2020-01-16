@@ -5,6 +5,11 @@
         <i class="fa fa-fw fa-bolt"></i> {{ pp }}
     </td>
 
+    {# Type #}
+    <td>
+        {{ pp.get_type_display }}
+    </td>
+
     {# Current draw #}
     <td>
         {% if pp.allocated_draw %}

@@ -9,8 +9,9 @@ from django.db.models.signals import pre_delete, post_save
 from django.utils import timezone
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
+from extras.utils import is_taggable
 from utilities.querysets import DummyQuerySet
-from .constants import *
+from .choices import ObjectChangeActionChoices
 from .models import ObjectChange
 from .signals import purge_changelog
 from .webhooks import enqueue_webhooks
@@ -23,7 +24,7 @@ def handle_changed_object(sender, instance, **kwargs):
     Fires when an object is created or updated.
     """
     # Queue the object for processing once the request completes
-    action = OBJECTCHANGE_ACTION_CREATE if kwargs['created'] else OBJECTCHANGE_ACTION_UPDATE
+    action = ObjectChangeActionChoices.ACTION_CREATE if kwargs['created'] else ObjectChangeActionChoices.ACTION_UPDATE
     _thread_locals.changed_objects.append(
         (instance, action)
     )
@@ -41,12 +42,12 @@ def handle_deleted_object(sender, instance, **kwargs):
     copy = deepcopy(instance)
 
     # Preserve tags
-    if hasattr(instance, 'tags'):
+    if is_taggable(instance):
         copy.tags = DummyQuerySet(instance.tags.all())
 
     # Queue the copy of the object for processing once the request completes
     _thread_locals.changed_objects.append(
-        (copy, OBJECTCHANGE_ACTION_DELETE)
+        (copy, ObjectChangeActionChoices.ACTION_DELETE)
     )
 
 
@@ -101,7 +102,7 @@ class ObjectChangeMiddleware(object):
         for instance, action in _thread_locals.changed_objects:
 
             # Refresh cached custom field values
-            if action in [OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_UPDATE]:
+            if action in [ObjectChangeActionChoices.ACTION_CREATE, ObjectChangeActionChoices.ACTION_UPDATE]:
                 if hasattr(instance, 'cache_custom_fields'):
                     instance.cache_custom_fields()
 
@@ -116,11 +117,11 @@ class ObjectChangeMiddleware(object):
             enqueue_webhooks(instance, request.user, request.id, action)
 
             # Increment metric counters
-            if action == OBJECTCHANGE_ACTION_CREATE:
+            if action == ObjectChangeActionChoices.ACTION_CREATE:
                 model_inserts.labels(instance._meta.model_name).inc()
-            elif action == OBJECTCHANGE_ACTION_UPDATE:
+            elif action == ObjectChangeActionChoices.ACTION_UPDATE:
                 model_updates.labels(instance._meta.model_name).inc()
-            elif action == OBJECTCHANGE_ACTION_DELETE:
+            elif action == ObjectChangeActionChoices.ACTION_DELETE:
                 model_deletes.labels(instance._meta.model_name).inc()
 
         # Housekeeping: 1% chance of clearing out expired ObjectChanges. This applies only to requests which result in
