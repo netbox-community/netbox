@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0001_api_tokens_squashed_0002_unicode_literals'),
+        ('users', '0002_unicode_literals'),
     ]
 
     operations = [

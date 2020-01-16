@@ -10,7 +10,12 @@ from utilities.testing import create_test_user
 class ProviderTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['circuits.view_provider'])
+        user = create_test_user(
+            permissions=[
+                'circuits.view_provider',
+                'circuits.add_provider',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -36,11 +41,30 @@ class ProviderTestCase(TestCase):
         response = self.client.get(provider.get_absolute_url())
         self.assertEqual(response.status_code, 200)
 
+    def test_provider_import(self):
+
+        csv_data = (
+            "name,slug",
+            "Provider 4,provider-4",
+            "Provider 5,provider-5",
+            "Provider 6,provider-6",
+        )
+
+        response = self.client.post(reverse('circuits:provider_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Provider.objects.count(), 6)
+
 
 class CircuitTypeTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['circuits.view_circuittype'])
+        user = create_test_user(
+            permissions=[
+                'circuits.view_circuittype',
+                'circuits.add_circuittype',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -57,11 +81,30 @@ class CircuitTypeTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_circuittype_import(self):
+
+        csv_data = (
+            "name,slug",
+            "Circuit Type 4,circuit-type-4",
+            "Circuit Type 5,circuit-type-5",
+            "Circuit Type 6,circuit-type-6",
+        )
+
+        response = self.client.post(reverse('circuits:circuittype_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(CircuitType.objects.count(), 6)
+
 
 class CircuitTestCase(TestCase):
 
     def setUp(self):
-        user = create_test_user(permissions=['circuits.view_circuit'])
+        user = create_test_user(
+            permissions=[
+                'circuits.view_circuit',
+                'circuits.add_circuit',
+            ]
+        )
         self.client = Client()
         self.client.force_login(user)
 
@@ -93,3 +136,17 @@ class CircuitTestCase(TestCase):
         circuit = Circuit.objects.first()
         response = self.client.get(circuit.get_absolute_url())
         self.assertEqual(response.status_code, 200)
+
+    def test_circuit_import(self):
+
+        csv_data = (
+            "cid,provider,type",
+            "Circuit 4,Provider 1,Circuit Type 1",
+            "Circuit 5,Provider 1,Circuit Type 1",
+            "Circuit 6,Provider 1,Circuit Type 1",
+        )
+
+        response = self.client.post(reverse('circuits:circuit_import'), {'csv': '\n'.join(csv_data)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Circuit.objects.count(), 6)

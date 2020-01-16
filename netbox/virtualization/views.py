@@ -96,10 +96,10 @@ class ClusterGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class ClusterListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'virtualization.view_cluster'
-    queryset = Cluster.objects.prefetch_related('type', 'group', 'site')
+    queryset = Cluster.objects.prefetch_related('type', 'group', 'site', 'tenant')
     table = tables.ClusterTable
-    filter = filters.ClusterFilter
-    filter_form = forms.ClusterFilterForm
+    filterset = filters.ClusterFilterSet
+    filterset_form = forms.ClusterFilterForm
     template_name = 'virtualization/cluster_list.html'
 
 
@@ -149,7 +149,7 @@ class ClusterBulkImportView(PermissionRequiredMixin, BulkImportView):
 class ClusterBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'virtualization.change_cluster'
     queryset = Cluster.objects.prefetch_related('type', 'group', 'site')
-    filter = filters.ClusterFilter
+    filterset = filters.ClusterFilterSet
     table = tables.ClusterTable
     form = forms.ClusterBulkEditForm
     default_return_url = 'virtualization:cluster_list'
@@ -158,7 +158,7 @@ class ClusterBulkEditView(PermissionRequiredMixin, BulkEditView):
 class ClusterBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'virtualization.delete_cluster'
     queryset = Cluster.objects.prefetch_related('type', 'group', 'site')
-    filter = filters.ClusterFilter
+    filterset = filters.ClusterFilterSet
     table = tables.ClusterTable
     default_return_url = 'virtualization:cluster_list'
 
@@ -254,8 +254,8 @@ class ClusterRemoveDevicesView(PermissionRequiredMixin, View):
 class VirtualMachineListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'virtualization.view_virtualmachine'
     queryset = VirtualMachine.objects.prefetch_related('cluster', 'tenant', 'role', 'primary_ip4', 'primary_ip6')
-    filter = filters.VirtualMachineFilter
-    filter_form = forms.VirtualMachineFilterForm
+    filterset = filters.VirtualMachineFilterSet
+    filterset_form = forms.VirtualMachineFilterForm
     table = tables.VirtualMachineDetailTable
     template_name = 'virtualization/virtualmachine_list.html'
 
@@ -310,7 +310,7 @@ class VirtualMachineBulkImportView(PermissionRequiredMixin, BulkImportView):
 class VirtualMachineBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'virtualization.change_virtualmachine'
     queryset = VirtualMachine.objects.prefetch_related('cluster', 'tenant', 'role')
-    filter = filters.VirtualMachineFilter
+    filterset = filters.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
     form = forms.VirtualMachineBulkEditForm
     default_return_url = 'virtualization:virtualmachine_list'
@@ -319,7 +319,7 @@ class VirtualMachineBulkEditView(PermissionRequiredMixin, BulkEditView):
 class VirtualMachineBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'virtualization.delete_virtualmachine'
     queryset = VirtualMachine.objects.prefetch_related('cluster', 'tenant', 'role')
-    filter = filters.VirtualMachineFilter
+    filterset = filters.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
     default_return_url = 'virtualization:virtualmachine_list'
 
@@ -376,6 +376,6 @@ class VirtualMachineBulkAddInterfaceView(PermissionRequiredMixin, BulkComponentC
     form = forms.VirtualMachineBulkAddInterfaceForm
     model = Interface
     model_form = forms.InterfaceForm
-    filter = filters.VirtualMachineFilter
+    filterset = filters.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
     default_return_url = 'virtualization:virtualmachine_list'

@@ -38,11 +38,11 @@ OBJECTCHANGE_TIME = """
 """
 
 OBJECTCHANGE_ACTION = """
-{% if record.action == 1 %}
+{% if record.action == 'create' %}
     <span class="label label-success">Created</span>
-{% elif record.action == 2 %}
+{% elif record.action == 'update' %}
     <span class="label label-primary">Updated</span>
-{% elif record.action == 3 %}
+{% elif record.action == 'delete' %}
     <span class="label label-danger">Deleted</span>
 {% endif %}
 """

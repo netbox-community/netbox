@@ -1,18 +1,3 @@
-# v2.6.13 (FUTURE)
-
-## Enhancements
-
-* [#3525](https://github.com/netbox-community/netbox/issues/3525) - Enable IP address filtering with multiple address terms
-
-## Bug Fixes
-
-* [#3900](https://github.com/netbox-community/netbox/issues/3900) - Fix exception when deleting device types
-* [#3914](https://github.com/netbox-community/netbox/issues/3914) - Fix interface filter field when unauthenticated
-* [#3919](https://github.com/netbox-community/netbox/issues/3919) - Fix utilization graph extending out of bounds when utilization > 100%
-* [#3927](https://github.com/netbox-community/netbox/issues/3927) - Fix exception when deleting devices with secrets assigned
-
----
-
 # v2.6.12 (2020-01-13)
 
 ## Enhancements

@@ -7,7 +7,7 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
-from utilities.forms import unpack_grouped_choices
+from utilities.choices import unpack_grouped_choices
 from utilities.utils import foreground_color
 
 

@@ -2,12 +2,14 @@ import csv
 import json
 import re
 from io import StringIO
+import yaml
 
 from django import forms
 from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
 from mptt.forms import TreeNodeMultipleChoiceField
 
+from .choices import unpack_grouped_choices
 from .constants import *
 from .validators import EnhancedURLValidator
 
@@ -116,43 +118,6 @@ def add_blank_choice(choices):
     Add a blank choice to the beginning of a choices list.
     """
     return ((None, '---------'),) + tuple(choices)
-
-
-def unpack_grouped_choices(choices):
-    """
-    Unpack a grouped choices hierarchy into a flat list of two-tuples. For example:
-
-    choices = (
-        ('Foo', (
-            (1, 'A'),
-            (2, 'B')
-        )),
-        ('Bar', (
-            (3, 'C'),
-            (4, 'D')
-        ))
-    )
-
-    becomes:
-
-    choices = (
-        (1, 'A'),
-        (2, 'B'),
-        (3, 'C'),
-        (4, 'D')
-    )
-    """
-    unpacked_choices = []
-    for key, value in choices:
-        if key == 1300:
-            breakme = True
-        if isinstance(value, (list, tuple)):
-            # Entered an optgroup
-            for optgroup_key, optgroup_value in value:
-                unpacked_choices.append((optgroup_key, optgroup_value))
-        else:
-            unpacked_choices.append((key, value))
-    return unpacked_choices
 
 
 #
@@ -471,7 +436,7 @@ class CSVChoiceField(forms.ChoiceField):
     def clean(self, value):
         value = super().clean(value)
         if not value:
-            return None
+            return ''
         if value not in self.choice_values:
             raise forms.ValidationError("Invalid choice: {}".format(value))
         return self.choice_values[value]
@@ -769,3 +734,41 @@ class BulkEditForm(forms.Form):
         # Copy any nullable fields defined in Meta
         if hasattr(self.Meta, 'nullable_fields'):
             self.nullable_fields = self.Meta.nullable_fields
+
+
+class ImportForm(BootstrapMixin, forms.Form):
+    """
+    Generic form for creating an object from JSON/YAML data
+    """
+    data = forms.CharField(
+        widget=forms.Textarea,
+        help_text="Enter object data in JSON or YAML format."
+    )
+    format = forms.ChoiceField(
+        choices=(
+            ('json', 'JSON'),
+            ('yaml', 'YAML')
+        ),
+        initial='yaml'
+    )
+
+    def clean(self):
+
+        data = self.cleaned_data['data']
+        format = self.cleaned_data['format']
+
+        # Process JSON/YAML data
+        if format == 'json':
+            try:
+                self.cleaned_data['data'] = json.loads(data)
+            except json.decoder.JSONDecodeError as err:
+                raise forms.ValidationError({
+                    'data': "Invalid JSON data: {}".format(err)
+                })
+        else:
+            try:
+                self.cleaned_data['data'] = yaml.load(data, Loader=yaml.SafeLoader)
+            except yaml.scanner.ScannerError as err:
+                raise forms.ValidationError({
+                    'data': "Invalid YAML data: {}".format(err)
+                })

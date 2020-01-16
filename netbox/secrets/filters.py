@@ -8,19 +8,19 @@ from .models import Secret, SecretRole
 
 
 __all__ = (
-    'SecretFilter',
-    'SecretRoleFilter',
+    'SecretFilterSet',
+    'SecretRoleFilterSet',
 )
 
 
-class SecretRoleFilter(NameSlugSearchFilterSet):
+class SecretRoleFilterSet(NameSlugSearchFilterSet):
 
     class Meta:
         model = SecretRole
         fields = ['id', 'name', 'slug']
 
 
-class SecretFilter(CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class SecretFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'

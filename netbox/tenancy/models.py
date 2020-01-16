@@ -7,6 +7,12 @@ from extras.models import CustomFieldModel, TaggedItem
 from utilities.models import ChangeLoggedModel
 
 
+__all__ = (
+    'Tenant',
+    'TenantGroup',
+)
+
+
 class TenantGroup(ChangeLoggedModel):
     """
     An arbitrary collection of Tenants.
@@ -73,6 +79,9 @@ class Tenant(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['name', 'slug', 'group', 'description', 'comments']
+    clone_fields = [
+        'group', 'description',
+    ]
 
     class Meta:
         ordering = ['group', 'name']

@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Region, Site
-from ipam.constants import *
+from ipam.choices import *
 from ipam.filters import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from virtualization.models import Cluster, ClusterType, VirtualMachine
@@ -9,7 +9,7 @@ from virtualization.models import Cluster, ClusterType, VirtualMachine
 
 class VRFTestCase(TestCase):
     queryset = VRF.objects.all()
-    filterset = VRFFilter
+    filterset = VRFFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -46,7 +46,7 @@ class VRFTestCase(TestCase):
 
 class RIRTestCase(TestCase):
     queryset = RIR.objects.all()
-    filterset = RIRFilter
+    filterset = RIRFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -83,7 +83,7 @@ class RIRTestCase(TestCase):
 
 class AggregateTestCase(TestCase):
     queryset = Aggregate.objects.all()
-    filterset = AggregateFilter
+    filterset = AggregateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -128,7 +128,7 @@ class AggregateTestCase(TestCase):
 
 class RoleTestCase(TestCase):
     queryset = Role.objects.all()
-    filterset = RoleFilter
+    filterset = RoleFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -156,7 +156,7 @@ class RoleTestCase(TestCase):
 
 class PrefixTestCase(TestCase):
     queryset = Prefix.objects.all()
-    filterset = PrefixFilter
+    filterset = PrefixFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -201,12 +201,12 @@ class PrefixTestCase(TestCase):
         prefixes = (
             Prefix(family=4, prefix='10.0.0.0/24', site=None, vrf=None, vlan=None, role=None, is_pool=True),
             Prefix(family=4, prefix='10.0.1.0/24', site=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0]),
-            Prefix(family=4, prefix='10.0.2.0/24', site=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PREFIX_STATUS_DEPRECATED),
-            Prefix(family=4, prefix='10.0.3.0/24', site=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PREFIX_STATUS_RESERVED),
+            Prefix(family=4, prefix='10.0.2.0/24', site=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
+            Prefix(family=4, prefix='10.0.3.0/24', site=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
             Prefix(family=6, prefix='2001:db8::/64', site=None, vrf=None, vlan=None, role=None, is_pool=True),
             Prefix(family=6, prefix='2001:db8:0:1::/64', site=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0]),
-            Prefix(family=6, prefix='2001:db8:0:2::/64', site=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PREFIX_STATUS_DEPRECATED),
-            Prefix(family=6, prefix='2001:db8:0:3::/64', site=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PREFIX_STATUS_RESERVED),
+            Prefix(family=6, prefix='2001:db8:0:2::/64', site=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
+            Prefix(family=6, prefix='2001:db8:0:3::/64', site=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
             Prefix(family=4, prefix='10.0.0.0/16'),
             Prefix(family=6, prefix='2001:db8::/32'),
         )
@@ -282,13 +282,13 @@ class PrefixTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_status(self):
-        params = {'status': [PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED]}
+        params = {'status': [PrefixStatusChoices.STATUS_DEPRECATED, PrefixStatusChoices.STATUS_RESERVED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class IPAddressTestCase(TestCase):
     queryset = IPAddress.objects.all()
-    filterset = IPAddressFilter
+    filterset = IPAddressFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -333,16 +333,17 @@ class IPAddressTestCase(TestCase):
         Interface.objects.bulk_create(interfaces)
 
         ipaddresses = (
-            IPAddress(family=4, address='10.0.0.1/24', vrf=None, interface=None, status=IPADDRESS_STATUS_ACTIVE, role=None, dns_name='ipaddress-a'),
-            IPAddress(family=4, address='10.0.0.2/24', vrf=vrfs[0], interface=interfaces[0], status=IPADDRESS_STATUS_ACTIVE, role=None, dns_name='ipaddress-b'),
-            IPAddress(family=4, address='10.0.0.3/24', vrf=vrfs[1], interface=interfaces[1], status=IPADDRESS_STATUS_RESERVED, role=IPADDRESS_ROLE_VIP, dns_name='ipaddress-c'),
-            IPAddress(family=4, address='10.0.0.4/24', vrf=vrfs[2], interface=interfaces[2], status=IPADDRESS_STATUS_DEPRECATED, role=IPADDRESS_ROLE_SECONDARY, dns_name='ipaddress-d'),
-            IPAddress(family=4, address='10.0.0.1/25', vrf=None, interface=None, status=IPADDRESS_STATUS_ACTIVE, role=None),
-            IPAddress(family=6, address='2001:db8::1/64', vrf=None, interface=None, status=IPADDRESS_STATUS_ACTIVE, role=None, dns_name='ipaddress-a'),
-            IPAddress(family=6, address='2001:db8::2/64', vrf=vrfs[0], interface=interfaces[3], status=IPADDRESS_STATUS_ACTIVE, role=None, dns_name='ipaddress-b'),
-            IPAddress(family=6, address='2001:db8::3/64', vrf=vrfs[1], interface=interfaces[4], status=IPADDRESS_STATUS_RESERVED, role=IPADDRESS_ROLE_VIP, dns_name='ipaddress-c'),
-            IPAddress(family=6, address='2001:db8::4/64', vrf=vrfs[2], interface=interfaces[5], status=IPADDRESS_STATUS_DEPRECATED, role=IPADDRESS_ROLE_SECONDARY, dns_name='ipaddress-d'),
-            IPAddress(family=6, address='2001:db8::1/65', vrf=None, interface=None, status=IPADDRESS_STATUS_ACTIVE, role=None),
+            IPAddress(family=4, address='10.0.0.1/24', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
+            IPAddress(family=4, address='10.0.0.2/24', vrf=vrfs[0], interface=interfaces[0], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
+            IPAddress(family=4, address='10.0.0.3/24', vrf=vrfs[1], interface=interfaces[1], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
+            IPAddress(family=4, address='10.0.0.4/24', vrf=vrfs[2], interface=interfaces[2], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
+            IPAddress(family=4, address='10.0.0.1/25', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
+            IPAddress(family=6, address='2001:db8::1/64', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
+            IPAddress(family=6, address='2001:db8::2/64', vrf=vrfs[0], interface=interfaces[3], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
+            IPAddress(family=6, address='2001:db8::3/64', vrf=vrfs[1], interface=interfaces[4], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
+            IPAddress(family=6, address='2001:db8::4/64', vrf=vrfs[2], interface=interfaces[5], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
+            IPAddress(family=6, address='2001:db8::1/65', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
+
         )
         IPAddress.objects.bulk_create(ipaddresses)
 
@@ -420,17 +421,17 @@ class IPAddressTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_status(self):
-        params = {'status': [PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED]}
+        params = {'status': [PrefixStatusChoices.STATUS_DEPRECATED, PrefixStatusChoices.STATUS_RESERVED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_role(self):
-        params = {'role': [IPADDRESS_ROLE_SECONDARY, IPADDRESS_ROLE_VIP]}
+        params = {'role': [IPAddressRoleChoices.ROLE_SECONDARY, IPAddressRoleChoices.ROLE_VIP]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class VLANGroupTestCase(TestCase):
     queryset = VLANGroup.objects.all()
-    filterset = VLANGroupFilter
+    filterset = VLANGroupFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -489,7 +490,7 @@ class VLANGroupTestCase(TestCase):
 
 class VLANTestCase(TestCase):
     queryset = VLAN.objects.all()
-    filterset = VLANFilter
+    filterset = VLANFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -525,12 +526,12 @@ class VLANTestCase(TestCase):
         VLANGroup.objects.bulk_create(groups)
 
         vlans = (
-            VLAN(vid=101, name='VLAN 101', site=sites[0], group=groups[0], role=roles[0], status=VLAN_STATUS_ACTIVE),
-            VLAN(vid=102, name='VLAN 102', site=sites[0], group=groups[0], role=roles[0], status=VLAN_STATUS_ACTIVE),
-            VLAN(vid=201, name='VLAN 201', site=sites[1], group=groups[1], role=roles[1], status=VLAN_STATUS_DEPRECATED),
-            VLAN(vid=202, name='VLAN 202', site=sites[1], group=groups[1], role=roles[1], status=VLAN_STATUS_DEPRECATED),
-            VLAN(vid=301, name='VLAN 301', site=sites[2], group=groups[2], role=roles[2], status=VLAN_STATUS_RESERVED),
-            VLAN(vid=302, name='VLAN 302', site=sites[2], group=groups[2], role=roles[2], status=VLAN_STATUS_RESERVED),
+            VLAN(vid=101, name='VLAN 101', site=sites[0], group=groups[0], role=roles[0], status=VLANStatusChoices.STATUS_ACTIVE),
+            VLAN(vid=102, name='VLAN 102', site=sites[0], group=groups[0], role=roles[0], status=VLANStatusChoices.STATUS_ACTIVE),
+            VLAN(vid=201, name='VLAN 201', site=sites[1], group=groups[1], role=roles[1], status=VLANStatusChoices.STATUS_DEPRECATED),
+            VLAN(vid=202, name='VLAN 202', site=sites[1], group=groups[1], role=roles[1], status=VLANStatusChoices.STATUS_DEPRECATED),
+            VLAN(vid=301, name='VLAN 301', site=sites[2], group=groups[2], role=roles[2], status=VLANStatusChoices.STATUS_RESERVED),
+            VLAN(vid=302, name='VLAN 302', site=sites[2], group=groups[2], role=roles[2], status=VLANStatusChoices.STATUS_RESERVED),
         )
         VLAN.objects.bulk_create(vlans)
 
@@ -576,13 +577,13 @@ class VLANTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_status(self):
-        params = {'status': [VLAN_STATUS_ACTIVE, VLAN_STATUS_DEPRECATED]}
+        params = {'status': [VLANStatusChoices.STATUS_ACTIVE, VLANStatusChoices.STATUS_DEPRECATED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class ServiceTestCase(TestCase):
     queryset = Service.objects.all()
-    filterset = ServiceFilter
+    filterset = ServiceFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -610,12 +611,12 @@ class ServiceTestCase(TestCase):
         VirtualMachine.objects.bulk_create(virtual_machines)
 
         services = (
-            Service(device=devices[0], name='Service 1', protocol=IP_PROTOCOL_TCP, port=1001),
-            Service(device=devices[1], name='Service 2', protocol=IP_PROTOCOL_TCP, port=1002),
-            Service(device=devices[2], name='Service 3', protocol=IP_PROTOCOL_UDP, port=1003),
-            Service(virtual_machine=virtual_machines[0], name='Service 4', protocol=IP_PROTOCOL_TCP, port=2001),
-            Service(virtual_machine=virtual_machines[1], name='Service 5', protocol=IP_PROTOCOL_TCP, port=2002),
-            Service(virtual_machine=virtual_machines[2], name='Service 6', protocol=IP_PROTOCOL_UDP, port=2003),
+            Service(device=devices[0], name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=1001),
+            Service(device=devices[1], name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=1002),
+            Service(device=devices[2], name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_UDP, port=1003),
+            Service(virtual_machine=virtual_machines[0], name='Service 4', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=2001),
+            Service(virtual_machine=virtual_machines[1], name='Service 5', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=2002),
+            Service(virtual_machine=virtual_machines[2], name='Service 6', protocol=ServiceProtocolChoices.PROTOCOL_UDP, port=2003),
         )
         Service.objects.bulk_create(services)
 
@@ -629,7 +630,7 @@ class ServiceTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_protocol(self):
-        params = {'protocol': IP_PROTOCOL_TCP}
+        params = {'protocol': ServiceProtocolChoices.PROTOCOL_TCP}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_port(self):

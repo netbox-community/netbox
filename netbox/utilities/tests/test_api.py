@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from dcim.models import Region, Site
-from extras.constants import CF_TYPE_TEXT
+from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from ipam.models import VLAN
 from utilities.testing import APITestCase
@@ -132,7 +132,7 @@ class APIDocsTestCase(TestCase):
 
         # Populate a CustomField to activate CustomFieldSerializer
         content_type = ContentType.objects.get_for_model(Site)
-        self.cf_text = CustomField(type=CF_TYPE_TEXT, name='test')
+        self.cf_text = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='test')
         self.cf_text.save()
         self.cf_text.obj_type.set([content_type])
         self.cf_text.save()

@@ -24,10 +24,12 @@ from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
+from extras.utils import is_taggable
+from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField
-from utilities.utils import csv_format
+from utilities.utils import csv_format, prepare_cloned_fields
 from .error_handlers import handle_protectederror
-from .forms import ConfirmationForm
+from .forms import ConfirmationForm, ImportForm
 from .paginator import EnhancedPaginator
 
 
@@ -68,10 +70,18 @@ class ObjectListView(View):
     template_name: The name of the template
     """
     queryset = None
-    filter = None
-    filter_form = None
+    filterset = None
+    filterset_form = None
     table = None
     template_name = None
+
+    def queryset_to_yaml(self):
+        """
+        Export the queryset of objects as concatenated YAML documents.
+        """
+        yaml_data = [obj.to_yaml() for obj in self.queryset]
+
+        return '---\n'.join(yaml_data)
 
     def queryset_to_csv(self):
         """
@@ -88,15 +98,15 @@ class ObjectListView(View):
             data = csv_format(obj.to_csv())
             csv_data.append(data)
 
-        return csv_data
+        return '\n'.join(csv_data)
 
     def get(self, request):
 
         model = self.queryset.model
         content_type = ContentType.objects.get_for_model(model)
 
-        if self.filter:
-            self.queryset = self.filter(request.GET, self.queryset).qs
+        if self.filterset:
+            self.queryset = self.filterset(request.GET, self.queryset).qs
 
         # If this type of object has one or more custom fields, prefetch any relevant custom field values
         custom_fields = CustomField.objects.filter(
@@ -119,13 +129,16 @@ class ObjectListView(View):
                     )
                 )
 
+        # Check for YAML export support
+        elif 'export' in request.GET and hasattr(model, 'to_yaml'):
+            response = HttpResponse(self.queryset_to_yaml(), content_type='text/yaml')
+            filename = 'netbox_{}.yaml'.format(self.queryset.model._meta.verbose_name_plural)
+            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+            return response
+
         # Fall back to built-in CSV formatting if export requested but no template specified
         elif 'export' in request.GET and hasattr(model, 'to_csv'):
-            data = self.queryset_to_csv()
-            response = HttpResponse(
-                '\n'.join(data),
-                content_type='text/csv'
-            )
+            response = HttpResponse(self.queryset_to_csv(), content_type='text/csv')
             filename = 'netbox_{}.csv'.format(self.queryset.model._meta.verbose_name_plural)
             response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
             return response
@@ -143,7 +156,7 @@ class ObjectListView(View):
             table.columns.show('pk')
 
         # Construct queryset for tags list
-        if hasattr(model, 'tags'):
+        if is_taggable(model):
             tags = model.tags.annotate(count=Count('extras_taggeditem_items')).order_by('name')
         else:
             tags = None
@@ -159,7 +172,7 @@ class ObjectListView(View):
             'content_type': content_type,
             'table': table,
             'permissions': permissions,
-            'filter_form': self.filter_form(request.GET, label_suffix='') if self.filter_form else None,
+            'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
             'tags': tags,
         }
         context.update(self.extra_context())
@@ -235,6 +248,12 @@ class ObjectEditView(GetReturnURLMixin, View):
             messages.success(request, mark_safe(msg))
 
             if '_addanother' in request.POST:
+
+                # If the object has clone_fields, pre-populate a new instance of the form
+                if hasattr(obj, 'clone_fields'):
+                    url = '{}?{}'.format(request.path, prepare_cloned_fields(obj))
+                    return redirect(url)
+
                 return redirect(request.get_full_path())
 
             return_url = form.cleaned_data.get('return_url')
@@ -394,6 +413,106 @@ class BulkCreateView(GetReturnURLMixin, View):
         })
 
 
+class ObjectImportView(GetReturnURLMixin, View):
+    """
+    Import a single object (YAML or JSON format).
+    """
+    model = None
+    model_form = None
+    related_object_forms = dict()
+    template_name = 'utilities/obj_import.html'
+
+    def get(self, request):
+
+        form = ImportForm()
+
+        return render(request, self.template_name, {
+            'form': form,
+            'obj_type': self.model._meta.verbose_name,
+            'return_url': self.get_return_url(request),
+        })
+
+    def post(self, request):
+
+        form = ImportForm(request.POST)
+        if form.is_valid():
+
+            # Initialize model form
+            data = form.cleaned_data['data']
+            model_form = self.model_form(data)
+
+            # Assign default values for any fields which were not specified. We have to do this manually because passing
+            # 'initial=' to the form on initialization merely sets default values for the widgets. Since widgets are not
+            # used for YAML/JSON import, we first bind the imported data normally, then update the form's data with the
+            # applicable field defaults as needed prior to form validation.
+            for field_name, field in model_form.fields.items():
+                if field_name not in data and hasattr(field, 'initial'):
+                    model_form.data[field_name] = field.initial
+
+            if model_form.is_valid():
+
+                try:
+                    with transaction.atomic():
+
+                        # Save the primary object
+                        obj = model_form.save()
+
+                        # Iterate through the related object forms (if any), validating and saving each instance.
+                        for field_name, related_object_form in self.related_object_forms.items():
+
+                            for i, rel_obj_data in enumerate(data.get(field_name, list())):
+
+                                f = related_object_form(obj, rel_obj_data)
+
+                                for subfield_name, field in f.fields.items():
+                                    if subfield_name not in rel_obj_data and hasattr(field, 'initial'):
+                                        f.data[subfield_name] = field.initial
+
+                                if f.is_valid():
+                                    f.save()
+                                else:
+                                    # Replicate errors on the related object form to the primary form for display
+                                    for subfield_name, errors in f.errors.items():
+                                        for err in errors:
+                                            err_msg = "{}[{}] {}: {}".format(field_name, i, subfield_name, err)
+                                            model_form.add_error(None, err_msg)
+                                    raise AbortTransaction()
+
+                except AbortTransaction:
+                    pass
+
+            if not model_form.errors:
+
+                messages.success(request, mark_safe('Imported object: <a href="{}">{}</a>'.format(
+                    obj.get_absolute_url(), obj
+                )))
+
+                if '_addanother' in request.POST:
+                    return redirect(request.get_full_path())
+
+                return_url = form.cleaned_data.get('return_url')
+                if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
+                    return redirect(return_url)
+                else:
+                    return redirect(self.get_return_url(request, obj))
+
+            else:
+
+                # Replicate model form errors for display
+                for field, errors in model_form.errors.items():
+                    for err in errors:
+                        if field == '__all__':
+                            form.add_error(None, err)
+                        else:
+                            form.add_error(None, "{}: {}".format(field, err))
+
+        return render(request, self.template_name, {
+            'form': form,
+            'obj_type': self.model._meta.verbose_name,
+            'return_url': self.get_return_url(request),
+        })
+
+
 class BulkImportView(GetReturnURLMixin, View):
     """
     Import objects in bulk (CSV format).
@@ -405,7 +524,7 @@ class BulkImportView(GetReturnURLMixin, View):
     """
     model_form = None
     table = None
-    template_name = 'utilities/obj_import.html'
+    template_name = 'utilities/obj_bulk_import.html'
     widget_attrs = {}
 
     def _import_form(self, *args, **kwargs):
@@ -490,7 +609,7 @@ class BulkEditView(GetReturnURLMixin, View):
     """
     queryset = None
     parent_model = None
-    filter = None
+    filterset = None
     table = None
     form = None
     template_name = 'utilities/obj_bulk_edit.html'
@@ -509,8 +628,8 @@ class BulkEditView(GetReturnURLMixin, View):
             parent_obj = None
 
         # Are we editing *all* objects in the queryset or just a selected subset?
-        if request.POST.get('_all') and self.filter is not None:
-            pk_list = [obj.pk for obj in self.filter(request.GET, model.objects.only('pk')).qs]
+        if request.POST.get('_all') and self.filterset is not None:
+            pk_list = [obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs]
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
@@ -611,7 +730,7 @@ class BulkDeleteView(GetReturnURLMixin, View):
     """
     queryset = None
     parent_model = None
-    filter = None
+    filterset = None
     table = None
     form = None
     template_name = 'utilities/obj_bulk_delete.html'
@@ -631,8 +750,8 @@ class BulkDeleteView(GetReturnURLMixin, View):
 
         # Are we deleting *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all'):
-            if self.filter is not None:
-                pk_list = [obj.pk for obj in self.filter(request.GET, model.objects.only('pk')).qs]
+            if self.filterset is not None:
+                pk_list = [obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs]
             else:
                 pk_list = model.objects.values_list('pk', flat=True)
         else:
@@ -775,7 +894,7 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
     form = None
     model = None
     model_form = None
-    filter = None
+    filterset = None
     table = None
     template_name = 'utilities/obj_bulk_add_component.html'
 
@@ -785,8 +904,8 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
         model_name = self.model._meta.verbose_name_plural
 
         # Are we editing *all* objects in the queryset or just a selected subset?
-        if request.POST.get('_all') and self.filter is not None:
-            pk_list = [obj.pk for obj in self.filter(request.GET, self.parent_model.objects.only('pk')).qs]
+        if request.POST.get('_all') and self.filterset is not None:
+            pk_list = [obj.pk for obj in self.filterset(request.GET, self.parent_model.objects.only('pk')).qs]
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
