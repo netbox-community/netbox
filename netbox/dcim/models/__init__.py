@@ -11,7 +11,7 @@ from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Count, F, ProtectedError, Q, Sum
+from django.db.models import Count, F, ProtectedError, Sum
 from django.urls import reverse
 from django.utils.http import urlencode
 from mptt.models import MPTTModel, TreeForeignKey

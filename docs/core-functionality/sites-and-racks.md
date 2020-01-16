@@ -40,6 +40,8 @@ Racks can be arranged into groups. As with sites, how you choose to designate ra
 
 Each rack group must be assigned to a parent site. Hierarchical recursion of rack groups is not currently supported.
 
+The name and facility ID of each rack within a group must be unique. (Racks not assigned to the same rack group may have identical names and/or facility IDs.)
+
 ## Rack Roles
 
 Each rack can optionally be assigned a functional role. For example, you might designate a rack for compute or storage resources, or to house colocated customer devices. Rack roles are fully customizable.

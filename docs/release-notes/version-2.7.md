@@ -58,7 +58,7 @@ filesystem on the NetBox server. This release introduces support for several rem
 * Amazon S3
 * ApacheLibcloud
 * Azure Storage
-* DigitalOcean Spaces
+* netbox-community Spaces
 * Dropbox
 * FTP
 * Google Cloud Storage
@@ -220,32 +220,37 @@ PATCH) to maintain backward compatibility. This behavior will be discontinued be
 
 ## Enhancements
 
-* [#33](https://github.com/digitalocean/netbox/issues/33) - Add ability to clone objects (pre-populate form fields)
-* [#648](https://github.com/digitalocean/netbox/issues/648) - Pre-populate forms when selecting "create and add another"
-* [#792](https://github.com/digitalocean/netbox/issues/792) - Add power port and power outlet types
-* [#1865](https://github.com/digitalocean/netbox/issues/1865) - Add console port and console server port types
-* [#2669](https://github.com/digitalocean/netbox/issues/2669) - Relax uniqueness constraint on device and VM names
-* [#2902](https://github.com/digitalocean/netbox/issues/2902) - Replace `supervisord` with `systemd`
-* [#3455](https://github.com/digitalocean/netbox/issues/3455) - Add tenant assignment to cluster
-* [#3520](https://github.com/digitalocean/netbox/issues/3520) - Add Jinja2 template support for Graphs
-* [#3564](https://github.com/digitalocean/netbox/issues/3564) - Add list views for device components
-* [#3538](https://github.com/digitalocean/netbox/issues/3538) - Introduce a REST API endpoint for executing custom
+* [#33](https://github.com/netbox-community/netbox/issues/33) - Add ability to clone objects (pre-populate form fields)
+* [#648](https://github.com/netbox-community/netbox/issues/648) - Pre-populate forms when selecting "create and add another"
+* [#792](https://github.com/netbox-community/netbox/issues/792) - Add power port and power outlet types
+* [#1865](https://github.com/netbox-community/netbox/issues/1865) - Add console port and console server port types
+* [#2669](https://github.com/netbox-community/netbox/issues/2669) - Relax uniqueness constraint on device and VM names
+* [#2902](https://github.com/netbox-community/netbox/issues/2902) - Replace `supervisord` with `systemd`
+* [#3455](https://github.com/netbox-community/netbox/issues/3455) - Add tenant assignment to cluster
+* [#3520](https://github.com/netbox-community/netbox/issues/3520) - Add Jinja2 template support for Graphs
+* [#3525](https://github.com/netbox-community/netbox/issues/3525) - Enable IP address filtering with multiple address terms
+* [#3564](https://github.com/netbox-community/netbox/issues/3564) - Add list views for device components
+* [#3538](https://github.com/netbox-community/netbox/issues/3538) - Introduce a REST API endpoint for executing custom
   scripts
-* [#3655](https://github.com/digitalocean/netbox/issues/3655) - Add `description` field to organizational models
-* [#3664](https://github.com/digitalocean/netbox/issues/3664) - Enable applying configuration contexts by tags
-* [#3706](https://github.com/digitalocean/netbox/issues/3706) - Increase `available_power` maximum value on PowerFeed
-* [#3731](https://github.com/digitalocean/netbox/issues/3731) - Change Graph.type to a ContentType foreign key field
-* [#3801](https://github.com/digitalocean/netbox/issues/3801) - Use YAML for export of device types
+* [#3655](https://github.com/netbox-community/netbox/issues/3655) - Add `description` field to organizational models
+* [#3664](https://github.com/netbox-community/netbox/issues/3664) - Enable applying configuration contexts by tags
+* [#3706](https://github.com/netbox-community/netbox/issues/3706) - Increase `available_power` maximum value on PowerFeed
+* [#3731](https://github.com/netbox-community/netbox/issues/3731) - Change Graph.type to a ContentType foreign key field
+* [#3801](https://github.com/netbox-community/netbox/issues/3801) - Use YAML for export of device types
 
 ## Bug Fixes
 
-* [#3830](https://github.com/digitalocean/netbox/issues/3830) - Ensure deterministic ordering for all models
-* [#3930](https://github.com/digitalocean/netbox/issues/3930) - Fix API rendering of the `family` field for aggregates
+* [#3830](https://github.com/netbox-community/netbox/issues/3830) - Ensure deterministic ordering for all models
+* [#3900](https://github.com/netbox-community/netbox/issues/3900) - Fix exception when deleting device types
+* [#3914](https://github.com/netbox-community/netbox/issues/3914) - Fix interface filter field when unauthenticated
+* [#3919](https://github.com/netbox-community/netbox/issues/3919) - Fix utilization graph extending out of bounds when utilization > 100%
+* [#3927](https://github.com/netbox-community/netbox/issues/3927) - Fix exception when deleting devices with secrets assigned
+* [#3930](https://github.com/netbox-community/netbox/issues/3930) - Fix API rendering of the `family` field for aggregates
 
 ## Bug Fixes (From Beta)
 
-* [#3868](https://github.com/digitalocean/netbox/issues/3868) - Fix creation of interfaces for virtual machines
-* [#3878](https://github.com/digitalocean/netbox/issues/3878) - Fix database migration for cable status field
+* [#3868](https://github.com/netbox-community/netbox/issues/3868) - Fix creation of interfaces for virtual machines
+* [#3878](https://github.com/netbox-community/netbox/issues/3878) - Fix database migration for cable status field
 
 ## API Changes
 
