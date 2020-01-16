@@ -19,5 +19,6 @@ Pillow==7.0.0
 psycopg2-binary==2.8.4
 py-gfm==0.1.4
 pycryptodome==3.9.4
+PyYAML==5.3
 redis==3.3.11
 svgwrite==1.3.1

@@ -83,6 +83,10 @@ py-gfm
 # https://github.com/Legrandin/pycryptodome
 pycryptodome
 
+# YAML rendering library
+# https://github.com/yaml/pyyaml
+PyYAML
+
 # In-memory key/value store used for caching and queuing
 # https://github.com/andymccurdy/redis-py
 redis
