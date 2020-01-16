@@ -1,5 +1,9 @@
 # v2.7.1 (FUTURE)
 
+## Notes
+
+* This release limits IPNetworkVar to networks (e.g. `10.1.1.0/24` would be accepted, but `10.1.1.1/24` would not). IPAddressVar has been added which does not have this restriction.
+
 ## Enhancements
 
 * [#3509](https://github.com/netbox-community/netbox/issues/3509) - Added IPAddressVar for custom scripts
