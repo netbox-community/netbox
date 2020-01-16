@@ -160,11 +160,14 @@ An uploaded file. Note that uploaded files are present in memory only for the du
 
 ### IPAddressVar
 
-An IPv4 or IPv6 address (CIDR mask not allowed).
+An IPv4 or IPv6 address. Returns an instance of `netaddr.IPNetwork`. Options include:
+
+* `min_prefix_length` - Minimum length of the mask (default: none)
+* `max_prefix_length` - Maximum length of the mask (default: none)
 
 ### IPNetworkVar
 
-An IPv4 or IPv6 network with a mask. Options include:
+Similar to `IPAddressVar` but will only accept networks (i.e. host-bits cannot be set). Options include:
 
 * `min_prefix_length` - Minimum length of the mask (default: none)
 * `max_prefix_length` - Maximum length of the mask (default: none)

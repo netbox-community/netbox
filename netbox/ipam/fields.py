@@ -3,7 +3,7 @@ from django.db import models
 from netaddr import AddrFormatError, IPNetwork, IPAddress
 
 from . import lookups
-from .formfields import IPNetworkFormField
+from .formfields import IPFormField
 
 
 def prefix_validator(prefix):
@@ -40,7 +40,7 @@ class BaseIPField(models.Field):
         return str(self.to_python(value))
 
     def form_class(self):
-        return IPNetworkFormField
+        return IPFormField
 
     def formfield(self, **kwargs):
         defaults = {'form_class': self.form_class()}

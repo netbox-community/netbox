@@ -14,7 +14,8 @@ from django.db import transaction
 from mptt.forms import TreeNodeChoiceField, TreeNodeMultipleChoiceField
 from mptt.models import MPTTModel
 
-from ipam.formfields import IPAddressFormField, IPNetworkFormField
+from ipam.fields import prefix_validator
+from ipam.formfields import IPFormField
 from utilities.exceptions import AbortTransaction
 from utilities.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
@@ -201,14 +202,7 @@ class IPAddressVar(ScriptVariable):
     """
     An IPv4 or IPv6 address.
     """
-    form_field = IPAddressFormField
-
-
-class IPNetworkVar(ScriptVariable):
-    """
-    An IPv4 or IPv6 prefix.
-    """
-    form_field = IPNetworkFormField
+    form_field = IPFormField
 
     def __init__(self, min_prefix_length=None, max_prefix_length=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -224,6 +218,19 @@ class IPNetworkVar(ScriptVariable):
             self.field_attrs['validators'].append(
                 MaxPrefixLengthValidator(max_prefix_length)
             )
+
+
+class IPNetworkVar(IPAddressVar):
+    """
+    An IPv4 or IPv6 prefix.
+    """
+    form_field = IPFormField
+
+    def __init__(self, min_prefix_length=None, max_prefix_length=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Reject prefixes with any host-bits set
+        self.field_attrs['validators'].append(prefix_validator)
 
 
 #
