@@ -100,6 +100,42 @@ class NetHost(Lookup):
         return 'HOST(%s) = %s' % (lhs, rhs), params
 
 
+class NetIn(Lookup):
+    lookup_name = 'net_in'
+
+    def as_sql(self, qn, connection):
+        lhs, lhs_params = self.process_lhs(qn, connection)
+        rhs, rhs_params = self.process_rhs(qn, connection)
+        with_mask, without_mask = [], []
+        for address in rhs_params[0]:
+            if '/' in address:
+                with_mask.append(address)
+            else:
+                without_mask.append(address)
+
+        address_in_clause = self.create_in_clause('{} IN ('.format(lhs), len(with_mask))
+        host_in_clause = self.create_in_clause('HOST({}) IN ('.format(lhs), len(without_mask))
+
+        if with_mask and not without_mask:
+            return address_in_clause, with_mask
+        elif not with_mask and without_mask:
+            return host_in_clause, without_mask
+
+        in_clause = '({}) OR ({})'.format(address_in_clause, host_in_clause)
+        with_mask.extend(without_mask)
+        return in_clause, with_mask
+
+    @staticmethod
+    def create_in_clause(clause_part, max_size):
+        clause_elements = [clause_part]
+        for offset in range(0, max_size):
+            if offset > 0:
+                clause_elements.append(', ')
+            clause_elements.append('%s')
+        clause_elements.append(')')
+        return ''.join(clause_elements)
+
+
 class NetHostContained(Lookup):
     """
     Check for the host portion of an IP address without regard to its mask. This allows us to find e.g. 192.0.2.1/24

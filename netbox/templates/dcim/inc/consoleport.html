@@ -4,6 +4,12 @@
     <td>
         <i class="fa fa-fw fa-keyboard-o"></i> {{ cp }}
     </td>
+
+    {# Type #}
+    <td>
+        {% if cp.type %}{{ cp.get_type_display }}{% else %}&mdash;{% endif %}
+    </td>
+
     <td></td>
 
     {# Description #}

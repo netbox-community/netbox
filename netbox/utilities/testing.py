@@ -20,7 +20,7 @@ class APITestCase(_APITestCase):
         """
         err_message = "Expected HTTP status {}; received {}: {}"
         self.assertEqual(response.status_code, expected_status, err_message.format(
-            expected_status, response.status_code, response.data
+            expected_status, response.status_code, getattr(response, 'data', 'No data')
         ))
 
 
@@ -35,3 +35,30 @@ def create_test_user(username='testuser', permissions=list()):
         user.user_permissions.add(perm)
 
     return user
+
+
+def choices_to_dict(choices_list):
+    """
+    Convert a list of field choices to a dictionary suitable for direct comparison with a ChoiceSet. For example:
+
+        [
+            {
+                "value": "choice-1",
+                "label": "First Choice"
+            },
+            {
+                "value": "choice-2",
+                "label": "Second Choice"
+            }
+        ]
+
+    Becomes:
+
+        {
+            "choice-1": "First Choice",
+            "choice-2": "Second Choice
+        }
+    """
+    return {
+        choice['value']: choice['label'] for choice in choices_list
+    }

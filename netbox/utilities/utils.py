@@ -6,7 +6,8 @@ from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
 from jinja2 import Environment
 
-from dcim.constants import LENGTH_UNIT_CENTIMETER, LENGTH_UNIT_FOOT, LENGTH_UNIT_INCH, LENGTH_UNIT_METER
+from dcim.choices import CableLengthUnitChoices
+from extras.utils import is_taggable
 
 
 def csv_format(data):
@@ -61,17 +62,6 @@ def dynamic_import(name):
     return mod
 
 
-def model_names_to_filter_dict(names):
-    """
-    Accept a list of content types in the format ['<app>.<model>', '<app>.<model>', ...] and return a dictionary
-    suitable for QuerySet filtering.
-    """
-    # TODO: This should match on the app_label as well as the model name to avoid potential duplicate names
-    return {
-        'model__in': [model.split('.')[1] for model in names],
-    }
-
-
 def get_subquery(model, field):
     """
     Return a Subquery suitable for annotating a child object count.
@@ -104,7 +94,7 @@ def serialize_object(obj, extra=None):
         }
 
     # Include any tags
-    if hasattr(obj, 'tags'):
+    if is_taggable(obj):
         data['tags'] = [tag.name for tag in obj.tags.all()]
 
     # Append any extra data
@@ -166,13 +156,20 @@ def to_meters(length, unit):
     length = int(length)
     if length < 0:
         raise ValueError("Length must be a positive integer")
-    if unit == LENGTH_UNIT_METER:
+
+    valid_units = CableLengthUnitChoices.values()
+    if unit not in valid_units:
+        raise ValueError(
+            "Unknown unit {}. Must be one of the following: {}".format(unit, ', '.join(valid_units))
+        )
+
+    if unit == CableLengthUnitChoices.UNIT_METER:
         return length
-    if unit == LENGTH_UNIT_CENTIMETER:
+    if unit == CableLengthUnitChoices.UNIT_CENTIMETER:
         return length / 100
-    if unit == LENGTH_UNIT_FOOT:
+    if unit == CableLengthUnitChoices.UNIT_FOOT:
         return length * 0.3048
-    if unit == LENGTH_UNIT_INCH:
+    if unit == CableLengthUnitChoices.UNIT_INCH:
         return length * 0.3048 * 12
     raise ValueError("Unknown unit {}. Must be 'm', 'cm', 'ft', or 'in'.".format(unit))
 
@@ -182,3 +179,33 @@ def render_jinja2(template_code, context):
     Render a Jinja2 template with the provided context. Return the rendered content.
     """
     return Environment().from_string(source=template_code).render(**context)
+
+
+def prepare_cloned_fields(instance):
+    """
+    Compile an object's `clone_fields` list into a string of URL query parameters. Tags are automatically cloned where
+    applicable.
+    """
+    params = {}
+    for field_name in getattr(instance, 'clone_fields', []):
+        field = instance._meta.get_field(field_name)
+        field_value = field.value_from_object(instance)
+
+        # Swap out False with URL-friendly value
+        if field_value is False:
+            field_value = ''
+
+        # Omit empty values
+        if field_value not in (None, ''):
+            params[field_name] = field_value
+
+        # Copy tags
+        if is_taggable(instance):
+            params['tags'] = ','.join([t.name for t in instance.tags.all()])
+
+    # Concatenate parameters into a URL query string
+    param_string = '&'.join(
+        ['{}={}'.format(k, v) for k, v in params.items()]
+    )
+
+    return param_string

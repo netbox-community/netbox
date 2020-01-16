@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from dcim.constants import *
+from dcim.choices import *
 from dcim.filters import *
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -43,27 +43,27 @@ class RegionTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(RegionFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(RegionFilterSet(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Region 1', 'Region 2']}
-        self.assertEqual(RegionFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(RegionFilterSet(params, self.queryset).qs.count(), 2)
 
     def test_slug(self):
         params = {'slug': ['region-1', 'region-2']}
-        self.assertEqual(RegionFilter(params, self.queryset).qs.count(), 2)
+        self.assertEqual(RegionFilterSet(params, self.queryset).qs.count(), 2)
 
     def test_parent(self):
         parent_regions = Region.objects.filter(parent__isnull=True)[:2]
         params = {'parent_id': [parent_regions[0].pk, parent_regions[1].pk]}
-        self.assertEqual(RegionFilter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(RegionFilterSet(params, self.queryset).qs.count(), 4)
         params = {'parent': [parent_regions[0].slug, parent_regions[1].slug]}
-        self.assertEqual(RegionFilter(params, self.queryset).qs.count(), 4)
+        self.assertEqual(RegionFilterSet(params, self.queryset).qs.count(), 4)
 
 
 class SiteTestCase(TestCase):
     queryset = Site.objects.all()
-    filterset = SiteFilter
+    filterset = SiteFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -77,9 +77,9 @@ class SiteTestCase(TestCase):
             region.save()
 
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0], status=SITE_STATUS_ACTIVE, facility='Facility 1', asn=65001, latitude=10, longitude=10, contact_name='Contact 1', contact_phone='123-555-0001', contact_email='contact1@example.com'),
-            Site(name='Site 2', slug='site-2', region=regions[1], status=SITE_STATUS_PLANNED, facility='Facility 2', asn=65002, latitude=20, longitude=20, contact_name='Contact 2', contact_phone='123-555-0002', contact_email='contact2@example.com'),
-            Site(name='Site 3', slug='site-3', region=regions[2], status=SITE_STATUS_RETIRED, facility='Facility 3', asn=65003, latitude=30, longitude=30, contact_name='Contact 3', contact_phone='123-555-0003', contact_email='contact3@example.com'),
+            Site(name='Site 1', slug='site-1', region=regions[0], status=SiteStatusChoices.STATUS_ACTIVE, facility='Facility 1', asn=65001, latitude=10, longitude=10, contact_name='Contact 1', contact_phone='123-555-0001', contact_email='contact1@example.com'),
+            Site(name='Site 2', slug='site-2', region=regions[1], status=SiteStatusChoices.STATUS_PLANNED, facility='Facility 2', asn=65002, latitude=20, longitude=20, contact_name='Contact 2', contact_phone='123-555-0002', contact_email='contact2@example.com'),
+            Site(name='Site 3', slug='site-3', region=regions[2], status=SiteStatusChoices.STATUS_RETIRED, facility='Facility 3', asn=65003, latitude=30, longitude=30, contact_name='Contact 3', contact_phone='123-555-0003', contact_email='contact3@example.com'),
         )
         Site.objects.bulk_create(sites)
 
@@ -130,7 +130,7 @@ class SiteTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):
-        params = {'status': [SITE_STATUS_ACTIVE, SITE_STATUS_PLANNED]}
+        params = {'status': [SiteStatusChoices.STATUS_ACTIVE, SiteStatusChoices.STATUS_PLANNED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -143,7 +143,7 @@ class SiteTestCase(TestCase):
 
 class RackGroupTestCase(TestCase):
     queryset = RackGroup.objects.all()
-    filterset = RackGroupFilter
+    filterset = RackGroupFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -200,7 +200,7 @@ class RackGroupTestCase(TestCase):
 
 class RackRoleTestCase(TestCase):
     queryset = RackRole.objects.all()
-    filterset = RackRoleFilter
+    filterset = RackRoleFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -232,7 +232,7 @@ class RackRoleTestCase(TestCase):
 
 class RackTestCase(TestCase):
     queryset = Rack.objects.all()
-    filterset = RackFilter
+    filterset = RackFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -267,9 +267,9 @@ class RackTestCase(TestCase):
         RackRole.objects.bulk_create(rack_roles)
 
         racks = (
-            Rack(name='Rack 1', facility_id='rack-1', site=sites[0], group=rack_groups[0], status=RACK_STATUS_ACTIVE, role=rack_roles[0], serial='ABC', asset_tag='1001', type=RACK_TYPE_2POST, width=RACK_WIDTH_19IN, u_height=42, desc_units=False, outer_width=100, outer_depth=100, outer_unit=LENGTH_UNIT_MILLIMETER),
-            Rack(name='Rack 2', facility_id='rack-2', site=sites[1], group=rack_groups[1], status=RACK_STATUS_PLANNED, role=rack_roles[1], serial='DEF', asset_tag='1002', type=RACK_TYPE_4POST, width=RACK_WIDTH_19IN, u_height=43, desc_units=False, outer_width=200, outer_depth=200, outer_unit=LENGTH_UNIT_MILLIMETER),
-            Rack(name='Rack 3', facility_id='rack-3', site=sites[2], group=rack_groups[2], status=RACK_STATUS_RESERVED, role=rack_roles[2], serial='GHI', asset_tag='1003', type=RACK_TYPE_CABINET, width=RACK_WIDTH_23IN, u_height=44, desc_units=True, outer_width=300, outer_depth=300, outer_unit=LENGTH_UNIT_INCH),
+            Rack(name='Rack 1', facility_id='rack-1', site=sites[0], group=rack_groups[0], status=RackStatusChoices.STATUS_ACTIVE, role=rack_roles[0], serial='ABC', asset_tag='1001', type=RackTypeChoices.TYPE_2POST, width=RackWidthChoices.WIDTH_19IN, u_height=42, desc_units=False, outer_width=100, outer_depth=100, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
+            Rack(name='Rack 2', facility_id='rack-2', site=sites[1], group=rack_groups[1], status=RackStatusChoices.STATUS_PLANNED, role=rack_roles[1], serial='DEF', asset_tag='1002', type=RackTypeChoices.TYPE_4POST, width=RackWidthChoices.WIDTH_19IN, u_height=43, desc_units=False, outer_width=200, outer_depth=200, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
+            Rack(name='Rack 3', facility_id='rack-3', site=sites[2], group=rack_groups[2], status=RackStatusChoices.STATUS_RESERVED, role=rack_roles[2], serial='GHI', asset_tag='1003', type=RackTypeChoices.TYPE_CABINET, width=RackWidthChoices.WIDTH_23IN, u_height=44, desc_units=True, outer_width=300, outer_depth=300, outer_unit=RackDimensionUnitChoices.UNIT_INCH),
         )
         Rack.objects.bulk_create(racks)
 
@@ -292,12 +292,12 @@ class RackTestCase(TestCase):
 
     def test_type(self):
         # TODO: Test for multiple values
-        params = {'type': RACK_TYPE_2POST}
+        params = {'type': RackTypeChoices.TYPE_2POST}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_width(self):
         # TODO: Test for multiple values
-        params = {'width': RACK_WIDTH_19IN}
+        params = {'width': RackWidthChoices.WIDTH_19IN}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_u_height(self):
@@ -320,7 +320,7 @@ class RackTestCase(TestCase):
 
     def test_outer_unit(self):
         self.assertEqual(Rack.objects.filter(outer_unit__isnull=False).count(), 3)
-        params = {'outer_unit': LENGTH_UNIT_MILLIMETER}
+        params = {'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_id__in(self):
@@ -350,7 +350,7 @@ class RackTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):
-        params = {'status': [RACK_STATUS_ACTIVE, RACK_STATUS_PLANNED]}
+        params = {'status': [RackStatusChoices.STATUS_ACTIVE, RackStatusChoices.STATUS_PLANNED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_role(self):
@@ -369,7 +369,7 @@ class RackTestCase(TestCase):
 
 class RackReservationTestCase(TestCase):
     queryset = RackReservation.objects.all()
-    filterset = RackReservationFilter
+    filterset = RackReservationFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -439,7 +439,7 @@ class RackReservationTestCase(TestCase):
 
 class ManufacturerTestCase(TestCase):
     queryset = Manufacturer.objects.all()
-    filterset = ManufacturerFilter
+    filterset = ManufacturerFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -467,7 +467,7 @@ class ManufacturerTestCase(TestCase):
 
 class DeviceTypeTestCase(TestCase):
     queryset = DeviceType.objects.all()
-    filterset = DeviceTypeFilter
+    filterset = DeviceTypeFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -480,9 +480,9 @@ class DeviceTypeTestCase(TestCase):
         Manufacturer.objects.bulk_create(manufacturers)
 
         device_types = (
-            DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True, subdevice_role=None),
-            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SUBDEVICE_ROLE_PARENT),
-            DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3', u_height=3, is_full_depth=False, subdevice_role=SUBDEVICE_ROLE_CHILD),
+            DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True),
+            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT),
+            DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3', u_height=3, is_full_depth=False, subdevice_role=SubdeviceRoleChoices.ROLE_CHILD),
         )
         DeviceType.objects.bulk_create(device_types)
 
@@ -508,13 +508,13 @@ class DeviceTypeTestCase(TestCase):
             InterfaceTemplate(device_type=device_types[1], name='Interface 2'),
         ))
         rear_ports = (
-            RearPortTemplate(device_type=device_types[0], name='Rear Port 1', type=PORT_TYPE_8P8C),
-            RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PORT_TYPE_8P8C),
+            RearPortTemplate(device_type=device_types[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C),
         )
         RearPortTemplate.objects.bulk_create(rear_ports)
         FrontPortTemplate.objects.bulk_create((
-            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', type=PORT_TYPE_8P8C, rear_port=rear_ports[0]),
-            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', type=PORT_TYPE_8P8C, rear_port=rear_ports[1]),
+            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0]),
+            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[1]),
         ))
         DeviceBayTemplate.objects.bulk_create((
             DeviceBayTemplate(device_type=device_types[0], name='Device Bay 1'),
@@ -544,7 +544,7 @@ class DeviceTypeTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_subdevice_role(self):
-        params = {'subdevice_role': SUBDEVICE_ROLE_PARENT}
+        params = {'subdevice_role': SubdeviceRoleChoices.ROLE_PARENT}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_id__in(self):
@@ -605,7 +605,7 @@ class DeviceTypeTestCase(TestCase):
 
 class ConsolePortTemplateTestCase(TestCase):
     queryset = ConsolePortTemplate.objects.all()
-    filterset = ConsolePortTemplateFilter
+    filterset = ConsolePortTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -642,7 +642,7 @@ class ConsolePortTemplateTestCase(TestCase):
 
 class ConsoleServerPortTemplateTestCase(TestCase):
     queryset = ConsoleServerPortTemplate.objects.all()
-    filterset = ConsoleServerPortTemplateFilter
+    filterset = ConsoleServerPortTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -679,7 +679,7 @@ class ConsoleServerPortTemplateTestCase(TestCase):
 
 class PowerPortTemplateTestCase(TestCase):
     queryset = PowerPortTemplate.objects.all()
-    filterset = PowerPortTemplateFilter
+    filterset = PowerPortTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -724,7 +724,7 @@ class PowerPortTemplateTestCase(TestCase):
 
 class PowerOutletTemplateTestCase(TestCase):
     queryset = PowerOutletTemplate.objects.all()
-    filterset = PowerOutletTemplateFilter
+    filterset = PowerOutletTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -739,9 +739,9 @@ class PowerOutletTemplateTestCase(TestCase):
         DeviceType.objects.bulk_create(device_types)
 
         PowerOutletTemplate.objects.bulk_create((
-            PowerOutletTemplate(device_type=device_types[0], name='Power Outlet 1', feed_leg=POWERFEED_LEG_A),
-            PowerOutletTemplate(device_type=device_types[1], name='Power Outlet 2', feed_leg=POWERFEED_LEG_B),
-            PowerOutletTemplate(device_type=device_types[2], name='Power Outlet 3', feed_leg=POWERFEED_LEG_C),
+            PowerOutletTemplate(device_type=device_types[0], name='Power Outlet 1', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A),
+            PowerOutletTemplate(device_type=device_types[1], name='Power Outlet 2', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B),
+            PowerOutletTemplate(device_type=device_types[2], name='Power Outlet 3', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C),
         ))
 
     def test_id(self):
@@ -760,13 +760,13 @@ class PowerOutletTemplateTestCase(TestCase):
 
     def test_feed_leg(self):
         # TODO: Support filtering for multiple values
-        params = {'feed_leg': POWERFEED_LEG_A}
+        params = {'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_A}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class InterfaceTemplateTestCase(TestCase):
     queryset = InterfaceTemplate.objects.all()
-    filterset = InterfaceTemplateFilter
+    filterset = InterfaceTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -781,9 +781,9 @@ class InterfaceTemplateTestCase(TestCase):
         DeviceType.objects.bulk_create(device_types)
 
         InterfaceTemplate.objects.bulk_create((
-            InterfaceTemplate(device_type=device_types[0], name='Interface 1', type=IFACE_TYPE_1GE_FIXED, mgmt_only=True),
-            InterfaceTemplate(device_type=device_types[1], name='Interface 2', type=IFACE_TYPE_1GE_GBIC, mgmt_only=False),
-            InterfaceTemplate(device_type=device_types[2], name='Interface 3', type=IFACE_TYPE_1GE_SFP, mgmt_only=False),
+            InterfaceTemplate(device_type=device_types[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED, mgmt_only=True),
+            InterfaceTemplate(device_type=device_types[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_GBIC, mgmt_only=False),
+            InterfaceTemplate(device_type=device_types[2], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_SFP, mgmt_only=False),
         ))
 
     def test_id(self):
@@ -802,7 +802,7 @@ class InterfaceTemplateTestCase(TestCase):
 
     def test_type(self):
         # TODO: Support filtering for multiple values
-        params = {'type': IFACE_TYPE_1GE_FIXED}
+        params = {'type': InterfaceTypeChoices.TYPE_1GE_FIXED}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_mgmt_only(self):
@@ -814,7 +814,7 @@ class InterfaceTemplateTestCase(TestCase):
 
 class FrontPortTemplateTestCase(TestCase):
     queryset = FrontPortTemplate.objects.all()
-    filterset = FrontPortTemplateFilter
+    filterset = FrontPortTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -829,16 +829,16 @@ class FrontPortTemplateTestCase(TestCase):
         DeviceType.objects.bulk_create(device_types)
 
         rear_ports = (
-            RearPortTemplate(device_type=device_types[0], name='Rear Port 1', type=PORT_TYPE_8P8C),
-            RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PORT_TYPE_8P8C),
-            RearPortTemplate(device_type=device_types[2], name='Rear Port 3', type=PORT_TYPE_8P8C),
+            RearPortTemplate(device_type=device_types[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(device_type=device_types[2], name='Rear Port 3', type=PortTypeChoices.TYPE_8P8C),
         )
         RearPortTemplate.objects.bulk_create(rear_ports)
 
         FrontPortTemplate.objects.bulk_create((
-            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', rear_port=rear_ports[0], type=PORT_TYPE_8P8C),
-            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', rear_port=rear_ports[1], type=PORT_TYPE_110_PUNCH),
-            FrontPortTemplate(device_type=device_types[2], name='Front Port 3', rear_port=rear_ports[2], type=PORT_TYPE_BNC),
+            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', rear_port=rear_ports[0], type=PortTypeChoices.TYPE_8P8C),
+            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', rear_port=rear_ports[1], type=PortTypeChoices.TYPE_110_PUNCH),
+            FrontPortTemplate(device_type=device_types[2], name='Front Port 3', rear_port=rear_ports[2], type=PortTypeChoices.TYPE_BNC),
         ))
 
     def test_id(self):
@@ -857,13 +857,13 @@ class FrontPortTemplateTestCase(TestCase):
 
     def test_type(self):
         # TODO: Support filtering for multiple values
-        params = {'type': PORT_TYPE_8P8C}
+        params = {'type': PortTypeChoices.TYPE_8P8C}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class RearPortTemplateTestCase(TestCase):
     queryset = RearPortTemplate.objects.all()
-    filterset = RearPortTemplateFilter
+    filterset = RearPortTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -878,9 +878,9 @@ class RearPortTemplateTestCase(TestCase):
         DeviceType.objects.bulk_create(device_types)
 
         RearPortTemplate.objects.bulk_create((
-            RearPortTemplate(device_type=device_types[0], name='Rear Port 1', type=PORT_TYPE_8P8C, positions=1),
-            RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PORT_TYPE_110_PUNCH, positions=2),
-            RearPortTemplate(device_type=device_types[2], name='Rear Port 3', type=PORT_TYPE_BNC, positions=3),
+            RearPortTemplate(device_type=device_types[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C, positions=1),
+            RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PortTypeChoices.TYPE_110_PUNCH, positions=2),
+            RearPortTemplate(device_type=device_types[2], name='Rear Port 3', type=PortTypeChoices.TYPE_BNC, positions=3),
         ))
 
     def test_id(self):
@@ -899,7 +899,7 @@ class RearPortTemplateTestCase(TestCase):
 
     def test_type(self):
         # TODO: Support filtering for multiple values
-        params = {'type': PORT_TYPE_8P8C}
+        params = {'type': PortTypeChoices.TYPE_8P8C}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_positions(self):
@@ -909,7 +909,7 @@ class RearPortTemplateTestCase(TestCase):
 
 class DeviceBayTemplateTestCase(TestCase):
     queryset = DeviceBayTemplate.objects.all()
-    filterset = DeviceBayTemplateFilter
+    filterset = DeviceBayTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -946,7 +946,7 @@ class DeviceBayTemplateTestCase(TestCase):
 
 class DeviceRoleTestCase(TestCase):
     queryset = DeviceRole.objects.all()
-    filterset = DeviceRoleFilter
+    filterset = DeviceRoleFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -984,7 +984,7 @@ class DeviceRoleTestCase(TestCase):
 
 class PlatformTestCase(TestCase):
     queryset = Platform.objects.all()
-    filterset = PlatformFilter
+    filterset = PlatformFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1030,7 +1030,7 @@ class PlatformTestCase(TestCase):
 
 class DeviceTestCase(TestCase):
     queryset = Device.objects.all()
-    filterset = DeviceFilter
+    filterset = DeviceFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1101,9 +1101,9 @@ class DeviceTestCase(TestCase):
         Cluster.objects.bulk_create(clusters)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], platform=platforms[0], serial='ABC', asset_tag='1001', site=sites[0], rack=racks[0], position=1, face=RACK_FACE_FRONT, status=DEVICE_STATUS_ACTIVE, cluster=clusters[0], local_context_data={"foo": 123}),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], platform=platforms[1], serial='DEF', asset_tag='1002', site=sites[1], rack=racks[1], position=2, face=RACK_FACE_FRONT, status=DEVICE_STATUS_STAGED, cluster=clusters[1]),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], platform=platforms[2], serial='GHI', asset_tag='1003', site=sites[2], rack=racks[2], position=3, face=RACK_FACE_REAR, status=DEVICE_STATUS_FAILED, cluster=clusters[2]),
+            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], platform=platforms[0], serial='ABC', asset_tag='1001', site=sites[0], rack=racks[0], position=1, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_ACTIVE, cluster=clusters[0], local_context_data={"foo": 123}),
+            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], platform=platforms[1], serial='DEF', asset_tag='1002', site=sites[1], rack=racks[1], position=2, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_STAGED, cluster=clusters[1]),
+            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], platform=platforms[2], serial='GHI', asset_tag='1003', site=sites[2], rack=racks[2], position=3, face=DeviceFaceChoices.FACE_REAR, status=DeviceStatusChoices.STATUS_FAILED, cluster=clusters[2]),
         )
         Device.objects.bulk_create(devices)
 
@@ -1130,13 +1130,13 @@ class DeviceTestCase(TestCase):
         )
         Interface.objects.bulk_create(interfaces)
         rear_ports = (
-            RearPort(device=devices[0], name='Rear Port 1', type=PORT_TYPE_8P8C),
-            RearPort(device=devices[1], name='Rear Port 2', type=PORT_TYPE_8P8C),
+            RearPort(device=devices[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C),
+            RearPort(device=devices[1], name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C),
         )
         RearPort.objects.bulk_create(rear_ports)
         FrontPort.objects.bulk_create((
-            FrontPort(device=devices[0], name='Front Port 1', type=PORT_TYPE_8P8C, rear_port=rear_ports[0]),
-            FrontPort(device=devices[1], name='Front Port 2', type=PORT_TYPE_8P8C, rear_port=rear_ports[1]),
+            FrontPort(device=devices[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0]),
+            FrontPort(device=devices[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[1]),
         ))
         DeviceBay.objects.bulk_create((
             DeviceBay(device=devices[0], name='Device Bay 1'),
@@ -1171,7 +1171,7 @@ class DeviceTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_face(self):
-        params = {'face': RACK_FACE_FRONT}
+        params = {'face': DeviceFaceChoices.FACE_FRONT}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_position(self):
@@ -1251,7 +1251,7 @@ class DeviceTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):
-        params = {'status': [DEVICE_STATUS_ACTIVE, DEVICE_STATUS_STAGED]}
+        params = {'status': [DeviceStatusChoices.STATUS_ACTIVE, DeviceStatusChoices.STATUS_STAGED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_is_full_depth(self):
@@ -1338,7 +1338,7 @@ class DeviceTestCase(TestCase):
 
 class ConsolePortTestCase(TestCase):
     queryset = ConsolePort.objects.all()
-    filterset = ConsolePortFilter
+    filterset = ConsolePortFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1408,7 +1408,7 @@ class ConsolePortTestCase(TestCase):
 
 class ConsoleServerPortTestCase(TestCase):
     queryset = ConsoleServerPort.objects.all()
-    filterset = ConsoleServerPortFilter
+    filterset = ConsoleServerPortFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1478,7 +1478,7 @@ class ConsoleServerPortTestCase(TestCase):
 
 class PowerPortTestCase(TestCase):
     queryset = PowerPort.objects.all()
-    filterset = PowerPortFilter
+    filterset = PowerPortFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1556,7 +1556,7 @@ class PowerPortTestCase(TestCase):
 
 class PowerOutletTestCase(TestCase):
     queryset = PowerOutlet.objects.all()
-    filterset = PowerOutletFilter
+    filterset = PowerOutletFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1581,9 +1581,9 @@ class PowerOutletTestCase(TestCase):
         PowerPort.objects.bulk_create(power_ports)
 
         power_outlets = (
-            PowerOutlet(device=devices[0], name='Power Outlet 1', feed_leg=POWERFEED_LEG_A, description='First'),
-            PowerOutlet(device=devices[1], name='Power Outlet 2', feed_leg=POWERFEED_LEG_B, description='Second'),
-            PowerOutlet(device=devices[2], name='Power Outlet 3', feed_leg=POWERFEED_LEG_C, description='Third'),
+            PowerOutlet(device=devices[0], name='Power Outlet 1', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A, description='First'),
+            PowerOutlet(device=devices[1], name='Power Outlet 2', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B, description='Second'),
+            PowerOutlet(device=devices[2], name='Power Outlet 3', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C, description='Third'),
         )
         PowerOutlet.objects.bulk_create(power_outlets)
 
@@ -1607,7 +1607,7 @@ class PowerOutletTestCase(TestCase):
 
     def test_feed_leg(self):
         # TODO: Support filtering for multiple values
-        params = {'feed_leg': POWERFEED_LEG_A}
+        params = {'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_A}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     # TODO: Fix boolean value
@@ -1631,7 +1631,7 @@ class PowerOutletTestCase(TestCase):
 
 class InterfaceTestCase(TestCase):
     queryset = Interface.objects.all()
-    filterset = InterfaceFilter
+    filterset = InterfaceFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1650,12 +1650,12 @@ class InterfaceTestCase(TestCase):
         Device.objects.bulk_create(devices)
 
         interfaces = (
-            Interface(device=devices[0], name='Interface 1', type=IFACE_TYPE_1GE_SFP, enabled=True, mgmt_only=True, mtu=100, mode=IFACE_MODE_ACCESS, mac_address='00-00-00-00-00-01', description='First'),
-            Interface(device=devices[1], name='Interface 2', type=IFACE_TYPE_1GE_GBIC, enabled=True, mgmt_only=True, mtu=200, mode=IFACE_MODE_TAGGED, mac_address='00-00-00-00-00-02', description='Second'),
-            Interface(device=devices[2], name='Interface 3', type=IFACE_TYPE_1GE_FIXED, enabled=False, mgmt_only=False, mtu=300, mode=IFACE_MODE_TAGGED_ALL, mac_address='00-00-00-00-00-03', description='Third'),
-            Interface(device=devices[3], name='Interface 4', type=IFACE_TYPE_OTHER, enabled=True, mgmt_only=True),
-            Interface(device=devices[3], name='Interface 5', type=IFACE_TYPE_OTHER, enabled=True, mgmt_only=True),
-            Interface(device=devices[3], name='Interface 6', type=IFACE_TYPE_OTHER, enabled=False, mgmt_only=False),
+            Interface(device=devices[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_SFP, enabled=True, mgmt_only=True, mtu=100, mode=InterfaceModeChoices.MODE_ACCESS, mac_address='00-00-00-00-00-01', description='First'),
+            Interface(device=devices[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_GBIC, enabled=True, mgmt_only=True, mtu=200, mode=InterfaceModeChoices.MODE_TAGGED, mac_address='00-00-00-00-00-02', description='Second'),
+            Interface(device=devices[2], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED, enabled=False, mgmt_only=False, mtu=300, mode=InterfaceModeChoices.MODE_TAGGED_ALL, mac_address='00-00-00-00-00-03', description='Third'),
+            Interface(device=devices[3], name='Interface 4', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True),
+            Interface(device=devices[3], name='Interface 5', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True),
+            Interface(device=devices[3], name='Interface 6', type=InterfaceTypeChoices.TYPE_OTHER, enabled=False, mgmt_only=False),
         )
         Interface.objects.bulk_create(interfaces)
 
@@ -1695,7 +1695,7 @@ class InterfaceTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_mode(self):
-        params = {'mode': IFACE_MODE_ACCESS}
+        params = {'mode': InterfaceModeChoices.MODE_ACCESS}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):
@@ -1726,13 +1726,13 @@ class InterfaceTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
-        params = {'type': [IFACE_TYPE_1GE_FIXED, IFACE_TYPE_1GE_GBIC]}
+        params = {'type': [InterfaceTypeChoices.TYPE_1GE_FIXED, InterfaceTypeChoices.TYPE_1GE_GBIC]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class FrontPortTestCase(TestCase):
     queryset = FrontPort.objects.all()
-    filterset = FrontPortFilter
+    filterset = FrontPortFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1751,22 +1751,22 @@ class FrontPortTestCase(TestCase):
         Device.objects.bulk_create(devices)
 
         rear_ports = (
-            RearPort(device=devices[0], name='Rear Port 1', type=PORT_TYPE_8P8C, positions=6),
-            RearPort(device=devices[1], name='Rear Port 2', type=PORT_TYPE_8P8C, positions=6),
-            RearPort(device=devices[2], name='Rear Port 3', type=PORT_TYPE_8P8C, positions=6),
-            RearPort(device=devices[3], name='Rear Port 4', type=PORT_TYPE_8P8C, positions=6),
-            RearPort(device=devices[3], name='Rear Port 5', type=PORT_TYPE_8P8C, positions=6),
-            RearPort(device=devices[3], name='Rear Port 6', type=PORT_TYPE_8P8C, positions=6),
+            RearPort(device=devices[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C, positions=6),
+            RearPort(device=devices[1], name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C, positions=6),
+            RearPort(device=devices[2], name='Rear Port 3', type=PortTypeChoices.TYPE_8P8C, positions=6),
+            RearPort(device=devices[3], name='Rear Port 4', type=PortTypeChoices.TYPE_8P8C, positions=6),
+            RearPort(device=devices[3], name='Rear Port 5', type=PortTypeChoices.TYPE_8P8C, positions=6),
+            RearPort(device=devices[3], name='Rear Port 6', type=PortTypeChoices.TYPE_8P8C, positions=6),
         )
         RearPort.objects.bulk_create(rear_ports)
 
         front_ports = (
-            FrontPort(device=devices[0], name='Front Port 1', type=PORT_TYPE_8P8C, rear_port=rear_ports[0], rear_port_position=1, description='First'),
-            FrontPort(device=devices[1], name='Front Port 2', type=PORT_TYPE_110_PUNCH, rear_port=rear_ports[1], rear_port_position=2, description='Second'),
-            FrontPort(device=devices[2], name='Front Port 3', type=PORT_TYPE_BNC, rear_port=rear_ports[2], rear_port_position=3, description='Third'),
-            FrontPort(device=devices[3], name='Front Port 4', type=PORT_TYPE_FC, rear_port=rear_ports[3], rear_port_position=1),
-            FrontPort(device=devices[3], name='Front Port 5', type=PORT_TYPE_FC, rear_port=rear_ports[4], rear_port_position=1),
-            FrontPort(device=devices[3], name='Front Port 6', type=PORT_TYPE_FC, rear_port=rear_ports[5], rear_port_position=1),
+            FrontPort(device=devices[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0], rear_port_position=1, description='First'),
+            FrontPort(device=devices[1], name='Front Port 2', type=PortTypeChoices.TYPE_110_PUNCH, rear_port=rear_ports[1], rear_port_position=2, description='Second'),
+            FrontPort(device=devices[2], name='Front Port 3', type=PortTypeChoices.TYPE_BNC, rear_port=rear_ports[2], rear_port_position=3, description='Third'),
+            FrontPort(device=devices[3], name='Front Port 4', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[3], rear_port_position=1),
+            FrontPort(device=devices[3], name='Front Port 5', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[4], rear_port_position=1),
+            FrontPort(device=devices[3], name='Front Port 6', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[5], rear_port_position=1),
         )
         FrontPort.objects.bulk_create(front_ports)
 
@@ -1786,7 +1786,7 @@ class FrontPortTestCase(TestCase):
 
     def test_type(self):
         # TODO: Test for multiple values
-        params = {'type': PORT_TYPE_8P8C}
+        params = {'type': PortTypeChoices.TYPE_8P8C}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):
@@ -1809,7 +1809,7 @@ class FrontPortTestCase(TestCase):
 
 class RearPortTestCase(TestCase):
     queryset = RearPort.objects.all()
-    filterset = RearPortFilter
+    filterset = RearPortFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1828,12 +1828,12 @@ class RearPortTestCase(TestCase):
         Device.objects.bulk_create(devices)
 
         rear_ports = (
-            RearPort(device=devices[0], name='Rear Port 1', type=PORT_TYPE_8P8C, positions=1, description='First'),
-            RearPort(device=devices[1], name='Rear Port 2', type=PORT_TYPE_110_PUNCH, positions=2, description='Second'),
-            RearPort(device=devices[2], name='Rear Port 3', type=PORT_TYPE_BNC, positions=3, description='Third'),
-            RearPort(device=devices[3], name='Rear Port 4', type=PORT_TYPE_FC, positions=4),
-            RearPort(device=devices[3], name='Rear Port 5', type=PORT_TYPE_FC, positions=5),
-            RearPort(device=devices[3], name='Rear Port 6', type=PORT_TYPE_FC, positions=6),
+            RearPort(device=devices[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C, positions=1, description='First'),
+            RearPort(device=devices[1], name='Rear Port 2', type=PortTypeChoices.TYPE_110_PUNCH, positions=2, description='Second'),
+            RearPort(device=devices[2], name='Rear Port 3', type=PortTypeChoices.TYPE_BNC, positions=3, description='Third'),
+            RearPort(device=devices[3], name='Rear Port 4', type=PortTypeChoices.TYPE_FC, positions=4),
+            RearPort(device=devices[3], name='Rear Port 5', type=PortTypeChoices.TYPE_FC, positions=5),
+            RearPort(device=devices[3], name='Rear Port 6', type=PortTypeChoices.TYPE_FC, positions=6),
         )
         RearPort.objects.bulk_create(rear_ports)
 
@@ -1853,7 +1853,7 @@ class RearPortTestCase(TestCase):
 
     def test_type(self):
         # TODO: Test for multiple values
-        params = {'type': PORT_TYPE_8P8C}
+        params = {'type': PortTypeChoices.TYPE_8P8C}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_positions(self):
@@ -1880,7 +1880,7 @@ class RearPortTestCase(TestCase):
 
 class DeviceBayTestCase(TestCase):
     queryset = DeviceBay.objects.all()
-    filterset = DeviceBayFilter
+    filterset = DeviceBayFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -1927,7 +1927,7 @@ class DeviceBayTestCase(TestCase):
 
 class InventoryItemTestCase(TestCase):
     queryset = InventoryItem.objects.all()
-    filterset = InventoryItemFilter
+    filterset = InventoryItemFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -2045,7 +2045,7 @@ class InventoryItemTestCase(TestCase):
 
 class VirtualChassisTestCase(TestCase):
     queryset = VirtualChassis.objects.all()
-    filterset = VirtualChassisFilter
+    filterset = VirtualChassisFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -2116,7 +2116,7 @@ class VirtualChassisTestCase(TestCase):
 
 class CableTestCase(TestCase):
     queryset = Cable.objects.all()
-    filterset = CableFilter
+    filterset = CableFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -2156,28 +2156,28 @@ class CableTestCase(TestCase):
         Device.objects.bulk_create(devices)
 
         interfaces = (
-            Interface(device=devices[0], name='Interface 1', type=IFACE_TYPE_1GE_FIXED),
-            Interface(device=devices[0], name='Interface 2', type=IFACE_TYPE_1GE_FIXED),
-            Interface(device=devices[1], name='Interface 3', type=IFACE_TYPE_1GE_FIXED),
-            Interface(device=devices[1], name='Interface 4', type=IFACE_TYPE_1GE_FIXED),
-            Interface(device=devices[2], name='Interface 5', type=IFACE_TYPE_1GE_FIXED),
-            Interface(device=devices[2], name='Interface 6', type=IFACE_TYPE_1GE_FIXED),
-            Interface(device=devices[3], name='Interface 7', type=IFACE_TYPE_1GE_FIXED),
-            Interface(device=devices[3], name='Interface 8', type=IFACE_TYPE_1GE_FIXED),
-            Interface(device=devices[4], name='Interface 9', type=IFACE_TYPE_1GE_FIXED),
-            Interface(device=devices[4], name='Interface 10', type=IFACE_TYPE_1GE_FIXED),
-            Interface(device=devices[5], name='Interface 11', type=IFACE_TYPE_1GE_FIXED),
-            Interface(device=devices[5], name='Interface 12', type=IFACE_TYPE_1GE_FIXED),
+            Interface(device=devices[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[0], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[1], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[1], name='Interface 4', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[2], name='Interface 5', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[2], name='Interface 6', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[3], name='Interface 7', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[3], name='Interface 8', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[4], name='Interface 9', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[4], name='Interface 10', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[5], name='Interface 11', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[5], name='Interface 12', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
         )
         Interface.objects.bulk_create(interfaces)
 
         # Cables
-        Cable(termination_a=interfaces[1], termination_b=interfaces[2], label='Cable 1', type=CABLE_TYPE_CAT3, status=CONNECTION_STATUS_CONNECTED, color='aa1409', length=10, length_unit=LENGTH_UNIT_FOOT).save()
-        Cable(termination_a=interfaces[3], termination_b=interfaces[4], label='Cable 2', type=CABLE_TYPE_CAT3, status=CONNECTION_STATUS_CONNECTED, color='aa1409', length=20, length_unit=LENGTH_UNIT_FOOT).save()
-        Cable(termination_a=interfaces[5], termination_b=interfaces[6], label='Cable 3', type=CABLE_TYPE_CAT5E, status=CONNECTION_STATUS_CONNECTED, color='f44336', length=30, length_unit=LENGTH_UNIT_FOOT).save()
-        Cable(termination_a=interfaces[7], termination_b=interfaces[8], label='Cable 4', type=CABLE_TYPE_CAT5E, status=CONNECTION_STATUS_PLANNED, color='f44336', length=40, length_unit=LENGTH_UNIT_FOOT).save()
-        Cable(termination_a=interfaces[9], termination_b=interfaces[10], label='Cable 5', type=CABLE_TYPE_CAT6, status=CONNECTION_STATUS_PLANNED, color='e91e63', length=10, length_unit=LENGTH_UNIT_METER).save()
-        Cable(termination_a=interfaces[11], termination_b=interfaces[0], label='Cable 6', type=CABLE_TYPE_CAT6, status=CONNECTION_STATUS_PLANNED, color='e91e63', length=20, length_unit=LENGTH_UNIT_METER).save()
+        Cable(termination_a=interfaces[1], termination_b=interfaces[2], label='Cable 1', type=CableTypeChoices.TYPE_CAT3, status=CableStatusChoices.STATUS_CONNECTED, color='aa1409', length=10, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[3], termination_b=interfaces[4], label='Cable 2', type=CableTypeChoices.TYPE_CAT3, status=CableStatusChoices.STATUS_CONNECTED, color='aa1409', length=20, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[5], termination_b=interfaces[6], label='Cable 3', type=CableTypeChoices.TYPE_CAT5E, status=CableStatusChoices.STATUS_CONNECTED, color='f44336', length=30, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[7], termination_b=interfaces[8], label='Cable 4', type=CableTypeChoices.TYPE_CAT5E, status=CableStatusChoices.STATUS_PLANNED, color='f44336', length=40, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[9], termination_b=interfaces[10], label='Cable 5', type=CableTypeChoices.TYPE_CAT6, status=CableStatusChoices.STATUS_PLANNED, color='e91e63', length=10, length_unit=CableLengthUnitChoices.UNIT_METER).save()
+        Cable(termination_a=interfaces[11], termination_b=interfaces[0], label='Cable 6', type=CableTypeChoices.TYPE_CAT6, status=CableStatusChoices.STATUS_PLANNED, color='e91e63', length=20, length_unit=CableLengthUnitChoices.UNIT_METER).save()
 
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
@@ -2193,15 +2193,17 @@ class CableTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_length_unit(self):
-        params = {'length_unit': LENGTH_UNIT_FOOT}
+        params = {'length_unit': CableLengthUnitChoices.UNIT_FOOT}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_type(self):
-        params = {'type': [CABLE_TYPE_CAT3, CABLE_TYPE_CAT5E]}
+        params = {'type': [CableTypeChoices.TYPE_CAT3, CableTypeChoices.TYPE_CAT5E]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_status(self):
-        params = {'status': [CONNECTION_STATUS_CONNECTED]}
+        params = {'status': [CableStatusChoices.STATUS_CONNECTED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'status': [CableStatusChoices.STATUS_PLANNED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_color(self):
@@ -2239,7 +2241,7 @@ class CableTestCase(TestCase):
 
 class PowerPanelTestCase(TestCase):
     queryset = PowerPanel.objects.all()
-    filterset = PowerPanelFilter
+    filterset = PowerPanelFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -2299,7 +2301,7 @@ class PowerPanelTestCase(TestCase):
 
 class PowerFeedTestCase(TestCase):
     queryset = PowerFeed.objects.all()
-    filterset = PowerFeedFilter
+    filterset = PowerFeedFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -2334,9 +2336,9 @@ class PowerFeedTestCase(TestCase):
         PowerPanel.objects.bulk_create(power_panels)
 
         power_feeds = (
-            PowerFeed(power_panel=power_panels[0], rack=racks[0], name='Power Feed 1', status=POWERFEED_STATUS_ACTIVE, type=POWERFEED_TYPE_PRIMARY, supply=POWERFEED_SUPPLY_AC, phase=POWERFEED_PHASE_3PHASE, voltage=100, amperage=100, max_utilization=10),
-            PowerFeed(power_panel=power_panels[1], rack=racks[1], name='Power Feed 2', status=POWERFEED_STATUS_FAILED, type=POWERFEED_TYPE_PRIMARY, supply=POWERFEED_SUPPLY_AC, phase=POWERFEED_PHASE_3PHASE, voltage=200, amperage=200, max_utilization=20),
-            PowerFeed(power_panel=power_panels[2], rack=racks[2], name='Power Feed 3', status=POWERFEED_STATUS_OFFLINE, type=POWERFEED_TYPE_REDUNDANT, supply=POWERFEED_SUPPLY_DC, phase=POWERFEED_PHASE_SINGLE, voltage=300, amperage=300, max_utilization=30),
+            PowerFeed(power_panel=power_panels[0], rack=racks[0], name='Power Feed 1', status=PowerFeedStatusChoices.STATUS_ACTIVE, type=PowerFeedTypeChoices.TYPE_PRIMARY, supply=PowerFeedSupplyChoices.SUPPLY_AC, phase=PowerFeedPhaseChoices.PHASE_3PHASE, voltage=100, amperage=100, max_utilization=10),
+            PowerFeed(power_panel=power_panels[1], rack=racks[1], name='Power Feed 2', status=PowerFeedStatusChoices.STATUS_FAILED, type=PowerFeedTypeChoices.TYPE_PRIMARY, supply=PowerFeedSupplyChoices.SUPPLY_AC, phase=PowerFeedPhaseChoices.PHASE_3PHASE, voltage=200, amperage=200, max_utilization=20),
+            PowerFeed(power_panel=power_panels[2], rack=racks[2], name='Power Feed 3', status=PowerFeedStatusChoices.STATUS_OFFLINE, type=PowerFeedTypeChoices.TYPE_REDUNDANT, supply=PowerFeedSupplyChoices.SUPPLY_DC, phase=PowerFeedPhaseChoices.PHASE_SINGLE, voltage=300, amperage=300, max_utilization=30),
         )
         PowerFeed.objects.bulk_create(power_feeds)
 
@@ -2346,19 +2348,19 @@ class PowerFeedTestCase(TestCase):
 
     def test_status(self):
         # TODO: Test for multiple values
-        params = {'status': POWERFEED_STATUS_ACTIVE}
+        params = {'status': PowerFeedStatusChoices.STATUS_ACTIVE}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_type(self):
-        params = {'type': POWERFEED_TYPE_PRIMARY}
+        params = {'type': PowerFeedTypeChoices.TYPE_PRIMARY}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_supply(self):
-        params = {'supply': POWERFEED_SUPPLY_AC}
+        params = {'supply': PowerFeedSupplyChoices.SUPPLY_AC}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_phase(self):
-        params = {'phase': POWERFEED_PHASE_3PHASE}
+        params = {'phase': PowerFeedPhaseChoices.PHASE_3PHASE}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_voltage(self):

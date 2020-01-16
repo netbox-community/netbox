@@ -12,7 +12,7 @@ from django.core.exceptions import ImproperlyConfigured
 # Environment setup
 #
 
-VERSION = '2.6.12'
+VERSION = '2.7.0'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -20,10 +20,16 @@ HOSTNAME = platform.node()
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Django 2.1+ requires Python 3.5+
+# Validate Python version
 if platform.python_version_tuple() < ('3', '5'):
     raise RuntimeError(
         "NetBox requires Python 3.5 or higher (current: Python {})".format(platform.python_version())
+    )
+elif platform.python_version_tuple() < ('3', '6'):
+    warnings.warn(
+        "Python 3.6 or higher will be required starting with NetBox v2.8 (current: Python {})".format(
+            platform.python_version()
+        )
     )
 
 
@@ -77,6 +83,8 @@ LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
 MAINTENANCE_MODE = getattr(configuration, 'MAINTENANCE_MODE', False)
 MAX_PAGE_SIZE = getattr(configuration, 'MAX_PAGE_SIZE', 1000)
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
+STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
+STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
 NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
@@ -92,7 +100,6 @@ SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
-WEBHOOKS_ENABLED = getattr(configuration, 'WEBHOOKS_ENABLED', False)
 
 
 #
@@ -115,16 +122,65 @@ DATABASES = {
 
 
 #
+# Media storage
+#
+
+if STORAGE_BACKEND is not None:
+    DEFAULT_FILE_STORAGE = STORAGE_BACKEND
+
+    # django-storages
+    if STORAGE_BACKEND.startswith('storages.'):
+
+        try:
+            import storages.utils
+        except ImportError:
+            raise ImproperlyConfigured(
+                "STORAGE_BACKEND is set to {} but django-storages is not present. It can be installed by running 'pip "
+                "install django-storages'.".format(STORAGE_BACKEND)
+            )
+
+        # Monkey-patch django-storages to fetch settings from STORAGE_CONFIG
+        def _setting(name, default=None):
+            if name in STORAGE_CONFIG:
+                return STORAGE_CONFIG[name]
+            return globals().get(name, default)
+        storages.utils.setting = _setting
+
+if STORAGE_CONFIG and STORAGE_BACKEND is None:
+    warnings.warn(
+        "STORAGE_CONFIG has been set in configuration.py but STORAGE_BACKEND is not defined. STORAGE_CONFIG will be "
+        "ignored."
+    )
+
+
+#
 # Redis
 #
 
-REDIS_HOST = REDIS.get('HOST', 'localhost')
-REDIS_PORT = REDIS.get('PORT', 6379)
-REDIS_PASSWORD = REDIS.get('PASSWORD', '')
-REDIS_DATABASE = REDIS.get('DATABASE', 0)
-REDIS_CACHE_DATABASE = REDIS.get('CACHE_DATABASE', 1)
-REDIS_DEFAULT_TIMEOUT = REDIS.get('DEFAULT_TIMEOUT', 300)
-REDIS_SSL = REDIS.get('SSL', False)
+if 'webhooks' not in REDIS:
+    raise ImproperlyConfigured(
+        "REDIS section in configuration.py is missing webhooks subsection."
+    )
+if 'caching' not in REDIS:
+    raise ImproperlyConfigured(
+        "REDIS section in configuration.py is missing caching subsection."
+    )
+
+WEBHOOKS_REDIS = REDIS.get('webhooks', {})
+WEBHOOKS_REDIS_HOST = WEBHOOKS_REDIS.get('HOST', 'localhost')
+WEBHOOKS_REDIS_PORT = WEBHOOKS_REDIS.get('PORT', 6379)
+WEBHOOKS_REDIS_PASSWORD = WEBHOOKS_REDIS.get('PASSWORD', '')
+WEBHOOKS_REDIS_DATABASE = WEBHOOKS_REDIS.get('DATABASE', 0)
+WEBHOOKS_REDIS_DEFAULT_TIMEOUT = WEBHOOKS_REDIS.get('DEFAULT_TIMEOUT', 300)
+WEBHOOKS_REDIS_SSL = WEBHOOKS_REDIS.get('SSL', False)
+
+CACHING_REDIS = REDIS.get('caching', {})
+CACHING_REDIS_HOST = WEBHOOKS_REDIS.get('HOST', 'localhost')
+CACHING_REDIS_PORT = WEBHOOKS_REDIS.get('PORT', 6379)
+CACHING_REDIS_PASSWORD = WEBHOOKS_REDIS.get('PASSWORD', '')
+CACHING_REDIS_DATABASE = WEBHOOKS_REDIS.get('DATABASE', 0)
+CACHING_REDIS_DEFAULT_TIMEOUT = WEBHOOKS_REDIS.get('DEFAULT_TIMEOUT', 300)
+CACHING_REDIS_SSL = WEBHOOKS_REDIS.get('SSL', False)
 
 
 #
@@ -167,6 +223,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'debug_toolbar',
     'django_filters',
+    'django_rq',
     'django_tables2',
     'django_prometheus',
     'mptt',
@@ -185,10 +242,6 @@ INSTALLED_APPS = [
     'virtualization',
     'drf_yasg',
 ]
-
-# Only load django-rq if the webhook backend is enabled
-if WEBHOOKS_ENABLED:
-    INSTALLED_APPS.append('django_rq')
 
 # Middleware
 MIDDLEWARE = (
@@ -341,15 +394,20 @@ if LDAP_CONFIG is not None:
 # Caching
 #
 
-if REDIS_SSL:
+if CACHING_REDIS_SSL:
     REDIS_CACHE_CON_STRING = 'rediss://'
 else:
     REDIS_CACHE_CON_STRING = 'redis://'
 
-if REDIS_PASSWORD:
-    REDIS_CACHE_CON_STRING = '{}:{}@'.format(REDIS_CACHE_CON_STRING, REDIS_PASSWORD)
+if CACHING_REDIS_PASSWORD:
+    REDIS_CACHE_CON_STRING = '{}:{}@'.format(REDIS_CACHE_CON_STRING, CACHING_REDIS_PASSWORD)
 
-REDIS_CACHE_CON_STRING = '{}{}:{}/{}'.format(REDIS_CACHE_CON_STRING, REDIS_HOST, REDIS_PORT, REDIS_CACHE_DATABASE)
+REDIS_CACHE_CON_STRING = '{}{}:{}/{}'.format(
+    REDIS_CACHE_CON_STRING,
+    CACHING_REDIS_HOST,
+    CACHING_REDIS_PORT,
+    CACHING_REDIS_DATABASE
+)
 
 if not CACHE_TIMEOUT:
     CACHEOPS_ENABLED = False
@@ -468,12 +526,12 @@ SWAGGER_SETTINGS = {
 
 RQ_QUEUES = {
     'default': {
-        'HOST': REDIS_HOST,
-        'PORT': REDIS_PORT,
-        'DB': REDIS_DATABASE,
-        'PASSWORD': REDIS_PASSWORD,
-        'DEFAULT_TIMEOUT': REDIS_DEFAULT_TIMEOUT,
-        'SSL': REDIS_SSL,
+        'HOST': WEBHOOKS_REDIS_HOST,
+        'PORT': WEBHOOKS_REDIS_PORT,
+        'DB': WEBHOOKS_REDIS_DATABASE,
+        'PASSWORD': WEBHOOKS_REDIS_PASSWORD,
+        'DEFAULT_TIMEOUT': WEBHOOKS_REDIS_DEFAULT_TIMEOUT,
+        'SSL': WEBHOOKS_REDIS_SSL,
     }
 }
 

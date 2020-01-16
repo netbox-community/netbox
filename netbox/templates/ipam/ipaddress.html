@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load buttons %}
 {% load custom_links %}
 {% load helpers %}
 
@@ -27,17 +28,14 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% if perms.ipam.add_ipaddress %}
+            {% clone_button ipaddress %}
+        {% endif %}
         {% if perms.ipam.change_ipaddress %}
-            <a href="{% url 'ipam:ipaddress_edit' pk=ipaddress.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span>
-                Edit this IP
-            </a>
+            {%edit_button ipaddress %}
         {% endif %}
         {% if perms.ipam.delete_ipaddress %}
-            <a href="{% url 'ipam:ipaddress_delete' pk=ipaddress.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>
-                Delete this IP
-            </a>
+            {% delete_button ipaddress %}
         {% endif %}
     </div>
     <h1>{% block title %}{{ ipaddress }}{% endblock %}</h1>

@@ -22,13 +22,13 @@ django-filter
 # https://github.com/django-mptt/django-mptt
 django-mptt
 
-# Django integration for RQ (Reqis queuing)
-# https://github.com/rq/django-rq
-django-rq
-
 # Prometheus metrics library for Django
 # https://github.com/korfuri/django-prometheus
 django-prometheus
+
+# Django integration for RQ (Reqis queuing)
+# https://github.com/rq/django-rq
+django-rq
 
 # Abstraction models for rendering and paginating HTML tables
 # https://github.com/jieter/django-tables2
@@ -54,9 +54,9 @@ djangorestframework
 # https://github.com/axnsan12/drf-yasg
 drf-yasg[validation]
 
-# Python interface to the graphviz graph rendering utility
-# https://github.com/xflr6/graphviz
-graphviz
+# Platform-agnostic template rendering engine
+# https://github.com/pallets/jinja
+Jinja2
 
 # Simple markup language for rendering HTML
 # https://github.com/Python-Markdown/markdown
@@ -82,3 +82,15 @@ py-gfm
 # Extensive cryptographic library (fork of pycrypto)
 # https://github.com/Legrandin/pycryptodome
 pycryptodome
+
+# YAML rendering library
+# https://github.com/yaml/pyyaml
+PyYAML
+
+# In-memory key/value store used for caching and queuing
+# https://github.com/andymccurdy/redis-py
+redis
+
+# SVG image rendering (used for rack elevations)
+# https://github.com/mozman/svgwrite
+svgwrite
