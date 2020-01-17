@@ -1,5 +1,9 @@
 # v2.7.2 (FUTURE)
 
+## Enhancements
+
+* [#3842](https://github.com/netbox-community/netbox/issues/3842) - Add 802.11ax interface type
+
 ## Bug Fixes
 
 * [#3951](https://github.com/netbox-community/netbox/issues/3951) - Fix exception in webhook worker due to missing constant
