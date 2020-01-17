@@ -390,7 +390,9 @@ class RackElevationHelperMixin:
         color = device.device_role.color
         link = drawing.add(
             drawing.a(
-                reverse('dcim:device', kwargs={'pk': device.pk}), fill='black'
+                href=reverse('dcim:device', kwargs={'pk': device.pk}),
+                target='_top',
+                fill='black'
             )
         )
         link.add(drawing.rect(start, end, fill='#{}'.format(color)))
@@ -405,10 +407,13 @@ class RackElevationHelperMixin:
     @staticmethod
     def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_):
         link = drawing.add(
-            drawing.a('{}?{}'.format(
-                reverse('dcim:device_add'),
-                urlencode({'rack': rack.pk, 'site': rack.site.pk, 'face': face_id, 'position': id_})
-            ))
+            drawing.a(
+                href='{}?{}'.format(
+                    reverse('dcim:device_add'),
+                    urlencode({'rack': rack.pk, 'site': rack.site.pk, 'face': face_id, 'position': id_})
+                ),
+                target='_top'
+            )
         )
         link.add(drawing.rect(start, end, class_=class_))
         link.add(drawing.text("add device", insert=text, class_='add-device'))

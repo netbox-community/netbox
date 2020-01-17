@@ -103,6 +103,10 @@ class NetHost(Lookup):
 class NetIn(Lookup):
     lookup_name = 'net_in'
 
+    def get_prep_lookup(self):
+        # Don't cast the query value to a netaddr object, since it may or may not include a mask.
+        return self.rhs
+
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
