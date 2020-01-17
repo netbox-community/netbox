@@ -1464,7 +1464,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 
             try:
                 # Child devices cannot be assigned to a rack face/unit
-                if self.device_type.is_child_device and self.face is not None:
+                if self.device_type.is_child_device and self.face:
                     raise ValidationError({
                         'face': "Child device types cannot be assigned to a rack face. This is an attribute of the "
                                 "parent device."
