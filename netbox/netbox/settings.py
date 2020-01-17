@@ -12,7 +12,7 @@ from django.core.exceptions import ImproperlyConfigured
 # Environment setup
 #
 
-VERSION = '2.7.1-dev'
+VERSION = '2.7.1'
 
 # Hostname
 HOSTNAME = platform.node()
