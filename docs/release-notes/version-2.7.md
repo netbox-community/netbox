@@ -1,3 +1,11 @@
+# v2.7.2 (FUTURE)
+
+## Bug Fixes
+
+* [#3951](https://github.com/netbox-community/netbox/issues/3951) - Fix exception in webhook worker due to missing constant
+
+---
+
 # v2.7.1 (2020-01-16)
 
 ## Bug Fixes
