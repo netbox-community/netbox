@@ -1,7 +1,8 @@
 # v2.7.1 (FUTURE)
 
-# Bug Fixes
+## Bug Fixes
 
+* [#3941](https://github.com/netbox-community/netbox/issues/3941) - Fixed exception when attempting to assign IP to interface
 * [#3944](https://github.com/netbox-community/netbox/issues/3944) - Fix AttributeError exception when viewing prefixes list
 
 ---
@@ -180,7 +181,7 @@ REDIS = {
         'SSL': False,
     }
 }
-``` 
+```
 
 Note that the `CACHE_DATABASE` parameter has been removed and the connection settings have been duplicated for both
 `webhooks` and `caching`. This allows the user to make use of separate Redis instances if desired. It is fine to use the
