@@ -1,6 +1,5 @@
 import django_filters
 from django.contrib.auth.models import User
-from django.db.models import Q
 
 from extras.filters import CustomFieldFilterSet, LocalConfigContextFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
@@ -356,6 +355,10 @@ class DeviceTypeFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
         method='_pass_through_ports',
         label='Has pass-through ports',
     )
+    device_bays = django_filters.BooleanFilter(
+        method='_device_bays',
+        label='Has device bays',
+    )
     tag = TagFilter()
 
     class Meta:
@@ -394,6 +397,9 @@ class DeviceTypeFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
             frontport_templates__isnull=value,
             rearport_templates__isnull=value
         )
+
+    def _device_bays(self, queryset, name, value):
+        return queryset.exclude(device_bay_templates__isnull=value)
 
 
 class DeviceTypeComponentFilterSet(NameSlugSearchFilterSet):
@@ -623,6 +629,10 @@ class DeviceFilterSet(LocalConfigContextFilterSet, TenancyFilterSet, CustomField
         method='_pass_through_ports',
         label='Has pass-through ports',
     )
+    device_bays = django_filters.BooleanFilter(
+        method='_device_bays',
+        label='Has device bays',
+    )
     tag = TagFilter()
 
     class Meta:
@@ -675,6 +685,9 @@ class DeviceFilterSet(LocalConfigContextFilterSet, TenancyFilterSet, CustomField
             frontports__isnull=value,
             rearports__isnull=value
         )
+
+    def _device_bays(self, queryset, name, value):
+        return queryset.exclude(device_bays__isnull=value)
 
 
 class DeviceComponentFilterSet(django_filters.FilterSet):

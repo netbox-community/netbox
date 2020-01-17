@@ -595,12 +595,11 @@ class DeviceTypeTestCase(TestCase):
         params = {'pass_through_ports': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    # TODO: Add device_bay filter
-    # def test_device_bays(self):
-    #     params = {'device_bays': 'true'}
-    #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-    #     params = {'device_bays': 'false'}
-    #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+    def test_device_bays(self):
+        params = {'device_bays': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'device_bays': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class ConsolePortTemplateTestCase(TestCase):
@@ -1322,12 +1321,11 @@ class DeviceTestCase(TestCase):
         params = {'pass_through_ports': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    # TODO: Add device_bay filter
-    # def test_device_bays(self):
-    #     params = {'device_bays': 'true'}
-    #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-    #     params = {'device_bays': 'false'}
-    #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+    def test_device_bays(self):
+        params = {'device_bays': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'device_bays': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_local_context_data(self):
         params = {'local_context_data': 'true'}
