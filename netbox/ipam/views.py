@@ -760,7 +760,7 @@ class IPAddressAssignView(PermissionRequiredMixin, View):
                 'vrf', 'tenant', 'interface__device', 'interface__virtual_machine'
             )
             # Limit to 100 results
-            addresses = filters.IPAddressFilter(request.POST, addresses).qs[:100]
+            addresses = filters.IPAddressFilterSet(request.POST, addresses).qs[:100]
             table = tables.IPAddressAssignTable(addresses)
 
         return render(request, 'ipam/ipaddress_assign.html', {

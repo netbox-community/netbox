@@ -1,4 +1,4 @@
-# v2.7.1 (FUTURE)
+# v2.7.2 (FUTURE)
 
 ## Notes
 
@@ -7,6 +7,16 @@
 ## Enhancements
 
 * [#3509](https://github.com/netbox-community/netbox/issues/3509) - Added IPAddressVar for custom scripts
+
+---
+
+# v2.7.1 (2020-01-16)
+
+## Bug Fixes
+
+* [#3941](https://github.com/netbox-community/netbox/issues/3941) - Fixed exception when attempting to assign IP to interface
+* [#3943](https://github.com/netbox-community/netbox/issues/3943) - Prevent rack elevation links from opening new tabs/windows
+* [#3944](https://github.com/netbox-community/netbox/issues/3944) - Fix AttributeError exception when viewing prefixes list
 
 ---
 
@@ -184,7 +194,7 @@ REDIS = {
         'SSL': False,
     }
 }
-``` 
+```
 
 Note that the `CACHE_DATABASE` parameter has been removed and the connection settings have been duplicated for both
 `webhooks` and `caching`. This allows the user to make use of separate Redis instances if desired. It is fine to use the
