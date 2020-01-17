@@ -3,6 +3,7 @@
 ## Bug Fixes
 
 * [#3941](https://github.com/netbox-community/netbox/issues/3941) - Fixed exception when attempting to assign IP to interface
+* [#3944](https://github.com/netbox-community/netbox/issues/3944) - Fix AttributeError exception when viewing prefixes list
 
 ---
 
