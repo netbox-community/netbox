@@ -7,6 +7,7 @@
 
 ## Bug Fixes
 
+* [#3721](https://github.com/netbox-community/netbox/issues/3721) - Allow Unicode characters in tag slugs
 * [#3951](https://github.com/netbox-community/netbox/issues/3951) - Fix exception in webhook worker due to missing constant
 * [#3953](https://github.com/netbox-community/netbox/issues/3953) - Fix validation error when creating child devices
 
