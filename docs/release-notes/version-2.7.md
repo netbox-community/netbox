@@ -1,3 +1,11 @@
+# v2.7.1 (FUTURE)
+
+# Bug Fixes
+
+* [#3944](https://github.com/netbox-community/netbox/issues/3944) - Fix AttributeError exception when viewing prefixes list
+
+---
+
 # v2.7.0 (2020-01-16)
 
 **Note:** This release completely removes the topology map feature ([#2745](https://github.com/netbox-community/netbox/issues/2745)).
