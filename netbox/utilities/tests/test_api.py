@@ -9,7 +9,7 @@ from dcim.models import Region, Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from ipam.models import VLAN
-from utilities.testing import APITestCase
+from utilities.testing import APITestCase, disable_warnings
 
 
 class WritableNestedSerializerTest(APITestCase):
@@ -50,7 +50,8 @@ class WritableNestedSerializerTest(APITestCase):
         }
 
         url = reverse('ipam-api:vlan-list')
-        response = self.client.post(url, data, format='json', **self.header)
+        with disable_warnings('django.request'):
+            response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(VLAN.objects.count(), 0)
@@ -85,7 +86,8 @@ class WritableNestedSerializerTest(APITestCase):
         }
 
         url = reverse('ipam-api:vlan-list')
-        response = self.client.post(url, data, format='json', **self.header)
+        with disable_warnings('django.request'):
+            response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(VLAN.objects.count(), 0)
@@ -104,7 +106,8 @@ class WritableNestedSerializerTest(APITestCase):
         }
 
         url = reverse('ipam-api:vlan-list')
-        response = self.client.post(url, data, format='json', **self.header)
+        with disable_warnings('django.request'):
+            response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(VLAN.objects.count(), 0)
@@ -119,7 +122,8 @@ class WritableNestedSerializerTest(APITestCase):
         }
 
         url = reverse('ipam-api:vlan-list')
-        response = self.client.post(url, data, format='json', **self.header)
+        with disable_warnings('django.request'):
+            response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(VLAN.objects.count(), 0)
