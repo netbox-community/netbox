@@ -1409,7 +1409,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         'site', 'rack_group', 'rack_name', 'position', 'face', 'comments',
     ]
     clone_fields = [
-        'device_type', 'device_role', 'tenant', 'platform', 'site', 'rack', 'status', 'cluster',
+        'device_type', 'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'rack', 'status', 'cluster', 'cluster__group',
     ]
 
     STATUS_CLASS_MAP = {

@@ -1636,6 +1636,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         instance = kwargs.get('instance')
         if 'initial' not in kwargs:
             kwargs['initial'] = {}
+
         # Using hasattr() instead of "is not None" to avoid RelatedObjectDoesNotExist on required field
         if instance and hasattr(instance, 'device_type'):
             kwargs['initial']['manufacturer'] = instance.device_type.manufacturer
