@@ -1,6 +1,6 @@
 # Power Panel
 
-A power panel represents distribution board where power circuits – and their circuit breakers – terminate on. If you have multiple power panels in your data center, you should model them as such in NetBox to assist you in determining the redundancy of your power allocation.
+A power panel represents the distribution board where power circuits – and their circuit breakers – terminate on. If you have multiple power panels in your data center, you should model them as such in NetBox to assist you in determining the redundancy of your power allocation.
 
 # Power Feed
 
@@ -13,7 +13,7 @@ Power feeds are optionally assigned to a rack. In addition, a power port – and
 
 # Power Outlet
 
-Power outlets represent the ports on a PDU that supply power to other devices. Power outlets are downstream-facing towards power ports. A power outlet can be associated with a power port on the same device and a feed leg (i.e. in a case of a three-phase supply). This can be used to indicate which power port of a PDU is used to supply power through its power outlets.
+Power outlets represent the ports on a PDU that supply power to other devices. Power outlets are downstream-facing towards power ports. A power outlet can be associated with a power port on the same device and a feed leg (i.e. in a case of a three-phase supply). This indicates which power port supplies power to a power outlet.
 
 # Power Port
 
@@ -28,7 +28,7 @@ A power port is the inlet of a device where it draws its power. Power ports are 
 Below is a simple diagram demonstrating how power is modelled in NetBox.
 
 !!! note
-    The power feeds are connected to the same power panel to illustrative purposes; usually, you would have such feeds diversely connected to panels to avoid the single point of failure.
+    The power feeds are connected to the same power panel for illustrative purposes; usually, you would have such feeds diversely connected to panels to avoid the single point of failure.
 
 ```
           +---------------+
