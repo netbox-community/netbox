@@ -7,7 +7,7 @@ from rest_framework import status
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
-from utilities.testing import APITestCase, choices_to_dict
+from utilities.testing import APITestCase, choices_to_dict, disable_warnings
 
 
 class AppTest(APITestCase):
@@ -1007,7 +1007,8 @@ class VLANTest(APITestCase):
         self.prefix1.save()
 
         url = reverse('ipam-api:vlan-detail', kwargs={'pk': self.vlan1.pk})
-        response = self.client.delete(url, **self.header)
+        with disable_warnings('django.request'):
+            response = self.client.delete(url, **self.header)
 
         self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
 
