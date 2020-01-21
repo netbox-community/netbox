@@ -5,7 +5,7 @@ from rest_framework import status
 from dcim.choices import InterfaceModeChoices
 from dcim.models import Interface
 from ipam.models import IPAddress, VLAN
-from utilities.testing import APITestCase, choices_to_dict
+from utilities.testing import APITestCase, choices_to_dict, disable_warnings
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -417,7 +417,8 @@ class VirtualMachineTest(APITestCase):
         }
 
         url = reverse('virtualization-api:virtualmachine-list')
-        response = self.client.post(url, data, format='json', **self.header)
+        with disable_warnings('django.request'):
+            response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(VirtualMachine.objects.count(), 4)
