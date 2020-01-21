@@ -802,6 +802,7 @@ class InterfaceTypeChoices(ChoiceSet):
         TYPE_SUMMITSTACK128: 5310,
         TYPE_SUMMITSTACK256: 5320,
         TYPE_SUMMITSTACK512: 5330,
+        TYPE_OTHER: 32767,
     }
 
 
