@@ -1341,16 +1341,28 @@ class ConsolePortTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site1')
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
+        sites = Site.objects.bulk_create((
+            Site(name='Site 1', slug='site-1', region=regions[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site X', slug='site-x'),
+        ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
-            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -1390,6 +1402,20 @@ class ConsolePortTestCase(TestCase):
         params = {'connection_status': 'True'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -1411,16 +1437,28 @@ class ConsoleServerPortTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site1')
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
+        sites = Site.objects.bulk_create((
+            Site(name='Site 1', slug='site-1', region=regions[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site X', slug='site-x'),
+        ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
-            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -1460,6 +1498,20 @@ class ConsoleServerPortTestCase(TestCase):
         params = {'connection_status': 'True'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -1481,16 +1533,28 @@ class PowerPortTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site1')
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
+        sites = Site.objects.bulk_create((
+            Site(name='Site 1', slug='site-1', region=regions[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site X', slug='site-x'),
+        ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
-            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -1538,6 +1602,20 @@ class PowerPortTestCase(TestCase):
         params = {'connection_status': 'True'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -1559,16 +1637,28 @@ class PowerOutletTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site1')
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
+        sites = Site.objects.bulk_create((
+            Site(name='Site 1', slug='site-1', region=regions[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site X', slug='site-x'),
+        ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
-            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -1613,6 +1703,20 @@ class PowerOutletTestCase(TestCase):
         params = {'connection_status': 'True'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -1634,16 +1738,28 @@ class InterfaceTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site1')
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
+        sites = Site.objects.bulk_create((
+            Site(name='Site 1', slug='site-1', region=regions[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site X', slug='site-x'),
+        ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
-            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -1700,6 +1816,20 @@ class InterfaceTestCase(TestCase):
         params = {'description': ['First', 'Second']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -1735,16 +1865,28 @@ class FrontPortTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site1')
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
+        sites = Site.objects.bulk_create((
+            Site(name='Site 1', slug='site-1', region=regions[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site X', slug='site-x'),
+        ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
-            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -1791,6 +1933,20 @@ class FrontPortTestCase(TestCase):
         params = {'description': ['First', 'Second']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -1812,16 +1968,28 @@ class RearPortTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site1')
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
+        sites = Site.objects.bulk_create((
+            Site(name='Site 1', slug='site-1', region=regions[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site X', slug='site-x'),
+        ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
-            Device(name=None, device_type=device_type, device_role=device_role, site=site),  # For cable connections
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name=None, device_type=device_type, device_role=device_role, site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -1862,6 +2030,20 @@ class RearPortTestCase(TestCase):
         params = {'description': ['First', 'Second']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -1883,15 +2065,27 @@ class DeviceBayTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site1')
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
+        sites = Site.objects.bulk_create((
+            Site(name='Site 1', slug='site-1', region=regions[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site X', slug='site-x'),
+        ))
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=site),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=site),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
         )
         Device.objects.bulk_create(devices)
 
@@ -1913,6 +2107,20 @@ class DeviceBayTestCase(TestCase):
 
     def test_description(self):
         params = {'description': ['First', 'Second']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):
