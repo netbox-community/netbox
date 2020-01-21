@@ -397,12 +397,12 @@ class RackElevationHelperMixin:
         )
         link.add(drawing.rect(start, end, fill='#{}'.format(color)))
         hex_color = '#{}'.format(foreground_color(color))
-        link.add(drawing.text(device.name, insert=text, fill=hex_color))
+        link.add(drawing.text(str(device), insert=text, fill=hex_color))
 
     @staticmethod
     def _draw_device_rear(drawing, device, start, end, text):
         drawing.add(drawing.rect(start, end, class_="blocked"))
-        drawing.add(drawing.text(device.name, insert=text))
+        drawing.add(drawing.text(str(device), insert=text))
 
     @staticmethod
     def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_):
