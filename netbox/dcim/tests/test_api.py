@@ -1901,6 +1901,31 @@ class DeviceTest(APITestCase):
         self.assertEqual(response.data['device_role']['id'], self.devicerole1.pk)
         self.assertEqual(response.data['cluster']['id'], self.cluster1.pk)
 
+    def test_get_device_graphs(self):
+
+        device_ct = ContentType.objects.get_for_model(Device)
+        self.graph1 = Graph.objects.create(
+            type=device_ct,
+            name='Test Graph 1',
+            source='http://example.com/graphs.py?device={{ obj.name }}&foo=1'
+        )
+        self.graph2 = Graph.objects.create(
+            type=device_ct,
+            name='Test Graph 2',
+            source='http://example.com/graphs.py?device={{ obj.name }}&foo=2'
+        )
+        self.graph3 = Graph.objects.create(
+            type=device_ct,
+            name='Test Graph 3',
+            source='http://example.com/graphs.py?device={{ obj.name }}&foo=3'
+        )
+
+        url = reverse('dcim-api:device-graphs', kwargs={'pk': self.device1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(len(response.data), 3)
+        self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?device=Test Device 1&foo=1')
+
     def test_list_devices(self):
 
         url = reverse('dcim-api:device-list')
