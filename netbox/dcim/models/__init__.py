@@ -468,6 +468,21 @@ class RackElevationHelperMixin:
 
         return drawing
 
+    def merge_elevations(self, face):
+        elevation = self.get_rack_units(face=face, expand_devices=False)
+        other_face = DeviceFaceChoices.FACE_FRONT if face == DeviceFaceChoices.FACE_REAR else DeviceFaceChoices.FACE_REAR
+        other = self.get_rack_units(face=other_face)
+
+        unit_cursor = 0
+        for u in elevation:
+            o = other[unit_cursor]
+            if not u['device'] and o['device']:
+                u['device'] = o['device']
+                u['height'] = 1
+            unit_cursor += u.get('height', 1)
+
+        return elevation
+
     def get_elevation_svg(self, face=DeviceFaceChoices.FACE_FRONT, unit_width=230, unit_height=20):
         """
         Return an SVG of the rack elevation
@@ -477,7 +492,7 @@ class RackElevationHelperMixin:
         :param unit_height: Height of each rack unit for the rendered drawing. Note this is not the total
             height of the elevation
         """
-        elevation = self.get_rack_units(face=face, expand_devices=False)
+        elevation = self.merge_elevations(face)
         reserved_units = self.get_reserved_units().keys()
 
         return self._draw_elevations(elevation, reserved_units, face, unit_width, unit_height)
