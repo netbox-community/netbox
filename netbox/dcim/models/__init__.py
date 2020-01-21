@@ -399,7 +399,7 @@ class RackElevationHelperMixin:
             device.device_role, device.device_type.display_name,
             device.device_type.u_height, device.asset_tag or '', device.serial or ''
         ))
-        link.add(drawing.rect(start, end, fill='#{}'.format(color)))
+        link.add(drawing.rect(start, end, style='fill: #{}'.format(color), class_='slot'))
         hex_color = '#{}'.format(foreground_color(color))
         link.add(drawing.text(str(device), insert=text, fill=hex_color))
 
