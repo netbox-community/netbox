@@ -4,6 +4,7 @@ from netaddr import IPNetwork
 from rest_framework import status
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
+from dcim.api import serializers
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
@@ -2134,6 +2135,31 @@ class ConsolePortTest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ConsolePort.objects.count(), 2)
 
+    def test_trace_consoleport(self):
+
+        peer_device = Device.objects.create(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='Peer Device'
+        )
+        console_server_port = ConsoleServerPort.objects.create(
+            device=peer_device,
+            name='Console Server Port 1'
+        )
+        cable = Cable(termination_a=self.consoleport1, termination_b=console_server_port, label='Cable 1')
+        cable.save()
+
+        url = reverse('dcim-api:consoleport-trace', kwargs={'pk': self.consoleport1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], self.consoleport1.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], console_server_port.name)
+
 
 class ConsoleServerPortTest(APITestCase):
 
@@ -2244,6 +2270,31 @@ class ConsoleServerPortTest(APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ConsoleServerPort.objects.count(), 2)
+
+    def test_trace_consoleserverport(self):
+
+        peer_device = Device.objects.create(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='Peer Device'
+        )
+        console_port = ConsolePort.objects.create(
+            device=peer_device,
+            name='Console Port 1'
+        )
+        cable = Cable(termination_a=self.consoleserverport1, termination_b=console_port, label='Cable 1')
+        cable.save()
+
+        url = reverse('dcim-api:consoleserverport-trace', kwargs={'pk': self.consoleserverport1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], self.consoleserverport1.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], console_port.name)
 
 
 class PowerPortTest(APITestCase):
@@ -2358,6 +2409,31 @@ class PowerPortTest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(PowerPort.objects.count(), 2)
 
+    def test_trace_powerport(self):
+
+        peer_device = Device.objects.create(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='Peer Device'
+        )
+        power_outlet = PowerOutlet.objects.create(
+            device=peer_device,
+            name='Power Outlet 1'
+        )
+        cable = Cable(termination_a=self.powerport1, termination_b=power_outlet, label='Cable 1')
+        cable.save()
+
+        url = reverse('dcim-api:powerport-trace', kwargs={'pk': self.powerport1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], self.powerport1.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], power_outlet.name)
+
 
 class PowerOutletTest(APITestCase):
 
@@ -2468,6 +2544,31 @@ class PowerOutletTest(APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(PowerOutlet.objects.count(), 2)
+
+    def test_trace_poweroutlet(self):
+
+        peer_device = Device.objects.create(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='Peer Device'
+        )
+        power_port = PowerPort.objects.create(
+            device=peer_device,
+            name='Power Port 1'
+        )
+        cable = Cable(termination_a=self.poweroutlet1, termination_b=power_port, label='Cable 1')
+        cable.save()
+
+        url = reverse('dcim-api:poweroutlet-trace', kwargs={'pk': self.poweroutlet1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], self.poweroutlet1.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], power_port.name)
 
 
 class InterfaceTest(APITestCase):
@@ -2671,6 +2772,31 @@ class InterfaceTest(APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Interface.objects.count(), 2)
+
+    def test_trace_interface(self):
+
+        peer_device = Device.objects.create(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='Peer Device'
+        )
+        peer_interface = Interface.objects.create(
+            device=peer_device,
+            name='Power Outlet 1'
+        )
+        cable = Cable(termination_a=self.interface1, termination_b=peer_interface, label='Cable 1')
+        cable.save()
+
+        url = reverse('dcim-api:interface-trace', kwargs={'pk': self.interface1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], self.interface1.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], peer_interface.name)
 
 
 class DeviceBayTest(APITestCase):
