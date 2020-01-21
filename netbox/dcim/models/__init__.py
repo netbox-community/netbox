@@ -395,14 +395,23 @@ class RackElevationHelperMixin:
                 fill='black'
             )
         )
-        link.add(drawing.rect(start, end, fill='#{}'.format(color)))
+        link.set_desc('{} — {} ({}U) {} {}'.format(
+            device.device_role, device.device_type.display_name,
+            device.device_type.u_height, device.asset_tag or '', device.serial or ''
+        ))
+        link.add(drawing.rect(start, end, style='fill: #{}'.format(color), class_='slot'))
         hex_color = '#{}'.format(foreground_color(color))
-        link.add(drawing.text(device.name, insert=text, fill=hex_color))
+        link.add(drawing.text(str(device), insert=text, fill=hex_color))
 
     @staticmethod
     def _draw_device_rear(drawing, device, start, end, text):
-        drawing.add(drawing.rect(start, end, class_="blocked"))
-        drawing.add(drawing.text(device.name, insert=text))
+        rect = drawing.rect(start, end, class_="blocked")
+        rect.set_desc('{} — {} ({}U) {} {}'.format(
+            device.device_role, device.device_type.display_name,
+            device.device_type.u_height, device.asset_tag or '', device.serial or ''
+        ))
+        drawing.add(rect)
+        drawing.add(drawing.text(str(device), insert=text))
 
     @staticmethod
     def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_):
@@ -459,6 +468,21 @@ class RackElevationHelperMixin:
 
         return drawing
 
+    def merge_elevations(self, face):
+        elevation = self.get_rack_units(face=face, expand_devices=False)
+        other_face = DeviceFaceChoices.FACE_FRONT if face == DeviceFaceChoices.FACE_REAR else DeviceFaceChoices.FACE_REAR
+        other = self.get_rack_units(face=other_face)
+
+        unit_cursor = 0
+        for u in elevation:
+            o = other[unit_cursor]
+            if not u['device'] and o['device']:
+                u['device'] = o['device']
+                u['height'] = 1
+            unit_cursor += u.get('height', 1)
+
+        return elevation
+
     def get_elevation_svg(self, face=DeviceFaceChoices.FACE_FRONT, unit_width=230, unit_height=20):
         """
         Return an SVG of the rack elevation
@@ -468,7 +492,7 @@ class RackElevationHelperMixin:
         :param unit_height: Height of each rack unit for the rendered drawing. Note this is not the total
             height of the elevation
         """
-        elevation = self.get_rack_units(face=face, expand_devices=False)
+        elevation = self.merge_elevations(face)
         reserved_units = self.get_reserved_units().keys()
 
         return self._draw_elevations(elevation, reserved_units, face, unit_width, unit_height)
@@ -1464,7 +1488,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 
             try:
                 # Child devices cannot be assigned to a rack face/unit
-                if self.device_type.is_child_device and self.face is not None:
+                if self.device_type.is_child_device and self.face:
                     raise ValidationError({
                         'face': "Child device types cannot be assigned to a rack face. This is an attribute of the "
                                 "parent device."
