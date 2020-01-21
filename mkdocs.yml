@@ -25,6 +25,7 @@ pages:
         - Virtual Machines: 'core-functionality/virtual-machines.md'
         - Services: 'core-functionality/services.md'
         - Circuits: 'core-functionality/circuits.md'
+        - Power: 'core-functionality/power.md'
         - Secrets: 'core-functionality/secrets.md'
         - Tenancy: 'core-functionality/tenancy.md'
     - Additional Features:

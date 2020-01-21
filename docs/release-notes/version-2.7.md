@@ -2,6 +2,7 @@
 
 ## Enhancements
 
+* [#3135](https://github.com/netbox-community/netbox/issues/3135) - Documented power modelling
 * [#3842](https://github.com/netbox-community/netbox/issues/3842) - Add 802.11ax interface type
 * [#3954](https://github.com/netbox-community/netbox/issues/3954) - Add `device_bays` filter for devices and device types
 
