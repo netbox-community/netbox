@@ -821,7 +821,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
         available_power = PowerFeed.objects.filter(rack=self).aggregate(total=Sum('available_power'))
 
         # Get the power draw of the power ports from the power feeds assigned to the rack
-        feeds_stats = [x.get_power_draw() for x in PowerPort.objects.filter(_connected_powerfeed__rack=self)]
+        power_ports = PowerPort.objects.filter(_connected_powerfeed__rack=self)
+        feeds_stats = [x.get_power_draw(leg_stats=False) for x in power_ports]
 
         if available_power.get('total') and feeds_stats:
             available_power_total = available_power.get('total')
