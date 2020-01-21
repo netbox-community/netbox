@@ -1,9 +1,16 @@
+# v2.7.3 (FUTURE)
+
+## Enhancements
+
+* [#3377](https://github.com/netbox-community/netbox/issues/3377) - Include children devices when calculating power utilization
+
+---
+
 # v2.7.2 (2020-01-21)
 
 ## Enhancements
 
 * [#3135](https://github.com/netbox-community/netbox/issues/3135) - Documented power modelling
-* [#3377](https://github.com/netbox-community/netbox/issues/3377) - Include children devices when calculating power utilization
 * [#3842](https://github.com/netbox-community/netbox/issues/3842) - Add 802.11ax interface type
 * [#3954](https://github.com/netbox-community/netbox/issues/3954) - Add `device_bays` filter for devices and device types
 
