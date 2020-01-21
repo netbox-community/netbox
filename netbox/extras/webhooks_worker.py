@@ -6,8 +6,7 @@ import requests
 from django_rq import job
 from rest_framework.utils.encoders import JSONEncoder
 
-from .choices import ObjectChangeActionChoices
-from .constants import *
+from .choices import ObjectChangeActionChoices, WebhookContentTypeChoices
 
 
 @job('default')
@@ -35,9 +34,9 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
         'headers': headers
     }
 
-    if webhook.http_content_type == WEBHOOK_CT_JSON:
+    if webhook.http_content_type == WebhookContentTypeChoices.CONTENTTYPE_JSON:
         params.update({'data': json.dumps(payload, cls=JSONEncoder)})
-    elif webhook.http_content_type == WEBHOOK_CT_X_WWW_FORM_ENCODED:
+    elif webhook.http_content_type == WebhookContentTypeChoices.CONTENTTYPE_FORMDATA:
         params.update({'data': payload})
 
     prepared_request = requests.Request(**params).prepare()
@@ -61,5 +60,7 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
         return 'Status {} returned, webhook successfully processed.'.format(response.status_code)
     else:
         raise requests.exceptions.RequestException(
-            "Status {} returned with content '{}', webhook FAILED to process.".format(response.status_code, response.content)
+            "Status {} returned with content '{}', webhook FAILED to process.".format(
+                response.status_code, response.content
+            )
         )

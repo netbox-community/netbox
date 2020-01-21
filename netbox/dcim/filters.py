@@ -1,6 +1,5 @@
 import django_filters
 from django.contrib.auth.models import User
-from django.db.models import Q
 
 from extras.filters import CustomFieldFilterSet, LocalConfigContextFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
@@ -356,6 +355,10 @@ class DeviceTypeFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
         method='_pass_through_ports',
         label='Has pass-through ports',
     )
+    device_bays = django_filters.BooleanFilter(
+        method='_device_bays',
+        label='Has device bays',
+    )
     tag = TagFilter()
 
     class Meta:
@@ -394,6 +397,9 @@ class DeviceTypeFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
             frontport_templates__isnull=value,
             rearport_templates__isnull=value
         )
+
+    def _device_bays(self, queryset, name, value):
+        return queryset.exclude(device_bay_templates__isnull=value)
 
 
 class DeviceTypeComponentFilterSet(NameSlugSearchFilterSet):
@@ -623,6 +629,10 @@ class DeviceFilterSet(LocalConfigContextFilterSet, TenancyFilterSet, CustomField
         method='_pass_through_ports',
         label='Has pass-through ports',
     )
+    device_bays = django_filters.BooleanFilter(
+        method='_device_bays',
+        label='Has device bays',
+    )
     tag = TagFilter()
 
     class Meta:
@@ -676,21 +686,25 @@ class DeviceFilterSet(LocalConfigContextFilterSet, TenancyFilterSet, CustomField
             rearports__isnull=value
         )
 
+    def _device_bays(self, queryset, name, value):
+        return queryset.exclude(device_bays__isnull=value)
+
 
 class DeviceComponentFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
     )
-    region_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__site__region',
+    region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
+        field_name='device__site__region__in',
         label='Region (ID)',
     )
-    region = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__site__region__in',
+    region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        label='Region name (slug)',
+        field_name='device__site__region__in',
+        to_field_name='slug',
+        label='Region (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__site',
@@ -700,6 +714,7 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='device__site__slug',
         queryset=Site.objects.all(),
+        to_field_name='slug',
         label='Site name (slug)',
     )
     device_id = django_filters.ModelMultipleChoiceFilter(
@@ -787,35 +802,13 @@ class PowerOutletFilterSet(DeviceComponentFilterSet):
         fields = ['id', 'name', 'feed_leg', 'description', 'connection_status']
 
 
-class InterfaceFilterSet(django_filters.FilterSet):
-    """
-    Not using DeviceComponentFilterSet for Interfaces because we need to check for VirtualChassis membership.
-    """
+class InterfaceFilterSet(DeviceComponentFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
     )
-    region_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__site__region',
-        queryset=Region.objects.all(),
-        label='Region (ID)',
-    )
-    region = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__site__region__in',
-        queryset=Region.objects.all(),
-        label='Region name (slug)',
-    )
-    site_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__site',
-        queryset=Site.objects.all(),
-        label='Site (ID)',
-    )
-    site = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__site__slug',
-        to_field_name='slug',
-        queryset=Site.objects.all(),
-        label='Site name (slug)',
-    )
+    # Override device and device_id filters from DeviceComponentFilterSet to match against any peer virtual chassis
+    # members
     device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',
@@ -858,14 +851,6 @@ class InterfaceFilterSet(django_filters.FilterSet):
     class Meta:
         model = Interface
         fields = ['id', 'name', 'connection_status', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'description']
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(name__icontains=value) |
-            Q(description__icontains=value)
-        ).distinct()
 
     def filter_device(self, queryset, name, value):
         try:

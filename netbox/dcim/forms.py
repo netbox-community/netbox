@@ -67,21 +67,25 @@ class DeviceComponentFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Search'
     )
-    region = TreeNodeChoiceField(
+    region = FilterChoiceField(
         queryset=Region.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/dcim/regions/"
-        )
-    )
-    site = forms.ModelChoiceField(
-        queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        help_text='Name of parent site',
-        error_messages={
-            'invalid_choice': 'Site not found.',
-        }
+        widget=APISelectMultiple(
+            api_url='/api/dcim/regions/',
+            value_field='slug',
+            filter_for={
+                'site': 'region'
+            }
+        )
+    )
+    site = FilterChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field="slug"
+        )
     )
 
 
