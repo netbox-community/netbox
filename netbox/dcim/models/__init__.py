@@ -461,7 +461,7 @@ class RackElevationHelperMixin:
 
     def merge_elevations(self, face):
         elevation = self.get_rack_units(face=face, expand_devices=False)
-        other_face = DeviceFaceChoices.FACE_FRONT if face==DeviceFaceChoices.FACE_REAR else DeviceFaceChoices.FACE_REAR
+        other_face = DeviceFaceChoices.FACE_FRONT if face == DeviceFaceChoices.FACE_REAR else DeviceFaceChoices.FACE_REAR
         other = self.get_rack_units(face=other_face)
 
         unit_cursor = 0
