@@ -84,7 +84,7 @@
             </a>
         </li>
         {% if perms.dcim.napalm_read %}
-            {% if device.status != 1 %}
+            {% if device.status != 'active' %}
                 {% include 'dcim/inc/device_napalm_tabs.html' with disabled_message='Device must be in active status' %}
             {% elif not device.platform %}
                 {% include 'dcim/inc/device_napalm_tabs.html' with disabled_message='No platform assigned to this device' %}

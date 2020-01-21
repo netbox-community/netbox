@@ -16,6 +16,8 @@ def validate_rsa_key(key, is_secret=True):
     """
     Validate the format and type of an RSA key.
     """
+    if key.startswith('ssh-rsa '):
+        raise forms.ValidationError("OpenSSH line format is not supported. Please ensure that your public is in PEM (base64) format.")
     try:
         key = RSA.importKey(key)
     except ValueError:

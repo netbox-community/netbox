@@ -1,3 +1,6 @@
+import logging
+from contextlib import contextmanager
+
 from django.contrib.auth.models import Permission, User
 from rest_framework.test import APITestCase as _APITestCase
 
@@ -62,3 +65,15 @@ def choices_to_dict(choices_list):
     return {
         choice['value']: choice['label'] for choice in choices_list
     }
+
+
+@contextmanager
+def disable_warnings(logger_name):
+    """
+    Temporarily suppress expected warning messages to keep the test output clean.
+    """
+    logger = logging.getLogger(logger_name)
+    current_level = logger.level
+    logger.setLevel(logging.ERROR)
+    yield
+    logger.setLevel(current_level)
