@@ -10,6 +10,10 @@
 * [#3721](https://github.com/netbox-community/netbox/issues/3721) - Allow Unicode characters in tag slugs
 * [#3951](https://github.com/netbox-community/netbox/issues/3951) - Fix exception in webhook worker due to missing constant
 * [#3953](https://github.com/netbox-community/netbox/issues/3953) - Fix validation error when creating child devices
+* [#3960](https://github.com/netbox-community/netbox/issues/3960) - Fix legacy device status choice
+* [#3962](https://github.com/netbox-community/netbox/issues/3962) - Fix display of unnamed devices in rack elevations
+* [#3963](https://github.com/netbox-community/netbox/issues/3963) - Restore tooltip for devices in rack elevations
+* [#3967](https://github.com/netbox-community/netbox/issues/3967) - Resolve migration of "other" interface type
 
 ---
 

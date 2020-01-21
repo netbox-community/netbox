@@ -395,14 +395,23 @@ class RackElevationHelperMixin:
                 fill='black'
             )
         )
+        link.set_desc('{} — {} ({}U) {} {}'.format(
+            device.device_role, device.device_type.display_name,
+            device.device_type.u_height, device.asset_tag or '', device.serial or ''
+        ))
         link.add(drawing.rect(start, end, style='fill: #{}'.format(color), class_='slot'))
         hex_color = '#{}'.format(foreground_color(color))
-        link.add(drawing.text(device.name, insert=text, fill=hex_color))
+        link.add(drawing.text(str(device), insert=text, fill=hex_color))
 
     @staticmethod
     def _draw_device_rear(drawing, device, start, end, text):
-        drawing.add(drawing.rect(start, end, class_="blocked"))
-        drawing.add(drawing.text(device.name, insert=text))
+        rect = drawing.rect(start, end, class_="blocked")
+        rect.set_desc('{} — {} ({}U) {} {}'.format(
+            device.device_role, device.device_type.display_name,
+            device.device_type.u_height, device.asset_tag or '', device.serial or ''
+        ))
+        drawing.add(rect)
+        drawing.add(drawing.text(str(device), insert=text))
 
     @staticmethod
     def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_):
