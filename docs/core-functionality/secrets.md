@@ -24,6 +24,20 @@ Each user within NetBox can associate his or her account with an RSA public key.
 
 User keys may be created by users individually, however they are of no use until they have been activated by a user who already possesses an active user key.
 
+## Supported Key Format
+
+Public key formats supported
+
+- PKCS#1 RSAPublicKey* (PEM header: BEGIN RSA PUBLIC KEY)
+- X.509 SubjectPublicKeyInfo** (PEM header: BEGIN PUBLIC KEY)
+- **OpenSSH line format is not supported.**
+
+Private key formats supported (unencrypted)
+
+- PKCS#1 RSAPrivateKey** (PEM header: BEGIN RSA PRIVATE KEY)
+- PKCS#8 PrivateKeyInfo* (PEM header: BEGIN PRIVATE KEY)
+
+
 ## Creating the First User Key
 
 When NetBox is first installed, it contains no encryption keys. Before it can store secrets, a user (typically the superuser) must create a user key. This can be done by navigating to Profile > User Key.
