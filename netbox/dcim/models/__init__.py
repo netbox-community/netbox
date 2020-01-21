@@ -468,7 +468,7 @@ class RackElevationHelperMixin:
         :param unit_height: Height of each rack unit for the rendered drawing. Note this is not the total
             height of the elevation
         """
-        elevation = self.get_rack_units(face=face, expand_devices=False)
+        elevation = self.get_rack_units(face=face, expand_devices=False, always_show_device=True)
         reserved_units = self.get_reserved_units().keys()
 
         return self._draw_elevations(elevation, reserved_units, face, unit_width, unit_height)
@@ -694,7 +694,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
     def get_status_class(self):
         return self.STATUS_CLASS_MAP.get(self.status)
 
-    def get_rack_units(self, face=DeviceFaceChoices.FACE_FRONT, exclude=None, expand_devices=True):
+    def get_rack_units(self, face=DeviceFaceChoices.FACE_FRONT, exclude=None, expand_devices=True, always_show_device=False):
         """
         Return a list of rack units as dictionaries. Example: {'device': None, 'face': 0, 'id': 48, 'name': 'U48'}
         Each key 'device' is either a Device or None. By default, multi-U devices are repeated for each U they occupy.
@@ -704,6 +704,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
         :param expand_devices: When True, all units that a device occupies will be listed with each containing a
             reference to the device. When False, only the bottom most unit for a device is included and that unit
             contains a height attribute for the device
+        :param always_show_device: When True it will always show the device, no matter its orientation.
+            When False it will only show full-width devices or those with the right orientation in the rack.
         """
 
         elevation = OrderedDict()
@@ -723,9 +725,11 @@ class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
             ).filter(
                 rack=self,
                 position__gt=0
-            ).filter(
-                Q(face=face) | Q(device_type__is_full_depth=True)
             )
+            if not always_show_device:
+                queryset = queryset.filter(
+                    Q(face=face) | Q(device_type__is_full_depth=True)
+                )
             for device in queryset:
                 if expand_devices:
                     for u in range(device.position, device.position + device.device_type.u_height):
