@@ -14,6 +14,7 @@
 * [#3962](https://github.com/netbox-community/netbox/issues/3962) - Fix display of unnamed devices in rack elevations
 * [#3963](https://github.com/netbox-community/netbox/issues/3963) - Restore tooltip for devices in rack elevations
 * [#3964](https://github.com/netbox-community/netbox/issues/3964) - Show borders around devices in rack elevations
+* [#3966](https://github.com/netbox-community/netbox/issues/3966) - Fix filtering of device components by region/site
 * [#3967](https://github.com/netbox-community/netbox/issues/3967) - Resolve migration of "other" interface type
 
 ---
