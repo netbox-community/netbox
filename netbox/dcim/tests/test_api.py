@@ -596,6 +596,21 @@ class RackTest(APITestCase):
 
         self.assertEqual(response.data['count'], 42)
 
+    def test_get_rack_elevation(self):
+
+        url = reverse('dcim-api:rack-elevation', kwargs={'pk': self.rack1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 42)
+
+    def test_get_rack_elevation_svg(self):
+
+        url = '{}?render=svg'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': self.rack1.pk}))
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.get('Content-Type'), 'image/svg+xml')
+
     def test_list_racks(self):
 
         url = reverse('dcim-api:rack-list')
