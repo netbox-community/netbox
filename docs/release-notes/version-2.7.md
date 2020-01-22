@@ -1,5 +1,9 @@
 # v2.7.3 (FUTURE)
 
+## Enhancements
+
+* [#3310](https://github.com/netbox-community/netbox/issues/3310) - Pre-select site/rack for B side when creating a new cable
+
 ## Bug Fixes
 
 * [#3983](https://github.com/netbox-community/netbox/issues/3983) - Permit the creation of multiple unnamed devices
