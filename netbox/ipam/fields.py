@@ -3,7 +3,7 @@ from django.db import models
 from netaddr import AddrFormatError, IPNetwork
 
 from . import lookups, validators
-from .formfields import IPFormField
+from .formfields import IPNetworkFormField
 
 
 class BaseIPField(models.Field):
@@ -33,7 +33,7 @@ class BaseIPField(models.Field):
         return str(self.to_python(value))
 
     def form_class(self):
-        return IPFormField
+        return IPNetworkFormField
 
     def formfield(self, **kwargs):
         defaults = {'form_class': self.form_class()}

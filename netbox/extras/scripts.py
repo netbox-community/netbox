@@ -14,10 +14,10 @@ from django.db import transaction
 from mptt.forms import TreeNodeChoiceField, TreeNodeMultipleChoiceField
 from mptt.models import MPTTModel
 
-from ipam.formfields import IPFormField
-from utilities.exceptions import AbortTransaction
-from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator
+from ipam.formfields import IPAddressFormField, IPNetworkFormField
+from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
+from utilities.exceptions import AbortTransaction
 from .forms import ScriptForm
 from .signals import purge_changelog
 
@@ -27,6 +27,8 @@ __all__ = [
     'ChoiceVar',
     'FileVar',
     'IntegerVar',
+    'IPAddressVar',
+    'IPAddressWithMaskVar',
     'IPNetworkVar',
     'MultiObjectVar',
     'ObjectVar',
@@ -48,15 +50,19 @@ class ScriptVariable:
 
     def __init__(self, label='', description='', default=None, required=True):
 
-        # Default field attributes
-        self.field_attrs = {
-            'help_text': description,
-            'required': required
-        }
+        # Initialize field attributes
+        if not hasattr(self, 'field_attrs'):
+            self.field_attrs = {}
+        if description:
+            self.field_attrs['help_text'] = description
         if label:
             self.field_attrs['label'] = label
         if default:
             self.field_attrs['initial'] = default
+        if required:
+            self.field_attrs['required'] = True
+        if 'validators' not in self.field_attrs:
+            self.field_attrs['validators'] = []
 
     def as_field(self):
         """
@@ -196,16 +202,31 @@ class FileVar(ScriptVariable):
     form_field = forms.FileField
 
 
+class IPAddressVar(ScriptVariable):
+    """
+    An IPv4 or IPv6 address without a mask.
+    """
+    form_field = IPAddressFormField
+
+
+class IPAddressWithMaskVar(ScriptVariable):
+    """
+    An IPv4 or IPv6 address with a mask.
+    """
+    form_field = IPNetworkFormField
+
+
 class IPNetworkVar(ScriptVariable):
     """
     An IPv4 or IPv6 prefix.
     """
-    form_field = IPFormField
+    form_field = IPNetworkFormField
+    field_attrs = {
+        'validators': [prefix_validator]
+    }
 
     def __init__(self, min_prefix_length=None, max_prefix_length=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.field_attrs['validators'] = list()
 
         # Optional minimum/maximum prefix lengths
         if min_prefix_length is not None:
