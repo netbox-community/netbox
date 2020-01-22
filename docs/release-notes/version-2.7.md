@@ -3,6 +3,7 @@
 ## Enhancements
 
 * [#3310](https://github.com/netbox-community/netbox/issues/3310) - Pre-select site/rack for B side when creating a new cable
+* [#3509](https://github.com/netbox-community/netbox/issues/3509) - Add IP address variables for custom scripts
 
 ## Bug Fixes
 
