@@ -16,7 +16,7 @@ from mptt.models import MPTTModel
 
 from ipam.formfields import IPFormField
 from utilities.exceptions import AbortTransaction
-from utilities.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator
+from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
 from .forms import ScriptForm
 from .signals import purge_changelog
