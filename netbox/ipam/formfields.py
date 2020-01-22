@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.validators import validate_ipv4_address, validate_ipv6_address
 from netaddr import IPAddress, IPNetwork, AddrFormatError
 
 
@@ -18,6 +19,16 @@ class IPAddressFormField(forms.Field):
 
         if isinstance(value, IPAddress):
             return value
+
+        # netaddr is a bit too liberal with what it accepts as a valid IP address. For example, '1.2.3' will become
+        # IPAddress('1.2.0.3'). Here, we employ Django's built-in IPv4 and IPv6 address validators as a sanity check.
+        try:
+            validate_ipv4_address(value)
+        except ValidationError:
+            try:
+                validate_ipv6_address(value)
+            except ValidationError:
+                raise ValidationError("Invalid IPv4/IPv6 address format: {}".format(value))
 
         try:
             return IPAddress(value)
