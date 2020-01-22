@@ -1,3 +1,11 @@
+# v2.7.3 (FUTURE)
+
+## Bug Fixes
+
+* [#3983](https://github.com/netbox-community/netbox/issues/3983) - Permit the creation of multiple unnamed devices
+
+---
+
 # v2.7.2 (2020-01-21)
 
 ## Enhancements
