@@ -1945,6 +1945,12 @@ class CableCreateView(PermissionRequiredMixin, GetReturnURLMixin, View):
         # Parse initial data manually to avoid setting field values as lists
         initial_data = {k: request.GET[k] for k in request.GET}
 
+        # Set initial site and rack based on side A termination (if not already set)
+        if 'termination_b_site' not in initial_data:
+            initial_data['termination_b_site'] = getattr(self.obj.termination_a.parent, 'site', None)
+        if 'termination_b_rack' not in initial_data:
+            initial_data['termination_b_rack'] = getattr(self.obj.termination_a.parent, 'rack', None)
+
         form = self.form_class(instance=self.obj, initial=initial_data)
 
         return render(request, self.template_name, {
