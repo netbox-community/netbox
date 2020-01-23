@@ -62,8 +62,20 @@ footer p {
     }
 }
 
+/* Scroll the drop-down menus at or above 768px wide to match bootstrap's behavior for hiding dropdown menus */
+@media (min-width: 768px) {
+    .navbar-nav>li>ul {
+        max-height: 80vh;
+        overflow-y: scroll;
+    }
+}
+
 /* Collapse the nav menu on displays less than 980px wide */
 @media (max-width: 979px) {
+    #navbar {
+        max-height: 80vh;
+        overflow-y: scroll;
+    }
     .navbar-header {
         float: none;
     }
