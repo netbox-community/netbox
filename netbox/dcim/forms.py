@@ -184,7 +184,7 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class RegionCSVForm(CustomFieldForm):
+class RegionCSVForm(forms.ModelForm):
     parent = forms.ModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -388,7 +388,7 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class RackGroupCSVForm(CustomFieldForm):
+class RackGroupCSVForm(forms.ModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -444,7 +444,7 @@ class RackRoleForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class RackRoleCSVForm(CustomFieldForm):
+class RackRoleCSVForm(forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -882,7 +882,7 @@ class ManufacturerForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class ManufacturerCSVForm(CustomFieldForm):
+class ManufacturerCSVForm(forms.ModelForm):
 
     class Meta:
         model = Manufacturer
@@ -1458,7 +1458,7 @@ class DeviceRoleForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class DeviceRoleCSVForm(CustomFieldForm):
+class DeviceRoleCSVForm(forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -1492,7 +1492,7 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PlatformCSVForm(CustomFieldForm):
+class PlatformCSVForm(forms.ModelForm):
     slug = SlugField()
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
@@ -2179,7 +2179,7 @@ class ConsolePortCreateForm(ComponentForm):
     )
 
 
-class ConsolePortCSVForm(CustomFieldForm):
+class ConsolePortCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -2271,7 +2271,7 @@ class ConsoleServerPortBulkDisconnectForm(ConfirmationForm):
     )
 
 
-class ConsoleServerPortCSVForm(CustomFieldForm):
+class ConsoleServerPortCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -2338,7 +2338,7 @@ class PowerPortCreateForm(ComponentForm):
     )
 
 
-class PowerPortCSVForm(CustomFieldForm):
+class PowerPortCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -2423,7 +2423,7 @@ class PowerOutletCreateForm(ComponentForm):
         self.fields['power_port'].queryset = PowerPort.objects.filter(device=self.parent)
 
 
-class PowerOutletCSVForm(CustomFieldForm):
+class PowerOutletCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -2672,7 +2672,7 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
             self.fields['lag'].queryset = Interface.objects.none()
 
 
-class InterfaceCSVForm(CustomFieldForm):
+class InterfaceCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
@@ -2929,7 +2929,7 @@ class FrontPortCreateForm(ComponentForm):
         }
 
 
-class FrontPortCSVForm(CustomFieldForm):
+class FrontPortCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -3055,7 +3055,7 @@ class RearPortCreateForm(ComponentForm):
     )
 
 
-class RearPortCSVForm(CustomFieldForm):
+class RearPortCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -3365,7 +3365,7 @@ class CableForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class CableCSVForm(CustomFieldForm):
+class CableCSVForm(forms.ModelForm):
 
     # Termination A
     side_a_device = FlexibleModelChoiceField(
@@ -3659,7 +3659,7 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
         ).exclude(pk=device_bay.device.pk)
 
 
-class DeviceBayCSVForm(CustomFieldForm):
+class DeviceBayCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -3801,7 +3801,7 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class InventoryItemCSVForm(CustomFieldForm):
+class InventoryItemCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -4130,7 +4130,7 @@ class PowerPanelForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPanelCSVForm(CustomFieldForm):
+class PowerPanelCSVForm(forms.ModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',

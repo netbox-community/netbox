@@ -23,7 +23,7 @@ class TenantGroupForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class TenantGroupCSVForm(CustomFieldForm):
+class TenantGroupCSVForm(forms.ModelForm):
     slug = SlugField()
 
     class Meta:

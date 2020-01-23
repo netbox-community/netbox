@@ -33,7 +33,7 @@ class ClusterTypeForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class ClusterTypeCSVForm(CustomFieldForm):
+class ClusterTypeCSVForm(forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -58,7 +58,7 @@ class ClusterGroupForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class ClusterGroupCSVForm(CustomFieldForm):
+class ClusterGroupCSVForm(forms.ModelForm):
     slug = SlugField()
 
     class Meta:

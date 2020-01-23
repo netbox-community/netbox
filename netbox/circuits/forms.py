@@ -144,7 +144,7 @@ class CircuitTypeForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class CircuitTypeCSVForm(CustomFieldForm):
+class CircuitTypeCSVForm(forms.ModelForm):
     slug = SlugField()
 
     class Meta:

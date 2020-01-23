@@ -118,7 +118,7 @@ class RIRForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class RIRCSVForm(CustomFieldForm):
+class RIRCSVForm(forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -247,7 +247,7 @@ class RoleForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class RoleCSVForm(CustomFieldForm):
+class RoleCSVForm(forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -1026,7 +1026,7 @@ class VLANGroupForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class VLANGroupCSVForm(CustomFieldForm):
+class VLANGroupCSVForm(forms.ModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,

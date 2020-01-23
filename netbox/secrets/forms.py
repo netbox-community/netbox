@@ -52,7 +52,7 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class SecretRoleCSVForm(CustomFieldForm):
+class SecretRoleCSVForm(forms.ModelForm):
     slug = SlugField()
 
     class Meta:
