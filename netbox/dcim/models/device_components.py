@@ -87,7 +87,14 @@ class CableTermination(models.Model):
     class Meta:
         abstract = True
 
-    def trace(self, position=1, follow_circuits=False, cable_history=None):
+    def get_peer_port(self):
+        """
+        Base method for getting the next port on a trace. Using the example of `trace()` this is for getting from
+        termination B to termination C.
+        """
+        return None
+
+    def trace(self, follow_circuits=False, cable_history=None):
         """
         Return a list representing a complete cable path, with each individual segment represented as a three-tuple:
             [
@@ -95,40 +102,28 @@ class CableTermination(models.Model):
                 (termination C, cable, termination D),
                 (termination E, cable, termination F)
             ]
+
+        This traces through front/rear ports and stops when there is no further connection, or when there is a rear
+        port with multiple front ports when it is not know which front port to continue on. An example of an end-to-end
+        trace:
+
+            [
+                (Interface, Cable, FrontPort),
+                (RearPort, Cable, RearPort),
+                (FrontPort, cable, Interface)
+            ]
+
+        And an example of a trace where we stop at a rear port:
+
+            [
+                (RearPort, Cable, FrontPort),
+                (RearPort, Cable, RearPort),
+                (FrontPort, cable, RearPort)
+            ]
+
+        In this last example we start tracing at a rear port, so the only thing that makes sense is to end at the
+        corresponding rear port.
         """
-        def get_peer_port(termination, position=1, follow_circuits=False):
-            from circuits.models import CircuitTermination
-
-            # Map a front port to its corresponding rear port
-            if isinstance(termination, FrontPort):
-                return termination.rear_port, termination.rear_port_position
-
-            # Map a rear port/position to its corresponding front port
-            elif isinstance(termination, RearPort):
-                if position not in range(1, termination.positions + 1):
-                    raise Exception("Invalid position for {} ({} positions): {})".format(
-                        termination, termination.positions, position
-                    ))
-                try:
-                    peer_port = FrontPort.objects.get(
-                        rear_port=termination,
-                        rear_port_position=position,
-                    )
-                    return peer_port, 1
-                except ObjectDoesNotExist:
-                    return None, None
-
-            # Follow a circuit to its other termination
-            elif isinstance(termination, CircuitTermination) and follow_circuits:
-                peer_termination = termination.get_peer_termination()
-                if peer_termination is None:
-                    return None, None
-                return peer_termination, position
-
-            # Termination is not a pass-through port
-            else:
-                return None, None
-
         if not self.cable:
             return [(self, None, None)]
 
@@ -139,22 +134,42 @@ class CableTermination(models.Model):
             raise LoopDetected()
         cable_history.append(self.cable)
 
-        far_end = self.cable.termination_b if self.cable.termination_a == self else self.cable.termination_a
-        path = [(self, self.cable, far_end)]
+        # Determine the other end of our cable (like termination B)
+        other_end = self.cable.termination_b if self._cabled_as_a.exists() else self.cable.termination_a
+        path = [(self, self.cable, other_end)]
 
-        peer_port, position = get_peer_port(far_end, position, follow_circuits)
-        if peer_port is None:
+        if isinstance(other_end, RearPort) and other_end.positions > 1:
+            # When we end up here we have reached a rear port with multiple front ports, but we don't know which front
+            # port to continue with. So this is the end of the line.
             return path
 
-        try:
-            next_segment = peer_port.trace(position, follow_circuits, cable_history)
-        except LoopDetected:
+        from circuits.models import CircuitTermination
+        if isinstance(other_end, CircuitTermination) and not follow_circuits:
+            # Not tracing the circuit, stop here
             return path
 
-        if next_segment is None:
-            return path + [(peer_port, None, None)]
+        # What comes after the other end? (like termination C)
+        other_end_peer_port = other_end.get_peer_port()
+        while other_end_peer_port:
+            path += other_end_peer_port.trace(follow_circuits=follow_circuits, cable_history=cable_history)
 
-        return path + next_segment
+            if isinstance(other_end, FrontPort) and \
+                    isinstance(other_end_peer_port, RearPort) and other_end_peer_port.positions > 1:
+                # Trace the rear port separately, then continue with the corresponding front port
+                saved_rear_port_position = other_end.rear_port_position
+
+                # Other end is the end of the traced path (like termination D)
+                other_end = path[-1][2]
+                other_end_peer_port = None
+                if isinstance(other_end, RearPort):
+                    # The trace ends with a rear port, find the corresponding front port (like termination F)
+                    other_end_peer_port = other_end.get_peer_port(saved_rear_port_position)
+
+            else:
+                # Everything else has already been handled by simple recursion
+                break
+
+        return path
 
     def get_cable_peer(self):
         if self.cable is None:
@@ -818,6 +833,9 @@ class FrontPort(CableTermination, ComponentModel):
                 )
             )
 
+    def get_peer_port(self):
+        return self.rear_port
+
 
 class RearPort(CableTermination, ComponentModel):
     """
@@ -862,6 +880,17 @@ class RearPort(CableTermination, ComponentModel):
             self.positions,
             self.description,
         )
+
+    def get_peer_port(self, position=1):
+        if position not in range(1, self.positions + 1):
+            raise Exception("Invalid position for {} ({} positions): {})".format(
+                self, self.positions, position
+            ))
+
+        try:
+            return self.frontports.get(rear_port_position=position)
+        except FrontPort.DoesNotExist:
+            return None
 
 
 #

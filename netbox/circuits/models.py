@@ -327,3 +327,6 @@ class CircuitTermination(CableTermination):
             return CircuitTermination.objects.prefetch_related('site').get(circuit=self.circuit, term_side=peer_side)
         except CircuitTermination.DoesNotExist:
             return None
+
+    def get_peer_port(self):
+        return self.get_peer_termination()
