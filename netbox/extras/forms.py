@@ -10,7 +10,7 @@ from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
-    CSVCustomFieldChoiceField, CommentField, ContentTypeSelect, DatePicker, DateTimePicker, FilterChoiceField,
+    CustomFieldChoiceField, CommentField, ContentTypeSelect, DatePicker, DateTimePicker, FilterChoiceField,
     LaxURLField, JSONField, SlugField, StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from .choices import *
@@ -71,7 +71,7 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
                     default_choice = cf.choices.get(value=initial).pk
                 except ObjectDoesNotExist:
                     pass
-            field = CSVCustomFieldChoiceField(
+            field = CustomFieldChoiceField(
                 choices=choices, coerce=int, required=cf.required, initial=default_choice, widget=StaticSelect2()
             )
 
