@@ -61,7 +61,7 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
 
         # Select
         elif cf.type == CustomFieldTypeChoices.TYPE_SELECT:
-            choices = [(cfc.pk, cfc) for cfc in cf.choices.all()]
+            choices = [(cfc.pk, cfc.value) for cfc in cf.choices.all()]
             if not cf.required or bulk_edit or filterable_only:
                 choices = [(None, '---------')] + choices
             # Check for a default choice
