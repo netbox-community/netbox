@@ -93,12 +93,11 @@ class ObjectListView(View):
         # Start with the column headers
         headers = self.queryset.model.csv_headers.copy()
 
-        # Add custom field headers
-        content_type = ContentType.objects.get_for_model(self.queryset.model)
-
-        for custom_field in CustomField.objects.filter(obj_type=content_type):
-            headers.append(custom_field.name)
-            custom_fields.append(custom_field.name)
+        # Add custom field headers, if any
+        if hasattr(self.queryset.model, 'get_custom_fields'):
+            for custom_field in self.queryset.model().get_custom_fields():
+                headers.append(custom_field.name)
+                custom_fields.append(custom_field.name)
 
         csv_data.append(','.join(headers))
 
