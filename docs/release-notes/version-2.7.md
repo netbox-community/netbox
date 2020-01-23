@@ -8,6 +8,7 @@
 ## Bug Fixes
 
 * [#3983](https://github.com/netbox-community/netbox/issues/3983) - Permit the creation of multiple unnamed devices
+* [#3989](https://github.com/netbox-community/netbox/issues/3989) - Correct HTTP content type assignment for webhooks
 * [#3995](https://github.com/netbox-community/netbox/issues/3995) - Fixed overflowing dropdown menus becoming unreachable
 
 ---
