@@ -124,6 +124,14 @@ EXEMPT_VIEW_PERMISSIONS = [
     # 'ipam.prefix',
 ]
 
+# This repository is used to check whether there is a new release of NetBox available. Set to None to disable the
+# version check.
+GITHUB_REPOSITORY = 'netbox-community/netbox'
+
+# This determines how often the GitHub API is called to check the latest release of NetBox. Set to 0 to disable the
+# version check.
+GITHUB_VERSION_TIMEOUT = 8 * 3600
+
 # Enable custom logging. Please see the Django documentation for detailed guidance on configuring custom logs:
 #   https://docs.djangoproject.com/en/stable/topics/logging/
 LOGGING = {}

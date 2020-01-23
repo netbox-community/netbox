@@ -1,6 +1,7 @@
 import logging
 import os
 import platform
+import re
 import socket
 import warnings
 
@@ -78,6 +79,8 @@ DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 EMAIL = getattr(configuration, 'EMAIL', {})
 ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
+GITHUB_REPOSITORY = getattr(configuration, 'GITHUB_REPOSITORY', 'netbox-community/netbox')
+GITHUB_VERSION_TIMEOUT = getattr(configuration, 'GITHUB_VERSION_TIMEOUT', 8 * 3600)
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
@@ -292,6 +295,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'utilities.context_processors.settings',
+                'utilities.context_processors.latest_version',
             ],
         },
     },
@@ -301,6 +305,12 @@ TEMPLATES = [
 AUTHENTICATION_BACKENDS = [
     'utilities.auth_backends.ViewExemptModelBackend',
 ]
+
+# GitHub repository for version check
+if GITHUB_REPOSITORY and not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', GITHUB_REPOSITORY):
+    raise ImproperlyConfigured(
+        "GITHUB_REPOSITORY must contain the name of a GitHub repository in the form '<owner>/<repository>'"
+    )
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'

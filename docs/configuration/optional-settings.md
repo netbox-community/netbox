@@ -157,6 +157,22 @@ Enforcement of unique IP space can be toggled on a per-VRF basis. To enforce uni
 
 ---
 
+## GITHUB_REPOSITORY
+
+Default: 'netbox-community/netbox'
+
+The tags of this repository are checked to detect new releases, which are shown in the footer of the web interface. You can change this to your own fork of the NetBox repository, or set it to `None` to disable the check.
+
+---
+
+## GITHUB_VERSION_TIMEOUT
+
+Default: 8 * 3600
+
+The number of seconds to retain the latest version that is fetched from the GitHub API before automatically invalidating it and fetching it from the API again. Set to 0 to disable the version check.
+
+---
+
 ## LOGGING
 
 By default, all messages of INFO severity or higher will be logged to the console. Additionally, if `DEBUG` is False and email access has been configured, ERROR and CRITICAL messages will be emailed to the users defined in `ADMINS`.
