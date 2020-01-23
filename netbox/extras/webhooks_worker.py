@@ -23,7 +23,7 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
         'data': data
     }
     headers = {
-        'Content-Type': webhook.get_http_content_type_display(),
+        'Content-Type': webhook.http_content_type,
     }
     if webhook.additional_headers:
         headers.update(webhook.additional_headers)
