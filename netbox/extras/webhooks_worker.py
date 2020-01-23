@@ -1,5 +1,3 @@
-import hashlib
-import hmac
 import json
 
 import requests
@@ -7,6 +5,7 @@ from django_rq import job
 from rest_framework.utils.encoders import JSONEncoder
 
 from .choices import ObjectChangeActionChoices, WebhookContentTypeChoices
+from .webhooks import generate_signature
 
 
 @job('default')
@@ -43,12 +42,7 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
 
     if webhook.secret != '':
         # Sign the request with a hash of the secret key and its content.
-        hmac_prep = hmac.new(
-            key=webhook.secret.encode('utf8'),
-            msg=prepared_request.body.encode('utf8'),
-            digestmod=hashlib.sha512
-        )
-        prepared_request.headers['X-Hook-Signature'] = hmac_prep.hexdigest()
+        prepared_request.headers['X-Hook-Signature'] = generate_signature(prepared_request.body, webhook.secret)
 
     with requests.Session() as session:
         session.verify = webhook.ssl_verification
@@ -56,7 +50,7 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
             session.verify = webhook.ca_file_path
         response = session.send(prepared_request)
 
-    if response.status_code >= 200 and response.status_code <= 299:
+    if 200 <= response.status_code <= 299:
         return 'Status {} returned, webhook successfully processed.'.format(response.status_code)
     else:
         raise requests.exceptions.RequestException(
