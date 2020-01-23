@@ -91,16 +91,16 @@ class ObjectListView(View):
         custom_fields = []
 
         # Start with the column headers
-        headers = ','.join(self.queryset.model.csv_headers)
+        headers = self.queryset.model.csv_headers.copy()
 
         # Add custom field headers
         content_type = ContentType.objects.get_for_model(self.queryset.model)
 
         for custom_field in CustomField.objects.filter(obj_type=content_type):
-            headers += ',cf_{}'.format(custom_field.name)
+            headers.append(custom_field.name)
             custom_fields.append(custom_field.name)
 
-        csv_data.append(headers)
+        csv_data.append(','.join(headers))
 
         # Iterate through the queryset appending each object
         for obj in self.queryset:
