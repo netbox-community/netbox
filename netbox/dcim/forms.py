@@ -3168,6 +3168,11 @@ class ConnectCableToDeviceForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFo
             'termination_b_site', 'termination_b_rack', 'termination_b_device', 'termination_b_id', 'type', 'status',
             'label', 'color', 'length', 'length_unit',
         ]
+        widgets = {
+            'status': StaticSelect2,
+            'type': StaticSelect2,
+            'length_unit': StaticSelect2,
+        }
 
 
 class ConnectCableToConsolePortForm(ConnectCableToDeviceForm):
@@ -3363,6 +3368,11 @@ class CableForm(BootstrapMixin, forms.ModelForm):
         fields = [
             'type', 'status', 'label', 'color', 'length', 'length_unit',
         ]
+        widgets = {
+            'status': StaticSelect2,
+            'type': StaticSelect2,
+            'length_unit': StaticSelect2,
+        }
 
 
 class CableCSVForm(forms.ModelForm):

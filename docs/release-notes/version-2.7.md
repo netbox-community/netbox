@@ -3,6 +3,13 @@
 ## Enhancements
 
 * [#568](https://github.com/netbox-community/netbox/issues/568) - Allow custom fields to be imported and exported using CSV
+* [#3310](https://github.com/netbox-community/netbox/issues/3310) - Pre-select site/rack for B side when creating a new cable
+* [#3509](https://github.com/netbox-community/netbox/issues/3509) - Add IP address variables for custom scripts
+
+## Bug Fixes
+
+* [#3983](https://github.com/netbox-community/netbox/issues/3983) - Permit the creation of multiple unnamed devices
+* [#3989](https://github.com/netbox-community/netbox/issues/3989) - Correct HTTP content type assignment for webhooks
 
 ---
 

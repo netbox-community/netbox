@@ -4,6 +4,7 @@ from netaddr import IPNetwork
 from rest_framework import status
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
+from dcim.api import serializers
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
@@ -594,6 +595,21 @@ class RackTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 42)
+
+    def test_get_rack_elevation(self):
+
+        url = reverse('dcim-api:rack-elevation', kwargs={'pk': self.rack1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 42)
+
+    def test_get_rack_elevation_svg(self):
+
+        url = '{}?render=svg'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': self.rack1.pk}))
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.get('Content-Type'), 'image/svg+xml')
 
     def test_list_racks(self):
 
@@ -1900,6 +1916,31 @@ class DeviceTest(APITestCase):
         self.assertEqual(response.data['device_role']['id'], self.devicerole1.pk)
         self.assertEqual(response.data['cluster']['id'], self.cluster1.pk)
 
+    def test_get_device_graphs(self):
+
+        device_ct = ContentType.objects.get_for_model(Device)
+        self.graph1 = Graph.objects.create(
+            type=device_ct,
+            name='Test Graph 1',
+            source='http://example.com/graphs.py?device={{ obj.name }}&foo=1'
+        )
+        self.graph2 = Graph.objects.create(
+            type=device_ct,
+            name='Test Graph 2',
+            source='http://example.com/graphs.py?device={{ obj.name }}&foo=2'
+        )
+        self.graph3 = Graph.objects.create(
+            type=device_ct,
+            name='Test Graph 3',
+            source='http://example.com/graphs.py?device={{ obj.name }}&foo=3'
+        )
+
+        url = reverse('dcim-api:device-graphs', kwargs={'pk': self.device1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(len(response.data), 3)
+        self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?device=Test Device 1&foo=1')
+
     def test_list_devices(self):
 
         url = reverse('dcim-api:device-list')
@@ -2134,6 +2175,31 @@ class ConsolePortTest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ConsolePort.objects.count(), 2)
 
+    def test_trace_consoleport(self):
+
+        peer_device = Device.objects.create(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='Peer Device'
+        )
+        console_server_port = ConsoleServerPort.objects.create(
+            device=peer_device,
+            name='Console Server Port 1'
+        )
+        cable = Cable(termination_a=self.consoleport1, termination_b=console_server_port, label='Cable 1')
+        cable.save()
+
+        url = reverse('dcim-api:consoleport-trace', kwargs={'pk': self.consoleport1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], self.consoleport1.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], console_server_port.name)
+
 
 class ConsoleServerPortTest(APITestCase):
 
@@ -2244,6 +2310,31 @@ class ConsoleServerPortTest(APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ConsoleServerPort.objects.count(), 2)
+
+    def test_trace_consoleserverport(self):
+
+        peer_device = Device.objects.create(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='Peer Device'
+        )
+        console_port = ConsolePort.objects.create(
+            device=peer_device,
+            name='Console Port 1'
+        )
+        cable = Cable(termination_a=self.consoleserverport1, termination_b=console_port, label='Cable 1')
+        cable.save()
+
+        url = reverse('dcim-api:consoleserverport-trace', kwargs={'pk': self.consoleserverport1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], self.consoleserverport1.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], console_port.name)
 
 
 class PowerPortTest(APITestCase):
@@ -2358,6 +2449,31 @@ class PowerPortTest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(PowerPort.objects.count(), 2)
 
+    def test_trace_powerport(self):
+
+        peer_device = Device.objects.create(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='Peer Device'
+        )
+        power_outlet = PowerOutlet.objects.create(
+            device=peer_device,
+            name='Power Outlet 1'
+        )
+        cable = Cable(termination_a=self.powerport1, termination_b=power_outlet, label='Cable 1')
+        cable.save()
+
+        url = reverse('dcim-api:powerport-trace', kwargs={'pk': self.powerport1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], self.powerport1.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], power_outlet.name)
+
 
 class PowerOutletTest(APITestCase):
 
@@ -2468,6 +2584,31 @@ class PowerOutletTest(APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(PowerOutlet.objects.count(), 2)
+
+    def test_trace_poweroutlet(self):
+
+        peer_device = Device.objects.create(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='Peer Device'
+        )
+        power_port = PowerPort.objects.create(
+            device=peer_device,
+            name='Power Port 1'
+        )
+        cable = Cable(termination_a=self.poweroutlet1, termination_b=power_port, label='Cable 1')
+        cable.save()
+
+        url = reverse('dcim-api:poweroutlet-trace', kwargs={'pk': self.poweroutlet1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], self.poweroutlet1.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], power_port.name)
 
 
 class InterfaceTest(APITestCase):
@@ -2671,6 +2812,262 @@ class InterfaceTest(APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Interface.objects.count(), 2)
+
+
+class FrontPortTest(APITestCase):
+
+    def setUp(self):
+
+        super().setUp()
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.device = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
+        )
+        rear_ports = RearPort.objects.bulk_create((
+            RearPort(device=self.device, name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C),
+            RearPort(device=self.device, name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C),
+            RearPort(device=self.device, name='Rear Port 3', type=PortTypeChoices.TYPE_8P8C),
+            RearPort(device=self.device, name='Rear Port 4', type=PortTypeChoices.TYPE_8P8C),
+            RearPort(device=self.device, name='Rear Port 5', type=PortTypeChoices.TYPE_8P8C),
+            RearPort(device=self.device, name='Rear Port 6', type=PortTypeChoices.TYPE_8P8C),
+        ))
+        self.frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0])
+        self.frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[1])
+        self.frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 3', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[2])
+
+    def test_get_frontport(self):
+
+        url = reverse('dcim-api:frontport-detail', kwargs={'pk': self.frontport1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.frontport1.name)
+
+    def test_list_frontports(self):
+
+        url = reverse('dcim-api:frontport-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_list_frontports_brief(self):
+
+        url = reverse('dcim-api:frontport-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['cable', 'device', 'id', 'name', 'url']
+        )
+
+    def test_create_frontport(self):
+
+        rear_port = RearPort.objects.get(name='Rear Port 4')
+        data = {
+            'device': self.device.pk,
+            'name': 'Front Port 4',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'rear_port': rear_port.pk,
+            'rear_port_position': 1,
+        }
+
+        url = reverse('dcim-api:frontport-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(FrontPort.objects.count(), 4)
+        frontport4 = FrontPort.objects.get(pk=response.data['id'])
+        self.assertEqual(frontport4.device_id, data['device'])
+        self.assertEqual(frontport4.name, data['name'])
+
+    def test_create_frontport_bulk(self):
+
+        rear_ports = RearPort.objects.filter(frontports__isnull=True)
+        data = [
+            {
+                'device': self.device.pk,
+                'name': 'Front Port 4',
+                'type': PortTypeChoices.TYPE_8P8C,
+                'rear_port': rear_ports[0].pk,
+                'rear_port_position': 1,
+            },
+            {
+                'device': self.device.pk,
+                'name': 'Front Port 5',
+                'type': PortTypeChoices.TYPE_8P8C,
+                'rear_port': rear_ports[1].pk,
+                'rear_port_position': 1,
+            },
+            {
+                'device': self.device.pk,
+                'name': 'Front Port 6',
+                'type': PortTypeChoices.TYPE_8P8C,
+                'rear_port': rear_ports[2].pk,
+                'rear_port_position': 1,
+            },
+        ]
+
+        url = reverse('dcim-api:frontport-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(FrontPort.objects.count(), 6)
+        self.assertEqual(response.data[0]['name'], data[0]['name'])
+        self.assertEqual(response.data[1]['name'], data[1]['name'])
+        self.assertEqual(response.data[2]['name'], data[2]['name'])
+
+    def test_update_frontport(self):
+
+        rear_port = RearPort.objects.get(name='Rear Port 4')
+        data = {
+            'device': self.device.pk,
+            'name': 'Front Port X',
+            'type': PortTypeChoices.TYPE_110_PUNCH,
+            'rear_port': rear_port.pk,
+            'rear_port_position': 1,
+        }
+
+        url = reverse('dcim-api:frontport-detail', kwargs={'pk': self.frontport1.pk})
+        response = self.client.put(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(FrontPort.objects.count(), 3)
+        frontport1 = FrontPort.objects.get(pk=response.data['id'])
+        self.assertEqual(frontport1.name, data['name'])
+        self.assertEqual(frontport1.type, data['type'])
+        self.assertEqual(frontport1.rear_port, rear_port)
+
+    def test_delete_frontport(self):
+
+        url = reverse('dcim-api:frontport-detail', kwargs={'pk': self.frontport1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(FrontPort.objects.count(), 2)
+
+
+class RearPortTest(APITestCase):
+
+    def setUp(self):
+
+        super().setUp()
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.device = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
+        )
+        self.rearport1 = RearPort.objects.create(device=self.device, type=PortTypeChoices.TYPE_8P8C, name='Rear Port 1')
+        self.rearport3 = RearPort.objects.create(device=self.device, type=PortTypeChoices.TYPE_8P8C, name='Rear Port 2')
+        self.rearport1 = RearPort.objects.create(device=self.device, type=PortTypeChoices.TYPE_8P8C, name='Rear Port 3')
+
+    def test_get_rearport(self):
+
+        url = reverse('dcim-api:rearport-detail', kwargs={'pk': self.rearport1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.rearport1.name)
+
+    def test_list_rearports(self):
+
+        url = reverse('dcim-api:rearport-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_list_rearports_brief(self):
+
+        url = reverse('dcim-api:rearport-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['cable', 'device', 'id', 'name', 'url']
+        )
+
+    def test_create_rearport(self):
+
+        data = {
+            'device': self.device.pk,
+            'name': 'Front Port 4',
+            'type': PortTypeChoices.TYPE_8P8C,
+        }
+
+        url = reverse('dcim-api:rearport-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(RearPort.objects.count(), 4)
+        rearport4 = RearPort.objects.get(pk=response.data['id'])
+        self.assertEqual(rearport4.device_id, data['device'])
+        self.assertEqual(rearport4.name, data['name'])
+
+    def test_create_rearport_bulk(self):
+
+        data = [
+            {
+                'device': self.device.pk,
+                'name': 'Rear Port 4',
+                'type': PortTypeChoices.TYPE_8P8C,
+            },
+            {
+                'device': self.device.pk,
+                'name': 'Rear Port 5',
+                'type': PortTypeChoices.TYPE_8P8C,
+            },
+            {
+                'device': self.device.pk,
+                'name': 'Rear Port 6',
+                'type': PortTypeChoices.TYPE_8P8C,
+            },
+        ]
+
+        url = reverse('dcim-api:rearport-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(RearPort.objects.count(), 6)
+        self.assertEqual(response.data[0]['name'], data[0]['name'])
+        self.assertEqual(response.data[1]['name'], data[1]['name'])
+        self.assertEqual(response.data[2]['name'], data[2]['name'])
+
+    def test_update_rearport(self):
+
+        data = {
+            'device': self.device.pk,
+            'name': 'Front Port X',
+            'type': PortTypeChoices.TYPE_110_PUNCH
+        }
+
+        url = reverse('dcim-api:rearport-detail', kwargs={'pk': self.rearport1.pk})
+        response = self.client.put(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(RearPort.objects.count(), 3)
+        rearport1 = RearPort.objects.get(pk=response.data['id'])
+        self.assertEqual(rearport1.name, data['name'])
+        self.assertEqual(rearport1.type, data['type'])
+
+    def test_delete_rearport(self):
+
+        url = reverse('dcim-api:rearport-detail', kwargs={'pk': self.rearport1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(RearPort.objects.count(), 2)
 
 
 class DeviceBayTest(APITestCase):

@@ -1,4 +1,6 @@
 import datetime
+import hashlib
+import hmac
 
 from django.contrib.contenttypes.models import ContentType
 
@@ -6,6 +8,18 @@ from extras.models import Webhook
 from utilities.api import get_serializer_for_model
 from .choices import *
 from .constants import *
+
+
+def generate_signature(request_body, secret):
+    """
+    Return a cryptographic signature that can be used to verify the authenticity of webhook data.
+    """
+    hmac_prep = hmac.new(
+        key=secret.encode('utf8'),
+        msg=request_body.encode('utf8'),
+        digestmod=hashlib.sha512
+    )
+    return hmac_prep.hexdigest()
 
 
 def enqueue_webhooks(instance, user, request_id, action):
