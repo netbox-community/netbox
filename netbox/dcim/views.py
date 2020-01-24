@@ -30,6 +30,7 @@ from utilities.views import (
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
+from .choices import DeviceFaceChoices
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
@@ -376,16 +377,15 @@ class RackElevationListView(PermissionRequiredMixin, View):
             page = paginator.page(paginator.num_pages)
 
         # Determine rack face
-        if request.GET.get('face') == '1':
-            face_id = 1
-        else:
-            face_id = 0
+        rack_face = request.GET.get('face', DeviceFaceChoices.FACE_FRONT)
+        if rack_face not in DeviceFaceChoices.values():
+            rack_face = DeviceFaceChoices.FACE_FRONT
 
         return render(request, 'dcim/rack_elevation_list.html', {
             'paginator': paginator,
             'page': page,
             'total_count': total_count,
-            'face_id': face_id,
+            'rack_face': rack_face,
             'filter_form': forms.RackElevationFilterForm(request.GET),
         })
 

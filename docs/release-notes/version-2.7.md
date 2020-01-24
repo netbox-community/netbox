@@ -13,6 +13,7 @@
 * [#3983](https://github.com/netbox-community/netbox/issues/3983) - Permit the creation of multiple unnamed devices
 * [#3989](https://github.com/netbox-community/netbox/issues/3989) - Correct HTTP content type assignment for webhooks
 * [#3999](https://github.com/netbox-community/netbox/issues/3999) - Do not filter child results by null if non-required parent fields are blank
+* [#4008](https://github.com/netbox-community/netbox/issues/4008) - Toggle rack elevation face using front/rear strings
 
 ---
 
