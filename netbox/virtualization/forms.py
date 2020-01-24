@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
 from dcim.choices import InterfaceModeChoices
+from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
 from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
@@ -745,8 +746,8 @@ class InterfaceCreateForm(ComponentForm):
     )
     mtu = forms.IntegerField(
         required=False,
-        min_value=1,
-        max_value=32767,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
         label='MTU'
     )
     mac_address = forms.CharField(
@@ -834,8 +835,8 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     mtu = forms.IntegerField(
         required=False,
-        min_value=1,
-        max_value=32767,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
         label='MTU'
     )
     description = forms.CharField(
@@ -931,8 +932,8 @@ class VirtualMachineBulkAddInterfaceForm(VirtualMachineBulkAddComponentForm):
     )
     mtu = forms.IntegerField(
         required=False,
-        min_value=1,
-        max_value=32767,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
         label='MTU'
     )
     description = forms.CharField(

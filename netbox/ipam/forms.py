@@ -13,6 +13,7 @@ from utilities.forms import (
     SlugField, StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES
 )
 from virtualization.models import VirtualMachine
+from .constants import *
 from .choices import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
@@ -450,8 +451,8 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         )
     )
     prefix_length = forms.IntegerField(
-        min_value=1,
-        max_value=127,
+        min_value=PREFIX_LENGTH_MIN,
+        max_value=PREFIX_LENGTH_MAX,
         required=False
     )
     tenant = forms.ModelChoiceField(
@@ -896,8 +897,8 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         )
     )
     mask_length = forms.IntegerField(
-        min_value=1,
-        max_value=128,
+        min_value=IPADDRESS_MASK_LENGTH_MIN,
+        max_value=IPADDRESS_MASK_LENGTH_MAX,
         required=False
     )
     tenant = forms.ModelChoiceField(
@@ -1300,8 +1301,8 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 
 class ServiceForm(BootstrapMixin, CustomFieldForm):
     port = forms.IntegerField(
-        min_value=1,
-        max_value=65535
+        min_value=SERVICE_PORT_MIN,
+        max_value=SERVICE_PORT_MAX
     )
     tags = TagField(
         required=False
