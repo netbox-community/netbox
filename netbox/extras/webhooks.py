@@ -3,6 +3,7 @@ import hashlib
 import hmac
 
 from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
 
 from extras.models import Webhook
 from utilities.api import get_serializer_for_model
@@ -62,7 +63,7 @@ def enqueue_webhooks(instance, user, request_id, action):
                 serializer.data,
                 instance._meta.model_name,
                 action,
-                str(datetime.datetime.now()),
+                str(timezone.now()),
                 user.username,
                 request_id
             )
