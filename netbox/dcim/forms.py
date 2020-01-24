@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
 from mptt.forms import TreeNodeChoiceField
 from netaddr import EUI
 from netaddr.core import AddrFormatError
@@ -1301,8 +1300,8 @@ class RearPortTemplateCreateForm(ComponentForm):
         widget=StaticSelect2(),
     )
     positions = forms.IntegerField(
-        min_value=1,
-        max_value=64,
+        min_value=REARPORT_POSITIONS_MIN,
+        max_value=REARPORT_POSITIONS_MAX,
         initial=1,
         help_text='The number of front ports which may be mapped to each rear port'
     )
@@ -1641,6 +1640,16 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             kwargs['initial']['manufacturer'] = instance.device_type.manufacturer
         if instance and instance.cluster is not None:
             kwargs['initial']['cluster_group'] = instance.cluster.group
+
+        if 'device_type' in kwargs['initial'] and 'manufacturer' not in kwargs['initial']:
+            device_type_id = kwargs['initial']['device_type']
+            manufacturer_id = DeviceType.objects.filter(pk=device_type_id).values_list('manufacturer__pk', flat=True).first()
+            kwargs['initial']['manufacturer'] = manufacturer_id
+
+        if 'cluster' in kwargs['initial'] and 'cluster_group' not in kwargs['initial']:
+            cluster_id = kwargs['initial']['cluster']
+            cluster_group_id = Cluster.objects.filter(pk=cluster_id).values_list('group__pk', flat=True).first()
+            kwargs['initial']['cluster_group'] = cluster_group_id
 
         super().__init__(*args, **kwargs)
 
@@ -2123,8 +2132,8 @@ class DeviceBulkAddInterfaceForm(DeviceBulkAddComponentForm):
     )
     mtu = forms.IntegerField(
         required=False,
-        min_value=1,
-        max_value=32767,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
         label='MTU'
     )
     mgmt_only = forms.BooleanField(
@@ -2620,8 +2629,8 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
     )
     mtu = forms.IntegerField(
         required=False,
-        min_value=1,
-        max_value=32767,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
         label='MTU'
     )
     mac_address = forms.CharField(
@@ -2785,8 +2794,8 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
     )
     mtu = forms.IntegerField(
         required=False,
-        min_value=1,
-        max_value=32767,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
         label='MTU'
     )
     mgmt_only = forms.NullBooleanField(
@@ -3075,8 +3084,8 @@ class RearPortCreateForm(ComponentForm):
         widget=StaticSelect2(),
     )
     positions = forms.IntegerField(
-        min_value=1,
-        max_value=64,
+        min_value=REARPORT_POSITIONS_MIN,
+        max_value=REARPORT_POSITIONS_MAX,
         initial=1,
         help_text='The number of front ports which may be mapped to each rear port'
     )
@@ -3198,6 +3207,11 @@ class ConnectCableToDeviceForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFo
             'termination_b_site', 'termination_b_rack', 'termination_b_device', 'termination_b_id', 'type', 'status',
             'label', 'color', 'length', 'length_unit',
         ]
+        widgets = {
+            'status': StaticSelect2,
+            'type': StaticSelect2,
+            'length_unit': StaticSelect2,
+        }
 
 
 class ConnectCableToConsolePortForm(ConnectCableToDeviceForm):
@@ -3393,6 +3407,11 @@ class CableForm(BootstrapMixin, forms.ModelForm):
         fields = [
             'type', 'status', 'label', 'color', 'length', 'length_unit',
         ]
+        widgets = {
+            'status': StaticSelect2,
+            'type': StaticSelect2,
+            'length_unit': StaticSelect2,
+        }
 
 
 class CableCSVForm(forms.ModelForm):
@@ -3543,7 +3562,7 @@ class CableBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False
     )
     color = forms.CharField(
-        max_length=6,
+        max_length=6,  # RGB color code
         required=False,
         widget=ColorSelect()
     )
@@ -3622,7 +3641,7 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         widget=StaticSelect2()
     )
     color = forms.CharField(
-        max_length=6,
+        max_length=6,  # RGB color code
         required=False,
         widget=ColorSelect()
     )
