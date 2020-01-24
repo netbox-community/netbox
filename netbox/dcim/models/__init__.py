@@ -414,7 +414,7 @@ class RackElevationHelperMixin:
         drawing.add(drawing.text(str(device), insert=text))
 
     @staticmethod
-    def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_):
+    def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_, reservation):
         link = drawing.add(
             drawing.a(
                 href='{}?{}'.format(
@@ -424,6 +424,10 @@ class RackElevationHelperMixin:
                 target='_top'
             )
         )
+        if reservation:
+            link.set_desc('{} — {} · {}'.format(
+                reservation.description, reservation.user, reservation.created
+            ))
         link.add(drawing.rect(start, end, class_=class_))
         link.add(drawing.text("add device", insert=text, class_='add-device'))
 
@@ -453,12 +457,13 @@ class RackElevationHelperMixin:
             else:
                 # Draw shallow devices, reservations, or empty units
                 class_ = 'slot'
+                reservation = reserved_units.get(unit["id"])
                 if device:
                     class_ += ' occupied'
-                if unit["id"] in reserved_units:
+                if reservation:
                     class_ += ' reserved'
                 self._draw_empty(
-                    drawing, self, start_cordinates, end_cordinates, text_cordinates, unit["id"], face, class_
+                    drawing, self, start_cordinates, end_cordinates, text_cordinates, unit["id"], face, class_, reservation
                 )
 
             unit_cursor += height
@@ -493,7 +498,7 @@ class RackElevationHelperMixin:
             height of the elevation
         """
         elevation = self.merge_elevations(face)
-        reserved_units = self.get_reserved_units().keys()
+        reserved_units = self.get_reserved_units()
 
         return self._draw_elevations(elevation, reserved_units, face, unit_width, unit_height)
 
