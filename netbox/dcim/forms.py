@@ -1642,6 +1642,16 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         if instance and instance.cluster is not None:
             kwargs['initial']['cluster_group'] = instance.cluster.group
 
+        if 'device_type' in kwargs['initial'] and 'manufacturer' not in kwargs['initial']:
+            device_type_id = kwargs['initial']['device_type']
+            manufacturer_id = DeviceType.objects.filter(pk=device_type_id).values_list('manufacturer__pk', flat=True).first()
+            kwargs['initial']['manufacturer'] = manufacturer_id
+
+        if 'cluster' in kwargs['initial'] and 'cluster_group' not in kwargs['initial']:
+            cluster_id = kwargs['initial']['cluster']
+            cluster_group_id = Cluster.objects.filter(pk=cluster_id).values_list('group__pk', flat=True).first()
+            kwargs['initial']['cluster_group'] = cluster_group_id
+
         super().__init__(*args, **kwargs)
 
         if self.instance.pk:
