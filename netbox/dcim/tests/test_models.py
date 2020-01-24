@@ -285,7 +285,28 @@ class DeviceTestCase(TestCase):
             name='Device Bay 1'
         )
 
-    def test_device_duplicate_name_per_site(self):
+    def test_multiple_unnamed_devices(self):
+
+        device1 = Device(
+            site=self.site,
+            device_type=self.device_type,
+            device_role=self.device_role,
+            name=''
+        )
+        device1.save()
+
+        device2 = Device(
+            site=device1.site,
+            device_type=device1.device_type,
+            device_role=device1.device_role,
+            name=''
+        )
+        device2.full_clean()
+        device2.save()
+
+        self.assertEqual(Device.objects.filter(name='').count(), 2)
+
+    def test_device_duplicate_names(self):
 
         device1 = Device(
             site=self.site,

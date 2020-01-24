@@ -10,7 +10,7 @@ def get_id(model, slug):
 
 class DeviceTestCase(TestCase):
 
-    fixtures = ['dcim', 'ipam']
+    fixtures = ['dcim', 'ipam', 'virtualization']
 
     def test_racked_device(self):
         test = DeviceForm(data={
@@ -78,3 +78,15 @@ class DeviceTestCase(TestCase):
         })
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())
+
+    def test_cloned_cluster_device_initial_data(self):
+        test = DeviceForm(initial={
+            'device_type': get_id(DeviceType, 'poweredge-r640'),
+            'device_role': get_id(DeviceRole, 'server'),
+            'status': DeviceStatusChoices.STATUS_ACTIVE,
+            'site': get_id(Site, 'test1'),
+            "cluster": Cluster.objects.get(id=4).id,
+        })
+        self.assertEqual(test.initial['manufacturer'], get_id(Manufacturer, 'dell'))
+        self.assertIn('cluster_group', test.initial)
+        self.assertEqual(test.initial['cluster_group'], get_id(ClusterGroup, 'vm-host'))
