@@ -181,31 +181,15 @@ def render_jinja2(template_code, context):
     return Environment().from_string(source=template_code).render(**context)
 
 
-def get_field_value(instance, field_name):
-    """
-    Retrieve appropriate field name & value from object recursively.
-    """
-    if '__' in field_name:
-        fn = field_name.split('__')
-        attr = getattr(instance, fn[0])
-        return get_field_value(attr, fn[1])
-
-    field = instance._meta.get_field(field_name) if instance else None
-    field_value = field.value_from_object(instance) if field else None
-
-    if field_name == 'group':
-        field_name = 'cluster_group'
-    return field_name, field_value
-
-
 def prepare_cloned_fields(instance):
     """
     Compile an object's `clone_fields` list into a string of URL query parameters. Tags are automatically cloned where
     applicable.
     """
     params = {}
-    for field in getattr(instance, 'clone_fields', []):
-        field_name, field_value = get_field_value(instance, field)
+    for field_name in getattr(instance, 'clone_fields', []):
+        field = instance._meta.get_field(field_name)
+        field_value = field.value_from_object(instance)
 
         # Swap out False with URL-friendly value
         if field_value is False:
