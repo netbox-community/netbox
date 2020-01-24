@@ -3,6 +3,18 @@
 ## Enhancements
 
 * [#2921](https://github.com/netbox-community/netbox/issues/2921) - Replace tags filter with Select2 widget
+* [#3310](https://github.com/netbox-community/netbox/issues/3310) - Pre-select site/rack for B side when creating a new cable
+* [#3509](https://github.com/netbox-community/netbox/issues/3509) - Add IP address variables for custom scripts
+* [#4005](https://github.com/netbox-community/netbox/issues/4005) - Include timezone context in webhook timestamps
+
+## Bug Fixes
+
+* [#3950](https://github.com/netbox-community/netbox/issues/3950) - Automatically select parent manufacturer when specifying initial device type during device creation
+* [#3982](https://github.com/netbox-community/netbox/issues/3982) - Restore tooltip for reservations on rack elevations
+* [#3983](https://github.com/netbox-community/netbox/issues/3983) - Permit the creation of multiple unnamed devices
+* [#3989](https://github.com/netbox-community/netbox/issues/3989) - Correct HTTP content type assignment for webhooks
+* [#3999](https://github.com/netbox-community/netbox/issues/3999) - Do not filter child results by null if non-required parent fields are blank
+* [#4008](https://github.com/netbox-community/netbox/issues/4008) - Toggle rack elevation face using front/rear strings
 
 ---
 

@@ -158,14 +158,17 @@ $(document).ready(function() {
 
                 filter_for_elements.each(function(index, filter_for_element) {
                     var param_name = $(filter_for_element).attr(attr_name);
+                    var is_required = $(filter_for_element).attr("required");
                     var is_nullable = $(filter_for_element).attr("nullable");
                     var is_visible = $(filter_for_element).is(":visible");
                     var value = $(filter_for_element).val();
 
-                    if (param_name && is_visible && value) {
-                        parameters[param_name] = value;
-                    } else if (param_name && is_visible && is_nullable) {
-                        parameters[param_name] = "null";
+                    if (param_name && is_visible) {
+                        if (value) {
+                            parameters[param_name] = value;
+                        } else if (is_required && is_nullable) {
+                            parameters[param_name] = "null";
+                        }
                     }
                 });
 

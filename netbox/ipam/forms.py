@@ -13,17 +13,18 @@ from utilities.forms import (
     SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES
 )
 from virtualization.models import VirtualMachine
+from .constants import *
 from .choices import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
-IP_FAMILY_CHOICES = [
-    ('', 'All'),
-    (4, 'IPv4'),
-    (6, 'IPv6'),
-]
 
-PREFIX_MASK_LENGTH_CHOICES = add_blank_choice([(i, i) for i in range(1, 128)])
-IPADDRESS_MASK_LENGTH_CHOICES = add_blank_choice([(i, i) for i in range(1, 129)])
+PREFIX_MASK_LENGTH_CHOICES = add_blank_choice([
+    (i, i) for i in range(PREFIX_LENGTH_MIN, PREFIX_LENGTH_MAX + 1)
+])
+
+IPADDRESS_MASK_LENGTH_CHOICES = add_blank_choice([
+    (i, i) for i in range(IPADDRESS_MASK_LENGTH_MIN, IPADDRESS_MASK_LENGTH_MAX + 1)
+])
 
 
 #
@@ -219,7 +220,7 @@ class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
     )
     family = forms.ChoiceField(
         required=False,
-        choices=IP_FAMILY_CHOICES,
+        choices=add_blank_choice(IPAddressFamilyChoices),
         label='Address family',
         widget=StaticSelect2()
     )
@@ -452,8 +453,8 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         )
     )
     prefix_length = forms.IntegerField(
-        min_value=1,
-        max_value=127,
+        min_value=PREFIX_LENGTH_MIN,
+        max_value=PREFIX_LENGTH_MAX,
         required=False
     )
     tenant = forms.ModelChoiceField(
@@ -512,7 +513,7 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
     )
     family = forms.ChoiceField(
         required=False,
-        choices=IP_FAMILY_CHOICES,
+        choices=add_blank_choice(IPAddressFamilyChoices),
         label='Address family',
         widget=StaticSelect2()
     )
@@ -899,8 +900,8 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         )
     )
     mask_length = forms.IntegerField(
-        min_value=1,
-        max_value=128,
+        min_value=IPADDRESS_MASK_LENGTH_MIN,
+        max_value=IPADDRESS_MASK_LENGTH_MAX,
         required=False
     )
     tenant = forms.ModelChoiceField(
@@ -972,7 +973,7 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
     )
     family = forms.ChoiceField(
         required=False,
-        choices=IP_FAMILY_CHOICES,
+        choices=add_blank_choice(IPAddressFamilyChoices),
         label='Address family',
         widget=StaticSelect2()
     )
@@ -1305,8 +1306,8 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 
 class ServiceForm(BootstrapMixin, CustomFieldForm):
     port = forms.IntegerField(
-        min_value=1,
-        max_value=65535
+        min_value=SERVICE_PORT_MIN,
+        max_value=SERVICE_PORT_MAX
     )
     tags = TagField(
         required=False

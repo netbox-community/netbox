@@ -67,6 +67,14 @@
     }
 },
 {
+    "model": "dcim.manufacturer",
+    "pk": 4,
+    "fields": {
+        "name": "Dell",
+        "slug": "dell"
+    }
+},
+{
     "model": "dcim.devicetype",
     "pk": 1,
     "fields": {
@@ -141,6 +149,19 @@
         "model": "CWG-24VYM415C9",
         "slug": "cwg-24vym415c9",
         "u_height": 0,
+        "is_full_depth": false
+    }
+},
+{
+    "model": "dcim.devicetype",
+    "pk": 7,
+    "fields": {
+        "created": "2016-06-23",
+        "last_updated": "2016-06-23T03:19:56.521Z",
+        "manufacturer": 4,
+        "model": "PowerEdge R640",
+        "slug": "poweredge-r640",
+        "u_height": 1,
         "is_full_depth": false
     }
 },
@@ -1881,6 +1902,15 @@
     }
 },
 {
+    "model": "dcim.devicerole",
+    "pk": 7,
+    "fields": {
+        "name": "Server",
+        "slug": "server",
+        "color": "grey"
+    }
+},
+{
     "model": "dcim.platform",
     "pk": 1,
     "fields": {
@@ -2124,6 +2154,34 @@
         "status": true,
         "primary_ip4": null,
         "primary_ip6": null,
+        "comments": ""
+    }
+},
+{
+    "model": "dcim.device",
+    "pk": 13,
+    "fields": {
+        "local_context_data": null,
+        "created": "2016-06-23",
+        "last_updated": "2016-06-23T03:19:56.521Z",
+        "device_type": 7,
+        "device_role": 6,
+        "tenant": null,
+        "platform": null,
+        "name": "test1-server1",
+        "serial": "",
+        "asset_tag": null,
+        "site": 1,
+        "rack": 2,
+        "position": null,
+        "face": "",
+        "status": true,
+        "primary_ip4": null,
+        "primary_ip6": null,
+        "cluster": 4,
+        "virtual_chassis": null,
+        "vc_position": null,
+        "vc_priority": null,
         "comments": ""
     }
 },

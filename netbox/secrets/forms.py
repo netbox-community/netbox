@@ -9,6 +9,7 @@ from utilities.forms import (
     APISelect, APISelectMultiple, BootstrapMixin, FilterChoiceField, FlexibleModelChoiceField, SlugField,
     StaticSelect2Multiple, TagFilterField
 )
+from .constants import *
 from .models import Secret, SecretRole, UserKey
 
 
@@ -69,7 +70,7 @@ class SecretRoleCSVForm(forms.ModelForm):
 
 class SecretForm(BootstrapMixin, CustomFieldForm):
     plaintext = forms.CharField(
-        max_length=65535,
+        max_length=SECRET_PLAINTEXT_MAX_LENGTH,
         required=False,
         label='Plaintext',
         widget=forms.PasswordInput(
@@ -79,7 +80,7 @@ class SecretForm(BootstrapMixin, CustomFieldForm):
         )
     )
     plaintext2 = forms.CharField(
-        max_length=65535,
+        max_length=SECRET_PLAINTEXT_MAX_LENGTH,
         required=False,
         label='Plaintext (verify)',
         widget=forms.PasswordInput()
