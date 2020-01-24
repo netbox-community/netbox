@@ -17,11 +17,6 @@ from .constants import *
 from .choices import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
-IP_FAMILY_CHOICES = [
-    ('', 'All'),
-    (4, 'IPv4'),
-    (6, 'IPv6'),
-]
 
 PREFIX_MASK_LENGTH_CHOICES = add_blank_choice([(i, i) for i in range(1, 128)])
 IPADDRESS_MASK_LENGTH_CHOICES = add_blank_choice([(i, i) for i in range(1, 129)])
@@ -219,7 +214,7 @@ class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
     )
     family = forms.ChoiceField(
         required=False,
-        choices=IP_FAMILY_CHOICES,
+        choices=add_blank_choice(IPAddressFamilyChoices),
         label='Address family',
         widget=StaticSelect2()
     )
@@ -511,7 +506,7 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
     )
     family = forms.ChoiceField(
         required=False,
-        choices=IP_FAMILY_CHOICES,
+        choices=add_blank_choice(IPAddressFamilyChoices),
         label='Address family',
         widget=StaticSelect2()
     )
@@ -970,7 +965,7 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
     )
     family = forms.ChoiceField(
         required=False,
-        choices=IP_FAMILY_CHOICES,
+        choices=add_blank_choice(IPAddressFamilyChoices),
         label='Address family',
         widget=StaticSelect2()
     )
