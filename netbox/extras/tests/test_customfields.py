@@ -410,7 +410,6 @@ class CustomFieldCSV(TestCase):
         self.assertEqual(site1_custom_fields[self.cf_text], 'something')
         self.assertEqual(site1_custom_fields[self.cf_choice], self.cf_choice_1)
 
-
     def test_import_invalid_choice(self):
         """
         Import a site with an invalid choice
