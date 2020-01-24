@@ -488,7 +488,12 @@ class RackElevationHelperMixin:
 
         return elevation
 
-    def get_elevation_svg(self, face=DeviceFaceChoices.FACE_FRONT, unit_width=230, unit_height=20):
+    def get_elevation_svg(
+            self,
+            face=DeviceFaceChoices.FACE_FRONT,
+            unit_width=RACK_ELEVATION_UNIT_WIDTH_DEFAULT,
+            unit_height=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT
+    ):
         """
         Return an SVG of the rack elevation
 
@@ -574,7 +579,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
         help_text='Rail-to-rail width'
     )
     u_height = models.PositiveSmallIntegerField(
-        default=42,
+        default=RACK_U_HEIGHT_DEFAULT,
         verbose_name='Height (U)',
         validators=[MinValueValidator(1), MaxValueValidator(100)]
     )
@@ -1864,15 +1869,15 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     )
     voltage = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)],
-        default=120
+        default=POWERFEED_VOLTAGE_DEFAULT
     )
     amperage = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)],
-        default=20
+        default=POWERFEED_AMPERAGE_DEFAULT
     )
     max_utilization = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)],
-        default=80,
+        default=POWERFEED_MAX_UTILIZATION_DEFAULT,
         help_text="Maximum permissible draw (percentage)"
     )
     available_power = models.PositiveIntegerField(

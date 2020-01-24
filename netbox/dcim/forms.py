@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
 from mptt.forms import TreeNodeChoiceField
 from netaddr import EUI
 from netaddr.core import AddrFormatError
@@ -1301,8 +1300,8 @@ class RearPortTemplateCreateForm(ComponentForm):
         widget=StaticSelect2(),
     )
     positions = forms.IntegerField(
-        min_value=1,
-        max_value=64,
+        min_value=REARPORT_POSITIONS_MIN,
+        max_value=REARPORT_POSITIONS_MAX,
         initial=1,
         help_text='The number of front ports which may be mapped to each rear port'
     )
@@ -2133,8 +2132,8 @@ class DeviceBulkAddInterfaceForm(DeviceBulkAddComponentForm):
     )
     mtu = forms.IntegerField(
         required=False,
-        min_value=1,
-        max_value=32767,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
         label='MTU'
     )
     mgmt_only = forms.BooleanField(
@@ -2620,8 +2619,8 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
     )
     mtu = forms.IntegerField(
         required=False,
-        min_value=1,
-        max_value=32767,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
         label='MTU'
     )
     mac_address = forms.CharField(
@@ -2775,8 +2774,8 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
     )
     mtu = forms.IntegerField(
         required=False,
-        min_value=1,
-        max_value=32767,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
         label='MTU'
     )
     mgmt_only = forms.NullBooleanField(
@@ -3055,8 +3054,8 @@ class RearPortCreateForm(ComponentForm):
         widget=StaticSelect2(),
     )
     positions = forms.IntegerField(
-        min_value=1,
-        max_value=64,
+        min_value=REARPORT_POSITIONS_MIN,
+        max_value=REARPORT_POSITIONS_MAX,
         initial=1,
         help_text='The number of front ports which may be mapped to each rear port'
     )
@@ -3533,7 +3532,7 @@ class CableBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False
     )
     color = forms.CharField(
-        max_length=6,
+        max_length=6,  # RGB color code
         required=False,
         widget=ColorSelect()
     )
@@ -3612,7 +3611,7 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         widget=StaticSelect2()
     )
     color = forms.CharField(
-        max_length=6,
+        max_length=6,  # RGB color code
         required=False,
         widget=ColorSelect()
     )
