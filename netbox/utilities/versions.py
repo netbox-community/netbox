@@ -17,7 +17,7 @@ if settings.GITHUB_VERSION_TIMEOUT and settings.GITHUB_REPOSITORY:
                         if 'tag_name' in release]
             if versions:
                 return max(versions)
-        except:
+        except Exception:
             pass
 
         return 'unknown', None
