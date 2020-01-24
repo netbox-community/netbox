@@ -1,14 +1,14 @@
 from datetime import date
 
 from django.contrib.contenttypes.models import ContentType
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 from rest_framework import status
 
 from dcim.models import Site
 from extras.choices import *
 from extras.models import CustomField, CustomFieldValue, CustomFieldChoice
-from utilities.testing import APITestCase
+from utilities.testing import APITestCase, create_test_user
 from virtualization.models import VirtualMachine
 
 
@@ -364,3 +364,63 @@ class CustomFieldChoiceAPITest(APITestCase):
         self.assertEqual(self.cf_choice_1.pk, response.data[self.cf_1.name][self.cf_choice_1.value])
         self.assertEqual(self.cf_choice_2.pk, response.data[self.cf_1.name][self.cf_choice_2.value])
         self.assertEqual(self.cf_choice_3.pk, response.data[self.cf_2.name][self.cf_choice_3.value])
+
+
+class CustomFieldCSV(TestCase):
+    def setUp(self):
+        super().setUp()
+
+        user = create_test_user(
+            permissions=[
+                'dcim.view_site',
+                'dcim.add_site',
+            ]
+        )
+        self.client = Client()
+        self.client.force_login(user)
+
+        obj_type = ContentType.objects.get_for_model(Site)
+
+        self.cf_text = CustomField.objects.create(name="text", type=CustomFieldTypeChoices.TYPE_TEXT)
+        self.cf_text.obj_type.set([obj_type])
+        self.cf_text.save()
+
+        self.cf_choice = CustomField.objects.create(name="choice", type=CustomFieldTypeChoices.TYPE_SELECT)
+        self.cf_choice.obj_type.set([obj_type])
+        self.cf_choice.save()
+
+        self.cf_choice_1 = CustomFieldChoice.objects.create(field=self.cf_choice, value="cf_field_1")
+        self.cf_choice_2 = CustomFieldChoice.objects.create(field=self.cf_choice, value="cf_field_2")
+        self.cf_choice_3 = CustomFieldChoice.objects.create(field=self.cf_choice, value="cf_field_3")
+
+    def test_import(self):
+        """
+        Import a site with custom fields
+        """
+        csv_data = (
+            "name,slug,cf_text,cf_choice",
+            "Site 1,site-1,something,cf_field_1",
+        )
+
+        response = self.client.post(reverse('dcim:site_import'), {'csv': '\n'.join(csv_data)})
+        self.assertEqual(response.status_code, 200)
+
+        site1_custom_fields = Site.objects.get(name='Site 1').get_custom_fields()
+        self.assertEqual(len(site1_custom_fields), 2)
+        self.assertEqual(site1_custom_fields[self.cf_text], 'something')
+        self.assertEqual(site1_custom_fields[self.cf_choice], self.cf_choice_1)
+
+
+    def test_import_invalid_choice(self):
+        """
+        Import a site with an invalid choice
+        """
+        csv_data = (
+            "name,slug,cf_choice",
+            "Site 2,site-2,cf_field_4",
+        )
+
+        response = self.client.post(reverse('dcim:site_import'), {'csv': '\n'.join(csv_data)})
+        self.assertEqual(response.status_code, 200)
+
+        self.assertFalse(len(Site.objects.filter(name="Site 2")), 0)
