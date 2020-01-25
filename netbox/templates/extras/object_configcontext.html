@@ -24,7 +24,7 @@
                 </div>
                 <div class="panel-body">
                     {% if obj.local_context_data %}
-                        <pre>{{ obj.local_context_data|render_json }}</pre>
+                        {% include 'extras/inc/configcontext_data.html' with data=obj.local_context_data %}
                     {% else %}
                         <span class="text-muted">None</span>
                     {% endif %}
@@ -49,7 +49,7 @@
                         {% if context.description %}
                             <br /><small>{{ context.description }}</small>
                         {% endif %}
-                        <pre>{{ context.data|render_json }}</pre>
+                        {% include 'extras/inc/configcontext_data.html' with data=context.data %}
                     </div>
                 {% empty %}
                     <div class="panel-body">
