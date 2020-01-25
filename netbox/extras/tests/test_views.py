@@ -49,7 +49,7 @@ class ConfigContextTestCase(TestCase):
         for i in range(1, 4):
             configcontext = ConfigContext(
                 name='Config Context {}'.format(i),
-                data='{{"foo": {}}}'.format(i)
+                data={"foo": i}
             )
             configcontext.save()
             configcontext.sites.add(site)
