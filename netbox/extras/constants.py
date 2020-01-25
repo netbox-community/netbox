@@ -2,7 +2,7 @@ from django.db.models import Q
 
 
 # General constants
-DESCRIPTION_MAX_LENGTH = 100
+DESCRIPTION_MAX_LENGTH = 256
 
 # Models which support custom fields
 CUSTOMFIELD_MODELS = Q(
