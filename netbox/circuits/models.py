@@ -6,6 +6,7 @@ from taggit.managers import TaggableManager
 from dcim.constants import CONNECTION_STATUS_CHOICES
 from dcim.fields import ASNField
 from dcim.models import CableTermination
+from extras.constants import DESCRIPTION_MAX_LENGTH
 from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
@@ -107,7 +108,7 @@ class CircuitType(ChangeLoggedModel):
         unique=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True,
     )
 
@@ -172,7 +173,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         null=True,
         verbose_name='Commit rate (Kbps)')
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True
     )
     comments = models.TextField(
@@ -290,7 +291,7 @@ class CircuitTermination(CableTermination):
         verbose_name='Patch panel/port(s)'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True
     )
 

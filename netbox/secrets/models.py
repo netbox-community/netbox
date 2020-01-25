@@ -15,6 +15,7 @@ from django.utils.encoding import force_bytes
 from taggit.managers import TaggableManager
 
 from dcim.models import Device
+from extras.constants import DESCRIPTION_MAX_LENGTH
 from extras.models import CustomFieldModel, TaggedItem
 from utilities.models import ChangeLoggedModel
 from .exceptions import InvalidKey
@@ -254,7 +255,7 @@ class SecretRole(ChangeLoggedModel):
         unique=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True,
     )
     users = models.ManyToManyField(

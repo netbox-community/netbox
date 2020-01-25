@@ -12,6 +12,7 @@ from taggit.forms import TagField
 from timezone_field import TimeZoneFormField
 
 from circuits.models import Circuit, Provider
+from extras.constants import DESCRIPTION_MAX_LENGTH
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm, LocalConfigContextFilterForm
 )
@@ -330,7 +331,7 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         label='ASN'
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
     time_zone = TimeZoneFormField(
@@ -834,7 +835,7 @@ class RackReservationBulkEditForm(BootstrapMixin, BulkEditForm):
         )
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
 
@@ -2141,7 +2142,7 @@ class DeviceBulkAddInterfaceForm(DeviceBulkAddComponentForm):
         label='Management only'
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
 
@@ -2180,7 +2181,7 @@ class ConsolePortCreateForm(ComponentForm):
         widget=StaticSelect2()
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
     tags = TagField(
@@ -2237,7 +2238,7 @@ class ConsoleServerPortCreateForm(ComponentForm):
         widget=StaticSelect2()
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
     tags = TagField(
@@ -2256,7 +2257,7 @@ class ConsoleServerPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditF
         widget=StaticSelect2()
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
 
@@ -2339,7 +2340,7 @@ class PowerPortCreateForm(ComponentForm):
         help_text="Allocated draw in watts"
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
     tags = TagField(
@@ -2417,7 +2418,7 @@ class PowerOutletCreateForm(ComponentForm):
         required=False
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
     tags = TagField(
@@ -2500,7 +2501,7 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         required=False
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
 
@@ -2633,7 +2634,7 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
         help_text='This interface is used only for out-of-band management'
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
     mode = forms.ChoiceField(
@@ -2784,7 +2785,7 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
         label='Management only'
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
     mode = forms.ChoiceField(
@@ -2893,6 +2894,7 @@ class FrontPortCreateForm(ComponentForm):
         help_text='Select one rear port assignment for each front port being created.',
     )
     description = forms.CharField(
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
 
@@ -2997,7 +2999,7 @@ class FrontPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         widget=StaticSelect2()
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
 
@@ -3060,6 +3062,7 @@ class RearPortCreateForm(ComponentForm):
         help_text='The number of front ports which may be mapped to each rear port'
     )
     description = forms.CharField(
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
 
@@ -3093,7 +3096,7 @@ class RearPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         widget=StaticSelect2()
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
 
@@ -3869,7 +3872,7 @@ class InventoryItemBulkEditForm(BootstrapMixin, BulkEditForm):
         label='Part ID'
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
 

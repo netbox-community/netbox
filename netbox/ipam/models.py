@@ -9,6 +9,7 @@ from django.urls import reverse
 from taggit.managers import TaggableManager
 
 from dcim.models import Device, Interface
+from extras.constants import DESCRIPTION_MAX_LENGTH
 from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
@@ -63,7 +64,7 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
         help_text='Prevent duplicate prefixes/IP addresses within this VRF'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True
     )
     custom_field_values = GenericRelation(
@@ -165,7 +166,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         null=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True
     )
     custom_field_values = GenericRelation(
@@ -264,7 +265,7 @@ class Role(ChangeLoggedModel):
         default=1000
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True,
     )
 
@@ -349,7 +350,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         help_text='All IP addresses within this prefix are considered usable'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True
     )
     custom_field_values = GenericRelation(
@@ -620,7 +621,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         help_text='Hostname or FQDN (not case-sensitive)'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True
     )
     custom_field_values = GenericRelation(
@@ -904,7 +905,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         null=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True
     )
     custom_field_values = GenericRelation(
@@ -1016,7 +1017,7 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         verbose_name='IP addresses'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True
     )
     custom_field_values = GenericRelation(

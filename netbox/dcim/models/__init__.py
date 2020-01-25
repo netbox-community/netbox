@@ -21,6 +21,7 @@ from timezone_field import TimeZoneField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import ASNField
+from extras.constants import DESCRIPTION_MAX_LENGTH
 from extras.models import ConfigContextModel, CustomFieldModel, TaggedItem
 from utilities.fields import ColorField
 from utilities.managers import NaturalOrderingManager
@@ -169,7 +170,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         blank=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True
     )
     physical_address = models.CharField(
@@ -324,7 +325,7 @@ class RackRole(ChangeLoggedModel):
     )
     color = ColorField()
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True,
     )
 
@@ -882,7 +883,7 @@ class RackReservation(ChangeLoggedModel):
         on_delete=models.PROTECT
     )
     description = models.CharField(
-        max_length=100
+        max_length=DESCRIPTION_MAX_LENGTH
     )
 
     class Meta:
@@ -1197,7 +1198,7 @@ class DeviceRole(ChangeLoggedModel):
         help_text='Virtual machines may be assigned to this role'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True,
     )
 

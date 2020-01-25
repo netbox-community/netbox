@@ -6,6 +6,8 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils import timezone
 
+from extras.constants import DESCRIPTION_MAX_LENGTH
+
 
 __all__ = (
     'Token',
@@ -39,7 +41,7 @@ class Token(models.Model):
         help_text='Permit create/update/delete operations using this key'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True
     )
 

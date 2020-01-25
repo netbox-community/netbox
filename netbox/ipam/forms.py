@@ -4,6 +4,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from taggit.forms import TagField
 
 from dcim.models import Device, Interface, Rack, Region, Site
+from extras.constants import DESCRIPTION_MAX_LENGTH
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
@@ -86,7 +87,7 @@ class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm
         label='Enforce unique space'
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
 
@@ -198,7 +199,7 @@ class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         required=False
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
 
@@ -480,7 +481,7 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         label='Is a pool'
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
 
@@ -923,7 +924,7 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         required=False
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
 
@@ -1229,7 +1230,7 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         )
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
 
@@ -1373,7 +1374,7 @@ class ServiceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         required=False
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
 

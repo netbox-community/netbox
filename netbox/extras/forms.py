@@ -14,6 +14,7 @@ from utilities.forms import (
     SlugField, StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from .choices import *
+from .constants import *
 from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachment, ObjectChange, Tag
 
 
@@ -294,7 +295,7 @@ class ConfigContextBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     description = forms.CharField(
         required=False,
-        max_length=100
+        max_length=DESCRIPTION_MAX_LENGTH
     )
 
     class Meta:

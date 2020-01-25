@@ -11,6 +11,7 @@ from dcim.constants import *
 from dcim.exceptions import LoopDetected
 from dcim.fields import MACAddressField
 from dcim.managers import InterfaceManager
+from extras.constants import DESCRIPTION_MAX_LENGTH
 from extras.models import ObjectChange, TaggedItem
 from utilities.managers import NaturalOrderingManager
 from utilities.utils import serialize_object
@@ -33,7 +34,7 @@ __all__ = (
 
 class ComponentModel(models.Model):
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True
     )
 

@@ -1,6 +1,9 @@
 from django.db.models import Q
 
 
+# General constants
+DESCRIPTION_MAX_LENGTH = 100
+
 # Models which support custom fields
 CUSTOMFIELD_MODELS = Q(
     Q(app_label='circuits', model__in=[

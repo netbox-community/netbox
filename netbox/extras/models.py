@@ -213,7 +213,7 @@ class CustomField(models.Model):
                   'the field\'s name will be used)'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True
     )
     required = models.BooleanField(
@@ -489,7 +489,7 @@ class ExportTemplate(models.Model):
         max_length=100
     )
     description = models.CharField(
-        max_length=200,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True
     )
     template_language = models.CharField(
@@ -668,7 +668,7 @@ class ConfigContext(models.Model):
         default=1000
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True
     )
     is_active = models.BooleanField(

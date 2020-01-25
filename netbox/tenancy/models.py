@@ -3,6 +3,7 @@ from django.db import models
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
+from extras.constants import DESCRIPTION_MAX_LENGTH
 from extras.models import CustomFieldModel, TaggedItem
 from utilities.models import ChangeLoggedModel
 
@@ -63,7 +64,7 @@ class Tenant(ChangeLoggedModel, CustomFieldModel):
         null=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         blank=True,
         help_text='Long-form name (optional)'
     )

@@ -6,6 +6,7 @@ from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
+from extras.constants import DESCRIPTION_MAX_LENGTH
 from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
 from ipam.models import IPAddress, VLANGroup, VLAN
 from tenancy.forms import TenancyFilterForm, TenancyForm
@@ -755,7 +756,7 @@ class InterfaceCreateForm(ComponentForm):
         label='MAC Address'
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
     mode = forms.ChoiceField(
@@ -840,7 +841,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         label='MTU'
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
     mode = forms.ChoiceField(
@@ -937,6 +938,6 @@ class VirtualMachineBulkAddInterfaceForm(VirtualMachineBulkAddComponentForm):
         label='MTU'
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )

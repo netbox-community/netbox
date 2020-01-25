@@ -2,6 +2,7 @@ from django import forms
 from taggit.forms import TagField
 
 from dcim.models import Region, Site
+from extras.constants import DESCRIPTION_MAX_LENGTH
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
@@ -263,7 +264,7 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         label='Commit rate (Kbps)'
     )
     description = forms.CharField(
-        max_length=100,
+        max_length=DESCRIPTION_MAX_LENGTH,
         required=False
     )
     comments = CommentField(
