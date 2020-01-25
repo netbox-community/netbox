@@ -1,5 +1,6 @@
 {% extends base_template %}
 {% load helpers %}
+{% load static %}
 
 {% block title %}{{ block.super }} - Config Context{% endblock %}
 
@@ -9,9 +10,10 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <strong>Rendered Context</strong>
+                    {% include 'extras/inc/configcontext_format.html' %}
                 </div>
                 <div class="panel-body">
-                    <pre>{{ rendered_context|render_json }}</pre>
+                    {% include 'extras/inc/configcontext_data.html' with data=rendered_context %}
                 </div>
             </div>
         </div>
@@ -57,4 +59,8 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'js/configcontext.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

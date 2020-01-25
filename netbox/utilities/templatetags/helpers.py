@@ -1,6 +1,7 @@
 import datetime
 import json
 import re
+import yaml
 
 from django import template
 from django.utils.html import strip_tags
@@ -74,6 +75,14 @@ def render_json(value):
     Render a dictionary as formatted JSON.
     """
     return json.dumps(value, indent=4, sort_keys=True)
+
+
+@register.filter()
+def render_yaml(value):
+    """
+    Render a dictionary as formatted YAML.
+    """
+    return yaml.dump(dict(value))
 
 
 @register.filter()
