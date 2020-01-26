@@ -126,11 +126,10 @@ EXEMPT_VIEW_PERMISSIONS = [
 
 # This repository is used to check whether there is a new release of NetBox available. Set to None to disable the
 # version check.
-GITHUB_REPOSITORY = 'netbox-community/netbox'
+GITHUB_REPOSITORY_API = 'https://api.github.com/repos/netbox-community/netbox'
 
-# This determines how often the GitHub API is called to check the latest release of NetBox. Set to 0 to disable the
-# version check.
-GITHUB_VERSION_TIMEOUT = 8 * 3600
+# This determines how often the GitHub API is called to check the latest release of NetBox. Must be at least 1 hour.
+GITHUB_CACHE_TIMEOUT = 24 * 3600
 
 # Enable custom logging. Please see the Django documentation for detailed guidance on configuring custom logs:
 #   https://docs.djangoproject.com/en/stable/topics/logging/

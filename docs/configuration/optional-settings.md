@@ -157,19 +157,19 @@ Enforcement of unique IP space can be toggled on a per-VRF basis. To enforce uni
 
 ---
 
-## GITHUB_REPOSITORY
+## GITHUB_REPOSITORY_API
 
-Default: 'netbox-community/netbox'
+Default: 'https://api.github.com/repos/netbox-community/netbox'
 
-The tags of this repository are checked to detect new releases, which are shown in the footer of the web interface. You can change this to your own fork of the NetBox repository, or set it to `None` to disable the check.
+The releases of this repository are checked to detect new releases, which are shown on the home page of the web interface. You can change this to your own fork of the NetBox repository, or set it to `None` to disable the check.
 
 ---
 
-## GITHUB_VERSION_TIMEOUT
+## GITHUB_CACHE_TIMEOUT
 
-Default: 8 * 3600
+Default: 24 * 3600
 
-The number of seconds to retain the latest version that is fetched from the GitHub API before automatically invalidating it and fetching it from the API again. Set to 0 to disable the version check.
+The number of seconds to retain the latest version that is fetched from the GitHub API before automatically invalidating it and fetching it from the API again. This must be set to at least one hour (3600 seconds).
 
 ---
 

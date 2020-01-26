@@ -4,6 +4,7 @@ import platform
 import re
 import socket
 import warnings
+from urllib.parse import urlsplit
 
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
@@ -79,8 +80,9 @@ DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 EMAIL = getattr(configuration, 'EMAIL', {})
 ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
-GITHUB_REPOSITORY = getattr(configuration, 'GITHUB_REPOSITORY', 'netbox-community/netbox')
-GITHUB_VERSION_TIMEOUT = getattr(configuration, 'GITHUB_VERSION_TIMEOUT', 8 * 3600)
+GITHUB_REPOSITORY_API = getattr(configuration, 'GITHUB_REPOSITORY_API',
+                                'https://api.github.com/repos/netbox-community/netbox')
+GITHUB_CACHE_TIMEOUT = getattr(configuration, 'GITHUB_CACHE_TIMEOUT', 24 * 3600)
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
@@ -295,7 +297,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'utilities.context_processors.settings',
-                'utilities.context_processors.latest_version',
             ],
         },
     },
@@ -307,10 +308,28 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # GitHub repository for version check
-if GITHUB_REPOSITORY and not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', GITHUB_REPOSITORY):
-    raise ImproperlyConfigured(
-        "GITHUB_REPOSITORY must contain the name of a GitHub repository in the form '<owner>/<repository>'"
-    )
+if GITHUB_REPOSITORY_API:
+    GITHUB_REPOSITORY_API = GITHUB_REPOSITORY_API.rstrip('/')
+    try:
+        scheme, netloc, path, query, fragment = urlsplit(GITHUB_REPOSITORY_API)
+    except ValueError:
+        raise ImproperlyConfigured("GITHUB_REPOSITORY_API must be a valid URL")
+
+    if scheme not in ('http', 'https'):
+        raise ImproperlyConfigured("GITHUB_REPOSITORY_API must be a valid http:// or https:// URL")
+
+    if not re.fullmatch(r'/repos/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', path):
+        raise ImproperlyConfigured(
+            "GITHUB_REPOSITORY must contain the base URL of the GitHub API in a form like "
+            "'https://api.github.com/repos/<owner>/<repository>'"
+        )
+
+    if query or fragment:
+        raise ImproperlyConfigured("GITHUB_REPOSITORY_API may not contain a query or fragment")
+
+# Enforce a cache timeout of at least an hour to protect GitHub
+if GITHUB_CACHE_TIMEOUT < 3600:
+    raise ImproperlyConfigured("GITHUB_CACHE_TIMEOUT has to be at least 3600 seconds (1 hour)")
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'

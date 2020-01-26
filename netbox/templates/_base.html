@@ -50,16 +50,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-xs-4">
-                    <p class="text-muted">
-                        {{ settings.HOSTNAME }} (v{{ settings.VERSION }})
-                        {% if latest_version %}
-                            {% if latest_version_url %}<a target="_blank" href="{{ latest_version_url }}">{% endif %}
-                            <span class="label label-default" style="color: #ffffff; background-color: #ff9800">
-                                New version: {{ latest_version }}
-                            </span>
-                            {% if latest_version_url %}</a>{% endif %}
-                        {% endif %}
-                    </p>
+                    <p class="text-muted">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
                 </div>
                 <div class="col-xs-4 text-center">
                     <p class="text-muted">{% now 'Y-m-d H:i:s T' %}</p>
