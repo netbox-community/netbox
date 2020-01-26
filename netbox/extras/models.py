@@ -694,6 +694,16 @@ class ConfigContext(models.Model):
         related_name='+',
         blank=True
     )
+    cluster_groups = models.ManyToManyField(
+        to='virtualization.ClusterGroup',
+        related_name='+',
+        blank=True
+    )
+    clusters = models.ManyToManyField(
+        to='virtualization.Cluster',
+        related_name='+',
+        blank=True
+    )
     tenant_groups = models.ManyToManyField(
         to='tenancy.TenantGroup',
         related_name='+',

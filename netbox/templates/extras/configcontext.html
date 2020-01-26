@@ -135,6 +135,34 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>Cluster Groups</td>
+                        <td>
+                            {% if configcontext.cluster_groups.all %}
+                                <ul>
+                                    {% for cluster_group in configcontext.cluster_groups.all %}
+                                        <li><a href="{{ cluster_group.get_absolute_url }}">{{ cluster_group }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Clusters</td>
+                        <td>
+                            {% if configcontext.clusters.all %}
+                                <ul>
+                                    {% for cluster in configcontext.clusters.all %}
+                                        <li><a href="{{ cluster.get_absolute_url }}">{{ cluster }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Tenant Groups</td>
                         <td>
                             {% if configcontext.tenant_groups.all %}
