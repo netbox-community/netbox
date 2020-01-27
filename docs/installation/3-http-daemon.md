@@ -29,7 +29,7 @@ server {
 
     location / {
         proxy_pass http://127.0.0.1:8001;
-        proxy_set_header X-Forwarded-Host $server_name;
+        proxy_set_header X-Forwarded-Host $http_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
