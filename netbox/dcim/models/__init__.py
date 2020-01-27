@@ -405,7 +405,7 @@ class RackElevationHelperMixin:
 
     @staticmethod
     def _draw_device_rear(drawing, device, start, end, text):
-        rect = drawing.rect(start, end, class_="blocked")
+        rect = drawing.rect(start, end, class_="slot blocked")
         rect.set_desc('{} — {} ({}U) {} {}'.format(
             device.device_role, device.device_type.display_name,
             device.device_type.u_height, device.asset_tag or '', device.serial or ''
