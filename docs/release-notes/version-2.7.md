@@ -14,6 +14,8 @@
 * [#3989](https://github.com/netbox-community/netbox/issues/3989) - Correct HTTP content type assignment for webhooks
 * [#3999](https://github.com/netbox-community/netbox/issues/3999) - Do not filter child results by null if non-required parent fields are blank
 * [#4008](https://github.com/netbox-community/netbox/issues/4008) - Toggle rack elevation face using front/rear strings
+* [#4017](https://github.com/netbox-community/netbox/issues/4017) - Remove redundant tenant field from cluster form
+* [#4019](https://github.com/netbox-community/netbox/issues/4019) - Restore border around background devices in rack elevations
 
 ---
 
