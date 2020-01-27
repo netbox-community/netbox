@@ -503,6 +503,7 @@ SWAGGER_SETTINGS = {
         'utilities.custom_inspectors.IdInFilterInspector',
         'drf_yasg.inspectors.CoreAPICompatInspector',
     ],
+    'DEFAULT_INFO': 'netbox.urls.openapi_info',
     'DEFAULT_MODEL_DEPTH': 1,
     'DEFAULT_PAGINATOR_INSPECTORS': [
         'utilities.custom_inspectors.NullablePaginatorInspector',
