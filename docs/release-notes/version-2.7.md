@@ -1,4 +1,4 @@
-# v2.7.3 (FUTURE)
+# v2.7.3 (2020-01-28)
 
 ## Enhancements
 
