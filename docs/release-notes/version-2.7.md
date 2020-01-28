@@ -23,6 +23,7 @@
 * [#4027](https://github.com/netbox-community/netbox/issues/4027) - Repair schema migration for #3569 to convert IP addresses with DHCP status
 * [#4028](https://github.com/netbox-community/netbox/issues/4028) - Correct URL patterns to match Unicode characters in tag slugs
 * [#4030](https://github.com/netbox-community/netbox/issues/4030) - Fix exception when setting interfaces to tagged mode in bulk
+* [#4033](https://github.com/netbox-community/netbox/issues/4033) - Restore missing comments field label of various bulk edit forms
 
 ---
 

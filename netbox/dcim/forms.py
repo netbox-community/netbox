@@ -676,7 +676,8 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         widget=StaticSelect2()
     )
     comments = CommentField(
-        widget=SmallTextarea
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     class Meta:
@@ -4418,8 +4419,9 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
     max_utilization = forms.IntegerField(
         required=False
     )
-    comments = forms.CharField(
-        required=False
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     class Meta:
