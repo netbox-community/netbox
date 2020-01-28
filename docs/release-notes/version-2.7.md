@@ -17,6 +17,7 @@
 * [#4008](https://github.com/netbox-community/netbox/issues/4008) - Toggle rack elevation face using front/rear strings
 * [#4017](https://github.com/netbox-community/netbox/issues/4017) - Remove redundant tenant field from cluster form
 * [#4019](https://github.com/netbox-community/netbox/issues/4019) - Restore border around background devices in rack elevations
+* [#4027](https://github.com/netbox-community/netbox/issues/4027) - Repair schema migration for #3569 to convert IP addresses with DHCP status
 * [#4028](https://github.com/netbox-community/netbox/issues/4028) - Correct URL patterns to match Unicode characters in tag slugs
 
 ---
