@@ -2,10 +2,10 @@ from django.db import migrations, models
 
 
 IPADDRESS_STATUS_CHOICES = (
-    (0, 'container'),
     (1, 'active'),
     (2, 'reserved'),
     (3, 'deprecated'),
+    (5, 'dhcp'),
 )
 
 IPADDRESS_ROLE_CHOICES = (
