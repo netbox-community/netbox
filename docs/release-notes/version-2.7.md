@@ -5,6 +5,7 @@
 * [#3310](https://github.com/netbox-community/netbox/issues/3310) - Pre-select site/rack for B side when creating a new cable
 * [#3338](https://github.com/netbox-community/netbox/issues/3338) - Include circuit terminations in API representation of circuits
 * [#3509](https://github.com/netbox-community/netbox/issues/3509) - Add IP address variables for custom scripts
+* [#3978](https://github.com/netbox-community/netbox/issues/3978) - Add VRF filtering to search NAT IP
 * [#4005](https://github.com/netbox-community/netbox/issues/4005) - Include timezone context in webhook timestamps
 
 ## Bug Fixes

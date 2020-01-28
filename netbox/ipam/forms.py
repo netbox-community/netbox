@@ -635,6 +635,17 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
             }
         )
     )
+    nat_vrf = forms.ModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='VRF',
+        widget=APISelect(
+            api_url="/api/ipam/vrfs/",
+            filter_for={
+                'nat_inside': 'vrf_id'
+            }
+        )
+    )
     nat_inside = ChainedModelChoiceField(
         queryset=IPAddress.objects.all(),
         chains=(
