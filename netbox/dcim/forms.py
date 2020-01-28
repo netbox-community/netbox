@@ -2748,7 +2748,7 @@ class InterfaceCSVForm(forms.ModelForm):
             return self.cleaned_data['enabled']
 
 
-class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Interface.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -2828,6 +2828,18 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
             )
         else:
             self.fields['lag'].choices = []
+
+    def clean(self):
+
+        # Untagged interfaces cannot be assigned tagged VLANs
+        if self.cleaned_data['mode'] == InterfaceModeChoices.MODE_ACCESS and self.cleaned_data['tagged_vlans']:
+            raise forms.ValidationError({
+                'mode': "An access interface cannot have tagged VLANs assigned."
+            })
+
+        # Remove all tagged VLAN assignments from "tagged all" interfaces
+        elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED_ALL:
+            self.cleaned_data['tagged_vlans'] = []
 
 
 class InterfaceBulkRenameForm(BulkRenameForm):

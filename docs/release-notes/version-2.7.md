@@ -22,6 +22,7 @@
 * [#4025](https://github.com/netbox-community/netbox/issues/4025) - Correct display of cable status (various places)
 * [#4027](https://github.com/netbox-community/netbox/issues/4027) - Repair schema migration for #3569 to convert IP addresses with DHCP status
 * [#4028](https://github.com/netbox-community/netbox/issues/4028) - Correct URL patterns to match Unicode characters in tag slugs
+* [#4030](https://github.com/netbox-community/netbox/issues/4030) - Fix exception when setting interfaces to tagged mode in bulk
 
 ---
 
