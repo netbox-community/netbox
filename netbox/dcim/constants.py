@@ -4,16 +4,29 @@ from .choices import InterfaceTypeChoices
 
 
 #
-# Rack elevation rendering
+# Racks
 #
+
+RACK_U_HEIGHT_DEFAULT = 42
 
 RACK_ELEVATION_UNIT_WIDTH_DEFAULT = 230
 RACK_ELEVATION_UNIT_HEIGHT_DEFAULT = 20
 
 
 #
-# Interface type groups
+# RearPorts
 #
+
+REARPORT_POSITIONS_MIN = 1
+REARPORT_POSITIONS_MAX = 64
+
+
+#
+# Interfaces
+#
+
+INTERFACE_MTU_MIN = 1
+INTERFACE_MTU_MAX = 32767  # Max value of a signed 16-bit integer
 
 VIRTUAL_IFACE_TYPES = [
     InterfaceTypeChoices.TYPE_VIRTUAL,
@@ -29,6 +42,17 @@ WIRELESS_IFACE_TYPES = [
 ]
 
 NONCONNECTABLE_IFACE_TYPES = VIRTUAL_IFACE_TYPES + WIRELESS_IFACE_TYPES
+
+
+#
+# PowerFeeds
+#
+
+POWERFEED_VOLTAGE_DEFAULT = 120
+
+POWERFEED_AMPERAGE_DEFAULT = 20
+
+POWERFEED_MAX_UTILIZATION_DEFAULT = 80  # Percentage
 
 
 #

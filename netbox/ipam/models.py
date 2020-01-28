@@ -14,7 +14,7 @@ from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
 from virtualization.models import VirtualMachine
 from .choices import *
-from .constants import IPADDRESS_ROLES_NONUNIQUE
+from .constants import *
 from .fields import IPNetworkField, IPAddressField
 from .managers import IPAddressManager
 from .querysets import PrefixQuerySet
@@ -44,7 +44,7 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
         max_length=50
     )
     rd = models.CharField(
-        max_length=21,
+        max_length=VRF_RD_MAX_LENGTH,
         unique=True,
         blank=True,
         null=True,
@@ -1006,7 +1006,7 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         choices=ServiceProtocolChoices
     )
     port = models.PositiveIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(65535)],
+        validators=[MinValueValidator(SERVICE_PORT_MIN), MaxValueValidator(SERVICE_PORT_MAX)],
         verbose_name='Port number'
     )
     ipaddresses = models.ManyToManyField(

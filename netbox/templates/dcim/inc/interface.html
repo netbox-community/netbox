@@ -1,5 +1,5 @@
 {% load helpers %}
-<tr class="interface{% if not iface.enabled %} danger{% elif iface.cable.status %} success{% elif iface.cable %} info{% elif iface.is_virtual %} warning{% endif %}" id="interface_{{ iface.name }}">
+<tr class="interface{% if not iface.enabled %} danger{% elif iface.cable %} {{ iface.cable.get_status_class }}{% elif iface.is_virtual %} warning{% endif %}" id="interface_{{ iface.name }}">
 
     {# Checkbox #}
     {% if perms.dcim.change_interface or perms.dcim.delete_interface %}

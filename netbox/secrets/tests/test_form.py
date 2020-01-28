@@ -29,5 +29,4 @@ class UserKeyFormTestCase(TestCase):
             data={'public_key': SSH_PUBLIC_KEY},
             instance=self.userkey,
         )
-        print(form.is_valid())
         self.assertFalse(form.is_valid())

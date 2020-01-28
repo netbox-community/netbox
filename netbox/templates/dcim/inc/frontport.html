@@ -1,5 +1,5 @@
 {% load helpers %}
-<tr class="frontport{% if frontport.cable.status %} success{% elif frontport.cable %} info{% endif %}">
+<tr class="frontport{% if frontport.cable %} {{ frontport.cable.get_status_class }}{% endif %}">
 
     {# Checkbox #}
     {% if perms.dcim.change_frontport or perms.dcim.delete_frontport %}

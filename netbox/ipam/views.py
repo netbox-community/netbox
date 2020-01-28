@@ -15,6 +15,7 @@ from utilities.views import (
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
 from .choices import *
+from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 
@@ -86,23 +87,20 @@ def add_available_vlans(vlan_group, vlans):
     """
     Create fake records for all gaps between used VLANs
     """
-    MIN_VLAN = 1
-    MAX_VLAN = 4094
-
     if not vlans:
-        return [{'vid': MIN_VLAN, 'available': MAX_VLAN - MIN_VLAN + 1}]
+        return [{'vid': VLAN_VID_MIN, 'available': VLAN_VID_MAX - VLAN_VID_MIN + 1}]
 
-    prev_vid = MAX_VLAN
+    prev_vid = VLAN_VID_MAX
     new_vlans = []
     for vlan in vlans:
         if vlan.vid - prev_vid > 1:
             new_vlans.append({'vid': prev_vid + 1, 'available': vlan.vid - prev_vid - 1})
         prev_vid = vlan.vid
 
-    if vlans[0].vid > MIN_VLAN:
-        new_vlans.append({'vid': MIN_VLAN, 'available': vlans[0].vid - MIN_VLAN})
-    if prev_vid < MAX_VLAN:
-        new_vlans.append({'vid': prev_vid + 1, 'available': MAX_VLAN - prev_vid})
+    if vlans[0].vid > VLAN_VID_MIN:
+        new_vlans.append({'vid': VLAN_VID_MIN, 'available': vlans[0].vid - VLAN_VID_MIN})
+    if prev_vid < VLAN_VID_MAX:
+        new_vlans.append({'vid': prev_vid + 1, 'available': VLAN_VID_MAX - prev_vid})
 
     vlans = list(vlans) + new_vlans
     vlans.sort(key=lambda v: v.vid if type(v) == VLAN else v['vid'])

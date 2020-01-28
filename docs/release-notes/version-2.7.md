@@ -1,3 +1,32 @@
+# v2.7.3 (2020-01-28)
+
+## Enhancements
+
+* [#3310](https://github.com/netbox-community/netbox/issues/3310) - Pre-select site/rack for B side when creating a new cable
+* [#3338](https://github.com/netbox-community/netbox/issues/3338) - Include circuit terminations in API representation of circuits
+* [#3509](https://github.com/netbox-community/netbox/issues/3509) - Add IP address variables for custom scripts
+* [#3978](https://github.com/netbox-community/netbox/issues/3978) - Add VRF filtering to search NAT IP
+* [#4005](https://github.com/netbox-community/netbox/issues/4005) - Include timezone context in webhook timestamps
+
+## Bug Fixes
+
+* [#3950](https://github.com/netbox-community/netbox/issues/3950) - Automatically select parent manufacturer when specifying initial device type during device creation
+* [#3982](https://github.com/netbox-community/netbox/issues/3982) - Restore tooltip for reservations on rack elevations
+* [#3983](https://github.com/netbox-community/netbox/issues/3983) - Permit the creation of multiple unnamed devices
+* [#3989](https://github.com/netbox-community/netbox/issues/3989) - Correct HTTP content type assignment for webhooks
+* [#3999](https://github.com/netbox-community/netbox/issues/3999) - Do not filter child results by null if non-required parent fields are blank
+* [#4008](https://github.com/netbox-community/netbox/issues/4008) - Toggle rack elevation face using front/rear strings
+* [#4017](https://github.com/netbox-community/netbox/issues/4017) - Remove redundant tenant field from cluster form
+* [#4019](https://github.com/netbox-community/netbox/issues/4019) - Restore border around background devices in rack elevations
+* [#4022](https://github.com/netbox-community/netbox/issues/4022) - Fix display of assigned IPs when filtering device interfaces
+* [#4025](https://github.com/netbox-community/netbox/issues/4025) - Correct display of cable status (various places)
+* [#4027](https://github.com/netbox-community/netbox/issues/4027) - Repair schema migration for #3569 to convert IP addresses with DHCP status
+* [#4028](https://github.com/netbox-community/netbox/issues/4028) - Correct URL patterns to match Unicode characters in tag slugs
+* [#4030](https://github.com/netbox-community/netbox/issues/4030) - Fix exception when setting interfaces to tagged mode in bulk
+* [#4033](https://github.com/netbox-community/netbox/issues/4033) - Restore missing comments field label of various bulk edit forms
+
+---
+
 # v2.7.2 (2020-01-21)
 
 ## Enhancements

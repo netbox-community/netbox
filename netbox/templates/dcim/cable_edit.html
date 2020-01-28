@@ -1,23 +1,5 @@
 {% extends 'utilities/obj_edit.html' %}
-{% load form_helpers %}
 
 {% block form %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Cable</strong></div>
-        <div class="panel-body">
-            {% render_field form.type %}
-            {% render_field form.status %}
-            {% render_field form.label %}
-            {% render_field form.color %}
-            <div class="form-group">
-                <label class="col-md-3 control-label" for="id_length">{{ form.length.label }}</label>
-                <div class="col-md-6">
-                    {{ form.length }}
-                </div>
-                <div class="col-md-3">
-                    {{ form.length_unit }}
-                </div>
-            </div>
-        </div>
-    </div>
+    {% include 'dcim/inc/cable_form.html' %}
 {% endblock %}
