@@ -125,6 +125,10 @@ We'll use systemd to control the daemonization of NetBox services. First, copy `
 
 !!! note
     These service files assume that gunicorn is installed at `/usr/local/bin/gunicorn`. If the output of `which gunicorn` indicates a different path, you'll need to correct the `ExecStart` path in both files.
+    
+!!! note
+    Make sure these service files are running under the correct user/group. For example in CentOS you should change the user and group from "www-data" -> "apache"
+    
 
 Then, start the `netbox` and `netbox-rq` services and enable them to initiate at boot time:
 
