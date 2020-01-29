@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -24,30 +22,37 @@ class CustomFieldModelForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
 
+        self.obj_type = ContentType.objects.get_for_model(self._meta.model)
+        self.custom_fields = []
+        self.custom_field_values = {}
+
         super().__init__(*args, **kwargs)
 
-        # Append form fields for CustomFields
-        self.obj_type = ContentType.objects.get_for_model(self._meta.model)
         self._append_customfield_fields()
-
-        # If editing an existing object, initialize values for all custom fields
-        if self.instance.pk:
-            existing_values = CustomFieldValue.objects.filter(
-                obj_type=self.obj_type,
-                obj_id=self.instance.pk
-            ).prefetch_related('field')
-            for cfv in existing_values:
-                self.initial['cf_{}'.format(str(cfv.field.name))] = cfv.serialized_value
 
     def _append_customfield_fields(self):
         """
-        Append form fields for all applicable CustomFields.
+        Append form fields for all CustomFields assigned to this model.
         """
-        self.custom_fields = []
-        custom_fields = CustomField.objects.filter(obj_type=self.obj_type)
-        for cf in custom_fields:
-            self.fields[cf.name] = cf.to_form_field()
-            self.custom_fields.append(cf.name)
+        # Retrieve initial CustomField values for the instance
+        if self.instance.pk:
+            for cfv in CustomFieldValue.objects.filter(
+                obj_type=self.obj_type,
+                obj_id=self.instance.pk
+            ).prefetch_related('field'):
+                self.custom_field_values[cfv.field.name] = cfv.serialized_value
+
+        # Append form fields; assign initial values if modifying and existing object
+        for cf in CustomField.objects.filter(obj_type=self.obj_type):
+            field_name = 'cf_{}'.format(cf.name)
+            if self.instance.pk:
+                self.fields[field_name] = cf.to_form_field(set_initial=False)
+                self.fields[field_name].initial = self.custom_field_values.get(cf.name)
+            else:
+                self.fields[field_name] = cf.to_form_field()
+
+            # Annotate the field in the list of CustomField form fields
+            self.custom_fields.append(field_name)
 
     def _save_custom_fields(self):
 
