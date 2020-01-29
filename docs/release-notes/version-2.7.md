@@ -3,6 +3,7 @@
 ## Bug Fixes
 
 * [#4043](https://github.com/netbox-community/netbox/issues/4043) - Fix toggling of required fields in custom scripts
+* [#4049](https://github.com/netbox-community/netbox/issues/4049) - Restore missing `tags` field in IPAM service serializer
 
 ---
 
