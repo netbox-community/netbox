@@ -282,17 +282,19 @@ class CustomField(models.Model):
             return self.choices.get(pk=int(serialized_value))
         return serialized_value
 
-    def to_form_field(self, set_initial=True):
+    def to_form_field(self, set_initial=True, enforce_required=True):
         """
         Return a form field suitable for setting a CustomField's value for an object.
 
-        set_initial: Set initial date for the field. This should be false when generating a field for bulk editing.
+        set_initial: Set initial date for the field. This should be False when generating a field for bulk editing.
+        enforce_required: Honor the value of CustomField.required. Set to False for filtering/bulk editing.
         """
         initial = self.default if set_initial else None
+        required = self.required if enforce_required else False
 
         # Integer
         if self.type == CustomFieldTypeChoices.TYPE_INTEGER:
-            field = forms.IntegerField(required=self.required, initial=initial)
+            field = forms.IntegerField(required=required, initial=initial)
 
         # Boolean
         elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
@@ -308,19 +310,19 @@ class CustomField(models.Model):
             else:
                 initial = None
             field = forms.NullBooleanField(
-                required=self.required, initial=initial, widget=StaticSelect2(choices=choices)
+                required=required, initial=initial, widget=StaticSelect2(choices=choices)
             )
 
         # Date
         elif self.type == CustomFieldTypeChoices.TYPE_DATE:
-            field = forms.DateField(required=self.required, initial=initial, widget=DatePicker())
+            field = forms.DateField(required=required, initial=initial, widget=DatePicker())
 
         # Select
         elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
             choices = [(cfc.pk, cfc.value) for cfc in self.choices.all()]
             # TODO: Accommodate bulk edit/filtering
             # if not self.required or bulk_edit or filterable_only:
-            if not self.required:
+            if not required:
                 choices = add_blank_choice(choices)
             # Set the initial value to the PK of the default choice, if any
             if set_initial:
@@ -328,16 +330,16 @@ class CustomField(models.Model):
                 if default_choice:
                     initial = default_choice.pk
             field = forms.TypedChoiceField(
-                choices=choices, coerce=int, required=self.required, initial=initial, widget=StaticSelect2()
+                choices=choices, coerce=int, required=required, initial=initial, widget=StaticSelect2()
             )
 
         # URL
         elif self.type == CustomFieldTypeChoices.TYPE_URL:
-            field = LaxURLField(required=self.required, initial=initial)
+            field = LaxURLField(required=required, initial=initial)
 
         # Text
         else:
-            field = forms.CharField(max_length=255, required=self.required, initial=initial)
+            field = forms.CharField(max_length=255, required=required, initial=initial)
 
         field.model = self
         field.label = self.label if self.label else self.name.replace('_', ' ').capitalize()

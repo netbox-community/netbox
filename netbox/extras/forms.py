@@ -20,22 +20,6 @@ from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachmen
 # Custom fields
 #
 
-def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=False):
-    """
-    Retrieve all CustomFields applicable to the given ContentType
-    """
-    field_dict = OrderedDict()
-    custom_fields = CustomField.objects.filter(obj_type=content_type)
-    if filterable_only:
-        custom_fields = custom_fields.exclude(filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED)
-
-    for cf in custom_fields:
-        field_name = 'cf_{}'.format(str(cf.name))
-        field_dict[field_name] = cf.to_form_field(set_initial=not bulk_edit)
-
-    return field_dict
-
-
 class CustomFieldModelForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
@@ -60,9 +44,10 @@ class CustomFieldModelForm(forms.ModelForm):
         Append form fields for all applicable CustomFields.
         """
         self.custom_fields = []
-        for name, field in get_custom_fields_for_model(self.obj_type).items():
-            self.fields[name] = field
-            self.custom_fields.append(name)
+        custom_fields = CustomField.objects.filter(obj_type=self.obj_type)
+        for cf in custom_fields:
+            self.fields[cf.name] = cf.to_form_field()
+            self.custom_fields.append(cf.name)
 
     def _save_custom_fields(self):
 
@@ -106,15 +91,14 @@ class CustomFieldBulkEditForm(BulkEditForm):
         self.obj_type = ContentType.objects.get_for_model(self.model)
 
         # Add all applicable CustomFields to the form
-        custom_fields = get_custom_fields_for_model(self.obj_type, bulk_edit=True).items()
-        for name, field in custom_fields:
+        custom_fields = CustomField.objects.filter(obj_type=self.obj_type)
+        for cf in custom_fields:
             # Annotate non-required custom fields as nullable
-            if not field.required:
-                self.nullable_fields.append(name)
-            field.required = False
-            self.fields[name] = field
+            if not cf.required:
+                self.nullable_fields.append(cf.name)
+            self.fields[cf.name] = cf.to_form_field(set_initial=False, enforce_required=False)
             # Annotate this as a custom field
-            self.custom_fields.append(name)
+            self.custom_fields.append(cf.name)
 
 
 class CustomFieldFilterForm(forms.Form):
@@ -126,10 +110,11 @@ class CustomFieldFilterForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Add all applicable CustomFields to the form
-        custom_fields = get_custom_fields_for_model(self.obj_type, filterable_only=True).items()
-        for name, field in custom_fields:
-            field.required = False
-            self.fields[name] = field
+        custom_fields = CustomField.objects.filter(obj_type=self.obj_type).exclude(
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED
+        )
+        for cf in custom_fields:
+            self.fields[cf.name] = cf.to_form_field(set_initial=True, enforce_required=False)
 
 
 #
