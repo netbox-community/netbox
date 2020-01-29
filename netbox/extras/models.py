@@ -15,7 +15,7 @@ from django.utils.text import slugify
 from taggit.models import TagBase, GenericTaggedItemBase
 
 from utilities.fields import ColorField
-from utilities.forms import DatePicker, LaxURLField, StaticSelect2, add_blank_choice
+from utilities.forms import CSVChoiceField, DatePicker, LaxURLField, StaticSelect2, add_blank_choice
 from utilities.utils import deepmerge, render_jinja2
 from .choices import *
 from .constants import *
@@ -282,12 +282,13 @@ class CustomField(models.Model):
             return self.choices.get(pk=int(serialized_value))
         return serialized_value
 
-    def to_form_field(self, set_initial=True, enforce_required=True):
+    def to_form_field(self, set_initial=True, enforce_required=True, for_csv_import=False):
         """
         Return a form field suitable for setting a CustomField's value for an object.
 
         set_initial: Set initial date for the field. This should be False when generating a field for bulk editing.
         enforce_required: Honor the value of CustomField.required. Set to False for filtering/bulk editing.
+        for_csv_import: Return a form field suitable for bulk import of objects in CSV format.
         """
         initial = self.default if set_initial else None
         required = self.required if enforce_required else False
@@ -320,17 +321,19 @@ class CustomField(models.Model):
         # Select
         elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
             choices = [(cfc.pk, cfc.value) for cfc in self.choices.all()]
-            # TODO: Accommodate bulk edit/filtering
-            # if not self.required or bulk_edit or filterable_only:
+
             if not required:
                 choices = add_blank_choice(choices)
+
             # Set the initial value to the PK of the default choice, if any
             if set_initial:
                 default_choice = self.choices.filter(value=self.default).first()
                 if default_choice:
                     initial = default_choice.pk
-            field = forms.TypedChoiceField(
-                choices=choices, coerce=int, required=required, initial=initial, widget=StaticSelect2()
+
+            field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
+            field = field_class(
+                choices=choices, required=required, initial=initial, widget=StaticSelect2()
             )
 
         # URL

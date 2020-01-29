@@ -442,20 +442,6 @@ class CSVChoiceField(forms.ChoiceField):
         return self.choice_values[value]
 
 
-class CSVCustomFieldChoiceField(forms.TypedChoiceField):
-    """
-    Invert the choice tuples: CSV import takes the human-friendly label as input rather than the database value
-    """
-    def __init__(self, *args, **kwargs):
-
-        if 'choices' in kwargs:
-            kwargs['choices'] = {
-                label: value for value, label in kwargs['choices']
-            }
-
-        super().__init__(*args, **kwargs)
-
-
 class ExpandableNameField(forms.CharField):
     """
     A field which allows for numeric range expansion

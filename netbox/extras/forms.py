@@ -94,7 +94,7 @@ class CustomFieldModelCSVForm(CustomFieldModelForm):
         # Append form fields
         for cf in CustomField.objects.filter(obj_type=self.obj_type):
             field_name = 'cf_{}'.format(cf.name)
-            self.fields[field_name] = cf.to_form_field()
+            self.fields[field_name] = cf.to_form_field(for_csv_import=True)
 
             # Annotate the field in the list of CustomField form fields
             self.custom_fields.append(field_name)
