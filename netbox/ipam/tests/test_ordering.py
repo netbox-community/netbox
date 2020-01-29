@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from ipam.choices import IPAddressStatusChoices, PrefixStatusChoices
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, VLAN, VLANGroup, VRF
+from ipam.models import IPAddress, Prefix, VRF
 
 import netaddr
 
