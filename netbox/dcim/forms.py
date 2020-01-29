@@ -13,7 +13,8 @@ from timezone_field import TimeZoneFormField
 
 from circuits.models import Circuit, Provider
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm, LocalConfigContextFilterForm
+    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldFilterForm, CustomFieldModelForm,
+    LocalConfigContextFilterForm,
 )
 from ipam.constants import BGP_ASN_MAX, BGP_ASN_MIN
 from ipam.models import IPAddress, VLAN
@@ -263,7 +264,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class SiteCSVForm(CustomFieldModelForm):
+class SiteCSVForm(CustomFieldModelCSVForm):
     status = CSVChoiceField(
         choices=SiteStatusChoices,
         required=False,
@@ -504,7 +505,7 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class RackCSVForm(CustomFieldModelForm):
+class RackCSVForm(CustomFieldModelCSVForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -1724,7 +1725,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             self.initial['rack'] = self.instance.parent_bay.device.rack_id
 
 
-class BaseDeviceCSVForm(CustomFieldModelForm):
+class BaseDeviceCSVForm(CustomFieldModelCSVForm):
     device_role = forms.ModelChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
@@ -4286,7 +4287,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
             self.initial['site'] = self.instance.power_panel.site
 
 
-class PowerFeedCSVForm(CustomFieldModelForm):
+class PowerFeedCSVForm(CustomFieldModelCSVForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',

@@ -2,7 +2,9 @@ from django import forms
 from taggit.forms import TagField
 
 from dcim.models import Region, Site
-from extras.forms import AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from extras.forms import (
+    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
+)
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -46,7 +48,7 @@ class ProviderForm(BootstrapMixin, CustomFieldModelForm):
         }
 
 
-class ProviderCSVForm(CustomFieldModelForm):
+class ProviderCSVForm(CustomFieldModelCSVForm):
     slug = SlugField()
 
     class Meta:
@@ -188,7 +190,7 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class CircuitCSVForm(CustomFieldModelForm):
+class CircuitCSVForm(CustomFieldModelCSVForm):
     provider = forms.ModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',

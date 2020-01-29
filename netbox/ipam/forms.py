@@ -4,7 +4,9 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from taggit.forms import TagField
 
 from dcim.models import Device, Interface, Rack, Region, Site
-from extras.forms import AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from extras.forms import (
+    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
+)
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -49,7 +51,7 @@ class VRFForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class VRFCSVForm(CustomFieldModelForm):
+class VRFCSVForm(CustomFieldModelCSVForm):
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -166,7 +168,7 @@ class AggregateForm(BootstrapMixin, CustomFieldModelForm):
         }
 
 
-class AggregateCSVForm(CustomFieldModelForm):
+class AggregateCSVForm(CustomFieldModelCSVForm):
     rir = forms.ModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
@@ -341,7 +343,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         self.fields['vrf'].empty_label = 'Global'
 
 
-class PrefixCSVForm(CustomFieldModelForm):
+class PrefixCSVForm(CustomFieldModelCSVForm):
     vrf = FlexibleModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='rd',
@@ -771,7 +773,7 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         self.fields['vrf'].empty_label = 'Global'
 
 
-class IPAddressCSVForm(CustomFieldModelForm):
+class IPAddressCSVForm(CustomFieldModelCSVForm):
     vrf = FlexibleModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='rd',
@@ -1135,7 +1137,7 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
 
-class VLANCSVForm(CustomFieldModelForm):
+class VLANCSVForm(CustomFieldModelCSVForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,

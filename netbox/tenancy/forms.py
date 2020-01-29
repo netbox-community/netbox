@@ -1,7 +1,9 @@
 from django import forms
 from taggit.forms import TagField
 
-from extras.forms import AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from extras.forms import (
+    AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldFilterForm,
+)
 from utilities.forms import (
     APISelect, APISelectMultiple, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField,
     FilterChoiceField, SlugField,

@@ -87,6 +87,19 @@ class CustomFieldModelForm(forms.ModelForm):
         return obj
 
 
+class CustomFieldModelCSVForm(CustomFieldModelForm):
+
+    def _append_customfield_fields(self):
+
+        # Append form fields
+        for cf in CustomField.objects.filter(obj_type=self.obj_type):
+            field_name = 'cf_{}'.format(cf.name)
+            self.fields[field_name] = cf.to_form_field()
+
+            # Annotate the field in the list of CustomField form fields
+            self.custom_fields.append(field_name)
+
+
 class CustomFieldBulkEditForm(BulkEditForm):
 
     def __init__(self, *args, **kwargs):
