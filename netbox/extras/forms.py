@@ -10,8 +10,8 @@ from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
-    CustomFieldChoiceField, CommentField, ContentTypeSelect, DatePicker, DateTimePicker, FilterChoiceField,
-    LaxURLField, JSONField, SlugField, StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
+    CommentField, ContentTypeSelect, DatePicker, DateTimePicker, FilterChoiceField, LaxURLField, JSONField, SlugField,
+    StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from .choices import *
 from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachment, ObjectChange, Tag
@@ -71,7 +71,7 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
                     default_choice = cf.choices.get(value=initial).pk
                 except ObjectDoesNotExist:
                     pass
-            field = CustomFieldChoiceField(
+            field = forms.TypedChoiceField(
                 choices=choices, coerce=int, required=cf.required, initial=default_choice, widget=StaticSelect2()
             )
 
@@ -93,21 +93,15 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
     return field_dict
 
 
-class CustomFieldForm(forms.ModelForm):
+class CustomFieldModelForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
 
-        self.custom_fields = []
-        self.obj_type = ContentType.objects.get_for_model(self._meta.model)
-
         super().__init__(*args, **kwargs)
 
-        # Add all applicable CustomFields to the form
-        custom_fields = []
-        for name, field in get_custom_fields_for_model(self.obj_type).items():
-            self.fields[name] = field
-            custom_fields.append(name)
-        self.custom_fields = custom_fields
+        # Append form fields for CustomFields
+        self.obj_type = ContentType.objects.get_for_model(self._meta.model)
+        self._append_customfield_fields()
 
         # If editing an existing object, initialize values for all custom fields
         if self.instance.pk:
@@ -117,6 +111,15 @@ class CustomFieldForm(forms.ModelForm):
             ).prefetch_related('field')
             for cfv in existing_values:
                 self.initial['cf_{}'.format(str(cfv.field.name))] = cfv.serialized_value
+
+    def _append_customfield_fields(self):
+        """
+        Append form fields for all applicable CustomFields.
+        """
+        self.custom_fields = []
+        for name, field in get_custom_fields_for_model(self.obj_type).items():
+            self.fields[name] = field
+            self.custom_fields.append(name)
 
     def _save_custom_fields(self):
 

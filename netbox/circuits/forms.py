@@ -2,7 +2,7 @@ from django import forms
 from taggit.forms import TagField
 
 from dcim.models import Region, Site
-from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from extras.forms import AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -17,7 +17,7 @@ from .models import Circuit, CircuitTermination, CircuitType, Provider
 # Providers
 #
 
-class ProviderForm(BootstrapMixin, CustomFieldForm):
+class ProviderForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
     comments = CommentField()
     tags = TagField(
@@ -46,7 +46,7 @@ class ProviderForm(BootstrapMixin, CustomFieldForm):
         }
 
 
-class ProviderCSVForm(CustomFieldForm):
+class ProviderCSVForm(CustomFieldModelForm):
     slug = SlugField()
 
     class Meta:
@@ -160,7 +160,7 @@ class CircuitTypeCSVForm(forms.ModelForm):
 # Circuits
 #
 
-class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     comments = CommentField()
     tags = TagField(
         required=False
@@ -188,7 +188,7 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class CircuitCSVForm(CustomFieldForm):
+class CircuitCSVForm(CustomFieldModelForm):
     provider = forms.ModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',

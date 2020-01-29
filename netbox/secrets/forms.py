@@ -4,7 +4,7 @@ from django import forms
 from taggit.forms import TagField
 
 from dcim.models import Device
-from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldForm
+from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm
 from utilities.forms import (
     APISelect, APISelectMultiple, BootstrapMixin, FilterChoiceField, FlexibleModelChoiceField, SlugField,
     StaticSelect2Multiple
@@ -68,7 +68,7 @@ class SecretRoleCSVForm(forms.ModelForm):
 # Secrets
 #
 
-class SecretForm(BootstrapMixin, CustomFieldForm):
+class SecretForm(BootstrapMixin, CustomFieldModelForm):
     plaintext = forms.CharField(
         max_length=SECRET_PLAINTEXT_MAX_LENGTH,
         required=False,
@@ -116,7 +116,7 @@ class SecretForm(BootstrapMixin, CustomFieldForm):
             })
 
 
-class SecretCSVForm(CustomFieldForm):
+class SecretCSVForm(CustomFieldModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',

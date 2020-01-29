@@ -13,7 +13,7 @@ from timezone_field import TimeZoneFormField
 
 from circuits.models import Circuit, Provider
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm, LocalConfigContextFilterForm
+    AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm, LocalConfigContextFilterForm
 )
 from ipam.constants import BGP_ASN_MAX, BGP_ASN_MIN
 from ipam.models import IPAddress, VLAN
@@ -215,7 +215,7 @@ class RegionFilterForm(BootstrapMixin, forms.Form):
 # Sites
 #
 
-class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     region = TreeNodeChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -263,7 +263,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class SiteCSVForm(CustomFieldForm):
+class SiteCSVForm(CustomFieldModelForm):
     status = CSVChoiceField(
         choices=SiteStatusChoices,
         required=False,
@@ -459,7 +459,7 @@ class RackRoleCSVForm(forms.ModelForm):
 # Racks
 #
 
-class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     group = ChainedModelChoiceField(
         queryset=RackGroup.objects.all(),
         chains=(
@@ -504,7 +504,7 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class RackCSVForm(CustomFieldForm):
+class RackCSVForm(CustomFieldModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -897,7 +897,7 @@ class ManufacturerCSVForm(forms.ModelForm):
 # Device types
 #
 
-class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
+class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField(
         slug_source='model'
     )
@@ -1516,7 +1516,7 @@ class PlatformCSVForm(forms.ModelForm):
 # Devices
 #
 
-class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         widget=APISelect(
@@ -1724,7 +1724,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.initial['rack'] = self.instance.parent_bay.device.rack_id
 
 
-class BaseDeviceCSVForm(CustomFieldForm):
+class BaseDeviceCSVForm(CustomFieldModelForm):
     device_role = forms.ModelChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
@@ -4241,7 +4241,7 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Power feeds
 #
 
-class PowerFeedForm(BootstrapMixin, CustomFieldForm):
+class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
     site = ChainedModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -4286,7 +4286,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldForm):
             self.initial['site'] = self.instance.power_panel.site
 
 
-class PowerFeedCSVForm(CustomFieldForm):
+class PowerFeedCSVForm(CustomFieldModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',

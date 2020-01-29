@@ -4,7 +4,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from taggit.forms import TagField
 
 from dcim.models import Device, Interface, Rack, Region, Site
-from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from extras.forms import AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -31,7 +31,7 @@ IPADDRESS_MASK_LENGTH_CHOICES = add_blank_choice([
 # VRFs
 #
 
-class VRFForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class VRFForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     tags = TagField(
         required=False
     )
@@ -49,7 +49,7 @@ class VRFForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class VRFCSVForm(CustomFieldForm):
+class VRFCSVForm(CustomFieldModelForm):
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -144,7 +144,7 @@ class RIRFilterForm(BootstrapMixin, forms.Form):
 # Aggregates
 #
 
-class AggregateForm(BootstrapMixin, CustomFieldForm):
+class AggregateForm(BootstrapMixin, CustomFieldModelForm):
     tags = TagField(
         required=False
     )
@@ -166,7 +166,7 @@ class AggregateForm(BootstrapMixin, CustomFieldForm):
         }
 
 
-class AggregateCSVForm(CustomFieldForm):
+class AggregateCSVForm(CustomFieldModelForm):
     rir = forms.ModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
@@ -263,7 +263,7 @@ class RoleCSVForm(forms.ModelForm):
 # Prefixes
 #
 
-class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -341,7 +341,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         self.fields['vrf'].empty_label = 'Global'
 
 
-class PrefixCSVForm(CustomFieldForm):
+class PrefixCSVForm(CustomFieldModelForm):
     vrf = FlexibleModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='rd',
@@ -584,7 +584,7 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
 # IP addresses
 #
 
-class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm):
+class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModelForm):
     interface = forms.ModelChoiceField(
         queryset=Interface.objects.all(),
         required=False
@@ -751,7 +751,7 @@ class IPAddressBulkCreateForm(BootstrapMixin, forms.Form):
     )
 
 
-class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
     class Meta:
         model = IPAddress
@@ -771,7 +771,7 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         self.fields['vrf'].empty_label = 'Global'
 
 
-class IPAddressCSVForm(CustomFieldForm):
+class IPAddressCSVForm(CustomFieldModelForm):
     vrf = FlexibleModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='rd',
@@ -1087,7 +1087,7 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
 # VLANs
 #
 
-class VLANForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -1135,7 +1135,7 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class VLANCSVForm(CustomFieldForm):
+class VLANCSVForm(CustomFieldModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -1310,7 +1310,7 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 # Services
 #
 
-class ServiceForm(BootstrapMixin, CustomFieldForm):
+class ServiceForm(BootstrapMixin, CustomFieldModelForm):
     port = forms.IntegerField(
         min_value=SERVICE_PORT_MIN,
         max_value=SERVICE_PORT_MAX
