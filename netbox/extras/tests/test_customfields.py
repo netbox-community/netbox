@@ -5,6 +5,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from rest_framework import status
 
+from dcim.forms import SiteCSVForm
 from dcim.models import Site
 from extras.choices import *
 from extras.models import CustomField, CustomFieldValue, CustomFieldChoice
@@ -444,3 +445,33 @@ class CustomFieldImportTest(TestCase):
         site3 = Site.objects.get(name='Site 3')
         self.assertFalse(CustomFieldValue.objects.filter(obj_type=obj_type, obj_id=site3.pk).exists())
         self.assertEqual(CustomFieldValue.objects.count(), 12)  # Sanity check
+
+    def test_import_missing_required(self):
+        """
+        Attempt to import an object missing a required custom field.
+        """
+        # Set one of our CustomFields to required
+        CustomField.objects.filter(name='text').update(required=True)
+
+        form_data = {
+            'name': 'Site 1',
+            'slug': 'site-1',
+        }
+
+        form = SiteCSVForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('cf_text', form.errors)
+
+    def test_import_invalid_choice(self):
+        """
+        Attempt to import an object with an invalid choice selection.
+        """
+        form_data = {
+            'name': 'Site 1',
+            'slug': 'site-1',
+            'cf_select': 'Choice X'
+        }
+
+        form = SiteCSVForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('cf_select', form.errors)
