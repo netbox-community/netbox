@@ -366,9 +366,9 @@ class CustomFieldChoiceAPITest(APITestCase):
         self.assertEqual(self.cf_choice_3.pk, response.data[self.cf_2.name][self.cf_choice_3.value])
 
 
-class CustomFieldCSV(TestCase):
+class CustomFieldImportTest(TestCase):
+
     def setUp(self):
-        super().setUp()
 
         user = create_test_user(
             permissions=[
@@ -379,47 +379,68 @@ class CustomFieldCSV(TestCase):
         self.client = Client()
         self.client.force_login(user)
 
-        obj_type = ContentType.objects.get_for_model(Site)
+    @classmethod
+    def setUpTestData(cls):
 
-        self.cf_text = CustomField.objects.create(name="text", type=CustomFieldTypeChoices.TYPE_TEXT)
-        self.cf_text.obj_type.set([obj_type])
-        self.cf_text.save()
+        custom_fields = (
+            CustomField(name='text', type=CustomFieldTypeChoices.TYPE_TEXT),
+            CustomField(name='integer', type=CustomFieldTypeChoices.TYPE_INTEGER),
+            CustomField(name='boolean', type=CustomFieldTypeChoices.TYPE_BOOLEAN),
+            CustomField(name='date', type=CustomFieldTypeChoices.TYPE_DATE),
+            CustomField(name='url', type=CustomFieldTypeChoices.TYPE_URL),
+            CustomField(name='select', type=CustomFieldTypeChoices.TYPE_SELECT),
+        )
+        for cf in custom_fields:
+            cf.save()
+            cf.obj_type.set([ContentType.objects.get_for_model(Site)])
 
-        self.cf_choice = CustomField.objects.create(name="choice", type=CustomFieldTypeChoices.TYPE_SELECT)
-        self.cf_choice.obj_type.set([obj_type])
-        self.cf_choice.save()
-
-        self.cf_choice_1 = CustomFieldChoice.objects.create(field=self.cf_choice, value="cf_field_1")
-        self.cf_choice_2 = CustomFieldChoice.objects.create(field=self.cf_choice, value="cf_field_2")
-        self.cf_choice_3 = CustomFieldChoice.objects.create(field=self.cf_choice, value="cf_field_3")
+        CustomFieldChoice.objects.bulk_create((
+            CustomFieldChoice(field=custom_fields[5], value='Choice A'),
+            CustomFieldChoice(field=custom_fields[5], value='Choice B'),
+            CustomFieldChoice(field=custom_fields[5], value='Choice C'),
+        ))
 
     def test_import(self):
         """
-        Import a site with custom fields
+        Import a Site in CSV format, including a value for each CustomField.
         """
-        csv_data = (
-            "name,slug,cf_text,cf_choice",
-            "Site 1,site-1,something,cf_field_1",
+        data = (
+            ('name', 'slug', 'cf_text', 'cf_integer', 'cf_boolean', 'cf_date', 'cf_url', 'cf_select'),
+            ('Site 1', 'site-1', 'ABC', '123', 'True', '2020-01-01', 'http://example.com/1', 'Choice A'),
+            ('Site 2', 'site-2', 'DEF', '456', 'False', '2020-01-02', 'http://example.com/2', 'Choice B'),
+            ('Site 3', 'site-3', '', '', '', '', '', ''),
         )
+        csv_data = '\n'.join(','.join(row) for row in data)
 
-        response = self.client.post(reverse('dcim:site_import'), {'csv': '\n'.join(csv_data)})
+        response = self.client.post(reverse('dcim:site_import'), {'csv': csv_data})
         self.assertEqual(response.status_code, 200)
 
-        site1_custom_fields = Site.objects.get(name='Site 1').get_custom_fields()
-        self.assertEqual(len(site1_custom_fields), 2)
-        self.assertEqual(site1_custom_fields[self.cf_text], 'something')
-        self.assertEqual(site1_custom_fields[self.cf_choice], self.cf_choice_1)
+        # Validate data for site 1
+        custom_field_values = {
+            cf.name: value for cf, value in Site.objects.get(name='Site 1').get_custom_fields().items()
+        }
+        self.assertEqual(len(custom_field_values), 6)
+        self.assertEqual(custom_field_values['text'], 'ABC')
+        self.assertEqual(custom_field_values['integer'], 123)
+        self.assertEqual(custom_field_values['boolean'], True)
+        self.assertEqual(custom_field_values['date'], date(2020, 1, 1))
+        self.assertEqual(custom_field_values['url'], 'http://example.com/1')
+        self.assertEqual(custom_field_values['select'].value, 'Choice A')
 
-    def test_import_invalid_choice(self):
-        """
-        Import a site with an invalid choice
-        """
-        csv_data = (
-            "name,slug,cf_choice",
-            "Site 2,site-2,cf_field_4",
-        )
+        # Validate data for site 2
+        custom_field_values = {
+            cf.name: value for cf, value in Site.objects.get(name='Site 2').get_custom_fields().items()
+        }
+        self.assertEqual(len(custom_field_values), 6)
+        self.assertEqual(custom_field_values['text'], 'DEF')
+        self.assertEqual(custom_field_values['integer'], 456)
+        self.assertEqual(custom_field_values['boolean'], False)
+        self.assertEqual(custom_field_values['date'], date(2020, 1, 2))
+        self.assertEqual(custom_field_values['url'], 'http://example.com/2')
+        self.assertEqual(custom_field_values['select'].value, 'Choice B')
 
-        response = self.client.post(reverse('dcim:site_import'), {'csv': '\n'.join(csv_data)})
-        self.assertEqual(response.status_code, 200)
-
-        self.assertFalse(len(Site.objects.filter(name="Site 2")), 0)
+        # No CustomFieldValues should be created for site 3
+        obj_type = ContentType.objects.get_for_model(Site)
+        site3 = Site.objects.get(name='Site 3')
+        self.assertFalse(CustomFieldValue.objects.filter(obj_type=obj_type, obj_id=site3.pk).exists())
+        self.assertEqual(CustomFieldValue.objects.count(), 12)  # Sanity check
