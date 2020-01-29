@@ -60,7 +60,7 @@ class ScriptVariable:
         if default:
             self.field_attrs['initial'] = default
         if required:
-            self.field_attrs['required'] = True
+            self.field_attrs['required'] = required
         if 'validators' not in self.field_attrs:
             self.field_attrs['validators'] = []
 
