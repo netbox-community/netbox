@@ -1,3 +1,11 @@
+# v2.7.4 (FUTURE)
+
+## Bug Fixes
+
+* [#4043](https://github.com/netbox-community/netbox/issues/4043) - Fix toggling of required fields in custom scripts
+
+---
+
 # v2.7.3 (2020-01-28)
 
 ## Enhancements
