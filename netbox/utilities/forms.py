@@ -442,21 +442,18 @@ class CSVChoiceField(forms.ChoiceField):
         return self.choice_values[value]
 
 
-class CustomFieldChoiceField(forms.TypedChoiceField):
+class CSVCustomFieldChoiceField(forms.TypedChoiceField):
     """
-    Accept human-friendly label as input, and return the database value. If the label is not matched, the normal,
-    value-based input is assumed.
+    Invert the choice tuples: CSV import takes the human-friendly label as input rather than the database value
     """
+    def __init__(self, *args, **kwargs):
 
-    def __init__(self, choices, *args, **kwargs):
-        super().__init__(choices=choices, *args, **kwargs)
-        self.choice_values = {label: value for value, label in unpack_grouped_choices(choices)}
+        if 'choices' in kwargs:
+            kwargs['choices'] = {
+                label: value for value, label in kwargs['choices']
+            }
 
-    def clean(self, value):
-        # Check if the value is actually a label
-        if value in self.choice_values:
-            return self.choice_values[value]
-        return super().clean(value)
+        super().__init__(*args, **kwargs)
 
 
 class ExpandableNameField(forms.CharField):
