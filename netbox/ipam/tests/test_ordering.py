@@ -194,15 +194,6 @@ class IPAddressOrderingTestCase(TestCase):
             status, vrf, address = addresses[i]
             self.assertEqual((obj.vrf, obj.address), (vrf, address))
 
-    def _compare_complex(self, queryset, addresses):
-        qsaddress, regaddress = [], []
-        for i, obj in enumerate(queryset):
-            qsaddress.append(obj.address)
-        for addr in addresses:
-            regaddress.append(addr[2])
-        return (qsaddress, regaddress)
-
-
 
     def test_address_ordering(self):
         # Setup Addresses
@@ -290,22 +281,3 @@ class IPAddressOrderingTestCase(TestCase):
 
         # Test
         self._compare_address(IPAddress.objects.all(), addresses)
-
-    def test_address_complex_ordering(self):
-        # Setup VRFs
-        vrfa, vrfb, vrfc = self.vrfs
-
-        # Setup addresses
-        addresses = [
-            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.0.0.1/24')),
-            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.0.1.1/24')),
-            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.0.1.1/25')),
-            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.1.0.1/24')),
-            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.1.1.1/24')),
-            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('192.168.0.1/24')),
-        ]
-        IPAddress.objects.bulk_create(self._create_address(addresses))
-
-        # Test
-        qsaddresses, compaddresses = self._compare_complex(IPAddress.objects.all(), addresses)
-        self.assertEquals(qsaddresses, compaddresses)
