@@ -116,7 +116,7 @@ class SecretForm(BootstrapMixin, CustomFieldForm):
             })
 
 
-class SecretCSVForm(forms.ModelForm):
+class SecretCSVForm(CustomFieldForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',

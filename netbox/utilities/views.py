@@ -88,15 +88,27 @@ class ObjectListView(View):
         Export the queryset of objects as comma-separated value (CSV), using the model's to_csv() method.
         """
         csv_data = []
+        custom_fields = []
 
         # Start with the column headers
-        headers = ','.join(self.queryset.model.csv_headers)
-        csv_data.append(headers)
+        headers = self.queryset.model.csv_headers.copy()
+
+        # Add custom field headers, if any
+        if hasattr(self.queryset.model, 'get_custom_fields'):
+            for custom_field in self.queryset.model().get_custom_fields():
+                headers.append(custom_field.name)
+                custom_fields.append(custom_field.name)
+
+        csv_data.append(','.join(headers))
 
         # Iterate through the queryset appending each object
         for obj in self.queryset:
-            data = csv_format(obj.to_csv())
-            csv_data.append(data)
+            data = obj.to_csv()
+
+            for custom_field in custom_fields:
+                data += (obj.cf.get(custom_field, ''),)
+
+            csv_data.append(csv_format(data))
 
         return '\n'.join(csv_data)
 

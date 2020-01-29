@@ -263,7 +263,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class SiteCSVForm(forms.ModelForm):
+class SiteCSVForm(CustomFieldForm):
     status = CSVChoiceField(
         choices=SiteStatusChoices,
         required=False,
@@ -504,7 +504,7 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class RackCSVForm(forms.ModelForm):
+class RackCSVForm(CustomFieldForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -1724,7 +1724,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.initial['rack'] = self.instance.parent_bay.device.rack_id
 
 
-class BaseDeviceCSVForm(forms.ModelForm):
+class BaseDeviceCSVForm(CustomFieldForm):
     device_role = forms.ModelChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
@@ -4286,7 +4286,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldForm):
             self.initial['site'] = self.instance.power_panel.site
 
 
-class PowerFeedCSVForm(forms.ModelForm):
+class PowerFeedCSVForm(CustomFieldForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
