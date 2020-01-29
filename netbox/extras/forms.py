@@ -3,15 +3,14 @@ from collections import OrderedDict
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
 from taggit.forms import TagField
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
-    CommentField, ContentTypeSelect, DatePicker, DateTimePicker, FilterChoiceField, LaxURLField, JSONField, SlugField,
-    StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
+    CommentField, ContentTypeSelect, DateTimePicker, FilterChoiceField, JSONField, SlugField, StaticSelect2,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from .choices import *
 from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachment, ObjectChange, Tag
@@ -32,63 +31,7 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
 
     for cf in custom_fields:
         field_name = 'cf_{}'.format(str(cf.name))
-        initial = cf.default if not bulk_edit else None
-
-        # Integer
-        if cf.type == CustomFieldTypeChoices.TYPE_INTEGER:
-            field = forms.IntegerField(required=cf.required, initial=initial)
-
-        # Boolean
-        elif cf.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
-            choices = (
-                (None, '---------'),
-                (1, 'True'),
-                (0, 'False'),
-            )
-            if initial is not None and initial.lower() in ['true', 'yes', '1']:
-                initial = 1
-            elif initial is not None and initial.lower() in ['false', 'no', '0']:
-                initial = 0
-            else:
-                initial = None
-            field = forms.NullBooleanField(
-                required=cf.required, initial=initial, widget=StaticSelect2(choices=choices)
-            )
-
-        # Date
-        elif cf.type == CustomFieldTypeChoices.TYPE_DATE:
-            field = forms.DateField(required=cf.required, initial=initial, widget=DatePicker())
-
-        # Select
-        elif cf.type == CustomFieldTypeChoices.TYPE_SELECT:
-            choices = [(cfc.pk, cfc.value) for cfc in cf.choices.all()]
-            if not cf.required or bulk_edit or filterable_only:
-                choices = [(None, '---------')] + choices
-            # Check for a default choice
-            default_choice = None
-            if initial:
-                try:
-                    default_choice = cf.choices.get(value=initial).pk
-                except ObjectDoesNotExist:
-                    pass
-            field = forms.TypedChoiceField(
-                choices=choices, coerce=int, required=cf.required, initial=default_choice, widget=StaticSelect2()
-            )
-
-        # URL
-        elif cf.type == CustomFieldTypeChoices.TYPE_URL:
-            field = LaxURLField(required=cf.required, initial=initial)
-
-        # Text
-        else:
-            field = forms.CharField(max_length=255, required=cf.required, initial=initial)
-
-        field.model = cf
-        field.label = cf.label if cf.label else cf.name.replace('_', ' ').capitalize()
-        if cf.description:
-            field.help_text = cf.description
-
-        field_dict[field_name] = field
+        field_dict[field_name] = cf.to_form_field(set_initial=not bulk_edit)
 
     return field_dict
 

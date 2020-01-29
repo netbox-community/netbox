@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from datetime import date
 
+from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -14,6 +15,7 @@ from django.utils.text import slugify
 from taggit.models import TagBase, GenericTaggedItemBase
 
 from utilities.fields import ColorField
+from utilities.forms import DatePicker, LaxURLField, StaticSelect2, add_blank_choice
 from utilities.utils import deepmerge, render_jinja2
 from .choices import *
 from .constants import *
@@ -279,6 +281,70 @@ class CustomField(models.Model):
         if self.type == CustomFieldTypeChoices.TYPE_SELECT:
             return self.choices.get(pk=int(serialized_value))
         return serialized_value
+
+    def to_form_field(self, set_initial=True):
+        """
+        Return a form field suitable for setting a CustomField's value for an object.
+
+        set_initial: Set initial date for the field. This should be false when generating a field for bulk editing.
+        """
+        initial = self.default if set_initial else None
+
+        # Integer
+        if self.type == CustomFieldTypeChoices.TYPE_INTEGER:
+            field = forms.IntegerField(required=self.required, initial=initial)
+
+        # Boolean
+        elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
+            choices = (
+                (None, '---------'),
+                (1, 'True'),
+                (0, 'False'),
+            )
+            if initial is not None and initial.lower() in ['true', 'yes', '1']:
+                initial = 1
+            elif initial is not None and initial.lower() in ['false', 'no', '0']:
+                initial = 0
+            else:
+                initial = None
+            field = forms.NullBooleanField(
+                required=self.required, initial=initial, widget=StaticSelect2(choices=choices)
+            )
+
+        # Date
+        elif self.type == CustomFieldTypeChoices.TYPE_DATE:
+            field = forms.DateField(required=self.required, initial=initial, widget=DatePicker())
+
+        # Select
+        elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
+            choices = [(cfc.pk, cfc.value) for cfc in self.choices.all()]
+            # TODO: Accommodate bulk edit/filtering
+            # if not self.required or bulk_edit or filterable_only:
+            if not self.required:
+                choices = add_blank_choice(choices)
+            # Set the initial value to the PK of the default choice, if any
+            if set_initial:
+                default_choice = self.choices.filter(value=self.default).first()
+                if default_choice:
+                    initial = default_choice.pk
+            field = forms.TypedChoiceField(
+                choices=choices, coerce=int, required=self.required, initial=initial, widget=StaticSelect2()
+            )
+
+        # URL
+        elif self.type == CustomFieldTypeChoices.TYPE_URL:
+            field = LaxURLField(required=self.required, initial=initial)
+
+        # Text
+        else:
+            field = forms.CharField(max_length=255, required=self.required, initial=initial)
+
+        field.model = self
+        field.label = self.label if self.label else self.name.replace('_', ' ').capitalize()
+        if self.description:
+            field.help_text = self.description
+
+        return field
 
 
 class CustomFieldValue(models.Model):
