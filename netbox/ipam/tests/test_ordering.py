@@ -1,12 +1,20 @@
 from django.test import TestCase
 
-from ipam.choices import IPAddressRoleChoices, PrefixStatusChoices
+from ipam.choices import IPAddressStatusChoices, PrefixStatusChoices
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, VLAN, VLANGroup, VRF
 
 import netaddr
 
 
 class PrefixOrderingTestCase(TestCase):
+    vrfs = None
+
+    def setUp(self):
+        vrfa = VRF(name="VRF A")
+        vrfb = VRF(name="VRF B")
+        vrfc = VRF(name="VRF C")
+        VRF.objects.bulk_create([vrfa, vrfb, vrfc])
+        self.vrfs = (vrfa, vrfb, vrfc)
 
     def _create_prefix(self, prefixes):
         prefixobjects = []
@@ -86,10 +94,7 @@ class PrefixOrderingTestCase(TestCase):
 
     def test_prefix_vrf_ordering(self):
         # Setup VRFs
-        vrfa = VRF(name='VRF A')
-        vrfb = VRF(name='VRF B')
-        vrfs = [vrfa, vrfb]
-        VRF.objects.bulk_create(vrfs)
+        vrfa, vrfb, vrfc = self.vrfs
 
         # Setup Prefixes
         prefixes = (
@@ -139,10 +144,8 @@ class PrefixOrderingTestCase(TestCase):
         self._compare_prefix(Prefix.objects.all(), prefixes)
 
     def test_prefix_complex_ordering(self):
-        # Setup VRF's
-        vrf = VRF(name='VRF A')
-        vrfs = [vrf]
-        VRF.objects.bulk_create(vrfs)
+        # Setup VRFs
+        vrfa, vrfb, vrfc = self.vrfs
 
         # Setup Prefixes
         prefixes = [
@@ -150,14 +153,159 @@ class PrefixOrderingTestCase(TestCase):
             (PrefixStatusChoices.STATUS_CONTAINER, None, netaddr.IPNetwork('10.0.0.0/16')),
             (PrefixStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.1.0.0/16')),
             (PrefixStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('192.168.0.0/16')),
-            (PrefixStatusChoices.STATUS_ACTIVE, vrf, netaddr.IPNetwork('10.0.0.0/24')),
-            (PrefixStatusChoices.STATUS_CONTAINER, vrf, netaddr.IPNetwork('10.0.1.0/24')),
-            (PrefixStatusChoices.STATUS_ACTIVE, vrf, netaddr.IPNetwork('10.0.1.0/25')),
-            (PrefixStatusChoices.STATUS_ACTIVE, vrf, netaddr.IPNetwork('10.1.0.0/24')),
-            (PrefixStatusChoices.STATUS_ACTIVE, vrf, netaddr.IPNetwork('10.1.1.0/24'))
+            (PrefixStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.0.0.0/24')),
+            (PrefixStatusChoices.STATUS_CONTAINER, vrfa, netaddr.IPNetwork('10.0.1.0/24')),
+            (PrefixStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.0.1.0/25')),
+            (PrefixStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.1.0.0/24')),
+            (PrefixStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.1.1.0/24'))
         ]
         Prefix.objects.bulk_create(self._create_prefix(prefixes))
 
         # Test
         qsprefixes, compprefixes = self._compare_complex(Prefix.objects.all(), prefixes)
         self.assertEquals(qsprefixes, compprefixes)
+
+
+class IPAddressOrderingTestCase(TestCase):
+    vrfs = None
+
+    def setUp(self):
+        vrfa = VRF(name="VRF A")
+        vrfb = VRF(name="VRF B")
+        vrfc = VRF(name="VRF C")
+        VRF.objects.bulk_create([vrfa, vrfb, vrfc])
+        self.vrfs = (vrfa, vrfb, vrfc)
+
+    def _create_address(self, addresses):
+        addressobjects = []
+        for addr in addresses:
+            status, vrf, address = addr
+            family = 4
+            if not netaddr.valid_ipv4(address):
+                family = 6
+            addressobj = IPAddress(address=address, vrf=vrf, status=status, family=family)
+            addressobjects.append(addressobj)
+
+        return addressobjects
+
+    def _compare_address(self, queryset, addresses):
+
+        for i, obj in enumerate(queryset):
+            status, vrf, address = addresses[i]
+            self.assertEqual((obj.vrf, obj.address), (vrf, address))
+
+    def _compare_complex(self, queryset, addresses):
+        qsaddress, regaddress = [], []
+        for i, obj in enumerate(queryset):
+            qsaddress.append(obj.address)
+        for addr in addresses:
+            regaddress.append(addr[2])
+        return (qsaddress, regaddress)
+
+
+
+    def test_address_ordering(self):
+        # Setup Addresses
+        addresses = (
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.0.0.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.0.1.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.0.2.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.0.3.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.0.4.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.1.0.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.1.1.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.1.2.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.1.3.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.1.4.0/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.2.0.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.2.1.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.2.2.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.2.3.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('10.2.4.1/24')),
+
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('172.16.0.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('172.16.1.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('172.16.2.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('172.16.3.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('172.16.4.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('172.17.0.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('172.17.1.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('172.17.2.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('172.17.3.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('172.17.4.1/24')),
+
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('192.168.0.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('192.168.1.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('192.168.2.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('192.168.3.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('192.168.4.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('192.168.5.1/24'))
+        )
+        IPAddress.objects.bulk_create(self._create_address(addresses))
+
+        # Test
+        self._compare_address(IPAddress.objects.all(), addresses)
+
+    def test_address_vrf_ordering(self):
+        # Setup VRFs
+        vrfa, vrfb, vrfc = self.vrfs
+
+        # Setup Addresses
+        addresses = (
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.0.0.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.0.1.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.0.2.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.0.3.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.0.4.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.1.0.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.1.1.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.1.2.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.1.3.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.1.4.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.2.0.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.2.1.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.2.2.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.2.3.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.2.4.1/24')),
+
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfb, netaddr.IPNetwork('172.16.0.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfb, netaddr.IPNetwork('172.16.1.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfb, netaddr.IPNetwork('172.16.2.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfb, netaddr.IPNetwork('172.16.3.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfb, netaddr.IPNetwork('172.16.4.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfb, netaddr.IPNetwork('172.17.0.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfb, netaddr.IPNetwork('172.17.1.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfb, netaddr.IPNetwork('172.17.2.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfb, netaddr.IPNetwork('172.17.3.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfb, netaddr.IPNetwork('172.17.4.1/24')),
+
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('192.168.0.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('192.168.1.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('192.168.2.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('192.168.3.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('192.168.4.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('192.168.5.1/24')),
+        )
+        IPAddress.objects.bulk_create(self._create_address(addresses))
+
+        # Test
+        self._compare_address(IPAddress.objects.all(), addresses)
+
+    def test_address_complex_ordering(self):
+        # Setup VRFs
+        vrfa, vrfb, vrfc = self.vrfs
+
+        # Setup addresses
+        addresses = [
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.0.0.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.0.1.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.0.1.1/25')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.1.0.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, vrfa, netaddr.IPNetwork('10.1.1.1/24')),
+            (IPAddressStatusChoices.STATUS_ACTIVE, None, netaddr.IPNetwork('192.168.0.1/24')),
+        ]
+        IPAddress.objects.bulk_create(self._create_address(addresses))
+
+        # Test
+        qsaddresses, compaddresses = self._compare_complex(IPAddress.objects.all(), addresses)
+        self.assertEquals(qsaddresses, compaddresses)
