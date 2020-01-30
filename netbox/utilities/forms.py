@@ -571,16 +571,12 @@ class TagFilterField(forms.MultipleChoiceField):
     widget = StaticSelect2Multiple
 
     def __init__(self, model, *args, **kwargs):
-        # Only instanitate the field if the model supports tags (i.e. hide if not)
-        if hasattr(model, 'tags'):
-            self.model = model
+        def get_choices():
+            tags = model.tags.annotate(count=Count('extras_taggeditem_items')).order_by('name')
+            return [(str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags]
 
-            # Choices are fetched during form initialization
-            super().__init__(label='Tags', choices=self._choices, required=False, *args, **kwargs)
-
-    def _choices(self):
-        tags = self.model.tags.annotate(count=Count('extras_taggeditem_items')).order_by('name')
-        return [(str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags]
+        # Choices are fetched each time the form is initialized
+        super().__init__(label='Tags', choices=get_choices, required=False, *args, **kwargs)
 
 
 class FilterChoiceIterator(forms.models.ModelChoiceIterator):
