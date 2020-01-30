@@ -3,6 +3,7 @@
 ## Enhancements
 
 * [#568](https://github.com/netbox-community/netbox/issues/568) - Allow custom fields to be imported and exported using CSV
+* [#4051](https://github.com/netbox-community/netbox/issues/4051) - Disable the `makemigrations` management command
 
 ## Bug Fixes
 
