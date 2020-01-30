@@ -171,7 +171,8 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         )
     )
     comments = CommentField(
-        widget=SmallTextarea()
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     class Meta:
@@ -536,7 +537,8 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
         label='Disk (GB)'
     )
     comments = CommentField(
-        widget=SmallTextarea()
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     class Meta:

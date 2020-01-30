@@ -7,9 +7,6 @@ from django.urls import reverse
 
 from .views import server_error
 
-BASE_PATH = getattr(settings, 'BASE_PATH', False)
-LOGIN_REQUIRED = getattr(settings, 'LOGIN_REQUIRED', False)
-
 
 class LoginRequiredMiddleware(object):
     """
@@ -19,7 +16,7 @@ class LoginRequiredMiddleware(object):
         self.get_response = get_response
 
     def __call__(self, request):
-        if LOGIN_REQUIRED and not request.user.is_authenticated:
+        if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
             # Redirect unauthenticated requests to the login page. API requests are exempt from redirection as the API
             # performs its own authentication. Also metrics can be read without login.
             api_path = reverse('api-root')

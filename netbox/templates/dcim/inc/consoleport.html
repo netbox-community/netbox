@@ -1,4 +1,4 @@
-<tr class="consoleport{% if cp.cable.status %} success{% elif cp.cable %} info{% endif %}">
+<tr class="consoleport{% if cp.cable %} {{ cp.cable.get_status_class }}{% endif %}">
 
     {# Name #}
     <td>

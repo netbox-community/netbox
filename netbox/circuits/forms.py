@@ -89,7 +89,8 @@ class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdi
         label='Admin contact'
     )
     comments = CommentField(
-        widget=SmallTextarea()
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     class Meta:
