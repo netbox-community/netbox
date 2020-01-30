@@ -1,5 +1,9 @@
 # v2.7.4 (FUTURE)
 
+## Enhancements
+
+* [#568](https://github.com/netbox-community/netbox/issues/568) - Allow custom fields to be imported and exported using CSV
+
 ## Bug Fixes
 
 * [#4043](https://github.com/netbox-community/netbox/issues/4043) - Fix toggling of required fields in custom scripts
