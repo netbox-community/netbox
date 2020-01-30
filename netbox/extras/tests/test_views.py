@@ -2,21 +2,21 @@ import urllib.parse
 import uuid
 
 from django.contrib.auth.models import User
-from django.test import Client, TestCase
 from django.urls import reverse
 
 from dcim.models import Site
 from extras.choices import ObjectChangeActionChoices
 from extras.models import ConfigContext, ObjectChange, Tag
-from utilities.testing import create_test_user
+from utilities.testing import TestCase
 
 
 class TagTestCase(TestCase):
+    user_permissions = (
+        'extras.view_tag',
+    )
 
-    def setUp(self):
-        user = create_test_user(permissions=['extras.view_tag'])
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         Tag.objects.bulk_create([
             Tag(name='Tag 1', slug='tag-1'),
@@ -32,15 +32,16 @@ class TagTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
 
 class ConfigContextTestCase(TestCase):
+    user_permissions = (
+        'extras.view_configcontext',
+    )
 
-    def setUp(self):
-        user = create_test_user(permissions=['extras.view_configcontext'])
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -62,26 +63,28 @@ class ConfigContextTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_configcontext(self):
 
         configcontext = ConfigContext.objects.first()
         response = self.client.get(configcontext.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
 
 class ObjectChangeTestCase(TestCase):
+    user_permissions = (
+        'extras.view_objectchange',
+    )
 
-    def setUp(self):
-        user = create_test_user(permissions=['extras.view_objectchange'])
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
 
         # Create three ObjectChanges
+        user = User.objects.create_user(username='testuser2')
         for i in range(1, 4):
             oc = site.to_objectchange(action=ObjectChangeActionChoices.ACTION_UPDATE)
             oc.user = user
@@ -96,10 +99,10 @@ class ObjectChangeTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_objectchange(self):
 
         objectchange = ObjectChange.objects.first()
         response = self.client.get(objectchange.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
