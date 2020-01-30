@@ -165,6 +165,21 @@ REDIS = {
     }
 }
 ```
+Make sure that redis is started and enabled to automatically start at boot.
+
+**Ubuntu**
+
+```no-highlight
+# service redis-server start
+# systemctl enable redis-server
+```
+
+**CentOS**
+
+```no-highlight
+# service redis start
+# systemctl enable redis
+```
 
 ## SECRET_KEY
 
