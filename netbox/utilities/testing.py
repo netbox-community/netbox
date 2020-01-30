@@ -2,9 +2,42 @@ import logging
 from contextlib import contextmanager
 
 from django.contrib.auth.models import Permission, User
+from django.test import Client, TestCase as _TestCase
 from rest_framework.test import APITestCase as _APITestCase
 
 from users.models import Token
+
+
+class TestCase(_TestCase):
+    user_permissions = ()
+
+    def setUp(self):
+
+        # Create the test user and assign permissions
+        self.user = User.objects.create_user(username='testuser')
+        self.add_permissions(*self.user_permissions)
+
+        # Initialize the test client
+        self.client = Client()
+        self.client.force_login(self.user)
+
+    def add_permissions(self, *names):
+        """
+        Assign a set of permissions to the test user. Accepts permission names in the form <app>.<action>_<model>.
+        """
+        for name in names:
+            app, codename = name.split('.')
+            perm = Permission.objects.get(content_type__app_label=app, codename=codename)
+            self.user.user_permissions.add(perm)
+
+    def remove_permissions(self, *names):
+        """
+        Remove a set of permissions from the test user, if assigned.
+        """
+        for name in names:
+            app, codename = name.split('.')
+            perm = Permission.objects.get(content_type__app_label=app, codename=codename)
+            self.user.user_permissions.remove(perm)
 
 
 class APITestCase(_APITestCase):
