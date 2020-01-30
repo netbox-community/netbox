@@ -4,7 +4,6 @@
 
 * [#3310](https://github.com/netbox-community/netbox/issues/3310) - Pre-select site/rack for B side when creating a new cable
 * [#3509](https://github.com/netbox-community/netbox/issues/3509) - Add IP address variables for custom scripts
-* [#3840](https://github.com/netbox-community/netbox/issues/3840) - Only show the valid list of interface VLAN choices
 * [#4005](https://github.com/netbox-community/netbox/issues/4005) - Include timezone context in webhook timestamps
 
 ## Bug Fixes
