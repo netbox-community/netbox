@@ -3,7 +3,7 @@ from contextlib import contextmanager
 
 from django.contrib.auth.models import Permission, User
 from django.test import Client, TestCase as _TestCase
-from rest_framework.test import APITestCase as _APITestCase
+from rest_framework.test import APIClient
 
 from users.models import Token
 
@@ -20,6 +20,10 @@ class TestCase(_TestCase):
         # Initialize the test client
         self.client = Client()
         self.client.force_login(self.user)
+
+    #
+    # Permissions management
+    #
 
     def add_permissions(self, *names):
         """
@@ -39,8 +43,22 @@ class TestCase(_TestCase):
             perm = Permission.objects.get(content_type__app_label=app, codename=codename)
             self.user.user_permissions.remove(perm)
 
+    #
+    # Convenience methods
+    #
 
-class APITestCase(_APITestCase):
+    def assertHttpStatus(self, response, expected_status):
+        """
+        TestCase method. Provide more detail in the event of an unexpected HTTP response.
+        """
+        err_message = "Expected HTTP status {}; received {}: {}"
+        self.assertEqual(response.status_code, expected_status, err_message.format(
+            expected_status, response.status_code, getattr(response, 'data', 'No data')
+        ))
+
+
+class APITestCase(TestCase):
+    client_class = APIClient
 
     def setUp(self):
         """
@@ -49,15 +67,6 @@ class APITestCase(_APITestCase):
         self.user = User.objects.create(username='testuser', is_superuser=True)
         self.token = Token.objects.create(user=self.user)
         self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(self.token.key)}
-
-    def assertHttpStatus(self, response, expected_status):
-        """
-        Provide more detail in the event of an unexpected HTTP response.
-        """
-        err_message = "Expected HTTP status {}; received {}: {}"
-        self.assertEqual(response.status_code, expected_status, err_message.format(
-            expected_status, response.status_code, getattr(response, 'data', 'No data')
-        ))
 
 
 def create_test_user(username='testuser', permissions=list()):
