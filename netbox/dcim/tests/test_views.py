@@ -27,7 +27,7 @@ class RegionTestCase(TestCase):
         url = reverse('dcim:region_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_region_import(self):
         self.add_permissions('dcim.add_region')
@@ -41,7 +41,7 @@ class RegionTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:region_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Region.objects.count(), 6)
 
 
@@ -70,13 +70,13 @@ class SiteTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_site(self):
 
         site = Site.objects.first()
         response = self.client.get(site.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_site_import(self):
         self.add_permissions('dcim.add_site')
@@ -90,7 +90,7 @@ class SiteTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:site_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Site.objects.count(), 6)
 
 
@@ -116,7 +116,7 @@ class RackGroupTestCase(TestCase):
         url = reverse('dcim:rackgroup_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_rackgroup_import(self):
         self.add_permissions('dcim.add_rackgroup')
@@ -130,7 +130,7 @@ class RackGroupTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:rackgroup_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(RackGroup.objects.count(), 6)
 
 
@@ -153,7 +153,7 @@ class RackRoleTestCase(TestCase):
         url = reverse('dcim:rackrole_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_rackrole_import(self):
         self.add_permissions('dcim.add_rackrole')
@@ -167,7 +167,7 @@ class RackRoleTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:rackrole_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(RackRole.objects.count(), 6)
 
 
@@ -198,7 +198,7 @@ class RackReservationTestCase(TestCase):
         url = reverse('dcim:rackreservation_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
 
 class RackTestCase(TestCase):
@@ -226,13 +226,13 @@ class RackTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_rack(self):
 
         rack = Rack.objects.first()
         response = self.client.get(rack.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_rack_import(self):
         self.add_permissions('dcim.add_rack')
@@ -246,7 +246,7 @@ class RackTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:rack_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Rack.objects.count(), 6)
 
 
@@ -269,7 +269,7 @@ class ManufacturerTypeTestCase(TestCase):
         url = reverse('dcim:manufacturer_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_manufacturer_import(self):
         self.add_permissions('dcim.add_manufacturer')
@@ -283,7 +283,7 @@ class ManufacturerTypeTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:manufacturer_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Manufacturer.objects.count(), 6)
 
 
@@ -312,14 +312,14 @@ class DeviceTypeTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_devicetype_export(self):
 
         url = reverse('dcim:devicetype_list')
 
         response = self.client.get('{}?export'.format(url))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         data = list(yaml.load_all(response.content, Loader=yaml.SafeLoader))
         self.assertEqual(len(data), 3)
         self.assertEqual(data[0]['manufacturer'], 'Manufacturer 1')
@@ -329,7 +329,7 @@ class DeviceTypeTestCase(TestCase):
 
         devicetype = DeviceType.objects.first()
         response = self.client.get(devicetype.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_devicetype_import(self):
 
@@ -424,7 +424,7 @@ device-bays:
             'format': 'yaml'
         }
         response = self.client.post(reverse('dcim:devicetype_import'), data=form_data, follow=True)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
         dt = DeviceType.objects.get(model='TEST-1000')
 
@@ -491,7 +491,7 @@ class DeviceRoleTestCase(TestCase):
         url = reverse('dcim:devicerole_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_devicerole_import(self):
         self.add_permissions('dcim.add_devicerole')
@@ -505,7 +505,7 @@ class DeviceRoleTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:devicerole_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(DeviceRole.objects.count(), 6)
 
 
@@ -528,7 +528,7 @@ class PlatformTestCase(TestCase):
         url = reverse('dcim:platform_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_platform_import(self):
         self.add_permissions('dcim.add_platform')
@@ -542,7 +542,7 @@ class PlatformTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:platform_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Platform.objects.count(), 6)
 
 
@@ -581,13 +581,13 @@ class DeviceTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_device(self):
 
         device = Device.objects.first()
         response = self.client.get(device.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_device_import(self):
         self.add_permissions('dcim.add_device')
@@ -601,7 +601,7 @@ class DeviceTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:device_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Device.objects.count(), 6)
 
 
@@ -639,7 +639,7 @@ class ConsolePortTestCase(TestCase):
         url = reverse('dcim:consoleport_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_consoleport_import(self):
         self.add_permissions('dcim.add_consoleport')
@@ -653,7 +653,7 @@ class ConsolePortTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:consoleport_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(ConsolePort.objects.count(), 6)
 
 
@@ -691,7 +691,7 @@ class ConsoleServerPortTestCase(TestCase):
         url = reverse('dcim:consoleserverport_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_consoleserverport_import(self):
         self.add_permissions('dcim.add_consoleserverport')
@@ -705,7 +705,7 @@ class ConsoleServerPortTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:consoleserverport_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(ConsoleServerPort.objects.count(), 6)
 
 
@@ -743,7 +743,7 @@ class PowerPortTestCase(TestCase):
         url = reverse('dcim:powerport_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_powerport_import(self):
         self.add_permissions('dcim.add_powerport')
@@ -757,7 +757,7 @@ class PowerPortTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:powerport_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(PowerPort.objects.count(), 6)
 
 
@@ -795,7 +795,7 @@ class PowerOutletTestCase(TestCase):
         url = reverse('dcim:poweroutlet_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_poweroutlet_import(self):
         self.add_permissions('dcim.add_poweroutlet')
@@ -809,7 +809,7 @@ class PowerOutletTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:poweroutlet_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(PowerOutlet.objects.count(), 6)
 
 
@@ -847,7 +847,7 @@ class InterfaceTestCase(TestCase):
         url = reverse('dcim:interface_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_interface_import(self):
         self.add_permissions('dcim.add_interface')
@@ -861,7 +861,7 @@ class InterfaceTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:interface_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Interface.objects.count(), 6)
 
 
@@ -911,7 +911,7 @@ class FrontPortTestCase(TestCase):
         url = reverse('dcim:frontport_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_frontport_import(self):
         self.add_permissions('dcim.add_frontport')
@@ -925,7 +925,7 @@ class FrontPortTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:frontport_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(FrontPort.objects.count(), 6)
 
 
@@ -963,7 +963,7 @@ class RearPortTestCase(TestCase):
         url = reverse('dcim:rearport_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_rearport_import(self):
         self.add_permissions('dcim.add_rearport')
@@ -977,7 +977,7 @@ class RearPortTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:rearport_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(RearPort.objects.count(), 6)
 
 
@@ -1019,7 +1019,7 @@ class DeviceBayTestCase(TestCase):
         url = reverse('dcim:devicebay_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_devicebay_import(self):
         self.add_permissions('dcim.add_devicebay')
@@ -1033,7 +1033,7 @@ class DeviceBayTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:devicebay_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(DeviceBay.objects.count(), 6)
 
 
@@ -1074,7 +1074,7 @@ class InventoryItemTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_inventoryitem_import(self):
         self.add_permissions('dcim.add_inventoryitem')
@@ -1088,7 +1088,7 @@ class InventoryItemTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:inventoryitem_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(InventoryItem.objects.count(), 6)
 
 
@@ -1154,13 +1154,13 @@ class CableTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_cable(self):
 
         cable = Cable.objects.first()
         response = self.client.get(cable.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_cable_import(self):
         self.add_permissions('dcim.add_cable')
@@ -1174,7 +1174,7 @@ class CableTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:cable_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Cable.objects.count(), 6)
 
 
@@ -1228,4 +1228,4 @@ class VirtualChassisTestCase(TestCase):
         url = reverse('dcim:virtualchassis_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)

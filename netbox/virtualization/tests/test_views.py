@@ -25,7 +25,7 @@ class ClusterGroupTestCase(TestCase):
         url = reverse('virtualization:clustergroup_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_clustergroup_import(self):
         self.add_permissions('virtualization.add_clustergroup')
@@ -39,7 +39,7 @@ class ClusterGroupTestCase(TestCase):
 
         response = self.client.post(reverse('virtualization:clustergroup_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(ClusterGroup.objects.count(), 6)
 
 
@@ -62,7 +62,7 @@ class ClusterTypeTestCase(TestCase):
         url = reverse('virtualization:clustertype_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_clustertype_import(self):
         self.add_permissions('virtualization.add_clustertype')
@@ -76,7 +76,7 @@ class ClusterTypeTestCase(TestCase):
 
         response = self.client.post(reverse('virtualization:clustertype_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(ClusterType.objects.count(), 6)
 
 
@@ -109,13 +109,13 @@ class ClusterTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_cluster(self):
 
         cluster = Cluster.objects.first()
         response = self.client.get(cluster.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_cluster_import(self):
         self.add_permissions('virtualization.add_cluster')
@@ -129,7 +129,7 @@ class ClusterTestCase(TestCase):
 
         response = self.client.post(reverse('virtualization:cluster_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Cluster.objects.count(), 6)
 
 
@@ -161,13 +161,13 @@ class VirtualMachineTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_virtualmachine(self):
 
         virtualmachine = VirtualMachine.objects.first()
         response = self.client.get(virtualmachine.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_virtualmachine_import(self):
         self.add_permissions('virtualization.add_virtualmachine')
@@ -181,5 +181,5 @@ class VirtualMachineTestCase(TestCase):
 
         response = self.client.post(reverse('virtualization:virtualmachine_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(VirtualMachine.objects.count(), 6)

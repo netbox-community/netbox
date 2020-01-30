@@ -28,7 +28,7 @@ class SecretRoleTestCase(TestCase):
         url = reverse('secrets:secretrole_list')
 
         response = self.client.get(url, follow=True)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_secretrole_import(self):
         self.add_permissions('secrets.add_secretrole')
@@ -42,7 +42,7 @@ class SecretRoleTestCase(TestCase):
 
         response = self.client.post(reverse('secrets:secretrole_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(SecretRole.objects.count(), 6)
 
 
@@ -97,13 +97,13 @@ class SecretTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)), follow=True)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_secret(self):
 
         secret = Secret.objects.first()
         response = self.client.get(secret.get_absolute_url(), follow=True)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_secret_import(self):
         self.add_permissions('secrets.add_secret')
@@ -121,5 +121,5 @@ class SecretTestCase(TestCase):
 
         response = self.client.post(reverse('secrets:secret_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Secret.objects.count(), 6)

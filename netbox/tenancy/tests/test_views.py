@@ -25,7 +25,7 @@ class TenantGroupTestCase(TestCase):
         url = reverse('tenancy:tenantgroup_list')
 
         response = self.client.get(url, follow=True)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_tenantgroup_import(self):
         self.add_permissions('tenancy.add_tenantgroup')
@@ -39,7 +39,7 @@ class TenantGroupTestCase(TestCase):
 
         response = self.client.post(reverse('tenancy:tenantgroup_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(TenantGroup.objects.count(), 6)
 
 
@@ -68,13 +68,13 @@ class TenantTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)), follow=True)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_tenant(self):
 
         tenant = Tenant.objects.first()
         response = self.client.get(tenant.get_absolute_url(), follow=True)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_tenant_import(self):
         self.add_permissions('tenancy.add_tenant')
@@ -88,5 +88,5 @@ class TenantTestCase(TestCase):
 
         response = self.client.post(reverse('tenancy:tenant_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Tenant.objects.count(), 6)

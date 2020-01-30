@@ -13,7 +13,6 @@ class ProviderTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         Provider.objects.bulk_create([
             Provider(name='Provider 1', slug='provider-1', asn=65001),
             Provider(name='Provider 2', slug='provider-2', asn=65002),
@@ -21,24 +20,21 @@ class ProviderTestCase(TestCase):
         ])
 
     def test_provider_list(self):
-
         url = reverse('circuits:provider_list')
         params = {
             "q": "test",
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_provider(self):
-
         provider = Provider.objects.first()
         response = self.client.get(provider.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_provider_import(self):
         self.add_permissions('circuits.add_provider')
-
         csv_data = (
             "name,slug",
             "Provider 4,provider-4",
@@ -48,7 +44,7 @@ class ProviderTestCase(TestCase):
 
         response = self.client.post(reverse('circuits:provider_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Provider.objects.count(), 6)
 
 
@@ -71,7 +67,7 @@ class CircuitTypeTestCase(TestCase):
         url = reverse('circuits:circuittype_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_circuittype_import(self):
         self.add_permissions('circuits.add_circuittype')
@@ -85,7 +81,7 @@ class CircuitTypeTestCase(TestCase):
 
         response = self.client.post(reverse('circuits:circuittype_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(CircuitType.objects.count(), 6)
 
 
@@ -118,13 +114,13 @@ class CircuitTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_circuit(self):
 
         circuit = Circuit.objects.first()
         response = self.client.get(circuit.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_circuit_import(self):
         self.add_permissions('circuits.add_circuit')
@@ -138,5 +134,5 @@ class CircuitTestCase(TestCase):
 
         response = self.client.post(reverse('circuits:circuit_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Circuit.objects.count(), 6)

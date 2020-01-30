@@ -31,13 +31,13 @@ class VRFTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_vrf(self):
 
         vrf = VRF.objects.first()
         response = self.client.get(vrf.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_vrf_import(self):
         self.add_permissions('ipam.add_vrf')
@@ -51,7 +51,7 @@ class VRFTestCase(TestCase):
 
         response = self.client.post(reverse('ipam:vrf_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(VRF.objects.count(), 6)
 
 
@@ -74,7 +74,7 @@ class RIRTestCase(TestCase):
         url = reverse('ipam:rir_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_rir_import(self):
         self.add_permissions('ipam.add_rir')
@@ -88,7 +88,7 @@ class RIRTestCase(TestCase):
 
         response = self.client.post(reverse('ipam:rir_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(RIR.objects.count(), 6)
 
 
@@ -117,13 +117,13 @@ class AggregateTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_aggregate(self):
 
         aggregate = Aggregate.objects.first()
         response = self.client.get(aggregate.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_aggregate_import(self):
         self.add_permissions('ipam.add_aggregate')
@@ -137,7 +137,7 @@ class AggregateTestCase(TestCase):
 
         response = self.client.post(reverse('ipam:aggregate_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Aggregate.objects.count(), 6)
 
 
@@ -160,7 +160,7 @@ class RoleTestCase(TestCase):
         url = reverse('ipam:role_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_role_import(self):
         self.add_permissions('ipam.add_role')
@@ -174,7 +174,7 @@ class RoleTestCase(TestCase):
 
         response = self.client.post(reverse('ipam:role_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Role.objects.count(), 6)
 
 
@@ -203,13 +203,13 @@ class PrefixTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_prefix(self):
 
         prefix = Prefix.objects.first()
         response = self.client.get(prefix.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_prefix_import(self):
         self.add_permissions('ipam.add_prefix')
@@ -223,7 +223,7 @@ class PrefixTestCase(TestCase):
 
         response = self.client.post(reverse('ipam:prefix_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Prefix.objects.count(), 6)
 
 
@@ -252,13 +252,13 @@ class IPAddressTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_ipaddress(self):
 
         ipaddress = IPAddress.objects.first()
         response = self.client.get(ipaddress.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_ipaddress_import(self):
         self.add_permissions('ipam.add_ipaddress')
@@ -272,7 +272,7 @@ class IPAddressTestCase(TestCase):
 
         response = self.client.post(reverse('ipam:ipaddress_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(IPAddress.objects.count(), 6)
 
 
@@ -301,7 +301,7 @@ class VLANGroupTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_vlangroup_import(self):
         self.add_permissions('ipam.add_vlangroup')
@@ -315,7 +315,7 @@ class VLANGroupTestCase(TestCase):
 
         response = self.client.post(reverse('ipam:vlangroup_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(VLANGroup.objects.count(), 6)
 
 
@@ -344,13 +344,13 @@ class VLANTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_vlan(self):
 
         vlan = VLAN.objects.first()
         response = self.client.get(vlan.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_vlan_import(self):
         self.add_permissions('ipam.add_vlan')
@@ -364,7 +364,7 @@ class VLANTestCase(TestCase):
 
         response = self.client.post(reverse('ipam:vlan_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(VLAN.objects.count(), 6)
 
 
@@ -405,10 +405,10 @@ class ServiceTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_service(self):
 
         service = Service.objects.first()
         response = self.client.get(service.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
