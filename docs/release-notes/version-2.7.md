@@ -6,6 +6,7 @@
 
 ## Bug Fixes
 
+* [#4030](https://github.com/netbox-community/netbox/issues/4030) - Fix exception when bulk editing interfaces (revised)
 * [#4043](https://github.com/netbox-community/netbox/issues/4043) - Fix toggling of required fields in custom scripts
 * [#4049](https://github.com/netbox-community/netbox/issues/4049) - Restore missing `tags` field in IPAM service serializer
 * [#4052](https://github.com/netbox-community/netbox/issues/4052) - Fix error when bulk importing interfaces to virtual machines

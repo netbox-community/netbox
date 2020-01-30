@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
-from django.db.models import Count, ProtectedError
+from django.db.models import Count, ManyToManyField, ProtectedError
 from django.db.models.query import QuerySet
 from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
 from django.http import HttpResponse, HttpResponseServerError
@@ -650,7 +650,9 @@ class BulkEditView(GetReturnURLMixin, View):
             if form.is_valid():
 
                 custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
-                standard_fields = [field for field in form.fields if field not in custom_fields and field != 'pk']
+                standard_fields = [
+                    field for field in form.fields if field not in custom_fields + ['pk', 'add_tags', 'remove_tags']
+                ]
                 nullified_fields = request.POST.getlist('_nullify')
 
                 try:
@@ -662,14 +664,24 @@ class BulkEditView(GetReturnURLMixin, View):
 
                             # Update standard fields. If a field is listed in _nullify, delete its value.
                             for name in standard_fields:
-                                if name in form.nullable_fields and name in nullified_fields and isinstance(form.cleaned_data[name], QuerySet):
-                                    getattr(obj, name).set([])
-                                elif name in form.nullable_fields and name in nullified_fields:
-                                    setattr(obj, name, '' if isinstance(form.fields[name], CharField) else None)
-                                elif isinstance(form.cleaned_data[name], QuerySet) and form.cleaned_data[name]:
+
+                                model_field = model._meta.get_field(name)
+
+                                # Handle nullification
+                                if name in form.nullable_fields and name in nullified_fields:
+                                    if isinstance(model_field, ManyToManyField):
+                                        getattr(obj, name).set([])
+                                    else:
+                                        setattr(obj, name, None if model_field.null else '')
+
+                                # ManyToManyFields
+                                elif isinstance(model_field, ManyToManyField):
                                     getattr(obj, name).set(form.cleaned_data[name])
-                                elif form.cleaned_data[name] not in (None, '') and not isinstance(form.cleaned_data[name], QuerySet):
+
+                                # Normal fields
+                                elif form.cleaned_data[name] not in (None, ''):
                                     setattr(obj, name, form.cleaned_data[name])
+
                             obj.full_clean()
                             obj.save()
 
