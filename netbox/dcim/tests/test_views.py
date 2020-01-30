@@ -1,26 +1,22 @@
 import urllib.parse
 
 import yaml
-from django.test import Client, TestCase
+from django.contrib.auth.models import User
 from django.urls import reverse
 
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from utilities.testing import create_test_user
+from utilities.testing import TestCase
 
 
 class RegionTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_region',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_region',
-                'dcim.add_region',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         # Create three Regions
         for i in range(1, 4):
@@ -34,6 +30,7 @@ class RegionTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_region_import(self):
+        self.add_permissions('dcim.add_region')
 
         csv_data = (
             "name,slug",
@@ -49,16 +46,12 @@ class RegionTestCase(TestCase):
 
 
 class SiteTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_site',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_site',
-                'dcim.add_site',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         region = Region(name='Region 1', slug='region-1')
         region.save()
@@ -86,6 +79,7 @@ class SiteTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_site_import(self):
+        self.add_permissions('dcim.add_site')
 
         csv_data = (
             "name,slug",
@@ -101,16 +95,12 @@ class SiteTestCase(TestCase):
 
 
 class RackGroupTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_rackgroup',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_rackgroup',
-                'dcim.add_rackgroup',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -129,6 +119,7 @@ class RackGroupTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_rackgroup_import(self):
+        self.add_permissions('dcim.add_rackgroup')
 
         csv_data = (
             "site,name,slug",
@@ -144,16 +135,12 @@ class RackGroupTestCase(TestCase):
 
 
 class RackRoleTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_rackrole',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_rackrole',
-                'dcim.add_rackrole',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         RackRole.objects.bulk_create([
             RackRole(name='Rack Role 1', slug='rack-role-1'),
@@ -169,6 +156,7 @@ class RackRoleTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_rackrole_import(self):
+        self.add_permissions('dcim.add_rackrole')
 
         csv_data = (
             "name,slug,color",
@@ -184,11 +172,14 @@ class RackRoleTestCase(TestCase):
 
 
 class RackReservationTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_rackreservation',
+    )
 
-    def setUp(self):
-        user = create_test_user(permissions=['dcim.view_rackreservation'])
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
+
+        user = User.objects.create_user(username='testuser2')
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -211,16 +202,12 @@ class RackReservationTestCase(TestCase):
 
 
 class RackTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_rack',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_rack',
-                'dcim.add_rack',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -248,6 +235,7 @@ class RackTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_rack_import(self):
+        self.add_permissions('dcim.add_rack')
 
         csv_data = (
             "site,name,width,u_height",
@@ -263,16 +251,12 @@ class RackTestCase(TestCase):
 
 
 class ManufacturerTypeTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_manufacturer',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_manufacturer',
-                'dcim.add_manufacturer',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         Manufacturer.objects.bulk_create([
             Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
@@ -288,6 +272,7 @@ class ManufacturerTypeTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_manufacturer_import(self):
+        self.add_permissions('dcim.add_manufacturer')
 
         csv_data = (
             "name,slug",
@@ -303,11 +288,12 @@ class ManufacturerTypeTestCase(TestCase):
 
 
 class DeviceTypeTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_devicetype',
+    )
 
-    def setUp(self):
-        user = create_test_user(permissions=['dcim.view_devicetype'])
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
         manufacturer.save()
@@ -420,9 +406,8 @@ device-bays:
         # Create the manufacturer
         Manufacturer(name='Generic', slug='generic').save()
 
-        # Authenticate as user with necessary permissions
-        user = create_test_user(username='testuser2', permissions=[
-            'dcim.view_devicetype',
+        # Add all required permissions to the test user
+        self.add_permissions(
             'dcim.add_devicetype',
             'dcim.add_consoleporttemplate',
             'dcim.add_consoleserverporttemplate',
@@ -432,8 +417,7 @@ device-bays:
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
             'dcim.add_devicebaytemplate',
-        ])
-        self.client.force_login(user)
+        )
 
         form_data = {
             'data': IMPORT_DATA,
@@ -489,16 +473,12 @@ device-bays:
 
 
 class DeviceRoleTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_devicerole',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_devicerole',
-                'dcim.add_devicerole',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         DeviceRole.objects.bulk_create([
             DeviceRole(name='Device Role 1', slug='device-role-1'),
@@ -514,6 +494,7 @@ class DeviceRoleTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_devicerole_import(self):
+        self.add_permissions('dcim.add_devicerole')
 
         csv_data = (
             "name,slug,color",
@@ -529,16 +510,12 @@ class DeviceRoleTestCase(TestCase):
 
 
 class PlatformTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_platform',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_platform',
-                'dcim.add_platform',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         Platform.objects.bulk_create([
             Platform(name='Platform 1', slug='platform-1'),
@@ -554,6 +531,7 @@ class PlatformTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_platform_import(self):
+        self.add_permissions('dcim.add_platform')
 
         csv_data = (
             "name,slug",
@@ -569,16 +547,12 @@ class PlatformTestCase(TestCase):
 
 
 class DeviceTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_device',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_device',
-                'dcim.add_device',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -616,6 +590,7 @@ class DeviceTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_device_import(self):
+        self.add_permissions('dcim.add_device')
 
         csv_data = (
             "device_role,manufacturer,model_name,status,site,name",
@@ -631,16 +606,12 @@ class DeviceTestCase(TestCase):
 
 
 class ConsolePortTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_consoleport',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_consoleport',
-                'dcim.add_consoleport',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -671,6 +642,7 @@ class ConsolePortTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_consoleport_import(self):
+        self.add_permissions('dcim.add_consoleport')
 
         csv_data = (
             "device,name",
@@ -686,16 +658,12 @@ class ConsolePortTestCase(TestCase):
 
 
 class ConsoleServerPortTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_consoleserverport',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_consoleserverport',
-                'dcim.add_consoleserverport',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -726,6 +694,7 @@ class ConsoleServerPortTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_consoleserverport_import(self):
+        self.add_permissions('dcim.add_consoleserverport')
 
         csv_data = (
             "device,name",
@@ -741,16 +710,12 @@ class ConsoleServerPortTestCase(TestCase):
 
 
 class PowerPortTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_powerport',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_powerport',
-                'dcim.add_powerport',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -781,6 +746,7 @@ class PowerPortTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_powerport_import(self):
+        self.add_permissions('dcim.add_powerport')
 
         csv_data = (
             "device,name",
@@ -796,16 +762,12 @@ class PowerPortTestCase(TestCase):
 
 
 class PowerOutletTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_poweroutlet',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_poweroutlet',
-                'dcim.add_poweroutlet',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -836,6 +798,7 @@ class PowerOutletTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_poweroutlet_import(self):
+        self.add_permissions('dcim.add_poweroutlet')
 
         csv_data = (
             "device,name",
@@ -851,16 +814,12 @@ class PowerOutletTestCase(TestCase):
 
 
 class InterfaceTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_interface',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_interface',
-                'dcim.add_interface',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -891,6 +850,7 @@ class InterfaceTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_interface_import(self):
+        self.add_permissions('dcim.add_interface')
 
         csv_data = (
             "device,name,type",
@@ -906,16 +866,12 @@ class InterfaceTestCase(TestCase):
 
 
 class FrontPortTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_frontport',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_frontport',
-                'dcim.add_frontport',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -958,6 +914,7 @@ class FrontPortTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_frontport_import(self):
+        self.add_permissions('dcim.add_frontport')
 
         csv_data = (
             "device,name,type,rear_port,rear_port_position",
@@ -973,16 +930,12 @@ class FrontPortTestCase(TestCase):
 
 
 class RearPortTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_rearport',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_rearport',
-                'dcim.add_rearport',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -1013,6 +966,7 @@ class RearPortTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_rearport_import(self):
+        self.add_permissions('dcim.add_rearport')
 
         csv_data = (
             "device,name,type,positions",
@@ -1028,16 +982,12 @@ class RearPortTestCase(TestCase):
 
 
 class DeviceBayTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_devicebay',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_devicebay',
-                'dcim.add_devicebay',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -1072,6 +1022,7 @@ class DeviceBayTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_devicebay_import(self):
+        self.add_permissions('dcim.add_devicebay')
 
         csv_data = (
             "device,name",
@@ -1087,16 +1038,12 @@ class DeviceBayTestCase(TestCase):
 
 
 class InventoryItemTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_inventoryitem',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_inventoryitem',
-                'dcim.add_inventoryitem',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -1130,6 +1077,7 @@ class InventoryItemTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_inventoryitem_import(self):
+        self.add_permissions('dcim.add_inventoryitem')
 
         csv_data = (
             "device,name",
@@ -1145,16 +1093,12 @@ class InventoryItemTestCase(TestCase):
 
 
 class CableTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_cable',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_cable',
-                'dcim.add_cable',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -1219,6 +1163,7 @@ class CableTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_cable_import(self):
+        self.add_permissions('dcim.add_cable')
 
         csv_data = (
             "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name",
@@ -1234,11 +1179,12 @@ class CableTestCase(TestCase):
 
 
 class VirtualChassisTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_virtualchassis',
+    )
 
-    def setUp(self):
-        user = create_test_user(permissions=['dcim.view_virtualchassis'])
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site.objects.create(name='Site 1', slug='site-1')
         manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer-1')

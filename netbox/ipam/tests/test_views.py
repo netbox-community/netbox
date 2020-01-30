@@ -1,26 +1,21 @@
 from netaddr import IPNetwork
 import urllib.parse
 
-from django.test import Client, TestCase
 from django.urls import reverse
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import ServiceProtocolChoices
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
-from utilities.testing import create_test_user
+from utilities.testing import TestCase
 
 
 class VRFTestCase(TestCase):
+    user_permissions = (
+        'ipam.view_vrf',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'ipam.view_vrf',
-                'ipam.add_vrf',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         VRF.objects.bulk_create([
             VRF(name='VRF 1', rd='65000:1'),
@@ -45,6 +40,7 @@ class VRFTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_vrf_import(self):
+        self.add_permissions('ipam.add_vrf')
 
         csv_data = (
             "name",
@@ -60,16 +56,12 @@ class VRFTestCase(TestCase):
 
 
 class RIRTestCase(TestCase):
+    user_permissions = (
+        'ipam.view_rir',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'ipam.view_rir',
-                'ipam.add_rir',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         RIR.objects.bulk_create([
             RIR(name='RIR 1', slug='rir-1'),
@@ -85,6 +77,7 @@ class RIRTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_rir_import(self):
+        self.add_permissions('ipam.add_rir')
 
         csv_data = (
             "name,slug",
@@ -100,16 +93,12 @@ class RIRTestCase(TestCase):
 
 
 class AggregateTestCase(TestCase):
+    user_permissions = (
+        'ipam.view_aggregate',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'ipam.view_aggregate',
-                'ipam.add_aggregate',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         rir = RIR(name='RIR 1', slug='rir-1')
         rir.save()
@@ -137,6 +126,7 @@ class AggregateTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_aggregate_import(self):
+        self.add_permissions('ipam.add_aggregate')
 
         csv_data = (
             "prefix,rir",
@@ -152,16 +142,12 @@ class AggregateTestCase(TestCase):
 
 
 class RoleTestCase(TestCase):
+    user_permissions = (
+        'ipam.view_role',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'ipam.view_role',
-                'ipam.add_role',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         Role.objects.bulk_create([
             Role(name='Role 1', slug='role-1'),
@@ -177,6 +163,7 @@ class RoleTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_role_import(self):
+        self.add_permissions('ipam.add_role')
 
         csv_data = (
             "name,slug,weight",
@@ -192,16 +179,12 @@ class RoleTestCase(TestCase):
 
 
 class PrefixTestCase(TestCase):
+    user_permissions = (
+        'ipam.view_prefix',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'ipam.view_prefix',
-                'ipam.add_prefix',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -229,6 +212,7 @@ class PrefixTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_prefix_import(self):
+        self.add_permissions('ipam.add_prefix')
 
         csv_data = (
             "prefix,status",
@@ -244,16 +228,12 @@ class PrefixTestCase(TestCase):
 
 
 class IPAddressTestCase(TestCase):
+    user_permissions = (
+        'ipam.view_ipaddress',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'ipam.view_ipaddress',
-                'ipam.add_ipaddress',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         vrf = VRF(name='VRF 1', rd='65000:1')
         vrf.save()
@@ -281,6 +261,7 @@ class IPAddressTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_ipaddress_import(self):
+        self.add_permissions('ipam.add_ipaddress')
 
         csv_data = (
             "address,status",
@@ -296,16 +277,12 @@ class IPAddressTestCase(TestCase):
 
 
 class VLANGroupTestCase(TestCase):
+    user_permissions = (
+        'ipam.view_vlangroup',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'ipam.view_vlangroup',
-                'ipam.add_vlangroup',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -327,6 +304,7 @@ class VLANGroupTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_vlangroup_import(self):
+        self.add_permissions('ipam.add_vlangroup')
 
         csv_data = (
             "name,slug",
@@ -342,16 +320,12 @@ class VLANGroupTestCase(TestCase):
 
 
 class VLANTestCase(TestCase):
+    user_permissions = (
+        'ipam.view_vlan',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'ipam.view_vlan',
-                'ipam.add_vlan',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         vlangroup = VLANGroup(name='VLAN Group 1', slug='vlan-group-1')
         vlangroup.save()
@@ -379,6 +353,7 @@ class VLANTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_vlan_import(self):
+        self.add_permissions('ipam.add_vlan')
 
         csv_data = (
             "vid,name,status",
@@ -394,11 +369,12 @@ class VLANTestCase(TestCase):
 
 
 class ServiceTestCase(TestCase):
+    user_permissions = (
+        'ipam.view_service',
+    )
 
-    def setUp(self):
-        user = create_test_user(permissions=['ipam.view_service'])
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()

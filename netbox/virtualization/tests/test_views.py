@@ -1,23 +1,18 @@
 import urllib.parse
 
-from django.test import Client, TestCase
 from django.urls import reverse
 
-from utilities.testing import create_test_user
+from utilities.testing import TestCase
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
 class ClusterGroupTestCase(TestCase):
+    user_permissions = (
+        'virtualization.view_clustergroup',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'virtualization.view_clustergroup',
-                'virtualization.add_clustergroup',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         ClusterGroup.objects.bulk_create([
             ClusterGroup(name='Cluster Group 1', slug='cluster-group-1'),
@@ -33,6 +28,7 @@ class ClusterGroupTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_clustergroup_import(self):
+        self.add_permissions('virtualization.add_clustergroup')
 
         csv_data = (
             "name,slug",
@@ -48,16 +44,12 @@ class ClusterGroupTestCase(TestCase):
 
 
 class ClusterTypeTestCase(TestCase):
+    user_permissions = (
+        'virtualization.view_clustertype',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'virtualization.view_clustertype',
-                'virtualization.add_clustertype',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         ClusterType.objects.bulk_create([
             ClusterType(name='Cluster Type 1', slug='cluster-type-1'),
@@ -73,6 +65,7 @@ class ClusterTypeTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_clustertype_import(self):
+        self.add_permissions('virtualization.add_clustertype')
 
         csv_data = (
             "name,slug",
@@ -88,16 +81,12 @@ class ClusterTypeTestCase(TestCase):
 
 
 class ClusterTestCase(TestCase):
+    user_permissions = (
+        'virtualization.view_cluster',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'virtualization.view_cluster',
-                'virtualization.add_cluster',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         clustergroup = ClusterGroup(name='Cluster Group 1', slug='cluster-group-1')
         clustergroup.save()
@@ -129,6 +118,7 @@ class ClusterTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_cluster_import(self):
+        self.add_permissions('virtualization.add_cluster')
 
         csv_data = (
             "name,type",
@@ -144,16 +134,12 @@ class ClusterTestCase(TestCase):
 
 
 class VirtualMachineTestCase(TestCase):
+    user_permissions = (
+        'virtualization.view_virtualmachine',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'virtualization.view_virtualmachine',
-                'virtualization.add_virtualmachine',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         clustertype = ClusterType(name='Cluster Type 1', slug='cluster-type-1')
         clustertype.save()
@@ -184,6 +170,7 @@ class VirtualMachineTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_virtualmachine_import(self):
+        self.add_permissions('virtualization.add_virtualmachine')
 
         csv_data = (
             "name,cluster",

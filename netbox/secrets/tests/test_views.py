@@ -1,26 +1,21 @@
 import base64
 import urllib.parse
 
-from django.test import Client, TestCase
 from django.urls import reverse
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
-from utilities.testing import create_test_user
+from utilities.testing import TestCase
 from .constants import PRIVATE_KEY, PUBLIC_KEY
 
 
 class SecretRoleTestCase(TestCase):
+    user_permissions = (
+        'secrets.view_secretrole',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'secrets.view_secretrole',
-                'secrets.add_secretrole',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         SecretRole.objects.bulk_create([
             SecretRole(name='Secret Role 1', slug='secret-role-1'),
@@ -36,6 +31,7 @@ class SecretRoleTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_secretrole_import(self):
+        self.add_permissions('secrets.add_secretrole')
 
         csv_data = (
             "name,slug",
@@ -51,24 +47,12 @@ class SecretRoleTestCase(TestCase):
 
 
 class SecretTestCase(TestCase):
+    user_permissions = (
+        'secrets.view_secret',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'secrets.view_secret',
-                'secrets.add_secret',
-            ]
-        )
-
-        # Set up a master key
-        userkey = UserKey(user=user, public_key=PUBLIC_KEY)
-        userkey.save()
-        master_key = userkey.get_master_key(PRIVATE_KEY)
-        self.session_key = SessionKey(userkey=userkey)
-        self.session_key.save(master_key)
-
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -94,6 +78,17 @@ class SecretTestCase(TestCase):
             Secret(device=device, role=secretrole, name='Secret 3', ciphertext=b'1234567890'),
         ])
 
+    def setUp(self):
+
+        super().setUp()
+
+        # Set up a master key for the test user
+        userkey = UserKey(user=self.user, public_key=PUBLIC_KEY)
+        userkey.save()
+        master_key = userkey.get_master_key(PRIVATE_KEY)
+        self.session_key = SessionKey(userkey=userkey)
+        self.session_key.save(master_key)
+
     def test_secret_list(self):
 
         url = reverse('secrets:secret_list')
@@ -111,6 +106,7 @@ class SecretTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_secret_import(self):
+        self.add_permissions('secrets.add_secret')
 
         csv_data = (
             "device,role,name,plaintext",

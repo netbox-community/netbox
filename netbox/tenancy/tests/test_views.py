@@ -1,23 +1,18 @@
 import urllib.parse
 
-from django.test import Client, TestCase
 from django.urls import reverse
 
 from tenancy.models import Tenant, TenantGroup
-from utilities.testing import create_test_user
+from utilities.testing import TestCase
 
 
 class TenantGroupTestCase(TestCase):
+    user_permissions = (
+        'tenancy.view_tenantgroup',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'tenancy.view_tenantgroup',
-                'tenancy.add_tenantgroup',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         TenantGroup.objects.bulk_create([
             TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
@@ -33,6 +28,7 @@ class TenantGroupTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_tenantgroup_import(self):
+        self.add_permissions('tenancy.add_tenantgroup')
 
         csv_data = (
             "name,slug",
@@ -48,16 +44,12 @@ class TenantGroupTestCase(TestCase):
 
 
 class TenantTestCase(TestCase):
+    user_permissions = (
+        'tenancy.view_tenant',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'tenancy.view_tenant',
-                'tenancy.add_tenant',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         tenantgroup = TenantGroup(name='Tenant Group 1', slug='tenant-group-1')
         tenantgroup.save()
@@ -85,6 +77,7 @@ class TenantTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_tenant_import(self):
+        self.add_permissions('tenancy.add_tenant')
 
         csv_data = (
             "name,slug",

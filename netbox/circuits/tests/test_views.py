@@ -1,23 +1,18 @@
 import urllib.parse
 
-from django.test import Client, TestCase
 from django.urls import reverse
 
 from circuits.models import Circuit, CircuitType, Provider
-from utilities.testing import create_test_user
+from utilities.testing import TestCase
 
 
 class ProviderTestCase(TestCase):
+    user_permissions = (
+        'circuits.view_provider',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'circuits.view_provider',
-                'circuits.add_provider',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         Provider.objects.bulk_create([
             Provider(name='Provider 1', slug='provider-1', asn=65001),
@@ -42,6 +37,7 @@ class ProviderTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_provider_import(self):
+        self.add_permissions('circuits.add_provider')
 
         csv_data = (
             "name,slug",
@@ -57,16 +53,12 @@ class ProviderTestCase(TestCase):
 
 
 class CircuitTypeTestCase(TestCase):
+    user_permissions = (
+        'circuits.view_circuittype',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'circuits.view_circuittype',
-                'circuits.add_circuittype',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         CircuitType.objects.bulk_create([
             CircuitType(name='Circuit Type 1', slug='circuit-type-1'),
@@ -82,6 +74,7 @@ class CircuitTypeTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_circuittype_import(self):
+        self.add_permissions('circuits.add_circuittype')
 
         csv_data = (
             "name,slug",
@@ -97,16 +90,12 @@ class CircuitTypeTestCase(TestCase):
 
 
 class CircuitTestCase(TestCase):
+    user_permissions = (
+        'circuits.view_circuit',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'circuits.view_circuit',
-                'circuits.add_circuit',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         provider = Provider(name='Provider 1', slug='provider-1', asn=65001)
         provider.save()
@@ -138,6 +127,7 @@ class CircuitTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_circuit_import(self):
+        self.add_permissions('circuits.add_circuit')
 
         csv_data = (
             "cid,provider,type",
