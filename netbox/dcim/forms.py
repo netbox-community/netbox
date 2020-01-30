@@ -2726,7 +2726,7 @@ class InterfaceCSVForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces belonging to this device (or VC master)
-        if self.is_bound:
+        if self.is_bound and 'device' in self.data:
             try:
                 device = self.fields['device'].to_python(self.data['device'])
             except forms.ValidationError:

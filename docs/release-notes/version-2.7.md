@@ -4,6 +4,7 @@
 
 * [#4043](https://github.com/netbox-community/netbox/issues/4043) - Fix toggling of required fields in custom scripts
 * [#4049](https://github.com/netbox-community/netbox/issues/4049) - Restore missing `tags` field in IPAM service serializer
+* [#4052](https://github.com/netbox-community/netbox/issues/4052) - Fix error when bulk importing interfaces to virtual machines
 * [#4056](https://github.com/netbox-community/netbox/issues/4056) - Repair schema migration for Rack.outer_unit (from #3569)
 
 ---
