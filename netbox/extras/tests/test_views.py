@@ -7,44 +7,47 @@ from django.urls import reverse
 from dcim.models import Site
 from extras.choices import ObjectChangeActionChoices
 from extras.models import ConfigContext, ObjectChange, Tag
-from utilities.testing import TestCase
+from utilities.testing import StandardTestCases, TestCase
 
 
-class TagTestCase(TestCase):
-    user_permissions = (
-        'extras.view_tag',
-    )
+class TagTestCase(StandardTestCases.Views):
+    model = Tag
+
+    # Disable inapplicable tests
+    test_create_object = None
+    test_import_objects = None
 
     @classmethod
     def setUpTestData(cls):
 
-        Tag.objects.bulk_create([
+        Tag.objects.bulk_create((
             Tag(name='Tag 1', slug='tag-1'),
             Tag(name='Tag 2', slug='tag-2'),
             Tag(name='Tag 3', slug='tag-3'),
-        ])
+        ))
 
-    def test_tag_list(self):
-
-        url = reverse('extras:tag_list')
-        params = {
-            "q": "tag",
+        cls.form_data = {
+            'name': 'Tag X',
+            'slug': 'tag-x',
+            'color': 'c0c0c0',
+            'comments': 'Some comments',
         }
 
-        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertHttpStatus(response, 200)
 
+class ConfigContextTestCase(StandardTestCases.Views):
+    model = ConfigContext
 
-class ConfigContextTestCase(TestCase):
-    user_permissions = (
-        'extras.view_configcontext',
-    )
+    # Disable inapplicable tests
+    test_import_objects = None
+
+    # TODO: Resolve model discrepancies when creating/editing ConfigContexts
+    test_create_object = None
+    test_edit_object = None
 
     @classmethod
     def setUpTestData(cls):
 
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
+        site = Site.objects.create(name='Site 1', slug='site-1')
 
         # Create three ConfigContexts
         for i in range(1, 4):
@@ -55,21 +58,20 @@ class ConfigContextTestCase(TestCase):
             configcontext.save()
             configcontext.sites.add(site)
 
-    def test_configcontext_list(self):
-
-        url = reverse('extras:configcontext_list')
-        params = {
-            "q": "foo",
+        cls.form_data = {
+            'name': 'Config Context X',
+            'weight': 200,
+            'description': 'A new config context',
+            'is_active': True,
+            'regions': [],
+            'sites': [site.pk],
+            'roles': [],
+            'platforms': [],
+            'tenant_groups': [],
+            'tenants': [],
+            'tags': [],
+            'data': '{"foo": 123}',
         }
-
-        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertHttpStatus(response, 200)
-
-    def test_configcontext(self):
-
-        configcontext = ConfigContext.objects.first()
-        response = self.client.get(configcontext.get_absolute_url())
-        self.assertHttpStatus(response, 200)
 
 
 class ObjectChangeTestCase(TestCase):
