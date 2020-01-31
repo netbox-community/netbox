@@ -1,6 +1,6 @@
 from django.contrib.auth.models import Permission, User
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import Client, TestCase as _TestCase
+from django.test import Client, TestCase as _TestCase, override_settings
 from django.urls import reverse, NoReverseMatch
 from rest_framework.test import APIClient
 
@@ -124,21 +124,41 @@ class StandardTestCases:
             else:
                 raise Exception("Invalid action for URL resolution: {}".format(action))
 
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects(self):
+            # Attempt to make the request without required permissions
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.get(self._get_url('list')), 403)
+
+            # Assign the required permission and submit again
+            self.add_permissions(
+                '{}.view_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
             response = self.client.get(self._get_url('list'))
             self.assertHttpStatus(response, 200)
 
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_get_object(self):
             instance = self.model.objects.first()
+
+            # Attempt to make the request without required permissions
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.get(instance.get_absolute_url()), 403)
+
+            # Assign the required permission and submit again
+            self.add_permissions(
+                '{}.view_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
             response = self.client.get(instance.get_absolute_url())
             self.assertHttpStatus(response, 200)
 
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_create_object(self):
             initial_count = self.model.objects.count()
             request = {
                 'path': self._get_url('add'),
                 'data': post_data(self.form_data),
-                'follow': True,
+                'follow': False,  # Do not follow 302 redirects
             }
 
             # Attempt to make the request without required permissions
@@ -146,21 +166,24 @@ class StandardTestCases:
                 self.assertHttpStatus(self.client.post(**request), 403)
 
             # Assign the required permission and submit again
-            self.add_permissions('{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name))
+            self.add_permissions(
+                '{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
             response = self.client.post(**request)
-            self.assertHttpStatus(response, 200)
+            self.assertHttpStatus(response, 302)
 
             self.assertEqual(initial_count + 1, self.model.objects.count())
             instance = self.model.objects.order_by('-pk').first()
             self.assertDictEqual(model_to_dict(instance), self.form_data)
 
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_edit_object(self):
             instance = self.model.objects.first()
 
             request = {
                 'path': self._get_url('edit', instance),
                 'data': post_data(self.form_data),
-                'follow': True,
+                'follow': False,  # Do not follow 302 redirects
             }
 
             # Attempt to make the request without required permissions
@@ -168,20 +191,23 @@ class StandardTestCases:
                 self.assertHttpStatus(self.client.post(**request), 403)
 
             # Assign the required permission and submit again
-            self.add_permissions('{}.change_{}'.format(self.model._meta.app_label, self.model._meta.model_name))
+            self.add_permissions(
+                '{}.change_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
             response = self.client.post(**request)
-            self.assertHttpStatus(response, 200)
+            self.assertHttpStatus(response, 302)
 
             instance = self.model.objects.get(pk=instance.pk)
             self.assertDictEqual(model_to_dict(instance), self.form_data)
 
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_delete_object(self):
             instance = self.model.objects.first()
 
             request = {
                 'path': self._get_url('delete', instance),
                 'data': {'confirm': True},
-                'follow': True,
+                'follow': False,  # Do not follow 302 redirects
             }
 
             # Attempt to make the request without required permissions
@@ -189,13 +215,16 @@ class StandardTestCases:
                 self.assertHttpStatus(self.client.post(**request), 403)
 
             # Assign the required permission and submit again
-            self.add_permissions('{}.delete_{}'.format(self.model._meta.app_label, self.model._meta.model_name))
+            self.add_permissions(
+                '{}.delete_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
             response = self.client.post(**request)
-            self.assertHttpStatus(response, 200)
+            self.assertHttpStatus(response, 302)
 
             with self.assertRaises(ObjectDoesNotExist):
                 self.model.objects.get(pk=instance.pk)
 
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_import_objects(self):
             initial_count = self.model.objects.count()
             request = {
@@ -210,7 +239,10 @@ class StandardTestCases:
                 self.assertHttpStatus(self.client.post(**request), 403)
 
             # Assign the required permission and submit again
-            self.add_permissions('{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name))
+            self.add_permissions(
+                '{}.view_{}'.format(self.model._meta.app_label, self.model._meta.model_name),
+                '{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
             response = self.client.post(**request)
             self.assertHttpStatus(response, 200)
 
