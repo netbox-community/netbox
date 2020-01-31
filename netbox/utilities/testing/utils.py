@@ -32,6 +32,8 @@ def post_data(data):
     for key, value in data.items():
         if value is None:
             ret[key] = ''
+        elif type(value) in (list, tuple):
+            ret[key] = value
         else:
             ret[key] = str(value)
 
