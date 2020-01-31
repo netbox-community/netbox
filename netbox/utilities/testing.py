@@ -2,6 +2,7 @@ import logging
 from contextlib import contextmanager
 
 from django.contrib.auth.models import Permission, User
+from django.forms.models import model_to_dict as _model_to_dict
 from django.test import Client, TestCase as _TestCase
 from rest_framework.test import APIClient
 
@@ -67,6 +68,24 @@ class APITestCase(TestCase):
         self.user = User.objects.create(username='testuser', is_superuser=True)
         self.token = Token.objects.create(user=self.user)
         self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(self.token.key)}
+
+
+def model_to_dict(instance, fields=None, exclude=None):
+    """
+    Customized wrapper for Django's built-in model_to_dict(). Does the following:
+      - Excludes the instance ID field
+      - Convert any assigned tags to a comma-separated string
+    """
+    _exclude = ['id']
+    if exclude is not None:
+        _exclude += exclude
+
+    model_dict = _model_to_dict(instance, fields=fields, exclude=_exclude)
+
+    if 'tags' in model_dict:
+        model_dict['tags'] = ','.join(sorted([tag.name for tag in model_dict['tags']]))
+
+    return model_dict
 
 
 def create_test_user(username='testuser', permissions=list()):
