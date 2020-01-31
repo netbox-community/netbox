@@ -9,6 +9,7 @@ def model_to_dict(instance, fields=None, exclude=None):
     """
     Customized wrapper for Django's built-in model_to_dict(). Does the following:
       - Excludes the instance ID field
+      - Exclude any fields prepended with an underscore
       - Convert any assigned tags to a comma-separated string
     """
     _exclude = ['id']
@@ -16,6 +17,10 @@ def model_to_dict(instance, fields=None, exclude=None):
         _exclude += exclude
 
     model_dict = _model_to_dict(instance, fields=fields, exclude=_exclude)
+
+    for key in list(model_dict.keys()):
+        if key.startswith('_'):
+            del model_dict[key]
 
     if 'tags' in model_dict:
         model_dict['tags'] = ','.join(sorted([tag.name for tag in model_dict['tags']]))
