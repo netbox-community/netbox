@@ -137,6 +137,12 @@ class StandardTestCases:
             response = self.client.get(self._get_url('list'))
             self.assertHttpStatus(response, 200)
 
+            # Built-in CSV export
+            if hasattr(self.model, 'csv_headers'):
+                response = self.client.get('{}?export'.format(self._get_url('list')))
+                self.assertHttpStatus(response, 200)
+                self.assertEqual(response.get('Content-Type'), 'text/csv')
+
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_get_object(self):
             instance = self.model.objects.first()
