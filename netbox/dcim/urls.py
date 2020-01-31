@@ -60,7 +60,7 @@ urlpatterns = [
     # Racks
     path(r'racks/', views.RackListView.as_view(), name='rack_list'),
     path(r'rack-elevations/', views.RackElevationListView.as_view(), name='rack_elevation_list'),
-    path(r'racks/add/', views.RackEditView.as_view(), name='rack_add'),
+    path(r'racks/add/', views.RackCreateView.as_view(), name='rack_add'),
     path(r'racks/import/', views.RackBulkImportView.as_view(), name='rack_import'),
     path(r'racks/edit/', views.RackBulkEditView.as_view(), name='rack_bulk_edit'),
     path(r'racks/delete/', views.RackBulkDeleteView.as_view(), name='rack_bulk_delete'),

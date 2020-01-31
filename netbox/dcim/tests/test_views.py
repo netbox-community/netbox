@@ -191,9 +191,6 @@ class RackReservationTestCase(StandardTestCases.Views):
 class RackTestCase(StandardTestCases.Views):
     model = Rack
 
-    # TODO: Remove this when #4067 is fixed
-    test_create_object = None
-
     @classmethod
     def setUpTestData(cls):
 
