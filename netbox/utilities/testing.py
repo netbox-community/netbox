@@ -2,8 +2,10 @@ import logging
 from contextlib import contextmanager
 
 from django.contrib.auth.models import Permission, User
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict as _model_to_dict
 from django.test import Client, TestCase as _TestCase
+from django.urls import reverse
 from rest_framework.test import APIClient
 
 from users.models import Token
@@ -70,6 +72,133 @@ class APITestCase(TestCase):
         self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(self.token.key)}
 
 
+# TODO: Omit this from tests
+class ViewTestCase(TestCase):
+    """
+    Stock TestCase suitable for testing all standard View functions:
+        - List objects
+        - View single object
+        - Create new object
+        - Modify existing object
+        - Delete existing object
+        - Import multiple new objects
+    """
+    model = None
+    form_data = {}
+    csv_data = {}
+
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        self.base_url_name = '{}:{}_{{}}'.format(self.model._meta.app_label, self.model._meta.model_name)
+
+    def test_list_objects(self):
+        response = self.client.get(reverse(self.base_url_name.format('list')))
+        self.assertHttpStatus(response, 200)
+
+    def test_get_object(self):
+        instance = self.model.objects.first()
+        response = self.client.get(instance.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+    def test_create_object(self):
+        initial_count = self.model.objects.count()
+        request = {
+            'path': reverse(self.base_url_name.format('add')),
+            'data': post_data(self.form_data),
+            'follow': True,
+        }
+        print(request['data'])
+
+        # Attempt to make the request without required permissions
+        with disable_warnings('django.request'):
+            self.assertHttpStatus(self.client.post(**request), 403)
+
+        # Assign the required permission and submit again
+        self.add_permissions('{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name))
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 200)
+
+        self.assertEqual(initial_count, self.model.objects.count() + 1)
+        instance = self.model.objects.order_by('-pk').first()
+        self.assertDictEqual(model_to_dict(instance), self.form_data)
+
+    def test_edit_object(self):
+        instance = self.model.objects.first()
+
+        # Determine the proper kwargs to pass to the edit URL
+        if hasattr(instance, 'slug'):
+            kwargs = {'slug': instance.slug}
+        else:
+            kwargs = {'pk': instance.pk}
+
+        request = {
+            'path': reverse(self.base_url_name.format('edit'), kwargs=kwargs),
+            'data': post_data(self.form_data),
+            'follow': True,
+        }
+
+        # Attempt to make the request without required permissions
+        with disable_warnings('django.request'):
+            self.assertHttpStatus(self.client.post(**request), 403)
+
+        # Assign the required permission and submit again
+        self.add_permissions('{}.change_{}'.format(self.model._meta.app_label, self.model._meta.model_name))
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 200)
+
+        instance = self.model.objects.get(pk=instance.pk)
+        self.assertDictEqual(model_to_dict(instance), self.form_data)
+
+    def test_delete_object(self):
+        instance = self.model.objects.first()
+
+        # Determine the proper kwargs to pass to the deletion URL
+        if hasattr(instance, 'slug'):
+            kwargs = {'slug': instance.slug}
+        else:
+            kwargs = {'pk': instance.pk}
+
+        request = {
+            'path': reverse(self.base_url_name.format('delete'), kwargs=kwargs),
+            'data': {'confirm': True},
+            'follow': True,
+        }
+
+        # Attempt to make the request without required permissions
+        with disable_warnings('django.request'):
+            self.assertHttpStatus(self.client.post(**request), 403)
+
+        # Assign the required permission and submit again
+        self.add_permissions('{}.delete_{}'.format(self.model._meta.app_label, self.model._meta.model_name))
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 200)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            self.model.objects.get(pk=instance.pk)
+
+    def test_import_objects(self):
+        request = {
+            'path': reverse(self.base_url_name.format('import')),
+            'data': {
+                'csv': '\n'.join(self.csv_data)
+            }
+        }
+        initial_count = self.model.objects.count()
+
+        # Attempt to make the request without required permissions
+        with disable_warnings('django.request'):
+            self.assertHttpStatus(self.client.post(**request), 403)
+
+        # Assign the required permission and submit again
+        self.add_permissions('{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name))
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 200)
+
+        self.assertEqual(self.model.objects.count(), initial_count + len(self.csv_data) - 1)
+
+
 def model_to_dict(instance, fields=None, exclude=None):
     """
     Customized wrapper for Django's built-in model_to_dict(). Does the following:
@@ -86,6 +215,23 @@ def model_to_dict(instance, fields=None, exclude=None):
         model_dict['tags'] = ','.join(sorted([tag.name for tag in model_dict['tags']]))
 
     return model_dict
+
+
+def post_data(data):
+    """
+    Take a dictionary of test data (suitable for comparison to an instance) and return a dict suitable for POSTing.
+    """
+    ret = {}
+
+    for key, value in data.items():
+        if value is None:
+            ret[key] = ''
+        elif hasattr(value, 'pk'):
+            ret[key] = getattr(value, 'pk')
+        else:
+            ret[key] = str(value)
+
+    return ret
 
 
 def create_test_user(username='testuser', permissions=list()):
