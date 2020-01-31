@@ -37,7 +37,8 @@ class TagListView(PermissionRequiredMixin, ObjectListView):
     template_name = 'extras/tag_list.html'
 
 
-class TagView(View):
+class TagView(PermissionRequiredMixin, View):
+    permission_required = 'extras.view_tag'
 
     def get(self, request, slug):
 

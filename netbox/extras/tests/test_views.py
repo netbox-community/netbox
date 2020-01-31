@@ -17,9 +17,6 @@ class TagTestCase(StandardTestCases.Views):
     test_create_object = None
     test_import_objects = None
 
-    # TODO: Restore test when #4071 is resolved
-    test_get_object = None
-
     @classmethod
     def setUpTestData(cls):
 
