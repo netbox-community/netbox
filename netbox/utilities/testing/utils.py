@@ -32,8 +32,6 @@ def post_data(data):
     for key, value in data.items():
         if value is None:
             ret[key] = ''
-        elif hasattr(value, 'pk'):
-            ret[key] = getattr(value, 'pk')
         else:
             ret[key] = str(value)
 
