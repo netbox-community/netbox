@@ -90,7 +90,7 @@ This setting enables debugging. This should be done only during development or t
 
 ---
 
-# DEVELOPER
+## DEVELOPER
 
 Default: False
 
@@ -135,7 +135,7 @@ EXEMPT_VIEW_PERMISSIONS = ['*']
 
 ---
 
-# ENFORCE_GLOBAL_UNIQUE
+## ENFORCE_GLOBAL_UNIQUE
 
 Default: False
 
