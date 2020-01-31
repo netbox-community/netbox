@@ -371,6 +371,7 @@ device-bays:
 
         # Add all required permissions to the test user
         self.add_permissions(
+            'dcim.view_devicetype',
             'dcim.add_devicetype',
             'dcim.add_consoleporttemplate',
             'dcim.add_consoleserverporttemplate',
@@ -437,6 +438,7 @@ device-bays:
     def test_devicetype_export(self):
 
         url = reverse('dcim:devicetype_list')
+        self.add_permissions('dcim.view_devicetype')
 
         response = self.client.get('{}?export'.format(url))
         self.assertEqual(response.status_code, 200)
