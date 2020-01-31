@@ -22,6 +22,10 @@ def model_to_dict(instance, fields=None, exclude=None):
         if key.startswith('_'):
             del model_dict[key]
 
+        # Convert ManyToManyField to list of instance PKs
+        elif model_dict[key] and type(model_dict[key]) in (list, tuple) and hasattr(model_dict[key][0], 'pk'):
+            model_dict[key] = [obj.pk for obj in model_dict[key]]
+
     if 'tags' in model_dict:
         model_dict['tags'] = ','.join(sorted([tag.name for tag in model_dict['tags']]))
 
