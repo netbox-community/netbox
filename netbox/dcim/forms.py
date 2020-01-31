@@ -1549,6 +1549,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     )
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
+        required=False,
         widget=APISelect(
             api_url="/api/dcim/manufacturers/",
             filter_for={

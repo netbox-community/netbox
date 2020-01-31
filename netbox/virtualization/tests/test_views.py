@@ -1,23 +1,18 @@
-import urllib.parse
-
-from django.test import Client, TestCase
-from django.urls import reverse
-
-from utilities.testing import create_test_user
+from dcim.models import DeviceRole, Platform, Site
+from utilities.testing import StandardTestCases
+from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
-class ClusterGroupTestCase(TestCase):
+class ClusterGroupTestCase(StandardTestCases.Views):
+    model = ClusterGroup
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'virtualization.view_clustergroup',
-                'virtualization.add_clustergroup',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    # Disable inapplicable tests
+    test_get_object = None
+    test_delete_object = None
+
+    @classmethod
+    def setUpTestData(cls):
 
         ClusterGroup.objects.bulk_create([
             ClusterGroup(name='Cluster Group 1', slug='cluster-group-1'),
@@ -25,39 +20,28 @@ class ClusterGroupTestCase(TestCase):
             ClusterGroup(name='Cluster Group 3', slug='cluster-group-3'),
         ])
 
-    def test_clustergroup_list(self):
+        cls.form_data = {
+            'name': 'Cluster Group X',
+            'slug': 'cluster-group-x',
+        }
 
-        url = reverse('virtualization:clustergroup_list')
-
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-
-    def test_clustergroup_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "name,slug",
             "Cluster Group 4,cluster-group-4",
             "Cluster Group 5,cluster-group-5",
             "Cluster Group 6,cluster-group-6",
         )
 
-        response = self.client.post(reverse('virtualization:clustergroup_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(ClusterGroup.objects.count(), 6)
+class ClusterTypeTestCase(StandardTestCases.Views):
+    model = ClusterType
 
+    # Disable inapplicable tests
+    test_get_object = None
+    test_delete_object = None
 
-class ClusterTypeTestCase(TestCase):
-
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'virtualization.view_clustertype',
-                'virtualization.add_clustertype',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         ClusterType.objects.bulk_create([
             ClusterType(name='Cluster Type 1', slug='cluster-type-1'),
@@ -65,45 +49,28 @@ class ClusterTypeTestCase(TestCase):
             ClusterType(name='Cluster Type 3', slug='cluster-type-3'),
         ])
 
-    def test_clustertype_list(self):
+        cls.form_data = {
+            'name': 'Cluster Type X',
+            'slug': 'cluster-type-x',
+        }
 
-        url = reverse('virtualization:clustertype_list')
-
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-
-    def test_clustertype_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "name,slug",
             "Cluster Type 4,cluster-type-4",
             "Cluster Type 5,cluster-type-5",
             "Cluster Type 6,cluster-type-6",
         )
 
-        response = self.client.post(reverse('virtualization:clustertype_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(ClusterType.objects.count(), 6)
+class ClusterTestCase(StandardTestCases.Views):
+    model = Cluster
 
+    @classmethod
+    def setUpTestData(cls):
 
-class ClusterTestCase(TestCase):
-
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'virtualization.view_cluster',
-                'virtualization.add_cluster',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
-
-        clustergroup = ClusterGroup(name='Cluster Group 1', slug='cluster-group-1')
-        clustergroup.save()
-
-        clustertype = ClusterType(name='Cluster Type 1', slug='cluster-type-1')
-        clustertype.save()
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        clustergroup = ClusterGroup.objects.create(name='Cluster Group 1', slug='cluster-group-1')
+        clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
 
         Cluster.objects.bulk_create([
             Cluster(name='Cluster 1', group=clustergroup, type=clustertype),
@@ -111,55 +78,34 @@ class ClusterTestCase(TestCase):
             Cluster(name='Cluster 3', group=clustergroup, type=clustertype),
         ])
 
-    def test_cluster_list(self):
-
-        url = reverse('virtualization:cluster_list')
-        params = {
-            "group": ClusterGroup.objects.first().slug,
-            "type": ClusterType.objects.first().slug,
+        cls.form_data = {
+            'name': 'Cluster X',
+            'group': clustergroup.pk,
+            'type': clustertype.pk,
+            'tenant': None,
+            'site': site.pk,
+            'comments': 'Some comments',
+            'tags': 'Alpha,Bravo,Charlie',
         }
 
-        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
-
-    def test_cluster(self):
-
-        cluster = Cluster.objects.first()
-        response = self.client.get(cluster.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
-
-    def test_cluster_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "name,type",
             "Cluster 4,Cluster Type 1",
             "Cluster 5,Cluster Type 1",
             "Cluster 6,Cluster Type 1",
         )
 
-        response = self.client.post(reverse('virtualization:cluster_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Cluster.objects.count(), 6)
+class VirtualMachineTestCase(StandardTestCases.Views):
+    model = VirtualMachine
 
+    @classmethod
+    def setUpTestData(cls):
 
-class VirtualMachineTestCase(TestCase):
-
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'virtualization.view_virtualmachine',
-                'virtualization.add_virtualmachine',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
-
-        clustertype = ClusterType(name='Cluster Type 1', slug='cluster-type-1')
-        clustertype.save()
-
-        cluster = Cluster(name='Cluster 1', type=clustertype)
-        cluster.save()
+        devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        platform = Platform.objects.create(name='Platform 1', slug='platform-1')
+        clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        cluster = Cluster.objects.create(name='Cluster 1', type=clustertype)
 
         VirtualMachine.objects.bulk_create([
             VirtualMachine(name='Virtual Machine 1', cluster=cluster),
@@ -167,32 +113,26 @@ class VirtualMachineTestCase(TestCase):
             VirtualMachine(name='Virtual Machine 3', cluster=cluster),
         ])
 
-    def test_virtualmachine_list(self):
-
-        url = reverse('virtualization:virtualmachine_list')
-        params = {
-            "cluster_id": Cluster.objects.first().pk,
+        cls.form_data = {
+            'cluster': cluster.pk,
+            'tenant': None,
+            'platform': None,
+            'name': 'Virtual Machine X',
+            'status': VirtualMachineStatusChoices.STATUS_STAGED,
+            'role': devicerole.pk,
+            'primary_ip4': None,
+            'primary_ip6': None,
+            'vcpus': 4,
+            'memory': 32768,
+            'disk': 4000,
+            'comments': 'Some comments',
+            'tags': 'Alpha,Bravo,Charlie',
+            'local_context_data': None,
         }
 
-        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
-
-    def test_virtualmachine(self):
-
-        virtualmachine = VirtualMachine.objects.first()
-        response = self.client.get(virtualmachine.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
-
-    def test_virtualmachine_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "name,cluster",
             "Virtual Machine 4,Cluster 1",
             "Virtual Machine 5,Cluster 1",
             "Virtual Machine 6,Cluster 1",
         )
-
-        response = self.client.post(reverse('virtualization:virtualmachine_import'), {'csv': '\n'.join(csv_data)})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(VirtualMachine.objects.count(), 6)
