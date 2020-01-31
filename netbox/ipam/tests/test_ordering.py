@@ -16,6 +16,7 @@ class PrefixOrderingTestCase(TestCase):
         VRF.objects.bulk_create([vrfa, vrfb, vrfc])
         self.vrfs = (vrfa, vrfb, vrfc)
 
+    # Function to create all prefixes
     def _create_prefix(self, prefixes):
         prefixobjects = []
         for pfx in prefixes:
@@ -28,21 +29,25 @@ class PrefixOrderingTestCase(TestCase):
 
         return prefixobjects
 
+    # Prefix Comparison function
     def _compare_prefix(self, queryset, prefixes):
-
+        # Loop and compare each prefix
         for i, obj in enumerate(queryset):
             status, vrf, prefix = prefixes[i]
             self.assertEqual((obj.vrf, obj.prefix), (vrf, prefix))
 
+    # Complex prefix comparison function
     def _compare_complex(self, queryset, prefixes):
         qsprefixes, regprefixes = [], []
+        # Loop and build list of queryset prefixes to compare
         for i, obj in enumerate(queryset):
             qsprefixes.append(obj.prefix)
+        # Loop and build list of prefixes to compare
         for pfx in prefixes:
             regprefixes.append(pfx[2])
+
+        # Return two lists as a tuple
         return (qsprefixes, regprefixes)
-
-
 
     def test_prefix_ordering(self):
         # Setup Prefixes
@@ -176,8 +181,10 @@ class IPAddressOrderingTestCase(TestCase):
         VRF.objects.bulk_create([vrfa, vrfb, vrfc])
         self.vrfs = (vrfa, vrfb, vrfc)
 
+    # Function to build all addresses
     def _create_address(self, addresses):
         addressobjects = []
+        # Loop and build IPAddress object
         for addr in addresses:
             status, vrf, address = addr
             family = 4
@@ -188,12 +195,12 @@ class IPAddressOrderingTestCase(TestCase):
 
         return addressobjects
 
+    # Function to compare all addresses
     def _compare_address(self, queryset, addresses):
-
+        # Loop and compare addresses
         for i, obj in enumerate(queryset):
             status, vrf, address = addresses[i]
             self.assertEqual((obj.vrf, obj.address), (vrf, address))
-
 
     def test_address_ordering(self):
         # Setup Addresses
