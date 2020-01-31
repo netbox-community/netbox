@@ -1,13 +1,11 @@
 import datetime
-import urllib.parse
 
-from django.urls import reverse
 from netaddr import IPNetwork
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
-from utilities.testing import StandardTestCases, TestCase
+from utilities.testing import StandardTestCases
 
 
 class VRFTestCase(StandardTestCases.Views):

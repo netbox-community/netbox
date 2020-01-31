@@ -1,11 +1,10 @@
 import base64
-import urllib.parse
 
 from django.urls import reverse
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
-from utilities.testing import StandardTestCases, TestCase
+from utilities.testing import StandardTestCases
 from .constants import PRIVATE_KEY, PUBLIC_KEY
 
 
