@@ -2,10 +2,10 @@ import datetime
 
 from circuits.choices import *
 from circuits.models import Circuit, CircuitType, Provider
-from utilities.testing import ViewTestCase
+from utilities.testing import StandardTestCases
 
 
-class ProviderTestCase(ViewTestCase):
+class ProviderTestCase(StandardTestCases.Views):
     model = Provider
     form_data = {
         'name': 'Provider X',
@@ -35,7 +35,7 @@ class ProviderTestCase(ViewTestCase):
         ])
 
 
-class CircuitTypeTestCase(ViewTestCase):
+class CircuitTypeTestCase(StandardTestCases.Views):
     model = CircuitType
     views = ('list', 'add', 'edit', 'import')
     form_data = {
@@ -64,7 +64,7 @@ class CircuitTypeTestCase(ViewTestCase):
         ])
 
 
-class CircuitTestCase(ViewTestCase):
+class CircuitTestCase(StandardTestCases.Views):
     model = Circuit
     # TODO: Determine how to lazily resolve related objects
     form_data = {
