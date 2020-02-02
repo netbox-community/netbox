@@ -13,6 +13,7 @@ from utilities.forms import (
     CommentField, ContentTypeSelect, DatePicker, DateTimePicker, FilterChoiceField, LaxURLField, JSONField,
     SlugField, StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
 )
+from virtualization.models import Cluster, ClusterGroup
 from .choices import *
 from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachment, ObjectChange, Tag
 
@@ -347,7 +348,7 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
         )
     )
     cluster_group = FilterChoiceField(
-        queryset=TenantGroup.objects.all(),
+        queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
         widget=APISelectMultiple(
             api_url="/api/virtualization/cluster-groups/",
@@ -355,7 +356,7 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
         )
     )
     cluster_id = FilterChoiceField(
-        queryset=Tenant.objects.all(),
+        queryset=Cluster.objects.all(),
         label='Cluster',
         widget=APISelectMultiple(
             api_url="/api/virtualization/clusters/",
