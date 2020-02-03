@@ -10,6 +10,7 @@ class ClusterGroupTestCase(StandardTestCases.Views):
     # Disable inapplicable tests
     test_get_object = None
     test_delete_object = None
+    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -39,6 +40,7 @@ class ClusterTypeTestCase(StandardTestCases.Views):
     # Disable inapplicable tests
     test_get_object = None
     test_delete_object = None
+    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -68,22 +70,36 @@ class ClusterTestCase(StandardTestCases.Views):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site-1')
-        clustergroup = ClusterGroup.objects.create(name='Cluster Group 1', slug='cluster-group-1')
-        clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        clustergroups = (
+            ClusterGroup(name='Cluster Group 1', slug='cluster-group-1'),
+            ClusterGroup(name='Cluster Group 2', slug='cluster-group-2'),
+        )
+        ClusterGroup.objects.bulk_create(clustergroups)
+
+        clustertypes = (
+            ClusterType(name='Cluster Type 1', slug='cluster-type-1'),
+            ClusterType(name='Cluster Type 2', slug='cluster-type-2'),
+        )
+        ClusterType.objects.bulk_create(clustertypes)
 
         Cluster.objects.bulk_create([
-            Cluster(name='Cluster 1', group=clustergroup, type=clustertype),
-            Cluster(name='Cluster 2', group=clustergroup, type=clustertype),
-            Cluster(name='Cluster 3', group=clustergroup, type=clustertype),
+            Cluster(name='Cluster 1', group=clustergroups[0], type=clustertypes[0], site=sites[0]),
+            Cluster(name='Cluster 2', group=clustergroups[0], type=clustertypes[0], site=sites[0]),
+            Cluster(name='Cluster 3', group=clustergroups[0], type=clustertypes[0], site=sites[0]),
         ])
 
         cls.form_data = {
             'name': 'Cluster X',
-            'group': clustergroup.pk,
-            'type': clustertype.pk,
+            'group': clustergroups[1].pk,
+            'type': clustertypes[1].pk,
             'tenant': None,
-            'site': site.pk,
+            'site': sites[1].pk,
             'comments': 'Some comments',
             'tags': 'Alpha,Bravo,Charlie',
         }
@@ -95,6 +111,14 @@ class ClusterTestCase(StandardTestCases.Views):
             "Cluster 6,Cluster Type 1",
         )
 
+        cls.bulk_edit_data = {
+            'group': clustergroups[1].pk,
+            'type': clustertypes[1].pk,
+            'tenant': None,
+            'site': sites[1].pk,
+            'comments': 'New comments',
+        }
+
 
 class VirtualMachineTestCase(StandardTestCases.Views):
     model = VirtualMachine
@@ -102,24 +126,39 @@ class VirtualMachineTestCase(StandardTestCases.Views):
     @classmethod
     def setUpTestData(cls):
 
-        devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
-        platform = Platform.objects.create(name='Platform 1', slug='platform-1')
+        deviceroles = (
+            DeviceRole(name='Device Role 1', slug='device-role-1'),
+            DeviceRole(name='Device Role 2', slug='device-role-2'),
+        )
+        DeviceRole.objects.bulk_create(deviceroles)
+
+        platforms = (
+            Platform(name='Platform 1', slug='platform-1'),
+            Platform(name='Platform 2', slug='platform-2'),
+        )
+        Platform.objects.bulk_create(platforms)
+
         clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
-        cluster = Cluster.objects.create(name='Cluster 1', type=clustertype)
+
+        clusters = (
+            Cluster(name='Cluster 1', type=clustertype),
+            Cluster(name='Cluster 2', type=clustertype),
+        )
+        Cluster.objects.bulk_create(clusters)
 
         VirtualMachine.objects.bulk_create([
-            VirtualMachine(name='Virtual Machine 1', cluster=cluster),
-            VirtualMachine(name='Virtual Machine 2', cluster=cluster),
-            VirtualMachine(name='Virtual Machine 3', cluster=cluster),
+            VirtualMachine(name='Virtual Machine 1', cluster=clusters[0], role=deviceroles[0], platform=platforms[0]),
+            VirtualMachine(name='Virtual Machine 2', cluster=clusters[0], role=deviceroles[0], platform=platforms[0]),
+            VirtualMachine(name='Virtual Machine 3', cluster=clusters[0], role=deviceroles[0], platform=platforms[0]),
         ])
 
         cls.form_data = {
-            'cluster': cluster.pk,
+            'cluster': clusters[1].pk,
             'tenant': None,
-            'platform': None,
+            'platform': platforms[1].pk,
             'name': 'Virtual Machine X',
             'status': VirtualMachineStatusChoices.STATUS_STAGED,
-            'role': devicerole.pk,
+            'role': deviceroles[1].pk,
             'primary_ip4': None,
             'primary_ip6': None,
             'vcpus': 4,
@@ -136,3 +175,15 @@ class VirtualMachineTestCase(StandardTestCases.Views):
             "Virtual Machine 5,Cluster 1",
             "Virtual Machine 6,Cluster 1",
         )
+
+        cls.bulk_edit_data = {
+            'cluster': clusters[1].pk,
+            'tenant': None,
+            'platform': platforms[1].pk,
+            'status': VirtualMachineStatusChoices.STATUS_STAGED,
+            'role': deviceroles[1].pk,
+            'vcpus': 8,
+            'memory': 65535,
+            'disk': 8000,
+            'comments': 'New comments',
+        }

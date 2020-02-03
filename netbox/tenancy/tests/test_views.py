@@ -8,6 +8,7 @@ class TenantGroupTestCase(StandardTestCases.Views):
     # Disable inapplicable tests
     test_get_object = None
     test_delete_object = None
+    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -37,18 +38,22 @@ class TenantTestCase(StandardTestCases.Views):
     @classmethod
     def setUpTestData(cls):
 
-        tenantgroup = TenantGroup.objects.create(name='Tenant Group 1', slug='tenant-group-1')
+        tenantgroups = (
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+        )
+        TenantGroup.objects.bulk_create(tenantgroups)
 
         Tenant.objects.bulk_create([
-            Tenant(name='Tenant 1', slug='tenant-1', group=tenantgroup),
-            Tenant(name='Tenant 2', slug='tenant-2', group=tenantgroup),
-            Tenant(name='Tenant 3', slug='tenant-3', group=tenantgroup),
+            Tenant(name='Tenant 1', slug='tenant-1', group=tenantgroups[0]),
+            Tenant(name='Tenant 2', slug='tenant-2', group=tenantgroups[0]),
+            Tenant(name='Tenant 3', slug='tenant-3', group=tenantgroups[0]),
         ])
 
         cls.form_data = {
             'name': 'Tenant X',
             'slug': 'tenant-x',
-            'group': tenantgroup.pk,
+            'group': tenantgroups[1].pk,
             'description': 'A new tenant',
             'comments': 'Some comments',
             'tags': 'Alpha,Bravo,Charlie',
@@ -60,3 +65,7 @@ class TenantTestCase(StandardTestCases.Views):
             "Tenant 5,tenant-5",
             "Tenant 6,tenant-6",
         )
+
+        cls.bulk_edit_data = {
+            'group': tenantgroups[1].pk,
+        }

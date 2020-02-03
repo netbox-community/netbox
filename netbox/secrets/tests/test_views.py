@@ -14,6 +14,7 @@ class SecretRoleTestCase(StandardTestCases.Views):
     # Disable inapplicable tests
     test_get_object = None
     test_delete_object = None
+    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -56,19 +57,36 @@ class SecretTestCase(StandardTestCases.Views):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1')
         devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
-        device = Device.objects.create(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
-        secretrole = SecretRole.objects.create(name='Secret Role 1', slug='secret-role-1')
 
-        Secret.objects.bulk_create([
-            Secret(device=device, role=secretrole, name='Secret 1', ciphertext=b'1234567890'),
-            Secret(device=device, role=secretrole, name='Secret 2', ciphertext=b'1234567890'),
-            Secret(device=device, role=secretrole, name='Secret 3', ciphertext=b'1234567890'),
-        ])
+        devices = (
+            Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole),
+            Device(name='Device 2', site=site, device_type=devicetype, device_role=devicerole),
+            Device(name='Device 3', site=site, device_type=devicetype, device_role=devicerole),
+        )
+        Device.objects.bulk_create(devices)
+
+        secretroles = (
+            SecretRole(name='Secret Role 1', slug='secret-role-1'),
+            SecretRole(name='Secret Role 2', slug='secret-role-2'),
+        )
+        SecretRole.objects.bulk_create(secretroles)
+
+        # Create one secret per device to allow bulk-editing of names (which must be unique per device/role)
+        Secret.objects.bulk_create((
+            Secret(device=devices[0], role=secretroles[0], name='Secret 1', ciphertext=b'1234567890'),
+            Secret(device=devices[1], role=secretroles[0], name='Secret 2', ciphertext=b'1234567890'),
+            Secret(device=devices[2], role=secretroles[0], name='Secret 3', ciphertext=b'1234567890'),
+        ))
 
         cls.form_data = {
-            'device': device.pk,
-            'role': secretrole.pk,
+            'device': devices[1].pk,
+            'role': secretroles[1].pk,
             'name': 'Secret X',
+        }
+
+        cls.bulk_edit_data = {
+            'role': secretroles[1].pk,
+            'name': 'New name',
         }
 
     def setUp(self):

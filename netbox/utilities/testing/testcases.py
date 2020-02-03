@@ -85,8 +85,15 @@ class StandardTestCases:
             - Import multiple new objects
         """
         model = None
+
+        # Data to be sent when creating/editing individual objects
         form_data = {}
-        csv_data = {}
+
+        # CSV lines used for bulk import of new objects
+        csv_data = ()
+
+        # Form data to be used when editing multiple objects at once
+        bulk_edit_data = {}
 
         maxDiff = None
 
@@ -107,7 +114,7 @@ class StandardTestCases:
                 self.model._meta.model_name
             )
 
-            if action in ('list', 'add', 'import', 'bulk_delete'):
+            if action in ('list', 'add', 'import', 'bulk_edit', 'bulk_delete'):
                 return reverse(url_format.format(action))
 
             elif action in ('get', 'edit', 'delete'):
@@ -253,6 +260,41 @@ class StandardTestCases:
             self.assertHttpStatus(response, 200)
 
             self.assertEqual(self.model.objects.count(), initial_count + len(self.csv_data) - 1)
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def test_bulk_edit_objects(self):
+            pk_list = self.model.objects.values_list('pk', flat=True)
+
+            request = {
+                'path': self._get_url('bulk_edit'),
+                'data': {
+                    'pk': pk_list,
+                    '_apply': True,  # Form button
+                },
+                'follow': False,  # Do not follow 302 redirects
+            }
+
+            # Append the form data to the request
+            request['data'].update(post_data(self.bulk_edit_data))
+
+            # Attempt to make the request without required permissions
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.post(**request), 403)
+
+            # Assign the required permission and submit again
+            self.add_permissions(
+                '{}.change_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
+            response = self.client.post(**request)
+            self.assertHttpStatus(response, 302)
+
+            bulk_edit_fields = self.bulk_edit_data.keys()
+            for i, instance in enumerate(self.model.objects.filter(pk__in=pk_list)):
+                self.assertDictEqual(
+                    model_to_dict(instance, fields=bulk_edit_fields),
+                    self.bulk_edit_data,
+                    msg="Instance {} failed to validate after bulk edit: {}".format(i, instance)
+                )
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_bulk_delete_objects(self):
