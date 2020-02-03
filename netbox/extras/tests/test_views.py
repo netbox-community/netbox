@@ -33,6 +33,10 @@ class TagTestCase(StandardTestCases.Views):
             'comments': 'Some comments',
         }
 
+        cls.bulk_edit_data = {
+            'color': '00ff00',
+        }
+
 
 class ConfigContextTestCase(StandardTestCases.Views):
     model = ConfigContext
@@ -53,7 +57,7 @@ class ConfigContextTestCase(StandardTestCases.Views):
         for i in range(1, 4):
             configcontext = ConfigContext(
                 name='Config Context {}'.format(i),
-                data='{{"foo": {}}}'.format(i)
+                data={'foo': i}
             )
             configcontext.save()
             configcontext.sites.add(site)
@@ -73,7 +77,14 @@ class ConfigContextTestCase(StandardTestCases.Views):
             'data': '{"foo": 123}',
         }
 
+        cls.bulk_edit_data = {
+            'weight': 300,
+            'is_active': False,
+            'description': 'New description',
+        }
 
+
+# TODO: Convert to StandardTestCases.Views
 class ObjectChangeTestCase(TestCase):
     user_permissions = (
         'extras.view_objectchange',

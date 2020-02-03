@@ -36,6 +36,12 @@ class VRFTestCase(StandardTestCases.Views):
             "VRF 6",
         )
 
+        cls.bulk_edit_data = {
+            'tenant': None,
+            'enforce_unique': False,
+            'description': 'New description',
+        }
+
 
 class RIRTestCase(StandardTestCases.Views):
     model = RIR
@@ -43,6 +49,7 @@ class RIRTestCase(StandardTestCases.Views):
     # Disable inapplicable tests
     test_get_object = None
     test_delete_object = None
+    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -73,18 +80,22 @@ class AggregateTestCase(StandardTestCases.Views):
     @classmethod
     def setUpTestData(cls):
 
-        rir = RIR.objects.create(name='RIR 1', slug='rir-1')
+        rirs = (
+            RIR(name='RIR 1', slug='rir-1'),
+            RIR(name='RIR 2', slug='rir-2'),
+        )
+        RIR.objects.bulk_create(rirs)
 
         Aggregate.objects.bulk_create([
-            Aggregate(family=4, prefix=IPNetwork('10.1.0.0/16'), rir=rir),
-            Aggregate(family=4, prefix=IPNetwork('10.2.0.0/16'), rir=rir),
-            Aggregate(family=4, prefix=IPNetwork('10.3.0.0/16'), rir=rir),
+            Aggregate(family=4, prefix=IPNetwork('10.1.0.0/16'), rir=rirs[0]),
+            Aggregate(family=4, prefix=IPNetwork('10.2.0.0/16'), rir=rirs[0]),
+            Aggregate(family=4, prefix=IPNetwork('10.3.0.0/16'), rir=rirs[0]),
         ])
 
         cls.form_data = {
             'family': 4,
             'prefix': IPNetwork('10.99.0.0/16'),
-            'rir': rir.pk,
+            'rir': rirs[1].pk,
             'date_added': datetime.date(2020, 1, 1),
             'description': 'A new aggregate',
             'tags': 'Alpha,Bravo,Charlie',
@@ -97,6 +108,12 @@ class AggregateTestCase(StandardTestCases.Views):
             "10.6.0.0/16,RIR 1",
         )
 
+        cls.bulk_edit_data = {
+            'rir': rirs[1].pk,
+            'date_added': datetime.date(2020, 1, 1),
+            'description': 'New description',
+        }
+
 
 class RoleTestCase(StandardTestCases.Views):
     model = Role
@@ -104,6 +121,7 @@ class RoleTestCase(StandardTestCases.Views):
     # Disable inapplicable tests
     test_get_object = None
     test_delete_object = None
+    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -135,25 +153,37 @@ class PrefixTestCase(StandardTestCases.Views):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site-1')
-        vrf = VRF.objects.create(name='VRF 1', rd='65000:1')
-        role = Role.objects.create(name='Role 1', slug='role-1')
-        # vlan = VLAN.objects.create(vid=123, name='VLAN 123')
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        vrfs = (
+            VRF(name='VRF 1', rd='65000:1'),
+            VRF(name='VRF 2', rd='65000:2'),
+        )
+        VRF.objects.bulk_create(vrfs)
+
+        roles = (
+            Role(name='Role 1', slug='role-1'),
+            Role(name='Role 2', slug='role-2'),
+        )
 
         Prefix.objects.bulk_create([
-            Prefix(family=4, prefix=IPNetwork('10.1.0.0/16'), site=site),
-            Prefix(family=4, prefix=IPNetwork('10.2.0.0/16'), site=site),
-            Prefix(family=4, prefix=IPNetwork('10.3.0.0/16'), site=site),
+            Prefix(family=4, prefix=IPNetwork('10.1.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
+            Prefix(family=4, prefix=IPNetwork('10.2.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
+            Prefix(family=4, prefix=IPNetwork('10.3.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
         ])
 
         cls.form_data = {
             'prefix': IPNetwork('192.0.2.0/24'),
-            'site': site.pk,
-            'vrf': vrf.pk,
+            'site': sites[1].pk,
+            'vrf': vrfs[1].pk,
             'tenant': None,
             'vlan': None,
             'status': PrefixStatusChoices.STATUS_RESERVED,
-            'role': role.pk,
+            'role': roles[1].pk,
             'is_pool': True,
             'description': 'A new prefix',
             'tags': 'Alpha,Bravo,Charlie',
@@ -166,6 +196,16 @@ class PrefixTestCase(StandardTestCases.Views):
             "10.6.0.0/16,Active",
         )
 
+        cls.bulk_edit_data = {
+            'site': sites[1].pk,
+            'vrf': vrfs[1].pk,
+            'tenant': None,
+            'status': PrefixStatusChoices.STATUS_RESERVED,
+            'role': roles[1].pk,
+            'is_pool': False,
+            'description': 'New description',
+        }
+
 
 class IPAddressTestCase(StandardTestCases.Views):
     model = IPAddress
@@ -173,16 +213,19 @@ class IPAddressTestCase(StandardTestCases.Views):
     @classmethod
     def setUpTestData(cls):
 
-        vrf = VRF.objects.create(name='VRF 1', rd='65000:1')
+        vrfs = (
+            VRF(name='VRF 1', rd='65000:1'),
+            VRF(name='VRF 2', rd='65000:2'),
+        )
 
         IPAddress.objects.bulk_create([
-            IPAddress(family=4, address=IPNetwork('192.0.2.1/24'), vrf=vrf),
-            IPAddress(family=4, address=IPNetwork('192.0.2.2/24'), vrf=vrf),
-            IPAddress(family=4, address=IPNetwork('192.0.2.3/24'), vrf=vrf),
+            IPAddress(family=4, address=IPNetwork('192.0.2.1/24'), vrf=vrfs[0]),
+            IPAddress(family=4, address=IPNetwork('192.0.2.2/24'), vrf=vrfs[0]),
+            IPAddress(family=4, address=IPNetwork('192.0.2.3/24'), vrf=vrfs[0]),
         ])
 
         cls.form_data = {
-            'vrf': vrf.pk,
+            'vrf': vrfs[1].pk,
             'address': IPNetwork('192.0.2.99/24'),
             'tenant': None,
             'status': IPAddressStatusChoices.STATUS_RESERVED,
@@ -201,6 +244,15 @@ class IPAddressTestCase(StandardTestCases.Views):
             "192.0.2.6/24,Active",
         )
 
+        cls.bulk_edit_data = {
+            'vrf': vrfs[1].pk,
+            'tenant': None,
+            'status': IPAddressStatusChoices.STATUS_RESERVED,
+            'role': IPAddressRoleChoices.ROLE_ANYCAST,
+            'dns_name': 'example',
+            'description': 'New description',
+        }
+
 
 class VLANGroupTestCase(StandardTestCases.Views):
     model = VLANGroup
@@ -208,6 +260,7 @@ class VLANGroupTestCase(StandardTestCases.Views):
     # Disable inapplicable tests
     test_get_object = None
     test_delete_object = None
+    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -240,24 +293,38 @@ class VLANTestCase(StandardTestCases.Views):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site-1')
-        vlangroup = VLANGroup.objects.create(name='VLAN Group 1', slug='vlan-group-1', site=site)
-        role = Role.objects.create(name='Role 1', slug='role-1')
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        vlangroups = (
+            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', site=sites[0]),
+            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', site=sites[1]),
+        )
+        VLANGroup.objects.bulk_create(vlangroups)
+
+        roles = (
+            Role(name='Role 1', slug='role-1'),
+            Role(name='Role 2', slug='role-2'),
+        )
+        Role.objects.bulk_create(roles)
 
         VLAN.objects.bulk_create([
-            VLAN(group=vlangroup, vid=101, name='VLAN101'),
-            VLAN(group=vlangroup, vid=102, name='VLAN102'),
-            VLAN(group=vlangroup, vid=103, name='VLAN103'),
+            VLAN(group=vlangroups[0], vid=101, name='VLAN101', site=sites[0], role=roles[0]),
+            VLAN(group=vlangroups[0], vid=102, name='VLAN102', site=sites[0], role=roles[0]),
+            VLAN(group=vlangroups[0], vid=103, name='VLAN103', site=sites[0], role=roles[0]),
         ])
 
         cls.form_data = {
-            'site': site.pk,
-            'group': vlangroup.pk,
+            'site': sites[1].pk,
+            'group': vlangroups[1].pk,
             'vid': 999,
             'name': 'VLAN999',
             'tenant': None,
             'status': VLANStatusChoices.STATUS_RESERVED,
-            'role': role.pk,
+            'role': roles[1].pk,
             'description': 'A new VLAN',
             'tags': 'Alpha,Bravo,Charlie',
         }
@@ -268,6 +335,15 @@ class VLANTestCase(StandardTestCases.Views):
             "105,VLAN105,Active",
             "106,VLAN106,Active",
         )
+
+        cls.bulk_edit_data = {
+            'site': sites[1].pk,
+            'group': vlangroups[1].pk,
+            'tenant': None,
+            'status': VLANStatusChoices.STATUS_RESERVED,
+            'role': roles[1].pk,
+            'description': 'New description',
+        }
 
 
 class ServiceTestCase(StandardTestCases.Views):
@@ -303,4 +379,10 @@ class ServiceTestCase(StandardTestCases.Views):
             'ipaddresses': [],
             'description': 'A new service',
             'tags': 'Alpha,Bravo,Charlie',
+        }
+
+        cls.bulk_edit_data = {
+            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
+            'port': 888,
+            'description': 'New description',
         }

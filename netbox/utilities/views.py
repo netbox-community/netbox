@@ -4,11 +4,10 @@ from copy import deepcopy
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import Count, ManyToManyField, ProtectedError
-from django.db.models.query import QuerySet
-from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
+from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
 from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
@@ -651,7 +650,7 @@ class BulkEditView(GetReturnURLMixin, View):
 
                 custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
                 standard_fields = [
-                    field for field in form.fields if field not in custom_fields + ['pk', 'add_tags', 'remove_tags']
+                    field for field in form.fields if field not in custom_fields + ['pk']
                 ]
                 nullified_fields = request.POST.getlist('_nullify')
 
@@ -665,7 +664,12 @@ class BulkEditView(GetReturnURLMixin, View):
                             # Update standard fields. If a field is listed in _nullify, delete its value.
                             for name in standard_fields:
 
-                                model_field = model._meta.get_field(name)
+                                try:
+                                    model_field = model._meta.get_field(name)
+                                except FieldDoesNotExist:
+                                    # The form field is used to modify a field rather than set its value directly,
+                                    # so we skip it.
+                                    continue
 
                                 # Handle nullification
                                 if name in form.nullable_fields and name in nullified_fields:

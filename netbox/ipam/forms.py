@@ -1392,5 +1392,5 @@ class ServiceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
     class Meta:
         nullable_fields = [
-            'site', 'tenant', 'role', 'description',
+            'description',
         ]

@@ -36,6 +36,15 @@ class ProviderTestCase(StandardTestCases.Views):
             "Provider 6,provider-6",
         )
 
+        cls.bulk_edit_data = {
+            'asn': 65009,
+            'account': '5678',
+            'portal_url': 'http://example.com/portal2',
+            'noc_contact': 'noc2@example.com',
+            'admin_contact': 'admin2@example.com',
+            'comments': 'New comments',
+        }
+
 
 class CircuitTypeTestCase(StandardTestCases.Views):
     model = CircuitType
@@ -43,6 +52,7 @@ class CircuitTypeTestCase(StandardTestCases.Views):
     # Disable inapplicable tests
     test_get_object = None
     test_delete_object = None
+    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -73,23 +83,29 @@ class CircuitTestCase(StandardTestCases.Views):
     @classmethod
     def setUpTestData(cls):
 
-        provider = Provider(name='Provider 1', slug='provider-1', asn=65001)
-        provider.save()
+        providers = (
+            Provider(name='Provider 1', slug='provider-1', asn=65001),
+            Provider(name='Provider 2', slug='provider-2', asn=65002),
+        )
+        Provider.objects.bulk_create(providers)
 
-        circuittype = CircuitType(name='Circuit Type 1', slug='circuit-type-1')
-        circuittype.save()
+        circuittypes = (
+            CircuitType(name='Circuit Type 1', slug='circuit-type-1'),
+            CircuitType(name='Circuit Type 2', slug='circuit-type-2'),
+        )
+        CircuitType.objects.bulk_create(circuittypes)
 
         Circuit.objects.bulk_create([
-            Circuit(cid='Circuit 1', provider=provider, type=circuittype),
-            Circuit(cid='Circuit 2', provider=provider, type=circuittype),
-            Circuit(cid='Circuit 3', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 1', provider=providers[0], type=circuittypes[0]),
+            Circuit(cid='Circuit 2', provider=providers[0], type=circuittypes[0]),
+            Circuit(cid='Circuit 3', provider=providers[0], type=circuittypes[0]),
         ])
 
         cls.form_data = {
             'cid': 'Circuit X',
-            'provider': provider.pk,
-            'type': circuittype.pk,
-            'status': CircuitStatusChoices.STATUS_ACTIVE,
+            'provider': providers[1].pk,
+            'type': circuittypes[1].pk,
+            'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
             'tenant': None,
             'install_date': datetime.date(2020, 1, 1),
             'commit_rate': 1000,
@@ -104,3 +120,14 @@ class CircuitTestCase(StandardTestCases.Views):
             "Circuit 5,Provider 1,Circuit Type 1",
             "Circuit 6,Provider 1,Circuit Type 1",
         )
+
+        cls.bulk_edit_data = {
+            'provider': providers[1].pk,
+            'type': circuittypes[1].pk,
+            'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
+            'tenant': None,
+            'commit_rate': 2000,
+            'description': 'New description',
+            'comments': 'New comments',
+
+        }

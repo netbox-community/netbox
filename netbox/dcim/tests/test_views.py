@@ -19,6 +19,7 @@ class RegionTestCase(StandardTestCases.Views):
     # Disable inapplicable tests
     test_get_object = None
     test_delete_object = None
+    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -52,20 +53,24 @@ class SiteTestCase(StandardTestCases.Views):
     @classmethod
     def setUpTestData(cls):
 
-        region = Region(name='Region 1', slug='region-1')
-        region.save()
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+        )
+        for region in regions:
+            region.save()
 
         Site.objects.bulk_create([
-            Site(name='Site 1', slug='site-1', region=region),
-            Site(name='Site 2', slug='site-2', region=region),
-            Site(name='Site 3', slug='site-3', region=region),
+            Site(name='Site 1', slug='site-1', region=regions[0]),
+            Site(name='Site 2', slug='site-2', region=regions[0]),
+            Site(name='Site 3', slug='site-3', region=regions[0]),
         ])
 
         cls.form_data = {
             'name': 'Site X',
             'slug': 'site-x',
             'status': SiteStatusChoices.STATUS_PLANNED,
-            'region': region.pk,
+            'region': regions[1].pk,
             'tenant': None,
             'facility': 'Facility X',
             'asn': 65001,
@@ -89,6 +94,15 @@ class SiteTestCase(StandardTestCases.Views):
             "Site 6,site-6",
         )
 
+        cls.bulk_edit_data = {
+            'status': SiteStatusChoices.STATUS_PLANNED,
+            'region': regions[1].pk,
+            'tenant': None,
+            'asn': 65009,
+            'time_zone': pytz.timezone('US/Eastern'),
+            'description': 'New description',
+        }
+
 
 class RackGroupTestCase(StandardTestCases.Views):
     model = RackGroup
@@ -96,6 +110,7 @@ class RackGroupTestCase(StandardTestCases.Views):
     # Disable inapplicable tests
     test_get_object = None
     test_delete_object = None
+    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -129,6 +144,7 @@ class RackRoleTestCase(StandardTestCases.Views):
     # Disable inapplicable tests
     test_get_object = None
     test_delete_object = None
+    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -159,32 +175,40 @@ class RackReservationTestCase(StandardTestCases.Views):
 
     # Disable inapplicable tests
     test_get_object = None
-    test_create_object = None  # TODO: Fix URL name for view
+    test_create_object = None
+
+    # TODO: Fix URL name for view
     test_import_objects = None
 
     @classmethod
     def setUpTestData(cls):
 
-        user = User.objects.create_user(username='testuser2')
+        user2 = User.objects.create_user(username='testuser2')
+        user3 = User.objects.create_user(username='testuser3')
 
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
+        site = Site.objects.create(name='Site 1', slug='site-1')
 
         rack = Rack(name='Rack 1', site=site)
         rack.save()
 
         RackReservation.objects.bulk_create([
-            RackReservation(rack=rack, user=user, units=[1, 2, 3], description='Reservation 1'),
-            RackReservation(rack=rack, user=user, units=[4, 5, 6], description='Reservation 2'),
-            RackReservation(rack=rack, user=user, units=[7, 8, 9], description='Reservation 3'),
+            RackReservation(rack=rack, user=user2, units=[1, 2, 3], description='Reservation 1'),
+            RackReservation(rack=rack, user=user2, units=[4, 5, 6], description='Reservation 2'),
+            RackReservation(rack=rack, user=user2, units=[7, 8, 9], description='Reservation 3'),
         ])
 
         cls.form_data = {
             'rack': rack.pk,
             'units': [10, 11, 12],
-            'user': user.pk,
+            'user': user3.pk,
             'tenant': None,
-            'description': 'New reservation',
+            'description': 'Rack reservation',
+        }
+
+        cls.bulk_edit_data = {
+            'user': user3.pk,
+            'tenant': None,
+            'description': 'New description',
         }
 
 
@@ -194,24 +218,38 @@ class RackTestCase(StandardTestCases.Views):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site-1')
-        rackgroup = RackGroup.objects.create(name='Rack Group 1', slug='rack-group-1', site=site)
-        rackrole = RackRole.objects.create(name='Rack Role 1', slug='rack-role-1')
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
 
-        Rack.objects.bulk_create([
-            Rack(name='Rack 1', site=site),
-            Rack(name='Rack 2', site=site),
-            Rack(name='Rack 3', site=site),
-        ])
+        rackgroups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
+            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1])
+        )
+        RackGroup.objects.bulk_create(rackgroups)
+
+        rackroles = (
+            RackRole(name='Rack Role 1', slug='rack-role-1'),
+            RackRole(name='Rack Role 2', slug='rack-role-2'),
+        )
+        RackRole.objects.bulk_create(rackroles)
+
+        Rack.objects.bulk_create((
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[0]),
+            Rack(name='Rack 3', site=sites[0]),
+        ))
 
         cls.form_data = {
             'name': 'Rack X',
             'facility_id': 'Facility X',
-            'site': site.pk,
-            'group': rackgroup.pk,
+            'site': sites[1].pk,
+            'group': rackgroups[1].pk,
             'tenant': None,
             'status': RackStatusChoices.STATUS_PLANNED,
-            'role': rackrole.pk,
+            'role': rackroles[1].pk,
             'serial': '123456',
             'asset_tag': 'ABCDEF',
             'type': RackTypeChoices.TYPE_CABINET,
@@ -232,6 +270,23 @@ class RackTestCase(StandardTestCases.Views):
             "Site 1,Rack 6,19,42",
         )
 
+        cls.bulk_edit_data = {
+            'site': sites[1].pk,
+            'group': rackgroups[1].pk,
+            'tenant': None,
+            'status': RackStatusChoices.STATUS_DEPRECATED,
+            'role': rackroles[1].pk,
+            'serial': '654321',
+            'type': RackTypeChoices.TYPE_4POST,
+            'width': RackWidthChoices.WIDTH_23IN,
+            'u_height': 49,
+            'desc_units': True,
+            'outer_width': 30,
+            'outer_depth': 30,
+            'outer_unit': RackDimensionUnitChoices.UNIT_INCH,
+            'comments': 'New comments',
+        }
+
 
 class ManufacturerTestCase(StandardTestCases.Views):
     model = Manufacturer
@@ -239,6 +294,7 @@ class ManufacturerTestCase(StandardTestCases.Views):
     # Disable inapplicable tests
     test_get_object = None
     test_delete_object = None
+    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -268,17 +324,20 @@ class DeviceTypeTestCase(StandardTestCases.Views):
     @classmethod
     def setUpTestData(cls):
 
-        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
-        manufacturer.save()
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2')
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
 
         DeviceType.objects.bulk_create([
-            DeviceType(model='Device Type 1', slug='device-type-1', manufacturer=manufacturer),
-            DeviceType(model='Device Type 2', slug='device-type-2', manufacturer=manufacturer),
-            DeviceType(model='Device Type 3', slug='device-type-3', manufacturer=manufacturer),
+            DeviceType(model='Device Type 1', slug='device-type-1', manufacturer=manufacturers[0]),
+            DeviceType(model='Device Type 2', slug='device-type-2', manufacturer=manufacturers[0]),
+            DeviceType(model='Device Type 3', slug='device-type-3', manufacturer=manufacturers[0]),
         ])
 
         cls.form_data = {
-            'manufacturer': manufacturer.pk,
+            'manufacturer': manufacturers[1].pk,
             'model': 'Device Type X',
             'slug': 'device-type-x',
             'part_number': '123ABC',
@@ -287,6 +346,12 @@ class DeviceTypeTestCase(StandardTestCases.Views):
             'subdevice_role': '',  # CharField
             'comments': 'Some comments',
             'tags': 'Alpha,Bravo,Charlie',
+        }
+
+        cls.bulk_edit_data = {
+            'manufacturer': manufacturers[1].pk,
+            'u_height': 3,
+            'is_full_depth': False,
         }
 
     def test_import_objects(self):
@@ -451,6 +516,7 @@ class DeviceRoleTestCase(StandardTestCases.Views):
     # Disable inapplicable tests
     test_get_object = None
     test_delete_object = None
+    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -483,6 +549,7 @@ class PlatformTestCase(StandardTestCases.Views):
     # Disable inapplicable tests
     test_get_object = None
     test_delete_object = None
+    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -517,29 +584,54 @@ class DeviceTestCase(StandardTestCases.Views):
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site-1')
-        rack = Rack.objects.create(name='Rack 1', site=site)
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+        )
+        Rack.objects.bulk_create(racks)
+
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        devicetype = DeviceType.objects.create(model='Device Type 1', manufacturer=manufacturer)
-        devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
-        platform = Platform.objects.create(name='Platform 1', slug='platform-1')
+
+        devicetypes = (
+            DeviceType(model='Device Type 1', slug='device-type-1', manufacturer=manufacturer),
+            DeviceType(model='Device Type 2', slug='device-type-2', manufacturer=manufacturer),
+        )
+        DeviceType.objects.bulk_create(devicetypes)
+
+        deviceroles = (
+            DeviceRole(name='Device Role 1', slug='device-role-1'),
+            DeviceRole(name='Device Role 2', slug='device-role-2'),
+        )
+        DeviceRole.objects.bulk_create(deviceroles)
+
+        platforms = (
+            Platform(name='Platform 1', slug='platform-1'),
+            Platform(name='Platform 2', slug='platform-2'),
+        )
+        Platform.objects.bulk_create(platforms)
 
         Device.objects.bulk_create([
-            Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole),
-            Device(name='Device 2', site=site, device_type=devicetype, device_role=devicerole),
-            Device(name='Device 3', site=site, device_type=devicetype, device_role=devicerole),
+            Device(name='Device 1', site=sites[0], rack=racks[0], device_type=devicetypes[0], device_role=deviceroles[0], platform=platforms[0]),
+            Device(name='Device 2', site=sites[0], rack=racks[0], device_type=devicetypes[0], device_role=deviceroles[0], platform=platforms[0]),
+            Device(name='Device 3', site=sites[0], rack=racks[0], device_type=devicetypes[0], device_role=deviceroles[0], platform=platforms[0]),
         ])
 
         cls.form_data = {
-            'device_type': devicetype.pk,
-            'device_role': devicerole.pk,
+            'device_type': devicetypes[1].pk,
+            'device_role': deviceroles[1].pk,
             'tenant': None,
-            'platform': platform.pk,
+            'platform': platforms[1].pk,
             'name': 'Device X',
             'serial': '123456',
             'asset_tag': 'ABCDEF',
-            'site': site.pk,
-            'rack': rack.pk,
+            'site': sites[1].pk,
+            'rack': racks[1].pk,
             'position': 1,
             'face': DeviceFaceChoices.FACE_FRONT,
             'status': DeviceStatusChoices.STATUS_PLANNED,
@@ -560,6 +652,15 @@ class DeviceTestCase(StandardTestCases.Views):
             "Device Role 1,Manufacturer 1,Device Type 1,Active,Site 1,Device 5",
             "Device Role 1,Manufacturer 1,Device Type 1,Active,Site 1,Device 6",
         )
+
+        cls.bulk_edit_data = {
+            'device_type': devicetypes[1].pk,
+            'device_role': deviceroles[1].pk,
+            'tenant': None,
+            'platform': platforms[1].pk,
+            'serial': '123456',
+            'status': DeviceStatusChoices.STATUS_DECOMMISSIONING,
+        }
 
 
 # TODO: Convert to StandardTestCases.Views
@@ -1071,28 +1172,28 @@ class CableTestCase(StandardTestCases.Views):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         devicetype = DeviceType.objects.create(model='Device Type 1', manufacturer=manufacturer)
         devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
-        device1 = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
-        device1.save()
-        device2 = Device(name='Device 2', site=site, device_type=devicetype, device_role=devicerole)
-        device2.save()
-        device3 = Device(name='Device 3', site=site, device_type=devicetype, device_role=devicerole)
-        device3.save()
-        device4 = Device(name='Device 4', site=site, device_type=devicetype, device_role=devicerole)
-        device4.save()
+
+        devices = (
+            Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole),
+            Device(name='Device 2', site=site, device_type=devicetype, device_role=devicerole),
+            Device(name='Device 3', site=site, device_type=devicetype, device_role=devicerole),
+            Device(name='Device 4', site=site, device_type=devicetype, device_role=devicerole),
+        )
+        Device.objects.bulk_create(devices)
 
         interfaces = (
-            Interface(device=device1, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=device1, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=device1, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=device2, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=device2, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=device2, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=device3, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=device3, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=device3, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=device4, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=device4, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=device4, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[0], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[0], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[1], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[1], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[2], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[2], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[2], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[3], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[3], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[3], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
         )
         Interface.objects.bulk_create(interfaces)
 
@@ -1109,7 +1210,7 @@ class CableTestCase(StandardTestCases.Views):
             'termination_b_id': interfaces[3].pk,
             'type': CableTypeChoices.TYPE_CAT6,
             'status': CableStatusChoices.STATUS_PLANNED,
-            'label': 'New cable',
+            'label': 'Label',
             'color': 'c0c0c0',
             'length': 100,
             'length_unit': CableLengthUnitChoices.UNIT_FOOT,
@@ -1122,6 +1223,15 @@ class CableTestCase(StandardTestCases.Views):
             "Device 3,interface,Interface 3,Device 4,interface,Interface 3",
         )
 
+        cls.bulk_edit_data = {
+            'type': CableTypeChoices.TYPE_CAT5E,
+            'status': CableStatusChoices.STATUS_CONNECTED,
+            'label': 'New label',
+            'color': '00ff00',
+            'length': 50,
+            'length_unit': CableLengthUnitChoices.UNIT_METER,
+        }
+
 
 class VirtualChassisTestCase(StandardTestCases.Views):
     model = VirtualChassis
@@ -1129,6 +1239,8 @@ class VirtualChassisTestCase(StandardTestCases.Views):
     # Disable inapplicable tests
     test_get_object = None
     test_import_objects = None
+    test_bulk_edit_objects = None
+    test_bulk_delete_objects = None
 
     # TODO: Requires special form handling
     test_create_object = None
@@ -1173,3 +1285,114 @@ class VirtualChassisTestCase(StandardTestCases.Views):
         Device.objects.filter(pk=device4.pk).update(virtual_chassis=vc2, vc_position=2)
         vc3 = VirtualChassis.objects.create(master=device5, domain='test-domain-3')
         Device.objects.filter(pk=device6.pk).update(virtual_chassis=vc3, vc_position=2)
+
+
+class PowerPanelTestCase(StandardTestCases.Views):
+    model = PowerPanel
+
+    # Disable inapplicable tests
+    test_bulk_edit_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        rackgroups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
+            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
+        )
+        RackGroup.objects.bulk_create(rackgroups)
+
+        PowerPanel.objects.bulk_create((
+            PowerPanel(site=sites[0], rack_group=rackgroups[0], name='Power Panel 1'),
+            PowerPanel(site=sites[0], rack_group=rackgroups[0], name='Power Panel 2'),
+            PowerPanel(site=sites[0], rack_group=rackgroups[0], name='Power Panel 3'),
+        ))
+
+        cls.form_data = {
+            'site': sites[1].pk,
+            'rack_group': rackgroups[1].pk,
+            'name': 'Power Panel X',
+        }
+
+        cls.csv_data = (
+            "site,rack_group_name,name",
+            "Site 1,Rack Group 1,Power Panel 4",
+            "Site 1,Rack Group 1,Power Panel 5",
+            "Site 1,Rack Group 1,Power Panel 6",
+        )
+
+
+class PowerFeedTestCase(StandardTestCases.Views):
+    model = PowerFeed
+
+    # TODO: Re-enable this test once #4079 is fixed
+    test_bulk_edit_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        powerpanels = (
+            PowerPanel(site=site, name='Power Panel 1'),
+            PowerPanel(site=site, name='Power Panel 2'),
+        )
+        PowerPanel.objects.bulk_create(powerpanels)
+
+        racks = (
+            Rack(site=site, name='Rack 1'),
+            Rack(site=site, name='Rack 2'),
+        )
+        Rack.objects.bulk_create(racks)
+
+        PowerFeed.objects.bulk_create((
+            PowerFeed(name='Power Feed 1', power_panel=powerpanels[0], rack=racks[0]),
+            PowerFeed(name='Power Feed 2', power_panel=powerpanels[0], rack=racks[0]),
+            PowerFeed(name='Power Feed 3', power_panel=powerpanels[0], rack=racks[0]),
+        ))
+
+        cls.form_data = {
+            'name': 'Power Feed X',
+            'power_panel': powerpanels[1].pk,
+            'rack': racks[1].pk,
+            'status': PowerFeedStatusChoices.STATUS_PLANNED,
+            'type': PowerFeedTypeChoices.TYPE_REDUNDANT,
+            'supply': PowerFeedSupplyChoices.SUPPLY_DC,
+            'phase': PowerFeedPhaseChoices.PHASE_3PHASE,
+            'voltage': 100,
+            'amperage': 100,
+            'max_utilization': 50,
+            'comments': 'New comments',
+            'tags': 'Alpha,Bravo,Charlie',
+
+            # Connection
+            'cable': None,
+            'connected_endpoint': None,
+            'connection_status': None,
+        }
+
+        cls.csv_data = (
+            "site,panel_name,name,voltage,amperage,max_utilization",
+            "Site 1,Power Panel 1,Power Feed 4,120,20,80",
+            "Site 1,Power Panel 1,Power Feed 5,120,20,80",
+            "Site 1,Power Panel 1,Power Feed 6,120,20,80",
+        )
+
+        cls.bulk_edit_data = {
+            'power_panel': powerpanels[1].pk,
+            'rack': racks[1].pk,
+            'status': PowerFeedStatusChoices.STATUS_PLANNED,
+            'type': PowerFeedTypeChoices.TYPE_REDUNDANT,
+            'supply': PowerFeedSupplyChoices.SUPPLY_DC,
+            'phase': PowerFeedPhaseChoices.PHASE_3PHASE,
+            'voltage': 100,
+            'amperage': 100,
+            'max_utilization': 50,
+            'comments': 'New comments',
+        }
