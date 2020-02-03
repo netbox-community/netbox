@@ -85,10 +85,9 @@ class TagBulkEditView(PermissionRequiredMixin, BulkEditView):
     ).order_by(
         'name'
     )
-    # filter = filters.ProviderFilter
     table = TagTable
     form = forms.TagBulkEditForm
-    default_return_url = 'circuits:provider_list'
+    default_return_url = 'extras:tag_list'
 
 
 class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
