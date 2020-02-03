@@ -318,7 +318,7 @@ urlpatterns = [
 
     # Power feeds
     path(r'power-feeds/', views.PowerFeedListView.as_view(), name='powerfeed_list'),
-    path(r'power-feeds/add/', views.PowerFeedEditView.as_view(), name='powerfeed_add'),
+    path(r'power-feeds/add/', views.PowerFeedCreateView.as_view(), name='powerfeed_add'),
     path(r'power-feeds/import/', views.PowerFeedBulkImportView.as_view(), name='powerfeed_import'),
     path(r'power-feeds/edit/', views.PowerFeedBulkEditView.as_view(), name='powerfeed_bulk_edit'),
     path(r'power-feeds/delete/', views.PowerFeedBulkDeleteView.as_view(), name='powerfeed_bulk_delete'),
