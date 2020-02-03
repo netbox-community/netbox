@@ -1285,3 +1285,114 @@ class VirtualChassisTestCase(StandardTestCases.Views):
         Device.objects.filter(pk=device4.pk).update(virtual_chassis=vc2, vc_position=2)
         vc3 = VirtualChassis.objects.create(master=device5, domain='test-domain-3')
         Device.objects.filter(pk=device6.pk).update(virtual_chassis=vc3, vc_position=2)
+
+
+class PowerPanelTestCase(StandardTestCases.Views):
+    model = PowerPanel
+
+    # Disable inapplicable tests
+    test_bulk_edit_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        rackgroups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
+            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
+        )
+        RackGroup.objects.bulk_create(rackgroups)
+
+        PowerPanel.objects.bulk_create((
+            PowerPanel(site=sites[0], rack_group=rackgroups[0], name='Power Panel 1'),
+            PowerPanel(site=sites[0], rack_group=rackgroups[0], name='Power Panel 2'),
+            PowerPanel(site=sites[0], rack_group=rackgroups[0], name='Power Panel 3'),
+        ))
+
+        cls.form_data = {
+            'site': sites[1].pk,
+            'rack_group': rackgroups[1].pk,
+            'name': 'Power Panel X',
+        }
+
+        cls.csv_data = (
+            "site,rack_group_name,name",
+            "Site 1,Rack Group 1,Power Panel 4",
+            "Site 1,Rack Group 1,Power Panel 5",
+            "Site 1,Rack Group 1,Power Panel 6",
+        )
+
+
+class PowerFeedTestCase(StandardTestCases.Views):
+    model = PowerFeed
+
+    # TODO: Re-enable this test once #4079 is fixed
+    test_bulk_edit_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        powerpanels = (
+            PowerPanel(site=site, name='Power Panel 1'),
+            PowerPanel(site=site, name='Power Panel 2'),
+        )
+        PowerPanel.objects.bulk_create(powerpanels)
+
+        racks = (
+            Rack(site=site, name='Rack 1'),
+            Rack(site=site, name='Rack 2'),
+        )
+        Rack.objects.bulk_create(racks)
+
+        PowerFeed.objects.bulk_create((
+            PowerFeed(name='Power Feed 1', power_panel=powerpanels[0], rack=racks[0]),
+            PowerFeed(name='Power Feed 2', power_panel=powerpanels[0], rack=racks[0]),
+            PowerFeed(name='Power Feed 3', power_panel=powerpanels[0], rack=racks[0]),
+        ))
+
+        cls.form_data = {
+            'name': 'Power Feed X',
+            'power_panel': powerpanels[1].pk,
+            'rack': racks[1].pk,
+            'status': PowerFeedStatusChoices.STATUS_PLANNED,
+            'type': PowerFeedTypeChoices.TYPE_REDUNDANT,
+            'supply': PowerFeedSupplyChoices.SUPPLY_DC,
+            'phase': PowerFeedPhaseChoices.PHASE_3PHASE,
+            'voltage': 100,
+            'amperage': 100,
+            'max_utilization': 50,
+            'comments': 'New comments',
+            'tags': 'Alpha,Bravo,Charlie',
+
+            # Connection
+            'cable': None,
+            'connected_endpoint': None,
+            'connection_status': None,
+        }
+
+        cls.csv_data = (
+            "site,panel_name,name,voltage,amperage,max_utilization",
+            "Site 1,Power Panel 1,Power Feed 4,120,20,80",
+            "Site 1,Power Panel 1,Power Feed 5,120,20,80",
+            "Site 1,Power Panel 1,Power Feed 6,120,20,80",
+        )
+
+        cls.bulk_edit_data = {
+            'power_panel': powerpanels[1].pk,
+            'rack': racks[1].pk,
+            'status': PowerFeedStatusChoices.STATUS_PLANNED,
+            'type': PowerFeedTypeChoices.TYPE_REDUNDANT,
+            'supply': PowerFeedSupplyChoices.SUPPLY_DC,
+            'phase': PowerFeedPhaseChoices.PHASE_3PHASE,
+            'voltage': 100,
+            'amperage': 100,
+            'max_utilization': 50,
+            'comments': 'New comments',
+        }
