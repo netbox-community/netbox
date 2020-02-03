@@ -10,6 +10,7 @@ from utilities.forms import (
     CommentField, ContentTypeSelect, DateTimePicker, FilterChoiceField, JSONField, SlugField, StaticSelect2,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
+from virtualization.models import Cluster, ClusterGroup
 from .choices import *
 from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachment, ObjectChange, Tag
 
@@ -203,8 +204,8 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConfigContext
         fields = [
-            'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'tenant_groups',
-            'tenants', 'tags', 'data',
+            'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'cluster_groups',
+            'clusters', 'tenant_groups', 'tenants', 'tags', 'data',
         ]
         widgets = {
             'regions': APISelectMultiple(
@@ -218,6 +219,12 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
             ),
             'platforms': APISelectMultiple(
                 api_url="/api/dcim/platforms/"
+            ),
+            'cluster_groups': APISelectMultiple(
+                api_url="/api/virtualization/cluster-groups/"
+            ),
+            'clusters': APISelectMultiple(
+                api_url="/api/virtualization/clusters/"
             ),
             'tenant_groups': APISelectMultiple(
                 api_url="/api/tenancy/tenant-groups/"
@@ -287,6 +294,21 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
         widget=APISelectMultiple(
             api_url="/api/dcim/platforms/",
             value_field="slug",
+        )
+    )
+    cluster_group = FilterChoiceField(
+        queryset=ClusterGroup.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/virtualization/cluster-groups/",
+            value_field="slug",
+        )
+    )
+    cluster_id = FilterChoiceField(
+        queryset=Cluster.objects.all(),
+        label='Cluster',
+        widget=APISelectMultiple(
+            api_url="/api/virtualization/clusters/",
         )
     )
     tenant_group = FilterChoiceField(
