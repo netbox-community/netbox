@@ -676,7 +676,7 @@ class Interface(CableTermination, ComponentModel):
             self.untagged_vlan = None
 
         # Only "tagged" interfaces may have tagged VLANs assigned. ("tagged all" implies all VLANs are assigned.)
-        if self.pk and self.mode is not InterfaceModeChoices.MODE_TAGGED:
+        if self.pk and self.mode != InterfaceModeChoices.MODE_TAGGED:
             self.tagged_vlans.clear()
 
         return super().save(*args, **kwargs)

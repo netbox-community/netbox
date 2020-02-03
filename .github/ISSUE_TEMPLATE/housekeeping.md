@@ -1,14 +1,13 @@
 ---
 name: 🏡 Housekeeping
-about: A change pertaining to the codebase itself
+about: A change pertaining to the codebase itself (developers only)
 
 ---
 
 <!--
-    NOTE: This type of issue should be opened only by those reasonably familiar
-    with NetBox's code base and interested in contributing to its development.
-
-    Describe the proposed change(s) in detail.
+    NOTE: This template is for use by maintainers only. Please do not submit
+    an issue using this template unless you have been specifically asked to
+    do so.
 -->
 ### Proposed Changes
 

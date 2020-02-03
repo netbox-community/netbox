@@ -237,7 +237,7 @@ class AvailableIPSerializer(serializers.Serializer):
 # Services
 #
 
-class ServiceSerializer(CustomFieldModelSerializer):
+class ServiceSerializer(TaggitSerializer, CustomFieldModelSerializer):
     device = NestedDeviceSerializer(required=False, allow_null=True)
     virtual_machine = NestedVirtualMachineSerializer(required=False, allow_null=True)
     protocol = ChoiceField(choices=ServiceProtocolChoices)
@@ -247,10 +247,11 @@ class ServiceSerializer(CustomFieldModelSerializer):
         required=False,
         many=True
     )
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Service
         fields = [
-            'id', 'device', 'virtual_machine', 'name', 'port', 'protocol', 'ipaddresses', 'description',
+            'id', 'device', 'virtual_machine', 'name', 'port', 'protocol', 'ipaddresses', 'description', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]

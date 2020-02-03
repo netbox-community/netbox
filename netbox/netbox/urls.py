@@ -9,14 +9,16 @@ from netbox.views import APIRootView, HomeView, SearchView
 from users.views import LoginView, LogoutView
 from .admin import admin_site
 
+openapi_info = openapi.Info(
+    title="NetBox API",
+    default_version='v2',
+    description="API to access NetBox",
+    terms_of_service="https://github.com/netbox-community/netbox",
+    license=openapi.License(name="Apache v2 License"),
+)
+
 schema_view = get_schema_view(
-    openapi.Info(
-        title="NetBox API",
-        default_version='v2',
-        description="API to access NetBox",
-        terms_of_service="https://github.com/netbox-community/netbox",
-        license=openapi.License(name="Apache v2 License"),
-    ),
+    openapi_info,
     validators=['flex', 'ssv'],
     public=True,
 )

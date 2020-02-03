@@ -37,7 +37,7 @@ def rack_status_to_slug(apps, schema_editor):
 def rack_outer_unit_to_slug(apps, schema_editor):
     Rack = apps.get_model('dcim', 'Rack')
     for id, slug in RACK_DIMENSION_CHOICES:
-        Rack.objects.filter(status=str(id)).update(status=slug)
+        Rack.objects.filter(outer_unit=str(id)).update(outer_unit=slug)
 
 
 class Migration(migrations.Migration):

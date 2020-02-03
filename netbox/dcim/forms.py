@@ -13,7 +13,8 @@ from timezone_field import TimeZoneFormField
 
 from circuits.models import Circuit, Provider
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm, LocalConfigContextFilterForm
+    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldFilterForm, CustomFieldModelForm,
+    LocalConfigContextFilterForm,
 )
 from ipam.constants import BGP_ASN_MAX, BGP_ASN_MIN
 from ipam.models import IPAddress, VLAN
@@ -215,7 +216,7 @@ class RegionFilterForm(BootstrapMixin, forms.Form):
 # Sites
 #
 
-class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     region = TreeNodeChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -263,7 +264,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class SiteCSVForm(forms.ModelForm):
+class SiteCSVForm(CustomFieldModelCSVForm):
     status = CSVChoiceField(
         choices=SiteStatusChoices,
         required=False,
@@ -459,7 +460,7 @@ class RackRoleCSVForm(forms.ModelForm):
 # Racks
 #
 
-class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     group = ChainedModelChoiceField(
         queryset=RackGroup.objects.all(),
         chains=(
@@ -504,7 +505,7 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class RackCSVForm(forms.ModelForm):
+class RackCSVForm(CustomFieldModelCSVForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -676,7 +677,8 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         widget=StaticSelect2()
     )
     comments = CommentField(
-        widget=SmallTextarea
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     class Meta:
@@ -896,7 +898,7 @@ class ManufacturerCSVForm(forms.ModelForm):
 # Device types
 #
 
-class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
+class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField(
         slug_source='model'
     )
@@ -1515,7 +1517,7 @@ class PlatformCSVForm(forms.ModelForm):
 # Devices
 #
 
-class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         widget=APISelect(
@@ -1547,6 +1549,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     )
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
+        required=False,
         widget=APISelect(
             api_url="/api/dcim/manufacturers/",
             filter_for={
@@ -1723,7 +1726,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.initial['rack'] = self.instance.parent_bay.device.rack_id
 
 
-class BaseDeviceCSVForm(forms.ModelForm):
+class BaseDeviceCSVForm(CustomFieldModelCSVForm):
     device_role = forms.ModelChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
@@ -2725,7 +2728,7 @@ class InterfaceCSVForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces belonging to this device (or VC master)
-        if self.is_bound:
+        if self.is_bound and 'device' in self.data:
             try:
                 device = self.fields['device'].to_python(self.data['device'])
             except forms.ValidationError:
@@ -2748,7 +2751,7 @@ class InterfaceCSVForm(forms.ModelForm):
             return self.cleaned_data['enabled']
 
 
-class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Interface.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -2828,6 +2831,18 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
             )
         else:
             self.fields['lag'].choices = []
+
+    def clean(self):
+
+        # Untagged interfaces cannot be assigned tagged VLANs
+        if self.cleaned_data['mode'] == InterfaceModeChoices.MODE_ACCESS and self.cleaned_data['tagged_vlans']:
+            raise forms.ValidationError({
+                'mode': "An access interface cannot have tagged VLANs assigned."
+            })
+
+        # Remove all tagged VLAN assignments from "tagged all" interfaces
+        elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED_ALL:
+            self.cleaned_data['tagged_vlans'] = []
 
 
 class InterfaceBulkRenameForm(BulkRenameForm):
@@ -4228,7 +4243,7 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Power feeds
 #
 
-class PowerFeedForm(BootstrapMixin, CustomFieldForm):
+class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
     site = ChainedModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -4273,7 +4288,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldForm):
             self.initial['site'] = self.instance.power_panel.site
 
 
-class PowerFeedCSVForm(forms.ModelForm):
+class PowerFeedCSVForm(CustomFieldModelCSVForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -4356,7 +4371,7 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         queryset=PowerFeed.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    powerpanel = forms.ModelChoiceField(
+    power_panel = forms.ModelChoiceField(
         queryset=PowerPanel.objects.all(),
         required=False,
         widget=APISelect(
@@ -4406,8 +4421,9 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
     max_utilization = forms.IntegerField(
         required=False
     )
-    comments = forms.CharField(
-        required=False
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     class Meta:

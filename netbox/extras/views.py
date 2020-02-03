@@ -37,7 +37,8 @@ class TagListView(PermissionRequiredMixin, ObjectListView):
     template_name = 'extras/tag_list.html'
 
 
-class TagView(View):
+class TagView(PermissionRequiredMixin, View):
+    permission_required = 'extras.view_tag'
 
     def get(self, request, slug):
 
@@ -84,10 +85,9 @@ class TagBulkEditView(PermissionRequiredMixin, BulkEditView):
     ).order_by(
         'name'
     )
-    # filter = filters.ProviderFilter
     table = TagTable
     form = forms.TagBulkEditForm
-    default_return_url = 'circuits:provider_list'
+    default_return_url = 'extras:tag_list'
 
 
 class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):

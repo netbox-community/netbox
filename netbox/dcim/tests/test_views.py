@@ -1,116 +1,119 @@
 import urllib.parse
+from decimal import Decimal
 
+import pytz
 import yaml
-from django.test import Client, TestCase
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from utilities.testing import create_test_user
+from utilities.testing import StandardTestCases, TestCase
 
 
-class RegionTestCase(TestCase):
+class RegionTestCase(StandardTestCases.Views):
+    model = Region
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_region',
-                'dcim.add_region',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    # Disable inapplicable tests
+    test_get_object = None
+    test_delete_object = None
+    test_bulk_edit_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
 
         # Create three Regions
-        for i in range(1, 4):
-            Region(name='Region {}'.format(i), slug='region-{}'.format(i)).save()
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
 
-    def test_region_list(self):
+        cls.form_data = {
+            'name': 'Region X',
+            'slug': 'region-x',
+            'parent': regions[2].pk,
+        }
 
-        url = reverse('dcim:region_list')
-
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-
-    def test_region_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "name,slug",
             "Region 4,region-4",
             "Region 5,region-5",
             "Region 6,region-6",
         )
 
-        response = self.client.post(reverse('dcim:region_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Region.objects.count(), 6)
+class SiteTestCase(StandardTestCases.Views):
+    model = Site
 
+    @classmethod
+    def setUpTestData(cls):
 
-class SiteTestCase(TestCase):
-
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_site',
-                'dcim.add_site',
-            ]
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
         )
-        self.client = Client()
-        self.client.force_login(user)
-
-        region = Region(name='Region 1', slug='region-1')
-        region.save()
+        for region in regions:
+            region.save()
 
         Site.objects.bulk_create([
-            Site(name='Site 1', slug='site-1', region=region),
-            Site(name='Site 2', slug='site-2', region=region),
-            Site(name='Site 3', slug='site-3', region=region),
+            Site(name='Site 1', slug='site-1', region=regions[0]),
+            Site(name='Site 2', slug='site-2', region=regions[0]),
+            Site(name='Site 3', slug='site-3', region=regions[0]),
         ])
 
-    def test_site_list(self):
-
-        url = reverse('dcim:site_list')
-        params = {
-            "region": Region.objects.first().slug,
+        cls.form_data = {
+            'name': 'Site X',
+            'slug': 'site-x',
+            'status': SiteStatusChoices.STATUS_PLANNED,
+            'region': regions[1].pk,
+            'tenant': None,
+            'facility': 'Facility X',
+            'asn': 65001,
+            'time_zone': pytz.UTC,
+            'description': 'Site description',
+            'physical_address': '742 Evergreen Terrace, Springfield, USA',
+            'shipping_address': '742 Evergreen Terrace, Springfield, USA',
+            'latitude': Decimal('35.780000'),
+            'longitude': Decimal('-78.642000'),
+            'contact_name': 'Hank Hill',
+            'contact_phone': '123-555-9999',
+            'contact_email': 'hank@stricklandpropane.com',
+            'comments': 'Test site',
+            'tags': 'Alpha,Bravo,Charlie',
         }
 
-        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
-
-    def test_site(self):
-
-        site = Site.objects.first()
-        response = self.client.get(site.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
-
-    def test_site_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "name,slug",
             "Site 4,site-4",
             "Site 5,site-5",
             "Site 6,site-6",
         )
 
-        response = self.client.post(reverse('dcim:site_import'), {'csv': '\n'.join(csv_data)})
+        cls.bulk_edit_data = {
+            'status': SiteStatusChoices.STATUS_PLANNED,
+            'region': regions[1].pk,
+            'tenant': None,
+            'asn': 65009,
+            'time_zone': pytz.timezone('US/Eastern'),
+            'description': 'New description',
+        }
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Site.objects.count(), 6)
 
+class RackGroupTestCase(StandardTestCases.Views):
+    model = RackGroup
 
-class RackGroupTestCase(TestCase):
+    # Disable inapplicable tests
+    test_get_object = None
+    test_delete_object = None
+    test_bulk_edit_objects = None
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_rackgroup',
-                'dcim.add_rackgroup',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -121,39 +124,30 @@ class RackGroupTestCase(TestCase):
             RackGroup(name='Rack Group 3', slug='rack-group-3', site=site),
         ])
 
-    def test_rackgroup_list(self):
+        cls.form_data = {
+            'name': 'Rack Group X',
+            'slug': 'rack-group-x',
+            'site': site.pk,
+        }
 
-        url = reverse('dcim:rackgroup_list')
-
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-
-    def test_rackgroup_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "site,name,slug",
             "Site 1,Rack Group 4,rack-group-4",
             "Site 1,Rack Group 5,rack-group-5",
             "Site 1,Rack Group 6,rack-group-6",
         )
 
-        response = self.client.post(reverse('dcim:rackgroup_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(RackGroup.objects.count(), 6)
+class RackRoleTestCase(StandardTestCases.Views):
+    model = RackRole
 
+    # Disable inapplicable tests
+    test_get_object = None
+    test_delete_object = None
+    test_bulk_edit_objects = None
 
-class RackRoleTestCase(TestCase):
-
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_rackrole',
-                'dcim.add_rackrole',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         RackRole.objects.bulk_create([
             RackRole(name='Rack Role 1', slug='rack-role-1'),
@@ -161,118 +155,149 @@ class RackRoleTestCase(TestCase):
             RackRole(name='Rack Role 3', slug='rack-role-3'),
         ])
 
-    def test_rackrole_list(self):
+        cls.form_data = {
+            'name': 'Rack Role X',
+            'slug': 'rack-role-x',
+            'color': 'c0c0c0',
+            'description': 'New role',
+        }
 
-        url = reverse('dcim:rackrole_list')
-
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-
-    def test_rackrole_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "name,slug,color",
             "Rack Role 4,rack-role-4,ff0000",
             "Rack Role 5,rack-role-5,00ff00",
             "Rack Role 6,rack-role-6,0000ff",
         )
 
-        response = self.client.post(reverse('dcim:rackrole_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(RackRole.objects.count(), 6)
+class RackReservationTestCase(StandardTestCases.Views):
+    model = RackReservation
 
+    # Disable inapplicable tests
+    test_get_object = None
+    test_create_object = None
 
-class RackReservationTestCase(TestCase):
+    # TODO: Fix URL name for view
+    test_import_objects = None
 
-    def setUp(self):
-        user = create_test_user(permissions=['dcim.view_rackreservation'])
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
+        user2 = User.objects.create_user(username='testuser2')
+        user3 = User.objects.create_user(username='testuser3')
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
 
         rack = Rack(name='Rack 1', site=site)
         rack.save()
 
         RackReservation.objects.bulk_create([
-            RackReservation(rack=rack, user=user, units=[1, 2, 3], description='Reservation 1'),
-            RackReservation(rack=rack, user=user, units=[4, 5, 6], description='Reservation 2'),
-            RackReservation(rack=rack, user=user, units=[7, 8, 9], description='Reservation 3'),
+            RackReservation(rack=rack, user=user2, units=[1, 2, 3], description='Reservation 1'),
+            RackReservation(rack=rack, user=user2, units=[4, 5, 6], description='Reservation 2'),
+            RackReservation(rack=rack, user=user2, units=[7, 8, 9], description='Reservation 3'),
         ])
 
-    def test_rackreservation_list(self):
-
-        url = reverse('dcim:rackreservation_list')
-
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-
-
-class RackTestCase(TestCase):
-
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_rack',
-                'dcim.add_rack',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
-
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
-
-        Rack.objects.bulk_create([
-            Rack(name='Rack 1', site=site),
-            Rack(name='Rack 2', site=site),
-            Rack(name='Rack 3', site=site),
-        ])
-
-    def test_rack_list(self):
-
-        url = reverse('dcim:rack_list')
-        params = {
-            "site": Site.objects.first().slug,
+        cls.form_data = {
+            'rack': rack.pk,
+            'units': [10, 11, 12],
+            'user': user3.pk,
+            'tenant': None,
+            'description': 'Rack reservation',
         }
 
-        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        cls.bulk_edit_data = {
+            'user': user3.pk,
+            'tenant': None,
+            'description': 'New description',
+        }
 
-    def test_rack(self):
 
-        rack = Rack.objects.first()
-        response = self.client.get(rack.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
+class RackTestCase(StandardTestCases.Views):
+    model = Rack
 
-    def test_rack_import(self):
+    @classmethod
+    def setUpTestData(cls):
 
-        csv_data = (
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        rackgroups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
+            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1])
+        )
+        RackGroup.objects.bulk_create(rackgroups)
+
+        rackroles = (
+            RackRole(name='Rack Role 1', slug='rack-role-1'),
+            RackRole(name='Rack Role 2', slug='rack-role-2'),
+        )
+        RackRole.objects.bulk_create(rackroles)
+
+        Rack.objects.bulk_create((
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[0]),
+            Rack(name='Rack 3', site=sites[0]),
+        ))
+
+        cls.form_data = {
+            'name': 'Rack X',
+            'facility_id': 'Facility X',
+            'site': sites[1].pk,
+            'group': rackgroups[1].pk,
+            'tenant': None,
+            'status': RackStatusChoices.STATUS_PLANNED,
+            'role': rackroles[1].pk,
+            'serial': '123456',
+            'asset_tag': 'ABCDEF',
+            'type': RackTypeChoices.TYPE_CABINET,
+            'width': RackWidthChoices.WIDTH_19IN,
+            'u_height': 48,
+            'desc_units': False,
+            'outer_width': 500,
+            'outer_depth': 500,
+            'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER,
+            'comments': 'Some comments',
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
+        cls.csv_data = (
             "site,name,width,u_height",
             "Site 1,Rack 4,19,42",
             "Site 1,Rack 5,19,42",
             "Site 1,Rack 6,19,42",
         )
 
-        response = self.client.post(reverse('dcim:rack_import'), {'csv': '\n'.join(csv_data)})
+        cls.bulk_edit_data = {
+            'site': sites[1].pk,
+            'group': rackgroups[1].pk,
+            'tenant': None,
+            'status': RackStatusChoices.STATUS_DEPRECATED,
+            'role': rackroles[1].pk,
+            'serial': '654321',
+            'type': RackTypeChoices.TYPE_4POST,
+            'width': RackWidthChoices.WIDTH_23IN,
+            'u_height': 49,
+            'desc_units': True,
+            'outer_width': 30,
+            'outer_depth': 30,
+            'outer_unit': RackDimensionUnitChoices.UNIT_INCH,
+            'comments': 'New comments',
+        }
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Rack.objects.count(), 6)
 
+class ManufacturerTestCase(StandardTestCases.Views):
+    model = Manufacturer
 
-class ManufacturerTypeTestCase(TestCase):
+    # Disable inapplicable tests
+    test_get_object = None
+    test_delete_object = None
+    test_bulk_edit_objects = None
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_manufacturer',
-                'dcim.add_manufacturer',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         Manufacturer.objects.bulk_create([
             Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
@@ -280,73 +305,59 @@ class ManufacturerTypeTestCase(TestCase):
             Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
         ])
 
-    def test_manufacturer_list(self):
+        cls.form_data = {
+            'name': 'Manufacturer X',
+            'slug': 'manufacturer-x',
+        }
 
-        url = reverse('dcim:manufacturer_list')
-
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-
-    def test_manufacturer_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "name,slug",
             "Manufacturer 4,manufacturer-4",
             "Manufacturer 5,manufacturer-5",
             "Manufacturer 6,manufacturer-6",
         )
 
-        response = self.client.post(reverse('dcim:manufacturer_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Manufacturer.objects.count(), 6)
+class DeviceTypeTestCase(StandardTestCases.Views):
+    model = DeviceType
 
+    @classmethod
+    def setUpTestData(cls):
 
-class DeviceTypeTestCase(TestCase):
-
-    def setUp(self):
-        user = create_test_user(permissions=['dcim.view_devicetype'])
-        self.client = Client()
-        self.client.force_login(user)
-
-        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
-        manufacturer.save()
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2')
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
 
         DeviceType.objects.bulk_create([
-            DeviceType(model='Device Type 1', slug='device-type-1', manufacturer=manufacturer),
-            DeviceType(model='Device Type 2', slug='device-type-2', manufacturer=manufacturer),
-            DeviceType(model='Device Type 3', slug='device-type-3', manufacturer=manufacturer),
+            DeviceType(model='Device Type 1', slug='device-type-1', manufacturer=manufacturers[0]),
+            DeviceType(model='Device Type 2', slug='device-type-2', manufacturer=manufacturers[0]),
+            DeviceType(model='Device Type 3', slug='device-type-3', manufacturer=manufacturers[0]),
         ])
 
-    def test_devicetype_list(self):
-
-        url = reverse('dcim:devicetype_list')
-        params = {
-            "manufacturer": Manufacturer.objects.first().slug,
+        cls.form_data = {
+            'manufacturer': manufacturers[1].pk,
+            'model': 'Device Type X',
+            'slug': 'device-type-x',
+            'part_number': '123ABC',
+            'u_height': 2,
+            'is_full_depth': True,
+            'subdevice_role': '',  # CharField
+            'comments': 'Some comments',
+            'tags': 'Alpha,Bravo,Charlie',
         }
 
-        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        cls.bulk_edit_data = {
+            'manufacturer': manufacturers[1].pk,
+            'u_height': 3,
+            'is_full_depth': False,
+        }
 
-    def test_devicetype_export(self):
-
-        url = reverse('dcim:devicetype_list')
-
-        response = self.client.get('{}?export'.format(url))
-        self.assertEqual(response.status_code, 200)
-        data = list(yaml.load_all(response.content, Loader=yaml.SafeLoader))
-        self.assertEqual(len(data), 3)
-        self.assertEqual(data[0]['manufacturer'], 'Manufacturer 1')
-        self.assertEqual(data[0]['model'], 'Device Type 1')
-
-    def test_devicetype(self):
-
-        devicetype = DeviceType.objects.first()
-        response = self.client.get(devicetype.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
-
-    def test_devicetype_import(self):
-
+    def test_import_objects(self):
+        """
+        Custom import test for YAML-based imports (versus CSV)
+        """
         IMPORT_DATA = """
 manufacturer: Generic
 model: TEST-1000
@@ -420,8 +431,8 @@ device-bays:
         # Create the manufacturer
         Manufacturer(name='Generic', slug='generic').save()
 
-        # Authenticate as user with necessary permissions
-        user = create_test_user(username='testuser2', permissions=[
+        # Add all required permissions to the test user
+        self.add_permissions(
             'dcim.view_devicetype',
             'dcim.add_devicetype',
             'dcim.add_consoleporttemplate',
@@ -432,15 +443,14 @@ device-bays:
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
             'dcim.add_devicebaytemplate',
-        ])
-        self.client.force_login(user)
+        )
 
         form_data = {
             'data': IMPORT_DATA,
             'format': 'yaml'
         }
         response = self.client.post(reverse('dcim:devicetype_import'), data=form_data, follow=True)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
         dt = DeviceType.objects.get(model='TEST-1000')
 
@@ -487,18 +497,29 @@ device-bays:
         db1 = DeviceBayTemplate.objects.first()
         self.assertEqual(db1.name, 'Device Bay 1')
 
+    def test_devicetype_export(self):
 
-class DeviceRoleTestCase(TestCase):
+        url = reverse('dcim:devicetype_list')
+        self.add_permissions('dcim.view_devicetype')
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_devicerole',
-                'dcim.add_devicerole',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+        response = self.client.get('{}?export'.format(url))
+        self.assertEqual(response.status_code, 200)
+        data = list(yaml.load_all(response.content, Loader=yaml.SafeLoader))
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]['manufacturer'], 'Manufacturer 1')
+        self.assertEqual(data[0]['model'], 'Device Type 1')
+
+
+class DeviceRoleTestCase(StandardTestCases.Views):
+    model = DeviceRole
+
+    # Disable inapplicable tests
+    test_get_object = None
+    test_delete_object = None
+    test_bulk_edit_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
 
         DeviceRole.objects.bulk_create([
             DeviceRole(name='Device Role 1', slug='device-role-1'),
@@ -506,141 +527,150 @@ class DeviceRoleTestCase(TestCase):
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         ])
 
-    def test_devicerole_list(self):
+        cls.form_data = {
+            'name': 'Devie Role X',
+            'slug': 'device-role-x',
+            'color': 'c0c0c0',
+            'vm_role': False,
+            'description': 'New device role',
+        }
 
-        url = reverse('dcim:devicerole_list')
-
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-
-    def test_devicerole_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "name,slug,color",
             "Device Role 4,device-role-4,ff0000",
             "Device Role 5,device-role-5,00ff00",
             "Device Role 6,device-role-6,0000ff",
         )
 
-        response = self.client.post(reverse('dcim:devicerole_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(DeviceRole.objects.count(), 6)
+class PlatformTestCase(StandardTestCases.Views):
+    model = Platform
 
+    # Disable inapplicable tests
+    test_get_object = None
+    test_delete_object = None
+    test_bulk_edit_objects = None
 
-class PlatformTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_platform',
-                'dcim.add_platform',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
 
         Platform.objects.bulk_create([
-            Platform(name='Platform 1', slug='platform-1'),
-            Platform(name='Platform 2', slug='platform-2'),
-            Platform(name='Platform 3', slug='platform-3'),
+            Platform(name='Platform 1', slug='platform-1', manufacturer=manufacturer),
+            Platform(name='Platform 2', slug='platform-2', manufacturer=manufacturer),
+            Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturer),
         ])
 
-    def test_platform_list(self):
+        cls.form_data = {
+            'name': 'Platform X',
+            'slug': 'platform-x',
+            'manufacturer': manufacturer.pk,
+            'napalm_driver': 'junos',
+            'napalm_args': None,
+        }
 
-        url = reverse('dcim:platform_list')
-
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-
-    def test_platform_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "name,slug",
             "Platform 4,platform-4",
             "Platform 5,platform-5",
             "Platform 6,platform-6",
         )
 
-        response = self.client.post(reverse('dcim:platform_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Platform.objects.count(), 6)
+class DeviceTestCase(StandardTestCases.Views):
+    model = Device
 
+    @classmethod
+    def setUpTestData(cls):
 
-class DeviceTestCase(TestCase):
-
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_device',
-                'dcim.add_device',
-            ]
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
         )
-        self.client = Client()
-        self.client.force_login(user)
+        Site.objects.bulk_create(sites)
 
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+        )
+        Rack.objects.bulk_create(racks)
 
-        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
-        manufacturer.save()
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
 
-        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
-        devicetype.save()
+        devicetypes = (
+            DeviceType(model='Device Type 1', slug='device-type-1', manufacturer=manufacturer),
+            DeviceType(model='Device Type 2', slug='device-type-2', manufacturer=manufacturer),
+        )
+        DeviceType.objects.bulk_create(devicetypes)
 
-        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
-        devicerole.save()
+        deviceroles = (
+            DeviceRole(name='Device Role 1', slug='device-role-1'),
+            DeviceRole(name='Device Role 2', slug='device-role-2'),
+        )
+        DeviceRole.objects.bulk_create(deviceroles)
+
+        platforms = (
+            Platform(name='Platform 1', slug='platform-1'),
+            Platform(name='Platform 2', slug='platform-2'),
+        )
+        Platform.objects.bulk_create(platforms)
 
         Device.objects.bulk_create([
-            Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole),
-            Device(name='Device 2', site=site, device_type=devicetype, device_role=devicerole),
-            Device(name='Device 3', site=site, device_type=devicetype, device_role=devicerole),
+            Device(name='Device 1', site=sites[0], rack=racks[0], device_type=devicetypes[0], device_role=deviceroles[0], platform=platforms[0]),
+            Device(name='Device 2', site=sites[0], rack=racks[0], device_type=devicetypes[0], device_role=deviceroles[0], platform=platforms[0]),
+            Device(name='Device 3', site=sites[0], rack=racks[0], device_type=devicetypes[0], device_role=deviceroles[0], platform=platforms[0]),
         ])
 
-    def test_device_list(self):
-
-        url = reverse('dcim:device_list')
-        params = {
-            "device_type_id": DeviceType.objects.first().pk,
-            "role": DeviceRole.objects.first().slug,
+        cls.form_data = {
+            'device_type': devicetypes[1].pk,
+            'device_role': deviceroles[1].pk,
+            'tenant': None,
+            'platform': platforms[1].pk,
+            'name': 'Device X',
+            'serial': '123456',
+            'asset_tag': 'ABCDEF',
+            'site': sites[1].pk,
+            'rack': racks[1].pk,
+            'position': 1,
+            'face': DeviceFaceChoices.FACE_FRONT,
+            'status': DeviceStatusChoices.STATUS_PLANNED,
+            'primary_ip4': None,
+            'primary_ip6': None,
+            'cluster': None,
+            'virtual_chassis': None,
+            'vc_position': None,
+            'vc_priority': None,
+            'comments': 'A new device',
+            'tags': 'Alpha,Bravo,Charlie',
+            'local_context_data': None,
         }
 
-        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
-
-    def test_device(self):
-
-        device = Device.objects.first()
-        response = self.client.get(device.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
-
-    def test_device_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "device_role,manufacturer,model_name,status,site,name",
             "Device Role 1,Manufacturer 1,Device Type 1,Active,Site 1,Device 4",
             "Device Role 1,Manufacturer 1,Device Type 1,Active,Site 1,Device 5",
             "Device Role 1,Manufacturer 1,Device Type 1,Active,Site 1,Device 6",
         )
 
-        response = self.client.post(reverse('dcim:device_import'), {'csv': '\n'.join(csv_data)})
+        cls.bulk_edit_data = {
+            'device_type': devicetypes[1].pk,
+            'device_role': deviceroles[1].pk,
+            'tenant': None,
+            'platform': platforms[1].pk,
+            'serial': '123456',
+            'status': DeviceStatusChoices.STATUS_DECOMMISSIONING,
+        }
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Device.objects.count(), 6)
 
-
+# TODO: Convert to StandardTestCases.Views
 class ConsolePortTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_consoleport',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_consoleport',
-                'dcim.add_consoleport',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -668,9 +698,10 @@ class ConsolePortTestCase(TestCase):
         url = reverse('dcim:consoleport_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_consoleport_import(self):
+        self.add_permissions('dcim.add_consoleport')
 
         csv_data = (
             "device,name",
@@ -681,21 +712,18 @@ class ConsolePortTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:consoleport_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(ConsolePort.objects.count(), 6)
 
 
+# TODO: Convert to StandardTestCases.Views
 class ConsoleServerPortTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_consoleserverport',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_consoleserverport',
-                'dcim.add_consoleserverport',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -723,9 +751,10 @@ class ConsoleServerPortTestCase(TestCase):
         url = reverse('dcim:consoleserverport_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_consoleserverport_import(self):
+        self.add_permissions('dcim.add_consoleserverport')
 
         csv_data = (
             "device,name",
@@ -736,21 +765,18 @@ class ConsoleServerPortTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:consoleserverport_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(ConsoleServerPort.objects.count(), 6)
 
 
+# TODO: Convert to StandardTestCases.Views
 class PowerPortTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_powerport',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_powerport',
-                'dcim.add_powerport',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -778,9 +804,10 @@ class PowerPortTestCase(TestCase):
         url = reverse('dcim:powerport_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_powerport_import(self):
+        self.add_permissions('dcim.add_powerport')
 
         csv_data = (
             "device,name",
@@ -791,21 +818,18 @@ class PowerPortTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:powerport_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(PowerPort.objects.count(), 6)
 
 
+# TODO: Convert to StandardTestCases.Views
 class PowerOutletTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_poweroutlet',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_poweroutlet',
-                'dcim.add_poweroutlet',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -833,9 +857,10 @@ class PowerOutletTestCase(TestCase):
         url = reverse('dcim:poweroutlet_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_poweroutlet_import(self):
+        self.add_permissions('dcim.add_poweroutlet')
 
         csv_data = (
             "device,name",
@@ -846,21 +871,18 @@ class PowerOutletTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:poweroutlet_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(PowerOutlet.objects.count(), 6)
 
 
+# TODO: Convert to StandardTestCases.Views
 class InterfaceTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_interface',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_interface',
-                'dcim.add_interface',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -888,9 +910,10 @@ class InterfaceTestCase(TestCase):
         url = reverse('dcim:interface_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_interface_import(self):
+        self.add_permissions('dcim.add_interface')
 
         csv_data = (
             "device,name,type",
@@ -901,21 +924,18 @@ class InterfaceTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:interface_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(Interface.objects.count(), 6)
 
 
+# TODO: Convert to StandardTestCases.Views
 class FrontPortTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_frontport',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_frontport',
-                'dcim.add_frontport',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -955,9 +975,10 @@ class FrontPortTestCase(TestCase):
         url = reverse('dcim:frontport_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_frontport_import(self):
+        self.add_permissions('dcim.add_frontport')
 
         csv_data = (
             "device,name,type,rear_port,rear_port_position",
@@ -968,21 +989,18 @@ class FrontPortTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:frontport_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(FrontPort.objects.count(), 6)
 
 
+# TODO: Convert to StandardTestCases.Views
 class RearPortTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_rearport',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_rearport',
-                'dcim.add_rearport',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -1010,9 +1028,10 @@ class RearPortTestCase(TestCase):
         url = reverse('dcim:rearport_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_rearport_import(self):
+        self.add_permissions('dcim.add_rearport')
 
         csv_data = (
             "device,name,type,positions",
@@ -1023,21 +1042,18 @@ class RearPortTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:rearport_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(RearPort.objects.count(), 6)
 
 
+# TODO: Convert to StandardTestCases.Views
 class DeviceBayTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_devicebay',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_devicebay',
-                'dcim.add_devicebay',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -1069,9 +1085,10 @@ class DeviceBayTestCase(TestCase):
         url = reverse('dcim:devicebay_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_devicebay_import(self):
+        self.add_permissions('dcim.add_devicebay')
 
         csv_data = (
             "device,name",
@@ -1082,21 +1099,18 @@ class DeviceBayTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:devicebay_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(DeviceBay.objects.count(), 6)
 
 
+# TODO: Convert to StandardTestCases.Views
 class InventoryItemTestCase(TestCase):
+    user_permissions = (
+        'dcim.view_inventoryitem',
+    )
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_inventoryitem',
-                'dcim.add_inventoryitem',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -1127,9 +1141,10 @@ class InventoryItemTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_inventoryitem_import(self):
+        self.add_permissions('dcim.add_inventoryitem')
 
         csv_data = (
             "device,name",
@@ -1140,105 +1155,99 @@ class InventoryItemTestCase(TestCase):
 
         response = self.client.post(reverse('dcim:inventoryitem_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
         self.assertEqual(InventoryItem.objects.count(), 6)
 
 
-class CableTestCase(TestCase):
+class CableTestCase(StandardTestCases.Views):
+    model = Cable
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'dcim.view_cable',
-                'dcim.add_cable',
-            ]
+    # TODO: Creation URL needs termination context
+    test_create_object = None
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(model='Device Type 1', manufacturer=manufacturer)
+        devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        devices = (
+            Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole),
+            Device(name='Device 2', site=site, device_type=devicetype, device_role=devicerole),
+            Device(name='Device 3', site=site, device_type=devicetype, device_role=devicerole),
+            Device(name='Device 4', site=site, device_type=devicetype, device_role=devicerole),
         )
-        self.client = Client()
-        self.client.force_login(user)
+        Device.objects.bulk_create(devices)
 
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
+        interfaces = (
+            Interface(device=devices[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[0], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[0], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[1], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[1], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[2], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[2], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[2], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[3], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[3], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[3], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+        )
+        Interface.objects.bulk_create(interfaces)
 
-        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
-        manufacturer.save()
+        Cable(termination_a=interfaces[0], termination_b=interfaces[3], type=CableTypeChoices.TYPE_CAT6).save()
+        Cable(termination_a=interfaces[1], termination_b=interfaces[4], type=CableTypeChoices.TYPE_CAT6).save()
+        Cable(termination_a=interfaces[2], termination_b=interfaces[5], type=CableTypeChoices.TYPE_CAT6).save()
 
-        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
-        devicetype.save()
-
-        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
-        devicerole.save()
-
-        device1 = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
-        device1.save()
-        device2 = Device(name='Device 2', site=site, device_type=devicetype, device_role=devicerole)
-        device2.save()
-        device3 = Device(name='Device 3', site=site, device_type=devicetype, device_role=devicerole)
-        device3.save()
-        device4 = Device(name='Device 4', site=site, device_type=devicetype, device_role=devicerole)
-        device4.save()
-
-        iface1 = Interface(device=device1, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
-        iface1.save()
-        iface2 = Interface(device=device1, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
-        iface2.save()
-        iface3 = Interface(device=device1, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
-        iface3.save()
-        iface4 = Interface(device=device2, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
-        iface4.save()
-        iface5 = Interface(device=device2, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
-        iface5.save()
-        iface6 = Interface(device=device2, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
-        iface6.save()
-
-        # Interfaces for CSV import testing
-        Interface(device=device3, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED).save()
-        Interface(device=device3, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED).save()
-        Interface(device=device3, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED).save()
-        Interface(device=device4, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED).save()
-        Interface(device=device4, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED).save()
-        Interface(device=device4, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED).save()
-
-        Cable(termination_a=iface1, termination_b=iface4, type=CableTypeChoices.TYPE_CAT6).save()
-        Cable(termination_a=iface2, termination_b=iface5, type=CableTypeChoices.TYPE_CAT6).save()
-        Cable(termination_a=iface3, termination_b=iface6, type=CableTypeChoices.TYPE_CAT6).save()
-
-    def test_cable_list(self):
-
-        url = reverse('dcim:cable_list')
-        params = {
-            "type": CableTypeChoices.TYPE_CAT6,
+        interface_ct = ContentType.objects.get_for_model(Interface)
+        cls.form_data = {
+            # Changing terminations not supported when editing an existing Cable
+            'termination_a_type': interface_ct.pk,
+            'termination_a_id': interfaces[0].pk,
+            'termination_b_type': interface_ct.pk,
+            'termination_b_id': interfaces[3].pk,
+            'type': CableTypeChoices.TYPE_CAT6,
+            'status': CableStatusChoices.STATUS_PLANNED,
+            'label': 'Label',
+            'color': 'c0c0c0',
+            'length': 100,
+            'length_unit': CableLengthUnitChoices.UNIT_FOOT,
         }
 
-        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
-
-    def test_cable(self):
-
-        cable = Cable.objects.first()
-        response = self.client.get(cable.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
-
-    def test_cable_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name",
             "Device 3,interface,Interface 1,Device 4,interface,Interface 1",
             "Device 3,interface,Interface 2,Device 4,interface,Interface 2",
             "Device 3,interface,Interface 3,Device 4,interface,Interface 3",
         )
 
-        response = self.client.post(reverse('dcim:cable_import'), {'csv': '\n'.join(csv_data)})
+        cls.bulk_edit_data = {
+            'type': CableTypeChoices.TYPE_CAT5E,
+            'status': CableStatusChoices.STATUS_CONNECTED,
+            'label': 'New label',
+            'color': '00ff00',
+            'length': 50,
+            'length_unit': CableLengthUnitChoices.UNIT_METER,
+        }
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Cable.objects.count(), 6)
 
+class VirtualChassisTestCase(StandardTestCases.Views):
+    model = VirtualChassis
 
-class VirtualChassisTestCase(TestCase):
+    # Disable inapplicable tests
+    test_get_object = None
+    test_import_objects = None
+    test_bulk_edit_objects = None
+    test_bulk_delete_objects = None
 
-    def setUp(self):
-        user = create_test_user(permissions=['dcim.view_virtualchassis'])
-        self.client = Client()
-        self.client.force_login(user)
+    # TODO: Requires special form handling
+    test_create_object = None
+    test_edit_object = None
+
+    @classmethod
+    def setUpTestData(cls):
 
         site = Site.objects.create(name='Site 1', slug='site-1')
         manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer-1')
@@ -1277,9 +1286,110 @@ class VirtualChassisTestCase(TestCase):
         vc3 = VirtualChassis.objects.create(master=device5, domain='test-domain-3')
         Device.objects.filter(pk=device6.pk).update(virtual_chassis=vc3, vc_position=2)
 
-    def test_virtualchassis_list(self):
 
-        url = reverse('dcim:virtualchassis_list')
+class PowerPanelTestCase(StandardTestCases.Views):
+    model = PowerPanel
 
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+    # Disable inapplicable tests
+    test_bulk_edit_objects = None
+
+    @classmethod
+    def setUpTestData(cls):
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        rackgroups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
+            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
+        )
+        RackGroup.objects.bulk_create(rackgroups)
+
+        PowerPanel.objects.bulk_create((
+            PowerPanel(site=sites[0], rack_group=rackgroups[0], name='Power Panel 1'),
+            PowerPanel(site=sites[0], rack_group=rackgroups[0], name='Power Panel 2'),
+            PowerPanel(site=sites[0], rack_group=rackgroups[0], name='Power Panel 3'),
+        ))
+
+        cls.form_data = {
+            'site': sites[1].pk,
+            'rack_group': rackgroups[1].pk,
+            'name': 'Power Panel X',
+        }
+
+        cls.csv_data = (
+            "site,rack_group_name,name",
+            "Site 1,Rack Group 1,Power Panel 4",
+            "Site 1,Rack Group 1,Power Panel 5",
+            "Site 1,Rack Group 1,Power Panel 6",
+        )
+
+
+class PowerFeedTestCase(StandardTestCases.Views):
+    model = PowerFeed
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        powerpanels = (
+            PowerPanel(site=site, name='Power Panel 1'),
+            PowerPanel(site=site, name='Power Panel 2'),
+        )
+        PowerPanel.objects.bulk_create(powerpanels)
+
+        racks = (
+            Rack(site=site, name='Rack 1'),
+            Rack(site=site, name='Rack 2'),
+        )
+        Rack.objects.bulk_create(racks)
+
+        PowerFeed.objects.bulk_create((
+            PowerFeed(name='Power Feed 1', power_panel=powerpanels[0], rack=racks[0]),
+            PowerFeed(name='Power Feed 2', power_panel=powerpanels[0], rack=racks[0]),
+            PowerFeed(name='Power Feed 3', power_panel=powerpanels[0], rack=racks[0]),
+        ))
+
+        cls.form_data = {
+            'name': 'Power Feed X',
+            'power_panel': powerpanels[1].pk,
+            'rack': racks[1].pk,
+            'status': PowerFeedStatusChoices.STATUS_PLANNED,
+            'type': PowerFeedTypeChoices.TYPE_REDUNDANT,
+            'supply': PowerFeedSupplyChoices.SUPPLY_DC,
+            'phase': PowerFeedPhaseChoices.PHASE_3PHASE,
+            'voltage': 100,
+            'amperage': 100,
+            'max_utilization': 50,
+            'comments': 'New comments',
+            'tags': 'Alpha,Bravo,Charlie',
+
+            # Connection
+            'cable': None,
+            'connected_endpoint': None,
+            'connection_status': None,
+        }
+
+        cls.csv_data = (
+            "site,panel_name,name,voltage,amperage,max_utilization",
+            "Site 1,Power Panel 1,Power Feed 4,120,20,80",
+            "Site 1,Power Panel 1,Power Feed 5,120,20,80",
+            "Site 1,Power Panel 1,Power Feed 6,120,20,80",
+        )
+
+        cls.bulk_edit_data = {
+            'power_panel': powerpanels[1].pk,
+            'rack': racks[1].pk,
+            'status': PowerFeedStatusChoices.STATUS_PLANNED,
+            'type': PowerFeedTypeChoices.TYPE_REDUNDANT,
+            'supply': PowerFeedSupplyChoices.SUPPLY_DC,
+            'phase': PowerFeedPhaseChoices.PHASE_3PHASE,
+            'voltage': 100,
+            'amperage': 100,
+            'max_utilization': 50,
+            'comments': 'New comments',
+        }
