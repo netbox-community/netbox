@@ -4371,7 +4371,7 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         queryset=PowerFeed.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    powerpanel = forms.ModelChoiceField(
+    power_panel = forms.ModelChoiceField(
         queryset=PowerPanel.objects.all(),
         required=False,
         widget=APISelect(

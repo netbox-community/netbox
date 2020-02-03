@@ -1331,9 +1331,6 @@ class PowerPanelTestCase(StandardTestCases.Views):
 class PowerFeedTestCase(StandardTestCases.Views):
     model = PowerFeed
 
-    # TODO: Re-enable this test once #4079 is fixed
-    test_bulk_edit_objects = None
-
     @classmethod
     def setUpTestData(cls):
 
