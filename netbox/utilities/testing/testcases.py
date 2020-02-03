@@ -107,7 +107,7 @@ class StandardTestCases:
                 self.model._meta.model_name
             )
 
-            if action in ('list', 'add', 'import'):
+            if action in ('list', 'add', 'import', 'bulk_delete'):
                 return reverse(url_format.format(action))
 
             elif action in ('get', 'edit', 'delete'):
@@ -253,3 +253,31 @@ class StandardTestCases:
             self.assertHttpStatus(response, 200)
 
             self.assertEqual(self.model.objects.count(), initial_count + len(self.csv_data) - 1)
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def test_bulk_delete_objects(self):
+            pk_list = self.model.objects.values_list('pk', flat=True)
+
+            request = {
+                'path': self._get_url('bulk_delete'),
+                'data': {
+                    'pk': pk_list,
+                    'confirm': True,
+                    '_confirm': True,  # Form button
+                },
+                'follow': False,  # Do not follow 302 redirects
+            }
+
+            # Attempt to make the request without required permissions
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.post(**request), 403)
+
+            # Assign the required permission and submit again
+            self.add_permissions(
+                '{}.delete_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
+            response = self.client.post(**request)
+            self.assertHttpStatus(response, 302)
+
+            # Check that all objects were deleted
+            self.assertEqual(self.model.objects.count(), 0)
