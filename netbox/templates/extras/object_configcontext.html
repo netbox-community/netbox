@@ -1,5 +1,6 @@
 {% extends base_template %}
 {% load helpers %}
+{% load static %}
 
 {% block title %}{{ block.super }} - Config Context{% endblock %}
 
@@ -9,9 +10,10 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <strong>Rendered Context</strong>
+                    {% include 'extras/inc/configcontext_format.html' %}
                 </div>
                 <div class="panel-body">
-                    <pre>{{ rendered_context|render_json }}</pre>
+                    {% include 'extras/inc/configcontext_data.html' with data=rendered_context %}
                 </div>
             </div>
         </div>
@@ -22,7 +24,7 @@
                 </div>
                 <div class="panel-body">
                     {% if obj.local_context_data %}
-                        <pre>{{ obj.local_context_data|render_json }}</pre>
+                        {% include 'extras/inc/configcontext_data.html' with data=obj.local_context_data %}
                     {% else %}
                         <span class="text-muted">None</span>
                     {% endif %}
@@ -47,7 +49,7 @@
                         {% if context.description %}
                             <br /><small>{{ context.description }}</small>
                         {% endif %}
-                        <pre>{{ context.data|render_json }}</pre>
+                        {% include 'extras/inc/configcontext_data.html' with data=context.data %}
                     </div>
                 {% empty %}
                     <div class="panel-body">
@@ -57,4 +59,8 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'js/configcontext.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

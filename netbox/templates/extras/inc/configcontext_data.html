@@ -1,0 +1,8 @@
+{% load helpers %}
+
+<div class="rendered-context-data" data-format="json">
+    <pre>{{ data|render_json }}</pre>
+</div>
+<div class="rendered-context-data" data-format="yaml" style="display: none;">
+    <pre>{{ data|render_yaml }}</pre>
+</div>
