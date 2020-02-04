@@ -13,7 +13,8 @@ from timezone_field import TimeZoneFormField
 
 from circuits.models import Circuit, Provider
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm, LocalConfigContextFilterForm
+    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldFilterForm, CustomFieldModelForm,
+    LocalConfigContextFilterForm,
 )
 from ipam.constants import BGP_ASN_MAX, BGP_ASN_MIN
 from ipam.models import IPAddress, VLAN
@@ -23,7 +24,8 @@ from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField, ComponentForm,
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, JSONField,
-    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES,
+    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
 from .choices import *
@@ -215,7 +217,7 @@ class RegionFilterForm(BootstrapMixin, forms.Form):
 # Sites
 #
 
-class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     region = TreeNodeChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -263,7 +265,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class SiteCSVForm(forms.ModelForm):
+class SiteCSVForm(CustomFieldModelCSVForm):
     status = CSVChoiceField(
         choices=SiteStatusChoices,
         required=False,
@@ -366,6 +368,7 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             value_field="slug",
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -459,7 +462,7 @@ class RackRoleCSVForm(forms.ModelForm):
 # Racks
 #
 
-class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     group = ChainedModelChoiceField(
         queryset=RackGroup.objects.all(),
         chains=(
@@ -504,7 +507,7 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class RackCSVForm(forms.ModelForm):
+class RackCSVForm(CustomFieldModelCSVForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -742,6 +745,7 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -897,7 +901,7 @@ class ManufacturerCSVForm(forms.ModelForm):
 # Device types
 #
 
-class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
+class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField(
         slug_source='model'
     )
@@ -1020,6 +1024,7 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -1516,7 +1521,7 @@ class PlatformCSVForm(forms.ModelForm):
 # Devices
 #
 
-class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         widget=APISelect(
@@ -1548,6 +1553,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     )
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
+        required=False,
         widget=APISelect(
             api_url="/api/dcim/manufacturers/",
             filter_for={
@@ -1724,7 +1730,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.initial['rack'] = self.instance.parent_bay.device.rack_id
 
 
-class BaseDeviceCSVForm(forms.ModelForm):
+class BaseDeviceCSVForm(CustomFieldModelCSVForm):
     device_role = forms.ModelChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
@@ -2106,6 +2112,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -2154,6 +2161,7 @@ class DeviceBulkAddInterfaceForm(DeviceBulkAddComponentForm):
 
 class ConsolePortFilterForm(DeviceComponentFilterForm):
     model = ConsolePort
+    tag = TagFilterField(model)
 
 
 class ConsolePortForm(BootstrapMixin, forms.ModelForm):
@@ -2211,6 +2219,7 @@ class ConsolePortCSVForm(forms.ModelForm):
 
 class ConsoleServerPortFilterForm(DeviceComponentFilterForm):
     model = ConsoleServerPort
+    tag = TagFilterField(model)
 
 
 class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
@@ -2303,6 +2312,7 @@ class ConsoleServerPortCSVForm(forms.ModelForm):
 
 class PowerPortFilterForm(DeviceComponentFilterForm):
     model = PowerPort
+    tag = TagFilterField(model)
 
 
 class PowerPortForm(BootstrapMixin, forms.ModelForm):
@@ -2370,6 +2380,7 @@ class PowerPortCSVForm(forms.ModelForm):
 
 class PowerOutletFilterForm(DeviceComponentFilterForm):
     model = PowerOutlet
+    tag = TagFilterField(model)
 
 
 class PowerOutletForm(BootstrapMixin, forms.ModelForm):
@@ -2538,6 +2549,7 @@ class PowerOutletBulkDisconnectForm(ConfirmationForm):
 
 class InterfaceFilterForm(DeviceComponentFilterForm):
     model = Interface
+    tag = TagFilterField(model)
 
 
 class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
@@ -2594,7 +2606,6 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
                 type=InterfaceTypeChoices.TYPE_LAG
             )
         else:
-            device = self.instance.device
             self.fields['lag'].queryset = Interface.objects.filter(
                 device__in=[self.instance.device, self.instance.device.get_vc_master()],
                 type=InterfaceTypeChoices.TYPE_LAG
@@ -2602,6 +2613,10 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
 
 
 class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        widget=forms.HiddenInput()
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -2726,7 +2741,7 @@ class InterfaceCSVForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces belonging to this device (or VC master)
-        if self.is_bound:
+        if self.is_bound and 'device' in self.data:
             try:
                 device = self.fields['device'].to_python(self.data['device'])
             except forms.ValidationError:
@@ -2863,6 +2878,7 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
 
 class FrontPortFilterForm(DeviceComponentFilterForm):
     model = FrontPort
+    tag = TagFilterField(model)
 
 
 class FrontPortForm(BootstrapMixin, forms.ModelForm):
@@ -3040,6 +3056,7 @@ class FrontPortBulkDisconnectForm(ConfirmationForm):
 
 class RearPortFilterForm(DeviceComponentFilterForm):
     model = RearPort
+    tag = TagFilterField(model)
 
 
 class RearPortForm(BootstrapMixin, forms.ModelForm):
@@ -3644,6 +3661,7 @@ class CableFilterForm(BootstrapMixin, forms.Form):
 
 class DeviceBayFilterForm(DeviceComponentFilterForm):
     model = DeviceBay
+    tag = TagFilterField(model)
 
 
 class DeviceBayForm(BootstrapMixin, forms.ModelForm):
@@ -3943,6 +3961,7 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -4129,6 +4148,7 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -4241,7 +4261,7 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Power feeds
 #
 
-class PowerFeedForm(BootstrapMixin, CustomFieldForm):
+class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
     site = ChainedModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -4286,7 +4306,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldForm):
             self.initial['site'] = self.instance.power_panel.site
 
 
-class PowerFeedCSVForm(forms.ModelForm):
+class PowerFeedCSVForm(CustomFieldModelCSVForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -4369,7 +4389,7 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         queryset=PowerFeed.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    powerpanel = forms.ModelChoiceField(
+    power_panel = forms.ModelChoiceField(
         queryset=PowerPanel.objects.all(),
         required=False,
         widget=APISelect(
@@ -4507,3 +4527,4 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
     max_utilization = forms.IntegerField(
         required=False
     )
+    tag = TagFilterField(model)

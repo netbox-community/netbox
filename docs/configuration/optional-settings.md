@@ -90,6 +90,14 @@ This setting enables debugging. This should be done only during development or t
 
 ---
 
+## DEVELOPER
+
+Default: False
+
+This parameter serves as a safeguard to prevent some potentially dangerous behavior, such as generating new database schema migrations. Set this to `True` **only** if you are actively developing the NetBox code base.
+
+---
+
 ## EMAIL
 
 In order to send email, NetBox needs an email server configured. The following items can be defined within the `EMAIL` setting:
@@ -127,7 +135,7 @@ EXEMPT_VIEW_PERMISSIONS = ['*']
 
 ---
 
-# ENFORCE_GLOBAL_UNIQUE
+## ENFORCE_GLOBAL_UNIQUE
 
 Default: False
 

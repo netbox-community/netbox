@@ -4,11 +4,10 @@ from copy import deepcopy
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
-from django.db.models import Count, ProtectedError
-from django.db.models.query import QuerySet
-from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
+from django.db.models import ManyToManyField, ProtectedError
+from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
 from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
@@ -24,7 +23,6 @@ from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
-from extras.utils import is_taggable
 from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField
 from utilities.utils import csv_format, prepare_cloned_fields
@@ -88,15 +86,27 @@ class ObjectListView(View):
         Export the queryset of objects as comma-separated value (CSV), using the model's to_csv() method.
         """
         csv_data = []
+        custom_fields = []
 
         # Start with the column headers
-        headers = ','.join(self.queryset.model.csv_headers)
-        csv_data.append(headers)
+        headers = self.queryset.model.csv_headers.copy()
+
+        # Add custom field headers, if any
+        if hasattr(self.queryset.model, 'get_custom_fields'):
+            for custom_field in self.queryset.model().get_custom_fields():
+                headers.append(custom_field.name)
+                custom_fields.append(custom_field.name)
+
+        csv_data.append(','.join(headers))
 
         # Iterate through the queryset appending each object
         for obj in self.queryset:
-            data = csv_format(obj.to_csv())
-            csv_data.append(data)
+            data = obj.to_csv()
+
+            for custom_field in custom_fields:
+                data += (obj.cf.get(custom_field, ''),)
+
+            csv_data.append(csv_format(data))
 
         return '\n'.join(csv_data)
 
@@ -155,12 +165,6 @@ class ObjectListView(View):
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
 
-        # Construct queryset for tags list
-        if is_taggable(model):
-            tags = model.tags.annotate(count=Count('extras_taggeditem_items')).order_by('name')
-        else:
-            tags = None
-
         # Apply the request context
         paginate = {
             'paginator_class': EnhancedPaginator,
@@ -173,7 +177,6 @@ class ObjectListView(View):
             'table': table,
             'permissions': permissions,
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
-            'tags': tags,
         }
         context.update(self.extra_context())
 
@@ -638,7 +641,9 @@ class BulkEditView(GetReturnURLMixin, View):
             if form.is_valid():
 
                 custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
-                standard_fields = [field for field in form.fields if field not in custom_fields and field != 'pk']
+                standard_fields = [
+                    field for field in form.fields if field not in custom_fields + ['pk']
+                ]
                 nullified_fields = request.POST.getlist('_nullify')
 
                 try:
@@ -650,14 +655,29 @@ class BulkEditView(GetReturnURLMixin, View):
 
                             # Update standard fields. If a field is listed in _nullify, delete its value.
                             for name in standard_fields:
-                                if name in form.nullable_fields and name in nullified_fields and isinstance(form.cleaned_data[name], QuerySet):
-                                    getattr(obj, name).set([])
-                                elif name in form.nullable_fields and name in nullified_fields:
-                                    setattr(obj, name, '' if isinstance(form.fields[name], CharField) else None)
-                                elif isinstance(form.cleaned_data[name], QuerySet) and form.cleaned_data[name]:
+
+                                try:
+                                    model_field = model._meta.get_field(name)
+                                except FieldDoesNotExist:
+                                    # The form field is used to modify a field rather than set its value directly,
+                                    # so we skip it.
+                                    continue
+
+                                # Handle nullification
+                                if name in form.nullable_fields and name in nullified_fields:
+                                    if isinstance(model_field, ManyToManyField):
+                                        getattr(obj, name).set([])
+                                    else:
+                                        setattr(obj, name, None if model_field.null else '')
+
+                                # ManyToManyFields
+                                elif isinstance(model_field, ManyToManyField):
                                     getattr(obj, name).set(form.cleaned_data[name])
-                                elif form.cleaned_data[name] not in (None, '') and not isinstance(form.cleaned_data[name], QuerySet):
+
+                                # Normal fields
+                                elif form.cleaned_data[name] not in (None, ''):
                                     setattr(obj, name, form.cleaned_data[name])
+
                             obj.full_clean()
                             obj.save()
 
@@ -826,7 +846,9 @@ class ComponentCreateView(View):
     def get(self, request, pk):
 
         parent = get_object_or_404(self.parent_model, pk=pk)
-        form = self.form(parent, initial=request.GET)
+        data = deepcopy(request.GET)
+        data[self.parent_field] = parent.pk
+        form = self.form(parent, initial=data)
 
         return render(request, self.template_name, {
             'parent': parent,

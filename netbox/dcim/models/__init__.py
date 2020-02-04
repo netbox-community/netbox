@@ -1018,9 +1018,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = [
-        'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'comments',
-    ]
     clone_fields = [
         'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role',
     ]

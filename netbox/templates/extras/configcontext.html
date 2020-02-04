@@ -1,5 +1,6 @@
 {% extends '_base.html' %}
 {% load helpers %}
+{% load static %}
 
 {% block header %}
     <div class="row noprint">
@@ -135,6 +136,34 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>Cluster Groups</td>
+                        <td>
+                            {% if configcontext.cluster_groups.all %}
+                                <ul>
+                                    {% for cluster_group in configcontext.cluster_groups.all %}
+                                        <li><a href="{{ cluster_group.get_absolute_url }}">{{ cluster_group }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Clusters</td>
+                        <td>
+                            {% if configcontext.clusters.all %}
+                                <ul>
+                                    {% for cluster in configcontext.clusters.all %}
+                                        <li><a href="{{ cluster.get_absolute_url }}">{{ cluster }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Tenant Groups</td>
                         <td>
                             {% if configcontext.tenant_groups.all %}
@@ -183,11 +212,16 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <strong>Data</strong>
+                    {% include 'extras/inc/configcontext_format.html' %}
                 </div>
                 <div class="panel-body">
-                    <pre>{{ configcontext.data|render_json }}</pre>
+                    {% include 'extras/inc/configcontext_data.html' with data=configcontext.data %}
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'js/configcontext.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

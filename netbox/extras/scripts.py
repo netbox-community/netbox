@@ -53,14 +53,15 @@ class ScriptVariable:
         # Initialize field attributes
         if not hasattr(self, 'field_attrs'):
             self.field_attrs = {}
-        if description:
-            self.field_attrs['help_text'] = description
         if label:
             self.field_attrs['label'] = label
+        if description:
+            self.field_attrs['help_text'] = description
         if default:
             self.field_attrs['initial'] = default
-        if required:
-            self.field_attrs['required'] = True
+        self.field_attrs['required'] = required
+
+        # Initialize the list of optional validators if none have already been defined
         if 'validators' not in self.field_attrs:
             self.field_attrs['validators'] = []
 

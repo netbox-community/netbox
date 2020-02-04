@@ -6,7 +6,9 @@ from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
-from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
+from extras.forms import (
+    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
+)
 from ipam.models import IPAddress, VLANGroup, VLAN
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
@@ -14,7 +16,7 @@ from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm,
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField,
-    SmallTextarea, StaticSelect2, StaticSelect2Multiple
+    SmallTextarea, StaticSelect2, StaticSelect2Multiple, TagFilterField
 )
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -74,7 +76,7 @@ class ClusterGroupCSVForm(forms.ModelForm):
 # Clusters
 #
 
-class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     comments = CommentField()
     tags = TagField(
         required=False
@@ -98,7 +100,7 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class ClusterCSVForm(forms.ModelForm):
+class ClusterCSVForm(CustomFieldModelCSVForm):
     type = forms.ModelChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='name',
@@ -230,6 +232,7 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
@@ -327,7 +330,7 @@ class ClusterRemoveDevicesForm(ConfirmationForm):
 # Virtual Machines
 #
 
-class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     cluster_group = forms.ModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
@@ -430,7 +433,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.fields['primary_ip6'].widget.attrs['readonly'] = True
 
 
-class VirtualMachineCSVForm(forms.ModelForm):
+class VirtualMachineCSVForm(CustomFieldModelCSVForm):
     status = CSVChoiceField(
         choices=VirtualMachineStatusChoices,
         required=False,
@@ -637,6 +640,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         required=False,
         label='MAC address'
     )
+    tag = TagFilterField(model)
 
 
 #

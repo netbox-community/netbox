@@ -60,7 +60,7 @@ urlpatterns = [
     # Racks
     path(r'racks/', views.RackListView.as_view(), name='rack_list'),
     path(r'rack-elevations/', views.RackElevationListView.as_view(), name='rack_elevation_list'),
-    path(r'racks/add/', views.RackEditView.as_view(), name='rack_add'),
+    path(r'racks/add/', views.RackCreateView.as_view(), name='rack_add'),
     path(r'racks/import/', views.RackBulkImportView.as_view(), name='rack_import'),
     path(r'racks/edit/', views.RackBulkEditView.as_view(), name='rack_bulk_edit'),
     path(r'racks/delete/', views.RackBulkDeleteView.as_view(), name='rack_bulk_delete'),
@@ -318,7 +318,7 @@ urlpatterns = [
 
     # Power feeds
     path(r'power-feeds/', views.PowerFeedListView.as_view(), name='powerfeed_list'),
-    path(r'power-feeds/add/', views.PowerFeedEditView.as_view(), name='powerfeed_add'),
+    path(r'power-feeds/add/', views.PowerFeedCreateView.as_view(), name='powerfeed_add'),
     path(r'power-feeds/import/', views.PowerFeedBulkImportView.as_view(), name='powerfeed_import'),
     path(r'power-feeds/edit/', views.PowerFeedBulkEditView.as_view(), name='powerfeed_bulk_edit'),
     path(r'power-feeds/delete/', views.PowerFeedBulkDeleteView.as_view(), name='powerfeed_bulk_delete'),

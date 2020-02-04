@@ -4,6 +4,7 @@ from django.db.models import Q
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
+from virtualization.models import Cluster, ClusterGroup
 from .choices import *
 from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, Tag
 
@@ -169,6 +170,22 @@ class ConfigContextFilterSet(django_filters.FilterSet):
         queryset=Platform.objects.all(),
         to_field_name='slug',
         label='Platform (slug)',
+    )
+    cluster_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='cluster_groups',
+        queryset=ClusterGroup.objects.all(),
+        label='Cluster group',
+    )
+    cluster_group = django_filters.ModelMultipleChoiceFilter(
+        field_name='cluster_groups__slug',
+        queryset=ClusterGroup.objects.all(),
+        to_field_name='slug',
+        label='Cluster group (slug)',
+    )
+    cluster_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='clusters',
+        queryset=Cluster.objects.all(),
+        label='Cluster',
     )
     tenant_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='tenant_groups',
