@@ -3,6 +3,7 @@
 ## Enhancements
 
 * [#568](https://github.com/netbox-community/netbox/issues/568) - Allow custom fields to be imported and exported using CSV
+* [#2921](https://github.com/netbox-community/netbox/issues/2921) - Replace tags filter with Select2 widget
 * [#3313](https://github.com/netbox-community/netbox/issues/3313) - Toggle config context display between JSON and YAML
 * [#3886](https://github.com/netbox-community/netbox/issues/3886) - Enable assigning config contexts by cluster and cluster group
 * [#4051](https://github.com/netbox-community/netbox/issues/4051) - Disable the `makemigrations` management command
@@ -17,10 +18,6 @@
 * [#4067](https://github.com/netbox-community/netbox/issues/4067) - Correct permission checked when creating a rack (vs. editing)
 * [#4071](https://github.com/netbox-community/netbox/issues/4071) - Enforce "view tag" permission on individual tag view
 * [#4079](https://github.com/netbox-community/netbox/issues/4079) - Fix assignment of power panel when bulk editing power feeds
-
-## Enhancements
-
-* [#2921](https://github.com/netbox-community/netbox/issues/2921) - Replace tags filter with Select2 widget
 
 ---
 

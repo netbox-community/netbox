@@ -6,9 +6,8 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
-from django.db.models import Count, ManyToManyField, ProtectedError
-from django.db.models.query import QuerySet
-from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
+from django.db.models import ManyToManyField, ProtectedError
+from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
 from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
@@ -24,7 +23,6 @@ from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
-from extras.utils import is_taggable
 from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField
 from utilities.utils import csv_format, prepare_cloned_fields
