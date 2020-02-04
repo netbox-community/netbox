@@ -104,15 +104,22 @@ class StandardTestCases:
             if self.model is None:
                 raise Exception("Test case requires model to be defined")
 
+        def _get_base_url(self):
+            """
+            Return the base format for a URL for the test's model. Override this to test for a model which belongs
+            to a different app (e.g. testing Interfaces within the virtualization app).
+            """
+            return '{}:{}_{{}}'.format(
+                self.model._meta.app_label,
+                self.model._meta.model_name
+            )
+
         def _get_url(self, action, instance=None):
             """
             Return the URL name for a specific action. An instance must be specified for
             get/edit/delete views.
             """
-            url_format = '{}:{}_{{}}'.format(
-                self.model._meta.app_label,
-                self.model._meta.model_name
-            )
+            url_format = self._get_base_url()
 
             if action in ('list', 'add', 'import', 'bulk_edit', 'bulk_delete'):
                 return reverse(url_format.format(action))
