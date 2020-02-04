@@ -13,6 +13,19 @@ from dcim.models import *
 from utilities.testing import StandardTestCases, TestCase
 
 
+def create_test_device(name):
+    """
+    Convenience method for creating a Device (e.g. for component testing).
+    """
+    site = Site.objects.create(name='Site 1', slug='site-1')
+    manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+    devicetype = DeviceType.objects.create(model='Device Type 1', manufacturer=manufacturer)
+    devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+    device = Device.objects.create(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
+
+    return device
+
+
 class RegionTestCase(StandardTestCases.Views):
     model = Region
 
@@ -671,21 +684,7 @@ class ConsolePortTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
-
-        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
-        manufacturer.save()
-
-        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
-        devicetype.save()
-
-        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
-        devicerole.save()
-
-        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
-        device.save()
+        device = create_test_device('Device 1')
 
         ConsolePort.objects.bulk_create([
             ConsolePort(device=device, name='Console Port 1'),
@@ -724,21 +723,7 @@ class ConsoleServerPortTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
-
-        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
-        manufacturer.save()
-
-        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
-        devicetype.save()
-
-        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
-        devicerole.save()
-
-        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
-        device.save()
+        device = create_test_device('Device 1')
 
         ConsoleServerPort.objects.bulk_create([
             ConsoleServerPort(device=device, name='Console Server Port 1'),
@@ -777,21 +762,7 @@ class PowerPortTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
-
-        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
-        manufacturer.save()
-
-        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
-        devicetype.save()
-
-        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
-        devicerole.save()
-
-        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
-        device.save()
+        device = create_test_device('Device 1')
 
         PowerPort.objects.bulk_create([
             PowerPort(device=device, name='Power Port 1'),
@@ -830,21 +801,7 @@ class PowerOutletTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
-
-        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
-        manufacturer.save()
-
-        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
-        devicetype.save()
-
-        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
-        devicerole.save()
-
-        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
-        device.save()
+        device = create_test_device('Device 1')
 
         PowerOutlet.objects.bulk_create([
             PowerOutlet(device=device, name='Power Outlet 1'),
@@ -883,21 +840,7 @@ class InterfaceTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
-
-        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
-        manufacturer.save()
-
-        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
-        devicetype.save()
-
-        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
-        devicerole.save()
-
-        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
-        device.save()
+        device = create_test_device('Device 1')
 
         Interface.objects.bulk_create([
             Interface(device=device, name='Interface 1'),
@@ -936,21 +879,7 @@ class FrontPortTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
-
-        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
-        manufacturer.save()
-
-        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
-        devicetype.save()
-
-        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
-        devicerole.save()
-
-        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
-        device.save()
+        device = create_test_device('Device 1')
 
         rearport1 = RearPort(device=device, name='Rear Port 1')
         rearport1.save()
@@ -1001,21 +930,7 @@ class RearPortTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
-
-        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
-        manufacturer.save()
-
-        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
-        devicetype.save()
-
-        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
-        devicerole.save()
-
-        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
-        device.save()
+        device = create_test_device('Device 1')
 
         RearPort.objects.bulk_create([
             RearPort(device=device, name='Rear Port 1'),
@@ -1054,25 +969,7 @@ class DeviceBayTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
-
-        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
-        manufacturer.save()
-
-        devicetype = DeviceType(
-            model='Device Type 1',
-            manufacturer=manufacturer,
-            subdevice_role=SubdeviceRoleChoices.ROLE_PARENT
-        )
-        devicetype.save()
-
-        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
-        devicerole.save()
-
-        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
-        device.save()
+        device = create_test_device('Device 1')
 
         DeviceBay.objects.bulk_create([
             DeviceBay(device=device, name='Device Bay 1'),
@@ -1111,21 +1008,7 @@ class InventoryItemTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
-
-        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
-        manufacturer.save()
-
-        devicetype = DeviceType(model='Device Type 1', manufacturer=manufacturer)
-        devicetype.save()
-
-        devicerole = DeviceRole(name='Device Role 1', slug='device-role-1')
-        devicerole.save()
-
-        device = Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
-        device.save()
+        device = create_test_device('Device 1')
 
         InventoryItem.objects.bulk_create([
             InventoryItem(device=device, name='Inventory Item 1'),
