@@ -18,6 +18,7 @@
 * [#4067](https://github.com/netbox-community/netbox/issues/4067) - Correct permission checked when creating a rack (vs. editing)
 * [#4071](https://github.com/netbox-community/netbox/issues/4071) - Enforce "view tag" permission on individual tag view
 * [#4079](https://github.com/netbox-community/netbox/issues/4079) - Fix assignment of power panel when bulk editing power feeds
+* [#4084](https://github.com/netbox-community/netbox/issues/4084) - Fix exception when creating an interface with tagged VLANs
 
 ---
 

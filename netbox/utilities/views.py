@@ -846,7 +846,9 @@ class ComponentCreateView(View):
     def get(self, request, pk):
 
         parent = get_object_or_404(self.parent_model, pk=pk)
-        form = self.form(parent, initial=request.GET)
+        data = deepcopy(request.GET)
+        data[self.parent_field] = parent.pk
+        form = self.form(parent, initial=data)
 
         return render(request, self.template_name, {
             'parent': parent,

@@ -2606,7 +2606,6 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
                 type=InterfaceTypeChoices.TYPE_LAG
             )
         else:
-            device = self.instance.device
             self.fields['lag'].queryset = Interface.objects.filter(
                 device__in=[self.instance.device, self.instance.device.get_vc_master()],
                 type=InterfaceTypeChoices.TYPE_LAG
@@ -2614,6 +2613,10 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
 
 
 class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        widget=forms.HiddenInput()
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
