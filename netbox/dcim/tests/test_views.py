@@ -1,4 +1,3 @@
-import urllib.parse
 from decimal import Decimal
 
 import pytz
@@ -6,22 +5,24 @@ import yaml
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from netaddr import EUI
 
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from utilities.testing import StandardTestCases, TestCase
+from ipam.models import VLAN
+from utilities.testing import StandardTestCases
 
 
 def create_test_device(name):
     """
     Convenience method for creating a Device (e.g. for component testing).
     """
-    site = Site.objects.create(name='Site 1', slug='site-1')
-    manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-    devicetype = DeviceType.objects.create(model='Device Type 1', manufacturer=manufacturer)
-    devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
-    device = Device.objects.create(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
+    site, _ = Site.objects.get_or_create(name='Site 1', slug='site-1')
+    manufacturer, _ = Manufacturer.objects.get_or_create(name='Manufacturer 1', slug='manufacturer-1')
+    devicetype, _ = DeviceType.objects.get_or_create(model='Device Type 1', manufacturer=manufacturer)
+    devicerole, _ = DeviceRole.objects.get_or_create(name='Device Role 1', slug='device-role-1')
+    device = Device.objects.create(name=name, site=site, device_type=devicetype, device_role=devicerole)
 
     return device
 
@@ -676,11 +677,16 @@ class DeviceTestCase(StandardTestCases.Views):
         }
 
 
-# TODO: Convert to StandardTestCases.Views
-class ConsolePortTestCase(TestCase):
-    user_permissions = (
-        'dcim.view_consoleport',
-    )
+class ConsolePortTestCase(StandardTestCases.Views):
+    model = ConsolePort
+
+    # Disable inapplicable views
+    test_get_object = None
+    test_bulk_edit_objects = None
+
+    # TODO
+    test_create_object = None
+    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -692,34 +698,37 @@ class ConsolePortTestCase(TestCase):
             ConsolePort(device=device, name='Console Port 3'),
         ])
 
-    def test_consoleport_list(self):
+        cls.form_data = {
+            'device': device.pk,
+            'name': 'Console Port X',
+            'type': ConsolePortTypeChoices.TYPE_RJ45,
+            'description': 'A console port',
+            'tags': 'Alpha,Bravo,Charlie',
 
-        url = reverse('dcim:consoleport_list')
+            # Extraneous model fields
+            'cable': None,
+            'connected_endpoint': None,
+            'connection_status': None,
+        }
 
-        response = self.client.get(url)
-        self.assertHttpStatus(response, 200)
-
-    def test_consoleport_import(self):
-        self.add_permissions('dcim.add_consoleport')
-
-        csv_data = (
+        cls.csv_data = (
             "device,name",
             "Device 1,Console Port 4",
             "Device 1,Console Port 5",
             "Device 1,Console Port 6",
         )
 
-        response = self.client.post(reverse('dcim:consoleport_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertHttpStatus(response, 200)
-        self.assertEqual(ConsolePort.objects.count(), 6)
+class ConsoleServerPortTestCase(StandardTestCases.Views):
+    model = ConsoleServerPort
 
+    # Disable inapplicable views
+    test_get_object = None
 
-# TODO: Convert to StandardTestCases.Views
-class ConsoleServerPortTestCase(TestCase):
-    user_permissions = (
-        'dcim.view_consoleserverport',
-    )
+    # TODO
+    test_create_object = None
+    test_bulk_edit_objects = None
+    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -731,34 +740,36 @@ class ConsoleServerPortTestCase(TestCase):
             ConsoleServerPort(device=device, name='Console Server Port 3'),
         ])
 
-    def test_consoleserverport_list(self):
+        cls.form_data = {
+            'device': device.pk,
+            'name': 'Console Server Port X',
+            'type': ConsolePortTypeChoices.TYPE_RJ45,
+            'description': 'A console server port',
+            'tags': 'Alpha,Bravo,Charlie',
 
-        url = reverse('dcim:consoleserverport_list')
+            # Extraneous model fields
+            'cable': None,
+            'connection_status': None,
+        }
 
-        response = self.client.get(url)
-        self.assertHttpStatus(response, 200)
-
-    def test_consoleserverport_import(self):
-        self.add_permissions('dcim.add_consoleserverport')
-
-        csv_data = (
+        cls.csv_data = (
             "device,name",
             "Device 1,Console Server Port 4",
             "Device 1,Console Server Port 5",
             "Device 1,Console Server Port 6",
         )
 
-        response = self.client.post(reverse('dcim:consoleserverport_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertHttpStatus(response, 200)
-        self.assertEqual(ConsoleServerPort.objects.count(), 6)
+class PowerPortTestCase(StandardTestCases.Views):
+    model = PowerPort
 
+    # Disable inapplicable views
+    test_get_object = None
+    test_bulk_edit_objects = None
 
-# TODO: Convert to StandardTestCases.Views
-class PowerPortTestCase(TestCase):
-    user_permissions = (
-        'dcim.view_powerport',
-    )
+    # TODO
+    test_create_object = None
+    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -770,73 +781,84 @@ class PowerPortTestCase(TestCase):
             PowerPort(device=device, name='Power Port 3'),
         ])
 
-    def test_powerport_list(self):
+        cls.form_data = {
+            'device': device.pk,
+            'name': 'Power Port X',
+            'type': PowerPortTypeChoices.TYPE_IEC_C14,
+            'maximum_draw': 100,
+            'allocated_draw': 50,
+            'description': 'A power port',
+            'tags': 'Alpha,Bravo,Charlie',
 
-        url = reverse('dcim:powerport_list')
+            # Extraneous model fields
+            'cable': None,
+            'connection_status': None,
+        }
 
-        response = self.client.get(url)
-        self.assertHttpStatus(response, 200)
-
-    def test_powerport_import(self):
-        self.add_permissions('dcim.add_powerport')
-
-        csv_data = (
+        cls.csv_data = (
             "device,name",
             "Device 1,Power Port 4",
             "Device 1,Power Port 5",
             "Device 1,Power Port 6",
         )
 
-        response = self.client.post(reverse('dcim:powerport_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertHttpStatus(response, 200)
-        self.assertEqual(PowerPort.objects.count(), 6)
+class PowerOutletTestCase(StandardTestCases.Views):
+    model = PowerOutlet
 
+    # Disable inapplicable views
+    test_get_object = None
 
-# TODO: Convert to StandardTestCases.Views
-class PowerOutletTestCase(TestCase):
-    user_permissions = (
-        'dcim.view_poweroutlet',
-    )
+    # TODO
+    test_create_object = None
+    test_bulk_edit_objects = None
+    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):
         device = create_test_device('Device 1')
 
+        powerports = (
+            PowerPort(device=device, name='Power Port 1'),
+            PowerPort(device=device, name='Power Port 2'),
+        )
+        PowerPort.objects.bulk_create(powerports)
+
         PowerOutlet.objects.bulk_create([
-            PowerOutlet(device=device, name='Power Outlet 1'),
-            PowerOutlet(device=device, name='Power Outlet 2'),
-            PowerOutlet(device=device, name='Power Outlet 3'),
+            PowerOutlet(device=device, name='Power Outlet 1', power_port=powerports[0]),
+            PowerOutlet(device=device, name='Power Outlet 2', power_port=powerports[0]),
+            PowerOutlet(device=device, name='Power Outlet 3', power_port=powerports[0]),
         ])
 
-    def test_poweroutlet_list(self):
+        cls.form_data = {
+            'device': device.pk,
+            'name': 'Power Outlet X',
+            'type': PowerOutletTypeChoices.TYPE_IEC_C13,
+            'power_port': powerports[1].pk,
+            'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
+            'description': 'A power outlet',
+            'tags': 'Alpha,Bravo,Charlie',
 
-        url = reverse('dcim:poweroutlet_list')
+            # Extraneous model fields
+            'cable': None,
+            'connection_status': None,
+        }
 
-        response = self.client.get(url)
-        self.assertHttpStatus(response, 200)
-
-    def test_poweroutlet_import(self):
-        self.add_permissions('dcim.add_poweroutlet')
-
-        csv_data = (
+        cls.csv_data = (
             "device,name",
             "Device 1,Power Outlet 4",
             "Device 1,Power Outlet 5",
             "Device 1,Power Outlet 6",
         )
 
-        response = self.client.post(reverse('dcim:poweroutlet_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertHttpStatus(response, 200)
-        self.assertEqual(PowerOutlet.objects.count(), 6)
+class InterfaceTestCase(StandardTestCases.Views):
+    model = Interface
 
-
-# TODO: Convert to StandardTestCases.Views
-class InterfaceTestCase(TestCase):
-    user_permissions = (
-        'dcim.view_interface',
-    )
+    # TODO
+    test_create_object = None
+    test_bulk_edit_objects = None
+    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -848,85 +870,105 @@ class InterfaceTestCase(TestCase):
             Interface(device=device, name='Interface 3'),
         ])
 
-    def test_interface_list(self):
+        vlans = (
+            VLAN(vid=1, name='VLAN1', site=device.site),
+            VLAN(vid=101, name='VLAN101', site=device.site),
+            VLAN(vid=102, name='VLAN102', site=device.site),
+            VLAN(vid=103, name='VLAN103', site=device.site),
+        )
+        VLAN.objects.bulk_create(vlans)
 
-        url = reverse('dcim:interface_list')
+        cls.form_data = {
+            'device': device.pk,
+            'virtual_machine': None,
+            'name': 'Interface X',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'enabled': False,
+            'lag': None,
+            'mac_address': EUI('01:02:03:04:05:06'),
+            'mtu': 2000,
+            'mgmt_only': True,
+            'description': 'New description',
+            'mode': InterfaceModeChoices.MODE_TAGGED,
+            'untagged_vlan': vlans[0].pk,
+            'tagged_vlans': [v.pk for v in vlans[1:4]],
+            'tags': 'Alpha,Bravo,Charlie',
 
-        response = self.client.get(url)
-        self.assertHttpStatus(response, 200)
+            # Extraneous model fields
+            'cable': None,
+            'connection_status': None,
+        }
 
-    def test_interface_import(self):
-        self.add_permissions('dcim.add_interface')
-
-        csv_data = (
+        cls.csv_data = (
             "device,name,type",
             "Device 1,Interface 4,1000BASE-T (1GE)",
             "Device 1,Interface 5,1000BASE-T (1GE)",
             "Device 1,Interface 6,1000BASE-T (1GE)",
         )
 
-        response = self.client.post(reverse('dcim:interface_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertHttpStatus(response, 200)
-        self.assertEqual(Interface.objects.count(), 6)
+class FrontPortTestCase(StandardTestCases.Views):
+    model = FrontPort
 
+    # Disable inapplicable views
+    test_get_object = None
 
-# TODO: Convert to StandardTestCases.Views
-class FrontPortTestCase(TestCase):
-    user_permissions = (
-        'dcim.view_frontport',
-    )
+    # TODO
+    test_create_object = None
+    test_bulk_edit_objects = None
+    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):
         device = create_test_device('Device 1')
 
-        rearport1 = RearPort(device=device, name='Rear Port 1')
-        rearport1.save()
-        rearport2 = RearPort(device=device, name='Rear Port 2')
-        rearport2.save()
-        rearport3 = RearPort(device=device, name='Rear Port 3')
-        rearport3.save()
-
-        # RearPorts for CSV import test
-        RearPort(device=device, name='Rear Port 4').save()
-        RearPort(device=device, name='Rear Port 5').save()
-        RearPort(device=device, name='Rear Port 6').save()
+        rearports = (
+            RearPort(device=device, name='Rear Port 1'),
+            RearPort(device=device, name='Rear Port 2'),
+            RearPort(device=device, name='Rear Port 3'),
+            RearPort(device=device, name='Rear Port 4'),
+            RearPort(device=device, name='Rear Port 5'),
+            RearPort(device=device, name='Rear Port 6'),
+        )
+        RearPort.objects.bulk_create(rearports)
 
         FrontPort.objects.bulk_create([
-            FrontPort(device=device, name='Front Port 1', rear_port=rearport1),
-            FrontPort(device=device, name='Front Port 2', rear_port=rearport2),
-            FrontPort(device=device, name='Front Port 3', rear_port=rearport3),
+            FrontPort(device=device, name='Front Port 1', rear_port=rearports[0]),
+            FrontPort(device=device, name='Front Port 2', rear_port=rearports[1]),
+            FrontPort(device=device, name='Front Port 3', rear_port=rearports[2]),
         ])
 
-    def test_frontport_list(self):
+        cls.form_data = {
+            'device': device.pk,
+            'name': 'Front Port X',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'rear_port': rearports[3].pk,
+            'rear_port_position': 1,
+            'description': 'New description',
+            'tags': 'Alpha,Bravo,Charlie',
 
-        url = reverse('dcim:frontport_list')
+            # Extraneous model fields
+            'cable': None,
+        }
 
-        response = self.client.get(url)
-        self.assertHttpStatus(response, 200)
-
-    def test_frontport_import(self):
-        self.add_permissions('dcim.add_frontport')
-
-        csv_data = (
+        cls.csv_data = (
             "device,name,type,rear_port,rear_port_position",
             "Device 1,Front Port 4,8P8C,Rear Port 4,1",
             "Device 1,Front Port 5,8P8C,Rear Port 5,1",
             "Device 1,Front Port 6,8P8C,Rear Port 6,1",
         )
 
-        response = self.client.post(reverse('dcim:frontport_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertHttpStatus(response, 200)
-        self.assertEqual(FrontPort.objects.count(), 6)
+class RearPortTestCase(StandardTestCases.Views):
+    model = RearPort
 
+    # Disable inapplicable views
+    test_get_object = None
 
-# TODO: Convert to StandardTestCases.Views
-class RearPortTestCase(TestCase):
-    user_permissions = (
-        'dcim.view_rearport',
-    )
+    # TODO
+    test_create_object = None
+    test_bulk_edit_objects = None
+    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -938,77 +980,82 @@ class RearPortTestCase(TestCase):
             RearPort(device=device, name='Rear Port 3'),
         ])
 
-    def test_rearport_list(self):
+        cls.form_data = {
+            'device': device.pk,
+            'name': 'Rear Port X',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 3,
+            'description': 'New description',
+            'tags': 'Alpha,Bravo,Charlie',
 
-        url = reverse('dcim:rearport_list')
+            # Extraneous model fields
+            'cable': None,
+        }
 
-        response = self.client.get(url)
-        self.assertHttpStatus(response, 200)
-
-    def test_rearport_import(self):
-        self.add_permissions('dcim.add_rearport')
-
-        csv_data = (
+        cls.csv_data = (
             "device,name,type,positions",
             "Device 1,Rear Port 4,8P8C,1",
             "Device 1,Rear Port 5,8P8C,1",
             "Device 1,Rear Port 6,8P8C,1",
         )
 
-        response = self.client.post(reverse('dcim:rearport_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertHttpStatus(response, 200)
-        self.assertEqual(RearPort.objects.count(), 6)
+class DeviceBayTestCase(StandardTestCases.Views):
+    model = DeviceBay
 
+    # Disable inapplicable views
+    test_get_object = None
 
-# TODO: Convert to StandardTestCases.Views
-class DeviceBayTestCase(TestCase):
-    user_permissions = (
-        'dcim.view_devicebay',
-    )
+    # TODO
+    test_create_object = None
+    test_bulk_edit_objects = None
+    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):
-        device = create_test_device('Device 1')
+        device1 = create_test_device('Device 1')
+        device2 = create_test_device('Device 2')
+
+        # Update the DeviceType subdevice role to allow adding DeviceBays
+        DeviceType.objects.update(subdevice_role=SubdeviceRoleChoices.ROLE_PARENT)
 
         DeviceBay.objects.bulk_create([
-            DeviceBay(device=device, name='Device Bay 1'),
-            DeviceBay(device=device, name='Device Bay 2'),
-            DeviceBay(device=device, name='Device Bay 3'),
+            DeviceBay(device=device1, name='Device Bay 1'),
+            DeviceBay(device=device1, name='Device Bay 2'),
+            DeviceBay(device=device1, name='Device Bay 3'),
         ])
 
-    def test_devicebay_list(self):
+        cls.form_data = {
+            'device': device2.pk,
+            'name': 'Device Bay X',
+            'description': 'A device bay',
+            'tags': 'Alpha,Bravo,Charlie',
 
-        url = reverse('dcim:devicebay_list')
+            # Extraneous model fields
+            'installed_device': None,
+        }
 
-        response = self.client.get(url)
-        self.assertHttpStatus(response, 200)
-
-    def test_devicebay_import(self):
-        self.add_permissions('dcim.add_devicebay')
-
-        csv_data = (
+        cls.csv_data = (
             "device,name",
             "Device 1,Device Bay 4",
             "Device 1,Device Bay 5",
             "Device 1,Device Bay 6",
         )
 
-        response = self.client.post(reverse('dcim:devicebay_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertHttpStatus(response, 200)
-        self.assertEqual(DeviceBay.objects.count(), 6)
+class InventoryItemTestCase(StandardTestCases.Views):
+    model = InventoryItem
 
+    # Disable inapplicable views
+    test_get_object = None
 
-# TODO: Convert to StandardTestCases.Views
-class InventoryItemTestCase(TestCase):
-    user_permissions = (
-        'dcim.view_inventoryitem',
-    )
+    # TODO
+    test_create_object = None
 
     @classmethod
     def setUpTestData(cls):
         device = create_test_device('Device 1')
+        manufacturer, _ = Manufacturer.objects.get_or_create(name='Manufacturer 1', slug='manufacturer-1')
 
         InventoryItem.objects.bulk_create([
             InventoryItem(device=device, name='Inventory Item 1'),
@@ -1016,30 +1063,32 @@ class InventoryItemTestCase(TestCase):
             InventoryItem(device=device, name='Inventory Item 3'),
         ])
 
-    def test_inventoryitem_list(self):
-
-        url = reverse('dcim:inventoryitem_list')
-        params = {
-            "device_id": Device.objects.first().pk,
+        cls.form_data = {
+            'device': device.pk,
+            'manufacturer': manufacturer.pk,
+            'name': 'Inventory Item X',
+            'parent': None,
+            'discovered': False,
+            'part_id': '123456',
+            'serial': '123ABC',
+            'asset_tag': 'ABC123',
+            'description': 'An inventory item',
+            'tags': 'Alpha,Bravo,Charlie',
         }
 
-        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertHttpStatus(response, 200)
-
-    def test_inventoryitem_import(self):
-        self.add_permissions('dcim.add_inventoryitem')
-
-        csv_data = (
+        cls.csv_data = (
             "device,name",
             "Device 1,Inventory Item 4",
             "Device 1,Inventory Item 5",
             "Device 1,Inventory Item 6",
         )
 
-        response = self.client.post(reverse('dcim:inventoryitem_import'), {'csv': '\n'.join(csv_data)})
-
-        self.assertHttpStatus(response, 200)
-        self.assertEqual(InventoryItem.objects.count(), 6)
+        cls.bulk_edit_data = {
+            'device': device.pk,
+            'manufacturer': manufacturer.pk,
+            'part_id': '123456',
+            'description': 'New description',
+        }
 
 
 class CableTestCase(StandardTestCases.Views):
