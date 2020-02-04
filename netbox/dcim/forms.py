@@ -2525,7 +2525,11 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         super().__init__(*args, **kwargs)
 
         # Limit power_port queryset to PowerPorts which belong to the parent Device
-        self.fields['power_port'].queryset = PowerPort.objects.filter(device=self.parent_obj)
+        if 'device' in self.initial:
+            device = Device.objects.filter(pk=self.initial['device']).first()
+            self.fields['power_port'].queryset = PowerPort.objects.filter(device=device)
+        else:
+            self.fields['power_port'].queryset = PowerPort.objects.none()
 
 
 class PowerOutletBulkRenameForm(BulkRenameForm):
@@ -2836,14 +2840,14 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         super().__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces which belong to the parent device (or VC master)
-        device = self.parent_obj
-        if device is not None:
+        if 'device' in self.initial:
+            device = Device.objects.filter(pk=self.initial['device']).first()
             self.fields['lag'].queryset = Interface.objects.filter(
                 device__in=[device, device.get_vc_master()],
                 type=InterfaceTypeChoices.TYPE_LAG
             )
         else:
-            self.fields['lag'].choices = []
+            self.fields['lag'].queryset = Interface.objects.none()
 
     def clean(self):
 

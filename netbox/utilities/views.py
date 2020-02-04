@@ -604,14 +604,12 @@ class BulkEditView(GetReturnURLMixin, View):
     Edit objects in bulk.
 
     queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
-    parent_model: The model of the parent object (if any)
     filter: FilterSet to apply when deleting by QuerySet
     table: The table used to display devices being edited
     form: The form class used to edit objects in bulk
     template_name: The name of the template
     """
     queryset = None
-    parent_model = None
     filterset = None
     table = None
     form = None
@@ -624,12 +622,6 @@ class BulkEditView(GetReturnURLMixin, View):
 
         model = self.queryset.model
 
-        # Attempt to derive parent object if a parent class has been given
-        if self.parent_model:
-            parent_obj = get_object_or_404(self.parent_model, **kwargs)
-        else:
-            parent_obj = None
-
         # Are we editing *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all') and self.filterset is not None:
             pk_list = [obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs]
@@ -637,7 +629,7 @@ class BulkEditView(GetReturnURLMixin, View):
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
         if '_apply' in request.POST:
-            form = self.form(model, parent_obj, request.POST)
+            form = self.form(model, request.POST, initial=request.GET)
             if form.is_valid():
 
                 custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
@@ -719,9 +711,9 @@ class BulkEditView(GetReturnURLMixin, View):
                     messages.error(self.request, "{} failed validation: {}".format(obj, e))
 
         else:
-            initial_data = request.POST.copy()
+            initial_data = request.GET.copy()
             initial_data['pk'] = pk_list
-            form = self.form(model, parent_obj, initial=initial_data)
+            form = self.form(model, initial=initial_data)
 
         # Retrieve objects being edited
         table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)

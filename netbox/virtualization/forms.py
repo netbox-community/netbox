@@ -881,6 +881,8 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        parent_obj = VirtualMachine.objects.filter(pk=self.initial.get('virtual_machine')).first()
+
         # Limit VLan choices to those in: global vlans, global groups, the current site's group, the current site
         vlan_choices = []
         global_vlans = VLAN.objects.filter(site=None, group=None)
@@ -892,8 +894,8 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
             vlan_choices.append(
                 (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
             )
-        if self.parent_obj.cluster is not None:
-            site = getattr(self.parent_obj.cluster, 'site', None)
+        if parent_obj.cluster is not None:
+            site = getattr(parent_obj.cluster, 'site', None)
             if site is not None:
 
                 # Add non-grouped site VLANs

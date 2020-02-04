@@ -743,10 +743,9 @@ class BulkEditForm(forms.Form):
     """
     Base form for editing multiple objects in bulk
     """
-    def __init__(self, model, parent_obj=None, *args, **kwargs):
+    def __init__(self, model, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = model
-        self.parent_obj = parent_obj
         self.nullable_fields = []
 
         # Copy any nullable fields defined in Meta

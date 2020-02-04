@@ -53,7 +53,7 @@ urlpatterns = [
     # VM interfaces
     path(r'virtual-machines/interfaces/add/', views.VirtualMachineBulkAddInterfaceView.as_view(), name='virtualmachine_bulk_add_interface'),
     path(r'virtual-machines/<int:pk>/interfaces/add/', views.InterfaceCreateView.as_view(), name='interface_add'),
-    path(r'virtual-machines/<int:pk>/interfaces/edit/', views.InterfaceBulkEditView.as_view(), name='interface_bulk_edit'),
+    path(r'interfaces/edit/', views.InterfaceBulkEditView.as_view(), name='interface_bulk_edit'),
     path(r'interfaces/delete/', views.InterfaceBulkDeleteView.as_view(), name='interface_bulk_delete'),
     # TODO: Rename vm-interfaces to interfaces
     path(r'vm-interfaces/<int:pk>/edit/', views.InterfaceEditView.as_view(), name='interface_edit'),

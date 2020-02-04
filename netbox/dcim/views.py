@@ -1282,7 +1282,6 @@ class ConsoleServerPortBulkImportView(PermissionRequiredMixin, BulkImportView):
 class ConsoleServerPortBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_consoleserverport'
     queryset = ConsoleServerPort.objects.all()
-    parent_model = Device
     table = tables.ConsoleServerPortTable
     form = forms.ConsoleServerPortBulkEditForm
 
@@ -1398,7 +1397,6 @@ class PowerOutletBulkImportView(PermissionRequiredMixin, BulkImportView):
 class PowerOutletBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_poweroutlet'
     queryset = PowerOutlet.objects.all()
-    parent_model = Device
     table = tables.PowerOutletTable
     form = forms.PowerOutletBulkEditForm
 
@@ -1503,7 +1501,6 @@ class InterfaceBulkImportView(PermissionRequiredMixin, BulkImportView):
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_interface'
     queryset = Interface.objects.all()
-    parent_model = Device
     table = tables.InterfaceTable
     form = forms.InterfaceBulkEditForm
 
@@ -1571,7 +1568,6 @@ class FrontPortBulkImportView(PermissionRequiredMixin, BulkImportView):
 class FrontPortBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_frontport'
     queryset = FrontPort.objects.all()
-    parent_model = Device
     table = tables.FrontPortTable
     form = forms.FrontPortBulkEditForm
 
@@ -1639,7 +1635,6 @@ class RearPortBulkImportView(PermissionRequiredMixin, BulkImportView):
 class RearPortBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_rearport'
     queryset = RearPort.objects.all()
-    parent_model = Device
     table = tables.RearPortTable
     form = forms.RearPortBulkEditForm
 
