@@ -9,7 +9,7 @@ from extras.forms import (
 )
 from utilities.forms import (
     APISelect, APISelectMultiple, BootstrapMixin, FilterChoiceField, FlexibleModelChoiceField, SlugField,
-    StaticSelect2Multiple
+    StaticSelect2Multiple, TagFilterField
 )
 from .constants import *
 from .models import Secret, SecretRole, UserKey
@@ -189,6 +189,7 @@ class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
             value_field="slug",
         )
     )
+    tag = TagFilterField(model)
 
 
 #

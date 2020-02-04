@@ -18,6 +18,10 @@
 * [#4071](https://github.com/netbox-community/netbox/issues/4071) - Enforce "view tag" permission on individual tag view
 * [#4079](https://github.com/netbox-community/netbox/issues/4079) - Fix assignment of power panel when bulk editing power feeds
 
+## Enhancements
+
+* [#2921](https://github.com/netbox-community/netbox/issues/2921) - Replace tags filter with Select2 widget
+
 ---
 
 # v2.7.3 (2020-01-28)

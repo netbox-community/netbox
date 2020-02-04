@@ -12,7 +12,7 @@ from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField,
     CSVChoiceField, DatePicker, ExpandableIPAddressField, FilterChoiceField, FlexibleModelChoiceField, ReturnURLForm,
-    SlugField, StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES
+    SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES
 )
 from virtualization.models import VirtualMachine
 from .constants import *
@@ -105,6 +105,7 @@ class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         required=False,
         label='Search'
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -234,6 +235,7 @@ class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
             value_field="slug",
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -580,6 +582,7 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         required=False,
         label='Expand prefix hierarchy'
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -1019,6 +1022,7 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -1306,6 +1310,7 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -1366,6 +1371,7 @@ class ServiceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     port = forms.IntegerField(
         required=False,
     )
+    tag = TagFilterField(model)
 
 
 class ServiceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):

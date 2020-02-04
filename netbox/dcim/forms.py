@@ -24,7 +24,8 @@ from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField, ComponentForm,
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, JSONField,
-    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES,
+    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
 from .choices import *
@@ -367,6 +368,7 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             value_field="slug",
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -743,6 +745,7 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -1021,6 +1024,7 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -2108,6 +2112,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -2156,6 +2161,7 @@ class DeviceBulkAddInterfaceForm(DeviceBulkAddComponentForm):
 
 class ConsolePortFilterForm(DeviceComponentFilterForm):
     model = ConsolePort
+    tag = TagFilterField(model)
 
 
 class ConsolePortForm(BootstrapMixin, forms.ModelForm):
@@ -2213,6 +2219,7 @@ class ConsolePortCSVForm(forms.ModelForm):
 
 class ConsoleServerPortFilterForm(DeviceComponentFilterForm):
     model = ConsoleServerPort
+    tag = TagFilterField(model)
 
 
 class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
@@ -2305,6 +2312,7 @@ class ConsoleServerPortCSVForm(forms.ModelForm):
 
 class PowerPortFilterForm(DeviceComponentFilterForm):
     model = PowerPort
+    tag = TagFilterField(model)
 
 
 class PowerPortForm(BootstrapMixin, forms.ModelForm):
@@ -2372,6 +2380,7 @@ class PowerPortCSVForm(forms.ModelForm):
 
 class PowerOutletFilterForm(DeviceComponentFilterForm):
     model = PowerOutlet
+    tag = TagFilterField(model)
 
 
 class PowerOutletForm(BootstrapMixin, forms.ModelForm):
@@ -2540,6 +2549,7 @@ class PowerOutletBulkDisconnectForm(ConfirmationForm):
 
 class InterfaceFilterForm(DeviceComponentFilterForm):
     model = Interface
+    tag = TagFilterField(model)
 
 
 class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
@@ -2865,6 +2875,7 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
 
 class FrontPortFilterForm(DeviceComponentFilterForm):
     model = FrontPort
+    tag = TagFilterField(model)
 
 
 class FrontPortForm(BootstrapMixin, forms.ModelForm):
@@ -3042,6 +3053,7 @@ class FrontPortBulkDisconnectForm(ConfirmationForm):
 
 class RearPortFilterForm(DeviceComponentFilterForm):
     model = RearPort
+    tag = TagFilterField(model)
 
 
 class RearPortForm(BootstrapMixin, forms.ModelForm):
@@ -3646,6 +3658,7 @@ class CableFilterForm(BootstrapMixin, forms.Form):
 
 class DeviceBayFilterForm(DeviceComponentFilterForm):
     model = DeviceBay
+    tag = TagFilterField(model)
 
 
 class DeviceBayForm(BootstrapMixin, forms.ModelForm):
@@ -3945,6 +3958,7 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -4131,6 +4145,7 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -4509,3 +4524,4 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
     max_utilization = forms.IntegerField(
         required=False
     )
+    tag = TagFilterField(model)

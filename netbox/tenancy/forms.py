@@ -6,7 +6,7 @@ from extras.forms import (
 )
 from utilities.forms import (
     APISelect, APISelectMultiple, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField,
-    FilterChoiceField, SlugField,
+    FilterChoiceField, SlugField, TagFilterField
 )
 from .models import Tenant, TenantGroup
 
@@ -115,6 +115,7 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 #

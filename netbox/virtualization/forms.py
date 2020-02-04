@@ -16,7 +16,7 @@ from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm,
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField,
-    SmallTextarea, StaticSelect2, StaticSelect2Multiple
+    SmallTextarea, StaticSelect2, StaticSelect2Multiple, TagFilterField
 )
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -232,6 +232,7 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
@@ -639,6 +640,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         required=False,
         label='MAC address'
     )
+    tag = TagFilterField(model)
 
 
 #

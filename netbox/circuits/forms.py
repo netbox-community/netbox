@@ -8,8 +8,8 @@ from extras.forms import (
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField,
-    DatePicker, FilterChoiceField, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple
+    APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, DatePicker,
+    FilterChoiceField, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField
 )
 from .choices import CircuitStatusChoices
 from .models import Circuit, CircuitTermination, CircuitType, Provider
@@ -131,6 +131,7 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False,
         label='ASN'
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -335,6 +336,7 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         min_value=0,
         label='Commit rate (Kbps)'
     )
+    tag = TagFilterField(model)
 
 
 #

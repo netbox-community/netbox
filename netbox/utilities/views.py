@@ -7,7 +7,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import Count, ManyToManyField, ProtectedError
-from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
+from django.db.models.query import QuerySet
+from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
 from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
@@ -166,12 +167,6 @@ class ObjectListView(View):
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
 
-        # Construct queryset for tags list
-        if is_taggable(model):
-            tags = model.tags.annotate(count=Count('extras_taggeditem_items')).order_by('name')
-        else:
-            tags = None
-
         # Apply the request context
         paginate = {
             'paginator_class': EnhancedPaginator,
@@ -184,7 +179,6 @@ class ObjectListView(View):
             'table': table,
             'permissions': permissions,
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
-            'tags': tags,
         }
         context.update(self.extra_context())
 
