@@ -686,7 +686,6 @@ class ConsolePortTestCase(StandardTestCases.Views):
 
     # TODO
     test_create_object = None
-    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -728,7 +727,6 @@ class ConsoleServerPortTestCase(StandardTestCases.Views):
     # TODO
     test_create_object = None
     test_bulk_edit_objects = None
-    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -769,7 +767,6 @@ class PowerPortTestCase(StandardTestCases.Views):
 
     # TODO
     test_create_object = None
-    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -812,7 +809,6 @@ class PowerOutletTestCase(StandardTestCases.Views):
     # TODO
     test_create_object = None
     test_bulk_edit_objects = None
-    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -858,7 +854,6 @@ class InterfaceTestCase(StandardTestCases.Views):
     # TODO
     test_create_object = None
     test_bulk_edit_objects = None
-    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -916,7 +911,6 @@ class FrontPortTestCase(StandardTestCases.Views):
     # TODO
     test_create_object = None
     test_bulk_edit_objects = None
-    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -968,7 +962,6 @@ class RearPortTestCase(StandardTestCases.Views):
     # TODO
     test_create_object = None
     test_bulk_edit_objects = None
-    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -1009,7 +1002,6 @@ class DeviceBayTestCase(StandardTestCases.Views):
     # TODO
     test_create_object = None
     test_bulk_edit_objects = None
-    test_bulk_delete_objects = None
 
     @classmethod
     def setUpTestData(cls):

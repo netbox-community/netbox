@@ -293,7 +293,7 @@
                         </button>
                     {% endif %}
                     {% if interfaces and perms.dcim.delete_interface %}
-                        <button type="submit" name="_delete" formaction="{% url 'virtualization:interface_bulk_delete' pk=virtualmachine.pk %}?return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-danger btn-xs">
+                        <button type="submit" name="_delete" formaction="{% url 'virtualization:interface_bulk_delete' %}?return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-danger btn-xs">
                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
                         </button>
                     {% endif %}

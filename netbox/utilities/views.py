@@ -742,14 +742,12 @@ class BulkDeleteView(GetReturnURLMixin, View):
     Delete objects in bulk.
 
     queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
-    parent_model: The model of the parent object (if any)
     filter: FilterSet to apply when deleting by QuerySet
     table: The table used to display devices being deleted
     form: The form class used to delete objects in bulk
     template_name: The name of the template
     """
     queryset = None
-    parent_model = None
     filterset = None
     table = None
     form = None
@@ -761,12 +759,6 @@ class BulkDeleteView(GetReturnURLMixin, View):
     def post(self, request, **kwargs):
 
         model = self.queryset.model
-
-        # Attempt to derive parent object if a parent class has been given
-        if self.parent_model:
-            parent_obj = get_object_or_404(self.parent_model, **kwargs)
-        else:
-            parent_obj = None
 
         # Are we deleting *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all'):
@@ -809,7 +801,6 @@ class BulkDeleteView(GetReturnURLMixin, View):
 
         return render(request, self.template_name, {
             'form': form,
-            'parent_obj': parent_obj,
             'obj_type_plural': model._meta.verbose_name_plural,
             'table': table,
             'return_url': self.get_return_url(request),

@@ -1234,8 +1234,8 @@ class ConsolePortBulkImportView(PermissionRequiredMixin, BulkImportView):
 class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_consoleport'
     queryset = ConsolePort.objects.all()
-    parent_model = Device
     table = tables.ConsolePortTable
+    default_return_url = 'dcim:consoleport_list'
 
 
 #
@@ -1302,8 +1302,8 @@ class ConsoleServerPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnec
 class ConsoleServerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_consoleserverport'
     queryset = ConsoleServerPort.objects.all()
-    parent_model = Device
     table = tables.ConsoleServerPortTable
+    default_return_url = 'dcim:consoleserverport_list'
 
 
 #
@@ -1350,8 +1350,8 @@ class PowerPortBulkImportView(PermissionRequiredMixin, BulkImportView):
 class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_powerport'
     queryset = PowerPort.objects.all()
-    parent_model = Device
     table = tables.PowerPortTable
+    default_return_url = 'dcim:powerport_list'
 
 
 #
@@ -1418,8 +1418,8 @@ class PowerOutletBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView)
 class PowerOutletBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_poweroutlet'
     queryset = PowerOutlet.objects.all()
-    parent_model = Device
     table = tables.PowerOutletTable
+    default_return_url = 'dcim:poweroutlet_list'
 
 
 #
@@ -1523,8 +1523,8 @@ class InterfaceBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
 class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_interface'
     queryset = Interface.objects.all()
-    parent_model = Device
     table = tables.InterfaceTable
+    default_return_url = 'dcim:interface_list'
 
 
 #
@@ -1591,8 +1591,8 @@ class FrontPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
 class FrontPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_frontport'
     queryset = FrontPort.objects.all()
-    parent_model = Device
     table = tables.FrontPortTable
+    default_return_url = 'dcim:frontport_list'
 
 
 #
@@ -1659,8 +1659,8 @@ class RearPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
 class RearPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rearport'
     queryset = RearPort.objects.all()
-    parent_model = Device
     table = tables.RearPortTable
+    default_return_url = 'dcim:rearport_list'
 
 
 #
@@ -1784,8 +1784,8 @@ class DeviceBayBulkRenameView(PermissionRequiredMixin, BulkRenameView):
 class DeviceBayBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_devicebay'
     queryset = DeviceBay.objects.all()
-    parent_model = Device
     table = tables.DeviceBayTable
+    default_return_url = 'dcim:devicebay_list'
 
 
 #
