@@ -25,7 +25,7 @@ from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
 from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField
-from utilities.utils import csv_format, prepare_cloned_fields
+from utilities.utils import csv_format, prepare_cloned_fields, querydict_to_dict
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm, ImportForm
 from .paginator import EnhancedPaginator
@@ -622,11 +622,12 @@ class BulkEditView(GetReturnURLMixin, View):
 
         model = self.queryset.model
 
-        # Are we editing *all* objects in the queryset or just a selected subset?
-        if request.POST.get('_all') and self.filterset is not None:
-            pk_list = [obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs]
-        else:
-            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
+        # Create a mutable copy of the POST data
+        post_data = request.POST.copy()
+
+        # If we are editing *all* objects in the queryset, replace the PK list with all matched objects.
+        if post_data.get('_all') and self.filterset is not None:
+            post_data['pk'] = [obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs]
 
         if '_apply' in request.POST:
             form = self.form(model, request.POST, initial=request.GET)
@@ -643,7 +644,7 @@ class BulkEditView(GetReturnURLMixin, View):
                     with transaction.atomic():
 
                         updated_count = 0
-                        for obj in model.objects.filter(pk__in=pk_list):
+                        for obj in model.objects.filter(pk__in=form.cleaned_data['pk']):
 
                             # Update standard fields. If a field is listed in _nullify, delete its value.
                             for name in standard_fields:
@@ -711,12 +712,16 @@ class BulkEditView(GetReturnURLMixin, View):
                     messages.error(self.request, "{} failed validation: {}".format(obj, e))
 
         else:
-            initial_data = request.GET.copy()
-            initial_data['pk'] = pk_list
+            # Pass the PK list as initial data to avoid binding the form
+            initial_data = querydict_to_dict(post_data)
+
+            # Append any normal initial data (passed as GET parameters)
+            initial_data.update(request.GET)
+
             form = self.form(model, initial=initial_data)
 
         # Retrieve objects being edited
-        table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
+        table = self.table(self.queryset.filter(pk__in=post_data.getlist('pk')), orderable=False)
         if not table.rows:
             messages.warning(request, "No {} were selected.".format(model._meta.verbose_name_plural))
             return redirect(self.get_return_url(request))
