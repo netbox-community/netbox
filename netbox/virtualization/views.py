@@ -330,8 +330,6 @@ class VirtualMachineBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_interface'
-    parent_model = VirtualMachine
-    parent_field = 'virtual_machine'
     model = Interface
     form = forms.InterfaceCreateForm
     model_form = forms.InterfaceForm

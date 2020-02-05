@@ -739,6 +739,10 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
 
 
 class InterfaceCreateForm(ComponentForm):
+    virtual_machine = forms.ModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        widget=forms.HiddenInput()
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -748,7 +752,8 @@ class InterfaceCreateForm(ComponentForm):
         widget=forms.HiddenInput()
     )
     enabled = forms.BooleanField(
-        required=False
+        required=False,
+        initial=True
     )
     mtu = forms.IntegerField(
         required=False,
@@ -793,13 +798,9 @@ class InterfaceCreateForm(ComponentForm):
 
     def __init__(self, *args, **kwargs):
 
-        # Set interfaces enabled by default
-        kwargs['initial'] = kwargs.get('initial', {}).copy()
-        kwargs['initial'].update({'enabled': True})
-
         super().__init__(*args, **kwargs)
 
-        # Limit VLan choices to those in: global vlans, global groups, the current site's group, the current site
+        # Limit VLAN choices to those in: global vlans, global groups, the current site's group, the current site
         vlan_choices = []
         global_vlans = VLAN.objects.filter(site=None, group=None)
         vlan_choices.append(
@@ -811,7 +812,8 @@ class InterfaceCreateForm(ComponentForm):
                 (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
             )
 
-        site = getattr(self.parent.cluster, 'site', None)
+        parent = VirtualMachine.objects.get(pk=self.initial['virtual_machine'])
+        site = getattr(parent.cluster, 'site', None)
         if site is not None:
 
             # Add non-grouped site VLANs

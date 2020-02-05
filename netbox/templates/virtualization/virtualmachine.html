@@ -299,7 +299,7 @@
                     {% endif %}
                     {% if perms.dcim.add_interface %}
                         <div class="pull-right">
-                            <a href="{% url 'virtualization:interface_add' pk=virtualmachine.pk %}" class="btn btn-primary btn-xs">
+                            <a href="{% url 'virtualization:interface_add' %}?virtual_machine={{ virtualmachine.pk }}&return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-primary btn-xs">
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interfaces
                             </a>
                         </div>

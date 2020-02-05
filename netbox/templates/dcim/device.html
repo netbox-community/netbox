@@ -48,14 +48,30 @@
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Components <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    {% if perms.dcim.add_consoleport %}<li><a href="{% url 'dcim:consoleport_add' pk=device.pk %}">Console Ports</a></li>{% endif %}
-                    {% if perms.dcim.add_consoleserverport %}<li><a href="{% url 'dcim:consoleserverport_add' pk=device.pk %}">Console Server Ports</a></li>{% endif %}
-                    {% if perms.dcim.add_powerport %}<li><a href="{% url 'dcim:powerport_add' pk=device.pk %}">Power Ports</a></li>{% endif %}
-                    {% if perms.dcim.add_poweroutlet %}<li><a href="{% url 'dcim:poweroutlet_add' pk=device.pk %}">Power Outlets</a></li>{% endif %}
-                    {% if perms.dcim.add_interface %}<li><a href="{% url 'dcim:interface_add' pk=device.pk %}">Interfaces</a></li>{% endif %}
-                    {% if perms.dcim.add_frontport %}<li><a href="{% url 'dcim:frontport_add' pk=device.pk %}">Front Ports</a></li>{% endif %}
-                    {% if perms.dcim.add_rearport %}<li><a href="{% url 'dcim:rearport_add' pk=device.pk %}">Rear Ports</a></li>{% endif %}
-                    {% if perms.dcim.add_devicebay %}<li><a href="{% url 'dcim:devicebay_add' pk=device.pk %}">Device Bays</a></li>{% endif %}
+                    {% if perms.dcim.add_consoleport %}
+                        <li><a href="{% url 'dcim:consoleport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}">Console Ports</a></li>
+                    {% endif %}
+                    {% if perms.dcim.add_consoleserverport %}
+                        <li><a href="{% url 'dcim:consoleserverport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}">Console Server Ports</a></li>
+                    {% endif %}
+                    {% if perms.dcim.add_powerport %}
+                        <li><a href="{% url 'dcim:powerport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}">Power Ports</a></li>
+                    {% endif %}
+                    {% if perms.dcim.add_poweroutlet %}
+                        <li><a href="{% url 'dcim:poweroutlet_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}">Power Outlets</a></li>
+                    {% endif %}
+                    {% if perms.dcim.add_interface %}
+                        <li><a href="{% url 'dcim:interface_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}">Interfaces</a></li>
+                    {% endif %}
+                    {% if perms.dcim.add_frontport %}
+                        <li><a href="{% url 'dcim:frontport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}">Front Ports</a></li>
+                    {% endif %}
+                    {% if perms.dcim.add_rearport %}
+                        <li><a href="{% url 'dcim:rearport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}">Rear Ports</a></li>
+                    {% endif %}
+                    {% if perms.dcim.add_devicebay %}
+                        <li><a href="{% url 'dcim:devicebay_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}">Device Bays</a></li>
+                    {% endif %}
                 </ul>
             </div>
         {% endif %}
@@ -333,12 +349,12 @@
                     {% if perms.dcim.add_interface or perms.dcim.add_consoleport or perms.dcim.add_powerport %}
                         <div class="panel-footer text-right noprint">
                             {% if perms.dcim.add_consoleport %}
-                                <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
+                                <a href="{% url 'dcim:consoleport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-xs btn-primary">
                                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console port
                                 </a>
                             {% endif %}
                             {% if perms.dcim.add_powerport %}
-                                <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
+                                <a href="{% url 'dcim:powerport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-xs btn-primary">
                                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power port
                                 </a>
                             {% endif %}
@@ -530,7 +546,7 @@
                         {% endif %}
                         {% if perms.dcim.add_devicebay %}
                             <div class="pull-right">
-                                <a href="{% url 'dcim:devicebay_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                <a href="{% url 'dcim:devicebay_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-primary btn-xs">
                                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add device bays
                                 </a>
                             </div>
@@ -603,7 +619,7 @@
                         {% endif %}
                         {% if perms.dcim.add_interface %}
                             <div class="pull-right">
-                                <a href="{% url 'dcim:interface_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                <a href="{% url 'dcim:interface_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-primary btn-xs">
                                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interfaces
                                 </a>
                             </div>
@@ -664,7 +680,7 @@
                         {% endif %}
                         {% if perms.dcim.add_consoleserverport %}
                             <div class="pull-right">
-                                <a href="{% url 'dcim:consoleserverport_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                <a href="{% url 'dcim:consoleserverport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-primary btn-xs">
                                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console server ports
                                 </a>
                             </div>
@@ -726,7 +742,7 @@
                         {% endif %}
                         {% if perms.dcim.add_poweroutlet %}
                             <div class="pull-right">
-                                <a href="{% url 'dcim:poweroutlet_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                <a href="{% url 'dcim:poweroutlet_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-primary btn-xs">
                                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power outlets
                                 </a>
                             </div>
@@ -787,7 +803,7 @@
                             {% endif %}
                             {% if perms.dcim.add_frontport %}
                                 <div class="pull-right">
-                                    <a href="{% url 'dcim:frontport_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                    <a href="{% url 'dcim:frontport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-primary btn-xs">
                                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add front ports
                                     </a>
                                 </div>
@@ -845,7 +861,7 @@
                             {% endif %}
                             {% if perms.dcim.add_rearport %}
                                 <div class="pull-right">
-                                    <a href="{% url 'dcim:rearport_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                    <a href="{% url 'dcim:rearport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-primary btn-xs">
                                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add rear ports
                                     </a>
                                 </div>

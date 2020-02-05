@@ -2180,6 +2180,10 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
 
 
 class ConsolePortCreateForm(ComponentForm):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        widget=forms.HiddenInput()
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -2238,6 +2242,10 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
 
 
 class ConsoleServerPortCreateForm(ComponentForm):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        widget=forms.HiddenInput()
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -2331,6 +2339,10 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
 
 
 class PowerPortCreateForm(ComponentForm):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        widget=forms.HiddenInput()
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -2412,6 +2424,10 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
 
 
 class PowerOutletCreateForm(ComponentForm):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        widget=forms.HiddenInput()
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -2437,11 +2453,12 @@ class PowerOutletCreateForm(ComponentForm):
     )
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
-        # Limit power_port choices to those on the parent device
-        self.fields['power_port'].queryset = PowerPort.objects.filter(device=self.parent)
+        # Limit power_port queryset to PowerPorts which belong to the parent Device
+        if 'device' in self.initial:
+            device = Device.objects.filter(pk=self.initial['device']).first()
+            self.fields['power_port'].queryset = PowerPort.objects.filter(device=device)
 
 
 class PowerOutletCSVForm(forms.ModelForm):
@@ -2631,7 +2648,8 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
         widget=StaticSelect2(),
     )
     enabled = forms.BooleanField(
-        required=False
+        required=False,
+        initial=True
     )
     lag = forms.ModelChoiceField(
         queryset=Interface.objects.all(),
@@ -2686,21 +2704,15 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-
-        # Set interfaces enabled by default
-        kwargs['initial'] = kwargs.get('initial', {}).copy()
-        kwargs['initial'].update({'enabled': True})
-
         super().__init__(*args, **kwargs)
 
-        # Limit LAG choices to interfaces belonging to this device (or its VC master)
-        if self.parent is not None:
+        # Limit LAG choices to interfaces which belong to the parent device (or VC master)
+        if 'device' in self.initial:
+            device = Device.objects.filter(pk=self.initial['device']).first()
             self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[self.parent, self.parent.get_vc_master()],
+                device__in=[device, device.get_vc_master()],
                 type=InterfaceTypeChoices.TYPE_LAG
             )
-        else:
-            self.fields['lag'].queryset = Interface.objects.none()
 
 
 class InterfaceCSVForm(forms.ModelForm):
@@ -2917,6 +2929,10 @@ class FrontPortForm(BootstrapMixin, forms.ModelForm):
 
 # TODO: Merge with FrontPortTemplateCreateForm to remove duplicate logic
 class FrontPortCreateForm(ComponentForm):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        widget=forms.HiddenInput()
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -2936,15 +2952,17 @@ class FrontPortCreateForm(ComponentForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        parent = Device.objects.get(pk=self.initial['device'])
+
         # Determine which rear port positions are occupied. These will be excluded from the list of available mappings.
         occupied_port_positions = [
             (front_port.rear_port_id, front_port.rear_port_position)
-            for front_port in self.parent.frontports.all()
+            for front_port in parent.frontports.all()
         ]
 
         # Populate rear port choices
         choices = []
-        rear_ports = RearPort.objects.filter(device=self.parent)
+        rear_ports = RearPort.objects.filter(device=parent)
         for rear_port in rear_ports:
             for i in range(1, rear_port.positions + 1):
                 if (rear_port.pk, i) not in occupied_port_positions:
@@ -3084,6 +3102,10 @@ class RearPortForm(BootstrapMixin, forms.ModelForm):
 
 
 class RearPortCreateForm(ComponentForm):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        widget=forms.HiddenInput()
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -3688,6 +3710,10 @@ class DeviceBayForm(BootstrapMixin, forms.ModelForm):
 
 
 class DeviceBayCreateForm(ComponentForm):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        widget=forms.HiddenInput()
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )

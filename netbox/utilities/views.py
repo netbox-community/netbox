@@ -820,7 +820,8 @@ class BulkDeleteView(GetReturnURLMixin, View):
 # Device/VirtualMachine components
 #
 
-class ComponentCreateView(View):
+# TODO: Replace with BulkCreateView
+class ComponentCreateView(GetReturnURLMixin, View):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a Device or VirtualMachine.
     """
@@ -831,30 +832,23 @@ class ComponentCreateView(View):
     model_form = None
     template_name = None
 
-    def get(self, request, pk):
+    def get(self, request):
 
-        parent = get_object_or_404(self.parent_model, pk=pk)
-        data = deepcopy(request.GET)
-        data[self.parent_field] = parent.pk
-        form = self.form(parent, initial=data)
+        form = self.form(initial=request.GET)
 
         return render(request, self.template_name, {
-            'parent': parent,
             'component_type': self.model._meta.verbose_name,
             'form': form,
-            'return_url': parent.get_absolute_url(),
+            'return_url': self.get_return_url(request),
         })
 
-    def post(self, request, pk):
+    def post(self, request):
 
-        parent = get_object_or_404(self.parent_model, pk=pk)
-
-        form = self.form(parent, request.POST)
+        form = self.form(request.POST, initial=request.GET)
         if form.is_valid():
 
             new_components = []
             data = deepcopy(request.POST)
-            data[self.parent_field] = parent.pk
 
             for i, name in enumerate(form.cleaned_data['name_pattern']):
 
@@ -879,19 +873,18 @@ class ComponentCreateView(View):
                 for component_form in new_components:
                     component_form.save()
 
-                messages.success(request, "Added {} {} to {}.".format(
-                    len(new_components), self.model._meta.verbose_name_plural, parent
+                messages.success(request, "Added {} {}".format(
+                    len(new_components), self.model._meta.verbose_name_plural
                 ))
                 if '_addanother' in request.POST:
-                    return redirect(request.path)
+                    return redirect(request.get_full_path())
                 else:
-                    return redirect(parent.get_absolute_url())
+                    return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
-            'parent': parent,
             'component_type': self.model._meta.verbose_name,
             'form': form,
-            'return_url': parent.get_absolute_url(),
+            'return_url': self.get_return_url(request),
         })
 
 

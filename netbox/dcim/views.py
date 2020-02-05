@@ -1205,8 +1205,6 @@ class ConsolePortListView(PermissionRequiredMixin, ObjectListView):
 
 class ConsolePortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_consoleport'
-    parent_model = Device
-    parent_field = 'device'
     model = ConsolePort
     form = forms.ConsolePortCreateForm
     model_form = forms.ConsolePortForm
@@ -1253,8 +1251,6 @@ class ConsoleServerPortListView(PermissionRequiredMixin, ObjectListView):
 
 class ConsoleServerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_consoleserverport'
-    parent_model = Device
-    parent_field = 'device'
     model = ConsoleServerPort
     form = forms.ConsoleServerPortCreateForm
     model_form = forms.ConsoleServerPortForm
@@ -1320,8 +1316,6 @@ class PowerPortListView(PermissionRequiredMixin, ObjectListView):
 
 class PowerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_powerport'
-    parent_model = Device
-    parent_field = 'device'
     model = PowerPort
     form = forms.PowerPortCreateForm
     model_form = forms.PowerPortForm
@@ -1368,8 +1362,6 @@ class PowerOutletListView(PermissionRequiredMixin, ObjectListView):
 
 class PowerOutletCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_poweroutlet'
-    parent_model = Device
-    parent_field = 'device'
     model = PowerOutlet
     form = forms.PowerOutletCreateForm
     model_form = forms.PowerOutletForm
@@ -1471,8 +1463,6 @@ class InterfaceView(PermissionRequiredMixin, View):
 
 class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_interface'
-    parent_model = Device
-    parent_field = 'device'
     model = Interface
     form = forms.InterfaceCreateForm
     model_form = forms.InterfaceForm
@@ -1539,8 +1529,6 @@ class FrontPortListView(PermissionRequiredMixin, ObjectListView):
 
 class FrontPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_frontport'
-    parent_model = Device
-    parent_field = 'device'
     model = FrontPort
     form = forms.FrontPortCreateForm
     model_form = forms.FrontPortForm
@@ -1606,8 +1594,6 @@ class RearPortListView(PermissionRequiredMixin, ObjectListView):
 
 class RearPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_rearport'
-    parent_model = Device
-    parent_field = 'device'
     model = RearPort
     form = forms.RearPortCreateForm
     model_form = forms.RearPortForm
@@ -1675,8 +1661,6 @@ class DeviceBayListView(PermissionRequiredMixin, ObjectListView):
 
 class DeviceBayCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_devicebay'
-    parent_model = Device
-    parent_field = 'device'
     model = DeviceBay
     form = forms.DeviceBayCreateForm
     model_form = forms.DeviceBayForm
