@@ -270,7 +270,8 @@ class StandardTestCases:
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_bulk_edit_objects(self):
-            pk_list = self.model.objects.values_list('pk', flat=True)
+            # Bulk edit the first three objects only
+            pk_list = self.model.objects.values_list('pk', flat=True)[:3]
 
             request = {
                 'path': self._get_url('bulk_edit'),

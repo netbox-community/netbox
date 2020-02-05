@@ -726,7 +726,6 @@ class ConsoleServerPortTestCase(StandardTestCases.Views):
 
     # TODO
     test_create_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -756,6 +755,12 @@ class ConsoleServerPortTestCase(StandardTestCases.Views):
             "Device 1,Console Server Port 5",
             "Device 1,Console Server Port 6",
         )
+
+        cls.bulk_edit_data = {
+            'device': device.pk,
+            'type': ConsolePortTypeChoices.TYPE_RJ45,
+            'description': 'New description',
+        }
 
 
 class PowerPortTestCase(StandardTestCases.Views):
@@ -808,7 +813,6 @@ class PowerOutletTestCase(StandardTestCases.Views):
 
     # TODO
     test_create_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -847,23 +851,32 @@ class PowerOutletTestCase(StandardTestCases.Views):
             "Device 1,Power Outlet 6",
         )
 
+        cls.bulk_edit_data = {
+            'device': device.pk,
+            'type': PowerOutletTypeChoices.TYPE_IEC_C13,
+            'power_port': powerports[1].pk,
+            'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
+            'description': 'New description',
+        }
+
 
 class InterfaceTestCase(StandardTestCases.Views):
     model = Interface
 
     # TODO
     test_create_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
         device = create_test_device('Device 1')
 
-        Interface.objects.bulk_create([
+        interfaces = (
             Interface(device=device, name='Interface 1'),
             Interface(device=device, name='Interface 2'),
             Interface(device=device, name='Interface 3'),
-        ])
+            Interface(device=device, name='LAG', type=InterfaceTypeChoices.TYPE_LAG),
+        )
+        Interface.objects.bulk_create(interfaces)
 
         vlans = (
             VLAN(vid=1, name='VLAN1', site=device.site),
@@ -879,11 +892,11 @@ class InterfaceTestCase(StandardTestCases.Views):
             'name': 'Interface X',
             'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             'enabled': False,
-            'lag': None,
+            'lag': interfaces[3].pk,
             'mac_address': EUI('01:02:03:04:05:06'),
             'mtu': 2000,
             'mgmt_only': True,
-            'description': 'New description',
+            'description': 'A front port',
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
@@ -901,6 +914,20 @@ class InterfaceTestCase(StandardTestCases.Views):
             "Device 1,Interface 6,1000BASE-T (1GE)",
         )
 
+        cls.bulk_edit_data = {
+            'device': device.pk,
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'enabled': False,
+            'lag': interfaces[3].pk,
+            'mac_address': EUI('01:02:03:04:05:06'),
+            'mtu': 2000,
+            'mgmt_only': True,
+            'description': 'New description',
+            'mode': InterfaceModeChoices.MODE_TAGGED,
+            'untagged_vlan': vlans[0].pk,
+            'tagged_vlans': [v.pk for v in vlans[1:4]],
+        }
+
 
 class FrontPortTestCase(StandardTestCases.Views):
     model = FrontPort
@@ -910,7 +937,6 @@ class FrontPortTestCase(StandardTestCases.Views):
 
     # TODO
     test_create_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -952,6 +978,11 @@ class FrontPortTestCase(StandardTestCases.Views):
             "Device 1,Front Port 6,8P8C,Rear Port 6,1",
         )
 
+        cls.bulk_edit_data = {
+            'type': PortTypeChoices.TYPE_8P8C,
+            'description': 'New description',
+        }
+
 
 class RearPortTestCase(StandardTestCases.Views):
     model = RearPort
@@ -961,7 +992,6 @@ class RearPortTestCase(StandardTestCases.Views):
 
     # TODO
     test_create_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -978,7 +1008,7 @@ class RearPortTestCase(StandardTestCases.Views):
             'name': 'Rear Port X',
             'type': PortTypeChoices.TYPE_8P8C,
             'positions': 3,
-            'description': 'New description',
+            'description': 'A rear port',
             'tags': 'Alpha,Bravo,Charlie',
 
             # Extraneous model fields
@@ -991,6 +1021,11 @@ class RearPortTestCase(StandardTestCases.Views):
             "Device 1,Rear Port 5,8P8C,1",
             "Device 1,Rear Port 6,8P8C,1",
         )
+
+        cls.bulk_edit_data = {
+            'type': PortTypeChoices.TYPE_8P8C,
+            'description': 'New description',
+        }
 
 
 class DeviceBayTestCase(StandardTestCases.Views):
