@@ -682,11 +682,11 @@ class ConsolePortTestCase(StandardTestCases.Views):
 
     # Disable inapplicable views
     test_get_object = None
+    test_create_object = None
     test_bulk_edit_objects = None
 
-    # TODO
-    test_create_object = None
-    test_bulk_delete_objects = None
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -704,11 +704,14 @@ class ConsolePortTestCase(StandardTestCases.Views):
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console port',
             'tags': 'Alpha,Bravo,Charlie',
+        }
 
-            # Extraneous model fields
-            'cable': None,
-            'connected_endpoint': None,
-            'connection_status': None,
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Console Port [4-6]',
+            'type': ConsolePortTypeChoices.TYPE_RJ45,
+            'description': 'A console port',
+            'tags': 'Alpha,Bravo,Charlie',
         }
 
         cls.csv_data = (
@@ -724,11 +727,10 @@ class ConsoleServerPortTestCase(StandardTestCases.Views):
 
     # Disable inapplicable views
     test_get_object = None
-
-    # TODO
     test_create_object = None
-    test_bulk_edit_objects = None
-    test_bulk_delete_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -746,10 +748,20 @@ class ConsoleServerPortTestCase(StandardTestCases.Views):
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console server port',
             'tags': 'Alpha,Bravo,Charlie',
+        }
 
-            # Extraneous model fields
-            'cable': None,
-            'connection_status': None,
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Console Server Port [4-6]',
+            'type': ConsolePortTypeChoices.TYPE_RJ45,
+            'description': 'A console server port',
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
+        cls.bulk_edit_data = {
+            'device': device.pk,
+            'type': ConsolePortTypeChoices.TYPE_RJ45,
+            'description': 'New description',
         }
 
         cls.csv_data = (
@@ -766,10 +778,10 @@ class PowerPortTestCase(StandardTestCases.Views):
     # Disable inapplicable views
     test_get_object = None
     test_bulk_edit_objects = None
-
-    # TODO
     test_create_object = None
-    test_bulk_delete_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -789,10 +801,16 @@ class PowerPortTestCase(StandardTestCases.Views):
             'allocated_draw': 50,
             'description': 'A power port',
             'tags': 'Alpha,Bravo,Charlie',
+        }
 
-            # Extraneous model fields
-            'cable': None,
-            'connection_status': None,
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Power Port [4-6]]',
+            'type': PowerPortTypeChoices.TYPE_IEC_C14,
+            'maximum_draw': 100,
+            'allocated_draw': 50,
+            'description': 'A power port',
+            'tags': 'Alpha,Bravo,Charlie',
         }
 
         cls.csv_data = (
@@ -808,11 +826,10 @@ class PowerOutletTestCase(StandardTestCases.Views):
 
     # Disable inapplicable views
     test_get_object = None
-
-    # TODO
     test_create_object = None
-    test_bulk_edit_objects = None
-    test_bulk_delete_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -838,10 +855,24 @@ class PowerOutletTestCase(StandardTestCases.Views):
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'A power outlet',
             'tags': 'Alpha,Bravo,Charlie',
+        }
 
-            # Extraneous model fields
-            'cable': None,
-            'connection_status': None,
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Power Outlet [4-6]',
+            'type': PowerOutletTypeChoices.TYPE_IEC_C13,
+            'power_port': powerports[1].pk,
+            'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
+            'description': 'A power outlet',
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
+        cls.bulk_edit_data = {
+            'device': device.pk,
+            'type': PowerOutletTypeChoices.TYPE_IEC_C13,
+            'power_port': powerports[1].pk,
+            'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
+            'description': 'New description',
         }
 
         cls.csv_data = (
@@ -855,20 +886,23 @@ class PowerOutletTestCase(StandardTestCases.Views):
 class InterfaceTestCase(StandardTestCases.Views):
     model = Interface
 
-    # TODO
+    # Disable inapplicable views
     test_create_object = None
-    test_bulk_edit_objects = None
-    test_bulk_delete_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
         device = create_test_device('Device 1')
 
-        Interface.objects.bulk_create([
+        interfaces = (
             Interface(device=device, name='Interface 1'),
             Interface(device=device, name='Interface 2'),
             Interface(device=device, name='Interface 3'),
-        ])
+            Interface(device=device, name='LAG', type=InterfaceTypeChoices.TYPE_LAG),
+        )
+        Interface.objects.bulk_create(interfaces)
 
         vlans = (
             VLAN(vid=1, name='VLAN1', site=device.site),
@@ -884,7 +918,38 @@ class InterfaceTestCase(StandardTestCases.Views):
             'name': 'Interface X',
             'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             'enabled': False,
-            'lag': None,
+            'lag': interfaces[3].pk,
+            'mac_address': EUI('01:02:03:04:05:06'),
+            'mtu': 2000,
+            'mgmt_only': True,
+            'description': 'A front port',
+            'mode': InterfaceModeChoices.MODE_TAGGED,
+            'untagged_vlan': vlans[0].pk,
+            'tagged_vlans': [v.pk for v in vlans[1:4]],
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Interface [4-6]',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'enabled': False,
+            'lag': interfaces[3].pk,
+            'mac_address': EUI('01:02:03:04:05:06'),
+            'mtu': 2000,
+            'mgmt_only': True,
+            'description': 'A front port',
+            'mode': InterfaceModeChoices.MODE_TAGGED,
+            'untagged_vlan': vlans[0].pk,
+            'tagged_vlans': [v.pk for v in vlans[1:4]],
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
+        cls.bulk_edit_data = {
+            'device': device.pk,
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'enabled': False,
+            'lag': interfaces[3].pk,
             'mac_address': EUI('01:02:03:04:05:06'),
             'mtu': 2000,
             'mgmt_only': True,
@@ -892,11 +957,6 @@ class InterfaceTestCase(StandardTestCases.Views):
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
-            'tags': 'Alpha,Bravo,Charlie',
-
-            # Extraneous model fields
-            'cable': None,
-            'connection_status': None,
         }
 
         cls.csv_data = (
@@ -912,11 +972,10 @@ class FrontPortTestCase(StandardTestCases.Views):
 
     # Disable inapplicable views
     test_get_object = None
-
-    # TODO
     test_create_object = None
-    test_bulk_edit_objects = None
-    test_bulk_delete_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -946,9 +1005,22 @@ class FrontPortTestCase(StandardTestCases.Views):
             'rear_port_position': 1,
             'description': 'New description',
             'tags': 'Alpha,Bravo,Charlie',
+        }
 
-            # Extraneous model fields
-            'cable': None,
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Front Port [4-6]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'rear_port_set': [
+                '{}:1'.format(rp.pk) for rp in rearports[3:6]
+            ],
+            'description': 'New description',
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
+        cls.bulk_edit_data = {
+            'type': PortTypeChoices.TYPE_8P8C,
+            'description': 'New description',
         }
 
         cls.csv_data = (
@@ -964,11 +1036,10 @@ class RearPortTestCase(StandardTestCases.Views):
 
     # Disable inapplicable views
     test_get_object = None
-
-    # TODO
     test_create_object = None
-    test_bulk_edit_objects = None
-    test_bulk_delete_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -985,11 +1056,22 @@ class RearPortTestCase(StandardTestCases.Views):
             'name': 'Rear Port X',
             'type': PortTypeChoices.TYPE_8P8C,
             'positions': 3,
-            'description': 'New description',
+            'description': 'A rear port',
             'tags': 'Alpha,Bravo,Charlie',
+        }
 
-            # Extraneous model fields
-            'cable': None,
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Rear Port [4-6]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 3,
+            'description': 'A rear port',
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
+        cls.bulk_edit_data = {
+            'type': PortTypeChoices.TYPE_8P8C,
+            'description': 'New description',
         }
 
         cls.csv_data = (
@@ -1005,11 +1087,13 @@ class DeviceBayTestCase(StandardTestCases.Views):
 
     # Disable inapplicable views
     test_get_object = None
+    test_create_object = None
 
     # TODO
-    test_create_object = None
     test_bulk_edit_objects = None
-    test_bulk_delete_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -1030,9 +1114,13 @@ class DeviceBayTestCase(StandardTestCases.Views):
             'name': 'Device Bay X',
             'description': 'A device bay',
             'tags': 'Alpha,Bravo,Charlie',
+        }
 
-            # Extraneous model fields
-            'installed_device': None,
+        cls.bulk_create_data = {
+            'device': device2.pk,
+            'name_pattern': 'Device Bay [4-6]',
+            'description': 'A device bay',
+            'tags': 'Alpha,Bravo,Charlie',
         }
 
         cls.csv_data = (
@@ -1076,19 +1164,19 @@ class InventoryItemTestCase(StandardTestCases.Views):
             'tags': 'Alpha,Bravo,Charlie',
         }
 
-        cls.csv_data = (
-            "device,name",
-            "Device 1,Inventory Item 4",
-            "Device 1,Inventory Item 5",
-            "Device 1,Inventory Item 6",
-        )
-
         cls.bulk_edit_data = {
             'device': device.pk,
             'manufacturer': manufacturer.pk,
             'part_id': '123456',
             'description': 'New description',
         }
+
+        cls.csv_data = (
+            "device,name",
+            "Device 1,Inventory Item 4",
+            "Device 1,Inventory Item 5",
+            "Device 1,Inventory Item 6",
+        )
 
 
 class CableTestCase(StandardTestCases.Views):

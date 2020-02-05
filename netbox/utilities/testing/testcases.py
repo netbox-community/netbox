@@ -1,11 +1,12 @@
 from django.contrib.auth.models import Permission, User
 from django.core.exceptions import ObjectDoesNotExist
+from django.forms.models import model_to_dict
 from django.test import Client, TestCase as _TestCase, override_settings
 from django.urls import reverse, NoReverseMatch
 from rest_framework.test import APIClient
 
 from users.models import Token
-from .utils import disable_warnings, model_to_dict, post_data
+from .utils import disable_warnings, post_data
 
 
 class TestCase(_TestCase):
@@ -56,6 +57,30 @@ class TestCase(_TestCase):
             expected_status, response.status_code, getattr(response, 'data', 'No data')
         ))
 
+    def assertInstanceEqual(self, instance, data):
+        """
+        Compare a model instance to a dictionary, checking that its attribute values match those specified
+        in the dictionary.
+        """
+        model_dict = model_to_dict(instance, fields=data.keys())
+
+        for key in list(model_dict.keys()):
+
+            # TODO: Differentiate between tags assigned to the instance and a M2M field for tags (ex: ConfigContext)
+            if key == 'tags':
+                model_dict[key] = ','.join(sorted([tag.name for tag in model_dict['tags']]))
+
+            # Convert ManyToManyField to list of instance PKs
+            elif model_dict[key] and type(model_dict[key]) in (list, tuple) and hasattr(model_dict[key][0], 'pk'):
+                model_dict[key] = [obj.pk for obj in model_dict[key]]
+
+        # Omit any dictionary keys which are not instance attributes
+        relevant_data = {
+            k: v for k, v in data.items() if hasattr(instance, k)
+        }
+
+        self.assertDictEqual(model_dict, relevant_data)
+
 
 class APITestCase(TestCase):
     client_class = APIClient
@@ -92,6 +117,9 @@ class StandardTestCases:
         # CSV lines used for bulk import of new objects
         csv_data = ()
 
+        # Form data used when creating multiple objects
+        bulk_create_data = {}
+
         # Form data to be used when editing multiple objects at once
         bulk_edit_data = {}
 
@@ -104,15 +132,26 @@ class StandardTestCases:
             if self.model is None:
                 raise Exception("Test case requires model to be defined")
 
+        #
+        # URL functions
+        #
+
+        def _get_base_url(self):
+            """
+            Return the base format for a URL for the test's model. Override this to test for a model which belongs
+            to a different app (e.g. testing Interfaces within the virtualization app).
+            """
+            return '{}:{}_{{}}'.format(
+                self.model._meta.app_label,
+                self.model._meta.model_name
+            )
+
         def _get_url(self, action, instance=None):
             """
             Return the URL name for a specific action. An instance must be specified for
             get/edit/delete views.
             """
-            url_format = '{}:{}_{{}}'.format(
-                self.model._meta.app_label,
-                self.model._meta.model_name
-            )
+            url_format = self._get_base_url()
 
             if action in ('list', 'add', 'import', 'bulk_edit', 'bulk_delete'):
                 return reverse(url_format.format(action))
@@ -130,6 +169,13 @@ class StandardTestCases:
 
             else:
                 raise Exception("Invalid action for URL resolution: {}".format(action))
+
+        #
+        # Standard view tests
+        # These methods will run by default. To disable a test, nullify its method on the subclasses TestCase:
+        #
+        #     test_list_objects = None
+        #
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects(self):
@@ -187,7 +233,7 @@ class StandardTestCases:
 
             self.assertEqual(initial_count + 1, self.model.objects.count())
             instance = self.model.objects.order_by('-pk').first()
-            self.assertDictEqual(model_to_dict(instance), self.form_data)
+            self.assertInstanceEqual(instance, self.form_data)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_edit_object(self):
@@ -211,7 +257,7 @@ class StandardTestCases:
             self.assertHttpStatus(response, 302)
 
             instance = self.model.objects.get(pk=instance.pk)
-            self.assertDictEqual(model_to_dict(instance), self.form_data)
+            self.assertInstanceEqual(instance, self.form_data)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_delete_object(self):
@@ -263,7 +309,8 @@ class StandardTestCases:
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_bulk_edit_objects(self):
-            pk_list = self.model.objects.values_list('pk', flat=True)
+            # Bulk edit the first three objects only
+            pk_list = self.model.objects.values_list('pk', flat=True)[:3]
 
             request = {
                 'path': self._get_url('bulk_edit'),
@@ -288,13 +335,8 @@ class StandardTestCases:
             response = self.client.post(**request)
             self.assertHttpStatus(response, 302)
 
-            bulk_edit_fields = self.bulk_edit_data.keys()
             for i, instance in enumerate(self.model.objects.filter(pk__in=pk_list)):
-                self.assertDictEqual(
-                    model_to_dict(instance, fields=bulk_edit_fields),
-                    self.bulk_edit_data,
-                    msg="Instance {} failed to validate after bulk edit: {}".format(i, instance)
-                )
+                self.assertInstanceEqual(instance, self.bulk_edit_data)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_bulk_delete_objects(self):
@@ -323,3 +365,32 @@ class StandardTestCases:
 
             # Check that all objects were deleted
             self.assertEqual(self.model.objects.count(), 0)
+
+        #
+        # Optional view tests
+        # These methods will run only if the required data
+        #
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def _test_bulk_create_objects(self, expected_count):
+            initial_count = self.model.objects.count()
+            request = {
+                'path': self._get_url('add'),
+                'data': post_data(self.bulk_create_data),
+                'follow': False,  # Do not follow 302 redirects
+            }
+
+            # Attempt to make the request without required permissions
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.post(**request), 403)
+
+            # Assign the required permission and submit again
+            self.add_permissions(
+                '{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
+            response = self.client.post(**request)
+            self.assertHttpStatus(response, 302)
+
+            self.assertEqual(initial_count + expected_count, self.model.objects.count())
+            for instance in self.model.objects.order_by('-pk')[:expected_count]:
+                self.assertInstanceEqual(instance, self.bulk_create_data)

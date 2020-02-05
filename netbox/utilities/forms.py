@@ -727,14 +727,11 @@ class ConfirmationForm(BootstrapMixin, ReturnURLForm):
     confirm = forms.BooleanField(required=True, widget=forms.HiddenInput(), initial=True)
 
 
+# TODO: Remove ComponentForm
 class ComponentForm(BootstrapMixin, forms.Form):
     """
     Allow inclusion of the parent Device/VirtualMachine as context for limiting field choices.
     """
-    def __init__(self, parent, *args, **kwargs):
-        self.parent = parent
-        super().__init__(*args, **kwargs)
-
     def get_iterative_data(self, iteration):
         return {}
 
@@ -743,10 +740,9 @@ class BulkEditForm(forms.Form):
     """
     Base form for editing multiple objects in bulk
     """
-    def __init__(self, model, parent_obj=None, *args, **kwargs):
+    def __init__(self, model, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = model
-        self.parent_obj = parent_obj
         self.nullable_fields = []
 
         # Copy any nullable fields defined in Meta
