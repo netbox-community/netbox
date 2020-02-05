@@ -133,7 +133,8 @@ class CustomFieldFilterForm(forms.Form):
             filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED
         )
         for cf in custom_fields:
-            self.fields[cf.name] = cf.to_form_field(set_initial=True, enforce_required=False)
+            field_name = 'cf_{}'.format(cf.name)
+            self.fields[field_name] = cf.to_form_field(set_initial=True, enforce_required=False)
 
 
 #
