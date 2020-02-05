@@ -797,8 +797,11 @@ class InterfaceCreateForm(ComponentForm):
     )
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
+
+        virtual_machine = VirtualMachine.objects.get(
+            pk=self.initial.get('virtual_machine') or self.data.get('virtual_machine')
+        )
 
         # Limit VLAN choices to those in: global vlans, global groups, the current site's group, the current site
         vlan_choices = []
@@ -812,8 +815,7 @@ class InterfaceCreateForm(ComponentForm):
                 (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
             )
 
-        parent = VirtualMachine.objects.get(pk=self.initial.get('virtual_machine'))
-        site = getattr(parent.cluster, 'site', None)
+        site = getattr(virtual_machine.cluster, 'site', None)
         if site is not None:
 
             # Add non-grouped site VLANs

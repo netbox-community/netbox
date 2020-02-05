@@ -2456,9 +2456,10 @@ class PowerOutletCreateForm(ComponentForm):
         super().__init__(*args, **kwargs)
 
         # Limit power_port queryset to PowerPorts which belong to the parent Device
-        if 'device' in self.initial:
-            device = Device.objects.filter(pk=self.initial['device']).first()
-            self.fields['power_port'].queryset = PowerPort.objects.filter(device=device)
+        device = Device.objects.get(
+            pk=self.initial.get('device') or self.data.get('device')
+        )
+        self.fields['power_port'].queryset = PowerPort.objects.filter(device=device)
 
 
 class PowerOutletCSVForm(forms.ModelForm):
@@ -2707,12 +2708,13 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
         super().__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces which belong to the parent device (or VC master)
-        if 'device' in self.initial:
-            device = Device.objects.filter(pk=self.initial['device']).first()
-            self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[device, device.get_vc_master()],
-                type=InterfaceTypeChoices.TYPE_LAG
-            )
+        device = Device.objects.get(
+            pk=self.initial.get('device') or self.data.get('device')
+        )
+        self.fields['lag'].queryset = Interface.objects.filter(
+            device__in=[device, device.get_vc_master()],
+            type=InterfaceTypeChoices.TYPE_LAG
+        )
 
 
 class InterfaceCSVForm(forms.ModelForm):
@@ -2952,18 +2954,20 @@ class FrontPortCreateForm(ComponentForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        parent = Device.objects.get(pk=self.initial.get('device'))
+        device = Device.objects.get(
+            pk=self.initial.get('device') or self.data.get('device')
+        )
 
         # Determine which rear port positions are occupied. These will be excluded from the list of available
         # mappings.
         occupied_port_positions = [
             (front_port.rear_port_id, front_port.rear_port_position)
-            for front_port in parent.frontports.all()
+            for front_port in device.frontports.all()
         ]
 
         # Populate rear port choices
         choices = []
-        rear_ports = RearPort.objects.filter(device=parent)
+        rear_ports = RearPort.objects.filter(device=device)
         for rear_port in rear_ports:
             for i in range(1, rear_port.positions + 1):
                 if (rear_port.pk, i) not in occupied_port_positions:
