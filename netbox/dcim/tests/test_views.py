@@ -682,10 +682,11 @@ class ConsolePortTestCase(StandardTestCases.Views):
 
     # Disable inapplicable views
     test_get_object = None
+    test_create_object = None
     test_bulk_edit_objects = None
 
-    # TODO
-    test_create_object = None
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -717,6 +718,14 @@ class ConsolePortTestCase(StandardTestCases.Views):
             "Device 1,Console Port 6",
         )
 
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Console Port [4-6]',
+            'type': ConsolePortTypeChoices.TYPE_RJ45,
+            'description': 'A console port',
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
 
 class ConsoleServerPortTestCase(StandardTestCases.Views):
     model = ConsoleServerPort
@@ -726,6 +735,9 @@ class ConsoleServerPortTestCase(StandardTestCases.Views):
 
     # TODO
     test_create_object = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -756,6 +768,14 @@ class ConsoleServerPortTestCase(StandardTestCases.Views):
             "Device 1,Console Server Port 6",
         )
 
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Console Server Port [4-6]',
+            'type': ConsolePortTypeChoices.TYPE_RJ45,
+            'description': 'A console server port',
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
         cls.bulk_edit_data = {
             'device': device.pk,
             'type': ConsolePortTypeChoices.TYPE_RJ45,
@@ -772,6 +792,9 @@ class PowerPortTestCase(StandardTestCases.Views):
 
     # TODO
     test_create_object = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -804,6 +827,16 @@ class PowerPortTestCase(StandardTestCases.Views):
             "Device 1,Power Port 6",
         )
 
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Power Port [4-6]]',
+            'type': PowerPortTypeChoices.TYPE_IEC_C14,
+            'maximum_draw': 100,
+            'allocated_draw': 50,
+            'description': 'A power port',
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
 
 class PowerOutletTestCase(StandardTestCases.Views):
     model = PowerOutlet
@@ -813,6 +846,9 @@ class PowerOutletTestCase(StandardTestCases.Views):
 
     # TODO
     test_create_object = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -851,6 +887,16 @@ class PowerOutletTestCase(StandardTestCases.Views):
             "Device 1,Power Outlet 6",
         )
 
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Power Outlet [4-6]',
+            'type': PowerOutletTypeChoices.TYPE_IEC_C13,
+            'power_port': powerports[1].pk,
+            'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
+            'description': 'A power outlet',
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
         cls.bulk_edit_data = {
             'device': device.pk,
             'type': PowerOutletTypeChoices.TYPE_IEC_C13,
@@ -865,6 +911,9 @@ class InterfaceTestCase(StandardTestCases.Views):
 
     # TODO
     test_create_object = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -914,6 +963,22 @@ class InterfaceTestCase(StandardTestCases.Views):
             "Device 1,Interface 6,1000BASE-T (1GE)",
         )
 
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Interface [4-6]',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'enabled': False,
+            'lag': interfaces[3].pk,
+            'mac_address': EUI('01:02:03:04:05:06'),
+            'mtu': 2000,
+            'mgmt_only': True,
+            'description': 'A front port',
+            'mode': InterfaceModeChoices.MODE_TAGGED,
+            'untagged_vlan': vlans[0].pk,
+            'tagged_vlans': [v.pk for v in vlans[1:4]],
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
         cls.bulk_edit_data = {
             'device': device.pk,
             'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
@@ -937,6 +1002,9 @@ class FrontPortTestCase(StandardTestCases.Views):
 
     # TODO
     test_create_object = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -978,6 +1046,17 @@ class FrontPortTestCase(StandardTestCases.Views):
             "Device 1,Front Port 6,8P8C,Rear Port 6,1",
         )
 
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Front Port [4-6]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'rear_port_set': [
+                '{}:1'.format(rp.pk) for rp in rearports[3:6]
+            ],
+            'description': 'New description',
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
         cls.bulk_edit_data = {
             'type': PortTypeChoices.TYPE_8P8C,
             'description': 'New description',
@@ -992,6 +1071,9 @@ class RearPortTestCase(StandardTestCases.Views):
 
     # TODO
     test_create_object = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -1022,6 +1104,15 @@ class RearPortTestCase(StandardTestCases.Views):
             "Device 1,Rear Port 6,8P8C,1",
         )
 
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Rear Port [4-6]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 3,
+            'description': 'A rear port',
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
         cls.bulk_edit_data = {
             'type': PortTypeChoices.TYPE_8P8C,
             'description': 'New description',
@@ -1033,10 +1124,13 @@ class DeviceBayTestCase(StandardTestCases.Views):
 
     # Disable inapplicable views
     test_get_object = None
+    test_create_object = None
 
     # TODO
-    test_create_object = None
     test_bulk_edit_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -1068,6 +1162,13 @@ class DeviceBayTestCase(StandardTestCases.Views):
             "Device 1,Device Bay 5",
             "Device 1,Device Bay 6",
         )
+
+        cls.bulk_create_data = {
+            'device': device2.pk,
+            'name_pattern': 'Device Bay [4-6]',
+            'description': 'A device bay',
+            'tags': 'Alpha,Bravo,Charlie',
+        }
 
 
 class InventoryItemTestCase(StandardTestCases.Views):

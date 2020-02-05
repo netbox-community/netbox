@@ -1,5 +1,6 @@
 from django.contrib.auth.models import Permission, User
 from django.core.exceptions import ObjectDoesNotExist
+from django.forms.models import model_to_dict as model_to_dict_
 from django.test import Client, TestCase as _TestCase, override_settings
 from django.urls import reverse, NoReverseMatch
 from rest_framework.test import APIClient
@@ -56,6 +57,30 @@ class TestCase(_TestCase):
             expected_status, response.status_code, getattr(response, 'data', 'No data')
         ))
 
+    def assertInstanceEquals(self, instance, data):
+        """
+        Compare a model instance to a dictionary, checking that its attribute values match those specified
+        in the dictionary.
+        """
+        model_dict = model_to_dict_(instance, fields=data.keys())
+
+        for key in list(model_dict.keys()):
+
+            # TODO: Differentiate between tags assigned to the instance and a M2M field for tags (ex: ConfigContext)
+            if key == 'tags':
+                model_dict[key] = ','.join(sorted([tag.name for tag in model_dict['tags']]))
+
+            # Convert ManyToManyField to list of instance PKs
+            elif model_dict[key] and type(model_dict[key]) in (list, tuple) and hasattr(model_dict[key][0], 'pk'):
+                model_dict[key] = [obj.pk for obj in model_dict[key]]
+
+        # Omit any dictionary keys which are not instance attributes
+        relevant_data = {
+            k: v for k, v in data.items() if hasattr(instance, k)
+        }
+
+        self.assertDictEqual(model_dict, relevant_data)
+
 
 class APITestCase(TestCase):
     client_class = APIClient
@@ -92,6 +117,9 @@ class StandardTestCases:
         # CSV lines used for bulk import of new objects
         csv_data = ()
 
+        # Form data used when creating multiple objects
+        bulk_create_data = {}
+
         # Form data to be used when editing multiple objects at once
         bulk_edit_data = {}
 
@@ -103,6 +131,10 @@ class StandardTestCases:
 
             if self.model is None:
                 raise Exception("Test case requires model to be defined")
+
+        #
+        # URL functions
+        #
 
         def _get_base_url(self):
             """
@@ -137,6 +169,13 @@ class StandardTestCases:
 
             else:
                 raise Exception("Invalid action for URL resolution: {}".format(action))
+
+        #
+        # Standard view tests
+        # These methods will run by default. To disable a test, nullify its method on the subclasses TestCase:
+        #
+        #     test_list_objects = None
+        #
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects(self):
@@ -331,3 +370,32 @@ class StandardTestCases:
 
             # Check that all objects were deleted
             self.assertEqual(self.model.objects.count(), 0)
+
+        #
+        # Optional view tests
+        # These methods will run only if the required data
+        #
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def _test_bulk_create_objects(self, expected_count):
+            initial_count = self.model.objects.count()
+            request = {
+                'path': self._get_url('add'),
+                'data': post_data(self.bulk_create_data),
+                'follow': False,  # Do not follow 302 redirects
+            }
+
+            # Attempt to make the request without required permissions
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.post(**request), 403)
+
+            # Assign the required permission and submit again
+            self.add_permissions(
+                '{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
+            response = self.client.post(**request)
+            self.assertHttpStatus(response, 302)
+
+            self.assertEqual(initial_count + expected_count, self.model.objects.count())
+            for instance in self.model.objects.order_by('-pk')[:expected_count]:
+                self.assertInstanceEquals(instance, self.bulk_create_data)

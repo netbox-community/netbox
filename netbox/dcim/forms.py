@@ -2952,9 +2952,10 @@ class FrontPortCreateForm(ComponentForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        parent = Device.objects.get(pk=self.initial['device'])
+        parent = Device.objects.get(pk=self.initial.get('device'))
 
-        # Determine which rear port positions are occupied. These will be excluded from the list of available mappings.
+        # Determine which rear port positions are occupied. These will be excluded from the list of available
+        # mappings.
         occupied_port_positions = [
             (front_port.rear_port_id, front_port.rear_port_position)
             for front_port in parent.frontports.all()

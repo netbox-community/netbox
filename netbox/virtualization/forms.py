@@ -812,7 +812,7 @@ class InterfaceCreateForm(ComponentForm):
                 (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
             )
 
-        parent = VirtualMachine.objects.get(pk=self.initial['virtual_machine'])
+        parent = VirtualMachine.objects.get(pk=self.initial.get('virtual_machine'))
         site = getattr(parent.cluster, 'site', None)
         if site is not None:
 

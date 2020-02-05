@@ -198,10 +198,11 @@ class InterfaceTestCase(StandardTestCases.Views):
 
     # Disable inapplicable tests
     test_list_objects = None
+    test_create_object = None
     test_import_objects = None
 
-    # TODO
-    test_create_object = None
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     def _get_base_url(self):
         # Interface belongs to the DCIM app, so we have to override the base URL
@@ -261,6 +262,21 @@ class InterfaceTestCase(StandardTestCases.Views):
             "Device 1,Interface 5,1000BASE-T (1GE)",
             "Device 1,Interface 6,1000BASE-T (1GE)",
         )
+
+        cls.bulk_create_data = {
+            'virtual_machine': virtualmachines[1].pk,
+            'name_pattern': 'Interface [4-6]',
+            'type': InterfaceTypeChoices.TYPE_VIRTUAL,
+            'enabled': False,
+            'mgmt_only': False,
+            'mac_address': EUI('01-02-03-04-05-06'),
+            'mtu': 2000,
+            'description': 'New description',
+            'mode': InterfaceModeChoices.MODE_TAGGED,
+            'untagged_vlan': vlans[0].pk,
+            'tagged_vlans': [v.pk for v in vlans[1:4]],
+            'tags': 'Alpha,Bravo,Charlie',
+        }
 
         cls.bulk_edit_data = {
             'virtual_machine': virtualmachines[1].pk,
