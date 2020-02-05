@@ -835,6 +835,10 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=Interface.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    virtual_machine = forms.ModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        widget=forms.HiddenInput()
+    )
     enabled = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect()
@@ -881,37 +885,39 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        parent_obj = VirtualMachine.objects.filter(pk=self.initial.get('virtual_machine')).first()
+        # Limit available VLANs based on the parent VirtualMachine
+        if 'virtual_machine' in self.initial:
+            parent_obj = VirtualMachine.objects.filter(pk=self.initial['virtual_machine']).first()
 
-        # Limit VLan choices to those in: global vlans, global groups, the current site's group, the current site
-        vlan_choices = []
-        global_vlans = VLAN.objects.filter(site=None, group=None)
-        vlan_choices.append(
-            ('Global', [(vlan.pk, vlan) for vlan in global_vlans])
-        )
-        for group in VLANGroup.objects.filter(site=None):
-            global_group_vlans = VLAN.objects.filter(group=group)
+            # Limit VLAN choices to global VLANs, VLANs in global groups, the current site's group, the current site
+            vlan_choices = []
+            global_vlans = VLAN.objects.filter(site=None, group=None)
             vlan_choices.append(
-                (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
+                ('Global', [(vlan.pk, vlan) for vlan in global_vlans])
             )
-        if parent_obj.cluster is not None:
-            site = getattr(parent_obj.cluster, 'site', None)
-            if site is not None:
+            for group in VLANGroup.objects.filter(site=None):
+                global_group_vlans = VLAN.objects.filter(group=group)
+                vlan_choices.append(
+                    (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
+                )
+            if parent_obj.cluster is not None:
+                site = getattr(parent_obj.cluster, 'site', None)
+                if site is not None:
 
-                # Add non-grouped site VLANs
-                site_vlans = VLAN.objects.filter(site=site, group=None)
-                vlan_choices.append((site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
+                    # Add non-grouped site VLANs
+                    site_vlans = VLAN.objects.filter(site=site, group=None)
+                    vlan_choices.append((site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
 
-                # Add grouped site VLANs
-                for group in VLANGroup.objects.filter(site=site):
-                    site_group_vlans = VLAN.objects.filter(group=group)
-                    vlan_choices.append((
-                        '{} / {}'.format(group.site.name, group.name),
-                        [(vlan.pk, vlan) for vlan in site_group_vlans]
-                    ))
+                    # Add grouped site VLANs
+                    for group in VLANGroup.objects.filter(site=site):
+                        site_group_vlans = VLAN.objects.filter(group=group)
+                        vlan_choices.append((
+                            '{} / {}'.format(group.site.name, group.name),
+                            [(vlan.pk, vlan) for vlan in site_group_vlans]
+                        ))
 
-        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
-        self.fields['tagged_vlans'].choices = vlan_choices
+            self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
+            self.fields['tagged_vlans'].choices = vlan_choices
 
 
 #

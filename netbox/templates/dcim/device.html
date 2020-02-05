@@ -619,6 +619,7 @@
                 {% if perms.dcim.delete_consoleserverport %}
                     <form method="post">
                     {% csrf_token %}
+                    <input type="hidden" name="device" value="{{ device.pk }}" />
                 {% endif %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -679,6 +680,7 @@
                 {% if perms.dcim.delete_poweroutlet %}
                     <form method="post">
                     {% csrf_token %}
+                    <input type="hidden" name="device" value="{{ device.pk }}" />
                 {% endif %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -738,7 +740,8 @@
             {% endif %}
             {% if front_ports %}
                 <form method="post">
-                {% csrf_token %}
+                    {% csrf_token %}
+                    <input type="hidden" name="device" value="{{ device.pk }}" />
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <strong>Front Ports</strong>
@@ -796,7 +799,8 @@
             {% endif %}
             {% if rear_ports %}
                 <form method="post">
-                {% csrf_token %}
+                    {% csrf_token %}
+                    <input type="hidden" name="device" value="{{ device.pk }}" />
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <strong>Rear Ports</strong>
