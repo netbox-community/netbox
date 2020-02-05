@@ -248,20 +248,7 @@ class InterfaceTestCase(StandardTestCases.Views):
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
             'tags': 'Alpha,Bravo,Charlie',
-
-            # Extraneous model fields
-            'device': None,
-            'lag': None,
-            'cable': None,
-            'connection_status': None,
         }
-
-        cls.csv_data = (
-            "device,name,type",
-            "Device 1,Interface 4,1000BASE-T (1GE)",
-            "Device 1,Interface 5,1000BASE-T (1GE)",
-            "Device 1,Interface 6,1000BASE-T (1GE)",
-        )
 
         cls.bulk_create_data = {
             'virtual_machine': virtualmachines[1].pk,
@@ -287,3 +274,10 @@ class InterfaceTestCase(StandardTestCases.Views):
             # 'untagged_vlan': vlans[0].pk,
             # 'tagged_vlans': [v.pk for v in vlans[1:4]],
         }
+
+        cls.csv_data = (
+            "device,name,type",
+            "Device 1,Interface 4,1000BASE-T (1GE)",
+            "Device 1,Interface 5,1000BASE-T (1GE)",
+            "Device 1,Interface 6,1000BASE-T (1GE)",
+        )

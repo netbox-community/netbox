@@ -704,19 +704,7 @@ class ConsolePortTestCase(StandardTestCases.Views):
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console port',
             'tags': 'Alpha,Bravo,Charlie',
-
-            # Extraneous model fields
-            'cable': None,
-            'connected_endpoint': None,
-            'connection_status': None,
         }
-
-        cls.csv_data = (
-            "device,name",
-            "Device 1,Console Port 4",
-            "Device 1,Console Port 5",
-            "Device 1,Console Port 6",
-        )
 
         cls.bulk_create_data = {
             'device': device.pk,
@@ -726,14 +714,19 @@ class ConsolePortTestCase(StandardTestCases.Views):
             'tags': 'Alpha,Bravo,Charlie',
         }
 
+        cls.csv_data = (
+            "device,name",
+            "Device 1,Console Port 4",
+            "Device 1,Console Port 5",
+            "Device 1,Console Port 6",
+        )
+
 
 class ConsoleServerPortTestCase(StandardTestCases.Views):
     model = ConsoleServerPort
 
     # Disable inapplicable views
     test_get_object = None
-
-    # TODO
     test_create_object = None
 
     def test_bulk_create_objects(self):
@@ -755,18 +748,7 @@ class ConsoleServerPortTestCase(StandardTestCases.Views):
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console server port',
             'tags': 'Alpha,Bravo,Charlie',
-
-            # Extraneous model fields
-            'cable': None,
-            'connection_status': None,
         }
-
-        cls.csv_data = (
-            "device,name",
-            "Device 1,Console Server Port 4",
-            "Device 1,Console Server Port 5",
-            "Device 1,Console Server Port 6",
-        )
 
         cls.bulk_create_data = {
             'device': device.pk,
@@ -782,6 +764,13 @@ class ConsoleServerPortTestCase(StandardTestCases.Views):
             'description': 'New description',
         }
 
+        cls.csv_data = (
+            "device,name",
+            "Device 1,Console Server Port 4",
+            "Device 1,Console Server Port 5",
+            "Device 1,Console Server Port 6",
+        )
+
 
 class PowerPortTestCase(StandardTestCases.Views):
     model = PowerPort
@@ -789,8 +778,6 @@ class PowerPortTestCase(StandardTestCases.Views):
     # Disable inapplicable views
     test_get_object = None
     test_bulk_edit_objects = None
-
-    # TODO
     test_create_object = None
 
     def test_bulk_create_objects(self):
@@ -814,18 +801,7 @@ class PowerPortTestCase(StandardTestCases.Views):
             'allocated_draw': 50,
             'description': 'A power port',
             'tags': 'Alpha,Bravo,Charlie',
-
-            # Extraneous model fields
-            'cable': None,
-            'connection_status': None,
         }
-
-        cls.csv_data = (
-            "device,name",
-            "Device 1,Power Port 4",
-            "Device 1,Power Port 5",
-            "Device 1,Power Port 6",
-        )
 
         cls.bulk_create_data = {
             'device': device.pk,
@@ -837,14 +813,19 @@ class PowerPortTestCase(StandardTestCases.Views):
             'tags': 'Alpha,Bravo,Charlie',
         }
 
+        cls.csv_data = (
+            "device,name",
+            "Device 1,Power Port 4",
+            "Device 1,Power Port 5",
+            "Device 1,Power Port 6",
+        )
+
 
 class PowerOutletTestCase(StandardTestCases.Views):
     model = PowerOutlet
 
     # Disable inapplicable views
     test_get_object = None
-
-    # TODO
     test_create_object = None
 
     def test_bulk_create_objects(self):
@@ -874,18 +855,7 @@ class PowerOutletTestCase(StandardTestCases.Views):
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'A power outlet',
             'tags': 'Alpha,Bravo,Charlie',
-
-            # Extraneous model fields
-            'cable': None,
-            'connection_status': None,
         }
-
-        cls.csv_data = (
-            "device,name",
-            "Device 1,Power Outlet 4",
-            "Device 1,Power Outlet 5",
-            "Device 1,Power Outlet 6",
-        )
 
         cls.bulk_create_data = {
             'device': device.pk,
@@ -905,11 +875,18 @@ class PowerOutletTestCase(StandardTestCases.Views):
             'description': 'New description',
         }
 
+        cls.csv_data = (
+            "device,name",
+            "Device 1,Power Outlet 4",
+            "Device 1,Power Outlet 5",
+            "Device 1,Power Outlet 6",
+        )
+
 
 class InterfaceTestCase(StandardTestCases.Views):
     model = Interface
 
-    # TODO
+    # Disable inapplicable views
     test_create_object = None
 
     def test_bulk_create_objects(self):
@@ -950,18 +927,7 @@ class InterfaceTestCase(StandardTestCases.Views):
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
             'tags': 'Alpha,Bravo,Charlie',
-
-            # Extraneous model fields
-            'cable': None,
-            'connection_status': None,
         }
-
-        cls.csv_data = (
-            "device,name,type",
-            "Device 1,Interface 4,1000BASE-T (1GE)",
-            "Device 1,Interface 5,1000BASE-T (1GE)",
-            "Device 1,Interface 6,1000BASE-T (1GE)",
-        )
 
         cls.bulk_create_data = {
             'device': device.pk,
@@ -993,14 +959,19 @@ class InterfaceTestCase(StandardTestCases.Views):
             'tagged_vlans': [v.pk for v in vlans[1:4]],
         }
 
+        cls.csv_data = (
+            "device,name,type",
+            "Device 1,Interface 4,1000BASE-T (1GE)",
+            "Device 1,Interface 5,1000BASE-T (1GE)",
+            "Device 1,Interface 6,1000BASE-T (1GE)",
+        )
+
 
 class FrontPortTestCase(StandardTestCases.Views):
     model = FrontPort
 
     # Disable inapplicable views
     test_get_object = None
-
-    # TODO
     test_create_object = None
 
     def test_bulk_create_objects(self):
@@ -1034,17 +1005,7 @@ class FrontPortTestCase(StandardTestCases.Views):
             'rear_port_position': 1,
             'description': 'New description',
             'tags': 'Alpha,Bravo,Charlie',
-
-            # Extraneous model fields
-            'cable': None,
         }
-
-        cls.csv_data = (
-            "device,name,type,rear_port,rear_port_position",
-            "Device 1,Front Port 4,8P8C,Rear Port 4,1",
-            "Device 1,Front Port 5,8P8C,Rear Port 5,1",
-            "Device 1,Front Port 6,8P8C,Rear Port 6,1",
-        )
 
         cls.bulk_create_data = {
             'device': device.pk,
@@ -1062,14 +1023,19 @@ class FrontPortTestCase(StandardTestCases.Views):
             'description': 'New description',
         }
 
+        cls.csv_data = (
+            "device,name,type,rear_port,rear_port_position",
+            "Device 1,Front Port 4,8P8C,Rear Port 4,1",
+            "Device 1,Front Port 5,8P8C,Rear Port 5,1",
+            "Device 1,Front Port 6,8P8C,Rear Port 6,1",
+        )
+
 
 class RearPortTestCase(StandardTestCases.Views):
     model = RearPort
 
     # Disable inapplicable views
     test_get_object = None
-
-    # TODO
     test_create_object = None
 
     def test_bulk_create_objects(self):
@@ -1092,17 +1058,7 @@ class RearPortTestCase(StandardTestCases.Views):
             'positions': 3,
             'description': 'A rear port',
             'tags': 'Alpha,Bravo,Charlie',
-
-            # Extraneous model fields
-            'cable': None,
         }
-
-        cls.csv_data = (
-            "device,name,type,positions",
-            "Device 1,Rear Port 4,8P8C,1",
-            "Device 1,Rear Port 5,8P8C,1",
-            "Device 1,Rear Port 6,8P8C,1",
-        )
 
         cls.bulk_create_data = {
             'device': device.pk,
@@ -1117,6 +1073,13 @@ class RearPortTestCase(StandardTestCases.Views):
             'type': PortTypeChoices.TYPE_8P8C,
             'description': 'New description',
         }
+
+        cls.csv_data = (
+            "device,name,type,positions",
+            "Device 1,Rear Port 4,8P8C,1",
+            "Device 1,Rear Port 5,8P8C,1",
+            "Device 1,Rear Port 6,8P8C,1",
+        )
 
 
 class DeviceBayTestCase(StandardTestCases.Views):
@@ -1151,9 +1114,13 @@ class DeviceBayTestCase(StandardTestCases.Views):
             'name': 'Device Bay X',
             'description': 'A device bay',
             'tags': 'Alpha,Bravo,Charlie',
+        }
 
-            # Extraneous model fields
-            'installed_device': None,
+        cls.bulk_create_data = {
+            'device': device2.pk,
+            'name_pattern': 'Device Bay [4-6]',
+            'description': 'A device bay',
+            'tags': 'Alpha,Bravo,Charlie',
         }
 
         cls.csv_data = (
@@ -1162,13 +1129,6 @@ class DeviceBayTestCase(StandardTestCases.Views):
             "Device 1,Device Bay 5",
             "Device 1,Device Bay 6",
         )
-
-        cls.bulk_create_data = {
-            'device': device2.pk,
-            'name_pattern': 'Device Bay [4-6]',
-            'description': 'A device bay',
-            'tags': 'Alpha,Bravo,Charlie',
-        }
 
 
 class InventoryItemTestCase(StandardTestCases.Views):
@@ -1204,19 +1164,19 @@ class InventoryItemTestCase(StandardTestCases.Views):
             'tags': 'Alpha,Bravo,Charlie',
         }
 
-        cls.csv_data = (
-            "device,name",
-            "Device 1,Inventory Item 4",
-            "Device 1,Inventory Item 5",
-            "Device 1,Inventory Item 6",
-        )
-
         cls.bulk_edit_data = {
             'device': device.pk,
             'manufacturer': manufacturer.pk,
             'part_id': '123456',
             'description': 'New description',
         }
+
+        cls.csv_data = (
+            "device,name",
+            "Device 1,Inventory Item 4",
+            "Device 1,Inventory Item 5",
+            "Device 1,Inventory Item 6",
+        )
 
 
 class CableTestCase(StandardTestCases.Views):
