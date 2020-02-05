@@ -391,8 +391,7 @@ class PowerPort(CableTermination, ComponentModel):
                 power_outlets = power_outlets.filter(feed_leg=leg)
 
             # Cannot be cached as it will otherwise not update the per-leg stats when an outlet's leg changes.
-            connected_power_ports = PowerPort.objects.exclude(pk__in=visited_power_ports).filter(
-                _connected_poweroutlet__in=power_outlets).nocache()
+            connected_power_ports = PowerPort.objects.filter(_connected_poweroutlet__in=power_outlets).nocache()
 
             # Only count the local outlets (i.e. ignore non-immediate ones)
             outlet_count = power_outlets.count()
