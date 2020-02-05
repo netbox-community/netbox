@@ -777,6 +777,7 @@ class InterfaceTable(BaseTable):
 
 class InterfaceDetailTable(DeviceComponentDetailTable):
     parent = tables.LinkColumn(order_by=('device', 'virtual_machine'))
+    name = tables.LinkColumn()
 
     class Meta(InterfaceTable.Meta):
         order_by = ('parent', 'name')

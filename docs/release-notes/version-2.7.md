@@ -4,6 +4,7 @@
 
 * [#4089](https://github.com/netbox-community/netbox/issues/4089) - Selection of power outlet type during bulk update is optional
 * [#4091](https://github.com/netbox-community/netbox/issues/4091) - Fix filtering of objects by custom fields using UI search form
+* [#4099](https://github.com/netbox-community/netbox/issues/4099) - Linkify interfaces on global interfaces list
 
 # v2.7.4 (2020-02-04)
 
