@@ -1,3 +1,9 @@
+# v2.7.5 (FUTURE)
+
+## Bug Fixes
+
+* [#4089](https://github.com/netbox-community/netbox/issues/4089) - Selection of power outlet type during bulk update is optional
+
 # v2.7.4 (2020-02-04)
 
 ## Enhancements

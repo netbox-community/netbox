@@ -2500,7 +2500,7 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         widget=forms.MultipleHiddenInput()
     )
     type = forms.ChoiceField(
-        choices=PowerOutletTypeChoices,
+        choices=add_blank_choice(PowerOutletTypeChoices),
         required=False
     )
     feed_leg = forms.ChoiceField(
