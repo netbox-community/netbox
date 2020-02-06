@@ -20,7 +20,7 @@
                     {% endif %}
                 {% endif %}
                 <div class="pull-right">
-                    <a href="{% url add_url %}" class="btn btn-primary btn-xs">
+                    <a href="{% url add_url %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}" class="btn btn-primary btn-xs">
                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                         Add {{ title }}
                     </a>
