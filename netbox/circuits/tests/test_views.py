@@ -1,23 +1,15 @@
-import urllib.parse
+import datetime
 
-from django.test import Client, TestCase
-from django.urls import reverse
-
+from circuits.choices import *
 from circuits.models import Circuit, CircuitType, Provider
-from utilities.testing import create_test_user
+from utilities.testing import StandardTestCases
 
 
-class ProviderTestCase(TestCase):
+class ProviderTestCase(StandardTestCases.Views):
+    model = Provider
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'circuits.view_provider',
-                'circuits.add_provider',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         Provider.objects.bulk_create([
             Provider(name='Provider 1', slug='provider-1', asn=65001),
@@ -25,48 +17,45 @@ class ProviderTestCase(TestCase):
             Provider(name='Provider 3', slug='provider-3', asn=65003),
         ])
 
-    def test_provider_list(self):
-
-        url = reverse('circuits:provider_list')
-        params = {
-            "q": "test",
+        cls.form_data = {
+            'name': 'Provider X',
+            'slug': 'provider-x',
+            'asn': 65123,
+            'account': '1234',
+            'portal_url': 'http://example.com/portal',
+            'noc_contact': 'noc@example.com',
+            'admin_contact': 'admin@example.com',
+            'comments': 'Another provider',
+            'tags': 'Alpha,Bravo,Charlie',
         }
 
-        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
-
-    def test_provider(self):
-
-        provider = Provider.objects.first()
-        response = self.client.get(provider.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
-
-    def test_provider_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "name,slug",
             "Provider 4,provider-4",
             "Provider 5,provider-5",
             "Provider 6,provider-6",
         )
 
-        response = self.client.post(reverse('circuits:provider_import'), {'csv': '\n'.join(csv_data)})
+        cls.bulk_edit_data = {
+            'asn': 65009,
+            'account': '5678',
+            'portal_url': 'http://example.com/portal2',
+            'noc_contact': 'noc2@example.com',
+            'admin_contact': 'admin2@example.com',
+            'comments': 'New comments',
+        }
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Provider.objects.count(), 6)
 
+class CircuitTypeTestCase(StandardTestCases.Views):
+    model = CircuitType
 
-class CircuitTypeTestCase(TestCase):
+    # Disable inapplicable tests
+    test_get_object = None
+    test_delete_object = None
+    test_bulk_edit_objects = None
 
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'circuits.view_circuittype',
-                'circuits.add_circuittype',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    @classmethod
+    def setUpTestData(cls):
 
         CircuitType.objects.bulk_create([
             CircuitType(name='Circuit Type 1', slug='circuit-type-1'),
@@ -74,79 +63,71 @@ class CircuitTypeTestCase(TestCase):
             CircuitType(name='Circuit Type 3', slug='circuit-type-3'),
         ])
 
-    def test_circuittype_list(self):
+        cls.form_data = {
+            'name': 'Circuit Type X',
+            'slug': 'circuit-type-x',
+            'description': 'A new circuit type',
+        }
 
-        url = reverse('circuits:circuittype_list')
-
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-
-    def test_circuittype_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "name,slug",
             "Circuit Type 4,circuit-type-4",
             "Circuit Type 5,circuit-type-5",
             "Circuit Type 6,circuit-type-6",
         )
 
-        response = self.client.post(reverse('circuits:circuittype_import'), {'csv': '\n'.join(csv_data)})
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(CircuitType.objects.count(), 6)
+class CircuitTestCase(StandardTestCases.Views):
+    model = Circuit
 
+    @classmethod
+    def setUpTestData(cls):
 
-class CircuitTestCase(TestCase):
-
-    def setUp(self):
-        user = create_test_user(
-            permissions=[
-                'circuits.view_circuit',
-                'circuits.add_circuit',
-            ]
+        providers = (
+            Provider(name='Provider 1', slug='provider-1', asn=65001),
+            Provider(name='Provider 2', slug='provider-2', asn=65002),
         )
-        self.client = Client()
-        self.client.force_login(user)
+        Provider.objects.bulk_create(providers)
 
-        provider = Provider(name='Provider 1', slug='provider-1', asn=65001)
-        provider.save()
-
-        circuittype = CircuitType(name='Circuit Type 1', slug='circuit-type-1')
-        circuittype.save()
+        circuittypes = (
+            CircuitType(name='Circuit Type 1', slug='circuit-type-1'),
+            CircuitType(name='Circuit Type 2', slug='circuit-type-2'),
+        )
+        CircuitType.objects.bulk_create(circuittypes)
 
         Circuit.objects.bulk_create([
-            Circuit(cid='Circuit 1', provider=provider, type=circuittype),
-            Circuit(cid='Circuit 2', provider=provider, type=circuittype),
-            Circuit(cid='Circuit 3', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 1', provider=providers[0], type=circuittypes[0]),
+            Circuit(cid='Circuit 2', provider=providers[0], type=circuittypes[0]),
+            Circuit(cid='Circuit 3', provider=providers[0], type=circuittypes[0]),
         ])
 
-    def test_circuit_list(self):
-
-        url = reverse('circuits:circuit_list')
-        params = {
-            "provider": Provider.objects.first().slug,
-            "type": CircuitType.objects.first().slug,
+        cls.form_data = {
+            'cid': 'Circuit X',
+            'provider': providers[1].pk,
+            'type': circuittypes[1].pk,
+            'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
+            'tenant': None,
+            'install_date': datetime.date(2020, 1, 1),
+            'commit_rate': 1000,
+            'description': 'A new circuit',
+            'comments': 'Some comments',
+            'tags': 'Alpha,Bravo,Charlie',
         }
 
-        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
-
-    def test_circuit(self):
-
-        circuit = Circuit.objects.first()
-        response = self.client.get(circuit.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
-
-    def test_circuit_import(self):
-
-        csv_data = (
+        cls.csv_data = (
             "cid,provider,type",
             "Circuit 4,Provider 1,Circuit Type 1",
             "Circuit 5,Provider 1,Circuit Type 1",
             "Circuit 6,Provider 1,Circuit Type 1",
         )
 
-        response = self.client.post(reverse('circuits:circuit_import'), {'csv': '\n'.join(csv_data)})
+        cls.bulk_edit_data = {
+            'provider': providers[1].pk,
+            'type': circuittypes[1].pk,
+            'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
+            'tenant': None,
+            'commit_rate': 2000,
+            'description': 'New description',
+            'comments': 'New comments',
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Circuit.objects.count(), 6)
+        }

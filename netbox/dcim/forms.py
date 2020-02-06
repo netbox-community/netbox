@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
 from mptt.forms import TreeNodeChoiceField
 from netaddr import EUI
 from netaddr.core import AddrFormatError
@@ -14,7 +13,8 @@ from timezone_field import TimeZoneFormField
 
 from circuits.models import Circuit, Provider
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm, LocalConfigContextFilterForm
+    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldFilterForm, CustomFieldModelForm,
+    LocalConfigContextFilterForm,
 )
 from ipam.constants import BGP_ASN_MAX, BGP_ASN_MIN
 from ipam.models import IPAddress, VLAN
@@ -22,9 +22,9 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
-    BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField, ComponentForm,
-    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, JSONField,
-    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES,
+    BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField, ConfirmationForm,
+    CSVChoiceField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, JSONField, SelectWithPK,
+    SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
 from .choices import *
@@ -41,7 +41,7 @@ DEVICE_BY_PK_RE = r'{\d+\}'
 INTERFACE_MODE_HELP_TEXT = """
 Access: One untagged VLAN<br />
 Tagged: One untagged VLAN and/or one or more tagged VLANs<br />
-Tagged All: Implies all VLANs are available (w/optional untagged VLAN)
+Tagged (All): Implies all VLANs are available (w/optional untagged VLAN)
 """
 
 
@@ -216,7 +216,7 @@ class RegionFilterForm(BootstrapMixin, forms.Form):
 # Sites
 #
 
-class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     region = TreeNodeChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -264,7 +264,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class SiteCSVForm(forms.ModelForm):
+class SiteCSVForm(CustomFieldModelCSVForm):
     status = CSVChoiceField(
         choices=SiteStatusChoices,
         required=False,
@@ -367,6 +367,7 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             value_field="slug",
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -460,7 +461,7 @@ class RackRoleCSVForm(forms.ModelForm):
 # Racks
 #
 
-class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     group = ChainedModelChoiceField(
         queryset=RackGroup.objects.all(),
         chains=(
@@ -505,7 +506,7 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class RackCSVForm(forms.ModelForm):
+class RackCSVForm(CustomFieldModelCSVForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -677,7 +678,8 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         widget=StaticSelect2()
     )
     comments = CommentField(
-        widget=SmallTextarea
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     class Meta:
@@ -742,6 +744,7 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -897,7 +900,7 @@ class ManufacturerCSVForm(forms.ModelForm):
 # Device types
 #
 
-class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
+class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField(
         slug_source='model'
     )
@@ -1020,6 +1023,7 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -1038,14 +1042,35 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsolePortTemplateCreateForm(ComponentForm):
+class ConsolePortTemplateCreateForm(BootstrapMixin, forms.Form):
+    device_type = forms.ModelChoiceField(
+        queryset=DeviceType.objects.all(),
+        widget=APISelect(
+            api_url='/api/dcim/device-types/'
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=ConsolePortTypeChoices,
+        choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect2()
     )
+
+
+class ConsolePortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ConsolePortTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+
+    class Meta:
+        nullable_fields = ('type',)
 
 
 class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1060,7 +1085,13 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsoleServerPortTemplateCreateForm(ComponentForm):
+class ConsoleServerPortTemplateCreateForm(BootstrapMixin, forms.Form):
+    device_type = forms.ModelChoiceField(
+        queryset=DeviceType.objects.all(),
+        widget=APISelect(
+            api_url='/api/dcim/device-types/'
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -1068,6 +1099,21 @@ class ConsoleServerPortTemplateCreateForm(ComponentForm):
         choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect2()
     )
+
+
+class ConsoleServerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ConsoleServerPortTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+
+    class Meta:
+        nullable_fields = ('type',)
 
 
 class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1082,7 +1128,13 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPortTemplateCreateForm(ComponentForm):
+class PowerPortTemplateCreateForm(BootstrapMixin, forms.Form):
+    device_type = forms.ModelChoiceField(
+        queryset=DeviceType.objects.all(),
+        widget=APISelect(
+            api_url='/api/dcim/device-types/'
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -1100,6 +1152,31 @@ class PowerPortTemplateCreateForm(ComponentForm):
         required=False,
         help_text="Allocated power draw (watts)"
     )
+
+
+class PowerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=PowerPortTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PowerPortTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+    maximum_draw = forms.IntegerField(
+        min_value=1,
+        required=False,
+        help_text="Maximum power draw (watts)"
+    )
+    allocated_draw = forms.IntegerField(
+        min_value=1,
+        required=False,
+        help_text="Allocated power draw (watts)"
+    )
+
+    class Meta:
+        nullable_fields = ('type', 'maximum_draw', 'allocated_draw')
 
 
 class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1124,7 +1201,13 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
             )
 
 
-class PowerOutletTemplateCreateForm(ComponentForm):
+class PowerOutletTemplateCreateForm(BootstrapMixin, forms.Form):
+    device_type = forms.ModelChoiceField(
+        queryset=DeviceType.objects.all(),
+        widget=APISelect(
+            api_url='/api/dcim/device-types/'
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -1143,13 +1226,35 @@ class PowerOutletTemplateCreateForm(ComponentForm):
     )
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
         # Limit power_port choices to current DeviceType
-        self.fields['power_port'].queryset = PowerPortTemplate.objects.filter(
-            device_type=self.parent
+        device_type = DeviceType.objects.get(
+            pk=self.initial.get('device_type') or self.data.get('device_type')
         )
+        self.fields['power_port'].queryset = PowerPortTemplate.objects.filter(
+            device_type=device_type
+        )
+
+
+class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=PowerOutletTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PowerOutletTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+    feed_leg = forms.ChoiceField(
+        choices=add_blank_choice(PowerOutletFeedLegChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+
+    class Meta:
+        nullable_fields = ('type', 'feed_leg')
 
 
 class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1165,7 +1270,13 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class InterfaceTemplateCreateForm(ComponentForm):
+class InterfaceTemplateCreateForm(BootstrapMixin, forms.Form):
+    device_type = forms.ModelChoiceField(
+        queryset=DeviceType.objects.all(),
+        widget=APISelect(
+            api_url='/api/dcim/device-types/'
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -1222,7 +1333,13 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
             )
 
 
-class FrontPortTemplateCreateForm(ComponentForm):
+class FrontPortTemplateCreateForm(BootstrapMixin, forms.Form):
+    device_type = forms.ModelChoiceField(
+        queryset=DeviceType.objects.all(),
+        widget=APISelect(
+            api_url='/api/dcim/device-types/'
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -1237,18 +1354,21 @@ class FrontPortTemplateCreateForm(ComponentForm):
     )
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
+
+        device_type = DeviceType.objects.get(
+            pk=self.initial.get('device_type') or self.data.get('device_type')
+        )
 
         # Determine which rear port positions are occupied. These will be excluded from the list of available mappings.
         occupied_port_positions = [
             (front_port.rear_port_id, front_port.rear_port_position)
-            for front_port in self.parent.frontport_templates.all()
+            for front_port in device_type.frontport_templates.all()
         ]
 
         # Populate rear port choices
         choices = []
-        rear_ports = RearPortTemplate.objects.filter(device_type=self.parent)
+        rear_ports = RearPortTemplate.objects.filter(device_type=device_type)
         for rear_port in rear_ports:
             for i in range(1, rear_port.positions + 1):
                 if (rear_port.pk, i) not in occupied_port_positions:
@@ -1279,6 +1399,21 @@ class FrontPortTemplateCreateForm(ComponentForm):
         }
 
 
+class FrontPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=FrontPortTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PortTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+
+    class Meta:
+        nullable_fields = ()
+
+
 class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
@@ -1292,7 +1427,13 @@ class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class RearPortTemplateCreateForm(ComponentForm):
+class RearPortTemplateCreateForm(BootstrapMixin, forms.Form):
+    device_type = forms.ModelChoiceField(
+        queryset=DeviceType.objects.all(),
+        widget=APISelect(
+            api_url='/api/dcim/device-types/'
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -1301,11 +1442,26 @@ class RearPortTemplateCreateForm(ComponentForm):
         widget=StaticSelect2(),
     )
     positions = forms.IntegerField(
-        min_value=1,
-        max_value=64,
+        min_value=REARPORT_POSITIONS_MIN,
+        max_value=REARPORT_POSITIONS_MAX,
         initial=1,
         help_text='The number of front ports which may be mapped to each rear port'
     )
+
+
+class RearPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=RearPortTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PortTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+
+    class Meta:
+        nullable_fields = ()
 
 
 class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1320,10 +1476,27 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DeviceBayTemplateCreateForm(ComponentForm):
+class DeviceBayTemplateCreateForm(BootstrapMixin, forms.Form):
+    device_type = forms.ModelChoiceField(
+        queryset=DeviceType.objects.all(),
+        widget=APISelect(
+            api_url='/api/dcim/device-types/'
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
+
+
+# TODO: DeviceBayTemplate has no fields suitable for bulk-editing yet
+# class DeviceBayTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+#     pk = forms.ModelMultipleChoiceField(
+#         queryset=FrontPortTemplate.objects.all(),
+#         widget=forms.MultipleHiddenInput()
+#     )
+#
+#     class Meta:
+#         nullable_fields = ()
 
 
 #
@@ -1516,7 +1689,7 @@ class PlatformCSVForm(forms.ModelForm):
 # Devices
 #
 
-class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         widget=APISelect(
@@ -1548,6 +1721,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     )
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
+        required=False,
         widget=APISelect(
             api_url="/api/dcim/manufacturers/",
             filter_for={
@@ -1642,6 +1816,16 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         if instance and instance.cluster is not None:
             kwargs['initial']['cluster_group'] = instance.cluster.group
 
+        if 'device_type' in kwargs['initial'] and 'manufacturer' not in kwargs['initial']:
+            device_type_id = kwargs['initial']['device_type']
+            manufacturer_id = DeviceType.objects.filter(pk=device_type_id).values_list('manufacturer__pk', flat=True).first()
+            kwargs['initial']['manufacturer'] = manufacturer_id
+
+        if 'cluster' in kwargs['initial'] and 'cluster_group' not in kwargs['initial']:
+            cluster_id = kwargs['initial']['cluster']
+            cluster_group_id = Cluster.objects.filter(pk=cluster_id).values_list('group__pk', flat=True).first()
+            kwargs['initial']['cluster_group'] = cluster_group_id
+
         super().__init__(*args, **kwargs)
 
         if self.instance.pk:
@@ -1714,7 +1898,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.initial['rack'] = self.instance.parent_bay.device.rack_id
 
 
-class BaseDeviceCSVForm(forms.ModelForm):
+class BaseDeviceCSVForm(CustomFieldModelCSVForm):
     device_role = forms.ModelChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
@@ -2096,6 +2280,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -2123,8 +2308,8 @@ class DeviceBulkAddInterfaceForm(DeviceBulkAddComponentForm):
     )
     mtu = forms.IntegerField(
         required=False,
-        min_value=1,
-        max_value=32767,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
         label='MTU'
     )
     mgmt_only = forms.BooleanField(
@@ -2144,6 +2329,7 @@ class DeviceBulkAddInterfaceForm(DeviceBulkAddComponentForm):
 
 class ConsolePortFilterForm(DeviceComponentFilterForm):
     model = ConsolePort
+    tag = TagFilterField(model)
 
 
 class ConsolePortForm(BootstrapMixin, forms.ModelForm):
@@ -2161,7 +2347,13 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsolePortCreateForm(ComponentForm):
+class ConsolePortCreateForm(BootstrapMixin, forms.Form):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -2201,6 +2393,7 @@ class ConsolePortCSVForm(forms.ModelForm):
 
 class ConsoleServerPortFilterForm(DeviceComponentFilterForm):
     model = ConsoleServerPort
+    tag = TagFilterField(model)
 
 
 class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
@@ -2218,7 +2411,13 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsoleServerPortCreateForm(ComponentForm):
+class ConsoleServerPortCreateForm(BootstrapMixin, forms.Form):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -2293,6 +2492,7 @@ class ConsoleServerPortCSVForm(forms.ModelForm):
 
 class PowerPortFilterForm(DeviceComponentFilterForm):
     model = PowerPort
+    tag = TagFilterField(model)
 
 
 class PowerPortForm(BootstrapMixin, forms.ModelForm):
@@ -2310,7 +2510,13 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPortCreateForm(ComponentForm):
+class PowerPortCreateForm(BootstrapMixin, forms.Form):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -2360,6 +2566,7 @@ class PowerPortCSVForm(forms.ModelForm):
 
 class PowerOutletFilterForm(DeviceComponentFilterForm):
     model = PowerOutlet
+    tag = TagFilterField(model)
 
 
 class PowerOutletForm(BootstrapMixin, forms.ModelForm):
@@ -2390,7 +2597,13 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
             )
 
 
-class PowerOutletCreateForm(ComponentForm):
+class PowerOutletCreateForm(BootstrapMixin, forms.Form):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -2416,11 +2629,13 @@ class PowerOutletCreateForm(ComponentForm):
     )
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
-        # Limit power_port choices to those on the parent device
-        self.fields['power_port'].queryset = PowerPort.objects.filter(device=self.parent)
+        # Limit power_port queryset to PowerPorts which belong to the parent Device
+        device = Device.objects.get(
+            pk=self.initial.get('device') or self.data.get('device')
+        )
+        self.fields['power_port'].queryset = PowerPort.objects.filter(device=device)
 
 
 class PowerOutletCSVForm(forms.ModelForm):
@@ -2478,8 +2693,12 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         queryset=PowerOutlet.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        widget=forms.HiddenInput()
+    )
     type = forms.ChoiceField(
-        choices=PowerOutletTypeChoices,
+        choices=add_blank_choice(PowerOutletTypeChoices),
         required=False
     )
     feed_leg = forms.ChoiceField(
@@ -2504,7 +2723,9 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         super().__init__(*args, **kwargs)
 
         # Limit power_port queryset to PowerPorts which belong to the parent Device
-        self.fields['power_port'].queryset = PowerPort.objects.filter(device=self.parent_obj)
+        if 'device' in self.initial:
+            device = Device.objects.filter(pk=self.initial['device']).first()
+            self.fields['power_port'].queryset = PowerPort.objects.filter(device=device)
 
 
 class PowerOutletBulkRenameForm(BulkRenameForm):
@@ -2528,6 +2749,7 @@ class PowerOutletBulkDisconnectForm(ConfirmationForm):
 
 class InterfaceFilterForm(DeviceComponentFilterForm):
     model = Interface
+    tag = TagFilterField(model)
 
 
 class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
@@ -2584,14 +2806,19 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
                 type=InterfaceTypeChoices.TYPE_LAG
             )
         else:
-            device = self.instance.device
             self.fields['lag'].queryset = Interface.objects.filter(
                 device__in=[self.instance.device, self.instance.device.get_vc_master()],
                 type=InterfaceTypeChoices.TYPE_LAG
             )
 
 
-class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
+class InterfaceCreateForm(BootstrapMixin, InterfaceCommonForm, forms.Form):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -2600,7 +2827,8 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
         widget=StaticSelect2(),
     )
     enabled = forms.BooleanField(
-        required=False
+        required=False,
+        initial=True
     )
     lag = forms.ModelChoiceField(
         queryset=Interface.objects.all(),
@@ -2610,8 +2838,8 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
     )
     mtu = forms.IntegerField(
         required=False,
-        min_value=1,
-        max_value=32767,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
         label='MTU'
     )
     mac_address = forms.CharField(
@@ -2655,21 +2883,16 @@ class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-
-        # Set interfaces enabled by default
-        kwargs['initial'] = kwargs.get('initial', {}).copy()
-        kwargs['initial'].update({'enabled': True})
-
         super().__init__(*args, **kwargs)
 
-        # Limit LAG choices to interfaces belonging to this device (or its VC master)
-        if self.parent is not None:
-            self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[self.parent, self.parent.get_vc_master()],
-                type=InterfaceTypeChoices.TYPE_LAG
-            )
-        else:
-            self.fields['lag'].queryset = Interface.objects.none()
+        # Limit LAG choices to interfaces which belong to the parent device (or VC master)
+        device = Device.objects.get(
+            pk=self.initial.get('device') or self.data.get('device')
+        )
+        self.fields['lag'].queryset = Interface.objects.filter(
+            device__in=[device, device.get_vc_master()],
+            type=InterfaceTypeChoices.TYPE_LAG
+        )
 
 
 class InterfaceCSVForm(forms.ModelForm):
@@ -2716,7 +2939,7 @@ class InterfaceCSVForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces belonging to this device (or VC master)
-        if self.is_bound:
+        if self.is_bound and 'device' in self.data:
             try:
                 device = self.fields['device'].to_python(self.data['device'])
             except forms.ValidationError:
@@ -2739,10 +2962,14 @@ class InterfaceCSVForm(forms.ModelForm):
             return self.cleaned_data['enabled']
 
 
-class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Interface.objects.all(),
         widget=forms.MultipleHiddenInput()
+    )
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        widget=forms.HiddenInput()
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(InterfaceTypeChoices),
@@ -2765,8 +2992,8 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
     )
     mtu = forms.IntegerField(
         required=False,
-        min_value=1,
-        max_value=32767,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
         label='MTU'
     )
     mgmt_only = forms.NullBooleanField(
@@ -2811,14 +3038,24 @@ class InterfaceBulkEditForm(InterfaceCommonForm, BootstrapMixin, AddRemoveTagsFo
         super().__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces which belong to the parent device (or VC master)
-        device = self.parent_obj
-        if device is not None:
+        if 'device' in self.initial:
+            device = Device.objects.filter(pk=self.initial['device']).first()
             self.fields['lag'].queryset = Interface.objects.filter(
                 device__in=[device, device.get_vc_master()],
                 type=InterfaceTypeChoices.TYPE_LAG
             )
-        else:
-            self.fields['lag'].choices = []
+
+    def clean(self):
+
+        # Untagged interfaces cannot be assigned tagged VLANs
+        if self.cleaned_data['mode'] == InterfaceModeChoices.MODE_ACCESS and self.cleaned_data['tagged_vlans']:
+            raise forms.ValidationError({
+                'mode': "An access interface cannot have tagged VLANs assigned."
+            })
+
+        # Remove all tagged VLAN assignments from "tagged all" interfaces
+        elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED_ALL:
+            self.cleaned_data['tagged_vlans'] = []
 
 
 class InterfaceBulkRenameForm(BulkRenameForm):
@@ -2841,6 +3078,7 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
 
 class FrontPortFilterForm(DeviceComponentFilterForm):
     model = FrontPort
+    tag = TagFilterField(model)
 
 
 class FrontPortForm(BootstrapMixin, forms.ModelForm):
@@ -2870,7 +3108,13 @@ class FrontPortForm(BootstrapMixin, forms.ModelForm):
 
 
 # TODO: Merge with FrontPortTemplateCreateForm to remove duplicate logic
-class FrontPortCreateForm(ComponentForm):
+class FrontPortCreateForm(BootstrapMixin, forms.Form):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -2890,15 +3134,20 @@ class FrontPortCreateForm(ComponentForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Determine which rear port positions are occupied. These will be excluded from the list of available mappings.
+        device = Device.objects.get(
+            pk=self.initial.get('device') or self.data.get('device')
+        )
+
+        # Determine which rear port positions are occupied. These will be excluded from the list of available
+        # mappings.
         occupied_port_positions = [
             (front_port.rear_port_id, front_port.rear_port_position)
-            for front_port in self.parent.frontports.all()
+            for front_port in device.frontports.all()
         ]
 
         # Populate rear port choices
         choices = []
-        rear_ports = RearPort.objects.filter(device=self.parent)
+        rear_ports = RearPort.objects.filter(device=device)
         for rear_port in rear_ports:
             for i in range(1, rear_port.positions + 1):
                 if (rear_port.pk, i) not in occupied_port_positions:
@@ -3018,6 +3267,7 @@ class FrontPortBulkDisconnectForm(ConfirmationForm):
 
 class RearPortFilterForm(DeviceComponentFilterForm):
     model = RearPort
+    tag = TagFilterField(model)
 
 
 class RearPortForm(BootstrapMixin, forms.ModelForm):
@@ -3036,7 +3286,13 @@ class RearPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class RearPortCreateForm(ComponentForm):
+class RearPortCreateForm(BootstrapMixin, forms.Form):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -3045,8 +3301,8 @@ class RearPortCreateForm(ComponentForm):
         widget=StaticSelect2(),
     )
     positions = forms.IntegerField(
-        min_value=1,
-        max_value=64,
+        min_value=REARPORT_POSITIONS_MIN,
+        max_value=REARPORT_POSITIONS_MAX,
         initial=1,
         help_text='The number of front ports which may be mapped to each rear port'
     )
@@ -3523,7 +3779,7 @@ class CableBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False
     )
     color = forms.CharField(
-        max_length=6,
+        max_length=6,  # RGB color code
         required=False,
         widget=ColorSelect()
     )
@@ -3602,7 +3858,7 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         widget=StaticSelect2()
     )
     color = forms.CharField(
-        max_length=6,
+        max_length=6,  # RGB color code
         required=False,
         widget=ColorSelect()
     )
@@ -3622,6 +3878,7 @@ class CableFilterForm(BootstrapMixin, forms.Form):
 
 class DeviceBayFilterForm(DeviceComponentFilterForm):
     model = DeviceBay
+    tag = TagFilterField(model)
 
 
 class DeviceBayForm(BootstrapMixin, forms.ModelForm):
@@ -3639,7 +3896,13 @@ class DeviceBayForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DeviceBayCreateForm(ComponentForm):
+class DeviceBayCreateForm(BootstrapMixin, forms.Form):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -3811,6 +4074,42 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
         }
 
 
+class InventoryItemCreateForm(BootstrapMixin, forms.Form):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
+    )
+    name_pattern = ExpandableNameField(
+        label='Name'
+    )
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/manufacturers/"
+        )
+    )
+    part_id = forms.CharField(
+        max_length=50,
+        required=False,
+        label='Part ID'
+    )
+    serial = forms.CharField(
+        max_length=50,
+        required=False,
+    )
+    asset_tag = forms.CharField(
+        max_length=50,
+        required=False,
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+
 class InventoryItemCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
@@ -3921,6 +4220,7 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -4107,6 +4407,7 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -4219,7 +4520,7 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Power feeds
 #
 
-class PowerFeedForm(BootstrapMixin, CustomFieldForm):
+class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
     site = ChainedModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -4264,7 +4565,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldForm):
             self.initial['site'] = self.instance.power_panel.site
 
 
-class PowerFeedCSVForm(forms.ModelForm):
+class PowerFeedCSVForm(CustomFieldModelCSVForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -4347,7 +4648,7 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         queryset=PowerFeed.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    powerpanel = forms.ModelChoiceField(
+    power_panel = forms.ModelChoiceField(
         queryset=PowerPanel.objects.all(),
         required=False,
         widget=APISelect(
@@ -4397,8 +4698,9 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
     max_utilization = forms.IntegerField(
         required=False
     )
-    comments = forms.CharField(
-        required=False
+    comments = CommentField(
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     class Meta:
@@ -4484,3 +4786,4 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
     max_utilization = forms.IntegerField(
         required=False
     )
+    tag = TagFilterField(model)

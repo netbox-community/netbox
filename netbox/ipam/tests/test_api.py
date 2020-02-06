@@ -1064,6 +1064,7 @@ class ServiceTest(APITestCase):
             'name': 'Test Service 4',
             'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
             'port': 4,
+            'tags': ['Foo', 'Bar'],
         }
 
         url = reverse('ipam-api:service-list')
@@ -1076,6 +1077,8 @@ class ServiceTest(APITestCase):
         self.assertEqual(service4.name, data['name'])
         self.assertEqual(service4.protocol, data['protocol'])
         self.assertEqual(service4.port, data['port'])
+        tags = [tag.name for tag in service4.tags.all()]
+        self.assertEqual(sorted(tags), sorted(data['tags']))
 
     def test_create_service_bulk(self):
 

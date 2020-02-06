@@ -12,7 +12,7 @@ from django.core.exceptions import ImproperlyConfigured
 # Environment setup
 #
 
-VERSION = '2.7.3-dev'
+VERSION = '2.7.5-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -74,6 +74,7 @@ CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
 DATE_FORMAT = getattr(configuration, 'DATE_FORMAT', 'N j, Y')
 DATETIME_FORMAT = getattr(configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
 DEBUG = getattr(configuration, 'DEBUG', False)
+DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 EMAIL = getattr(configuration, 'EMAIL', {})
 ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
@@ -503,6 +504,7 @@ SWAGGER_SETTINGS = {
         'utilities.custom_inspectors.IdInFilterInspector',
         'drf_yasg.inspectors.CoreAPICompatInspector',
     ],
+    'DEFAULT_INFO': 'netbox.urls.openapi_info',
     'DEFAULT_MODEL_DEPTH': 1,
     'DEFAULT_PAGINATOR_INSPECTORS': [
         'utilities.custom_inspectors.NullablePaginatorInspector',

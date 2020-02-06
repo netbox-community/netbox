@@ -1,18 +1,16 @@
-from collections import OrderedDict
-
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
 from taggit.forms import TagField
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
-    CommentField, ContentTypeSelect, DatePicker, DateTimePicker, FilterChoiceField, LaxURLField, JSONField,
-    SlugField, StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
+    CommentField, ContentTypeSelect, DateTimePicker, FilterChoiceField, JSONField, SlugField, StaticSelect2,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
+from virtualization.models import Cluster, ClusterGroup
 from .choices import *
 from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachment, ObjectChange, Tag
 
@@ -21,102 +19,41 @@ from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachmen
 # Custom fields
 #
 
-def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=False):
-    """
-    Retrieve all CustomFields applicable to the given ContentType
-    """
-    field_dict = OrderedDict()
-    custom_fields = CustomField.objects.filter(obj_type=content_type)
-    if filterable_only:
-        custom_fields = custom_fields.exclude(filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED)
-
-    for cf in custom_fields:
-        field_name = 'cf_{}'.format(str(cf.name))
-        initial = cf.default if not bulk_edit else None
-
-        # Integer
-        if cf.type == CustomFieldTypeChoices.TYPE_INTEGER:
-            field = forms.IntegerField(required=cf.required, initial=initial)
-
-        # Boolean
-        elif cf.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
-            choices = (
-                (None, '---------'),
-                (1, 'True'),
-                (0, 'False'),
-            )
-            if initial is not None and initial.lower() in ['true', 'yes', '1']:
-                initial = 1
-            elif initial is not None and initial.lower() in ['false', 'no', '0']:
-                initial = 0
-            else:
-                initial = None
-            field = forms.NullBooleanField(
-                required=cf.required, initial=initial, widget=StaticSelect2(choices=choices)
-            )
-
-        # Date
-        elif cf.type == CustomFieldTypeChoices.TYPE_DATE:
-            field = forms.DateField(required=cf.required, initial=initial, widget=DatePicker())
-
-        # Select
-        elif cf.type == CustomFieldTypeChoices.TYPE_SELECT:
-            choices = [(cfc.pk, cfc) for cfc in cf.choices.all()]
-            if not cf.required or bulk_edit or filterable_only:
-                choices = [(None, '---------')] + choices
-            # Check for a default choice
-            default_choice = None
-            if initial:
-                try:
-                    default_choice = cf.choices.get(value=initial).pk
-                except ObjectDoesNotExist:
-                    pass
-            field = forms.TypedChoiceField(
-                choices=choices, coerce=int, required=cf.required, initial=default_choice, widget=StaticSelect2()
-            )
-
-        # URL
-        elif cf.type == CustomFieldTypeChoices.TYPE_URL:
-            field = LaxURLField(required=cf.required, initial=initial)
-
-        # Text
-        else:
-            field = forms.CharField(max_length=255, required=cf.required, initial=initial)
-
-        field.model = cf
-        field.label = cf.label if cf.label else cf.name.replace('_', ' ').capitalize()
-        if cf.description:
-            field.help_text = cf.description
-
-        field_dict[field_name] = field
-
-    return field_dict
-
-
-class CustomFieldForm(forms.ModelForm):
+class CustomFieldModelForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
 
-        self.custom_fields = []
         self.obj_type = ContentType.objects.get_for_model(self._meta.model)
+        self.custom_fields = []
+        self.custom_field_values = {}
 
         super().__init__(*args, **kwargs)
 
-        # Add all applicable CustomFields to the form
-        custom_fields = []
-        for name, field in get_custom_fields_for_model(self.obj_type).items():
-            self.fields[name] = field
-            custom_fields.append(name)
-        self.custom_fields = custom_fields
+        self._append_customfield_fields()
 
-        # If editing an existing object, initialize values for all custom fields
+    def _append_customfield_fields(self):
+        """
+        Append form fields for all CustomFields assigned to this model.
+        """
+        # Retrieve initial CustomField values for the instance
         if self.instance.pk:
-            existing_values = CustomFieldValue.objects.filter(
+            for cfv in CustomFieldValue.objects.filter(
                 obj_type=self.obj_type,
                 obj_id=self.instance.pk
-            ).prefetch_related('field')
-            for cfv in existing_values:
-                self.initial['cf_{}'.format(str(cfv.field.name))] = cfv.serialized_value
+            ).prefetch_related('field'):
+                self.custom_field_values[cfv.field.name] = cfv.serialized_value
+
+        # Append form fields; assign initial values if modifying and existing object
+        for cf in CustomField.objects.filter(obj_type=self.obj_type):
+            field_name = 'cf_{}'.format(cf.name)
+            if self.instance.pk:
+                self.fields[field_name] = cf.to_form_field(set_initial=False)
+                self.fields[field_name].initial = self.custom_field_values.get(cf.name)
+            else:
+                self.fields[field_name] = cf.to_form_field()
+
+            # Annotate the field in the list of CustomField form fields
+            self.custom_fields.append(field_name)
 
     def _save_custom_fields(self):
 
@@ -151,6 +88,19 @@ class CustomFieldForm(forms.ModelForm):
         return obj
 
 
+class CustomFieldModelCSVForm(CustomFieldModelForm):
+
+    def _append_customfield_fields(self):
+
+        # Append form fields
+        for cf in CustomField.objects.filter(obj_type=self.obj_type):
+            field_name = 'cf_{}'.format(cf.name)
+            self.fields[field_name] = cf.to_form_field(for_csv_import=True)
+
+            # Annotate the field in the list of CustomField form fields
+            self.custom_fields.append(field_name)
+
+
 class CustomFieldBulkEditForm(BulkEditForm):
 
     def __init__(self, *args, **kwargs):
@@ -160,15 +110,14 @@ class CustomFieldBulkEditForm(BulkEditForm):
         self.obj_type = ContentType.objects.get_for_model(self.model)
 
         # Add all applicable CustomFields to the form
-        custom_fields = get_custom_fields_for_model(self.obj_type, bulk_edit=True).items()
-        for name, field in custom_fields:
+        custom_fields = CustomField.objects.filter(obj_type=self.obj_type)
+        for cf in custom_fields:
             # Annotate non-required custom fields as nullable
-            if not field.required:
-                self.nullable_fields.append(name)
-            field.required = False
-            self.fields[name] = field
+            if not cf.required:
+                self.nullable_fields.append(cf.name)
+            self.fields[cf.name] = cf.to_form_field(set_initial=False, enforce_required=False)
             # Annotate this as a custom field
-            self.custom_fields.append(name)
+            self.custom_fields.append(cf.name)
 
 
 class CustomFieldFilterForm(forms.Form):
@@ -180,10 +129,12 @@ class CustomFieldFilterForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Add all applicable CustomFields to the form
-        custom_fields = get_custom_fields_for_model(self.obj_type, filterable_only=True).items()
-        for name, field in custom_fields:
-            field.required = False
-            self.fields[name] = field
+        custom_fields = CustomField.objects.filter(obj_type=self.obj_type).exclude(
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED
+        )
+        for cf in custom_fields:
+            field_name = 'cf_{}'.format(cf.name)
+            self.fields[field_name] = cf.to_form_field(set_initial=True, enforce_required=False)
 
 
 #
@@ -254,8 +205,8 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConfigContext
         fields = [
-            'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'tenant_groups',
-            'tenants', 'tags', 'data',
+            'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'cluster_groups',
+            'clusters', 'tenant_groups', 'tenants', 'tags', 'data',
         ]
         widgets = {
             'regions': APISelectMultiple(
@@ -269,6 +220,12 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
             ),
             'platforms': APISelectMultiple(
                 api_url="/api/dcim/platforms/"
+            ),
+            'cluster_groups': APISelectMultiple(
+                api_url="/api/virtualization/cluster-groups/"
+            ),
+            'clusters': APISelectMultiple(
+                api_url="/api/virtualization/clusters/"
             ),
             'tenant_groups': APISelectMultiple(
                 api_url="/api/tenancy/tenant-groups/"
@@ -338,6 +295,21 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
         widget=APISelectMultiple(
             api_url="/api/dcim/platforms/",
             value_field="slug",
+        )
+    )
+    cluster_group = FilterChoiceField(
+        queryset=ClusterGroup.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/virtualization/cluster-groups/",
+            value_field="slug",
+        )
+    )
+    cluster_id = FilterChoiceField(
+        queryset=Cluster.objects.all(),
+        label='Cluster',
+        widget=APISelectMultiple(
+            api_url="/api/virtualization/clusters/",
         )
     )
     tenant_group = FilterChoiceField(

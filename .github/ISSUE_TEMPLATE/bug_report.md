@@ -5,7 +5,9 @@ about: Report a reproducible bug in the current release of NetBox
 ---
 
 <!--
-    NOTE: This form is only for reproducible bugs. If you need assistance with
+    NOTE: IF YOUR ISSUE DOES NOT FOLLOW THIS TEMPLATE, IT WILL BE CLOSED.
+
+    This form is only for reproducible bugs. If you need assistance with
     NetBox installation, or if you have a general question, DO NOT open an
     issue. Instead, post to our mailing list:
 
@@ -16,8 +18,8 @@ about: Report a reproducible bug in the current release of NetBox
     before submitting a bug report.
 -->
 ### Environment
-* Python version:  <!-- Example: 3.5.4 -->
-* NetBox version:  <!-- Example: 2.5.2 -->
+* Python version:  <!-- Example: 3.6.9 -->
+* NetBox version:  <!-- Example: 2.7.3 -->
 
 <!--
     Describe in detail the exact steps that someone else can take to reproduce

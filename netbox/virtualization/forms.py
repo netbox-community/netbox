@@ -3,17 +3,20 @@ from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
 from dcim.choices import InterfaceModeChoices
+from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
-from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
+from extras.forms import (
+    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
+)
 from ipam.models import IPAddress, VLANGroup, VLAN
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm,
-    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField,
-    SmallTextarea, StaticSelect2, StaticSelect2Multiple
+    ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ConfirmationForm,
+    CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField, SmallTextarea, StaticSelect2,
+    StaticSelect2Multiple, TagFilterField,
 )
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -73,7 +76,7 @@ class ClusterGroupCSVForm(forms.ModelForm):
 # Clusters
 #
 
-class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     comments = CommentField()
     tags = TagField(
         required=False
@@ -97,7 +100,7 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class ClusterCSVForm(forms.ModelForm):
+class ClusterCSVForm(CustomFieldModelCSVForm):
     type = forms.ModelChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='name',
@@ -170,7 +173,8 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         )
     )
     comments = CommentField(
-        widget=SmallTextarea()
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     class Meta:
@@ -228,6 +232,7 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
@@ -325,7 +330,7 @@ class ClusterRemoveDevicesForm(ConfirmationForm):
 # Virtual Machines
 #
 
-class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     cluster_group = forms.ModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
@@ -428,7 +433,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.fields['primary_ip6'].widget.attrs['readonly'] = True
 
 
-class VirtualMachineCSVForm(forms.ModelForm):
+class VirtualMachineCSVForm(CustomFieldModelCSVForm):
     status = CSVChoiceField(
         choices=VirtualMachineStatusChoices,
         required=False,
@@ -534,7 +539,8 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
         label='Disk (GB)'
     )
     comments = CommentField(
-        widget=SmallTextarea()
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     class Meta:
@@ -634,6 +640,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         required=False,
         label='MAC address'
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -731,7 +738,11 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
             self.cleaned_data['tagged_vlans'] = []
 
 
-class InterfaceCreateForm(ComponentForm):
+class InterfaceCreateForm(BootstrapMixin, forms.Form):
+    virtual_machine = forms.ModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        widget=forms.HiddenInput()
+    )
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -741,12 +752,13 @@ class InterfaceCreateForm(ComponentForm):
         widget=forms.HiddenInput()
     )
     enabled = forms.BooleanField(
-        required=False
+        required=False,
+        initial=True
     )
     mtu = forms.IntegerField(
         required=False,
-        min_value=1,
-        max_value=32767,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
         label='MTU'
     )
     mac_address = forms.CharField(
@@ -785,14 +797,13 @@ class InterfaceCreateForm(ComponentForm):
     )
 
     def __init__(self, *args, **kwargs):
-
-        # Set interfaces enabled by default
-        kwargs['initial'] = kwargs.get('initial', {}).copy()
-        kwargs['initial'].update({'enabled': True})
-
         super().__init__(*args, **kwargs)
 
-        # Limit VLan choices to those in: global vlans, global groups, the current site's group, the current site
+        virtual_machine = VirtualMachine.objects.get(
+            pk=self.initial.get('virtual_machine') or self.data.get('virtual_machine')
+        )
+
+        # Limit VLAN choices to those in: global vlans, global groups, the current site's group, the current site
         vlan_choices = []
         global_vlans = VLAN.objects.filter(site=None, group=None)
         vlan_choices.append(
@@ -804,7 +815,7 @@ class InterfaceCreateForm(ComponentForm):
                 (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
             )
 
-        site = getattr(self.parent.cluster, 'site', None)
+        site = getattr(virtual_machine.cluster, 'site', None)
         if site is not None:
 
             # Add non-grouped site VLANs
@@ -828,14 +839,18 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=Interface.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    virtual_machine = forms.ModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        widget=forms.HiddenInput()
+    )
     enabled = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
     mtu = forms.IntegerField(
         required=False,
-        min_value=1,
-        max_value=32767,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
         label='MTU'
     )
     description = forms.CharField(
@@ -874,35 +889,39 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Limit VLan choices to those in: global vlans, global groups, the current site's group, the current site
-        vlan_choices = []
-        global_vlans = VLAN.objects.filter(site=None, group=None)
-        vlan_choices.append(
-            ('Global', [(vlan.pk, vlan) for vlan in global_vlans])
-        )
-        for group in VLANGroup.objects.filter(site=None):
-            global_group_vlans = VLAN.objects.filter(group=group)
+        # Limit available VLANs based on the parent VirtualMachine
+        if 'virtual_machine' in self.initial:
+            parent_obj = VirtualMachine.objects.filter(pk=self.initial['virtual_machine']).first()
+
+            # Limit VLAN choices to global VLANs, VLANs in global groups, the current site's group, the current site
+            vlan_choices = []
+            global_vlans = VLAN.objects.filter(site=None, group=None)
             vlan_choices.append(
-                (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
+                ('Global', [(vlan.pk, vlan) for vlan in global_vlans])
             )
-        if self.parent_obj.cluster is not None:
-            site = getattr(self.parent_obj.cluster, 'site', None)
-            if site is not None:
+            for group in VLANGroup.objects.filter(site=None):
+                global_group_vlans = VLAN.objects.filter(group=group)
+                vlan_choices.append(
+                    (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
+                )
+            if parent_obj.cluster is not None:
+                site = getattr(parent_obj.cluster, 'site', None)
+                if site is not None:
 
-                # Add non-grouped site VLANs
-                site_vlans = VLAN.objects.filter(site=site, group=None)
-                vlan_choices.append((site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
+                    # Add non-grouped site VLANs
+                    site_vlans = VLAN.objects.filter(site=site, group=None)
+                    vlan_choices.append((site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
 
-                # Add grouped site VLANs
-                for group in VLANGroup.objects.filter(site=site):
-                    site_group_vlans = VLAN.objects.filter(group=group)
-                    vlan_choices.append((
-                        '{} / {}'.format(group.site.name, group.name),
-                        [(vlan.pk, vlan) for vlan in site_group_vlans]
-                    ))
+                    # Add grouped site VLANs
+                    for group in VLANGroup.objects.filter(site=site):
+                        site_group_vlans = VLAN.objects.filter(group=group)
+                        vlan_choices.append((
+                            '{} / {}'.format(group.site.name, group.name),
+                            [(vlan.pk, vlan) for vlan in site_group_vlans]
+                        ))
 
-        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
-        self.fields['tagged_vlans'].choices = vlan_choices
+            self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
+            self.fields['tagged_vlans'].choices = vlan_choices
 
 
 #
@@ -931,8 +950,8 @@ class VirtualMachineBulkAddInterfaceForm(VirtualMachineBulkAddComponentForm):
     )
     mtu = forms.IntegerField(
         required=False,
-        min_value=1,
-        max_value=32767,
+        min_value=INTERFACE_MTU_MIN,
+        max_value=INTERFACE_MTU_MAX,
         label='MTU'
     )
     description = forms.CharField(

@@ -18,7 +18,7 @@ class ChoiceSet(metaclass=ChoiceSetMeta):
 
     @classmethod
     def values(cls):
-        return [c[0] for c in cls.CHOICES]
+        return [c[0] for c in unpack_grouped_choices(cls.CHOICES)]
 
     @classmethod
     def as_dict(cls):

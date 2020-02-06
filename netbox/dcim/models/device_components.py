@@ -676,7 +676,7 @@ class Interface(CableTermination, ComponentModel):
             self.untagged_vlan = None
 
         # Only "tagged" interfaces may have tagged VLANs assigned. ("tagged all" implies all VLANs are assigned.)
-        if self.pk and self.mode is not InterfaceModeChoices.MODE_TAGGED:
+        if self.pk and self.mode != InterfaceModeChoices.MODE_TAGGED:
             self.tagged_vlans.clear()
 
         return super().save(*args, **kwargs)
@@ -1004,7 +1004,7 @@ class InventoryItem(ComponentModel):
         return self.name
 
     def get_absolute_url(self):
-        return self.device.get_absolute_url()
+        return reverse('dcim:device_inventory', kwargs={'pk': self.device.pk})
 
     def to_csv(self):
         return (

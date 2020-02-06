@@ -440,7 +440,7 @@ class ConsoleServerPortTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConsoleServerPortTemplate
-        fields = ('pk', 'name', 'actions')
+        fields = ('pk', 'name', 'type', 'actions')
         empty_text = "None"
 
 
@@ -777,6 +777,7 @@ class InterfaceTable(BaseTable):
 
 class InterfaceDetailTable(DeviceComponentDetailTable):
     parent = tables.LinkColumn(order_by=('device', 'virtual_machine'))
+    name = tables.LinkColumn()
 
     class Meta(InterfaceTable.Meta):
         order_by = ('parent', 'name')

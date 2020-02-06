@@ -13,7 +13,6 @@ from rest_framework.response import Response
 from rest_framework.serializers import Field, ModelSerializer, ValidationError
 from rest_framework.viewsets import ModelViewSet as _ModelViewSet, ViewSet
 
-from utilities.choices import ChoiceSet
 from .utils import dict_to_filter_params, dynamic_import
 
 

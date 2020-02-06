@@ -405,7 +405,7 @@ class RackElevationHelperMixin:
 
     @staticmethod
     def _draw_device_rear(drawing, device, start, end, text):
-        rect = drawing.rect(start, end, class_="blocked")
+        rect = drawing.rect(start, end, class_="slot blocked")
         rect.set_desc('{} — {} ({}U) {} {}'.format(
             device.device_role, device.device_type.display_name,
             device.device_type.u_height, device.asset_tag or '', device.serial or ''
@@ -414,7 +414,7 @@ class RackElevationHelperMixin:
         drawing.add(drawing.text(str(device), insert=text))
 
     @staticmethod
-    def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_):
+    def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_, reservation):
         link = drawing.add(
             drawing.a(
                 href='{}?{}'.format(
@@ -424,6 +424,10 @@ class RackElevationHelperMixin:
                 target='_top'
             )
         )
+        if reservation:
+            link.set_desc('{} — {} · {}'.format(
+                reservation.description, reservation.user, reservation.created
+            ))
         link.add(drawing.rect(start, end, class_=class_))
         link.add(drawing.text("add device", insert=text, class_='add-device'))
 
@@ -453,12 +457,13 @@ class RackElevationHelperMixin:
             else:
                 # Draw shallow devices, reservations, or empty units
                 class_ = 'slot'
+                reservation = reserved_units.get(unit["id"])
                 if device:
                     class_ += ' occupied'
-                if unit["id"] in reserved_units:
+                if reservation:
                     class_ += ' reserved'
                 self._draw_empty(
-                    drawing, self, start_cordinates, end_cordinates, text_cordinates, unit["id"], face, class_
+                    drawing, self, start_cordinates, end_cordinates, text_cordinates, unit["id"], face, class_, reservation
                 )
 
             unit_cursor += height
@@ -483,7 +488,12 @@ class RackElevationHelperMixin:
 
         return elevation
 
-    def get_elevation_svg(self, face=DeviceFaceChoices.FACE_FRONT, unit_width=230, unit_height=20):
+    def get_elevation_svg(
+            self,
+            face=DeviceFaceChoices.FACE_FRONT,
+            unit_width=RACK_ELEVATION_UNIT_WIDTH_DEFAULT,
+            unit_height=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT
+    ):
         """
         Return an SVG of the rack elevation
 
@@ -493,7 +503,7 @@ class RackElevationHelperMixin:
             height of the elevation
         """
         elevation = self.merge_elevations(face)
-        reserved_units = self.get_reserved_units().keys()
+        reserved_units = self.get_reserved_units()
 
         return self._draw_elevations(elevation, reserved_units, face, unit_width, unit_height)
 
@@ -569,7 +579,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
         help_text='Rail-to-rail width'
     )
     u_height = models.PositiveSmallIntegerField(
-        default=42,
+        default=RACK_U_HEIGHT_DEFAULT,
         verbose_name='Height (U)',
         validators=[MinValueValidator(1), MaxValueValidator(100)]
     )
@@ -1008,9 +1018,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = [
-        'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'comments',
-    ]
     clone_fields = [
         'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role',
     ]
@@ -1859,15 +1866,15 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     )
     voltage = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)],
-        default=120
+        default=POWERFEED_VOLTAGE_DEFAULT
     )
     amperage = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)],
-        default=20
+        default=POWERFEED_AMPERAGE_DEFAULT
     )
     max_utilization = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)],
-        default=80,
+        default=POWERFEED_MAX_UTILIZATION_DEFAULT,
         help_text="Maximum permissible draw (percentage)"
     )
     available_power = models.PositiveIntegerField(
