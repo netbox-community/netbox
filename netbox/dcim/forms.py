@@ -1065,6 +1065,7 @@ class ConsolePortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
         widget=StaticSelect2()
     )
 
@@ -1107,6 +1108,7 @@ class ConsoleServerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
         widget=StaticSelect2()
     )
 
@@ -1159,7 +1161,8 @@ class PowerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerPortTypeChoices),
-        required=False
+        required=False,
+        widget=StaticSelect2()
     )
     maximum_draw = forms.IntegerField(
         min_value=1,
@@ -1241,7 +1244,8 @@ class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
-        required=False
+        required=False,
+        widget=StaticSelect2()
     )
     feed_leg = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletFeedLegChoices),
@@ -1401,12 +1405,13 @@ class FrontPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         widget=forms.MultipleHiddenInput()
     )
     type = forms.ChoiceField(
-        choices=PortTypeChoices,
+        choices=add_blank_choice(PortTypeChoices),
+        required=False,
         widget=StaticSelect2()
     )
 
     class Meta:
-        nullable_fields = ('type',)
+        nullable_fields = ()
 
 
 class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1450,12 +1455,13 @@ class RearPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         widget=forms.MultipleHiddenInput()
     )
     type = forms.ChoiceField(
-        choices=PortTypeChoices,
+        choices=add_blank_choice(PortTypeChoices),
+        required=False,
         widget=StaticSelect2()
     )
 
     class Meta:
-        nullable_fields = ('type',)
+        nullable_fields = ()
 
 
 class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1482,6 +1488,7 @@ class DeviceBayTemplateCreateForm(BootstrapMixin, forms.Form):
     )
 
 
+# TODO: DeviceBayTemplate has no fields suitable for bulk-editing yet
 # class DeviceBayTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
 #     pk = forms.ModelMultipleChoiceField(
 #         queryset=FrontPortTemplate.objects.all(),

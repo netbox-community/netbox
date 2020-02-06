@@ -219,6 +219,6 @@ def querydict_to_dict(querydict):
     """
     assert isinstance(querydict, QueryDict)
     return {
-        key: querydict.get(key) if len(value) == 1 else querydict.getlist(key)
+        key: querydict.get(key) if len(value) == 1 and key != 'pk' else querydict.getlist(key)
         for key, value in querydict.lists()
     }
