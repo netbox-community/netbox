@@ -717,6 +717,13 @@ class ConsolePortTemplateEditView(PermissionRequiredMixin, ObjectEditView):
     model_form = forms.ConsolePortTemplateForm
 
 
+class ConsolePortTemplateBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_consoleporttemplate'
+    queryset = ConsolePortTemplate.objects.all()
+    table = tables.ConsolePortTemplateTable
+    form = forms.ConsolePortTemplateBulkEditForm
+
+
 class ConsolePortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_consoleporttemplate'
     queryset = ConsolePortTemplate.objects.all()
@@ -735,6 +742,13 @@ class ConsoleServerPortTemplateEditView(PermissionRequiredMixin, ObjectEditView)
     permission_required = 'dcim.change_consoleserverporttemplate'
     model = ConsoleServerPortTemplate
     model_form = forms.ConsoleServerPortTemplateForm
+
+
+class ConsoleServerPortTemplateBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_consoleserverporttemplate'
+    queryset = ConsoleServerPortTemplate.objects.all()
+    table = tables.ConsoleServerPortTemplateTable
+    form = forms.ConsoleServerPortTemplateBulkEditForm
 
 
 class ConsoleServerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -757,6 +771,13 @@ class PowerPortTemplateEditView(PermissionRequiredMixin, ObjectEditView):
     model_form = forms.PowerPortTemplateForm
 
 
+class PowerPortTemplateBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_powerporttemplate'
+    queryset = PowerPortTemplate.objects.all()
+    table = tables.PowerPortTemplateTable
+    form = forms.PowerPortTemplateBulkEditForm
+
+
 class PowerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_powerporttemplate'
     queryset = PowerPortTemplate.objects.all()
@@ -775,6 +796,13 @@ class PowerOutletTemplateEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_poweroutlettemplate'
     model = PowerOutletTemplate
     model_form = forms.PowerOutletTemplateForm
+
+
+class PowerOutletTemplateBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_poweroutlettemplate'
+    queryset = PowerOutletTemplate.objects.all()
+    table = tables.PowerOutletTemplateTable
+    form = forms.PowerOutletTemplateBulkEditForm
 
 
 class PowerOutletTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -824,6 +852,13 @@ class FrontPortTemplateEditView(PermissionRequiredMixin, ObjectEditView):
     model_form = forms.FrontPortTemplateForm
 
 
+class FrontPortTemplateBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_frontporttemplate'
+    queryset = FrontPortTemplate.objects.all()
+    table = tables.FrontPortTemplateTable
+    form = forms.FrontPortTemplateBulkEditForm
+
+
 class FrontPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_frontporttemplate'
     queryset = FrontPortTemplate.objects.all()
@@ -844,6 +879,13 @@ class RearPortTemplateEditView(PermissionRequiredMixin, ObjectEditView):
     model_form = forms.RearPortTemplateForm
 
 
+class RearPortTemplateBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_rearporttemplate'
+    queryset = RearPortTemplate.objects.all()
+    table = tables.RearPortTemplateTable
+    form = forms.RearPortTemplateBulkEditForm
+
+
 class RearPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rearporttemplate'
     queryset = RearPortTemplate.objects.all()
@@ -862,6 +904,13 @@ class DeviceBayTemplateEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_devicebaytemplate'
     model = DeviceBayTemplate
     model_form = forms.DeviceBayTemplateForm
+
+
+# class DeviceBayTemplateBulkEditView(PermissionRequiredMixin, BulkEditView):
+#     permission_required = 'dcim.change_devicebaytemplate'
+#     queryset = DeviceBayTemplate.objects.all()
+#     table = tables.DeviceBayTemplateTable
+#     form = forms.DeviceBayTemplateBulkEditForm
 
 
 class DeviceBayTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):

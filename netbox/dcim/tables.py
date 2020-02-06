@@ -440,7 +440,7 @@ class ConsoleServerPortTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConsoleServerPortTemplate
-        fields = ('pk', 'name', 'actions')
+        fields = ('pk', 'name', 'type', 'actions')
         empty_text = "None"
 
 
