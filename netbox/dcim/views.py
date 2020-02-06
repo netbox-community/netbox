@@ -2135,13 +2135,13 @@ class InventoryItemEditView(PermissionRequiredMixin, ObjectEditView):
     model = InventoryItem
     model_form = forms.InventoryItemForm
 
-    def alter_obj(self, obj, request, url_args, url_kwargs):
-        if 'device' in url_kwargs:
-            obj.device = get_object_or_404(Device, pk=url_kwargs['device'])
-        return obj
 
-    def get_return_url(self, request, obj):
-        return reverse('dcim:device_inventory', kwargs={'pk': obj.device.pk})
+class InventoryItemCreateView(PermissionRequiredMixin, ComponentCreateView):
+    permission_required = 'dcim.add_inventoryitem'
+    model = InventoryItem
+    form = forms.InventoryItemCreateForm
+    model_form = forms.InventoryItemForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class InventoryItemDeleteView(PermissionRequiredMixin, ObjectDeleteView):

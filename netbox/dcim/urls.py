@@ -278,13 +278,12 @@ urlpatterns = [
 
     # Inventory items
     path('inventory-items/', views.InventoryItemListView.as_view(), name='inventoryitem_list'),
+    path('inventory-items/add/', views.InventoryItemCreateView.as_view(), name='inventoryitem_add'),
     path('inventory-items/import/', views.InventoryItemBulkImportView.as_view(), name='inventoryitem_import'),
     path('inventory-items/edit/', views.InventoryItemBulkEditView.as_view(), name='inventoryitem_bulk_edit'),
     path('inventory-items/delete/', views.InventoryItemBulkDeleteView.as_view(), name='inventoryitem_bulk_delete'),
     path('inventory-items/<int:pk>/edit/', views.InventoryItemEditView.as_view(), name='inventoryitem_edit'),
     path('inventory-items/<int:pk>/delete/', views.InventoryItemDeleteView.as_view(), name='inventoryitem_delete'),
-    # TODO: Replace below with InventoryItemCreateView
-    path('devices/<int:device>/inventory-items/add/', views.InventoryItemEditView.as_view(), name='inventoryitem_add'),
 
     # Cables
     path('cables/', views.CableListView.as_view(), name='cable_list'),

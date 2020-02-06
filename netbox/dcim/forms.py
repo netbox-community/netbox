@@ -3890,6 +3890,40 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
         }
 
 
+class InventoryItemCreateForm(ComponentForm):
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        widget=forms.HiddenInput()
+    )
+    name_pattern = ExpandableNameField(
+        label='Name'
+    )
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/manufacturers/"
+        )
+    )
+    part_id = forms.CharField(
+        max_length=50,
+        required=False,
+        label='Part ID'
+    )
+    serial = forms.CharField(
+        max_length=50,
+        required=False,
+    )
+    asset_tag = forms.CharField(
+        max_length=50,
+        required=False,
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+
 class InventoryItemCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),

@@ -1136,9 +1136,10 @@ class InventoryItemTestCase(StandardTestCases.Views):
 
     # Disable inapplicable views
     test_get_object = None
-
-    # TODO
     test_create_object = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -1160,6 +1161,18 @@ class InventoryItemTestCase(StandardTestCases.Views):
             'part_id': '123456',
             'serial': '123ABC',
             'asset_tag': 'ABC123',
+            'description': 'An inventory item',
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name_pattern': 'Inventory Item [4-6]',
+            'manufacturer': manufacturer.pk,
+            'parent': None,
+            'discovered': False,
+            'part_id': '123456',
+            'serial': '123ABC',
             'description': 'An inventory item',
             'tags': 'Alpha,Bravo,Charlie',
         }
