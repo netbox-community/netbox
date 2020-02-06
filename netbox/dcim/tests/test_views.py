@@ -524,6 +524,372 @@ device-bays:
         self.assertEqual(data[0]['model'], 'Device Type 1')
 
 
+#
+# DeviceType components
+#
+
+class ConsolePortTemplateTestCase(StandardTestCases.Views):
+    model = ConsolePortTemplate
+
+    # Disable inapplicable views
+    test_get_object = None
+    test_list_objects = None
+    test_create_object = None
+    test_delete_object = None
+    test_import_objects = None
+    test_bulk_edit_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetypes = (
+            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
+            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
+        )
+        DeviceType.objects.bulk_create(devicetypes)
+
+        ConsolePortTemplate.objects.bulk_create((
+            ConsolePortTemplate(device_type=devicetypes[0], name='Console Port Template 1'),
+            ConsolePortTemplate(device_type=devicetypes[0], name='Console Port Template 2'),
+            ConsolePortTemplate(device_type=devicetypes[0], name='Console Port Template 3'),
+        ))
+
+        cls.form_data = {
+            'device_type': devicetypes[1].pk,
+            'name': 'Console Port Template X',
+            'type': ConsolePortTypeChoices.TYPE_RJ45,
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetypes[1].pk,
+            'name_pattern': 'Console Port Template [4-6]',
+            'type': ConsolePortTypeChoices.TYPE_RJ45,
+        }
+
+
+class ConsoleServerPortTemplateTestCase(StandardTestCases.Views):
+    model = ConsoleServerPortTemplate
+
+    # Disable inapplicable views
+    test_get_object = None
+    test_list_objects = None
+    test_create_object = None
+    test_delete_object = None
+    test_import_objects = None
+    test_bulk_edit_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetypes = (
+            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
+            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
+        )
+        DeviceType.objects.bulk_create(devicetypes)
+
+        ConsoleServerPortTemplate.objects.bulk_create((
+            ConsoleServerPortTemplate(device_type=devicetypes[0], name='Console Server Port Template 1'),
+            ConsoleServerPortTemplate(device_type=devicetypes[0], name='Console Server Port Template 2'),
+            ConsoleServerPortTemplate(device_type=devicetypes[0], name='Console Server Port Template 3'),
+        ))
+
+        cls.form_data = {
+            'device_type': devicetypes[1].pk,
+            'name': 'Console Server Port Template X',
+            'type': ConsolePortTypeChoices.TYPE_RJ45,
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetypes[1].pk,
+            'name_pattern': 'Console Server Port Template [4-6]',
+            'type': ConsolePortTypeChoices.TYPE_RJ45,
+        }
+
+
+class PowerPortTemplateTestCase(StandardTestCases.Views):
+    model = PowerPortTemplate
+
+    # Disable inapplicable views
+    test_get_object = None
+    test_list_objects = None
+    test_create_object = None
+    test_delete_object = None
+    test_import_objects = None
+    test_bulk_edit_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetypes = (
+            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
+            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
+        )
+        DeviceType.objects.bulk_create(devicetypes)
+
+        PowerPortTemplate.objects.bulk_create((
+            PowerPortTemplate(device_type=devicetypes[0], name='Power Port Template 1'),
+            PowerPortTemplate(device_type=devicetypes[0], name='Power Port Template 2'),
+            PowerPortTemplate(device_type=devicetypes[0], name='Power Port Template 3'),
+        ))
+
+        cls.form_data = {
+            'device_type': devicetypes[1].pk,
+            'name': 'Power Port Template X',
+            'type': PowerPortTypeChoices.TYPE_IEC_C14,
+            'maxiumum_draw': 100,
+            'allocated_draw': 50,
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetypes[1].pk,
+            'name_pattern': 'Power Port Template [4-6]',
+            'type': PowerPortTypeChoices.TYPE_IEC_C14,
+            'maxiumum_draw': 100,
+            'allocated_draw': 50,
+        }
+
+
+class PowerOutletTemplateTestCase(StandardTestCases.Views):
+    model = PowerOutletTemplate
+
+    # Disable inapplicable views
+    test_get_object = None
+    test_list_objects = None
+    test_create_object = None
+    test_delete_object = None
+    test_import_objects = None
+    test_bulk_edit_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+
+        PowerOutletTemplate.objects.bulk_create((
+            PowerOutletTemplate(device_type=devicetype, name='Power Outlet Template 1'),
+            PowerOutletTemplate(device_type=devicetype, name='Power Outlet Template 2'),
+            PowerOutletTemplate(device_type=devicetype, name='Power Outlet Template 3'),
+        ))
+
+        powerports = (
+            PowerPortTemplate(device_type=devicetype, name='Power Port Template 1'),
+        )
+        PowerPortTemplate.objects.bulk_create(powerports)
+
+        cls.form_data = {
+            'device_type': devicetype.pk,
+            'name': 'Power Outlet Template X',
+            'type': PowerOutletTypeChoices.TYPE_IEC_C13,
+            'power_port': powerports[0].pk,
+            'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetype.pk,
+            'name_pattern': 'Power Outlet Template [4-6]',
+            'type': PowerOutletTypeChoices.TYPE_IEC_C13,
+            'power_port': powerports[0].pk,
+            'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
+        }
+
+
+class InterfaceTemplateTestCase(StandardTestCases.Views):
+    model = InterfaceTemplate
+
+    # Disable inapplicable views
+    test_get_object = None
+    test_list_objects = None
+    test_create_object = None
+    test_delete_object = None
+    test_import_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetypes = (
+            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
+            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
+        )
+        DeviceType.objects.bulk_create(devicetypes)
+
+        InterfaceTemplate.objects.bulk_create((
+            InterfaceTemplate(device_type=devicetypes[0], name='Interface Template 1'),
+            InterfaceTemplate(device_type=devicetypes[0], name='Interface Template 2'),
+            InterfaceTemplate(device_type=devicetypes[0], name='Interface Template 3'),
+        ))
+
+        cls.form_data = {
+            'device_type': devicetypes[1].pk,
+            'name': 'Interface Template X',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'mgmt_only': True,
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetypes[1].pk,
+            'name_pattern': 'Interface Template [4-6]',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'mgmt_only': True,
+        }
+
+        cls.bulk_edit_data = {
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'mgmt_only': True,
+        }
+
+
+class FrontPortTemplateTestCase(StandardTestCases.Views):
+    model = FrontPortTemplate
+
+    # Disable inapplicable views
+    test_get_object = None
+    test_list_objects = None
+    test_create_object = None
+    test_delete_object = None
+    test_import_objects = None
+    test_bulk_edit_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+
+        rearports = (
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 1'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 2'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 3'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 4'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 5'),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 6'),
+        )
+        RearPortTemplate.objects.bulk_create(rearports)
+
+        FrontPortTemplate.objects.bulk_create((
+            FrontPortTemplate(device_type=devicetype, name='Front Port Template 1', rear_port=rearports[0], rear_port_position=1),
+            FrontPortTemplate(device_type=devicetype, name='Front Port Template 2', rear_port=rearports[1], rear_port_position=1),
+            FrontPortTemplate(device_type=devicetype, name='Front Port Template 3', rear_port=rearports[2], rear_port_position=1),
+        ))
+
+        cls.form_data = {
+            'device_type': devicetype.pk,
+            'name': 'Front Port X',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'rear_port': rearports[3].pk,
+            'rear_port_position': 1,
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetype.pk,
+            'name_pattern': 'Front Port [4-6]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'rear_port_set': [
+                '{}:1'.format(rp.pk) for rp in rearports[3:6]
+            ],
+        }
+
+
+class RearPortTemplateTestCase(StandardTestCases.Views):
+    model = RearPortTemplate
+
+    # Disable inapplicable views
+    test_get_object = None
+    test_list_objects = None
+    test_create_object = None
+    test_delete_object = None
+    test_import_objects = None
+    test_bulk_edit_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetypes = (
+            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
+            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
+        )
+        DeviceType.objects.bulk_create(devicetypes)
+
+        RearPortTemplate.objects.bulk_create((
+            RearPortTemplate(device_type=devicetypes[0], name='Rear Port Template 1'),
+            RearPortTemplate(device_type=devicetypes[0], name='Rear Port Template 2'),
+            RearPortTemplate(device_type=devicetypes[0], name='Rear Port Template 3'),
+        ))
+
+        cls.form_data = {
+            'device_type': devicetypes[1].pk,
+            'name': 'Rear Port Template X',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 2,
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetypes[1].pk,
+            'name_pattern': 'Rear Port Template [4-6]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 2,
+        }
+
+
+class DeviceBayTemplateTestCase(StandardTestCases.Views):
+    model = DeviceBayTemplate
+
+    # Disable inapplicable views
+    test_get_object = None
+    test_list_objects = None
+    test_create_object = None
+    test_delete_object = None
+    test_import_objects = None
+    test_bulk_edit_objects = None
+
+    def test_bulk_create_objects(self):
+        return self._test_bulk_create_objects(expected_count=3)
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetypes = (
+            DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
+            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
+        )
+        DeviceType.objects.bulk_create(devicetypes)
+
+        DeviceBayTemplate.objects.bulk_create((
+            DeviceBayTemplate(device_type=devicetypes[0], name='Device Bay Template 1'),
+            DeviceBayTemplate(device_type=devicetypes[0], name='Device Bay Template 2'),
+            DeviceBayTemplate(device_type=devicetypes[0], name='Device Bay Template 3'),
+        ))
+
+        cls.form_data = {
+            'device_type': devicetypes[1].pk,
+            'name': 'Device Bay Template X',
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetypes[1].pk,
+            'name_pattern': 'Device Bay Template [4-6]',
+        }
+
+
 class DeviceRoleTestCase(StandardTestCases.Views):
     model = DeviceRole
 

@@ -1174,8 +1174,11 @@ class PowerOutletTemplateCreateForm(BootstrapMixin, forms.Form):
         super().__init__(*args, **kwargs)
 
         # Limit power_port choices to current DeviceType
+        device_type = DeviceType.objects.get(
+            pk=self.initial.get('device_type') or self.data.get('device_type')
+        )
         self.fields['power_port'].queryset = PowerPortTemplate.objects.filter(
-            device_type=self.initial.get('device_type')
+            device_type=device_type
         )
 
 
@@ -1278,7 +1281,9 @@ class FrontPortTemplateCreateForm(BootstrapMixin, forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        device_type = DeviceType.objects.filter(pk=self.initial.get('device_type')).first()
+        device_type = DeviceType.objects.get(
+            pk=self.initial.get('device_type') or self.data.get('device_type')
+        )
 
         # Determine which rear port positions are occupied. These will be excluded from the list of available mappings.
         occupied_port_positions = [
