@@ -825,8 +825,6 @@ class ComponentCreateView(GetReturnURLMixin, View):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a Device or VirtualMachine.
     """
-    parent_model = None
-    parent_field = None
     model = None
     form = None
     model_form = None

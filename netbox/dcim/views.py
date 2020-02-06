@@ -705,8 +705,6 @@ class DeviceTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class ConsolePortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_consoleporttemplate'
-    parent_model = DeviceType
-    parent_field = 'device_type'
     model = ConsolePortTemplate
     form = forms.ConsolePortTemplateCreateForm
     model_form = forms.ConsolePortTemplateForm
@@ -727,8 +725,6 @@ class ConsolePortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView)
 
 class ConsoleServerPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_consoleserverporttemplate'
-    parent_model = DeviceType
-    parent_field = 'device_type'
     model = ConsoleServerPortTemplate
     form = forms.ConsoleServerPortTemplateCreateForm
     model_form = forms.ConsoleServerPortTemplateForm
@@ -749,8 +745,6 @@ class ConsoleServerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDelet
 
 class PowerPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_powerporttemplate'
-    parent_model = DeviceType
-    parent_field = 'device_type'
     model = PowerPortTemplate
     form = forms.PowerPortTemplateCreateForm
     model_form = forms.PowerPortTemplateForm
@@ -771,8 +765,6 @@ class PowerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class PowerOutletTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_poweroutlettemplate'
-    parent_model = DeviceType
-    parent_field = 'device_type'
     model = PowerOutletTemplate
     form = forms.PowerOutletTemplateCreateForm
     model_form = forms.PowerOutletTemplateForm
@@ -793,8 +785,6 @@ class PowerOutletTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView)
 
 class InterfaceTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_interfacetemplate'
-    parent_model = DeviceType
-    parent_field = 'device_type'
     model = InterfaceTemplate
     form = forms.InterfaceTemplateCreateForm
     model_form = forms.InterfaceTemplateForm
@@ -822,8 +812,6 @@ class InterfaceTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class FrontPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_frontporttemplate'
-    parent_model = DeviceType
-    parent_field = 'device_type'
     model = FrontPortTemplate
     form = forms.FrontPortTemplateCreateForm
     model_form = forms.FrontPortTemplateForm
@@ -844,8 +832,6 @@ class FrontPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class RearPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_rearporttemplate'
-    parent_model = DeviceType
-    parent_field = 'device_type'
     model = RearPortTemplate
     form = forms.RearPortTemplateCreateForm
     model_form = forms.RearPortTemplateForm
@@ -866,8 +852,6 @@ class RearPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class DeviceBayTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_devicebaytemplate'
-    parent_model = DeviceType
-    parent_field = 'device_type'
     model = DeviceBayTemplate
     form = forms.DeviceBayTemplateCreateForm
     model_form = forms.DeviceBayTemplateForm
