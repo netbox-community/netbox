@@ -722,7 +722,6 @@ class ConsolePortTemplateEditView(PermissionRequiredMixin, ObjectEditView):
 class ConsolePortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_consoleporttemplate'
     queryset = ConsolePortTemplate.objects.all()
-    parent_model = DeviceType
     table = tables.ConsolePortTemplateTable
 
 
@@ -745,7 +744,6 @@ class ConsoleServerPortTemplateEditView(PermissionRequiredMixin, ObjectEditView)
 class ConsoleServerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_consoleserverporttemplate'
     queryset = ConsoleServerPortTemplate.objects.all()
-    parent_model = DeviceType
     table = tables.ConsoleServerPortTemplateTable
 
 
@@ -768,7 +766,6 @@ class PowerPortTemplateEditView(PermissionRequiredMixin, ObjectEditView):
 class PowerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_powerporttemplate'
     queryset = PowerPortTemplate.objects.all()
-    parent_model = DeviceType
     table = tables.PowerPortTemplateTable
 
 
@@ -791,7 +788,6 @@ class PowerOutletTemplateEditView(PermissionRequiredMixin, ObjectEditView):
 class PowerOutletTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_poweroutlettemplate'
     queryset = PowerOutletTemplate.objects.all()
-    parent_model = DeviceType
     table = tables.PowerOutletTemplateTable
 
 
@@ -822,7 +818,6 @@ class InterfaceTemplateBulkEditView(PermissionRequiredMixin, BulkEditView):
 class InterfaceTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_interfacetemplate'
     queryset = InterfaceTemplate.objects.all()
-    parent_model = DeviceType
     table = tables.InterfaceTemplateTable
 
 
@@ -845,7 +840,6 @@ class FrontPortTemplateEditView(PermissionRequiredMixin, ObjectEditView):
 class FrontPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_frontporttemplate'
     queryset = FrontPortTemplate.objects.all()
-    parent_model = DeviceType
     table = tables.FrontPortTemplateTable
 
 
@@ -868,7 +862,6 @@ class RearPortTemplateEditView(PermissionRequiredMixin, ObjectEditView):
 class RearPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rearporttemplate'
     queryset = RearPortTemplate.objects.all()
-    parent_model = DeviceType
     table = tables.RearPortTemplateTable
 
 
@@ -891,7 +884,6 @@ class DeviceBayTemplateEditView(PermissionRequiredMixin, ObjectEditView):
 class DeviceBayTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_devicebaytemplate'
     queryset = DeviceBayTemplate.objects.all()
-    parent_model = DeviceType
     table = tables.DeviceBayTemplateTable
 
 
