@@ -854,7 +854,8 @@ class ComponentCreateView(GetReturnURLMixin, View):
 
                 # Initialize the individual component form
                 data['name'] = name
-                data.update(form.get_iterative_data(i))
+                if hasattr(form, 'get_iterative_data'):
+                    data.update(form.get_iterative_data(i))
                 component_form = self.model_form(data)
 
                 if component_form.is_valid():

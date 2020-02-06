@@ -14,9 +14,9 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm,
-    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField,
-    SmallTextarea, StaticSelect2, StaticSelect2Multiple, TagFilterField
+    ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ConfirmationForm,
+    CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField, SmallTextarea, StaticSelect2,
+    StaticSelect2Multiple, TagFilterField,
 )
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -738,7 +738,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
             self.cleaned_data['tagged_vlans'] = []
 
 
-class InterfaceCreateForm(ComponentForm):
+class InterfaceCreateForm(BootstrapMixin, forms.Form):
     virtual_machine = forms.ModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         widget=forms.HiddenInput()

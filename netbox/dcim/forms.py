@@ -22,10 +22,9 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
-    BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField, ComponentForm,
-    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, JSONField,
-    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
-    BOOLEAN_WITH_BLANK_CHOICES,
+    BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField, ConfirmationForm,
+    CSVChoiceField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, JSONField, SelectWithPK,
+    SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
 from .choices import *
@@ -1043,7 +1042,7 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsolePortTemplateCreateForm(ComponentForm):
+class ConsolePortTemplateCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -1065,7 +1064,7 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsoleServerPortTemplateCreateForm(ComponentForm):
+class ConsoleServerPortTemplateCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -1087,7 +1086,7 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPortTemplateCreateForm(ComponentForm):
+class PowerPortTemplateCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -1129,7 +1128,7 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
             )
 
 
-class PowerOutletTemplateCreateForm(ComponentForm):
+class PowerOutletTemplateCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -1170,7 +1169,7 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class InterfaceTemplateCreateForm(ComponentForm):
+class InterfaceTemplateCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -1227,7 +1226,7 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
             )
 
 
-class FrontPortTemplateCreateForm(ComponentForm):
+class FrontPortTemplateCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -1297,7 +1296,7 @@ class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class RearPortTemplateCreateForm(ComponentForm):
+class RearPortTemplateCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -1325,7 +1324,7 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DeviceBayTemplateCreateForm(ComponentForm):
+class DeviceBayTemplateCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -2179,7 +2178,7 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsolePortCreateForm(ComponentForm):
+class ConsolePortCreateForm(BootstrapMixin, forms.Form):
     device = forms.ModelChoiceField(
         queryset=Device.objects.prefetch_related('device_type__manufacturer'),
         widget=APISelect(
@@ -2243,7 +2242,7 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsoleServerPortCreateForm(ComponentForm):
+class ConsoleServerPortCreateForm(BootstrapMixin, forms.Form):
     device = forms.ModelChoiceField(
         queryset=Device.objects.prefetch_related('device_type__manufacturer'),
         widget=APISelect(
@@ -2342,7 +2341,7 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPortCreateForm(ComponentForm):
+class PowerPortCreateForm(BootstrapMixin, forms.Form):
     device = forms.ModelChoiceField(
         queryset=Device.objects.prefetch_related('device_type__manufacturer'),
         widget=APISelect(
@@ -2429,7 +2428,7 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
             )
 
 
-class PowerOutletCreateForm(ComponentForm):
+class PowerOutletCreateForm(BootstrapMixin, forms.Form):
     device = forms.ModelChoiceField(
         queryset=Device.objects.prefetch_related('device_type__manufacturer'),
         widget=APISelect(
@@ -2644,7 +2643,7 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
             )
 
 
-class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
+class InterfaceCreateForm(BootstrapMixin, InterfaceCommonForm, forms.Form):
     device = forms.ModelChoiceField(
         queryset=Device.objects.prefetch_related('device_type__manufacturer'),
         widget=APISelect(
@@ -2940,7 +2939,7 @@ class FrontPortForm(BootstrapMixin, forms.ModelForm):
 
 
 # TODO: Merge with FrontPortTemplateCreateForm to remove duplicate logic
-class FrontPortCreateForm(ComponentForm):
+class FrontPortCreateForm(BootstrapMixin, forms.Form):
     device = forms.ModelChoiceField(
         queryset=Device.objects.prefetch_related('device_type__manufacturer'),
         widget=APISelect(
@@ -3118,7 +3117,7 @@ class RearPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class RearPortCreateForm(ComponentForm):
+class RearPortCreateForm(BootstrapMixin, forms.Form):
     device = forms.ModelChoiceField(
         queryset=Device.objects.prefetch_related('device_type__manufacturer'),
         widget=APISelect(
@@ -3728,7 +3727,7 @@ class DeviceBayForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DeviceBayCreateForm(ComponentForm):
+class DeviceBayCreateForm(BootstrapMixin, forms.Form):
     device = forms.ModelChoiceField(
         queryset=Device.objects.prefetch_related('device_type__manufacturer'),
         widget=APISelect(
@@ -3906,7 +3905,7 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class InventoryItemCreateForm(ComponentForm):
+class InventoryItemCreateForm(BootstrapMixin, forms.Form):
     device = forms.ModelChoiceField(
         queryset=Device.objects.prefetch_related('device_type__manufacturer'),
         widget=APISelect(

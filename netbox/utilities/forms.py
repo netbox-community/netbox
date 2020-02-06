@@ -727,15 +727,6 @@ class ConfirmationForm(BootstrapMixin, ReturnURLForm):
     confirm = forms.BooleanField(required=True, widget=forms.HiddenInput(), initial=True)
 
 
-# TODO: Remove ComponentForm
-class ComponentForm(BootstrapMixin, forms.Form):
-    """
-    Allow inclusion of the parent Device/VirtualMachine as context for limiting field choices.
-    """
-    def get_iterative_data(self, iteration):
-        return {}
-
-
 class BulkEditForm(forms.Form):
     """
     Base form for editing multiple objects in bulk
