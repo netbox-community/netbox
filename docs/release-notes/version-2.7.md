@@ -37,6 +37,7 @@
 * [#3313](https://github.com/netbox-community/netbox/issues/3313) - Toggle config context display between JSON and YAML
 * [#3886](https://github.com/netbox-community/netbox/issues/3886) - Enable assigning config contexts by cluster and cluster group
 * [#4051](https://github.com/netbox-community/netbox/issues/4051) - Disable the `makemigrations` management command
+* [#4093](https://github.com/netbox-community/netbox/issues/4093) - Add decommissioning status for VMs
 
 ## Bug Fixes
 
