@@ -1,5 +1,9 @@
 # v2.7.5 (FUTURE)
 
+## Enhancements
+
+* [#4113](https://github.com/netbox-community/netbox/issues/4113) - Add bulk edit functionality for device type components
+
 ## Bug Fixes
 
 * [#4089](https://github.com/netbox-community/netbox/issues/4089) - Selection of power outlet type during bulk update is optional
