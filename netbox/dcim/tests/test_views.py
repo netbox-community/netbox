@@ -537,7 +537,6 @@ class ConsolePortTemplateTestCase(StandardTestCases.Views):
     test_create_object = None
     test_delete_object = None
     test_import_objects = None
-    test_bulk_edit_objects = None
 
     def test_bulk_create_objects(self):
         return self._test_bulk_create_objects(expected_count=3)
@@ -569,6 +568,10 @@ class ConsolePortTemplateTestCase(StandardTestCases.Views):
             'type': ConsolePortTypeChoices.TYPE_RJ45,
         }
 
+        cls.bulk_edit_data = {
+            'type': ConsolePortTypeChoices.TYPE_RJ45,
+        }
+
 
 class ConsoleServerPortTemplateTestCase(StandardTestCases.Views):
     model = ConsoleServerPortTemplate
@@ -579,7 +582,6 @@ class ConsoleServerPortTemplateTestCase(StandardTestCases.Views):
     test_create_object = None
     test_delete_object = None
     test_import_objects = None
-    test_bulk_edit_objects = None
 
     def test_bulk_create_objects(self):
         return self._test_bulk_create_objects(expected_count=3)
@@ -611,6 +613,10 @@ class ConsoleServerPortTemplateTestCase(StandardTestCases.Views):
             'type': ConsolePortTypeChoices.TYPE_RJ45,
         }
 
+        cls.bulk_edit_data = {
+            'type': ConsolePortTypeChoices.TYPE_RJ45,
+        }
+
 
 class PowerPortTemplateTestCase(StandardTestCases.Views):
     model = PowerPortTemplate
@@ -621,7 +627,6 @@ class PowerPortTemplateTestCase(StandardTestCases.Views):
     test_create_object = None
     test_delete_object = None
     test_import_objects = None
-    test_bulk_edit_objects = None
 
     def test_bulk_create_objects(self):
         return self._test_bulk_create_objects(expected_count=3)
@@ -645,7 +650,7 @@ class PowerPortTemplateTestCase(StandardTestCases.Views):
             'device_type': devicetypes[1].pk,
             'name': 'Power Port Template X',
             'type': PowerPortTypeChoices.TYPE_IEC_C14,
-            'maxiumum_draw': 100,
+            'maximum_draw': 100,
             'allocated_draw': 50,
         }
 
@@ -653,7 +658,13 @@ class PowerPortTemplateTestCase(StandardTestCases.Views):
             'device_type': devicetypes[1].pk,
             'name_pattern': 'Power Port Template [4-6]',
             'type': PowerPortTypeChoices.TYPE_IEC_C14,
-            'maxiumum_draw': 100,
+            'maximum_draw': 100,
+            'allocated_draw': 50,
+        }
+
+        cls.bulk_edit_data = {
+            'type': PowerPortTypeChoices.TYPE_IEC_C14,
+            'maximum_draw': 100,
             'allocated_draw': 50,
         }
 
@@ -667,7 +678,6 @@ class PowerOutletTemplateTestCase(StandardTestCases.Views):
     test_create_object = None
     test_delete_object = None
     test_import_objects = None
-    test_bulk_edit_objects = None
 
     def test_bulk_create_objects(self):
         return self._test_bulk_create_objects(expected_count=3)
@@ -701,6 +711,11 @@ class PowerOutletTemplateTestCase(StandardTestCases.Views):
             'name_pattern': 'Power Outlet Template [4-6]',
             'type': PowerOutletTypeChoices.TYPE_IEC_C13,
             'power_port': powerports[0].pk,
+            'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
+        }
+
+        cls.bulk_edit_data = {
+            'type': PowerOutletTypeChoices.TYPE_IEC_C13,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
         }
 
@@ -762,7 +777,6 @@ class FrontPortTemplateTestCase(StandardTestCases.Views):
     test_create_object = None
     test_delete_object = None
     test_import_objects = None
-    test_bulk_edit_objects = None
 
     def test_bulk_create_objects(self):
         return self._test_bulk_create_objects(expected_count=3)
@@ -805,6 +819,10 @@ class FrontPortTemplateTestCase(StandardTestCases.Views):
             ],
         }
 
+        cls.bulk_edit_data = {
+            'type': PortTypeChoices.TYPE_8P8C,
+        }
+
 
 class RearPortTemplateTestCase(StandardTestCases.Views):
     model = RearPortTemplate
@@ -815,7 +833,6 @@ class RearPortTemplateTestCase(StandardTestCases.Views):
     test_create_object = None
     test_delete_object = None
     test_import_objects = None
-    test_bulk_edit_objects = None
 
     def test_bulk_create_objects(self):
         return self._test_bulk_create_objects(expected_count=3)
@@ -847,6 +864,10 @@ class RearPortTemplateTestCase(StandardTestCases.Views):
             'name_pattern': 'Rear Port Template [4-6]',
             'type': PortTypeChoices.TYPE_8P8C,
             'positions': 2,
+        }
+
+        cls.bulk_edit_data = {
+            'type': PortTypeChoices.TYPE_8P8C,
         }
 
 
