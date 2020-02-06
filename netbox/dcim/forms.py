@@ -2181,8 +2181,10 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
 
 class ConsolePortCreateForm(ComponentForm):
     device = forms.ModelChoiceField(
-        queryset=Device.objects.all(),
-        widget=forms.HiddenInput()
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
     )
     name_pattern = ExpandableNameField(
         label='Name'
@@ -2243,8 +2245,10 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
 
 class ConsoleServerPortCreateForm(ComponentForm):
     device = forms.ModelChoiceField(
-        queryset=Device.objects.all(),
-        widget=forms.HiddenInput()
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
     )
     name_pattern = ExpandableNameField(
         label='Name'
@@ -2340,8 +2344,10 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
 
 class PowerPortCreateForm(ComponentForm):
     device = forms.ModelChoiceField(
-        queryset=Device.objects.all(),
-        widget=forms.HiddenInput()
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
     )
     name_pattern = ExpandableNameField(
         label='Name'
@@ -2425,8 +2431,10 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
 
 class PowerOutletCreateForm(ComponentForm):
     device = forms.ModelChoiceField(
-        queryset=Device.objects.all(),
-        widget=forms.HiddenInput()
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
     )
     name_pattern = ExpandableNameField(
         label='Name'
@@ -2638,8 +2646,10 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
 
 class InterfaceCreateForm(InterfaceCommonForm, ComponentForm, forms.Form):
     device = forms.ModelChoiceField(
-        queryset=Device.objects.all(),
-        widget=forms.HiddenInput()
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
     )
     name_pattern = ExpandableNameField(
         label='Name'
@@ -2932,8 +2942,10 @@ class FrontPortForm(BootstrapMixin, forms.ModelForm):
 # TODO: Merge with FrontPortTemplateCreateForm to remove duplicate logic
 class FrontPortCreateForm(ComponentForm):
     device = forms.ModelChoiceField(
-        queryset=Device.objects.all(),
-        widget=forms.HiddenInput()
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
     )
     name_pattern = ExpandableNameField(
         label='Name'
@@ -3108,8 +3120,10 @@ class RearPortForm(BootstrapMixin, forms.ModelForm):
 
 class RearPortCreateForm(ComponentForm):
     device = forms.ModelChoiceField(
-        queryset=Device.objects.all(),
-        widget=forms.HiddenInput()
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
     )
     name_pattern = ExpandableNameField(
         label='Name'
@@ -3716,8 +3730,10 @@ class DeviceBayForm(BootstrapMixin, forms.ModelForm):
 
 class DeviceBayCreateForm(ComponentForm):
     device = forms.ModelChoiceField(
-        queryset=Device.objects.all(),
-        widget=forms.HiddenInput()
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
     )
     name_pattern = ExpandableNameField(
         label='Name'
@@ -3892,8 +3908,10 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
 
 class InventoryItemCreateForm(ComponentForm):
     device = forms.ModelChoiceField(
-        queryset=Device.objects.all(),
-        widget=forms.HiddenInput()
+        queryset=Device.objects.prefetch_related('device_type__manufacturer'),
+        widget=APISelect(
+            api_url="/api/dcim/devices/",
+        )
     )
     name_pattern = ExpandableNameField(
         label='Name'
