@@ -112,7 +112,7 @@ urlpatterns = [
 
     # Interface templates
     path('device-types/<int:pk>/interfaces/add/', views.InterfaceTemplateCreateView.as_view(), name='devicetype_add_interface'),
-    path('device-types/<int:pk>/interfaces/edit/', views.InterfaceTemplateBulkEditView.as_view(), name='devicetype_bulkedit_interface'),
+    path('interface-templates/edit/', views.InterfaceTemplateBulkEditView.as_view(), name='interfacetemplate_bulk_edit'),
     path('interface-templates/delete/', views.InterfaceTemplateBulkDeleteView.as_view(), name='interfacetemplate_bulk_delete'),
     path('interface-templates/<int:pk>/edit/', views.InterfaceTemplateEditView.as_view(), name='interfacetemplate_edit'),
 

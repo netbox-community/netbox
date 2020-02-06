@@ -167,7 +167,7 @@
 {% if devicetype.interface_templates.exists %}
     <div class="row">
         <div class="col-md-12">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' add_url='dcim:devicetype_add_interface' delete_url='dcim:interfacetemplate_bulk_delete' %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' add_url='dcim:devicetype_add_interface' edit_url='dcim:interfacetemplate_bulk_edit' delete_url='dcim:interfacetemplate_bulk_delete' %}
         </div>
     </div>
 {% endif %}

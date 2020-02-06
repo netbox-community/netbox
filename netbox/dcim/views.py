@@ -810,7 +810,6 @@ class InterfaceTemplateEditView(PermissionRequiredMixin, ObjectEditView):
 class InterfaceTemplateBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_interfacetemplate'
     queryset = InterfaceTemplate.objects.all()
-    parent_model = DeviceType
     table = tables.InterfaceTemplateTable
     form = forms.InterfaceTemplateBulkEditForm
 
