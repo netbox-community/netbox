@@ -1058,6 +1058,21 @@ class ConsolePortTemplateCreateForm(BootstrapMixin, forms.Form):
     )
 
 
+class ConsolePortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ConsolePortTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+
+    class Meta:
+        nullable_fields = ('type',)
+
+
 class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
@@ -1084,6 +1099,21 @@ class ConsoleServerPortTemplateCreateForm(BootstrapMixin, forms.Form):
         choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect2()
     )
+
+
+class ConsoleServerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ConsoleServerPortTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+
+    class Meta:
+        nullable_fields = ('type',)
 
 
 class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1122,6 +1152,31 @@ class PowerPortTemplateCreateForm(BootstrapMixin, forms.Form):
         required=False,
         help_text="Allocated power draw (watts)"
     )
+
+
+class PowerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=PowerPortTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PowerPortTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+    maximum_draw = forms.IntegerField(
+        min_value=1,
+        required=False,
+        help_text="Maximum power draw (watts)"
+    )
+    allocated_draw = forms.IntegerField(
+        min_value=1,
+        required=False,
+        help_text="Allocated power draw (watts)"
+    )
+
+    class Meta:
+        nullable_fields = ('type', 'maximum_draw', 'allocated_draw')
 
 
 class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1180,6 +1235,26 @@ class PowerOutletTemplateCreateForm(BootstrapMixin, forms.Form):
         self.fields['power_port'].queryset = PowerPortTemplate.objects.filter(
             device_type=device_type
         )
+
+
+class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=PowerOutletTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PowerOutletTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+    feed_leg = forms.ChoiceField(
+        choices=add_blank_choice(PowerOutletFeedLegChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+
+    class Meta:
+        nullable_fields = ('type', 'feed_leg')
 
 
 class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1324,6 +1399,21 @@ class FrontPortTemplateCreateForm(BootstrapMixin, forms.Form):
         }
 
 
+class FrontPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=FrontPortTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PortTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+
+    class Meta:
+        nullable_fields = ()
+
+
 class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
@@ -1359,6 +1449,21 @@ class RearPortTemplateCreateForm(BootstrapMixin, forms.Form):
     )
 
 
+class RearPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=RearPortTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PortTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+
+    class Meta:
+        nullable_fields = ()
+
+
 class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
@@ -1381,6 +1486,17 @@ class DeviceBayTemplateCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+
+
+# TODO: DeviceBayTemplate has no fields suitable for bulk-editing yet
+# class DeviceBayTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+#     pk = forms.ModelMultipleChoiceField(
+#         queryset=FrontPortTemplate.objects.all(),
+#         widget=forms.MultipleHiddenInput()
+#     )
+#
+#     class Meta:
+#         nullable_fields = ()
 
 
 #
