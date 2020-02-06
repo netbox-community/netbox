@@ -16,6 +16,7 @@
 * [#3313](https://github.com/netbox-community/netbox/issues/3313) - Toggle config context display between JSON and YAML
 * [#3886](https://github.com/netbox-community/netbox/issues/3886) - Enable assigning config contexts by cluster and cluster group
 * [#4051](https://github.com/netbox-community/netbox/issues/4051) - Disable the `makemigrations` management command
+* [#4074](https://github.com/netbox-community/netbox/issues/4074) - DNS regex validation matches 0 or more
 
 ## Bug Fixes
 
