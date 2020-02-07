@@ -1,5 +1,14 @@
 import re
 
+INTERFACE_NAME_REGEX = r'(^(?P<type>[^\d\.:]+)?)' \
+                       r'((?P<slot>\d+)/)?' \
+                       r'((?P<subslot>\d+)/)?' \
+                       r'((?P<position>\d+)/)?' \
+                       r'((?P<subposition>\d+)/)?' \
+                       r'((?P<id>\d+))?' \
+                       r'(:(?P<channel>\d+))?' \
+                       r'(.(?P<vc>\d+)$)?'
+
 
 def naturalize(value, max_length=None, integer_places=8):
     """
@@ -30,4 +39,42 @@ def naturalize(value, max_length=None, integer_places=8):
             output.append(segment)
     ret = ''.join(output)
 
+    return ret[:max_length] if max_length else ret
+
+
+def naturalize_interface(value, max_length=None):
+    """
+    Similar in nature to naturalize(), but takes into account a particular naming format adapted from the old
+    InterfaceManager.
+
+    :param value: The value to be naturalized
+    :param max_length: The maximum length of the returned string. Characters beyond this length will be stripped.
+    """
+    output = []
+    match = re.search(INTERFACE_NAME_REGEX, value)
+    if match is None:
+        return value
+
+    # First, we order by slot/position, padding each to four digits. If a field is not present,
+    # set it to 9999 to ensure it is ordered last.
+    for part_name in ('slot', 'subslot', 'position', 'subposition'):
+        part = match.group(part_name)
+        if part is not None:
+            output.append(part.rjust(4, '0'))
+        else:
+            output.append('9999')
+
+    # Append the type, if any.
+    if match.group('type') is not None:
+        output.append(match.group('type'))
+
+    # Finally, append any remaining fields, left-padding to eight digits each.
+    for part_name in ('id', 'channel', 'vc'):
+        part = match.group(part_name)
+        if part is not None:
+            output.append(part.rjust(6, '0'))
+        else:
+            output.append('000000')
+
+    ret = ''.join(output)
     return ret[:max_length] if max_length else ret

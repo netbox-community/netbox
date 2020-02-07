@@ -10,9 +10,9 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.exceptions import LoopDetected
 from dcim.fields import MACAddressField
-from dcim.managers import InterfaceManager
 from extras.models import ObjectChange, TaggedItem
 from utilities.fields import NaturalOrderingField
+from utilities.ordering import naturalize_interface
 from utilities.utils import serialize_object
 from virtualization.choices import VMInterfaceTypeChoices
 
@@ -529,6 +529,12 @@ class Interface(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=64
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        naturalize_function=naturalize_interface,
+        max_length=100,
+        blank=True
+    )
     _connected_interface = models.OneToOneField(
         to='self',
         on_delete=models.SET_NULL,
@@ -597,8 +603,6 @@ class Interface(CableTermination, ComponentModel):
         blank=True,
         verbose_name='Tagged VLANs'
     )
-
-    objects = InterfaceManager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
@@ -607,8 +611,9 @@ class Interface(CableTermination, ComponentModel):
     ]
 
     class Meta:
-        ordering = ['device', 'name']
-        unique_together = ['device', 'name']
+        # TODO: ordering and unique_together should include virtual_machine
+        ordering = ('device', '_name')
+        unique_together = ('device', 'name')
 
     def __str__(self):
         return self.name
