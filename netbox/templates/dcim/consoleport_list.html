@@ -6,11 +6,10 @@
 <div class="pull-right noprint">
     {% export_button content_type %}
 </div>
-<h1>{% block title %}{{ table.Meta.model|model_name|capfirst }}s{% endblock %}</h1>
+<h1>{% block title %}{{ table.Meta.model|model_name_plural|bettertitle }}{% endblock %}</h1>
 <div class="row">
 	<div class="col-md-9">
-        {% include 'responsive_table.html' %}
-        {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
+        {% include 'utilities/obj_table.html' %}
     </div>
     <div class="col-md-3 noprint">
 		{% include 'inc/search_panel.html' %}
