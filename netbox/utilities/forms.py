@@ -8,6 +8,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
 from django.db.models import Count
+from django.forms import BoundField
 from mptt.forms import TreeNodeMultipleChoiceField
 
 from .choices import unpack_grouped_choices
@@ -607,12 +608,26 @@ class FilterChoiceFieldMixin(object):
             kwargs['widget'] = forms.SelectMultiple(attrs={'size': 6})
         super().__init__(*args, **kwargs)
 
-    def label_from_instance(self, obj):
-        label = super().label_from_instance(obj)
-        obj_count = getattr(obj, self.count_attr, None)
-        if obj_count is not None:
-            return '{} ({})'.format(label, obj_count)
-        return label
+    # def label_from_instance(self, obj):
+    #     label = super().label_from_instance(obj)
+    #     obj_count = getattr(obj, self.count_attr, None)
+    #     if obj_count is not None:
+    #         return '{} ({})'.format(label, obj_count)
+    #     return label
+
+    def get_bound_field(self, form, field_name):
+
+        bound_field = BoundField(form, self, field_name)
+
+        # Modify the QuerySet of the field before we return it. Limit choices to any data already bound: Options
+        # will be populated on-demand via the APISelect widget.
+        if bound_field.data:
+            kwargs = {'{}__in'.format(self.to_field_name or 'pk'): bound_field.data}
+            self.queryset = self.queryset.filter(**kwargs)
+        else:
+            self.queryset = self.queryset.none()
+
+        return bound_field
 
 
 class FilterChoiceField(FilterChoiceFieldMixin, forms.ModelMultipleChoiceField):
