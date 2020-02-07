@@ -2371,6 +2371,27 @@ class ConsolePortCreateForm(BootstrapMixin, forms.Form):
     )
 
 
+class ConsolePortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ConsolePort.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = (
+            'description',
+        )
+
+
 class ConsolePortCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
@@ -2542,6 +2563,37 @@ class PowerPortCreateForm(BootstrapMixin, forms.Form):
     tags = TagField(
         required=False
     )
+
+
+class PowerPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=PowerPort.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PowerPortTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+    maximum_draw = forms.IntegerField(
+        min_value=1,
+        required=False,
+        help_text="Maximum draw in watts"
+    )
+    allocated_draw = forms.IntegerField(
+        min_value=1,
+        required=False,
+        help_text="Allocated draw in watts"
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = (
+            'description',
+        )
 
 
 class PowerPortCSVForm(forms.ModelForm):

@@ -178,7 +178,8 @@ urlpatterns = [
     path('console-ports/', views.ConsolePortListView.as_view(), name='consoleport_list'),
     path('console-ports/add/', views.ConsolePortCreateView.as_view(), name='consoleport_add'),
     path('console-ports/import/', views.ConsolePortBulkImportView.as_view(), name='consoleport_import'),
-    # TODO: Bulk edit, rename, disconnect views for ConsolePorts
+    path('console-ports/edit/', views.ConsolePortBulkEditView.as_view(), name='consoleport_bulk_edit'),
+    # TODO: Bulk rename, disconnect views for ConsolePorts
     path('console-ports/delete/', views.ConsolePortBulkDeleteView.as_view(), name='consoleport_bulk_delete'),
     path('console-ports/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='consoleport_connect', kwargs={'termination_a_type': ConsolePort}),
     path('console-ports/<int:pk>/edit/', views.ConsolePortEditView.as_view(), name='consoleport_edit'),
@@ -204,7 +205,8 @@ urlpatterns = [
     path('power-ports/', views.PowerPortListView.as_view(), name='powerport_list'),
     path('power-ports/add/', views.PowerPortCreateView.as_view(), name='powerport_add'),
     path('power-ports/import/', views.PowerPortBulkImportView.as_view(), name='powerport_import'),
-    # TODO: Bulk edit, rename, disconnect views for PowerPorts
+    path('power-ports/edit/', views.PowerPortBulkEditView.as_view(), name='powerport_bulk_edit'),
+    # TODO: Bulk rename, disconnect views for PowerPorts
     path('power-ports/delete/', views.PowerPortBulkDeleteView.as_view(), name='powerport_bulk_delete'),
     path('power-ports/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='powerport_connect', kwargs={'termination_a_type': PowerPort}),
     path('power-ports/<int:pk>/edit/', views.PowerPortEditView.as_view(), name='powerport_edit'),

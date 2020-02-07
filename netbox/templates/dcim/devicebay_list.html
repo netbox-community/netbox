@@ -5,10 +5,10 @@
 <div class="pull-right noprint">
     {% export_button content_type %}
 </div>
-<h1>{% block title %}Console Ports{% endblock %}</h1>
+<h1>{% block title %}Device Bays{% endblock %}</h1>
 <div class="row">
 	<div class="col-md-9">
-        {% include 'utilities/obj_table.html' with bulk_edit_url='dcim:consoleport_bulk_edit' bulk_delete_url='dcim:consoleport_bulk_delete' %}
+        {% include 'utilities/obj_table.html' with bulk_delete_url='dcim:devicebay_bulk_delete' %}
     </div>
     <div class="col-md-3 noprint">
 		{% include 'inc/search_panel.html' %}
