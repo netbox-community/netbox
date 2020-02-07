@@ -2747,6 +2747,7 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     )
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
+        required=False,
         widget=forms.HiddenInput()
     )
     type = forms.ChoiceField(
@@ -2778,6 +2779,9 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         if 'device' in self.initial:
             device = Device.objects.filter(pk=self.initial['device']).first()
             self.fields['power_port'].queryset = PowerPort.objects.filter(device=device)
+        else:
+            self.fields['power_port'].choices = ()
+            self.fields['power_port'].widget.attrs['disabled'] = True
 
 
 class PowerOutletBulkRenameForm(BulkRenameForm):
@@ -3021,6 +3025,7 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     )
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
+        required=False,
         widget=forms.HiddenInput()
     )
     type = forms.ChoiceField(
@@ -3096,6 +3101,9 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
                 device__in=[device, device.get_vc_master()],
                 type=InterfaceTypeChoices.TYPE_LAG
             )
+        else:
+            self.fields['lag'].choices = ()
+            self.fields['lag'].widget.attrs['disabled'] = True
 
     def clean(self):
 
