@@ -1070,7 +1070,6 @@ class ConsolePortTestCase(StandardTestCases.Views):
     # Disable inapplicable views
     test_get_object = None
     test_create_object = None
-    test_bulk_edit_objects = None
 
     def test_bulk_create_objects(self):
         return self._test_bulk_create_objects(expected_count=3)
@@ -1099,6 +1098,11 @@ class ConsolePortTestCase(StandardTestCases.Views):
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console port',
             'tags': 'Alpha,Bravo,Charlie',
+        }
+
+        cls.bulk_edit_data = {
+            'type': ConsolePortTypeChoices.TYPE_RJ45,
+            'description': 'New description',
         }
 
         cls.csv_data = (
@@ -1164,7 +1168,6 @@ class PowerPortTestCase(StandardTestCases.Views):
 
     # Disable inapplicable views
     test_get_object = None
-    test_bulk_edit_objects = None
     test_create_object = None
 
     def test_bulk_create_objects(self):
@@ -1198,6 +1201,13 @@ class PowerPortTestCase(StandardTestCases.Views):
             'allocated_draw': 50,
             'description': 'A power port',
             'tags': 'Alpha,Bravo,Charlie',
+        }
+
+        cls.bulk_edit_data = {
+            'type': PowerPortTypeChoices.TYPE_IEC_C14,
+            'maximum_draw': 100,
+            'allocated_draw': 50,
+            'description': 'New description',
         }
 
         cls.csv_data = (

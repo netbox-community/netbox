@@ -2371,6 +2371,27 @@ class ConsolePortCreateForm(BootstrapMixin, forms.Form):
     )
 
 
+class ConsolePortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ConsolePort.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = (
+            'description',
+        )
+
+
 class ConsolePortCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
@@ -2544,6 +2565,37 @@ class PowerPortCreateForm(BootstrapMixin, forms.Form):
     )
 
 
+class PowerPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=PowerPort.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PowerPortTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+    maximum_draw = forms.IntegerField(
+        min_value=1,
+        required=False,
+        help_text="Maximum draw in watts"
+    )
+    allocated_draw = forms.IntegerField(
+        min_value=1,
+        required=False,
+        help_text="Allocated draw in watts"
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = (
+            'description',
+        )
+
+
 class PowerPortCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
@@ -2695,6 +2747,7 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     )
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
+        required=False,
         widget=forms.HiddenInput()
     )
     type = forms.ChoiceField(
@@ -2726,6 +2779,9 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         if 'device' in self.initial:
             device = Device.objects.filter(pk=self.initial['device']).first()
             self.fields['power_port'].queryset = PowerPort.objects.filter(device=device)
+        else:
+            self.fields['power_port'].choices = ()
+            self.fields['power_port'].widget.attrs['disabled'] = True
 
 
 class PowerOutletBulkRenameForm(BulkRenameForm):
@@ -2969,6 +3025,7 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     )
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
+        required=False,
         widget=forms.HiddenInput()
     )
     type = forms.ChoiceField(
@@ -3044,6 +3101,9 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
                 device__in=[device, device.get_vc_master()],
                 type=InterfaceTypeChoices.TYPE_LAG
             )
+        else:
+            self.fields['lag'].choices = ()
+            self.fields['lag'].widget.attrs['disabled'] = True
 
     def clean(self):
 
