@@ -83,7 +83,18 @@ class DeviceComponentFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
-            value_field="slug"
+            value_field="slug",
+            filter_for={
+                'device_id': 'site',
+            }
+        )
+    )
+    device_id = FilterChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label='Device',
+        widget=APISelectMultiple(
+            api_url='/api/dcim/devices/',
         )
     )
 
@@ -3884,6 +3895,7 @@ class CableFilterForm(BootstrapMixin, forms.Form):
             value_field="slug",
             filter_for={
                 'rack_id': 'site',
+                'device_id': 'site',
             }
         )
     )
@@ -3905,6 +3917,9 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         widget=APISelectMultiple(
             api_url="/api/dcim/racks/",
             null_option=True,
+            filter_for={
+                'device_id': 'rack_id',
+            }
         )
     )
     type = forms.MultipleChoiceField(
@@ -4060,6 +4075,9 @@ class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
+            filter_for={
+                'device_id': 'site',
+            }
         )
     )
     device_id = FilterChoiceField(
@@ -4079,6 +4097,9 @@ class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
+            filter_for={
+                'device_id': 'site',
+            }
         )
     )
     device_id = FilterChoiceField(
@@ -4098,6 +4119,9 @@ class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
+            filter_for={
+                'device_id': 'site',
+            }
         )
     )
     device_id = FilterChoiceField(
