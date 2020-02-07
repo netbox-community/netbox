@@ -20,6 +20,8 @@ def naturalize(value, max_length=None, integer_places=8):
     :param max_length: The maximum length of the returned string. Characters beyond this length will be stripped.
     :param integer_places: The number of places to which each integer will be expanded. (Default: 8)
     """
+    if not value:
+        return ''
     output = []
     for segment in re.split(r'(\d+)', value):
         if segment.isdigit():
