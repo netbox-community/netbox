@@ -22,7 +22,7 @@ def naturalize_powerporttemplates(apps, schema_editor):
 
 
 def naturalize_poweroutlettemplates(apps, schema_editor):
-    _update_model_names(apps.get_model('dcim', 'PowerPortTemplate'))
+    _update_model_names(apps.get_model('dcim', 'PowerOutletTemplate'))
 
 
 def naturalize_frontporttemplates(apps, schema_editor):
