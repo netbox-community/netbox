@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='device',
             name='_name',
-            field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
+            field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize, null=True),
         ),
         migrations.AddField(
             model_name='rack',
@@ -56,12 +56,15 @@ class Migration(migrations.Migration):
             field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
         ),
         migrations.RunPython(
-            code=naturalize_sites
+            code=naturalize_sites,
+            reverse_code=migrations.RunPython.noop
         ),
         migrations.RunPython(
-            code=naturalize_racks
+            code=naturalize_racks,
+            reverse_code=migrations.RunPython.noop
         ),
         migrations.RunPython(
-            code=naturalize_devices
+            code=naturalize_devices,
+            reverse_code=migrations.RunPython.noop
         ),
     ]

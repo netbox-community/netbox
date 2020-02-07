@@ -1321,7 +1321,8 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     _name = NaturalOrderingField(
         target_field='name',
         max_length=100,
-        blank=True
+        blank=True,
+        null=True
     )
     serial = models.CharField(
         max_length=50,
@@ -1438,7 +1439,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     }
 
     class Meta:
-        ordering = ('_name', 'pk')  # Name may be blank
+        ordering = ('_name', 'pk')  # Name may be null
         unique_together = (
             ('site', 'tenant', 'name'),  # See validate_unique below
             ('rack', 'position', 'face'),

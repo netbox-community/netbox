@@ -21,7 +21,7 @@ def naturalize(value, max_length=None, integer_places=8):
     :param integer_places: The number of places to which each integer will be expanded. (Default: 8)
     """
     if not value:
-        return ''
+        return value
     output = []
     for segment in re.split(r'(\d+)', value):
         if segment.isdigit():
