@@ -51,7 +51,7 @@
     {# Untagged ports #}
     <td>
         {% if iface.untagged_vlan %}
-            {{ iface.untagged_vlan }}
+            <a href="{% url 'ipam:vlan' iface.untagged_vlan.id %}">{{ iface.untagged_vlan }}</a>
         {% endif %}
     </td>
 
