@@ -3,6 +3,7 @@
 ## Enhancements
 
 * [#4113](https://github.com/netbox-community/netbox/issues/4113) - Add bulk edit functionality for device type components
+* [#4116](https://github.com/netbox-community/netbox/issues/4116) - Enable bulk edit and delete functions for device component list views
 
 ## Bug Fixes
 
