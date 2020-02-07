@@ -38,7 +38,7 @@
         {% endfor %}
     </td>
 
-    {# Tagged ports #}
+    {#Tagged ports#}
     <td>
         {% if iface.tagged_vlans.all %}
             {% for tag in iface.tagged_vlans.all %}
@@ -48,7 +48,7 @@
         {% endif %}
     </td>
 
-    {# Untagged ports #}
+    {#Untagged ports#}
     <td>
         {% if iface.untagged_vlan %}
             <a href="{% url 'ipam:vlan' iface.untagged_vlan.id %}">{{ iface.untagged_vlan }}</a>
@@ -210,7 +210,7 @@
             {% endif %}
 
             {# IP addresses table #}
-            <td colspan="9" style="padding: 0">
+            <td colspan="11" style="padding: 0">
                 <table class="table table-condensed interface-ips">
                     <thead>
                         <tr class="text-muted">
