@@ -108,24 +108,31 @@ class Migration(migrations.Migration):
             field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
         ),
         migrations.RunPython(
-            code=naturalize_consoleporttemplates
+            code=naturalize_consoleporttemplates,
+            reverse_code=migrations.RunPython.noop
         ),
         migrations.RunPython(
-            code=naturalize_consoleserverporttemplates
+            code=naturalize_consoleserverporttemplates,
+            reverse_code=migrations.RunPython.noop
         ),
         migrations.RunPython(
-            code=naturalize_powerporttemplates
+            code=naturalize_powerporttemplates,
+            reverse_code=migrations.RunPython.noop
         ),
         migrations.RunPython(
-            code=naturalize_poweroutlettemplates
+            code=naturalize_poweroutlettemplates,
+            reverse_code=migrations.RunPython.noop
         ),
         migrations.RunPython(
-            code=naturalize_frontporttemplates
+            code=naturalize_frontporttemplates,
+            reverse_code=migrations.RunPython.noop
         ),
         migrations.RunPython(
-            code=naturalize_rearporttemplates
+            code=naturalize_rearporttemplates,
+            reverse_code=migrations.RunPython.noop
         ),
         migrations.RunPython(
-            code=naturalize_devicebaytemplates
+            code=naturalize_devicebaytemplates,
+            reverse_code=migrations.RunPython.noop
         ),
     ]
