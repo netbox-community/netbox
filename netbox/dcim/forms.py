@@ -2871,18 +2871,16 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Limit LAG choices to interfaces belonging to this device (or VC master)
         if self.is_bound:
             device = Device.objects.get(pk=self.data['device'])
-            self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[device, device.get_vc_master()],
-                type=InterfaceTypeChoices.TYPE_LAG
-            )
         else:
-            self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[self.instance.device, self.instance.device.get_vc_master()],
-                type=InterfaceTypeChoices.TYPE_LAG
-            )
+            device = self.instance.device
+
+        # Limit LAG choices to interfaces belonging to this device (or VC master)
+        self.fields['lag'].queryset = Interface.objects.filter(
+            device__in=[device, device.get_vc_master()],
+            type=InterfaceTypeChoices.TYPE_LAG
+        )
 
         # Add current site to VLANs query params
         self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', device.site.pk)
