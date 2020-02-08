@@ -7,6 +7,7 @@ import yaml
 from django import forms
 from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
+from django.db.models import Count
 from mptt.forms import TreeNodeMultipleChoiceField
 
 from .choices import unpack_grouped_choices
@@ -455,12 +456,14 @@ class ExpandableNameField(forms.CharField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
-            self.help_text = 'Alphanumeric ranges are supported for bulk creation.<br />' \
-                             'Mixed cases and types within a single range are not supported.<br />' \
-                             'Examples:<ul><li><code>ge-0/0/[0-23,25,30]</code></li>' \
-                             '<li><code>e[0-3][a-d,f]</code></li>' \
-                             '<li><code>[xe,ge]-0/0/0</code></li>' \
-                             '<li><code>e[0-3,a-d,f]</code></li></ul>'
+            self.help_text = """
+                Alphanumeric ranges are supported for bulk creation. Mixed cases and types within a single range
+                are not supported. Examples:
+                <ul>
+                    <li><code>[ge,xe]-0/0/[0-9]</code></li>
+                    <li><code>e[0-3][a-d,f]</code></li>
+                </ul>
+                """
 
     def to_python(self, value):
         if re.search(ALPHANUMERIC_EXPANSION_PATTERN, value):
@@ -564,6 +567,23 @@ class SlugField(forms.SlugField):
         help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
         super().__init__(label=label, help_text=help_text, *args, **kwargs)
         self.widget.attrs['slug-source'] = slug_source
+
+
+class TagFilterField(forms.MultipleChoiceField):
+    """
+    A filter field for the tags of a model. Only the tags used by a model are displayed.
+
+    :param model: The model of the filter
+    """
+    widget = StaticSelect2Multiple
+
+    def __init__(self, model, *args, **kwargs):
+        def get_choices():
+            tags = model.tags.annotate(count=Count('extras_taggeditem_items')).order_by('name')
+            return [(str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags]
+
+        # Choices are fetched each time the form is initialized
+        super().__init__(label='Tags', choices=get_choices, required=False, *args, **kwargs)
 
 
 class FilterChoiceIterator(forms.models.ModelChoiceIterator):
@@ -714,26 +734,13 @@ class ConfirmationForm(BootstrapMixin, ReturnURLForm):
     confirm = forms.BooleanField(required=True, widget=forms.HiddenInput(), initial=True)
 
 
-class ComponentForm(BootstrapMixin, forms.Form):
-    """
-    Allow inclusion of the parent Device/VirtualMachine as context for limiting field choices.
-    """
-    def __init__(self, parent, *args, **kwargs):
-        self.parent = parent
-        super().__init__(*args, **kwargs)
-
-    def get_iterative_data(self, iteration):
-        return {}
-
-
 class BulkEditForm(forms.Form):
     """
     Base form for editing multiple objects in bulk
     """
-    def __init__(self, model, parent_obj=None, *args, **kwargs):
+    def __init__(self, model, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = model
-        self.parent_obj = parent_obj
         self.nullable_fields = []
 
         # Copy any nullable fields defined in Meta

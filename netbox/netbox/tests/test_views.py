@@ -1,6 +1,6 @@
 import urllib.parse
 
-from django.test import TestCase
+from utilities.testing import TestCase
 from django.urls import reverse
 
 
@@ -11,7 +11,7 @@ class HomeViewTestCase(TestCase):
         url = reverse('home')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)
 
     def test_search(self):
 
@@ -21,4 +21,4 @@ class HomeViewTestCase(TestCase):
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertEqual(response.status_code, 200)
+        self.assertHttpStatus(response, 200)

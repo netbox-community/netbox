@@ -1,4 +1,4 @@
-<tr class="powerport{% if pp.cable.status %} success{% elif pp.cable %} info{% endif %}">
+<tr class="powerport{% if pp.cable %} {{ pp.cable.get_status_class }}{% endif %}">
 
     {# Name #}
     <td>

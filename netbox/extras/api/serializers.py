@@ -20,6 +20,8 @@ from utilities.api import (
     ChoiceField, ContentTypeField, get_serializer_for_model, SerializerNotFound, SerializedPKRelatedField,
     ValidatedModelSerializer,
 )
+from virtualization.api.nested_serializers import NestedClusterGroupSerializer, NestedClusterSerializer
+from virtualization.models import Cluster, ClusterGroup
 from .nested_serializers import *
 
 
@@ -161,6 +163,18 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         required=False,
         many=True
     )
+    cluster_groups = SerializedPKRelatedField(
+        queryset=ClusterGroup.objects.all(),
+        serializer=NestedClusterGroupSerializer,
+        required=False,
+        many=True
+    )
+    clusters = SerializedPKRelatedField(
+        queryset=Cluster.objects.all(),
+        serializer=NestedClusterSerializer,
+        required=False,
+        many=True
+    )
     tenant_groups = SerializedPKRelatedField(
         queryset=TenantGroup.objects.all(),
         serializer=NestedTenantGroupSerializer,
@@ -184,7 +198,7 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         model = ConfigContext
         fields = [
             'id', 'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms',
-            'tenant_groups', 'tenants', 'tags', 'data',
+            'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags', 'data',
         ]
 
 

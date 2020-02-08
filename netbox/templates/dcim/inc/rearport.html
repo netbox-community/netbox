@@ -1,5 +1,5 @@
 {% load helpers %}
-<tr class="rearport{% if rearport.cable.status %} success{% elif rearport.cable %} info{% endif %}">
+<tr class="rearport{% if rearport.cable %} {{ rearport.cable.get_status_class }}{% endif %}">
 
     {# Checkbox #}
     {% if perms.dcim.change_rearport or perms.dcim.delete_rearport %}

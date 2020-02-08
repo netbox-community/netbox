@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
+from django.http import QueryDict
 from jinja2 import Environment
 
 from dcim.choices import CableLengthUnitChoices
@@ -209,3 +210,15 @@ def prepare_cloned_fields(instance):
     )
 
     return param_string
+
+
+def querydict_to_dict(querydict):
+    """
+    Convert a django.http.QueryDict object to a regular Python dictionary, preserving lists of multiple values.
+    (QueryDict.dict() will return only the last value in a list for each key.)
+    """
+    assert isinstance(querydict, QueryDict)
+    return {
+        key: querydict.get(key) if len(value) == 1 and key != 'pk' else querydict.getlist(key)
+        for key, value in querydict.lists()
+    }

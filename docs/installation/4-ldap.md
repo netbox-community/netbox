@@ -110,8 +110,8 @@ AUTH_LDAP_USER_FLAGS_BY_GROUP = {
 AUTH_LDAP_FIND_GROUP_PERMS = True
 
 # Cache groups for one hour to reduce LDAP traffic
-AUTH_LDAP_CACHE_GROUPS = True
-AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
+AUTH_LDAP_CACHE_TIMEOUT = 3600
+
 ```
 
 * `is_active` - All users must be mapped to at least this group to enable authentication. Without this, users cannot log in.
