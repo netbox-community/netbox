@@ -424,9 +424,8 @@ class PowerPort(CableTermination, ComponentModel):
             }
 
             # Calculate per-leg aggregates for three-phase feeds
-            if (leg_stats and self._connected_powerfeed and
-                    self._connected_powerfeed.phase == PowerFeedPhaseChoices.PHASE_3PHASE):
-                for leg, leg_name in PowerOutletFeedLegChoices.CHOICES:
+            if leg_stats and getattr(self._connected_powerfeed, 'phase', None) == PowerFeedPhaseChoices.PHASE_3PHASE:
+                for leg, leg_name in PowerOutletFeedLegChoices:
                     outlet_count, allocated_draw_total, maximum_draw_total = get_power_stats(leg)
                     ret['legs'].append({
                         'name': leg_name,
