@@ -27,3 +27,41 @@ COLOR_CHOICES = (
     ('111111', 'Black'),
     ('ffffff', 'White'),
 )
+
+
+#
+# Filter lookup expressions
+#
+
+FILTER_CHAR_BASED_LOOKUP_MAP = dict(
+    n='exact',
+    ic='icontains',
+    nic='icontains',
+    iew='iendswith',
+    niew='iendswith',
+    isw='istartswith',
+    nisw='istartswith',
+    ie='iexact',
+    nie='iexact'
+)
+
+FILTER_NUMERIC_BASED_LOOKUP_MAP = dict(
+    n='exact',
+    lte='lte',
+    lt='lt',
+    gte='gte',
+    gt='gt'
+)
+
+FILTER_LOOKUP_HELP_TEXT_MAP = dict(
+    icontains='case insensitive contains',
+    iendswith='case insensitive ends with',
+    istartswith='case insensitive starts with',
+    iexact='case insensitive exact',
+    exact='case sensitive exact',
+    lt='less than',
+    lte='less than or equal',
+    gt='greater than',
+    gte='greater than or equal',
+    n='negated'
+)

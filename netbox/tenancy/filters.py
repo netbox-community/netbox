@@ -2,7 +2,7 @@ import django_filters
 from django.db.models import Q
 
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
-from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
+from utilities.filters import BaseFilterSet, NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from .models import Tenant, TenantGroup
 
 

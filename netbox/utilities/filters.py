@@ -3,7 +3,12 @@ from dcim.forms import MACAddressField
 from django import forms
 from django.conf import settings
 from django.db import models
+from django_filters.utils import get_model_field
+
 from extras.models import Tag
+from utilities.constants import (
+    FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_LOOKUP_HELP_TEXT_MAP, FILTER_NUMERIC_BASED_LOOKUP_MAP
+)
 
 
 def multivalue_field_factory(field_class):
@@ -110,6 +115,92 @@ class TagFilter(django_filters.ModelMultipleChoiceFilter):
 #
 # FilterSets
 #
+
+class BaseFilterSet(django_filters.FilterSet):
+    """
+    A base filterset which provides common functionaly to all NetBox filtersets
+    """
+    @classmethod
+    def get_filters(cls):
+        """
+        Override filter generation to support dynamic lookup expressions for certain filter types.
+
+        For specific filter types, new filters are created based on defined lookup expressions in
+        the form `<field_name>_<lookup_expr>`
+        """
+        filters = super().get_filters()
+
+        new_filters = {}
+        for existing_filter_name, existing_filter in filters.items():
+            # Loop over existing filters to extract metadata by which to create new filters
+
+            # It the filter makes use of a custom filter method or lookup expression skip it
+            # as we cannot sanely handle these cases in a generic mannor
+            if existing_filter.method is not None or existing_filter.lookup_expr != 'exact':
+                continue
+
+            # Choose the lookup expression map based on the filter type
+            if isinstance(existing_filter, (
+                django_filters.filters.CharFilter,
+                django_filters.MultipleChoiceFilter,
+                MultiValueCharFilter,
+                MultiValueMACAddressFilter,
+                TagFilter
+            )):
+                lookup_map = FILTER_CHAR_BASED_LOOKUP_MAP
+
+            elif isinstance(existing_filter, (
+                MultiValueDateFilter,
+                MultiValueDateTimeFilter,
+                MultiValueNumberFilter,
+                MultiValueTimeFilter
+            )):
+                lookup_map = FILTER_NUMERIC_BASED_LOOKUP_MAP
+
+            elif isinstance(existing_filter, (
+                django_filters.ModelChoiceFilter,
+                django_filters.ModelMultipleChoiceFilter,
+                NumericInFilter,
+                TreeNodeMultipleChoiceFilter,
+            )):
+                # These filter types support only negation
+                lookup_map = dict(
+                    n='exact'
+                )
+
+            else:
+                # Do no augment any other filter types with more lookup expressions
+                continue
+
+            # Get properties of the existing filter for later use
+            field_name = existing_filter.field_name
+            field = get_model_field(cls._meta.model, field_name)
+
+            # Create new filters for each lookup expression in the map
+            for lookup_name, lookup_expr in lookup_map.items():
+                new_filter_name = '{}_{}'.format(existing_filter_name, lookup_name)
+                
+                try:
+                    print(existing_filter_name)
+                    new_filter = cls.filter_for_field(field, field_name, lookup_expr)
+                except django_filters.exceptions.FieldLookupError:
+                    # The filter could not be created because the lookup expression is not supported
+                    continue
+
+                help_text = FILTER_LOOKUP_HELP_TEXT_MAP[lookup_expr]
+                
+                if lookup_name.startswith('n'):
+                    # This is a negation filter which requires a queryselt.exclud() clause
+                    new_filter.exclude = True
+                    help_text = 'negated {}'.format(help_text)
+
+                new_filter.extra = existing_filter.extra
+                new_filter.extra['help_text'] = '{} - {}'.format(field_name, help_text)
+                new_filters[new_filter_name] = new_filter
+
+        filters.update(new_filters)
+        return filters
+
 
 class NameSlugSearchFilterSet(django_filters.FilterSet):
     """

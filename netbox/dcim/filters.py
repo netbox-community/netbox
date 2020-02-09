@@ -6,8 +6,8 @@ from tenancy.filters import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
 from utilities.filters import (
-    MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, NumericInFilter,
-    TagFilter, TreeNodeMultipleChoiceFilter,
+    BaseFilterSet, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter,
+    BaseFilterSet, NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import Cluster
 from .choices import *
@@ -60,7 +60,7 @@ __all__ = (
 )
 
 
-class RegionFilterSet(NameSlugSearchFilterSet):
+class RegionFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Region.objects.all(),
         label='Parent region (ID)',
@@ -77,7 +77,7 @@ class RegionFilterSet(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class SiteFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class SiteFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -131,7 +131,7 @@ class SiteFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilter
         return queryset.filter(qs_filter)
 
 
-class RackGroupFilterSet(NameSlugSearchFilterSet):
+class RackGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region__in',
@@ -159,14 +159,14 @@ class RackGroupFilterSet(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class RackRoleFilterSet(NameSlugSearchFilterSet):
+class RackRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = RackRole
         fields = ['id', 'name', 'slug', 'color']
 
 
-class RackFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class RackFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -244,7 +244,7 @@ class RackFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilter
         )
 
 
-class RackReservationFilterSet(TenancyFilterSet):
+class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -305,14 +305,14 @@ class RackReservationFilterSet(TenancyFilterSet):
         )
 
 
-class ManufacturerFilterSet(NameSlugSearchFilterSet):
+class ManufacturerFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = Manufacturer
         fields = ['id', 'name', 'slug']
 
 
-class DeviceTypeFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class DeviceTypeFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -402,7 +402,7 @@ class DeviceTypeFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
         return queryset.exclude(device_bay_templates__isnull=value)
 
 
-class DeviceTypeComponentFilterSet(NameSlugSearchFilterSet):
+class DeviceTypeComponentFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     devicetype_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
         field_name='device_type_id',
@@ -466,14 +466,14 @@ class DeviceBayTemplateFilterSet(DeviceTypeComponentFilterSet):
         fields = ['id', 'name']
 
 
-class DeviceRoleFilterSet(NameSlugSearchFilterSet):
+class DeviceRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = DeviceRole
         fields = ['id', 'name', 'slug', 'color', 'vm_role']
 
 
-class PlatformFilterSet(NameSlugSearchFilterSet):
+class PlatformFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer',
         queryset=Manufacturer.objects.all(),
@@ -491,7 +491,7 @@ class PlatformFilterSet(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'napalm_driver']
 
 
-class DeviceFilterSet(LocalConfigContextFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class DeviceFilterSet(BaseFilterSet, LocalConfigContextFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -690,7 +690,7 @@ class DeviceFilterSet(LocalConfigContextFilterSet, TenancyFilterSet, CustomField
         return queryset.exclude(device_bays__isnull=value)
 
 
-class DeviceComponentFilterSet(django_filters.FilterSet):
+class DeviceComponentFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1002,7 +1002,7 @@ class InventoryItemFilterSet(DeviceComponentFilterSet):
         return queryset.filter(qs_filter)
 
 
-class VirtualChassisFilterSet(django_filters.FilterSet):
+class VirtualChassisFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1056,7 +1056,7 @@ class VirtualChassisFilterSet(django_filters.FilterSet):
         return queryset.filter(qs_filter)
 
 
-class CableFilterSet(django_filters.FilterSet):
+class CableFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1119,7 +1119,7 @@ class CableFilterSet(django_filters.FilterSet):
         return queryset
 
 
-class ConsoleConnectionFilterSet(django_filters.FilterSet):
+class ConsoleConnectionFilterSet(BaseFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -1150,7 +1150,7 @@ class ConsoleConnectionFilterSet(django_filters.FilterSet):
         )
 
 
-class PowerConnectionFilterSet(django_filters.FilterSet):
+class PowerConnectionFilterSet(BaseFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -1181,7 +1181,7 @@ class PowerConnectionFilterSet(django_filters.FilterSet):
         )
 
 
-class InterfaceConnectionFilterSet(django_filters.FilterSet):
+class InterfaceConnectionFilterSet(BaseFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -1215,7 +1215,7 @@ class InterfaceConnectionFilterSet(django_filters.FilterSet):
         )
 
 
-class PowerPanelFilterSet(django_filters.FilterSet):
+class PowerPanelFilterSet(BaseFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -1264,7 +1264,7 @@ class PowerPanelFilterSet(django_filters.FilterSet):
         return queryset.filter(qs_filter)
 
 
-class PowerFeedFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class PowerFeedFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'

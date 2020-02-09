@@ -4,6 +4,7 @@ from django.db.models import Q
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
+from utilities.filters import BaseFilterSet
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
 from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, Tag
@@ -89,21 +90,21 @@ class CustomFieldFilterSet(django_filters.FilterSet):
             self.filters['cf_{}'.format(cf.name)] = CustomFieldFilter(field_name=cf.name, custom_field=cf)
 
 
-class GraphFilterSet(django_filters.FilterSet):
+class GraphFilterSet(BaseFilterSet):
 
     class Meta:
         model = Graph
         fields = ['type', 'name', 'template_language']
 
 
-class ExportTemplateFilterSet(django_filters.FilterSet):
+class ExportTemplateFilterSet(BaseFilterSet):
 
     class Meta:
         model = ExportTemplate
         fields = ['content_type', 'name', 'template_language']
 
 
-class TagFilterSet(django_filters.FilterSet):
+class TagFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -122,7 +123,7 @@ class TagFilterSet(django_filters.FilterSet):
         )
 
 
-class ConfigContextFilterSet(django_filters.FilterSet):
+class ConfigContextFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -234,7 +235,7 @@ class ConfigContextFilterSet(django_filters.FilterSet):
 # Filter for Local Config Context Data
 #
 
-class LocalConfigContextFilterSet(django_filters.FilterSet):
+class LocalConfigContextFilterSet(BaseFilterSet):
     local_context_data = django_filters.BooleanFilter(
         method='_local_context_data',
         label='Has local config context data',
@@ -244,7 +245,7 @@ class LocalConfigContextFilterSet(django_filters.FilterSet):
         return queryset.exclude(local_context_data__isnull=value)
 
 
-class ObjectChangeFilterSet(django_filters.FilterSet):
+class ObjectChangeFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
