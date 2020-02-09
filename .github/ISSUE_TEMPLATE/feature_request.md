@@ -5,7 +5,9 @@ about: Propose a new NetBox feature or enhancement
 ---
 
 <!--
-    NOTE: This form is only for proposing specific new features or enhancements.
+    NOTE: IF YOUR ISSUE DOES NOT FOLLOW THIS TEMPLATE, IT WILL BE CLOSED.
+
+    This form is only for proposing specific new features or enhancements.
     If you have a general idea or question, please post to our mailing list
     instead of opening an issue:
 
@@ -19,8 +21,8 @@ about: Propose a new NetBox feature or enhancement
     before submitting a bug report.
 -->
 ### Environment
-* Python version:  <!-- Example: 3.5.4 -->
-* NetBox version:  <!-- Example: 2.3.6 -->
+* Python version:  <!-- Example: 3.6.9 -->
+* NetBox version:  <!-- Example: 2.7.3 -->
 
 <!--
     Describe in detail the new functionality you are proposing. Include any

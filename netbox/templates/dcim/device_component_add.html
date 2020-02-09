@@ -1,10 +1,10 @@
 {% extends '_base.html' %}
 {% load form_helpers %}
 
-{% block title %}Create {{ component_type }} ({{ parent }}){% endblock %}
+{% block title %}Create {{ component_type }}{% endblock %}
 
 {% block content %}
-<form action="." method="post" class="form form-horizontal">
+<form action="" method="post" class="form form-horizontal">
     {% csrf_token %}
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
@@ -21,12 +21,6 @@
                     <strong>{{ component_type|title }}</strong>
                 </div>
                 <div class="panel-body">
-                    <div class="form-group">
-                        <label class="col-md-3 control-label required">Device</label>
-                        <div class="col-md-9">
-                            <p class="form-control-static">{{ parent }}</p>
-                        </div>
-                    </div>
                     {% render_form form %}
                 </div>
             </div>

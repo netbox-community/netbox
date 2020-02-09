@@ -239,7 +239,7 @@
                                     <a href="{% url 'dcim:poweroutlet_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
                                 </div>
                             {% endif %}
-                            <a href="{% url 'dcim:poweroutlet_list' %}">Power Outlet</a>
+                            <a href="{% url 'dcim:poweroutlet_list' %}">Power Outlets</a>
                         </li>
                         <li{% if not perms.dcim.view_devicebay %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_devicebay %}

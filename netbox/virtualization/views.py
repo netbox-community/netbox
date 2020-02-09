@@ -330,8 +330,6 @@ class VirtualMachineBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_interface'
-    parent_model = VirtualMachine
-    parent_field = 'virtual_machine'
     model = Interface
     form = forms.InterfaceCreateForm
     model_form = forms.InterfaceForm
@@ -353,7 +351,6 @@ class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_interface'
     queryset = Interface.objects.all()
-    parent_model = VirtualMachine
     table = tables.InterfaceTable
     form = forms.InterfaceBulkEditForm
 
@@ -361,7 +358,6 @@ class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
 class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_interface'
     queryset = Interface.objects.all()
-    parent_model = VirtualMachine
     table = tables.InterfaceTable
 
 

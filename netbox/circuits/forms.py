@@ -2,12 +2,14 @@ from django import forms
 from taggit.forms import TagField
 
 from dcim.models import Region, Site
-from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from extras.forms import (
+    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
+)
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField,
-    DatePicker, FilterChoiceField, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple
+    APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, DatePicker,
+    FilterChoiceField, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField
 )
 from .choices import CircuitStatusChoices
 from .models import Circuit, CircuitTermination, CircuitType, Provider
@@ -17,7 +19,7 @@ from .models import Circuit, CircuitTermination, CircuitType, Provider
 # Providers
 #
 
-class ProviderForm(BootstrapMixin, CustomFieldForm):
+class ProviderForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
     comments = CommentField()
     tags = TagField(
@@ -46,7 +48,7 @@ class ProviderForm(BootstrapMixin, CustomFieldForm):
         }
 
 
-class ProviderCSVForm(forms.ModelForm):
+class ProviderCSVForm(CustomFieldModelCSVForm):
     slug = SlugField()
 
     class Meta:
@@ -89,7 +91,8 @@ class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdi
         label='Admin contact'
     )
     comments = CommentField(
-        widget=SmallTextarea()
+        widget=SmallTextarea,
+        label='Comments'
     )
 
     class Meta:
@@ -128,6 +131,7 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False,
         label='ASN'
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -159,7 +163,7 @@ class CircuitTypeCSVForm(forms.ModelForm):
 # Circuits
 #
 
-class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     comments = CommentField()
     tags = TagField(
         required=False
@@ -187,7 +191,7 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class CircuitCSVForm(forms.ModelForm):
+class CircuitCSVForm(CustomFieldModelCSVForm):
     provider = forms.ModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',
@@ -332,6 +336,7 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         min_value=0,
         label='Commit rate (Kbps)'
     )
+    tag = TagFilterField(model)
 
 
 #

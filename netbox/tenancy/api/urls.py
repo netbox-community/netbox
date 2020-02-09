@@ -15,11 +15,11 @@ router = routers.DefaultRouter()
 router.APIRootView = TenancyRootView
 
 # Field choices
-router.register(r'_choices', views.TenancyFieldChoicesViewSet, basename='field-choice')
+router.register('_choices', views.TenancyFieldChoicesViewSet, basename='field-choice')
 
 # Tenants
-router.register(r'tenant-groups', views.TenantGroupViewSet)
-router.register(r'tenants', views.TenantViewSet)
+router.register('tenant-groups', views.TenantGroupViewSet)
+router.register('tenants', views.TenantViewSet)
 
 app_name = 'tenancy-api'
 urlpatterns = router.urls

@@ -22,8 +22,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import ASNField
 from extras.models import ConfigContextModel, CustomFieldModel, TaggedItem
-from utilities.fields import ColorField
-from utilities.managers import NaturalOrderingManager
+from utilities.fields import ColorField, NaturalOrderingField
 from utilities.models import ChangeLoggedModel
 from utilities.utils import foreground_color, to_meters
 from .device_component_templates import (
@@ -134,6 +133,11 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         max_length=50,
         unique=True
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     slug = models.SlugField(
         unique=True
     )
@@ -215,8 +219,6 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
-
-    objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
@@ -235,7 +237,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     }
 
     class Meta:
-        ordering = ['name']
+        ordering = ('_name',)
 
     def __str__(self):
         return self.name
@@ -405,7 +407,7 @@ class RackElevationHelperMixin:
 
     @staticmethod
     def _draw_device_rear(drawing, device, start, end, text):
-        rect = drawing.rect(start, end, class_="blocked")
+        rect = drawing.rect(start, end, class_="slot blocked")
         rect.set_desc('{} — {} ({}U) {} {}'.format(
             device.device_role, device.device_type.display_name,
             device.device_type.u_height, device.asset_tag or '', device.serial or ''
@@ -516,6 +518,11 @@ class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
     name = models.CharField(
         max_length=50
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     facility_id = models.CharField(
         max_length=50,
         blank=True,
@@ -612,8 +619,6 @@ class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
-
-    objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
@@ -634,12 +639,12 @@ class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
     }
 
     class Meta:
-        ordering = ('site', 'group', 'name', 'pk')  # (site, group, name) may be non-unique
-        unique_together = [
+        ordering = ('site', 'group', '_name', 'pk')  # (site, group, name) may be non-unique
+        unique_together = (
             # Name and facility_id must be unique *only* within a RackGroup
-            ['group', 'name'],
-            ['group', 'facility_id'],
-        ]
+            ('group', 'name'),
+            ('group', 'facility_id'),
+        )
 
     def __str__(self):
         return self.display_name or super().__str__()
@@ -1016,9 +1021,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = [
-        'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'comments',
-    ]
     clone_fields = [
         'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role',
     ]
@@ -1314,6 +1316,12 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         blank=True,
         null=True
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True,
+        null=True
+    )
     serial = models.CharField(
         max_length=50,
         blank=True,
@@ -1408,8 +1416,6 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
-
-    objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
@@ -1431,12 +1437,12 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     }
 
     class Meta:
-        ordering = ('name', 'pk')  # Name may be NULL
-        unique_together = [
-            ['site', 'tenant', 'name'],  # See validate_unique below
-            ['rack', 'position', 'face'],
-            ['virtual_chassis', 'vc_position'],
-        ]
+        ordering = ('_name', 'pk')  # Name may be null
+        unique_together = (
+            ('site', 'tenant', 'name'),  # See validate_unique below
+            ('rack', 'position', 'face'),
+            ('virtual_chassis', 'vc_position'),
+        )
         permissions = (
             ('napalm_read', 'Read-only access to devices via NAPALM'),
             ('napalm_write', 'Read/write access to devices via NAPALM'),

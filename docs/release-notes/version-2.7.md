@@ -1,10 +1,52 @@
-# v2.7.3 (FUTURE)
+# v2.7.5 (FUTURE)
+
+## Enhancements
+
+* [#3377](https://github.com/netbox-community/netbox/issues/3377) - Include indirect devices when calculating power utilization
+* [#3799](https://github.com/netbox-community/netbox/issues/3799) - Greatly improve performance when ordering device components
+* [#4100](https://github.com/netbox-community/netbox/issues/4100) - Add device filter to component list views
+* [#4113](https://github.com/netbox-community/netbox/issues/4113) - Add bulk edit functionality for device type components
+* [#4116](https://github.com/netbox-community/netbox/issues/4116) - Enable bulk edit and delete functions for device component list views
+
+## Bug Fixes
+
+* [#4089](https://github.com/netbox-community/netbox/issues/4089) - Selection of power outlet type during bulk update is optional
+* [#4090](https://github.com/netbox-community/netbox/issues/4090) - Render URL custom fields as links under object view
+* [#4091](https://github.com/netbox-community/netbox/issues/4091) - Fix filtering of objects by custom fields using UI search form
+* [#4099](https://github.com/netbox-community/netbox/issues/4099) - Linkify interfaces on global interfaces list
+
+# v2.7.4 (2020-02-04)
+
+## Enhancements
+
+* [#568](https://github.com/netbox-community/netbox/issues/568) - Allow custom fields to be imported and exported using CSV
+* [#2921](https://github.com/netbox-community/netbox/issues/2921) - Replace tags filter with Select2 widget
+* [#3313](https://github.com/netbox-community/netbox/issues/3313) - Toggle config context display between JSON and YAML
+* [#3886](https://github.com/netbox-community/netbox/issues/3886) - Enable assigning config contexts by cluster and cluster group
+* [#4051](https://github.com/netbox-community/netbox/issues/4051) - Disable the `makemigrations` management command
+
+## Bug Fixes
+
+* [#4030](https://github.com/netbox-community/netbox/issues/4030) - Fix exception when bulk editing interfaces (revised)
+* [#4043](https://github.com/netbox-community/netbox/issues/4043) - Fix toggling of required fields in custom scripts
+* [#4049](https://github.com/netbox-community/netbox/issues/4049) - Restore missing `tags` field in IPAM service serializer
+* [#4052](https://github.com/netbox-community/netbox/issues/4052) - Fix error when bulk importing interfaces to virtual machines
+* [#4056](https://github.com/netbox-community/netbox/issues/4056) - Repair schema migration for Rack.outer_unit (from #3569)
+* [#4067](https://github.com/netbox-community/netbox/issues/4067) - Correct permission checked when creating a rack (vs. editing)
+* [#4071](https://github.com/netbox-community/netbox/issues/4071) - Enforce "view tag" permission on individual tag view
+* [#4079](https://github.com/netbox-community/netbox/issues/4079) - Fix assignment of power panel when bulk editing power feeds
+* [#4084](https://github.com/netbox-community/netbox/issues/4084) - Fix exception when creating an interface with tagged VLANs
+
+---
+
+# v2.7.3 (2020-01-28)
 
 ## Enhancements
 
 * [#3310](https://github.com/netbox-community/netbox/issues/3310) - Pre-select site/rack for B side when creating a new cable
-* [#3377](https://github.com/netbox-community/netbox/issues/3377) - Include children devices when calculating power utilization
+* [#3338](https://github.com/netbox-community/netbox/issues/3338) - Include circuit terminations in API representation of circuits
 * [#3509](https://github.com/netbox-community/netbox/issues/3509) - Add IP address variables for custom scripts
+* [#3978](https://github.com/netbox-community/netbox/issues/3978) - Add VRF filtering to search NAT IP
 * [#4005](https://github.com/netbox-community/netbox/issues/4005) - Include timezone context in webhook timestamps
 
 ## Bug Fixes
@@ -15,6 +57,14 @@
 * [#3989](https://github.com/netbox-community/netbox/issues/3989) - Correct HTTP content type assignment for webhooks
 * [#3999](https://github.com/netbox-community/netbox/issues/3999) - Do not filter child results by null if non-required parent fields are blank
 * [#4008](https://github.com/netbox-community/netbox/issues/4008) - Toggle rack elevation face using front/rear strings
+* [#4017](https://github.com/netbox-community/netbox/issues/4017) - Remove redundant tenant field from cluster form
+* [#4019](https://github.com/netbox-community/netbox/issues/4019) - Restore border around background devices in rack elevations
+* [#4022](https://github.com/netbox-community/netbox/issues/4022) - Fix display of assigned IPs when filtering device interfaces
+* [#4025](https://github.com/netbox-community/netbox/issues/4025) - Correct display of cable status (various places)
+* [#4027](https://github.com/netbox-community/netbox/issues/4027) - Repair schema migration for #3569 to convert IP addresses with DHCP status
+* [#4028](https://github.com/netbox-community/netbox/issues/4028) - Correct URL patterns to match Unicode characters in tag slugs
+* [#4030](https://github.com/netbox-community/netbox/issues/4030) - Fix exception when setting interfaces to tagged mode in bulk
+* [#4033](https://github.com/netbox-community/netbox/issues/4033) - Restore missing comments field label of various bulk edit forms
 
 ---
 
