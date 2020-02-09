@@ -29,12 +29,14 @@ class ProviderFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilte
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='circuits__terminations__site__region__in',
+        field_name='circuits__terminations__site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='circuits__terminations__site__region__in',
+        field_name='circuits__terminations__site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -120,12 +122,14 @@ class CircuitFilterSet(BaseFilterSet, CustomFieldFilterSet, TenancyFilterSet, Cr
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='terminations__site__region__in',
+        field_name='terminations__site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='terminations__site__region__in',
+        field_name='terminations__site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )

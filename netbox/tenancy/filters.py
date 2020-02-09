@@ -13,14 +13,14 @@ __all__ = (
 )
 
 
-class TenantGroupFilterSet(NameSlugSearchFilterSet):
+class TenantGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = TenantGroup
         fields = ['id', 'name', 'slug']
 
 
-class TenantFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class TenantFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'

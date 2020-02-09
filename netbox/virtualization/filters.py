@@ -6,7 +6,8 @@ from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet, LocalC
 from tenancy.filters import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.filters import (
-    MultiValueMACAddressFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
+    BaseFilterSet, MultiValueMACAddressFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter,
+    TreeNodeMultipleChoiceFilter,
 )
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -20,21 +21,21 @@ __all__ = (
 )
 
 
-class ClusterTypeFilterSet(NameSlugSearchFilterSet):
+class ClusterTypeFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterType
         fields = ['id', 'name', 'slug']
 
 
-class ClusterGroupFilterSet(NameSlugSearchFilterSet):
+class ClusterGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterGroup
         fields = ['id', 'name', 'slug']
 
 
-class ClusterFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class ClusterFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -45,12 +46,14 @@ class ClusterFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -104,6 +107,7 @@ class ClusterFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
 
 
 class VirtualMachineFilterSet(
+    BaseFilterSet,
     LocalConfigContextFilterSet,
     TenancyFilterSet,
     CustomFieldFilterSet,
@@ -149,12 +153,14 @@ class VirtualMachineFilterSet(
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='cluster__site__region__in',
+        field_name='cluster__site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='cluster__site__region__in',
+        field_name='cluster__site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -208,7 +214,7 @@ class VirtualMachineFilterSet(
         )
 
 
-class InterfaceFilterSet(django_filters.FilterSet):
+class InterfaceFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

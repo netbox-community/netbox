@@ -235,7 +235,7 @@ class ConfigContextFilterSet(BaseFilterSet):
 # Filter for Local Config Context Data
 #
 
-class LocalConfigContextFilterSet(BaseFilterSet):
+class LocalConfigContextFilterSet(django_filters.FilterSet):
     local_context_data = django_filters.BooleanFilter(
         method='_local_context_data',
         label='Has local config context data',

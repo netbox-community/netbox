@@ -1,9 +1,10 @@
 import django_filters
+from copy import deepcopy
 from dcim.forms import MACAddressField
 from django import forms
 from django.conf import settings
 from django.db import models
-from django_filters.utils import get_model_field
+from django_filters.utils import get_model_field, resolve_field
 
 from extras.models import Tag
 from utilities.constants import (
@@ -120,13 +121,62 @@ class BaseFilterSet(django_filters.FilterSet):
     """
     A base filterset which provides common functionaly to all NetBox filtersets
     """
+    FILTER_DEFAULTS = deepcopy(django_filters.filterset.FILTER_FOR_DBFIELD_DEFAULTS)
+    FILTER_DEFAULTS.update({
+        models.AutoField: {
+            'filter_class': MultiValueNumberFilter
+        },
+        models.CharField: {
+            'filter_class': MultiValueCharFilter
+        },
+        models.DateField: {
+            'filter_class': MultiValueDateFilter
+        },
+        models.DateTimeField: {
+            'filter_class': MultiValueDateTimeFilter
+        },
+        models.DecimalField: {
+            'filter_class': MultiValueNumberFilter
+        },
+        models.EmailField: {
+            'filter_class': MultiValueCharFilter
+        },
+        models.FloatField: {
+            'filter_class': MultiValueNumberFilter
+        },
+        models.IntegerField: {
+            'filter_class': MultiValueNumberFilter
+        },
+        models.PositiveIntegerField: {
+            'filter_class': MultiValueNumberFilter
+        },
+        models.PositiveSmallIntegerField: {
+            'filter_class': MultiValueNumberFilter
+        },
+        models.SlugField: {
+            'filter_class': MultiValueCharFilter
+        },
+        models.SmallIntegerField: {
+            'filter_class': MultiValueNumberFilter
+        },
+        models.TimeField: {
+            'filter_class': MultiValueTimeFilter
+        },
+        models.URLField: {
+            'filter_class': MultiValueCharFilter
+        },
+        MACAddressField: {
+            'filter_class': MultiValueMACAddressFilter
+        },
+    })
+
     @classmethod
     def get_filters(cls):
         """
         Override filter generation to support dynamic lookup expressions for certain filter types.
 
         For specific filter types, new filters are created based on defined lookup expressions in
-        the form `<field_name>_<lookup_expr>`
+        the form `<field_name>__<lookup_expr>`
         """
         filters = super().get_filters()
 
@@ -136,7 +186,7 @@ class BaseFilterSet(django_filters.FilterSet):
 
             # It the filter makes use of a custom filter method or lookup expression skip it
             # as we cannot sanely handle these cases in a generic mannor
-            if existing_filter.method is not None or existing_filter.lookup_expr != 'exact':
+            if existing_filter.method is not None or existing_filter.lookup_expr not in ['exact', 'in']:
                 continue
 
             # Choose the lookup expression map based on the filter type
@@ -169,7 +219,7 @@ class BaseFilterSet(django_filters.FilterSet):
                 )
 
             else:
-                # Do no augment any other filter types with more lookup expressions
+                # Do not augment any other filter types with more lookup expressions
                 continue
 
             # Get properties of the existing filter for later use
@@ -178,24 +228,29 @@ class BaseFilterSet(django_filters.FilterSet):
 
             # Create new filters for each lookup expression in the map
             for lookup_name, lookup_expr in lookup_map.items():
-                new_filter_name = '{}_{}'.format(existing_filter_name, lookup_name)
-                
+                new_filter_name = '{}__{}'.format(existing_filter_name, lookup_name)
+
                 try:
-                    print(existing_filter_name)
-                    new_filter = cls.filter_for_field(field, field_name, lookup_expr)
+                    if existing_filter_name in cls.declared_filters:
+                        resolve_field(field, lookup_expr)  # Will raise FieldLookupError if the lookup is invalid
+                        new_filter = type(existing_filter)(
+                            field_name=field_name,
+                            lookup_expr=lookup_expr,
+                            label=existing_filter.label,
+                            exclude=existing_filter.exclude,
+                            distinct=existing_filter.distinct,
+                            **existing_filter.extra
+                        )
+                    else:
+                        new_filter = cls.filter_for_field(field, field_name, lookup_expr)
                 except django_filters.exceptions.FieldLookupError:
-                    # The filter could not be created because the lookup expression is not supported
+                    # The filter could not be created because the lookup expression is not supported on the field
                     continue
 
-                help_text = FILTER_LOOKUP_HELP_TEXT_MAP[lookup_expr]
-                
                 if lookup_name.startswith('n'):
                     # This is a negation filter which requires a queryselt.exclud() clause
                     new_filter.exclude = True
-                    help_text = 'negated {}'.format(help_text)
 
-                new_filter.extra = existing_filter.extra
-                new_filter.extra['help_text'] = '{} - {}'.format(field_name, help_text)
                 new_filters[new_filter_name] = new_filter
 
         filters.update(new_filters)
@@ -218,54 +273,3 @@ class NameSlugSearchFilterSet(django_filters.FilterSet):
             models.Q(name__icontains=value) |
             models.Q(slug__icontains=value)
         )
-
-
-#
-# Update default filters
-#
-
-FILTER_DEFAULTS = django_filters.filterset.FILTER_FOR_DBFIELD_DEFAULTS
-FILTER_DEFAULTS.update({
-    models.AutoField: {
-        'filter_class': MultiValueNumberFilter
-    },
-    models.CharField: {
-        'filter_class': MultiValueCharFilter
-    },
-    models.DateField: {
-        'filter_class': MultiValueDateFilter
-    },
-    models.DateTimeField: {
-        'filter_class': MultiValueDateTimeFilter
-    },
-    models.DecimalField: {
-        'filter_class': MultiValueNumberFilter
-    },
-    models.EmailField: {
-        'filter_class': MultiValueCharFilter
-    },
-    models.FloatField: {
-        'filter_class': MultiValueNumberFilter
-    },
-    models.IntegerField: {
-        'filter_class': MultiValueNumberFilter
-    },
-    models.PositiveIntegerField: {
-        'filter_class': MultiValueNumberFilter
-    },
-    models.PositiveSmallIntegerField: {
-        'filter_class': MultiValueNumberFilter
-    },
-    models.SlugField: {
-        'filter_class': MultiValueCharFilter
-    },
-    models.SmallIntegerField: {
-        'filter_class': MultiValueNumberFilter
-    },
-    models.TimeField: {
-        'filter_class': MultiValueTimeFilter
-    },
-    models.URLField: {
-        'filter_class': MultiValueCharFilter
-    },
-})
