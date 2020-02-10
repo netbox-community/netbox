@@ -9,7 +9,6 @@ from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
 from django.db.models import Count
 from django.forms import BoundField
-from mptt.forms import TreeNodeMultipleChoiceField
 
 from .choices import unpack_grouped_choices
 from .constants import *
