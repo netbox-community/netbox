@@ -369,10 +369,9 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         required=False,
         widget=StaticSelect2Multiple()
     )
-    region = forms.ModelMultipleChoiceField(
+    region = FilterChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
-        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/regions/",
             value_field="slug",
@@ -734,7 +733,6 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             'site'
         ),
         label='Rack group',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-groups/",
             null_option=True
@@ -748,7 +746,6 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     role = FilterChoiceField(
         queryset=RackRole.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-roles/",
             value_field="slug",
@@ -874,7 +871,6 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
     group_id = FilterChoiceField(
         queryset=RackGroup.objects.prefetch_related('site'),
         label='Rack group',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-groups/",
             null_option=True,
@@ -2182,7 +2178,6 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     rack_id = FilterChoiceField(
         queryset=Rack.objects.all(),
         label='Rack',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/dcim/racks/",
             null_option=True,
@@ -2219,7 +2214,6 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     platform = FilterChoiceField(
         queryset=Platform.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/dcim/platforms/",
             value_field="slug",
@@ -3913,7 +3907,6 @@ class CableFilterForm(BootstrapMixin, forms.Form):
     rack_id = FilterChoiceField(
         queryset=Rack.objects.all(),
         label='Rack',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/dcim/racks/",
             null_option=True,
@@ -4471,7 +4464,6 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
     tenant_group = FilterChoiceField(
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenant-groups/",
             value_field="slug",
@@ -4484,7 +4476,6 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
     tenant = FilterChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenants/",
             value_field="slug",
@@ -4592,7 +4583,6 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
     rack_group_id = FilterChoiceField(
         queryset=RackGroup.objects.all(),
         label='Rack group (ID)',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-groups/",
             null_option=True,
@@ -4826,7 +4816,6 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
     power_panel_id = FilterChoiceField(
         queryset=PowerPanel.objects.all(),
         label='Power panel',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/dcim/power-panels/",
             null_option=True,
@@ -4835,7 +4824,6 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
     rack_id = FilterChoiceField(
         queryset=Rack.objects.all(),
         label='Rack',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/dcim/racks/",
             null_option=True,

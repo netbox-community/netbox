@@ -528,7 +528,6 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
     vrf_id = FilterChoiceField(
         queryset=VRF.objects.all(),
         label='VRF',
-        null_label='-- Global --',
         widget=APISelectMultiple(
             api_url="/api/ipam/vrfs/",
             null_option=True,
@@ -554,7 +553,6 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
     site = FilterChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
@@ -564,7 +562,6 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
     role = FilterChoiceField(
         queryset=Role.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/ipam/roles/",
             value_field="slug",
@@ -999,7 +996,6 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
     vrf_id = FilterChoiceField(
         queryset=VRF.objects.all(),
         label='VRF',
-        null_label='-- Global --',
         widget=APISelectMultiple(
             api_url="/api/ipam/vrfs/",
             null_option=True,
@@ -1080,7 +1076,6 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
     site = FilterChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        null_label='-- Global --',
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
@@ -1279,7 +1274,6 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     site = FilterChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        null_label='-- Global --',
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
@@ -1289,7 +1283,6 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     group_id = FilterChoiceField(
         queryset=VLANGroup.objects.all(),
         label='VLAN group',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/ipam/vlan-groups/",
             null_option=True,
@@ -1303,7 +1296,6 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     role = FilterChoiceField(
         queryset=Role.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/ipam/roles/",
             value_field="slug",

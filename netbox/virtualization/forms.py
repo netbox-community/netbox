@@ -213,7 +213,6 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
     site = FilterChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
@@ -224,7 +223,6 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
     group = FilterChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         required=False,
         widget=APISelectMultiple(
             api_url="/api/virtualization/cluster-groups/",
@@ -562,7 +560,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
     cluster_group = FilterChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url='/api/virtualization/cluster-groups/',
             value_field="slug",
@@ -572,7 +569,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
     cluster_type = FilterChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url='/api/virtualization/cluster-types/',
             value_field="slug",
@@ -601,7 +597,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
     site = FilterChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url='/api/dcim/sites/',
             value_field="slug",
@@ -611,7 +606,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
     role = FilterChoiceField(
         queryset=DeviceRole.objects.filter(vm_role=True),
         to_field_name='slug',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url='/api/dcim/device-roles/',
             value_field="slug",
@@ -629,7 +623,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
     platform = FilterChoiceField(
         queryset=Platform.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url='/api/dcim/platforms/',
             value_field="slug",

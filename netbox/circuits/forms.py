@@ -311,7 +311,7 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         required=False,
         widget=StaticSelect2Multiple()
     )
-    region = forms.ModelMultipleChoiceField(
+    region = FilterChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,

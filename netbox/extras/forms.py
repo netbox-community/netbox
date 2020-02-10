@@ -387,11 +387,14 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     )
     action = forms.ChoiceField(
         choices=add_blank_choice(ObjectChangeActionChoices),
-        required=False
+        required=False,
+        widget=StaticSelect2()
     )
+    # TODO: Convert to FilterChoiceField once we have an API endpoint for users
     user = forms.ModelChoiceField(
         queryset=User.objects.order_by('username'),
-        required=False
+        required=False,
+        widget=StaticSelect2()
     )
     changed_object_type = forms.ModelChoiceField(
         queryset=ContentType.objects.order_by('model'),

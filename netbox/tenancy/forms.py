@@ -108,7 +108,6 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
     group = FilterChoiceField(
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenant-groups/",
             value_field="slug",
@@ -163,7 +162,6 @@ class TenancyFilterForm(forms.Form):
     tenant_group = FilterChoiceField(
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenant-groups/",
             value_field="slug",
@@ -176,7 +174,6 @@ class TenancyFilterForm(forms.Form):
     tenant = FilterChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenants/",
             value_field="slug",

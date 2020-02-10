@@ -8,7 +8,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
 from django.db.models import Count
-from mptt.forms import TreeNodeMultipleChoiceField
+from django.forms import BoundField
 
 from .choices import unpack_grouped_choices
 from .constants import *
@@ -211,7 +211,7 @@ class SelectWithPK(StaticSelect2):
     option_template_name = 'widgets/select_option_with_pk.html'
 
 
-class ContentTypeSelect(forms.Select):
+class ContentTypeSelect(StaticSelect2):
     """
     Appends an `api-value` attribute equal to the slugified model name for each ContentType. For example:
         <option value="37" api-value="console-server-port">console server port</option>
@@ -259,9 +259,6 @@ class APISelect(SelectWithDisabled):
         name of the query param and the value if the query param's value.
     :param null_option: If true, include the static null option in the selection list.
     """
-    # Only preload the selected option(s); new options are dynamically displayed and added via the API
-    template_name = 'widgets/select_api.html'
-
     def __init__(
         self,
         api_url,
@@ -581,46 +578,29 @@ class TagFilterField(forms.MultipleChoiceField):
         super().__init__(label='Tags', choices=get_choices, required=False, *args, **kwargs)
 
 
-class FilterChoiceIterator(forms.models.ModelChoiceIterator):
-
-    def __iter__(self):
-        # Filter on "empty" choice using FILTERS_NULL_CHOICE_VALUE (instead of an empty string)
-        if self.field.null_label is not None:
-            yield (settings.FILTERS_NULL_CHOICE_VALUE, self.field.null_label)
-        queryset = self.queryset.all()
-        # Can't use iterator() when queryset uses prefetch_related()
-        if not queryset._prefetch_related_lookups:
-            queryset = queryset.iterator()
-        for obj in queryset:
-            yield self.choice(obj)
-
-
-class FilterChoiceFieldMixin(object):
-    iterator = FilterChoiceIterator
-
-    def __init__(self, null_label=None, count_attr='filter_count', *args, **kwargs):
-        self.null_label = null_label
-        self.count_attr = count_attr
+class FilterChoiceField(forms.ModelMultipleChoiceField):
+    """
+    Override get_bound_field() to avoid pre-populating field choices with a SQL query. The field will be
+    rendered only with choices set via bound data. Choices are populated on-demand via the APISelect widget.
+    """
+    def __init__(self, *args, **kwargs):
+        # Filter fields are not required by default
         if 'required' not in kwargs:
             kwargs['required'] = False
-        if 'widget' not in kwargs:
-            kwargs['widget'] = forms.SelectMultiple(attrs={'size': 6})
         super().__init__(*args, **kwargs)
 
-    def label_from_instance(self, obj):
-        label = super().label_from_instance(obj)
-        obj_count = getattr(obj, self.count_attr, None)
-        if obj_count is not None:
-            return '{} ({})'.format(label, obj_count)
-        return label
+    def get_bound_field(self, form, field_name):
+        bound_field = BoundField(form, self, field_name)
 
+        # Modify the QuerySet of the field before we return it. Limit choices to any data already bound: Options
+        # will be populated on-demand via the APISelect widget.
+        if bound_field.data:
+            kwargs = {'{}__in'.format(self.to_field_name or 'pk'): bound_field.data}
+            self.queryset = self.queryset.filter(**kwargs)
+        else:
+            self.queryset = self.queryset.none()
 
-class FilterChoiceField(FilterChoiceFieldMixin, forms.ModelMultipleChoiceField):
-    pass
-
-
-class FilterTreeNodeMultipleChoiceField(FilterChoiceFieldMixin, TreeNodeMultipleChoiceField):
-    pass
+        return bound_field
 
 
 class LaxURLField(forms.URLField):
