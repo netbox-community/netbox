@@ -212,7 +212,7 @@ class SelectWithPK(StaticSelect2):
     option_template_name = 'widgets/select_option_with_pk.html'
 
 
-class ContentTypeSelect(forms.Select):
+class ContentTypeSelect(StaticSelect2):
     """
     Appends an `api-value` attribute equal to the slugified model name for each ContentType. For example:
         <option value="37" api-value="console-server-port">console server port</option>

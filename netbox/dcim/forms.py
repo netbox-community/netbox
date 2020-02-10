@@ -369,10 +369,9 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         required=False,
         widget=StaticSelect2Multiple()
     )
-    region = forms.ModelMultipleChoiceField(
+    region = FilterChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
-        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/regions/",
             value_field="slug",
