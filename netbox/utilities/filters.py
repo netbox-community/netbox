@@ -178,13 +178,15 @@ class BaseFilterSet(django_filters.FilterSet):
         For specific filter types, new filters are created based on defined lookup expressions in
         the form `<field_name>__<lookup_expr>`
         """
-        filters = super().get_filters()
+        # TODO: once 3.6 is the minimum required version of python, change this to a bare super() call
+        # We have to do it this way in py3.5 becuase of django_filters.FilterSet's use of a metaclass
+        filters = super(django_filters.FilterSet, cls).get_filters()
 
         new_filters = {}
         for existing_filter_name, existing_filter in filters.items():
             # Loop over existing filters to extract metadata by which to create new filters
 
-            # It the filter makes use of a custom filter method or lookup expression skip it
+            # If the filter makes use of a custom filter method or lookup expression skip it
             # as we cannot sanely handle these cases in a generic mannor
             if existing_filter.method is not None or existing_filter.lookup_expr not in ['exact', 'in']:
                 continue
@@ -232,6 +234,9 @@ class BaseFilterSet(django_filters.FilterSet):
 
                 try:
                     if existing_filter_name in cls.declared_filters:
+                        # The filter field has been explicity defined on the filterset class so we must manually
+                        # create the new filter with the same type because there is no guarantee the defined type
+                        # is the same as the default type for the field
                         resolve_field(field, lookup_expr)  # Will raise FieldLookupError if the lookup is invalid
                         new_filter = type(existing_filter)(
                             field_name=field_name,
@@ -242,13 +247,14 @@ class BaseFilterSet(django_filters.FilterSet):
                             **existing_filter.extra
                         )
                     else:
+                        # The filter field is listed in Meta.fields so we can safely rely on default behaviour
                         new_filter = cls.filter_for_field(field, field_name, lookup_expr)
                 except django_filters.exceptions.FieldLookupError:
                     # The filter could not be created because the lookup expression is not supported on the field
                     continue
 
                 if lookup_name.startswith('n'):
-                    # This is a negation filter which requires a queryselt.exclud() clause
+                    # This is a negation filter which requires a queryset.exclude() clause
                     new_filter.exclude = True
 
                 new_filters[new_filter_name] = new_filter
