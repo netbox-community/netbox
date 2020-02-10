@@ -14,9 +14,9 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ConfirmationForm,
-    CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField, SmallTextarea, StaticSelect2,
-    StaticSelect2Multiple, TagFilterField,
+    CommentField, ConfirmationForm, CSVChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    ExpandableNameField, FilterChoiceField, JSONField, SlugField, SmallTextarea, StaticSelect2, StaticSelect2Multiple,
+    TagFilterField,
 )
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -233,7 +233,7 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
     tag = TagFilterField(model)
 
 
-class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
+class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
     region = forms.ModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -247,11 +247,8 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
             }
         )
     )
-    site = ChainedModelChoiceField(
+    site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        chains=(
-            ('region', 'region'),
-        ),
         required=False,
         widget=APISelect(
             api_url='/api/dcim/sites/',
@@ -261,11 +258,8 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
             }
         )
     )
-    rack = ChainedModelChoiceField(
+    rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
-        chains=(
-            ('site', 'site'),
-        ),
         required=False,
         widget=APISelect(
             api_url='/api/dcim/racks/',
@@ -277,12 +271,8 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
             }
         )
     )
-    devices = ChainedModelMultipleChoiceField(
+    devices = DynamicModelMultipleChoiceField(
         queryset=Device.objects.filter(cluster__isnull=True),
-        chains=(
-            ('site', 'site'),
-            ('rack', 'rack'),
-        ),
         widget=APISelectMultiple(
             api_url='/api/dcim/devices/',
             display_field='display_name',
@@ -342,11 +332,8 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             }
         )
     )
-    cluster = ChainedModelChoiceField(
+    cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
-        chains=(
-            ('group', 'cluster_group'),
-        ),
         widget=APISelect(
             api_url='/api/virtualization/clusters/'
         )

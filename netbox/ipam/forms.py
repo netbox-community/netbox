@@ -10,9 +10,9 @@ from extras.forms import (
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField,
-    CSVChoiceField, DatePicker, ExpandableIPAddressField, FilterChoiceField, FlexibleModelChoiceField, ReturnURLForm,
-    SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES
+    add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditNullBooleanSelect, CSVChoiceField,
+    DatePicker, DynamicModelChoiceField, ExpandableIPAddressField, FilterChoiceField, FlexibleModelChoiceField,
+    ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import VirtualMachine
 from .constants import *
@@ -271,7 +271,6 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        label='Site',
         widget=APISelect(
             api_url="/api/dcim/sites/",
             filter_for={
@@ -283,11 +282,8 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             }
         )
     )
-    vlan_group = ChainedModelChoiceField(
+    vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
-        chains=(
-            ('site', 'site'),
-        ),
         required=False,
         label='VLAN group',
         widget=APISelect(
@@ -300,12 +296,8 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             }
         )
     )
-    vlan = ChainedModelChoiceField(
+    vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
-        chains=(
-            ('site', 'site'),
-            ('group', 'vlan_group'),
-        ),
         required=False,
         label='VLAN',
         widget=APISelect(
@@ -603,11 +595,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
             }
         )
     )
-    nat_rack = ChainedModelChoiceField(
+    nat_rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
-        chains=(
-            ('site', 'nat_site'),
-        ),
         required=False,
         label='Rack',
         widget=APISelect(
@@ -621,12 +610,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
             }
         )
     )
-    nat_device = ChainedModelChoiceField(
+    nat_device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
-        chains=(
-            ('site', 'nat_site'),
-            ('rack', 'nat_rack'),
-        ),
         required=False,
         label='Device',
         widget=APISelect(
@@ -648,11 +633,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
             }
         )
     )
-    nat_inside = ChainedModelChoiceField(
+    nat_inside = DynamicModelChoiceField(
         queryset=IPAddress.objects.all(),
-        chains=(
-            ('interface__device', 'nat_device'),
-        ),
         required=False,
         label='IP Address',
         widget=APISelect(
@@ -1102,13 +1084,9 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             }
         )
     )
-    group = ChainedModelChoiceField(
+    group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
-        chains=(
-            ('site', 'site'),
-        ),
         required=False,
-        label='Group',
         widget=APISelect(
             api_url='/api/ipam/vlan-groups/',
         )

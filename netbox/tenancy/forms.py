@@ -2,11 +2,11 @@ from django import forms
 from taggit.forms import TagField
 
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldFilterForm,
+    AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm,
 )
 from utilities.forms import (
-    APISelect, APISelectMultiple, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField,
-    FilterChoiceField, SlugField, TagFilterField
+    APISelect, APISelectMultiple, BootstrapMixin, CommentField, DynamicModelChoiceField, FilterChoiceField, SlugField,
+    TagFilterField,
 )
 from .models import Tenant, TenantGroup
 
@@ -121,8 +121,8 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Form extensions
 #
 
-class TenancyForm(ChainedFieldsMixin, forms.Form):
-    tenant_group = forms.ModelChoiceField(
+class TenancyForm(forms.Form):
+    tenant_group = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
         widget=APISelect(
@@ -135,11 +135,8 @@ class TenancyForm(ChainedFieldsMixin, forms.Form):
             }
         )
     )
-    tenant = ChainedModelChoiceField(
+    tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
-        chains=(
-            ('group', 'tenant_group'),
-        ),
         required=False,
         widget=APISelect(
             api_url='/api/tenancy/tenants/'
