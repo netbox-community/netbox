@@ -535,7 +535,6 @@ class ConsolePortTemplateTestCase(StandardTestCases.Views):
     test_get_object = None
     test_list_objects = None
     test_create_object = None
-    test_delete_object = None
     test_import_objects = None
 
     def test_bulk_create_objects(self):
@@ -580,7 +579,6 @@ class ConsoleServerPortTemplateTestCase(StandardTestCases.Views):
     test_get_object = None
     test_list_objects = None
     test_create_object = None
-    test_delete_object = None
     test_import_objects = None
 
     def test_bulk_create_objects(self):
@@ -625,7 +623,6 @@ class PowerPortTemplateTestCase(StandardTestCases.Views):
     test_get_object = None
     test_list_objects = None
     test_create_object = None
-    test_delete_object = None
     test_import_objects = None
 
     def test_bulk_create_objects(self):
@@ -676,7 +673,6 @@ class PowerOutletTemplateTestCase(StandardTestCases.Views):
     test_get_object = None
     test_list_objects = None
     test_create_object = None
-    test_delete_object = None
     test_import_objects = None
 
     def test_bulk_create_objects(self):
@@ -727,7 +723,6 @@ class InterfaceTemplateTestCase(StandardTestCases.Views):
     test_get_object = None
     test_list_objects = None
     test_create_object = None
-    test_delete_object = None
     test_import_objects = None
 
     def test_bulk_create_objects(self):
@@ -775,7 +770,6 @@ class FrontPortTemplateTestCase(StandardTestCases.Views):
     test_get_object = None
     test_list_objects = None
     test_create_object = None
-    test_delete_object = None
     test_import_objects = None
 
     def test_bulk_create_objects(self):
@@ -831,7 +825,6 @@ class RearPortTemplateTestCase(StandardTestCases.Views):
     test_get_object = None
     test_list_objects = None
     test_create_object = None
-    test_delete_object = None
     test_import_objects = None
 
     def test_bulk_create_objects(self):
@@ -878,7 +871,6 @@ class DeviceBayTemplateTestCase(StandardTestCases.Views):
     test_get_object = None
     test_list_objects = None
     test_create_object = None
-    test_delete_object = None
     test_import_objects = None
     test_bulk_edit_objects = None
 
