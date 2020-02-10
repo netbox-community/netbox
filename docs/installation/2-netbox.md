@@ -15,6 +15,8 @@ This section of the documentation discusses installing and configuring the NetBo
 # yum install -y gcc python36 python36-devel python36-setuptools libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config redis
 # easy_install-3.6 pip
 # ln -s /usr/bin/python3.6 /usr/bin/python3
+# systemctl enable redis
+# systemctl start redis
 ```
 
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
@@ -29,6 +31,13 @@ Download the [latest stable release](https://github.com/netbox-community/netbox/
 # cd /opt/
 # ln -s netbox-X.Y.Z/ netbox
 # cd /opt/netbox/
+```
+**CentOS if selinux is active**
+
+```no-highlight
+# chcon -R -t httpd_sys_content_t /opt/netbox/
+# restorecon -Rv /opt/netbox/*
+# setsebool -P httpd_can_network_connect 1
 ```
 
 ## Option B: Clone the Git Repository
