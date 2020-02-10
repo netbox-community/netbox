@@ -260,9 +260,6 @@ class APISelect(SelectWithDisabled):
         name of the query param and the value if the query param's value.
     :param null_option: If true, include the static null option in the selection list.
     """
-    # Only preload the selected option(s); new options are dynamically displayed and added via the API
-    template_name = 'widgets/select_api.html'
-
     def __init__(
         self,
         api_url,
