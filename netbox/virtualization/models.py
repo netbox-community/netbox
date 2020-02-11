@@ -268,7 +268,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 
     STATUS_CLASS_MAP = {
         VirtualMachineStatusChoices.STATUS_ACTIVE: 'success',
-        VirtualMachineStatusChoices.STATUS_OFFLINE: 'warning',
+        VirtualMachineStatusChoices.STATUS_OFFLINE: 'danger',
         VirtualMachineStatusChoices.STATUS_STAGED: 'primary',
         VirtualMachineStatusChoices.STATUS_DECOMMISSIONING: 'warning',
     }

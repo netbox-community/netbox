@@ -24,7 +24,6 @@ class VirtualMachineStatusChoices(ChoiceSet):
         STATUS_OFFLINE: 0,
         STATUS_ACTIVE: 1,
         STATUS_STAGED: 3,
-        STATUS_DECOMMISSIONING: 4,
     }
 
 
