@@ -297,8 +297,7 @@
                     <th class="col-md-1">Tagged</th>
                     <th class="col-md-2">Name</th>
                     <th class="col-md-2">Status</th>
-                    <th class="col-md-2">Description</th>
-                    <th class="col-md-1"></th>
+                    <th class="col-md-3">Description</th>
                 </tr>
                 </thead>
                 <tr>
@@ -324,23 +323,6 @@
                         </td>
                         {# VLAN description #}
                         <td>{{ iface.untagged_vlan.description }}</td>
-                        {# VLAN buttons #}
-                        <td style="text-align: right">
-                            {% if perms.ipam.change_vlan %}
-                                <a href="{% url 'ipam:vlan_edit' pk=iface.untagged_vlan.pk %}?return_url={{ device.get_absolute_url }}"
-                                   class="btn btn-info btn-xs">
-                                    <i class="glyphicon glyphicon-pencil" aria-hidden="true"
-                                       title="Edit IP address"></i>
-                                </a>
-                            {% endif %}
-                            {% if perms.ipam.delete_ipaddress %}
-                                <a href="{% url 'ipam:vlan_edit' pk=iface.untagged_vlan.pk %}?return_url={{ device.get_absolute_url }}"
-                                   class="btn btn-danger btn-xs">
-                                    <i class="glyphicon glyphicon-trash" aria-hidden="true"
-                                       title="Delete IP address"></i>
-                                </a>
-                            {% endif %}
-                        </td>
                     {% endif %}
                 </tr>
 
@@ -368,21 +350,6 @@
                             </td>
                             {# VLAN description #}
                             <td>{{ tag.description }}</td>
-                            {# VLAN buttons #}
-                            <td style="text-align: right">
-                                {% if perms.ipam.change_vlan %}
-                                    <a href="{% url 'ipam:vlan_edit' pk=tag.pk %}?return_url={{ device.get_absolute_url }}"
-                                       class="btn btn-info btn-xs">
-                                        <i class="glyphicon glyphicon-pencil" aria-hidden="true" title="Edit VLAN"></i>
-                                    </a>
-                                {% endif %}
-                                {% if perms.ipam.delete_ipaddress %}
-                                    <a href="{% url 'ipam:vlan_delete' pk=tag.pk %}?return_url={{ device.get_absolute_url }}"
-                                       class="btn btn-danger btn-xs">
-                                        <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete VLAN"></i>
-                                    </a>
-                                {% endif %}
-                            </td>
                         </tr>
                     {% endfor %}
                 {% endif %}
