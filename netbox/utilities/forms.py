@@ -522,34 +522,6 @@ class FlexibleModelChoiceField(forms.ModelChoiceField):
         return value
 
 
-class ChainedModelChoiceField(forms.ModelChoiceField):
-    """
-    A ModelChoiceField which is initialized based on the values of other fields within a form. `chains` is a dictionary
-    mapping of model fields to peer fields within the form. For example:
-
-        country1 = forms.ModelChoiceField(queryset=Country.objects.all())
-        city1 = ChainedModelChoiceField(queryset=City.objects.all(), chains={'country': 'country1'}
-
-    The queryset of the `city1` field will be modified as
-
-        .filter(country=<value>)
-
-    where <value> is the value of the `country1` field. (Note: The form must inherit from ChainedFieldsMixin.)
-    """
-    def __init__(self, chains=None, *args, **kwargs):
-        self.chains = chains
-        super().__init__(*args, **kwargs)
-
-
-class ChainedModelMultipleChoiceField(forms.ModelMultipleChoiceField):
-    """
-    See ChainedModelChoiceField
-    """
-    def __init__(self, chains=None, *args, **kwargs):
-        self.chains = chains
-        super().__init__(*args, **kwargs)
-
-
 class SlugField(forms.SlugField):
     """
     Extend the built-in SlugField to automatically populate from a field called `name` unless otherwise specified.
@@ -578,29 +550,38 @@ class TagFilterField(forms.MultipleChoiceField):
         super().__init__(label='Tags', choices=get_choices, required=False, *args, **kwargs)
 
 
-class FilterChoiceField(forms.ModelMultipleChoiceField):
-    """
-    Override get_bound_field() to avoid pre-populating field choices with a SQL query. The field will be
-    rendered only with choices set via bound data. Choices are populated on-demand via the APISelect widget.
-    """
-    def __init__(self, *args, **kwargs):
-        # Filter fields are not required by default
-        if 'required' not in kwargs:
-            kwargs['required'] = False
-        super().__init__(*args, **kwargs)
+class DynamicModelChoiceMixin:
+    field_modifier = ''
 
     def get_bound_field(self, form, field_name):
         bound_field = BoundField(form, self, field_name)
 
         # Modify the QuerySet of the field before we return it. Limit choices to any data already bound: Options
         # will be populated on-demand via the APISelect widget.
+        field_name = '{}{}'.format(self.to_field_name or 'pk', self.field_modifier)
         if bound_field.data:
-            kwargs = {'{}__in'.format(self.to_field_name or 'pk'): bound_field.data}
-            self.queryset = self.queryset.filter(**kwargs)
+            self.queryset = self.queryset.filter(**{field_name: self.prepare_value(bound_field.data)})
+        elif bound_field.initial:
+            self.queryset = self.queryset.filter(**{field_name: self.prepare_value(bound_field.initial)})
         else:
             self.queryset = self.queryset.none()
 
         return bound_field
+
+
+class DynamicModelChoiceField(DynamicModelChoiceMixin, forms.ModelChoiceField):
+    """
+    Override get_bound_field() to avoid pre-populating field choices with a SQL query. The field will be
+    rendered only with choices set via bound data. Choices are populated on-demand via the APISelect widget.
+    """
+    pass
+
+
+class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultipleChoiceField):
+    """
+    A multiple-choice version of DynamicModelChoiceField.
+    """
+    field_modifier = '__in'
 
 
 class LaxURLField(forms.URLField):
@@ -653,46 +634,6 @@ class BootstrapMixin(forms.BaseForm):
                 field.widget.attrs['required'] = 'required'
             if 'placeholder' not in field.widget.attrs:
                 field.widget.attrs['placeholder'] = field.label
-
-
-class ChainedFieldsMixin(forms.BaseForm):
-    """
-    Iterate through all ChainedModelChoiceFields in the form and modify their querysets based on chained fields.
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        for field_name, field in self.fields.items():
-
-            if isinstance(field, ChainedModelChoiceField):
-
-                filters_dict = {}
-                for (db_field, parent_field) in field.chains:
-                    if self.is_bound and parent_field in self.data and self.data[parent_field]:
-                        filters_dict[db_field] = self.data[parent_field] or None
-                    elif self.initial.get(parent_field):
-                        filters_dict[db_field] = self.initial[parent_field]
-                    elif self.fields[parent_field].widget.attrs.get('nullable'):
-                        filters_dict[db_field] = None
-                    else:
-                        break
-
-                # Limit field queryset by chained field values
-                if filters_dict:
-                    field.queryset = field.queryset.filter(**filters_dict)
-                # Editing an existing instance; limit field to its current value
-                elif not self.is_bound and getattr(self, 'instance', None) and hasattr(self.instance, field_name):
-                    obj = getattr(self.instance, field_name)
-                    if obj is not None:
-                        field.queryset = field.queryset.filter(pk=obj.pk)
-                    else:
-                        field.queryset = field.queryset.none()
-                # Creating a new instance with no bound data; nullify queryset
-                elif not self.data.get(field_name):
-                    field.queryset = field.queryset.none()
-                # Creating a new instance with bound data; limit queryset to the specified value
-                else:
-                    field.queryset = field.queryset.filter(pk=self.data.get(field_name))
 
 
 class ReturnURLForm(forms.Form):
