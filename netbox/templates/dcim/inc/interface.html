@@ -39,21 +39,21 @@
     </td>
 
     {#Tagged ports#}
-    <td>
-        {% if iface.tagged_vlans.all %}
-            {% for tag in iface.tagged_vlans.all %}
-                <a href="{% url 'ipam:vlan' tag.id %}">{{ tag }}</a>
-                <br>
-            {% endfor %}
-        {% endif %}
-    </td>
-
+{#    <td>#}
+{#        {% if iface.tagged_vlans.all %}#}
+{#            {% for tag in iface.tagged_vlans.all %}#}
+{#                <a href="{% url 'ipam:vlan' tag.id %}">{{ tag }}</a>#}
+{#                <br>#}
+{#            {% endfor %}#}
+{#        {% endif %}#}
+{#    </td>#}
+{##}
     {#Untagged ports#}
-    <td>
-        {% if iface.untagged_vlan %}
-            <a href="{% url 'ipam:vlan' iface.untagged_vlan.id %}">{{ iface.untagged_vlan }}</a>
-        {% endif %}
-    </td>
+{#    <td>#}
+{#        {% if iface.untagged_vlan %}#}
+{#            <a href="{% url 'ipam:vlan' iface.untagged_vlan.id %}">{{ iface.untagged_vlan }}</a>#}
+{#        {% endif %}#}
+{#    </td>#}
 
     {# MTU #}
     <td>{{ iface.mtu|default:"&mdash;" }}</td>
@@ -201,16 +201,17 @@
     </td>
 </tr>
 
+
 {% with ipaddresses=iface.ip_addresses.all %}
     {% if ipaddresses %}
-        <tr class="ipaddresses">
-            {# Placeholder #}
+        <tr>
+{#             Placeholder#}
             {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
-                <td></td>
+                <td class="ipaddresses"></td>
             {% endif %}
 
-            {# IP addresses table #}
-            <td colspan="11" style="padding: 0">
+{#             IP addresses table#}
+            <td class="ipaddresses" colspan="9" style="padding: 0">
                 <table class="table table-condensed interface-ips">
                     <thead>
                         <tr class="text-muted">
@@ -224,12 +225,12 @@
                     {% for ip in iface.ip_addresses.all %}
                         <tr>
 
-                            {# IP address #}
+{#                             IP address#}
                             <td>
                                 <a href="{% url 'ipam:ipaddress' pk=ip.pk %}">{{ ip }}</a>
                             </td>
 
-                            {# Primary/status/role #}
+{#                             Primary/status/role#}
                             <td>
                                 {% if device.primary_ip4 == ip or device.primary_ip6 == ip %}
                                     <span class="label label-success">Primary</span>
@@ -240,7 +241,7 @@
                                 {% endif %}
                             </td>
 
-                            {# VRF #}
+{#                             VRF#}
                             <td>
                                 {% if ip.vrf %}
                                     <a href="{% url 'ipam:vrf' pk=ip.vrf.pk %}" title="{{ ip.vrf.rd }}">{{ ip.vrf.name }}</a>
@@ -249,7 +250,7 @@
                                 {% endif %}
                             </td>
 
-                            {# Description #}
+{#                             Description#}
                             <td>
                                 {% if ip.description %}
                                     {{ ip.description }}
@@ -258,7 +259,7 @@
                                 {% endif %}
                             </td>
 
-                            {# Buttons #}
+{#                             Buttons#}
                             <td class="text-right text-nowrap noprint">
                                 {% if perms.ipam.change_ipaddress %}
                                     <a href="{% url 'ipam:ipaddress_edit' pk=ip.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-info btn-xs">
@@ -279,3 +280,114 @@
         </tr>
     {% endif %}
 {% endwith %}
+
+{% if iface.untagged_vlan or iface.tagged_vlans.all %}
+    <tr>
+        {#                     Placeholder#}
+        {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
+            <td class="vlans"></td>
+        {% endif %}
+
+        {#         VLAN table #}
+        <td class="vlans" colspan="9" style="padding: 0">
+            <table class="table table-condensed interface-ips">
+                <thead>
+                <tr class="text-muted">
+                    <th class="col-md-1">ID</th>
+                    <th class="col-md-1">Tagged</th>
+                    <th class="col-md-2">Name</th>
+                    <th class="col-md-2">Status</th>
+                    <th class="col-md-2">Description</th>
+                    <th class="col-md-1"></th>
+                </tr>
+                </thead>
+                <tr>
+                    {# Untagged VLAN #}
+                    {% if iface.untagged_vlan %}
+
+                        {# VLAN ID #}
+                        <td>
+                            <a href="{% url 'ipam:vlan' iface.untagged_vlan.id %}">{{ iface.untagged_vlan.id }}</a>
+                        </td>
+                        {# VLAN tag status #}
+                        <td>
+                                <span class="text-danger">
+                                    <li class="fa fa-close"></li>
+                                </span>
+                        </td>
+                        {# VLAN name #}
+                        <td>{{ iface.untagged_vlan.name }}</td>
+                        {# VLAN status #}
+                        <td>
+                            <span class="label label-primary"
+                                  style="text-transform: capitalize">{{ iface.untagged_vlan.status }}</span>
+                        </td>
+                        {# VLAN description #}
+                        <td>{{ iface.untagged_vlan.description }}</td>
+                        {# VLAN buttons #}
+                        <td style="text-align: right">
+                            {% if perms.ipam.change_vlan %}
+                                <a href="{% url 'ipam:vlan_edit' pk=iface.untagged_vlan.pk %}?return_url={{ device.get_absolute_url }}"
+                                   class="btn btn-info btn-xs">
+                                    <i class="glyphicon glyphicon-pencil" aria-hidden="true"
+                                       title="Edit IP address"></i>
+                                </a>
+                            {% endif %}
+                            {% if perms.ipam.delete_ipaddress %}
+                                <a href="{% url 'ipam:vlan_edit' pk=iface.untagged_vlan.pk %}?return_url={{ device.get_absolute_url }}"
+                                   class="btn btn-danger btn-xs">
+                                    <i class="glyphicon glyphicon-trash" aria-hidden="true"
+                                       title="Delete IP address"></i>
+                                </a>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+
+                {# Tagged VLANs #}
+
+                {% if iface.tagged_vlans.all %}
+                    {% for tag in iface.tagged_vlans.all %}
+                        <tr>
+                            {# VLAN ID #}
+                            <td>
+                                <a href="{% url 'ipam:vlan' tag.id %}">{{ tag.id }}</a>
+                            </td>
+                            {# VLAN tag #}
+                            <td>
+                                    <span class="text-success">
+                                        <li class="fa fa-check"></li>
+                                    </span>
+                            </td>
+                            {# VLAN name #}
+                            <td>{{ tag.name }}</td>
+                            {# VLAN status #}
+                            <td>
+                                        <span class="label label-primary"
+                                              style="text-transform: capitalize">{{ tag.status }}</span>
+                            </td>
+                            {# VLAN description #}
+                            <td>{{ tag.description }}</td>
+                            {# VLAN buttons #}
+                            <td style="text-align: right">
+                                {% if perms.ipam.change_vlan %}
+                                    <a href="{% url 'ipam:vlan_edit' pk=tag.pk %}?return_url={{ device.get_absolute_url }}"
+                                       class="btn btn-info btn-xs">
+                                        <i class="glyphicon glyphicon-pencil" aria-hidden="true" title="Edit VLAN"></i>
+                                    </a>
+                                {% endif %}
+                                {% if perms.ipam.delete_ipaddress %}
+                                    <a href="{% url 'ipam:vlan_delete' pk=tag.pk %}?return_url={{ device.get_absolute_url }}"
+                                       class="btn btn-danger btn-xs">
+                                        <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete VLAN"></i>
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </table>
+        </td>
+    </tr>
+{% endif %}
+

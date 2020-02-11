@@ -2,9 +2,23 @@
 $('button.toggle-ips').click(function() {
     var selected = $(this).attr('selected');
     if (selected) {
-        $('#interfaces_table tr.interface:visible + tr.ipaddresses').hide();
+        $('.ipaddresses').hide();
     } else {
-        $('#interfaces_table tr.interface:visible + tr.ipaddresses').show();
+        $('.ipaddresses').show();
+    }
+    $(this).attr('selected', !selected);
+    $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
+    return false;
+});
+
+
+//Toggle the display of VLANs
+$('button.toggle-vlans').click(function(){
+   var selected = $(this).attr('selected');
+   if (selected) {
+        $('.vlans').hide();
+    } else {
+        $('.vlans').show();
     }
     $(this).attr('selected', !selected);
     $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
