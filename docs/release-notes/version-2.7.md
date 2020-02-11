@@ -17,6 +17,7 @@
 * [#4091](https://github.com/netbox-community/netbox/issues/4091) - Fix filtering of objects by custom fields using UI search form
 * [#4099](https://github.com/netbox-community/netbox/issues/4099) - Linkify interfaces on global interfaces list
 * [#4108](https://github.com/netbox-community/netbox/issues/4108) - Avoid extraneous database queries when rendering search forms
+* [#4134](https://github.com/netbox-community/netbox/issues/4134) - Device power ports and outlets should inherit type from the parent device type
 
 ---
 

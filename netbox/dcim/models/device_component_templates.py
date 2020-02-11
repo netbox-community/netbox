@@ -168,6 +168,7 @@ class PowerPortTemplate(ComponentTemplateModel):
         return PowerPort(
             device=device,
             name=self.name,
+            type=self.type,
             maximum_draw=self.maximum_draw,
             allocated_draw=self.allocated_draw
         )
@@ -232,6 +233,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
         return PowerOutlet(
             device=device,
             name=self.name,
+            type=self.type,
             power_port=power_port,
             feed_leg=self.feed_leg
         )
