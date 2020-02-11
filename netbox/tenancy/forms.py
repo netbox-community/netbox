@@ -42,6 +42,13 @@ class TenantGroupCSVForm(forms.ModelForm):
 
 class TenantForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    group = DynamicModelChoiceField(
+        queryset=TenantGroup.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/tenancy/tenant-groups/"
+        )
+    )
     comments = CommentField()
     tags = TagField(
         required=False
@@ -49,14 +56,9 @@ class TenantForm(BootstrapMixin, CustomFieldModelForm):
 
     class Meta:
         model = Tenant
-        fields = [
+        fields = (
             'name', 'slug', 'group', 'description', 'comments', 'tags',
-        ]
-        widgets = {
-            'group': APISelect(
-                api_url="/api/tenancy/tenant-groups/"
-            )
-        }
+        )
 
 
 class TenantCSVForm(CustomFieldModelForm):
@@ -85,7 +87,7 @@ class TenantBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         queryset=Tenant.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
-    group = forms.ModelChoiceField(
+    group = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
         widget=APISelect(

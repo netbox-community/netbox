@@ -196,7 +196,56 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
         required=False,
         widget=StaticSelect2Multiple()
     )
-    tags = forms.ModelMultipleChoiceField(
+    sites = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/"
+        )
+    )
+    roles = DynamicModelMultipleChoiceField(
+        queryset=DeviceRole.objects.all(),
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/dcim/device-roles/"
+        )
+    )
+    platforms = DynamicModelMultipleChoiceField(
+        queryset=Platform.objects.all(),
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/dcim/platforms/"
+        )
+    )
+    cluster_groups = DynamicModelMultipleChoiceField(
+        queryset=ClusterGroup.objects.all(),
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/virtualization/cluster-groups/"
+        )
+    )
+    clusters = DynamicModelMultipleChoiceField(
+        queryset=Cluster.objects.all(),
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/virtualization/clusters/"
+        )
+    )
+    tenant_groups = DynamicModelMultipleChoiceField(
+        queryset=TenantGroup.objects.all(),
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenant-groups/"
+        )
+    )
+    tenants = DynamicModelMultipleChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenants/"
+        )
+    )
+    tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         to_field_name='slug',
         required=False,
@@ -210,36 +259,10 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ConfigContext
-        fields = [
+        fields = (
             'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'cluster_groups',
             'clusters', 'tenant_groups', 'tenants', 'tags', 'data',
-        ]
-        widgets = {
-            'regions': APISelectMultiple(
-                api_url="/api/dcim/regions/"
-            ),
-            'sites': APISelectMultiple(
-                api_url="/api/dcim/sites/"
-            ),
-            'roles': APISelectMultiple(
-                api_url="/api/dcim/device-roles/"
-            ),
-            'platforms': APISelectMultiple(
-                api_url="/api/dcim/platforms/"
-            ),
-            'cluster_groups': APISelectMultiple(
-                api_url="/api/virtualization/cluster-groups/"
-            ),
-            'clusters': APISelectMultiple(
-                api_url="/api/virtualization/clusters/"
-            ),
-            'tenant_groups': APISelectMultiple(
-                api_url="/api/tenancy/tenant-groups/"
-            ),
-            'tenants': APISelectMultiple(
-                api_url="/api/tenancy/tenants/"
-            ),
-        }
+        )
 
 
 class ConfigContextBulkEditForm(BootstrapMixin, BulkEditForm):

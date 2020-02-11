@@ -9,7 +9,8 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, DatePicker,
-    DynamicModelMultipleChoiceField, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, SmallTextarea, SlugField, StaticSelect2,
+    StaticSelect2Multiple, TagFilterField,
 )
 from .choices import CircuitStatusChoices
 from .models import Circuit, CircuitTermination, CircuitType, Provider
@@ -165,6 +166,18 @@ class CircuitTypeCSVForm(forms.ModelForm):
 #
 
 class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+    provider = DynamicModelChoiceField(
+        queryset=Provider.objects.all(),
+        widget=APISelect(
+            api_url="/api/circuits/providers/"
+        )
+    )
+    type = DynamicModelChoiceField(
+        queryset=CircuitType.objects.all(),
+        widget=APISelect(
+            api_url="/api/circuits/circuit-types/"
+        )
+    )
     comments = CommentField()
     tags = TagField(
         required=False
@@ -181,12 +194,6 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'commit_rate': "Committed rate",
         }
         widgets = {
-            'provider': APISelect(
-                api_url="/api/circuits/providers/"
-            ),
-            'type': APISelect(
-                api_url="/api/circuits/circuit-types/"
-            ),
             'status': StaticSelect2(),
             'install_date': DatePicker(),
         }
@@ -236,14 +243,14 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         queryset=Circuit.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    type = forms.ModelChoiceField(
+    type = DynamicModelChoiceField(
         queryset=CircuitType.objects.all(),
         required=False,
         widget=APISelect(
             api_url="/api/circuits/circuit-types/"
         )
     )
-    provider = forms.ModelChoiceField(
+    provider = DynamicModelChoiceField(
         queryset=Provider.objects.all(),
         required=False,
         widget=APISelect(
@@ -256,7 +263,7 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         initial='',
         widget=StaticSelect2()
     )
-    tenant = forms.ModelChoiceField(
+    tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         widget=APISelect(

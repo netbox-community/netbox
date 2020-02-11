@@ -8,8 +8,8 @@ from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
 )
 from utilities.forms import (
-    APISelect, APISelectMultiple, BootstrapMixin, DynamicModelMultipleChoiceField, FlexibleModelChoiceField, SlugField,
-    StaticSelect2Multiple, TagFilterField
+    APISelect, APISelectMultiple, BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    FlexibleModelChoiceField, SlugField, StaticSelect2Multiple, TagFilterField,
 )
 from .constants import *
 from .models import Secret, SecretRole, UserKey
@@ -87,6 +87,12 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
         label='Plaintext (verify)',
         widget=forms.PasswordInput()
     )
+    role = DynamicModelChoiceField(
+        queryset=SecretRole.objects.all(),
+        widget=APISelect(
+            api_url="/api/secrets/secret-roles/"
+        )
+    )
     tags = TagField(
         required=False
     )
@@ -96,11 +102,6 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
         fields = [
             'role', 'name', 'plaintext', 'plaintext2', 'tags',
         ]
-        widgets = {
-            'role': APISelect(
-                api_url="/api/secrets/secret-roles/"
-            )
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -157,7 +158,7 @@ class SecretBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         queryset=Secret.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
-    role = forms.ModelChoiceField(
+    role = DynamicModelChoiceField(
         queryset=SecretRole.objects.all(),
         required=False,
         widget=APISelect(

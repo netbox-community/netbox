@@ -550,11 +550,7 @@ class TagFilterField(forms.MultipleChoiceField):
         super().__init__(label='Tags', choices=get_choices, required=False, *args, **kwargs)
 
 
-class DynamicModelChoiceField(forms.ModelChoiceField):
-    """
-    Override get_bound_field() to avoid pre-populating field choices with a SQL query. The field will be
-    rendered only with choices set via bound data. Choices are populated on-demand via the APISelect widget.
-    """
+class DynamicModelChoiceMixin:
     field_modifier = ''
 
     def get_bound_field(self, form, field_name):
@@ -564,16 +560,24 @@ class DynamicModelChoiceField(forms.ModelChoiceField):
         # will be populated on-demand via the APISelect widget.
         field_name = '{}{}'.format(self.to_field_name or 'pk', self.field_modifier)
         if bound_field.data:
-            self.queryset = self.queryset.filter(**{field_name: bound_field.data})
+            self.queryset = self.queryset.filter(**{field_name: self.prepare_value(bound_field.data)})
         elif bound_field.initial:
-            self.queryset = self.queryset.filter(**{field_name: bound_field.initial})
+            self.queryset = self.queryset.filter(**{field_name: self.prepare_value(bound_field.initial)})
         else:
             self.queryset = self.queryset.none()
 
         return bound_field
 
 
-class DynamicModelMultipleChoiceField(DynamicModelChoiceField):
+class DynamicModelChoiceField(DynamicModelChoiceMixin, forms.ModelChoiceField):
+    """
+    Override get_bound_field() to avoid pre-populating field choices with a SQL query. The field will be
+    rendered only with choices set via bound data. Choices are populated on-demand via the APISelect widget.
+    """
+    pass
+
+
+class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultipleChoiceField):
     """
     A multiple-choice version of DynamicModelChoiceField.
     """
