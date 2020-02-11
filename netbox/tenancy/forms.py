@@ -5,8 +5,8 @@ from extras.forms import (
     AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm,
 )
 from utilities.forms import (
-    APISelect, APISelectMultiple, BootstrapMixin, CommentField, DynamicModelChoiceField, FilterChoiceField, SlugField,
-    TagFilterField,
+    APISelect, APISelectMultiple, BootstrapMixin, CommentField, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, SlugField, TagFilterField,
 )
 from .models import Tenant, TenantGroup
 
@@ -105,9 +105,10 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False,
         label='Search'
     )
-    group = FilterChoiceField(
+    group = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenant-groups/",
             value_field="slug",
@@ -156,9 +157,10 @@ class TenancyForm(forms.Form):
 
 
 class TenancyFilterForm(forms.Form):
-    tenant_group = FilterChoiceField(
+    tenant_group = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenant-groups/",
             value_field="slug",
@@ -168,9 +170,10 @@ class TenancyFilterForm(forms.Form):
             }
         )
     )
-    tenant = FilterChoiceField(
+    tenant = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenants/",
             value_field="slug",

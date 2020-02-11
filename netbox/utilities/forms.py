@@ -579,17 +579,6 @@ class DynamicModelMultipleChoiceField(DynamicModelChoiceField):
     field_modifier = '__in'
 
 
-class FilterChoiceField(DynamicModelMultipleChoiceField):
-    """
-    A version of DynamicModelMultipleChoiceField which defaults to required=False.
-    """
-    def __init__(self, *args, **kwargs):
-        # Filter fields are not required by default
-        if 'required' not in kwargs:
-            kwargs['required'] = False
-        super().__init__(*args, **kwargs)
-
-
 class LaxURLField(forms.URLField):
     """
     Modifies Django's built-in URLField in two ways:

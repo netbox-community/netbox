@@ -8,7 +8,7 @@ from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
 )
 from utilities.forms import (
-    APISelect, APISelectMultiple, BootstrapMixin, FilterChoiceField, FlexibleModelChoiceField, SlugField,
+    APISelect, APISelectMultiple, BootstrapMixin, DynamicModelMultipleChoiceField, FlexibleModelChoiceField, SlugField,
     StaticSelect2Multiple, TagFilterField
 )
 from .constants import *
@@ -181,9 +181,10 @@ class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False,
         label='Search'
     )
-    role = FilterChoiceField(
+    role = DynamicModelMultipleChoiceField(
         queryset=SecretRole.objects.all(),
         to_field_name='slug',
+        required=True,
         widget=APISelectMultiple(
             api_url="/api/secrets/secret-roles/",
             value_field="slug",

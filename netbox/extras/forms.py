@@ -7,8 +7,8 @@ from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
-    CommentField, ContentTypeSelect, DateTimePicker, FilterChoiceField, JSONField, SlugField, StaticSelect2,
-    BOOLEAN_WITH_BLANK_CHOICES,
+    CommentField, ContentTypeSelect, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField,
+    StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
@@ -265,72 +265,81 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Search'
     )
-    region = FilterChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/regions/",
             value_field="slug",
         )
     )
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
         )
     )
-    role = FilterChoiceField(
+    role = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/device-roles/",
             value_field="slug",
         )
     )
-    platform = FilterChoiceField(
+    platform = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/platforms/",
             value_field="slug",
         )
     )
-    cluster_group = FilterChoiceField(
+    cluster_group = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/virtualization/cluster-groups/",
             value_field="slug",
         )
     )
-    cluster_id = FilterChoiceField(
+    cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
+        required=False,
         label='Cluster',
         widget=APISelectMultiple(
             api_url="/api/virtualization/clusters/",
         )
     )
-    tenant_group = FilterChoiceField(
+    tenant_group = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenant-groups/",
             value_field="slug",
         )
     )
-    tenant = FilterChoiceField(
+    tenant = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenants/",
             value_field="slug",
         )
     )
-    tag = FilterChoiceField(
+    tag = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/extras/tags/",
             value_field="slug",
@@ -390,7 +399,7 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         required=False,
         widget=StaticSelect2()
     )
-    # TODO: Convert to FilterChoiceField once we have an API endpoint for users
+    # TODO: Convert to DynamicModelMultipleChoiceField once we have an API endpoint for users
     user = forms.ModelChoiceField(
         queryset=User.objects.order_by('username'),
         required=False,

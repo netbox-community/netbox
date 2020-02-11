@@ -15,8 +15,7 @@ from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     CommentField, ConfirmationForm, CSVChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    ExpandableNameField, FilterChoiceField, JSONField, SlugField, SmallTextarea, StaticSelect2, StaticSelect2Multiple,
-    TagFilterField,
+    ExpandableNameField, JSONField, SlugField, SmallTextarea, StaticSelect2, StaticSelect2Multiple, TagFilterField,
 )
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -189,7 +188,7 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         'q', 'type', 'region', 'site', 'group', 'tenant_group', 'tenant'
     ]
     q = forms.CharField(required=False, label='Search')
-    type = FilterChoiceField(
+    type = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
         required=False,
@@ -198,7 +197,7 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
             value_field='slug',
         )
     )
-    region = FilterChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
@@ -210,7 +209,7 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
             }
         )
     )
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
@@ -220,7 +219,7 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
             null_option=True,
         )
     )
-    group = FilterChoiceField(
+    group = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
         required=False,
@@ -544,32 +543,35 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         required=False,
         label='Search'
     )
-    cluster_group = FilterChoiceField(
+    cluster_group = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url='/api/virtualization/cluster-groups/',
             value_field="slug",
             null_option=True,
         )
     )
-    cluster_type = FilterChoiceField(
+    cluster_type = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url='/api/virtualization/cluster-types/',
             value_field="slug",
             null_option=True,
         )
     )
-    cluster_id = FilterChoiceField(
+    cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
+        required=False,
         label='Cluster',
         widget=APISelectMultiple(
             api_url='/api/virtualization/clusters/',
         )
     )
-    region = FilterChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
@@ -581,18 +583,20 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
             }
         )
     )
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url='/api/dcim/sites/',
             value_field="slug",
             null_option=True,
         )
     )
-    role = FilterChoiceField(
+    role = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.filter(vm_role=True),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url='/api/dcim/device-roles/',
             value_field="slug",
@@ -607,9 +611,10 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         required=False,
         widget=StaticSelect2Multiple()
     )
-    platform = FilterChoiceField(
+    platform = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url='/api/dcim/platforms/',
             value_field="slug",

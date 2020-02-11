@@ -23,8 +23,8 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, DynamicModelChoiceField,
-    ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, JSONField, SelectWithPK, SmallTextarea, SlugField,
-    StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    DynamicModelMultipleChoiceField, ExpandableNameField, FlexibleModelChoiceField, JSONField, SelectWithPK,
+    SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
 from .choices import *
@@ -66,7 +66,7 @@ class DeviceComponentFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Search'
     )
-    region = FilterChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
@@ -78,9 +78,10 @@ class DeviceComponentFilterForm(BootstrapMixin, forms.Form):
             }
         )
     )
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
@@ -89,7 +90,7 @@ class DeviceComponentFilterForm(BootstrapMixin, forms.Form):
             }
         )
     )
-    device_id = FilterChoiceField(
+    device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
         label='Device',
@@ -369,9 +370,10 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         required=False,
         widget=StaticSelect2Multiple()
     )
-    region = FilterChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/regions/",
             value_field="slug",
@@ -419,7 +421,7 @@ class RackGroupCSVForm(forms.ModelForm):
 
 
 class RackGroupFilterForm(BootstrapMixin, forms.Form):
-    region = FilterChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
@@ -431,9 +433,10 @@ class RackGroupFilterForm(BootstrapMixin, forms.Form):
             }
         )
     )
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
@@ -702,7 +705,7 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         required=False,
         label='Search'
     )
-    region = FilterChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
@@ -714,9 +717,10 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             }
         )
     )
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
@@ -725,10 +729,11 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             }
         )
     )
-    group_id = FilterChoiceField(
+    group_id = DynamicModelMultipleChoiceField(
         queryset=RackGroup.objects.prefetch_related(
             'site'
         ),
+        required=False,
         label='Rack group',
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-groups/",
@@ -740,9 +745,10 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         required=False,
         widget=StaticSelect2Multiple()
     )
-    role = FilterChoiceField(
+    role = DynamicModelMultipleChoiceField(
         queryset=RackRole.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-roles/",
             value_field="slug",
@@ -758,7 +764,7 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 
 class RackElevationFilterForm(RackFilterForm):
     field_order = ['q', 'region', 'site', 'group_id', 'id', 'status', 'role', 'tenant_group', 'tenant']
-    id = FilterChoiceField(
+    id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         label='Rack',
         required=False,
@@ -853,16 +859,18 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
         required=False,
         label='Search'
     )
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
         )
     )
-    group_id = FilterChoiceField(
+    group_id = DynamicModelMultipleChoiceField(
         queryset=RackGroup.objects.prefetch_related('site'),
+        required=False,
         label='Rack group',
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-groups/",
@@ -968,9 +976,10 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False,
         label='Search'
     )
-    manufacturer = FilterChoiceField(
+    manufacturer = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/manufacturers/",
             value_field="slug",
@@ -2123,7 +2132,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         required=False,
         label='Search'
     )
-    region = FilterChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
@@ -2135,9 +2144,10 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
             }
         )
     )
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
@@ -2147,10 +2157,9 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
             }
         )
     )
-    rack_group_id = FilterChoiceField(
-        queryset=RackGroup.objects.prefetch_related(
-            'site'
-        ),
+    rack_group_id = DynamicModelMultipleChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
         label='Rack group',
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-groups/",
@@ -2159,24 +2168,27 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
             }
         )
     )
-    rack_id = FilterChoiceField(
+    rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
+        required=False,
         label='Rack',
         widget=APISelectMultiple(
             api_url="/api/dcim/racks/",
             null_option=True,
         )
     )
-    role = FilterChoiceField(
+    role = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/device-roles/",
             value_field="slug",
         )
     )
-    manufacturer_id = FilterChoiceField(
+    manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
+        required=False,
         label='Manufacturer',
         widget=APISelectMultiple(
             api_url="/api/dcim/manufacturers/",
@@ -2185,19 +2197,19 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
             }
         )
     )
-    device_type_id = FilterChoiceField(
-        queryset=DeviceType.objects.prefetch_related(
-            'manufacturer'
-        ),
+    device_type_id = DynamicModelMultipleChoiceField(
+        queryset=DeviceType.objects.all(),
+        required=False,
         label='Model',
         widget=APISelectMultiple(
             api_url="/api/dcim/device-types/",
             display_field="model",
         )
     )
-    platform = FilterChoiceField(
+    platform = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/platforms/",
             value_field="slug",
@@ -3848,9 +3860,10 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Search'
     )
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
@@ -3860,9 +3873,10 @@ class CableFilterForm(BootstrapMixin, forms.Form):
             }
         )
     )
-    tenant = FilterChoiceField(
+    tenant = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenants/",
             value_field='slug',
@@ -3871,8 +3885,9 @@ class CableFilterForm(BootstrapMixin, forms.Form):
             }
         )
     )
-    rack_id = FilterChoiceField(
+    rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
+        required=False,
         label='Rack',
         widget=APISelectMultiple(
             api_url="/api/dcim/racks/",
@@ -3897,7 +3912,7 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         required=False,
         widget=ColorSelect()
     )
-    device_id = FilterChoiceField(
+    device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
         label='Device',
@@ -4029,9 +4044,10 @@ class DeviceBayBulkRenameForm(BulkRenameForm):
 #
 
 class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
@@ -4040,7 +4056,7 @@ class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
             }
         )
     )
-    device_id = FilterChoiceField(
+    device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
         label='Device',
@@ -4051,9 +4067,10 @@ class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
 
 
 class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
@@ -4062,7 +4079,7 @@ class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
             }
         )
     )
-    device_id = FilterChoiceField(
+    device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
         label='Device',
@@ -4073,9 +4090,10 @@ class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
 
 
 class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
@@ -4084,7 +4102,7 @@ class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
             }
         )
     )
-    device_id = FilterChoiceField(
+    device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
         label='Device',
@@ -4219,7 +4237,7 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Search'
     )
-    region = FilterChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
@@ -4231,9 +4249,10 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
             }
         )
     )
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
@@ -4242,7 +4261,7 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
             }
         )
     )
-    device_id = FilterChoiceField(
+    device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
         label='Device',
@@ -4250,9 +4269,10 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
             api_url='/api/dcim/devices/',
         )
     )
-    manufacturer = FilterChoiceField(
+    manufacturer = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelect(
             api_url="/api/dcim/manufacturers/",
             value_field="slug",
@@ -4398,7 +4418,7 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False,
         label='Search'
     )
-    region = FilterChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
@@ -4410,17 +4430,19 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
             }
         )
     )
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
         )
     )
-    tenant_group = FilterChoiceField(
+    tenant_group = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenant-groups/",
             value_field="slug",
@@ -4430,9 +4452,10 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
             }
         )
     )
-    tenant = FilterChoiceField(
+    tenant = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenants/",
             value_field="slug",
@@ -4511,7 +4534,7 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False,
         label='Search'
     )
-    region = FilterChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
@@ -4523,9 +4546,10 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
             }
         )
     )
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
@@ -4534,8 +4558,9 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
             }
         )
     )
-    rack_group_id = FilterChoiceField(
+    rack_group_id = DynamicModelMultipleChoiceField(
         queryset=RackGroup.objects.all(),
+        required=False,
         label='Rack group (ID)',
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-groups/",
@@ -4743,7 +4768,7 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False,
         label='Search'
     )
-    region = FilterChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
@@ -4755,9 +4780,10 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
             }
         )
     )
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
@@ -4767,16 +4793,18 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
             }
         )
     )
-    power_panel_id = FilterChoiceField(
+    power_panel_id = DynamicModelMultipleChoiceField(
         queryset=PowerPanel.objects.all(),
+        required=False,
         label='Power panel',
         widget=APISelectMultiple(
             api_url="/api/dcim/power-panels/",
             null_option=True,
         )
     )
-    rack_id = FilterChoiceField(
+    rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
+        required=False,
         label='Rack',
         widget=APISelectMultiple(
             api_url="/api/dcim/racks/",
