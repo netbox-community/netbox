@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from mptt.forms import TreeNodeMultipleChoiceField
 from taggit.forms import TagField
 
 from dcim.models import DeviceRole, Platform, Region, Site
@@ -8,7 +9,7 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
     CommentField, ContentTypeSelect, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField,
-    StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
+    StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
@@ -190,6 +191,11 @@ class TagBulkEditForm(BootstrapMixin, BulkEditForm):
 #
 
 class ConfigContextForm(BootstrapMixin, forms.ModelForm):
+    regions = TreeNodeMultipleChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
     tags = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         to_field_name='slug',

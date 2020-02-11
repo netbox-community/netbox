@@ -182,18 +182,18 @@ class MACAddressField(forms.Field):
 #
 
 class RegionForm(BootstrapMixin, forms.ModelForm):
+    parent = TreeNodeChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        widget=StaticSelect2()
+    )
     slug = SlugField()
 
     class Meta:
         model = Region
-        fields = [
+        fields = (
             'parent', 'name', 'slug',
-        ]
-        widgets = {
-            'parent': APISelect(
-                api_url="/api/dcim/regions/"
-            )
-        }
+        )
 
 
 class RegionCSVForm(forms.ModelForm):
@@ -232,9 +232,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     region = TreeNodeChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        widget=APISelect(
-            api_url="/api/dcim/regions/"
-        )
+        widget=StaticSelect2()
     )
     slug = SlugField()
     comments = CommentField()
@@ -325,9 +323,7 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
     region = TreeNodeChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        widget=APISelect(
-            api_url="/api/dcim/regions/"
-        )
+        widget=StaticSelect2()
     )
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
