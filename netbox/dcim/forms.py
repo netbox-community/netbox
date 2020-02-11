@@ -3613,7 +3613,8 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         widget=APISelect(
             api_url='/api/circuits/circuit-terminations/',
             disabled_indicator='cable',
-            display_field='term_side'
+            display_field='term_side',
+            full=True
         )
     )
 
