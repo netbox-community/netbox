@@ -3,6 +3,7 @@
 ## Enhancements
 
 * [#3799](https://github.com/netbox-community/netbox/issues/3799) - Greatly improve performance when ordering device components
+* [#3986](https://github.com/netbox-community/netbox/issues/3986) - Include position numbers in SVG image when rendering rack elevation
 * [#4100](https://github.com/netbox-community/netbox/issues/4100) - Add device filter to component list views
 * [#4113](https://github.com/netbox-community/netbox/issues/4113) - Add bulk edit functionality for device type components
 * [#4116](https://github.com/netbox-community/netbox/issues/4116) - Enable bulk edit and delete functions for device component list views
@@ -20,7 +21,9 @@
 * [#4108](https://github.com/netbox-community/netbox/issues/4108) - Avoid extraneous database queries when rendering search forms
 * [#4134](https://github.com/netbox-community/netbox/issues/4134) - Device power ports and outlets should inherit type from the parent device type
 * [#4137](https://github.com/netbox-community/netbox/issues/4137) - Disable occupied terminations when connecting a cable to a circuit
+* [#4138](https://github.com/netbox-community/netbox/issues/4138) - Include device bay counts in rack elevation diagrams
 * [#4146](https://github.com/netbox-community/netbox/issues/4146) - Fix enforcement of secret role assignment for secret decryption
+* [#4150](https://github.com/netbox-community/netbox/issues/4150) - Correct YAML rendering of config contexts
 
 ---
 
