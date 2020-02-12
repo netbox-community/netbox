@@ -435,9 +435,20 @@ class RackElevationHelperMixin:
 
     def _draw_elevations(self, elevation, reserved_units, face, unit_width, unit_height):
 
-        drawing = self._setup_drawing(unit_width, unit_height * self.u_height)
+        # Setup vars for the rack unit
+        position_width = 30
+
+        drawing = self._setup_drawing(unit_width + position_width, unit_height * self.u_height)
 
         unit_cursor = 0
+        for ru in range(0, self.u_height):
+            start_y = ru * unit_height
+            position_coordinates = (15, start_y + unit_height / 2 + 2)
+            unit = ru + 1 if self.desc_units else self.u_height - ru
+            drawing.add(
+                drawing.text("U" + str(unit), position_coordinates, class_="unit")
+            )
+
         for unit in elevation:
 
             # Loop through all units in the elevation
@@ -447,9 +458,9 @@ class RackElevationHelperMixin:
             # Setup drawing coordinates
             start_y = unit_cursor * unit_height
             end_y = unit_height * height
-            start_cordinates = (0, start_y)
-            end_cordinates = (unit_width, end_y)
-            text_cordinates = (unit_width / 2, start_y + end_y / 2)
+            start_cordinates = (position_width, start_y)
+            end_cordinates = (position_width + unit_width, end_y)
+            text_cordinates = (position_width + (unit_width / 2), start_y + end_y / 2)
 
             # Draw the device
             if device and device.face == face:
@@ -471,7 +482,7 @@ class RackElevationHelperMixin:
             unit_cursor += height
 
         # Wrap the drawing with a border
-        drawing.add(drawing.rect((0, 0), (unit_width, self.u_height * unit_height), class_='rack'))
+        drawing.add(drawing.rect((30, 0), (unit_width, self.u_height * unit_height), class_='rack'))
 
         return drawing
 
