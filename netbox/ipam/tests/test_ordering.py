@@ -5,6 +5,7 @@ from ipam.models import IPAddress, Prefix, VRF
 
 import netaddr
 
+
 class OrderingTestBase(TestCase):
     vrfs = None
 
@@ -97,7 +98,7 @@ class PrefixOrderingTestCase(OrderingTestBase):
     """
     This function tests a compex ordering of interwoven prefixes and vrfs.  This is the current expected ordering of VRFs
     This includes the testing of the Container status.
-    
+
     The proper ordering, to get proper containerization should be:
         None:10.0.0.0/8
         None:10.0.0.0/16
