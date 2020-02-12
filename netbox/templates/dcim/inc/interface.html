@@ -293,11 +293,11 @@
             <table class="table table-condensed interface-ips">
                 <thead>
                 <tr class="text-muted">
-                    <th class="col-md-1">ID</th>
+                    <th class="col-md-2">ID</th>
                     <th class="col-md-1">Tagged</th>
-                    <th class="col-md-2">Name</th>
                     <th class="col-md-2">Status</th>
-                    <th class="col-md-3">Description</th>
+                    <th class="col-md-3">Name</th>
+                    <th class="col-md-4">Description</th>
                 </tr>
                 </thead>
                 <tr>
@@ -308,19 +308,19 @@
                         <td>
                             <a href="{% url 'ipam:vlan' iface.untagged_vlan.id %}">{{ iface.untagged_vlan.id }}</a>
                         </td>
-                        {# VLAN tag status #}
+                        {# VLAN tag #}
                         <td>
                                 <span class="text-danger">
                                     <li class="fa fa-close"></li>
                                 </span>
                         </td>
-                        {# VLAN name #}
-                        <td>{{ iface.untagged_vlan.name }}</td>
                         {# VLAN status #}
                         <td>
                             <span class="label label-primary"
                                   style="text-transform: capitalize">{{ iface.untagged_vlan.status }}</span>
                         </td>
+                        {# VLAN name #}
+                        <td>{{ iface.untagged_vlan.name }}</td>
                         {# VLAN description #}
                         <td>{{ iface.untagged_vlan.description }}</td>
                     {% endif %}
@@ -341,13 +341,13 @@
                                         <li class="fa fa-check"></li>
                                     </span>
                             </td>
-                            {# VLAN name #}
-                            <td>{{ tag.name }}</td>
                             {# VLAN status #}
                             <td>
                                         <span class="label label-primary"
                                               style="text-transform: capitalize">{{ tag.status }}</span>
                             </td>
+                            {# VLAN name #}
+                            <td>{{ tag.name }}</td>
                             {# VLAN description #}
                             <td>{{ tag.description }}</td>
                         </tr>
