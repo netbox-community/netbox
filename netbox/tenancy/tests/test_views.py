@@ -1,14 +1,9 @@
 from tenancy.models import Tenant, TenantGroup
-from utilities.testing import StandardTestCases
+from utilities.testing import ViewTestCases
 
 
-class TenantGroupTestCase(StandardTestCases.Views):
+class TenantGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = TenantGroup
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -32,7 +27,7 @@ class TenantGroupTestCase(StandardTestCases.Views):
         )
 
 
-class TenantTestCase(StandardTestCases.Views):
+class TenantTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Tenant
 
     @classmethod

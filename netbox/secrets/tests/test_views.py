@@ -4,17 +4,12 @@ from django.urls import reverse
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
-from utilities.testing import StandardTestCases
+from utilities.testing import ViewTestCases
 from .constants import PRIVATE_KEY, PUBLIC_KEY
 
 
-class SecretRoleTestCase(StandardTestCases.Views):
+class SecretRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = SecretRole
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -41,7 +36,7 @@ class SecretRoleTestCase(StandardTestCases.Views):
         )
 
 
-class SecretTestCase(StandardTestCases.Views):
+class SecretTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Secret
 
     # Disable inapplicable tests

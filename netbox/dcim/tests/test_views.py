@@ -11,7 +11,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import VLAN
-from utilities.testing import StandardTestCases
+from utilities.testing import ViewTestCases
 
 
 def create_test_device(name):
@@ -27,13 +27,8 @@ def create_test_device(name):
     return device
 
 
-class RegionTestCase(StandardTestCases.Views):
+class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Region
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -61,7 +56,7 @@ class RegionTestCase(StandardTestCases.Views):
         )
 
 
-class SiteTestCase(StandardTestCases.Views):
+class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Site
 
     @classmethod
@@ -118,13 +113,8 @@ class SiteTestCase(StandardTestCases.Views):
         }
 
 
-class RackGroupTestCase(StandardTestCases.Views):
+class RackGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = RackGroup
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -152,13 +142,8 @@ class RackGroupTestCase(StandardTestCases.Views):
         )
 
 
-class RackRoleTestCase(StandardTestCases.Views):
+class RackRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = RackRole
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -184,7 +169,7 @@ class RackRoleTestCase(StandardTestCases.Views):
         )
 
 
-class RackReservationTestCase(StandardTestCases.Views):
+class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = RackReservation
 
     # Disable inapplicable tests
@@ -226,7 +211,7 @@ class RackReservationTestCase(StandardTestCases.Views):
         }
 
 
-class RackTestCase(StandardTestCases.Views):
+class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Rack
 
     @classmethod
@@ -302,13 +287,8 @@ class RackTestCase(StandardTestCases.Views):
         }
 
 
-class ManufacturerTestCase(StandardTestCases.Views):
+class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Manufacturer
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -332,7 +312,7 @@ class ManufacturerTestCase(StandardTestCases.Views):
         )
 
 
-class DeviceTypeTestCase(StandardTestCases.Views):
+class DeviceTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = DeviceType
 
     @classmethod
@@ -528,17 +508,8 @@ device-bays:
 # DeviceType components
 #
 
-class ConsolePortTemplateTestCase(StandardTestCases.Views):
+class ConsolePortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = ConsolePortTemplate
-
-    # Disable inapplicable views
-    test_get_object = None
-    test_list_objects = None
-    test_create_object = None
-    test_import_objects = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -572,17 +543,8 @@ class ConsolePortTemplateTestCase(StandardTestCases.Views):
         }
 
 
-class ConsoleServerPortTemplateTestCase(StandardTestCases.Views):
+class ConsoleServerPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = ConsoleServerPortTemplate
-
-    # Disable inapplicable views
-    test_get_object = None
-    test_list_objects = None
-    test_create_object = None
-    test_import_objects = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -616,17 +578,8 @@ class ConsoleServerPortTemplateTestCase(StandardTestCases.Views):
         }
 
 
-class PowerPortTemplateTestCase(StandardTestCases.Views):
+class PowerPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = PowerPortTemplate
-
-    # Disable inapplicable views
-    test_get_object = None
-    test_list_objects = None
-    test_create_object = None
-    test_import_objects = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -666,17 +619,8 @@ class PowerPortTemplateTestCase(StandardTestCases.Views):
         }
 
 
-class PowerOutletTemplateTestCase(StandardTestCases.Views):
+class PowerOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = PowerOutletTemplate
-
-    # Disable inapplicable views
-    test_get_object = None
-    test_list_objects = None
-    test_create_object = None
-    test_import_objects = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -716,17 +660,8 @@ class PowerOutletTemplateTestCase(StandardTestCases.Views):
         }
 
 
-class InterfaceTemplateTestCase(StandardTestCases.Views):
+class InterfaceTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = InterfaceTemplate
-
-    # Disable inapplicable views
-    test_get_object = None
-    test_list_objects = None
-    test_create_object = None
-    test_import_objects = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -763,17 +698,8 @@ class InterfaceTemplateTestCase(StandardTestCases.Views):
         }
 
 
-class FrontPortTemplateTestCase(StandardTestCases.Views):
+class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = FrontPortTemplate
-
-    # Disable inapplicable views
-    test_get_object = None
-    test_list_objects = None
-    test_create_object = None
-    test_import_objects = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -818,17 +744,8 @@ class FrontPortTemplateTestCase(StandardTestCases.Views):
         }
 
 
-class RearPortTemplateTestCase(StandardTestCases.Views):
+class RearPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = RearPortTemplate
-
-    # Disable inapplicable views
-    test_get_object = None
-    test_list_objects = None
-    test_create_object = None
-    test_import_objects = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -864,18 +781,11 @@ class RearPortTemplateTestCase(StandardTestCases.Views):
         }
 
 
-class DeviceBayTemplateTestCase(StandardTestCases.Views):
+class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = DeviceBayTemplate
 
     # Disable inapplicable views
-    test_get_object = None
-    test_list_objects = None
-    test_create_object = None
-    test_import_objects = None
     test_bulk_edit_objects = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -903,13 +813,8 @@ class DeviceBayTemplateTestCase(StandardTestCases.Views):
         }
 
 
-class DeviceRoleTestCase(StandardTestCases.Views):
+class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = DeviceRole
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -936,13 +841,8 @@ class DeviceRoleTestCase(StandardTestCases.Views):
         )
 
 
-class PlatformTestCase(StandardTestCases.Views):
+class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Platform
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -971,7 +871,7 @@ class PlatformTestCase(StandardTestCases.Views):
         )
 
 
-class DeviceTestCase(StandardTestCases.Views):
+class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Device
 
     @classmethod
@@ -1056,15 +956,8 @@ class DeviceTestCase(StandardTestCases.Views):
         }
 
 
-class ConsolePortTestCase(StandardTestCases.Views):
+class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = ConsolePort
-
-    # Disable inapplicable views
-    test_get_object = None
-    test_create_object = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -1105,15 +998,8 @@ class ConsolePortTestCase(StandardTestCases.Views):
         )
 
 
-class ConsoleServerPortTestCase(StandardTestCases.Views):
+class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = ConsoleServerPort
-
-    # Disable inapplicable views
-    test_get_object = None
-    test_create_object = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -1155,15 +1041,8 @@ class ConsoleServerPortTestCase(StandardTestCases.Views):
         )
 
 
-class PowerPortTestCase(StandardTestCases.Views):
+class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = PowerPort
-
-    # Disable inapplicable views
-    test_get_object = None
-    test_create_object = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -1210,15 +1089,8 @@ class PowerPortTestCase(StandardTestCases.Views):
         )
 
 
-class PowerOutletTestCase(StandardTestCases.Views):
+class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = PowerOutlet
-
-    # Disable inapplicable views
-    test_get_object = None
-    test_create_object = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -1272,14 +1144,11 @@ class PowerOutletTestCase(StandardTestCases.Views):
         )
 
 
-class InterfaceTestCase(StandardTestCases.Views):
+class InterfaceTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.DeviceComponentViewTestCase,
+):
     model = Interface
-
-    # Disable inapplicable views
-    test_create_object = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -1356,15 +1225,8 @@ class InterfaceTestCase(StandardTestCases.Views):
         )
 
 
-class FrontPortTestCase(StandardTestCases.Views):
+class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = FrontPort
-
-    # Disable inapplicable views
-    test_get_object = None
-    test_create_object = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -1420,15 +1282,8 @@ class FrontPortTestCase(StandardTestCases.Views):
         )
 
 
-class RearPortTestCase(StandardTestCases.Views):
+class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = RearPort
-
-    # Disable inapplicable views
-    test_get_object = None
-    test_create_object = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -1471,18 +1326,11 @@ class RearPortTestCase(StandardTestCases.Views):
         )
 
 
-class DeviceBayTestCase(StandardTestCases.Views):
+class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = DeviceBay
 
     # Disable inapplicable views
-    test_get_object = None
-    test_create_object = None
-
-    # TODO
     test_bulk_edit_objects = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -1520,15 +1368,8 @@ class DeviceBayTestCase(StandardTestCases.Views):
         )
 
 
-class InventoryItemTestCase(StandardTestCases.Views):
+class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = InventoryItem
-
-    # Disable inapplicable views
-    test_get_object = None
-    test_create_object = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     @classmethod
     def setUpTestData(cls):
@@ -1581,7 +1422,7 @@ class InventoryItemTestCase(StandardTestCases.Views):
         )
 
 
-class CableTestCase(StandardTestCases.Views):
+class CableTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Cable
 
     # TODO: Creation URL needs termination context
@@ -1655,7 +1496,7 @@ class CableTestCase(StandardTestCases.Views):
         }
 
 
-class VirtualChassisTestCase(StandardTestCases.Views):
+class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VirtualChassis
 
     # Disable inapplicable tests
@@ -1709,7 +1550,7 @@ class VirtualChassisTestCase(StandardTestCases.Views):
         Device.objects.filter(pk=device6.pk).update(virtual_chassis=vc3, vc_position=2)
 
 
-class PowerPanelTestCase(StandardTestCases.Views):
+class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = PowerPanel
 
     # Disable inapplicable tests
@@ -1750,7 +1591,7 @@ class PowerPanelTestCase(StandardTestCases.Views):
         )
 
 
-class PowerFeedTestCase(StandardTestCases.Views):
+class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = PowerFeed
 
     @classmethod
