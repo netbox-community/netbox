@@ -478,12 +478,12 @@
                         <li class="divider"></li>
                         <li class="dropdown-header">Miscellaneous</li>
                         <li{% if not perms.extras.view_configcontext %} class="disabled"{% endif %}>
-                            <a href="{% url 'extras:configcontext_list' %}">Config Contexts</a>
                             {% if perms.extras.add_configcontext %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'extras:configcontext_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
                                 </div>
                             {% endif %}
+                            <a href="{% url 'extras:configcontext_list' %}">Config Contexts</a>
                         </li>
                         <li{% if not perms.extras.view_script %} class="disabled"{% endif %}>
                             <a href="{% url 'extras:script_list' %}">Scripts</a>
