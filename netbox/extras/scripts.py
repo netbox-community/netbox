@@ -73,7 +73,7 @@ class ScriptVariable:
         """
         form_field = self.form_field(**self.field_attrs)
         if not isinstance(form_field.widget, forms.CheckboxInput):
-            if form_field.widget.attrs and form_field.widget.attrs['class']:
+            if form_field.widget.attrs and 'class' in form_field.widget.attrs.keys():
                 form_field.widget.attrs['class'] += ' form-control'
             else:
                 form_field.widget.attrs['class'] = 'form-control'
