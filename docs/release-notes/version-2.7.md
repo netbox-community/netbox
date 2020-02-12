@@ -11,6 +11,7 @@
 ## Bug Fixes
 
 * [#3507](https://github.com/netbox-community/netbox/issues/3507) - Fix filtering IPaddress by multiple devices
+* [#3995](https://github.com/netbox-community/netbox/issues/3995) - Make dropdown menus in the navigation bar scrollable
 * [#4083](https://github.com/netbox-community/netbox/issues/4083) - Permit nullifying applicable choice fields via API requests
 * [#4089](https://github.com/netbox-community/netbox/issues/4089) - Selection of power outlet type during bulk update is optional
 * [#4090](https://github.com/netbox-community/netbox/issues/4090) - Render URL custom fields as links under object view
