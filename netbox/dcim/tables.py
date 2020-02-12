@@ -200,6 +200,11 @@ def get_component_template_actions(model_name):
                 <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
             </a>
         {{% endif %}}
+        {{% if perms.dcim.delete_{model_name} %}}
+            <a href="{{% url 'dcim:{model_name}_delete' pk=record.pk %}}?return_url={{{{ request.path }}}}" class="btn btn-xs btn-danger">
+                <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+            </a>
+        {{% endif %}}
     """.format(model_name=model_name).strip()
 
 
@@ -229,7 +234,7 @@ class RegionTable(BaseTable):
 
 class SiteTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(order_by=('_nat1', '_nat2', '_nat3'))
+    name = tables.LinkColumn(order_by=('_name',))
     status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
     region = tables.TemplateColumn(template_code=SITE_REGION_LINK)
     tenant = tables.TemplateColumn(template_code=COL_TENANT)
@@ -291,7 +296,7 @@ class RackRoleTable(BaseTable):
 
 class RackTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(order_by=('_nat1', '_nat2', '_nat3'))
+    name = tables.LinkColumn(order_by=('_name',))
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
     tenant = tables.TemplateColumn(template_code=COL_TENANT)
@@ -409,6 +414,7 @@ class DeviceTypeTable(BaseTable):
 
 class ConsolePortTemplateTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(order_by=('_name',))
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('consoleporttemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -432,6 +438,7 @@ class ConsolePortImportTable(BaseTable):
 
 class ConsoleServerPortTemplateTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(order_by=('_name',))
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('consoleserverporttemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -455,6 +462,7 @@ class ConsoleServerPortImportTable(BaseTable):
 
 class PowerPortTemplateTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(order_by=('_name',))
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('powerporttemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -478,6 +486,7 @@ class PowerPortImportTable(BaseTable):
 
 class PowerOutletTemplateTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(order_by=('_name',))
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('poweroutlettemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -526,6 +535,7 @@ class InterfaceImportTable(BaseTable):
 
 class FrontPortTemplateTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(order_by=('_name',))
     rear_port_position = tables.Column(
         verbose_name='Position'
     )
@@ -552,6 +562,7 @@ class FrontPortImportTable(BaseTable):
 
 class RearPortTemplateTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(order_by=('_name',))
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('rearporttemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -575,6 +586,7 @@ class RearPortImportTable(BaseTable):
 
 class DeviceBayTemplateTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(order_by=('_name',))
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('devicebaytemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -654,7 +666,7 @@ class PlatformTable(BaseTable):
 class DeviceTable(BaseTable):
     pk = ToggleColumn()
     name = tables.TemplateColumn(
-        order_by=('_nat1', '_nat2', '_nat3'),
+        order_by=('_name',),
         template_code=DEVICE_LINK
     )
     status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
@@ -704,6 +716,7 @@ class DeviceImportTable(BaseTable):
 
 class DeviceComponentDetailTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(order_by=('_name',))
     cable = tables.LinkColumn()
 
     class Meta(BaseTable.Meta):
@@ -713,6 +726,7 @@ class DeviceComponentDetailTable(BaseTable):
 
 
 class ConsolePortTable(BaseTable):
+    name = tables.Column(order_by=('_name',))
 
     class Meta(BaseTable.Meta):
         model = ConsolePort
@@ -727,6 +741,7 @@ class ConsolePortDetailTable(DeviceComponentDetailTable):
 
 
 class ConsoleServerPortTable(BaseTable):
+    name = tables.Column(order_by=('_name',))
 
     class Meta(BaseTable.Meta):
         model = ConsoleServerPort
@@ -741,6 +756,7 @@ class ConsoleServerPortDetailTable(DeviceComponentDetailTable):
 
 
 class PowerPortTable(BaseTable):
+    name = tables.Column(order_by=('_name',))
 
     class Meta(BaseTable.Meta):
         model = PowerPort
@@ -755,6 +771,7 @@ class PowerPortDetailTable(DeviceComponentDetailTable):
 
 
 class PowerOutletTable(BaseTable):
+    name = tables.Column(order_by=('_name',))
 
     class Meta(BaseTable.Meta):
         model = PowerOutlet
@@ -786,6 +803,7 @@ class InterfaceDetailTable(DeviceComponentDetailTable):
 
 
 class FrontPortTable(BaseTable):
+    name = tables.Column(order_by=('_name',))
 
     class Meta(BaseTable.Meta):
         model = FrontPort
@@ -801,6 +819,7 @@ class FrontPortDetailTable(DeviceComponentDetailTable):
 
 
 class RearPortTable(BaseTable):
+    name = tables.Column(order_by=('_name',))
 
     class Meta(BaseTable.Meta):
         model = RearPort
@@ -816,6 +835,7 @@ class RearPortDetailTable(DeviceComponentDetailTable):
 
 
 class DeviceBayTable(BaseTable):
+    name = tables.Column(order_by=('_name',))
 
     class Meta(BaseTable.Meta):
         model = DeviceBay
