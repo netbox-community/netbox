@@ -21,11 +21,13 @@ def post_data(data):
     return ret
 
 
-def create_test_user(username='testuser', permissions=list()):
+def create_test_user(username='testuser', permissions=None):
     """
     Create a User with the given permissions.
     """
     user = User.objects.create_user(username=username)
+    if permissions is None:
+        permissions = ()
     for perm_name in permissions:
         app, codename = perm_name.split('.')
         perm = Permission.objects.get(content_type__app_label=app, codename=codename)
