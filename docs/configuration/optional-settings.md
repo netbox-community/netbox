@@ -109,12 +109,18 @@ In order to send email, NetBox needs an email server configured. The following i
 * TIMEOUT - Amount of time to wait for a connection (seconds)
 * FROM_EMAIL - Sender address for emails sent by NetBox
 
-Email is sent from NetBox only for critical events. If you would like to test the email server configuration please use the django function [send_mail()]( https://docs.djangoproject.com/en/3.0/topics/email/#send-mail):
+Email is sent from NetBox only for critical events. If you would like to test the email server configuration please use the django function [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail):
 
 ```
 # python ./manage.py nbshell
 >>> from django.core.mail import send_mail
->>> send_mail('Test Email Subject', 'Test Email Body', 'noreply-netbox@example.com', ['users@example.com'], fail_silently=False)
+>>> send_mail(
+  'Test Email Subject',
+  'Test Email Body',
+  'noreply-netbox@example.com',
+  ['users@example.com'],
+  fail_silently=False
+)
 ```
 
 ---
