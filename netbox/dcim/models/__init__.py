@@ -389,6 +389,10 @@ class RackElevationHelperMixin:
 
     @staticmethod
     def _draw_device_front(drawing, device, start, end, text):
+        name = str(device)
+        if device.devicebay_count:
+            name += ' ({}/{})'.format(device.get_children().count(), device.devicebay_count)
+
         color = device.device_role.color
         link = drawing.add(
             drawing.a(
@@ -403,7 +407,7 @@ class RackElevationHelperMixin:
         ))
         link.add(drawing.rect(start, end, style='fill: #{}'.format(color), class_='slot'))
         hex_color = '#{}'.format(foreground_color(color))
-        link.add(drawing.text(str(device), insert=text, fill=hex_color))
+        link.add(drawing.text(str(name), insert=text, fill=hex_color))
 
     @staticmethod
     def _draw_device_rear(drawing, device, start, end, text):
