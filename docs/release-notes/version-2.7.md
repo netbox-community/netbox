@@ -2,6 +2,7 @@
 
 ## Enhancements
 
+* [#3766](https://github.com/netbox-community/netbox/issues/3766) - Allow custom script authors to specify the form widget for each variable
 * [#3799](https://github.com/netbox-community/netbox/issues/3799) - Greatly improve performance when ordering device components
 * [#3986](https://github.com/netbox-community/netbox/issues/3986) - Include position numbers in SVG image when rendering rack elevation
 * [#4100](https://github.com/netbox-community/netbox/issues/4100) - Add device filter to component list views
