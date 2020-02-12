@@ -96,7 +96,7 @@ class PrefixOrderingTestCase(OrderingTestBase):
         self._compare(Prefix.objects.all(), prefixes)
 
     """
-    This function tests a compex ordering of interwoven prefixes and vrfs.  This is the current expected ordering of VRFs
+    This function tests a complex ordering of interwoven prefixes and vrfs.  This is the current expected ordering of VRFs
     This includes the testing of the Container status.
 
     The proper ordering, to get proper containerization should be:
