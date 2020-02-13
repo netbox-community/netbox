@@ -21,7 +21,7 @@ NetBox requires access to a PostgreSQL database service to store data. This serv
 * `PASSWORD` - PostgreSQL password
 * `HOST` - Name or IP address of the database server (use `localhost` if running locally)
 * `PORT` - TCP port of the PostgreSQL service; leave blank for default port (5432)
-* `CONN_MAX_AGE` - Number in seconds for Netbox to keep database connections open. 150-300 seconds is typically a good starting point ([more info](https://docs.djangoproject.com/en/stable/ref/databases/#persistent-connections)).
+* `CONN_MAX_AGE` - Lifetime of a [persistent database connection](https://docs.djangoproject.com/en/stable/ref/databases/#persistent-connections), in seconds (150-300 is recommended)
 
 Example:
 
@@ -35,6 +35,9 @@ DATABASE = {
     'CONN_MAX_AGE': 300,            # Max database connection age
 }
 ```
+
+!!! note
+    NetBox supports all PostgreSQL database options supported by the underlying Django framework. For a complete list of available parameters, please see [the Django documentation](https://docs.djangoproject.com/en/stable/ref/settings/#databases).
 
 ---
 

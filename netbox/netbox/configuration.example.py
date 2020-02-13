@@ -10,7 +10,8 @@
 # Example: ALLOWED_HOSTS = ['netbox.example.com', 'netbox.internal.local']
 ALLOWED_HOSTS = []
 
-# PostgreSQL database configuration.
+# PostgreSQL database configuration. See the Django documentation for a complete list of available parameters:
+#   https://docs.djangoproject.com/en/stable/ref/settings/#databases
 DATABASE = {
     'NAME': 'netbox',         # Database name
     'USER': '',               # PostgreSQL username
