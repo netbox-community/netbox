@@ -88,14 +88,6 @@ class Command(BaseCommand):
                 for value in queryset:
                     naturalized_value = naturalize(value)
 
-                    # Skip any naturalized values that don't differ from their original form
-                    if value == naturalized_value:
-                        if options['verbosity'] >= 3:
-                            self.stdout.write(self.style.WARNING(
-                                "  {} == {} (skipped)".format(value, naturalized_value)
-                            ))
-                        continue
-
                     if options['verbosity'] >= 2:
                         self.stdout.write("  {} -> {}".format(value, naturalized_value), ending='')
                         self.stdout.flush()
