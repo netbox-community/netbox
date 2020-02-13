@@ -986,7 +986,7 @@ class ServiceListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.ServiceFilterSet
     filterset_form = forms.ServiceFilterForm
     table = tables.ServiceTable
-    action_buttons = ('export')
+    action_buttons = ('export',)
 
 
 class ServiceView(PermissionRequiredMixin, View):

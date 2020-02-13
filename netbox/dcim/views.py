@@ -2281,7 +2281,7 @@ class VirtualChassisListView(PermissionRequiredMixin, ObjectListView):
     table = tables.VirtualChassisTable
     filterset = filters.VirtualChassisFilterSet
     filterset_form = forms.VirtualChassisFilterForm
-    action_buttons = ('export')
+    action_buttons = ('export',)
 
 
 class VirtualChassisCreateView(PermissionRequiredMixin, View):
