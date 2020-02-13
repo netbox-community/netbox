@@ -293,7 +293,7 @@
             <table class="table table-condensed interface-ips">
                 <thead>
                 <tr class="text-muted">
-                    <th class="col-md-2">ID</th>
+                    <th class="col-md-2">VLAN ID</th>
                     <th class="col-md-1">Tagged</th>
                     <th class="col-md-2">Status</th>
                     <th class="col-md-3">Name</th>
@@ -306,7 +306,7 @@
 
                         {# VLAN ID #}
                         <td>
-                            <a href="{% url 'ipam:vlan' iface.untagged_vlan.id %}">{{ iface.untagged_vlan.id }}</a>
+                            <a href="{% url 'ipam:vlan' iface.untagged_vlan.id %}">{{ iface.untagged_vlan.vid }}</a>
                         </td>
                         {# VLAN tag #}
                         <td>
@@ -333,7 +333,7 @@
                         <tr>
                             {# VLAN ID #}
                             <td>
-                                <a href="{% url 'ipam:vlan' tag.id %}">{{ tag.id }}</a>
+                                <a href="{% url 'ipam:vlan' tag.id %}">{{ tag.vid }}</a>
                             </td>
                             {# VLAN tag #}
                             <td>
