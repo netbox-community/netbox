@@ -28,6 +28,9 @@ REDIS = {
     'webhooks': {
         'HOST': 'localhost',
         'PORT': 6379,
+        # Comment out `HOST` and `PORT` lines and uncomment the following if using Redis Sentinel
+        # 'SENTINELS': [('mysentinel.redis.example.com', 6379)],
+        # 'SENTINEL_SERVICE': 'netbox',
         'PASSWORD': '',
         'DATABASE': 0,
         'DEFAULT_TIMEOUT': 300,
@@ -36,6 +39,9 @@ REDIS = {
     'caching': {
         'HOST': 'localhost',
         'PORT': 6379,
+        # Comment out `HOST` and `PORT` lines and uncomment the following if using Redis Sentinel
+        # 'SENTINELS': [('mysentinel.redis.example.com', 6379)],
+        # 'SENTINEL_SERVICE': 'netbox',
         'PASSWORD': '',
         'DATABASE': 1,
         'DEFAULT_TIMEOUT': 300,
