@@ -190,8 +190,8 @@ class ObjectChangeListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.ObjectChangeFilterSet
     filterset_form = forms.ObjectChangeFilterForm
     table = ObjectChangeTable
-    # TODO: Remove custom template
     template_name = 'extras/objectchange_list.html'
+    action_buttons = ('export',)
 
 
 class ObjectChangeView(PermissionRequiredMixin, View):

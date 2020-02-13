@@ -16,17 +16,14 @@
 </div>
 <h1>{% block title %}{{ content_type.model_class|model_name_plural|bettertitle }}{% endblock %}</h1>
 <div class="row">
-    {% if filter_form %}
-        <div class="col-md-9">
-            {% include 'utilities/obj_table.html' with bulk_edit_url=content_type.model_class|url_name:"bulk_edit" bulk_delete_url=content_type.model_class|url_name:"bulk_delete" %}
-        </div>
-        <div class="col-md-3 noprint">
+    <div class="col-md-9">
+        {% include 'utilities/obj_table.html' with bulk_edit_url=content_type.model_class|url_name:"bulk_edit" bulk_delete_url=content_type.model_class|url_name:"bulk_delete" %}
+    </div>
+    <div class="col-md-3 noprint">
+        {% if filter_form %}
             {% include 'inc/search_panel.html' %}
-        </div>
-    {% else %}
-        <div class="col-md-12">
-            {% include 'utilities/obj_table.html' with bulk_edit_url=content_type.model_class|url_name:"bulk_edit" bulk_delete_url=content_type.model_class|url_name:"bulk_delete" %}
-        </div>
-    {% endif %}
+        {% endif %}
+        {% block sidebar %}{% endblock %}
+    </div>
 </div>
 {% endblock %}
