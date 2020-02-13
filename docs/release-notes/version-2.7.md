@@ -5,11 +5,11 @@
 * [#3766](https://github.com/netbox-community/netbox/issues/3766) - Allow custom script authors to specify the form widget for each variable
 * [#3799](https://github.com/netbox-community/netbox/issues/3799) - Greatly improve performance when ordering device components
 * [#3986](https://github.com/netbox-community/netbox/issues/3986) - Include position numbers in SVG image when rendering rack elevation
+* [#4093](https://github.com/netbox-community/netbox/issues/4093) - Add multiple status choices for VMs
 * [#4100](https://github.com/netbox-community/netbox/issues/4100) - Add device filter to component list views
 * [#4113](https://github.com/netbox-community/netbox/issues/4113) - Add bulk edit functionality for device type components
 * [#4116](https://github.com/netbox-community/netbox/issues/4116) - Enable bulk edit and delete functions for device component list views
 * [#4129](https://github.com/netbox-community/netbox/issues/4129) - Add buttons to delete individual device type components
-* [#4093](https://github.com/netbox-community/netbox/issues/4093) - Add decommissioning status for VMs
 
 ## Bug Fixes
 
