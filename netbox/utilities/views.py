@@ -72,6 +72,7 @@ class ObjectListView(View):
     filterset_form = None
     table = None
     template_name = 'utilities/obj_list.html'
+    action_buttons = ('add', 'import', 'export')
 
     def queryset_to_yaml(self):
         """
@@ -178,6 +179,7 @@ class ObjectListView(View):
             'content_type': content_type,
             'table': table,
             'permissions': permissions,
+            'action_buttons': self.action_buttons,
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
         }
         context.update(self.extra_context())

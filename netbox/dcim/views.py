@@ -152,7 +152,6 @@ class RegionListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.RegionFilterSet
     filterset_form = forms.RegionFilterForm
     table = tables.RegionTable
-    template_name = 'dcim/region_list.html'
 
 
 class RegionCreateView(PermissionRequiredMixin, ObjectEditView):
@@ -191,7 +190,6 @@ class SiteListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.SiteFilterSet
     filterset_form = forms.SiteFilterForm
     table = tables.SiteTable
-    template_name = 'dcim/site_list.html'
 
 
 class SiteView(PermissionRequiredMixin, View):
@@ -271,7 +269,6 @@ class RackGroupListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.RackGroupFilterSet
     filterset_form = forms.RackGroupFilterForm
     table = tables.RackGroupTable
-    template_name = 'dcim/rackgroup_list.html'
 
 
 class RackGroupCreateView(PermissionRequiredMixin, ObjectEditView):
@@ -308,7 +305,6 @@ class RackRoleListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_rackrole'
     queryset = RackRole.objects.annotate(rack_count=Count('racks'))
     table = tables.RackRoleTable
-    template_name = 'dcim/rackrole_list.html'
 
 
 class RackRoleCreateView(PermissionRequiredMixin, ObjectEditView):
@@ -350,7 +346,6 @@ class RackListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.RackFilterSet
     filterset_form = forms.RackFilterForm
     table = tables.RackDetailTable
-    template_name = 'dcim/rack_list.html'
 
 
 class RackElevationListView(PermissionRequiredMixin, View):
@@ -474,7 +469,7 @@ class RackReservationListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.RackReservationFilterSet
     filterset_form = forms.RackReservationFilterForm
     table = tables.RackReservationTable
-    template_name = 'dcim/rackreservation_list.html'
+    action_buttons = ()
 
 
 class RackReservationCreateView(PermissionRequiredMixin, ObjectEditView):
@@ -533,7 +528,6 @@ class ManufacturerListView(PermissionRequiredMixin, ObjectListView):
         platform_count=Count('platforms', distinct=True),
     )
     table = tables.ManufacturerTable
-    template_name = 'dcim/manufacturer_list.html'
 
 
 class ManufacturerCreateView(PermissionRequiredMixin, ObjectEditView):
@@ -571,7 +565,6 @@ class DeviceTypeListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.DeviceTypeFilterSet
     filterset_form = forms.DeviceTypeFilterForm
     table = tables.DeviceTypeTable
-    template_name = 'dcim/devicetype_list.html'
 
 
 class DeviceTypeView(PermissionRequiredMixin, View):
@@ -995,7 +988,6 @@ class DeviceRoleListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_devicerole'
     queryset = DeviceRole.objects.all()
     table = tables.DeviceRoleTable
-    template_name = 'dcim/devicerole_list.html'
 
 
 class DeviceRoleCreateView(PermissionRequiredMixin, ObjectEditView):
@@ -1031,7 +1023,6 @@ class PlatformListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_platform'
     queryset = Platform.objects.all()
     table = tables.PlatformTable
-    template_name = 'dcim/platform_list.html'
 
 
 class PlatformCreateView(PermissionRequiredMixin, ObjectEditView):
@@ -1071,6 +1062,7 @@ class DeviceListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.DeviceFilterSet
     filterset_form = forms.DeviceFilterForm
     table = tables.DeviceDetailTable
+    # TODO: Remove custom template
     template_name = 'dcim/device_list.html'
 
 
@@ -1292,7 +1284,7 @@ class ConsolePortListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.ConsolePortFilterSet
     filterset_form = forms.ConsolePortFilterForm
     table = tables.ConsolePortDetailTable
-    template_name = 'dcim/consoleport_list.html'
+    action_buttons = ('import', 'export')
 
 
 class ConsolePortCreateView(PermissionRequiredMixin, ComponentCreateView):
@@ -1345,7 +1337,7 @@ class ConsoleServerPortListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.ConsoleServerPortFilterSet
     filterset_form = forms.ConsoleServerPortFilterForm
     table = tables.ConsoleServerPortDetailTable
-    template_name = 'dcim/consoleserverport_list.html'
+    action_buttons = ('import', 'export')
 
 
 class ConsoleServerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
@@ -1410,7 +1402,7 @@ class PowerPortListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.PowerPortFilterSet
     filterset_form = forms.PowerPortFilterForm
     table = tables.PowerPortDetailTable
-    template_name = 'dcim/powerport_list.html'
+    action_buttons = ('import', 'export')
 
 
 class PowerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
@@ -1463,7 +1455,7 @@ class PowerOutletListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.PowerOutletFilterSet
     filterset_form = forms.PowerOutletFilterForm
     table = tables.PowerOutletDetailTable
-    template_name = 'dcim/poweroutlet_list.html'
+    action_buttons = ('import', 'export')
 
 
 class PowerOutletCreateView(PermissionRequiredMixin, ComponentCreateView):
@@ -1528,7 +1520,7 @@ class InterfaceListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.InterfaceFilterSet
     filterset_form = forms.InterfaceFilterForm
     table = tables.InterfaceDetailTable
-    template_name = 'dcim/interface_list.html'
+    action_buttons = ('import', 'export')
 
 
 class InterfaceView(PermissionRequiredMixin, View):
@@ -1630,7 +1622,7 @@ class FrontPortListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.FrontPortFilterSet
     filterset_form = forms.FrontPortFilterForm
     table = tables.FrontPortDetailTable
-    template_name = 'dcim/frontport_list.html'
+    action_buttons = ('import', 'export')
 
 
 class FrontPortCreateView(PermissionRequiredMixin, ComponentCreateView):
@@ -1695,7 +1687,7 @@ class RearPortListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.RearPortFilterSet
     filterset_form = forms.RearPortFilterForm
     table = tables.RearPortDetailTable
-    template_name = 'dcim/rearport_list.html'
+    action_buttons = ('import', 'export')
 
 
 class RearPortCreateView(PermissionRequiredMixin, ComponentCreateView):
@@ -1762,7 +1754,7 @@ class DeviceBayListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.DeviceBayFilterSet
     filterset_form = forms.DeviceBayFilterForm
     table = tables.DeviceBayDetailTable
-    template_name = 'dcim/devicebay_list.html'
+    action_buttons = ('import', 'export')
 
 
 class DeviceBayCreateView(PermissionRequiredMixin, ComponentCreateView):
@@ -1961,7 +1953,7 @@ class CableListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.CableFilterSet
     filterset_form = forms.CableFilterForm
     table = tables.CableTable
-    template_name = 'dcim/cable_list.html'
+    action_buttons = ('import', 'export')
 
 
 class CableView(PermissionRequiredMixin, View):
@@ -2233,7 +2225,7 @@ class InventoryItemListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.InventoryItemFilterSet
     filterset_form = forms.InventoryItemFilterForm
     table = tables.InventoryItemTable
-    template_name = 'dcim/inventoryitem_list.html'
+    action_buttons = ('import', 'export')
 
 
 class InventoryItemEditView(PermissionRequiredMixin, ObjectEditView):
@@ -2289,7 +2281,7 @@ class VirtualChassisListView(PermissionRequiredMixin, ObjectListView):
     table = tables.VirtualChassisTable
     filterset = filters.VirtualChassisFilterSet
     filterset_form = forms.VirtualChassisFilterForm
-    template_name = 'dcim/virtualchassis_list.html'
+    action_buttons = ('export')
 
 
 class VirtualChassisCreateView(PermissionRequiredMixin, View):
@@ -2533,7 +2525,6 @@ class PowerPanelListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.PowerPanelFilterSet
     filterset_form = forms.PowerPanelFilterForm
     table = tables.PowerPanelTable
-    template_name = 'dcim/powerpanel_list.html'
 
 
 class PowerPanelView(PermissionRequiredMixin, View):
@@ -2602,7 +2593,6 @@ class PowerFeedListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.PowerFeedFilterSet
     filterset_form = forms.PowerFeedFilterForm
     table = tables.PowerFeedTable
-    template_name = 'dcim/powerfeed_list.html'
 
 
 class PowerFeedView(PermissionRequiredMixin, View):
