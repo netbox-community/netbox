@@ -252,7 +252,7 @@ class HomeView(View):
             'search_form': SearchForm(),
             'stats': stats,
             'report_results': ReportResult.objects.order_by('-created')[:10],
-            'changelog': ObjectChange.objects.prefetch_related('user', 'changed_object_type')[:50]
+            'changelog': ObjectChange.objects.prefetch_related('user', 'changed_object_type')[:15]
         })
 
 

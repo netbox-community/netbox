@@ -21,7 +21,7 @@ NetBox requires access to a PostgreSQL database service to store data. This serv
 * `PASSWORD` - PostgreSQL password
 * `HOST` - Name or IP address of the database server (use `localhost` if running locally)
 * `PORT` - TCP port of the PostgreSQL service; leave blank for default port (5432)
-* `CONN_MAX_AGE` - Number in seconds for Netbox to keep database connections open. 150-300 seconds is typically a good starting point ([more info](https://docs.djangoproject.com/en/stable/ref/databases/#persistent-connections)).
+* `CONN_MAX_AGE` - Lifetime of a [persistent database connection](https://docs.djangoproject.com/en/stable/ref/databases/#persistent-connections), in seconds (150-300 is recommended)
 
 Example:
 
@@ -35,6 +35,9 @@ DATABASE = {
     'CONN_MAX_AGE': 300,            # Max database connection age
 }
 ```
+
+!!! note
+    NetBox supports all PostgreSQL database options supported by the underlying Django framework. For a complete list of available parameters, please see [the Django documentation](https://docs.djangoproject.com/en/stable/ref/settings/#databases).
 
 ---
 
@@ -84,6 +87,48 @@ REDIS = {
 !!! warning:
     It is highly recommended to keep the webhook and cache databases separate. Using the same database number on the
     same Redis instance for both may result in webhook processing data being lost during cache flushing events.
+
+### Using Redis Sentinel
+
+If you are using [Redis Sentinel](https://redis.io/topics/sentinel) for high-availability purposes, there is minimal 
+configuration necessary to convert NetBox to recognize it. It requires the removal of the `HOST` and `PORT` keys from 
+above and the addition of two new keys.
+
+* `SENTINELS`: List of tuples or tuple of tuples with each inner tuple containing the name or IP address 
+of the Redis server and port for each sentinel instance to connect to
+* `SENTINEL_SERVICE`: Name of the master / service to connect to
+
+Example:
+
+```python
+REDIS = {
+    'webhooks': {
+        'SENTINELS': [('mysentinel.redis.example.com', 6379)],
+        'SENTINEL_SERVICE': 'netbox',
+        'PASSWORD': '',
+        'DATABASE': 0,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    },
+    'caching': {
+        'SENTINELS': [
+            ('mysentinel.redis.example.com', 6379),
+            ('othersentinel.redis.example.com', 6379)
+        ],
+        'SENTINEL_SERVICE': 'netbox',
+        'PASSWORD': '',
+        'DATABASE': 1,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    }
+}
+```
+
+!!! note:
+    It is possible to have only one or the other Redis configurations to use Sentinel functionality. It is possible
+    for example to have the webhook use sentinel via `HOST`/`PORT` and for caching to use Sentinel via 
+    `SENTINELS`/`SENTINEL_SERVICE`.
+
 
 ---
 

@@ -127,23 +127,6 @@
                 </div>
             </div>
         </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Secrets</strong>
-            </div>
-            <div class="list-group">
-                <div class="list-group-item">
-                    {% if perms.secrets.view_secret %}
-                        <span class="badge pull-right">{{ stats.secret_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'secrets:secret_list' %}">Secrets</a></h4>
-                    {% else %}
-                        <span class="badge pull-right"><i class="fa fa-lock"></i></span>
-                        <h4 class="list-group-item-heading">Secrets</h4>
-                    {% endif %}
-                    <p class="list-group-item-text text-muted">Cryptographically secured secret data</p>
-                </div>
-            </div>
-        </div>
     </div>
     <div class="col-sm-6 col-md-4">
         <div class="panel panel-default">
@@ -259,6 +242,23 @@
         </div>
     </div>
     <div class="col-sm-6 col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Secrets</strong>
+            </div>
+            <div class="list-group">
+                <div class="list-group-item">
+                    {% if perms.secrets.view_secret %}
+                        <span class="badge pull-right">{{ stats.secret_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'secrets:secret_list' %}">Secrets</a></h4>
+                    {% else %}
+                        <span class="badge pull-right"><i class="fa fa-lock"></i></span>
+                        <h4 class="list-group-item-heading">Secrets</h4>
+                    {% endif %}
+                    <p class="list-group-item-text text-muted">Cryptographically secured secret data</p>
+                </div>
+            </div>
+        </div>
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Reports</strong>

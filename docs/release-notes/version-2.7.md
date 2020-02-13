@@ -1,3 +1,38 @@
+# v2.7.5 (2020-02-13)
+
+**Note:** This release includes several database schema migrations that calculate and store copies of names for certain objects to improve natural ordering performance (see [#3799](https://github.com/netbox-community/netbox/issues/3799)). These migrations may take a few minutes to run if you have a very large number of objects defined in NetBox.
+
+## Enhancements
+
+* [#3766](https://github.com/netbox-community/netbox/issues/3766) - Allow custom script authors to specify the form widget for each variable
+* [#3799](https://github.com/netbox-community/netbox/issues/3799) - Greatly improve performance when ordering device components
+* [#3984](https://github.com/netbox-community/netbox/issues/3984) - Add support for Redis Sentinel
+* [#3986](https://github.com/netbox-community/netbox/issues/3986) - Include position numbers in SVG image when rendering rack elevations
+* [#4093](https://github.com/netbox-community/netbox/issues/4093) - Add more status choices for virtual machines
+* [#4100](https://github.com/netbox-community/netbox/issues/4100) - Add device filter to component list views
+* [#4113](https://github.com/netbox-community/netbox/issues/4113) - Add bulk edit functionality for device type components
+* [#4116](https://github.com/netbox-community/netbox/issues/4116) - Enable bulk edit and delete functions for device component list views
+* [#4129](https://github.com/netbox-community/netbox/issues/4129) - Add buttons to delete individual device type components
+
+## Bug Fixes
+
+* [#3507](https://github.com/netbox-community/netbox/issues/3507) - Fix filtering IP addresses by multiple devices
+* [#3995](https://github.com/netbox-community/netbox/issues/3995) - Make dropdown menus in the navigation bar scrollable on small screens
+* [#4083](https://github.com/netbox-community/netbox/issues/4083) - Permit nullifying applicable choice fields via API requests
+* [#4089](https://github.com/netbox-community/netbox/issues/4089) - Selection of power outlet type during bulk update is optional
+* [#4090](https://github.com/netbox-community/netbox/issues/4090) - Render URL custom fields as links under object view
+* [#4091](https://github.com/netbox-community/netbox/issues/4091) - Fix filtering of objects by custom fields using UI search form
+* [#4099](https://github.com/netbox-community/netbox/issues/4099) - Linkify interfaces on global interfaces list
+* [#4108](https://github.com/netbox-community/netbox/issues/4108) - Avoid extraneous database queries when rendering search forms
+* [#4134](https://github.com/netbox-community/netbox/issues/4134) - Device power ports and outlets should inherit type from the parent device type
+* [#4137](https://github.com/netbox-community/netbox/issues/4137) - Disable occupied terminations when connecting a cable to a circuit
+* [#4138](https://github.com/netbox-community/netbox/issues/4138) - Restore device bay counts in rack elevation diagrams
+* [#4146](https://github.com/netbox-community/netbox/issues/4146) - Fix enforcement of secret role assignment for secret decryption
+* [#4150](https://github.com/netbox-community/netbox/issues/4150) - Correct YAML rendering of config contexts
+* [#4159](https://github.com/netbox-community/netbox/issues/4159) - Fix implementation of Redis caching configuration
+
+---
+
 # v2.7.4 (2020-02-04)
 
 ## Enhancements
