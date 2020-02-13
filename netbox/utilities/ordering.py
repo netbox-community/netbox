@@ -68,7 +68,7 @@ def naturalize_interface(value, max_length=None):
     if match.group('type') is not None:
         output.append(match.group('type'))
 
-    # Finally, append any remaining fields, left-padding to eight digits each.
+    # Finally, append any remaining fields, left-padding to six digits each.
     for part_name in ('id', 'channel', 'vc'):
         part = match.group(part_name)
         if part is not None:
