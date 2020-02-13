@@ -409,7 +409,7 @@ if LDAP_CONFIG is not None:
 #
 if CACHING_REDIS_USING_SENTINEL:
     CACHEOPS_SENTINEL = {
-        'locations': CACHING_REDIS_SENTINELS, 
+        'locations': CACHING_REDIS_SENTINELS,
         'service_name': CACHING_REDIS_SENTINEL_SERVICE,
         'db': CACHING_REDIS_DATABASE,
     }
