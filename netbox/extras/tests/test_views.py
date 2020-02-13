@@ -7,10 +7,10 @@ from django.urls import reverse
 from dcim.models import Site
 from extras.choices import ObjectChangeActionChoices
 from extras.models import ConfigContext, ObjectChange, Tag
-from utilities.testing import StandardTestCases, TestCase
+from utilities.testing import ViewTestCases, TestCase
 
 
-class TagTestCase(StandardTestCases.Views):
+class TagTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Tag
 
     # Disable inapplicable tests
@@ -38,7 +38,7 @@ class TagTestCase(StandardTestCases.Views):
         }
 
 
-class ConfigContextTestCase(StandardTestCases.Views):
+class ConfigContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ConfigContext
 
     # Disable inapplicable tests

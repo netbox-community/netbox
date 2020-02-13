@@ -220,19 +220,19 @@ $(document).ready(function() {
                     }
 
                     if( record.group !== undefined && record.group !== null && record.site !== undefined && record.site !== null ) {
-                        results[record.site.name + ":" + record.group.name] = results[record.site.name + ":" + record.group.name] || { text: record.site.name + " / " + record.group.name, children: [] }
+                        results[record.site.name + ":" + record.group.name] = results[record.site.name + ":" + record.group.name] || { text: record.site.name + " / " + record.group.name, children: [] };
                         results[record.site.name + ":" + record.group.name].children.push(record);
                     }
                     else if( record.group !== undefined && record.group !== null ) {
-                        results[record.group.name] = results[record.group.name] || { text: record.group.name, children: [] }
+                        results[record.group.name] = results[record.group.name] || { text: record.group.name, children: [] };
                         results[record.group.name].children.push(record);
                     }
                     else if( record.site !== undefined && record.site !== null ) {
-                        results[record.site.name] = results[record.site.name] || { text: record.site.name, children: [] }
+                        results[record.site.name] = results[record.site.name] || { text: record.site.name, children: [] };
                         results[record.site.name].children.push(record);
                     }
                     else if ( (record.group !== undefined || record.group == null) && (record.site !== undefined || record.site === null) ) {
-                        results['global'] = results['global'] || { text: 'Global', children: [] }
+                        results['global'] = results['global'] || { text: 'Global', children: [] };
                         results['global'].children.push(record);
                     }
                     else {
@@ -246,10 +246,9 @@ $(document).ready(function() {
 
                 // Handle the null option, but only add it once
                 if (element.getAttribute('data-null-option') && data.previous === null) {
-                    var null_option = $(element).children()[0];
                     results.unshift({
-                        id: null_option.value,
-                        text: null_option.text
+                        id: 'null',
+                        text: 'None'
                     });
                 }
 

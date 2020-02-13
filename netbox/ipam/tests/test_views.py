@@ -5,10 +5,10 @@ from netaddr import IPNetwork
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
-from utilities.testing import StandardTestCases
+from utilities.testing import ViewTestCases
 
 
-class VRFTestCase(StandardTestCases.Views):
+class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VRF
 
     @classmethod
@@ -43,13 +43,8 @@ class VRFTestCase(StandardTestCases.Views):
         }
 
 
-class RIRTestCase(StandardTestCases.Views):
+class RIRTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = RIR
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -74,7 +69,7 @@ class RIRTestCase(StandardTestCases.Views):
         )
 
 
-class AggregateTestCase(StandardTestCases.Views):
+class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Aggregate
 
     @classmethod
@@ -115,13 +110,8 @@ class AggregateTestCase(StandardTestCases.Views):
         }
 
 
-class RoleTestCase(StandardTestCases.Views):
+class RoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Role
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -147,7 +137,7 @@ class RoleTestCase(StandardTestCases.Views):
         )
 
 
-class PrefixTestCase(StandardTestCases.Views):
+class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Prefix
 
     @classmethod
@@ -207,7 +197,7 @@ class PrefixTestCase(StandardTestCases.Views):
         }
 
 
-class IPAddressTestCase(StandardTestCases.Views):
+class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = IPAddress
 
     @classmethod
@@ -254,13 +244,8 @@ class IPAddressTestCase(StandardTestCases.Views):
         }
 
 
-class VLANGroupTestCase(StandardTestCases.Views):
+class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = VLANGroup
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -287,7 +272,7 @@ class VLANGroupTestCase(StandardTestCases.Views):
         )
 
 
-class VLANTestCase(StandardTestCases.Views):
+class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VLAN
 
     @classmethod
@@ -346,7 +331,7 @@ class VLANTestCase(StandardTestCases.Views):
         }
 
 
-class ServiceTestCase(StandardTestCases.Views):
+class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Service
 
     # Disable inapplicable tests

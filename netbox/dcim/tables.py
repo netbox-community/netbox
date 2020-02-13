@@ -200,6 +200,11 @@ def get_component_template_actions(model_name):
                 <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
             </a>
         {{% endif %}}
+        {{% if perms.dcim.delete_{model_name} %}}
+            <a href="{{% url 'dcim:{model_name}_delete' pk=record.pk %}}?return_url={{{{ request.path }}}}" class="btn btn-xs btn-danger">
+                <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+            </a>
+        {{% endif %}}
     """.format(model_name=model_name).strip()
 
 

@@ -32,7 +32,7 @@ pycodestyle --ignore=W504,E501 netbox/
 
 The introduction of a new dependency is best avoided unless it is absolutely necessary. For small features, it's generally preferable to replicate functionality within the NetBox code base rather than to introduce reliance on an external project. This reduces both the burden of tracking new releases and our exposure to outside bugs and attacks.
 
-If there's a strong case for introducing a new depdency, it must meet the following criteria:
+If there's a strong case for introducing a new dependency, it must meet the following criteria:
 
 * Its complete source code must be published and freely accessible without registration.
 * Its license must be conducive to inclusion in an open source project.
@@ -45,10 +45,18 @@ When adding a new dependency, a short description of the package and the URL of 
 
 * When in doubt, remain consistent: It is better to be consistently incorrect than inconsistently correct. If you notice in the course of unrelated work a pattern that should be corrected, continue to follow the pattern for now and open a bug so that the entire code base can be evaluated at a later point.
 
+* Prioritize readability over concision. Python is a very flexible language that typically gives us several options for expressing a given piece of logic, but some may be more friendly to the reader than others. (List comprehensions are particularly vulnerable to over-optimization.) Always remain considerate of the future reader who may need to interpret your code without the benefit of the context within which you are writing it.
+
 * No easter eggs. While they can be fun, NetBox must be considered as a business-critical tool. The potential, however minor, for introducing a bug caused by unnecessary logic is best avoided entirely.
 
 * Constants (variables which generally do not change) should be declared in `constants.py` within each app. Wildcard imports from the file are acceptable.
 
-* Every model should have a docstring. Every custom method should include an expalantion of its function.
+* Every model should have a docstring. Every custom method should include an explanation of its function.
 
 * Nested API serializers generate minimal representations of an object. These are stored separately from the primary serializers to avoid circular dependencies. Always import nested serializers from other apps directly. For example, from within the DCIM app you would write `from ipam.api.nested_serializers import NestedIPAddressSerializer`.
+
+## Branding
+
+* When referring to NetBox in writing, use the proper form "NetBox," with the letters N and B capitalized. The lowercase form "netbox" should be used in code, filenames, etc. But never "Netbox" or any other deviation.
+
+* There is an SVG form of the NetBox logo at [docs/netbox_logo.svg](../netbox_logo.svg). It is preferred to use this logo for all purposes as it scales to arbitrary sizes without loss of resolution. If a raster image is required, the SVG logo should be converted to a PNG image of the prescribed size.

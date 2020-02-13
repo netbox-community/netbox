@@ -5,7 +5,8 @@ from rest_framework import status
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
-from utilities.testing import APITestCase
+from users.models import Token
+from utilities.testing import APITestCase, create_test_user
 from .constants import PRIVATE_KEY, PUBLIC_KEY
 
 
@@ -131,7 +132,15 @@ class SecretTest(APITestCase):
 
     def setUp(self):
 
-        super().setUp()
+        # Create a non-superuser test user
+        self.user = create_test_user('testuser', permissions=(
+            'secrets.add_secret',
+            'secrets.change_secret',
+            'secrets.delete_secret',
+            'secrets.view_secret',
+        ))
+        self.token = Token.objects.create(user=self.user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(self.token.key)}
 
         userkey = UserKey(user=self.user, public_key=PUBLIC_KEY)
         userkey.save()
@@ -144,11 +153,11 @@ class SecretTest(APITestCase):
             'HTTP_X_SESSION_KEY': base64.b64encode(session_key.key),
         }
 
-        self.plaintext = {
-            'secret1': 'Secret #1 Plaintext',
-            'secret2': 'Secret #2 Plaintext',
-            'secret3': 'Secret #3 Plaintext',
-        }
+        self.plaintexts = (
+            'Secret #1 Plaintext',
+            'Secret #2 Plaintext',
+            'Secret #3 Plaintext',
+        )
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -160,17 +169,17 @@ class SecretTest(APITestCase):
         self.secretrole1 = SecretRole.objects.create(name='Test Secret Role 1', slug='test-secret-role-1')
         self.secretrole2 = SecretRole.objects.create(name='Test Secret Role 2', slug='test-secret-role-2')
         self.secret1 = Secret(
-            device=self.device, role=self.secretrole1, name='Test Secret 1', plaintext=self.plaintext['secret1']
+            device=self.device, role=self.secretrole1, name='Test Secret 1', plaintext=self.plaintexts[0]
         )
         self.secret1.encrypt(self.master_key)
         self.secret1.save()
         self.secret2 = Secret(
-            device=self.device, role=self.secretrole1, name='Test Secret 2', plaintext=self.plaintext['secret2']
+            device=self.device, role=self.secretrole1, name='Test Secret 2', plaintext=self.plaintexts[1]
         )
         self.secret2.encrypt(self.master_key)
         self.secret2.save()
         self.secret3 = Secret(
-            device=self.device, role=self.secretrole1, name='Test Secret 3', plaintext=self.plaintext['secret3']
+            device=self.device, role=self.secretrole1, name='Test Secret 3', plaintext=self.plaintexts[2]
         )
         self.secret3.encrypt(self.master_key)
         self.secret3.save()
@@ -178,16 +187,32 @@ class SecretTest(APITestCase):
     def test_get_secret(self):
 
         url = reverse('secrets-api:secret-detail', kwargs={'pk': self.secret1.pk})
-        response = self.client.get(url, **self.header)
 
-        self.assertEqual(response.data['plaintext'], self.plaintext['secret1'])
+        # Secret plaintext not be decrypted as the user has not been assigned to the role
+        response = self.client.get(url, **self.header)
+        self.assertIsNone(response.data['plaintext'])
+
+        # The plaintext should be present once the user has been assigned to the role
+        self.secretrole1.users.add(self.user)
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data['plaintext'], self.plaintexts[0])
 
     def test_list_secrets(self):
 
         url = reverse('secrets-api:secret-list')
-        response = self.client.get(url, **self.header)
 
+        # Secret plaintext not be decrypted as the user has not been assigned to the role
+        response = self.client.get(url, **self.header)
         self.assertEqual(response.data['count'], 3)
+        for secret in response.data['results']:
+            self.assertIsNone(secret['plaintext'])
+
+        # The plaintext should be present once the user has been assigned to the role
+        self.secretrole1.users.add(self.user)
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data['count'], 3)
+        for i, secret in enumerate(response.data['results']):
+            self.assertEqual(secret['plaintext'], self.plaintexts[i])
 
     def test_create_secret(self):
 

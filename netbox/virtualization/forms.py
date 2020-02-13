@@ -14,9 +14,8 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ConfirmationForm,
-    CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField, SmallTextarea, StaticSelect2,
-    StaticSelect2Multiple, TagFilterField,
+    CommentField, ConfirmationForm, CSVChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    ExpandableNameField, JSONField, SlugField, SmallTextarea, StaticSelect2, StaticSelect2Multiple, TagFilterField,
 )
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -77,6 +76,26 @@ class ClusterGroupCSVForm(forms.ModelForm):
 #
 
 class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+    type = DynamicModelChoiceField(
+        queryset=ClusterType.objects.all(),
+        widget=APISelect(
+            api_url="/api/virtualization/cluster-types/"
+        )
+    )
+    group = DynamicModelChoiceField(
+        queryset=ClusterGroup.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/virtualization/cluster-groups/"
+        )
+    )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/sites/"
+        )
+    )
     comments = CommentField()
     tags = TagField(
         required=False
@@ -84,20 +103,9 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
     class Meta:
         model = Cluster
-        fields = [
+        fields = (
             'name', 'type', 'group', 'tenant', 'site', 'comments', 'tags',
-        ]
-        widgets = {
-            'type': APISelect(
-                api_url="/api/virtualization/cluster-types/"
-            ),
-            'group': APISelect(
-                api_url="/api/virtualization/cluster-groups/"
-            ),
-            'site': APISelect(
-                api_url="/api/dcim/sites/"
-            ),
-        }
+        )
 
 
 class ClusterCSVForm(CustomFieldModelCSVForm):
@@ -147,25 +155,28 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         queryset=Cluster.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
-    type = forms.ModelChoiceField(
+    type = DynamicModelChoiceField(
         queryset=ClusterType.objects.all(),
         required=False,
         widget=APISelect(
             api_url="/api/virtualization/cluster-types/"
         )
     )
-    group = forms.ModelChoiceField(
+    group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
         widget=APISelect(
             api_url="/api/virtualization/cluster-groups/"
         )
     )
-    tenant = forms.ModelChoiceField(
+    tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            api_url="/api/tenancy/tenants/"
+        )
     )
-    site = forms.ModelChoiceField(
+    site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         widget=APISelect(
@@ -189,7 +200,7 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         'q', 'type', 'region', 'site', 'group', 'tenant_group', 'tenant'
     ]
     q = forms.CharField(required=False, label='Search')
-    type = FilterChoiceField(
+    type = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
         required=False,
@@ -198,7 +209,7 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
             value_field='slug',
         )
     )
-    region = FilterChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
@@ -210,10 +221,9 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
             }
         )
     )
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
@@ -221,10 +231,9 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
             null_option=True,
         )
     )
-    group = FilterChoiceField(
+    group = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
         required=False,
         widget=APISelectMultiple(
             api_url="/api/virtualization/cluster-groups/",
@@ -235,8 +244,8 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
     tag = TagFilterField(model)
 
 
-class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
-    region = forms.ModelChoiceField(
+class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
+    region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
         widget=APISelect(
@@ -249,11 +258,8 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
             }
         )
     )
-    site = ChainedModelChoiceField(
+    site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        chains=(
-            ('region', 'region'),
-        ),
         required=False,
         widget=APISelect(
             api_url='/api/dcim/sites/',
@@ -263,11 +269,8 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
             }
         )
     )
-    rack = ChainedModelChoiceField(
+    rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
-        chains=(
-            ('site', 'site'),
-        ),
         required=False,
         widget=APISelect(
             api_url='/api/dcim/racks/',
@@ -279,12 +282,8 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
             }
         )
     )
-    devices = ChainedModelMultipleChoiceField(
+    devices = DynamicModelMultipleChoiceField(
         queryset=Device.objects.filter(cluster__isnull=True),
-        chains=(
-            ('site', 'site'),
-            ('rack', 'rack'),
-        ),
         widget=APISelectMultiple(
             api_url='/api/dcim/devices/',
             display_field='display_name',
@@ -331,7 +330,7 @@ class ClusterRemoveDevicesForm(ConfirmationForm):
 #
 
 class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
-    cluster_group = forms.ModelChoiceField(
+    cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
         widget=APISelect(
@@ -344,13 +343,26 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             }
         )
     )
-    cluster = ChainedModelChoiceField(
+    cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
-        chains=(
-            ('group', 'cluster_group'),
-        ),
         widget=APISelect(
             api_url='/api/virtualization/clusters/'
+        )
+    )
+    role = DynamicModelChoiceField(
+        queryset=DeviceRole.objects.all(),
+        widget=APISelect(
+            api_url="/api/dcim/device-roles/",
+            additional_query_params={
+                "vm_role": "True"
+            }
+        )
+    )
+    platform = DynamicModelChoiceField(
+        queryset=Platform.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/platforms/'
         )
     )
     tags = TagField(
@@ -373,17 +385,8 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
         widgets = {
             "status": StaticSelect2(),
-            "role": APISelect(
-                api_url="/api/dcim/device-roles/",
-                additional_query_params={
-                    "vm_role": "True"
-                }
-            ),
             'primary_ip4': StaticSelect2(),
             'primary_ip6': StaticSelect2(),
-            'platform': APISelect(
-                api_url='/api/dcim/platforms/'
-            )
         }
 
     def __init__(self, *args, **kwargs):
@@ -493,14 +496,14 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
         initial='',
         widget=StaticSelect2(),
     )
-    cluster = forms.ModelChoiceField(
+    cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
         widget=APISelect(
             api_url='/api/virtualization/clusters/'
         )
     )
-    role = forms.ModelChoiceField(
+    role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.filter(
             vm_role=True
         ),
@@ -512,14 +515,14 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
             }
         )
     )
-    tenant = forms.ModelChoiceField(
+    tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         widget=APISelect(
             api_url='/api/tenancy/tenants/'
         )
     )
-    platform = forms.ModelChoiceField(
+    platform = DynamicModelChoiceField(
         queryset=Platform.objects.all(),
         required=False,
         widget=APISelect(
@@ -559,34 +562,35 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         required=False,
         label='Search'
     )
-    cluster_group = FilterChoiceField(
+    cluster_group = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
+        required=False,
         widget=APISelectMultiple(
             api_url='/api/virtualization/cluster-groups/',
             value_field="slug",
             null_option=True,
         )
     )
-    cluster_type = FilterChoiceField(
+    cluster_type = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
+        required=False,
         widget=APISelectMultiple(
             api_url='/api/virtualization/cluster-types/',
             value_field="slug",
             null_option=True,
         )
     )
-    cluster_id = FilterChoiceField(
+    cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
+        required=False,
         label='Cluster',
         widget=APISelectMultiple(
             api_url='/api/virtualization/clusters/',
         )
     )
-    region = FilterChoiceField(
+    region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
@@ -598,20 +602,20 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
             }
         )
     )
-    site = FilterChoiceField(
+    site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
+        required=False,
         widget=APISelectMultiple(
             api_url='/api/dcim/sites/',
             value_field="slug",
             null_option=True,
         )
     )
-    role = FilterChoiceField(
+    role = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.filter(vm_role=True),
         to_field_name='slug',
-        null_label='-- None --',
+        required=False,
         widget=APISelectMultiple(
             api_url='/api/dcim/device-roles/',
             value_field="slug",
@@ -626,10 +630,10 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         required=False,
         widget=StaticSelect2Multiple()
     )
-    platform = FilterChoiceField(
+    platform = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
+        required=False,
         widget=APISelectMultiple(
             api_url='/api/dcim/platforms/',
             value_field="slug",
@@ -648,7 +652,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
 #
 
 class InterfaceForm(BootstrapMixin, forms.ModelForm):
-    untagged_vlan = forms.ModelChoiceField(
+    untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         widget=APISelect(
@@ -657,7 +661,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
             full=True
         )
     )
-    tagged_vlans = forms.ModelMultipleChoiceField(
+    tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         widget=APISelectMultiple(
@@ -774,7 +778,7 @@ class InterfaceCreateForm(BootstrapMixin, forms.Form):
         required=False,
         widget=StaticSelect2(),
     )
-    untagged_vlan = forms.ModelChoiceField(
+    untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         widget=APISelect(
@@ -783,7 +787,7 @@ class InterfaceCreateForm(BootstrapMixin, forms.Form):
             full=True
         )
     )
-    tagged_vlans = forms.ModelMultipleChoiceField(
+    tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         widget=APISelectMultiple(
@@ -862,7 +866,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False,
         widget=StaticSelect2()
     )
-    untagged_vlan = forms.ModelChoiceField(
+    untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         widget=APISelect(
@@ -871,7 +875,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
             full=True
         )
     )
-    tagged_vlans = forms.ModelMultipleChoiceField(
+    tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         widget=APISelectMultiple(

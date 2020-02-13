@@ -1,11 +1,5 @@
 {% load helpers %}
 
-<ul class="rack_legend">
-    {% for u in rack.units %}
-        <li>{{ u }}</li>
-    {% endfor %}
-</ul>
-
 <div class="rack_frame">
 
   <object data="{% url 'dcim-api:rack-elevation' pk=rack.pk %}?face={{face}}&render=svg"></object>

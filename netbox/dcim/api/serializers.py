@@ -117,9 +117,9 @@ class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=RackStatusChoices, required=False)
     role = NestedRackRoleSerializer(required=False, allow_null=True)
-    type = ChoiceField(choices=RackTypeChoices, required=False, allow_null=True)
+    type = ChoiceField(choices=RackTypeChoices, allow_blank=True, required=False)
     width = ChoiceField(choices=RackWidthChoices, required=False)
-    outer_unit = ChoiceField(choices=RackDimensionUnitChoices, required=False)
+    outer_unit = ChoiceField(choices=RackDimensionUnitChoices, allow_blank=True, required=False)
     tags = TagListSerializerField(required=False)
     device_count = serializers.IntegerField(read_only=True)
     powerfeed_count = serializers.IntegerField(read_only=True)
@@ -212,7 +212,7 @@ class ManufacturerSerializer(ValidatedModelSerializer):
 
 class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
     manufacturer = NestedManufacturerSerializer()
-    subdevice_role = ChoiceField(choices=SubdeviceRoleChoices, required=False, allow_null=True)
+    subdevice_role = ChoiceField(choices=SubdeviceRoleChoices, allow_blank=True, required=False)
     tags = TagListSerializerField(required=False)
     device_count = serializers.IntegerField(read_only=True)
 
@@ -228,6 +228,7 @@ class ConsolePortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     type = ChoiceField(
         choices=ConsolePortTypeChoices,
+        allow_blank=True,
         required=False
     )
 
@@ -240,6 +241,7 @@ class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     type = ChoiceField(
         choices=ConsolePortTypeChoices,
+        allow_blank=True,
         required=False
     )
 
@@ -252,6 +254,7 @@ class PowerPortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     type = ChoiceField(
         choices=PowerPortTypeChoices,
+        allow_blank=True,
         required=False
     )
 
@@ -264,6 +267,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     type = ChoiceField(
         choices=PowerOutletTypeChoices,
+        allow_blank=True,
         required=False
     )
     power_port = PowerPortTemplateSerializer(
@@ -271,8 +275,8 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
     )
     feed_leg = ChoiceField(
         choices=PowerOutletFeedLegChoices,
-        required=False,
-        allow_null=True
+        allow_blank=True,
+        required=False
     )
 
     class Meta:
@@ -351,7 +355,7 @@ class DeviceSerializer(TaggitSerializer, CustomFieldModelSerializer):
     platform = NestedPlatformSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer()
     rack = NestedRackSerializer(required=False, allow_null=True)
-    face = ChoiceField(choices=DeviceFaceChoices, required=False, allow_null=True)
+    face = ChoiceField(choices=DeviceFaceChoices, allow_blank=True, required=False)
     status = ChoiceField(choices=DeviceStatusChoices, required=False)
     primary_ip = NestedIPAddressSerializer(read_only=True)
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
@@ -420,6 +424,7 @@ class ConsoleServerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer)
     device = NestedDeviceSerializer()
     type = ChoiceField(
         choices=ConsolePortTypeChoices,
+        allow_blank=True,
         required=False
     )
     cable = NestedCableSerializer(read_only=True)
@@ -437,6 +442,7 @@ class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(
         choices=ConsolePortTypeChoices,
+        allow_blank=True,
         required=False
     )
     cable = NestedCableSerializer(read_only=True)
@@ -454,6 +460,7 @@ class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(
         choices=PowerOutletTypeChoices,
+        allow_blank=True,
         required=False
     )
     power_port = NestedPowerPortSerializer(
@@ -461,8 +468,8 @@ class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     )
     feed_leg = ChoiceField(
         choices=PowerOutletFeedLegChoices,
-        required=False,
-        allow_null=True
+        allow_blank=True,
+        required=False
     )
     cable = NestedCableSerializer(
         read_only=True
@@ -483,6 +490,7 @@ class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(
         choices=PowerPortTypeChoices,
+        allow_blank=True,
         required=False
     )
     cable = NestedCableSerializer(read_only=True)
@@ -500,7 +508,7 @@ class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=InterfaceTypeChoices, required=False)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
-    mode = ChoiceField(choices=InterfaceModeChoices, required=False, allow_null=True)
+    mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),
@@ -617,7 +625,7 @@ class CableSerializer(ValidatedModelSerializer):
     termination_a = serializers.SerializerMethodField(read_only=True)
     termination_b = serializers.SerializerMethodField(read_only=True)
     status = ChoiceField(choices=CableStatusChoices, required=False)
-    length_unit = ChoiceField(choices=CableLengthUnitChoices, required=False, allow_null=True)
+    length_unit = ChoiceField(choices=CableLengthUnitChoices, allow_blank=True, required=False)
 
     class Meta:
         model = Cable
