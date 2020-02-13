@@ -26,6 +26,7 @@
 * [#4138](https://github.com/netbox-community/netbox/issues/4138) - Include device bay counts in rack elevation diagrams
 * [#4146](https://github.com/netbox-community/netbox/issues/4146) - Fix enforcement of secret role assignment for secret decryption
 * [#4150](https://github.com/netbox-community/netbox/issues/4150) - Correct YAML rendering of config contexts
+* [#4159](https://github.com/netbox-community/netbox/issues/4159) - Fix implementation of Redis caching configuration
 
 ---
 
