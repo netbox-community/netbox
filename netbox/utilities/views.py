@@ -634,7 +634,7 @@ class BulkEditView(GetReturnURLMixin, View):
             post_data['pk'] = [obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs]
 
         if '_apply' in request.POST:
-            form = self.form(model, request.POST, initial=request.GET)
+            form = self.form(model, request.POST)
             if form.is_valid():
 
                 custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
@@ -718,10 +718,6 @@ class BulkEditView(GetReturnURLMixin, View):
         else:
             # Pass the PK list as initial data to avoid binding the form
             initial_data = querydict_to_dict(post_data)
-
-            # Append any normal initial data (passed as GET parameters)
-            initial_data.update(request.GET)
-
             form = self.form(model, initial=initial_data)
 
         # Retrieve objects being edited
