@@ -2832,7 +2832,10 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         widget=APISelect(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
@@ -2842,7 +2845,10 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         widget=APISelectMultiple(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
     tags = TagField(
@@ -2871,18 +2877,20 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Limit LAG choices to interfaces belonging to this device (or VC master)
         if self.is_bound:
             device = Device.objects.get(pk=self.data['device'])
-            self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[device, device.get_vc_master()],
-                type=InterfaceTypeChoices.TYPE_LAG
-            )
         else:
-            self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[self.instance.device, self.instance.device.get_vc_master()],
-                type=InterfaceTypeChoices.TYPE_LAG
-            )
+            device = self.instance.device
+
+        # Limit LAG choices to interfaces belonging to this device (or VC master)
+        self.fields['lag'].queryset = Interface.objects.filter(
+            device__in=[device, device.get_vc_master()],
+            type=InterfaceTypeChoices.TYPE_LAG
+        )
+
+        # Add current site to VLANs query params
+        self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', device.site.pk)
+        self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', device.site.pk)
 
 
 class InterfaceCreateForm(BootstrapMixin, InterfaceCommonForm, forms.Form):
@@ -2942,7 +2950,10 @@ class InterfaceCreateForm(BootstrapMixin, InterfaceCommonForm, forms.Form):
         widget=APISelect(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
@@ -2951,7 +2962,10 @@ class InterfaceCreateForm(BootstrapMixin, InterfaceCommonForm, forms.Form):
         widget=APISelectMultiple(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
 
@@ -2966,6 +2980,10 @@ class InterfaceCreateForm(BootstrapMixin, InterfaceCommonForm, forms.Form):
             device__in=[device, device.get_vc_master()],
             type=InterfaceTypeChoices.TYPE_LAG
         )
+
+        # Add current site to VLANs query params
+        self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', device.site.pk)
+        self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', device.site.pk)
 
 
 class InterfaceCSVForm(forms.ModelForm):
@@ -3090,7 +3108,10 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         widget=APISelect(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
@@ -3099,7 +3120,10 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         widget=APISelectMultiple(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
 
@@ -3118,6 +3142,10 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
                 device__in=[device, device.get_vc_master()],
                 type=InterfaceTypeChoices.TYPE_LAG
             )
+
+            # Add current site to VLANs query params
+            self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', device.site.pk)
+            self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', device.site.pk)
         else:
             self.fields['lag'].choices = ()
             self.fields['lag'].widget.attrs['disabled'] = True

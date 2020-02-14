@@ -382,8 +382,8 @@ class RackElevationHelperMixin:
 
         # add gradients
         RackElevationHelperMixin._add_gradient(drawing, 'reserved', '#c7c7ff')
-        RackElevationHelperMixin._add_gradient(drawing, 'occupied', '#f0f0f0')
-        RackElevationHelperMixin._add_gradient(drawing, 'blocked', '#ffc7c7')
+        RackElevationHelperMixin._add_gradient(drawing, 'occupied', '#d7d7d7')
+        RackElevationHelperMixin._add_gradient(drawing, 'blocked', '#ffc0c0')
 
         return drawing
 
