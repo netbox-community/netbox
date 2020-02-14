@@ -80,11 +80,11 @@ REDIS = {
 }
 ```
 
-!!! note:
+!!! note
     If you are upgrading from a version prior to v2.7, please note that the Redis connection configuration settings have
     changed. Manual modification to bring the `REDIS` section inline with the above specification is necessary
 
-!!! warning:
+!!! note
     It is highly recommended to keep the webhook and cache databases separate. Using the same database number on the
     same Redis instance for both may result in webhook processing data being lost during cache flushing events.
 
@@ -124,7 +124,7 @@ REDIS = {
 }
 ```
 
-!!! note:
+!!! note
     It is possible to have only one or the other Redis configurations to use Sentinel functionality. It is possible
     for example to have the webhook use sentinel via `HOST`/`PORT` and for caching to use Sentinel via 
     `SENTINELS`/`SENTINEL_SERVICE`.
