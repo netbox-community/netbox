@@ -4,11 +4,10 @@ from copy import deepcopy
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
-from django.db.models import Count, ProtectedError
-from django.db.models.query import QuerySet
-from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
+from django.db.models import ManyToManyField, ProtectedError
+from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
 from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
@@ -24,10 +23,9 @@ from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
-from extras.utils import is_taggable
 from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField
-from utilities.utils import csv_format, prepare_cloned_fields
+from utilities.utils import csv_format, prepare_cloned_fields, querydict_to_dict
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm, ImportForm
 from .paginator import EnhancedPaginator
@@ -73,7 +71,8 @@ class ObjectListView(View):
     filterset = None
     filterset_form = None
     table = None
-    template_name = None
+    template_name = 'utilities/obj_list.html'
+    action_buttons = ('add', 'import', 'export')
 
     def queryset_to_yaml(self):
         """
@@ -88,15 +87,27 @@ class ObjectListView(View):
         Export the queryset of objects as comma-separated value (CSV), using the model's to_csv() method.
         """
         csv_data = []
+        custom_fields = []
 
         # Start with the column headers
-        headers = ','.join(self.queryset.model.csv_headers)
-        csv_data.append(headers)
+        headers = self.queryset.model.csv_headers.copy()
+
+        # Add custom field headers, if any
+        if hasattr(self.queryset.model, 'get_custom_fields'):
+            for custom_field in self.queryset.model().get_custom_fields():
+                headers.append(custom_field.name)
+                custom_fields.append(custom_field.name)
+
+        csv_data.append(','.join(headers))
 
         # Iterate through the queryset appending each object
         for obj in self.queryset:
-            data = csv_format(obj.to_csv())
-            csv_data.append(data)
+            data = obj.to_csv()
+
+            for custom_field in custom_fields:
+                data += (obj.cf.get(custom_field, ''),)
+
+            csv_data.append(csv_format(data))
 
         return '\n'.join(csv_data)
 
@@ -146,20 +157,16 @@ class ObjectListView(View):
         # Provide a hook to tweak the queryset based on the request immediately prior to rendering the object list
         self.queryset = self.alter_queryset(request)
 
-        # Compile user model permissions for access from within the template
-        perm_base_name = '{}.{{}}_{}'.format(model._meta.app_label, model._meta.model_name)
-        permissions = {p: request.user.has_perm(perm_base_name.format(p)) for p in ['add', 'change', 'delete']}
+        # Compile a dictionary indicating which permissions are available to the current user for this model
+        permissions = {}
+        for action in ('add', 'change', 'delete', 'view'):
+            perm_name = '{}.{}_{}'.format(model._meta.app_label, action, model._meta.model_name)
+            permissions[action] = request.user.has_perm(perm_name)
 
         # Construct the table based on the user's permissions
         table = self.table(self.queryset)
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
-
-        # Construct queryset for tags list
-        if is_taggable(model):
-            tags = model.tags.annotate(count=Count('extras_taggeditem_items')).order_by('name')
-        else:
-            tags = None
 
         # Apply the request context
         paginate = {
@@ -172,8 +179,8 @@ class ObjectListView(View):
             'content_type': content_type,
             'table': table,
             'permissions': permissions,
+            'action_buttons': self.action_buttons,
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
-            'tags': tags,
         }
         context.update(self.extra_context())
 
@@ -601,14 +608,12 @@ class BulkEditView(GetReturnURLMixin, View):
     Edit objects in bulk.
 
     queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
-    parent_model: The model of the parent object (if any)
     filter: FilterSet to apply when deleting by QuerySet
     table: The table used to display devices being edited
     form: The form class used to edit objects in bulk
     template_name: The name of the template
     """
     queryset = None
-    parent_model = None
     filterset = None
     table = None
     form = None
@@ -621,24 +626,21 @@ class BulkEditView(GetReturnURLMixin, View):
 
         model = self.queryset.model
 
-        # Attempt to derive parent object if a parent class has been given
-        if self.parent_model:
-            parent_obj = get_object_or_404(self.parent_model, **kwargs)
-        else:
-            parent_obj = None
+        # Create a mutable copy of the POST data
+        post_data = request.POST.copy()
 
-        # Are we editing *all* objects in the queryset or just a selected subset?
-        if request.POST.get('_all') and self.filterset is not None:
-            pk_list = [obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs]
-        else:
-            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
+        # If we are editing *all* objects in the queryset, replace the PK list with all matched objects.
+        if post_data.get('_all') and self.filterset is not None:
+            post_data['pk'] = [obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs]
 
         if '_apply' in request.POST:
-            form = self.form(model, parent_obj, request.POST)
+            form = self.form(model, request.POST, initial=request.GET)
             if form.is_valid():
 
                 custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
-                standard_fields = [field for field in form.fields if field not in custom_fields and field != 'pk']
+                standard_fields = [
+                    field for field in form.fields if field not in custom_fields + ['pk']
+                ]
                 nullified_fields = request.POST.getlist('_nullify')
 
                 try:
@@ -646,18 +648,33 @@ class BulkEditView(GetReturnURLMixin, View):
                     with transaction.atomic():
 
                         updated_count = 0
-                        for obj in model.objects.filter(pk__in=pk_list):
+                        for obj in model.objects.filter(pk__in=form.cleaned_data['pk']):
 
                             # Update standard fields. If a field is listed in _nullify, delete its value.
                             for name in standard_fields:
-                                if name in form.nullable_fields and name in nullified_fields and isinstance(form.cleaned_data[name], QuerySet):
-                                    getattr(obj, name).set([])
-                                elif name in form.nullable_fields and name in nullified_fields:
-                                    setattr(obj, name, '' if isinstance(form.fields[name], CharField) else None)
-                                elif isinstance(form.cleaned_data[name], QuerySet) and form.cleaned_data[name]:
+
+                                try:
+                                    model_field = model._meta.get_field(name)
+                                except FieldDoesNotExist:
+                                    # The form field is used to modify a field rather than set its value directly,
+                                    # so we skip it.
+                                    continue
+
+                                # Handle nullification
+                                if name in form.nullable_fields and name in nullified_fields:
+                                    if isinstance(model_field, ManyToManyField):
+                                        getattr(obj, name).set([])
+                                    else:
+                                        setattr(obj, name, None if model_field.null else '')
+
+                                # ManyToManyFields
+                                elif isinstance(model_field, ManyToManyField):
                                     getattr(obj, name).set(form.cleaned_data[name])
-                                elif form.cleaned_data[name] not in (None, '') and not isinstance(form.cleaned_data[name], QuerySet):
+
+                                # Normal fields
+                                elif form.cleaned_data[name] not in (None, ''):
                                     setattr(obj, name, form.cleaned_data[name])
+
                             obj.full_clean()
                             obj.save()
 
@@ -699,12 +716,16 @@ class BulkEditView(GetReturnURLMixin, View):
                     messages.error(self.request, "{} failed validation: {}".format(obj, e))
 
         else:
-            initial_data = request.POST.copy()
-            initial_data['pk'] = pk_list
-            form = self.form(model, parent_obj, initial=initial_data)
+            # Pass the PK list as initial data to avoid binding the form
+            initial_data = querydict_to_dict(post_data)
+
+            # Append any normal initial data (passed as GET parameters)
+            initial_data.update(request.GET)
+
+            form = self.form(model, initial=initial_data)
 
         # Retrieve objects being edited
-        table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
+        table = self.table(self.queryset.filter(pk__in=post_data.getlist('pk')), orderable=False)
         if not table.rows:
             messages.warning(request, "No {} were selected.".format(model._meta.verbose_name_plural))
             return redirect(self.get_return_url(request))
@@ -722,14 +743,12 @@ class BulkDeleteView(GetReturnURLMixin, View):
     Delete objects in bulk.
 
     queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
-    parent_model: The model of the parent object (if any)
     filter: FilterSet to apply when deleting by QuerySet
     table: The table used to display devices being deleted
     form: The form class used to delete objects in bulk
     template_name: The name of the template
     """
     queryset = None
-    parent_model = None
     filterset = None
     table = None
     form = None
@@ -741,12 +760,6 @@ class BulkDeleteView(GetReturnURLMixin, View):
     def post(self, request, **kwargs):
 
         model = self.queryset.model
-
-        # Attempt to derive parent object if a parent class has been given
-        if self.parent_model:
-            parent_obj = get_object_or_404(self.parent_model, **kwargs)
-        else:
-            parent_obj = None
 
         # Are we deleting *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all'):
@@ -789,7 +802,6 @@ class BulkDeleteView(GetReturnURLMixin, View):
 
         return render(request, self.template_name, {
             'form': form,
-            'parent_obj': parent_obj,
             'obj_type_plural': model._meta.verbose_name_plural,
             'table': table,
             'return_url': self.get_return_url(request),
@@ -812,45 +824,40 @@ class BulkDeleteView(GetReturnURLMixin, View):
 # Device/VirtualMachine components
 #
 
-class ComponentCreateView(View):
+# TODO: Replace with BulkCreateView
+class ComponentCreateView(GetReturnURLMixin, View):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a Device or VirtualMachine.
     """
-    parent_model = None
-    parent_field = None
     model = None
     form = None
     model_form = None
     template_name = None
 
-    def get(self, request, pk):
+    def get(self, request):
 
-        parent = get_object_or_404(self.parent_model, pk=pk)
-        form = self.form(parent, initial=request.GET)
+        form = self.form(initial=request.GET)
 
         return render(request, self.template_name, {
-            'parent': parent,
             'component_type': self.model._meta.verbose_name,
             'form': form,
-            'return_url': parent.get_absolute_url(),
+            'return_url': self.get_return_url(request),
         })
 
-    def post(self, request, pk):
+    def post(self, request):
 
-        parent = get_object_or_404(self.parent_model, pk=pk)
-
-        form = self.form(parent, request.POST)
+        form = self.form(request.POST, initial=request.GET)
         if form.is_valid():
 
             new_components = []
             data = deepcopy(request.POST)
-            data[self.parent_field] = parent.pk
 
             for i, name in enumerate(form.cleaned_data['name_pattern']):
 
                 # Initialize the individual component form
                 data['name'] = name
-                data.update(form.get_iterative_data(i))
+                if hasattr(form, 'get_iterative_data'):
+                    data.update(form.get_iterative_data(i))
                 component_form = self.model_form(data)
 
                 if component_form.is_valid():
@@ -869,19 +876,18 @@ class ComponentCreateView(View):
                 for component_form in new_components:
                     component_form.save()
 
-                messages.success(request, "Added {} {} to {}.".format(
-                    len(new_components), self.model._meta.verbose_name_plural, parent
+                messages.success(request, "Added {} {}".format(
+                    len(new_components), self.model._meta.verbose_name_plural
                 ))
                 if '_addanother' in request.POST:
-                    return redirect(request.path)
+                    return redirect(request.get_full_path())
                 else:
-                    return redirect(parent.get_absolute_url())
+                    return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
-            'parent': parent,
             'component_type': self.model._meta.verbose_name,
             'form': form,
-            'return_url': parent.get_absolute_url(),
+            'return_url': self.get_return_url(request),
         })
 
 

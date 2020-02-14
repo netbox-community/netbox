@@ -177,10 +177,11 @@ An IPv4 or IPv6 network with a mask. Returns a `netaddr.IPNetwork` object. Two a
 
 All variables support the following default options:
 
-* `label` - The name of the form field
-* `description` - A brief description of the field
 * `default` - The field's default value
+* `description` - A brief description of the field
+* `label` - The name of the form field
 * `required` - Indicates whether the field is mandatory (default: true)
+* `widget` - The class of form widget to use (see the [Django documentation](https://docs.djangoproject.com/en/stable/ref/forms/widgets/))
 
 ## Example
 

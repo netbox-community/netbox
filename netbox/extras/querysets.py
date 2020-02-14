@@ -29,6 +29,10 @@ class ConfigContextQuerySet(QuerySet):
         # `device_role` for Device; `role` for VirtualMachine
         role = getattr(obj, 'device_role', None) or obj.role
 
+        # Virtualization cluster for VirtualMachine
+        cluster = getattr(obj, 'cluster', None)
+        cluster_group = getattr(cluster, 'group', None)
+
         # Get the group of the assigned tenant, if any
         tenant_group = obj.tenant.group if obj.tenant else None
 
@@ -44,6 +48,8 @@ class ConfigContextQuerySet(QuerySet):
             Q(sites=obj.site) | Q(sites=None),
             Q(roles=role) | Q(roles=None),
             Q(platforms=obj.platform) | Q(platforms=None),
+            Q(cluster_groups=cluster_group) | Q(cluster_groups=None),
+            Q(clusters=cluster) | Q(clusters=None),
             Q(tenant_groups=tenant_group) | Q(tenant_groups=None),
             Q(tenants=obj.tenant) | Q(tenants=None),
             Q(tags__slug__in=obj.tags.slugs()) | Q(tags=None),

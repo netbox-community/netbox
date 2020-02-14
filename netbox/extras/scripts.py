@@ -48,7 +48,7 @@ class ScriptVariable:
     """
     form_field = forms.CharField
 
-    def __init__(self, label='', description='', default=None, required=True):
+    def __init__(self, label='', description='', default=None, required=True, widget=None):
 
         # Initialize field attributes
         if not hasattr(self, 'field_attrs'):
@@ -59,6 +59,8 @@ class ScriptVariable:
             self.field_attrs['help_text'] = description
         if default:
             self.field_attrs['initial'] = default
+        if widget:
+            self.field_attrs['widget'] = widget
         self.field_attrs['required'] = required
 
         # Initialize the list of optional validators if none have already been defined
@@ -71,7 +73,10 @@ class ScriptVariable:
         """
         form_field = self.form_field(**self.field_attrs)
         if not isinstance(form_field.widget, forms.CheckboxInput):
-            form_field.widget.attrs['class'] = 'form-control'
+            if form_field.widget.attrs and 'class' in form_field.widget.attrs.keys():
+                form_field.widget.attrs['class'] += ' form-control'
+            else:
+                form_field.widget.attrs['class'] = 'form-control'
 
         return form_field
 

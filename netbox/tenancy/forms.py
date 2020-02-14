@@ -1,10 +1,12 @@
 from django import forms
 from taggit.forms import TagField
 
-from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from extras.forms import (
+    AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm,
+)
 from utilities.forms import (
-    APISelect, APISelectMultiple, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField,
-    FilterChoiceField, SlugField,
+    APISelect, APISelectMultiple, BootstrapMixin, CommentField, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, SlugField, TagFilterField,
 )
 from .models import Tenant, TenantGroup
 
@@ -38,8 +40,15 @@ class TenantGroupCSVForm(forms.ModelForm):
 # Tenants
 #
 
-class TenantForm(BootstrapMixin, CustomFieldForm):
+class TenantForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
+    group = DynamicModelChoiceField(
+        queryset=TenantGroup.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/tenancy/tenant-groups/"
+        )
+    )
     comments = CommentField()
     tags = TagField(
         required=False
@@ -47,17 +56,12 @@ class TenantForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = Tenant
-        fields = [
+        fields = (
             'name', 'slug', 'group', 'description', 'comments', 'tags',
-        ]
-        widgets = {
-            'group': APISelect(
-                api_url="/api/tenancy/tenant-groups/"
-            )
-        }
+        )
 
 
-class TenantCSVForm(forms.ModelForm):
+class TenantCSVForm(CustomFieldModelForm):
     slug = SlugField()
     group = forms.ModelChoiceField(
         queryset=TenantGroup.objects.all(),
@@ -83,7 +87,7 @@ class TenantBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         queryset=Tenant.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
-    group = forms.ModelChoiceField(
+    group = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
         widget=APISelect(
@@ -103,24 +107,25 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False,
         label='Search'
     )
-    group = FilterChoiceField(
+    group = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenant-groups/",
             value_field="slug",
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 #
 # Form extensions
 #
 
-class TenancyForm(ChainedFieldsMixin, forms.Form):
-    tenant_group = forms.ModelChoiceField(
+class TenancyForm(forms.Form):
+    tenant_group = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
         widget=APISelect(
@@ -133,11 +138,8 @@ class TenancyForm(ChainedFieldsMixin, forms.Form):
             }
         )
     )
-    tenant = ChainedModelChoiceField(
+    tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
-        chains=(
-            ('group', 'tenant_group'),
-        ),
         required=False,
         widget=APISelect(
             api_url='/api/tenancy/tenants/'
@@ -157,10 +159,10 @@ class TenancyForm(ChainedFieldsMixin, forms.Form):
 
 
 class TenancyFilterForm(forms.Form):
-    tenant_group = FilterChoiceField(
+    tenant_group = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenant-groups/",
             value_field="slug",
@@ -170,10 +172,10 @@ class TenancyFilterForm(forms.Form):
             }
         )
     )
-    tenant = FilterChoiceField(
+    tenant = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='slug',
-        null_label='-- None --',
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/tenancy/tenants/",
             value_field="slug",

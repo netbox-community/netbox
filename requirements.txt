@@ -4,6 +4,7 @@ django-cors-headers==3.2.1
 django-debug-toolbar==2.1
 django-filter==2.2.0
 django-mptt==0.9.1
+django-pglocks==1.0.4
 django-prometheus==1.1.0
 django-rq==2.2.0
 django-tables2==2.2.1

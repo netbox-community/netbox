@@ -1,22 +1,24 @@
-{% extends '_base.html' %}
-{% load buttons %}
+{% extends 'utilities/obj_list.html' %}
 
-{% block content %}
-<div class="pull-right noprint">
-    {% if perms.dcim.add_device %}
-        {% add_button 'dcim:device_add' %}
-        {% import_button 'dcim:device_import' %}
+{% block bulk_buttons %}
+    {% if perms.dcim.change_device %}
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Components <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                {% if perms.dcim.add_consoleport %}<li><a href="{% url 'dcim:device_bulk_add_consoleport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Console Ports</a></li>{% endif %}
+                {% if perms.dcim.add_consoleserverport %}<li><a href="{% url 'dcim:device_bulk_add_consoleserverport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Console Server Ports</a></li>{% endif %}
+                {% if perms.dcim.add_powerport %}<li><a href="{% url 'dcim:device_bulk_add_powerport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Power Ports</a></li>{% endif %}
+                {% if perms.dcim.add_poweroutlet %}<li><a href="{% url 'dcim:device_bulk_add_poweroutlet' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Power Outlets</a></li>{% endif %}
+                {% if perms.dcim.add_interface %}<li><a href="{% url 'dcim:device_bulk_add_interface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Interfaces</a></li>{% endif %}
+                {% if perms.dcim.add_devicebay %}<li><a href="{% url 'dcim:device_bulk_add_devicebay' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Device Bays</a></li>{% endif %}
+            </ul>
+        </div>
     {% endif %}
-    {% export_button content_type %}
-</div>
-<h1>{% block title %}Devices{% endblock %}</h1>
-<div class="row">
-	<div class="col-md-9">
-        {% include 'dcim/inc/device_table.html' with bulk_edit_url='dcim:device_bulk_edit' bulk_delete_url='dcim:device_bulk_delete' %}
-    </div>
-    <div class="col-md-3 noprint">
-		{% include 'inc/search_panel.html' %}
-		{% include 'inc/tags_panel.html' %}
-    </div>
-</div>
+    {% if perms.dcim.add_virtualchassis %}
+        <button type="submit" name="_edit" formaction="{% url 'dcim:virtualchassis_add' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-primary btn-sm">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create Virtual Chassis
+        </button>
+    {% endif %}
 {% endblock %}

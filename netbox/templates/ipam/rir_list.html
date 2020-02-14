@@ -1,9 +1,6 @@
-{% extends '_base.html' %}
-{% load buttons %}
-{% load humanize %}
+{% extends 'utilities/obj_list.html' %}
 
-{% block content %}
-<div class="pull-right noprint">
+{% block buttons %}
     {% if request.GET.family == '6' %}
         <a href="{% url 'ipam:rir_list' %}" class="btn btn-default">
             <span class="fa fa-table" aria-hidden="true"></span>
@@ -15,22 +12,12 @@
             IPv6 Stats
         </a>
     {% endif %}
-    {% if perms.ipam.add_rir %}
-        {% add_button 'ipam:rir_add' %}
-        {% import_button 'ipam:rir_import' %}
+{% endblock %}
+
+{% block sidebar %}
+    {% if request.GET.family == '6' %}
+        <div class="alert alert-info">
+            <i class="fa fa-info-circle"></i> Numbers shown indicate /64 prefixes.
+        </div>
     {% endif %}
-    {% export_button content_type %}
-</div>
-<h1>{% block title %}RIRs{% endblock %}</h1>
-<div class="row">
-	<div class="col-md-9">
-        {% include 'utilities/obj_table.html' with bulk_delete_url='ipam:rir_bulk_delete' %}
-        {% if request.GET.family == '6' %}
-            <div class="alert alert-info pull-right"><strong>Note:</strong> Numbers shown indicate /64 prefixes.</div>
-        {% endif %}
-    </div>
-	<div class="col-md-3 noprint">
-		{% include 'inc/search_panel.html' %}
-	</div>
-</div>
 {% endblock %}

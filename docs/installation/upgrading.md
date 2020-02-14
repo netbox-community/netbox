@@ -88,7 +88,7 @@ Finally, restart the WSGI services to run the new code. If you followed this gui
 
 ```no-highlight
 # sudo systemctl restart netbox
-# sudo systemctl restart netbox-rqworker
+# sudo systemctl restart netbox-rq
 ```
 
 !!! note

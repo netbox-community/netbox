@@ -15,30 +15,30 @@ router = routers.DefaultRouter()
 router.APIRootView = IPAMRootView
 
 # Field choices
-router.register(r'_choices', views.IPAMFieldChoicesViewSet, basename='field-choice')
+router.register('_choices', views.IPAMFieldChoicesViewSet, basename='field-choice')
 
 # VRFs
-router.register(r'vrfs', views.VRFViewSet)
+router.register('vrfs', views.VRFViewSet)
 
 # RIRs
-router.register(r'rirs', views.RIRViewSet)
+router.register('rirs', views.RIRViewSet)
 
 # Aggregates
-router.register(r'aggregates', views.AggregateViewSet)
+router.register('aggregates', views.AggregateViewSet)
 
 # Prefixes
-router.register(r'roles', views.RoleViewSet)
-router.register(r'prefixes', views.PrefixViewSet)
+router.register('roles', views.RoleViewSet)
+router.register('prefixes', views.PrefixViewSet)
 
 # IP addresses
-router.register(r'ip-addresses', views.IPAddressViewSet)
+router.register('ip-addresses', views.IPAddressViewSet)
 
 # VLANs
-router.register(r'vlan-groups', views.VLANGroupViewSet)
-router.register(r'vlans', views.VLANViewSet)
+router.register('vlan-groups', views.VLANGroupViewSet)
+router.register('vlans', views.VLANViewSet)
 
 # Services
-router.register(r'services', views.ServiceViewSet)
+router.register('services', views.ServiceViewSet)
 
 app_name = 'ipam-api'
 urlpatterns = router.urls

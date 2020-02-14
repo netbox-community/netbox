@@ -29,7 +29,6 @@ class ProviderListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.ProviderFilterSet
     filterset_form = forms.ProviderFilterForm
     table = tables.ProviderDetailTable
-    template_name = 'circuits/provider_list.html'
 
 
 class ProviderView(PermissionRequiredMixin, View):
@@ -107,7 +106,6 @@ class CircuitTypeListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'circuits.view_circuittype'
     queryset = CircuitType.objects.annotate(circuit_count=Count('circuits'))
     table = tables.CircuitTypeTable
-    template_name = 'circuits/circuittype_list.html'
 
 
 class CircuitTypeCreateView(PermissionRequiredMixin, ObjectEditView):
@@ -151,7 +149,6 @@ class CircuitListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.CircuitFilterSet
     filterset_form = forms.CircuitFilterForm
     table = tables.CircuitTable
-    template_name = 'circuits/circuit_list.html'
 
 
 class CircuitView(PermissionRequiredMixin, View):

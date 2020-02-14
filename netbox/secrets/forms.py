@@ -4,10 +4,12 @@ from django import forms
 from taggit.forms import TagField
 
 from dcim.models import Device
-from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldForm
+from extras.forms import (
+    AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
+)
 from utilities.forms import (
-    APISelect, APISelectMultiple, BootstrapMixin, FilterChoiceField, FlexibleModelChoiceField, SlugField,
-    StaticSelect2Multiple
+    APISelect, APISelectMultiple, BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    FlexibleModelChoiceField, SlugField, StaticSelect2Multiple, TagFilterField,
 )
 from .constants import *
 from .models import Secret, SecretRole, UserKey
@@ -68,7 +70,7 @@ class SecretRoleCSVForm(forms.ModelForm):
 # Secrets
 #
 
-class SecretForm(BootstrapMixin, CustomFieldForm):
+class SecretForm(BootstrapMixin, CustomFieldModelForm):
     plaintext = forms.CharField(
         max_length=SECRET_PLAINTEXT_MAX_LENGTH,
         required=False,
@@ -85,6 +87,12 @@ class SecretForm(BootstrapMixin, CustomFieldForm):
         label='Plaintext (verify)',
         widget=forms.PasswordInput()
     )
+    role = DynamicModelChoiceField(
+        queryset=SecretRole.objects.all(),
+        widget=APISelect(
+            api_url="/api/secrets/secret-roles/"
+        )
+    )
     tags = TagField(
         required=False
     )
@@ -94,11 +102,6 @@ class SecretForm(BootstrapMixin, CustomFieldForm):
         fields = [
             'role', 'name', 'plaintext', 'plaintext2', 'tags',
         ]
-        widgets = {
-            'role': APISelect(
-                api_url="/api/secrets/secret-roles/"
-            )
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -116,7 +119,7 @@ class SecretForm(BootstrapMixin, CustomFieldForm):
             })
 
 
-class SecretCSVForm(forms.ModelForm):
+class SecretCSVForm(CustomFieldModelCSVForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -155,7 +158,7 @@ class SecretBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         queryset=Secret.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
-    role = forms.ModelChoiceField(
+    role = DynamicModelChoiceField(
         queryset=SecretRole.objects.all(),
         required=False,
         widget=APISelect(
@@ -179,14 +182,16 @@ class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False,
         label='Search'
     )
-    role = FilterChoiceField(
+    role = DynamicModelMultipleChoiceField(
         queryset=SecretRole.objects.all(),
         to_field_name='slug',
+        required=True,
         widget=APISelectMultiple(
             api_url="/api/secrets/secret-roles/",
             value_field="slug",
         )
     )
+    tag = TagFilterField(model)
 
 
 #

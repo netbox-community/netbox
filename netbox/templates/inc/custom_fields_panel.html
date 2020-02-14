@@ -9,13 +9,13 @@
                     <tr>
                         <td>{{ field }}</td>
                         <td>
-                            {% if field.type == 300 and value == True %}
+                            {% if field.type == 'boolean' and value == True %}
                                 <i class="glyphicon glyphicon-ok text-success" title="True"></i>
-                            {% elif field.type == 300 and value == False %}
+                            {% elif field.type == 'boolean' and value == False %}
                                 <i class="glyphicon glyphicon-remove text-danger" title="False"></i>
-                            {% elif field.type == 500 and value %}
+                            {% elif field.type == 'url' and value %}
                                 <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
-                            {% elif field.type == 200 or value %}
+                            {% elif field.type == 'integer' or value %}
                                 {{ value }}
                             {% elif field.required %}
                                 <span class="text-warning">Not defined</span>

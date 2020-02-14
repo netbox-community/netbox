@@ -10,7 +10,8 @@
 # Example: ALLOWED_HOSTS = ['netbox.example.com', 'netbox.internal.local']
 ALLOWED_HOSTS = []
 
-# PostgreSQL database configuration.
+# PostgreSQL database configuration. See the Django documentation for a complete list of available parameters:
+#   https://docs.djangoproject.com/en/stable/ref/settings/#databases
 DATABASE = {
     'NAME': 'netbox',         # Database name
     'USER': '',               # PostgreSQL username
@@ -27,6 +28,9 @@ REDIS = {
     'webhooks': {
         'HOST': 'localhost',
         'PORT': 6379,
+        # Comment out `HOST` and `PORT` lines and uncomment the following if using Redis Sentinel
+        # 'SENTINELS': [('mysentinel.redis.example.com', 6379)],
+        # 'SENTINEL_SERVICE': 'netbox',
         'PASSWORD': '',
         'DATABASE': 0,
         'DEFAULT_TIMEOUT': 300,
@@ -35,6 +39,9 @@ REDIS = {
     'caching': {
         'HOST': 'localhost',
         'PORT': 6379,
+        # Comment out `HOST` and `PORT` lines and uncomment the following if using Redis Sentinel
+        # 'SENTINELS': [('mysentinel.redis.example.com', 6379)],
+        # 'SENTINEL_SERVICE': 'netbox',
         'PASSWORD': '',
         'DATABASE': 1,
         'DEFAULT_TIMEOUT': 300,

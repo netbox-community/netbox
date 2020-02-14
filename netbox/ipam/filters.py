@@ -8,7 +8,7 @@ from dcim.models import Device, Interface, Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
-    MultiValueCharFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
+    MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import VirtualMachine
 from .choices import *
@@ -304,12 +304,12 @@ class IPAddressFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedF
         to_field_name='rd',
         label='VRF (RD)',
     )
-    device = django_filters.CharFilter(
+    device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',
-        label='Device',
+        label='Device (name)',
     )
-    device_id = django_filters.NumberFilter(
+    device_id = MultiValueNumberFilter(
         method='filter_device',
         field_name='pk',
         label='Device (ID)',
@@ -385,8 +385,10 @@ class IPAddressFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedF
 
     def filter_device(self, queryset, name, value):
         try:
-            device = Device.objects.prefetch_related('device_type').get(**{name: value})
-            vc_interface_ids = [i['id'] for i in device.vc_interfaces.values('id')]
+            devices = Device.objects.prefetch_related('device_type').filter(**{'{}__in'.format(name): value})
+            vc_interface_ids = []
+            for device in devices:
+                vc_interface_ids.extend([i['id'] for i in device.vc_interfaces.values('id')])
             return queryset.filter(interface_id__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()

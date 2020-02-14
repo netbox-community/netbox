@@ -90,6 +90,14 @@ This setting enables debugging. This should be done only during development or t
 
 ---
 
+## DEVELOPER
+
+Default: False
+
+This parameter serves as a safeguard to prevent some potentially dangerous behavior, such as generating new database schema migrations. Set this to `True` **only** if you are actively developing the NetBox code base.
+
+---
+
 ## EMAIL
 
 In order to send email, NetBox needs an email server configured. The following items can be defined within the `EMAIL` setting:
@@ -100,6 +108,20 @@ In order to send email, NetBox needs an email server configured. The following i
 * PASSSWORD - Password with which to authenticate
 * TIMEOUT - Amount of time to wait for a connection (seconds)
 * FROM_EMAIL - Sender address for emails sent by NetBox
+
+Email is sent from NetBox only for critical events. If you would like to test the email server configuration please use the django function [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail):
+
+```
+# python ./manage.py nbshell
+>>> from django.core.mail import send_mail
+>>> send_mail(
+  'Test Email Subject',
+  'Test Email Body',
+  'noreply-netbox@example.com',
+  ['users@example.com'],
+  fail_silently=False
+)
+```
 
 ---
 
@@ -127,7 +149,7 @@ EXEMPT_VIEW_PERMISSIONS = ['*']
 
 ---
 
-# ENFORCE_GLOBAL_UNIQUE
+## ENFORCE_GLOBAL_UNIQUE
 
 Default: False
 

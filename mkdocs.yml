@@ -41,7 +41,6 @@ pages:
         - Prometheus Metrics: 'additional-features/prometheus-metrics.md'
         - Reports: 'additional-features/reports.md'
         - Tags: 'additional-features/tags.md'
-        - Topology Maps: 'additional-features/topology-maps.md'
         - Webhooks: 'additional-features/webhooks.md'
     - Administration:
         - Replicating NetBox: 'administration/replicating-netbox.md'

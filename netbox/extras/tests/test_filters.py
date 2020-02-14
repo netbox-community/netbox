@@ -7,6 +7,7 @@ from extras.constants import GRAPH_MODELS
 from extras.filters import *
 from extras.models import ConfigContext, ExportTemplate, Graph
 from tenancy.models import Tenant, TenantGroup
+from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 
 class GraphTestCase(TestCase):
@@ -107,6 +108,21 @@ class ConfigContextTestCase(TestCase):
         )
         Platform.objects.bulk_create(platforms)
 
+        cluster_groups = (
+            ClusterGroup(name='Cluster Group 1', slug='cluster-group-1'),
+            ClusterGroup(name='Cluster Group 2', slug='cluster-group-2'),
+            ClusterGroup(name='Cluster Group 3', slug='cluster-group-3'),
+        )
+        ClusterGroup.objects.bulk_create(cluster_groups)
+
+        cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        clusters = (
+            Cluster(name='Cluster 1', type=cluster_type),
+            Cluster(name='Cluster 2', type=cluster_type),
+            Cluster(name='Cluster 3', type=cluster_type),
+        )
+        Cluster.objects.bulk_create(clusters)
+
         tenant_groups = (
             TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
             TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
@@ -132,6 +148,8 @@ class ConfigContextTestCase(TestCase):
             c.sites.set([sites[i]])
             c.roles.set([device_roles[i]])
             c.platforms.set([platforms[i]])
+            c.cluster_groups.set([cluster_groups[i]])
+            c.clusters.set([clusters[i]])
             c.tenant_groups.set([tenant_groups[i]])
             c.tenants.set([tenants[i]])
 
@@ -171,6 +189,18 @@ class ConfigContextTestCase(TestCase):
         params = {'platform_id': [platforms[0].pk, platforms[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'platform': [platforms[0].slug, platforms[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_cluster_group(self):
+        cluster_groups = ClusterGroup.objects.all()[:2]
+        params = {'cluster_group_id': [cluster_groups[0].pk, cluster_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'cluster_group': [cluster_groups[0].slug, cluster_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_cluster(self):
+        clusters = Cluster.objects.all()[:2]
+        params = {'cluster_id': [clusters[0].pk, clusters[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_tenant_group(self):

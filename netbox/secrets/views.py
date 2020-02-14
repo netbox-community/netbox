@@ -35,7 +35,6 @@ class SecretRoleListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'secrets.view_secretrole'
     queryset = SecretRole.objects.annotate(secret_count=Count('secrets'))
     table = tables.SecretRoleTable
-    template_name = 'secrets/secretrole_list.html'
 
 
 class SecretRoleCreateView(PermissionRequiredMixin, ObjectEditView):
@@ -73,7 +72,7 @@ class SecretListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.SecretFilterSet
     filterset_form = forms.SecretFilterForm
     table = tables.SecretTable
-    template_name = 'secrets/secret_list.html'
+    action_buttons = ('import', 'export')
 
 
 class SecretView(PermissionRequiredMixin, View):
