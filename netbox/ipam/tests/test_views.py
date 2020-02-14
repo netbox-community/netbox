@@ -88,7 +88,6 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ])
 
         cls.form_data = {
-            'family': 4,
             'prefix': IPNetwork('10.99.0.0/16'),
             'rir': rirs[1].pk,
             'date_added': datetime.date(2020, 1, 1),
