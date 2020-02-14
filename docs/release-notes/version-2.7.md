@@ -1,5 +1,9 @@
 # v2.7.7 (FUTURE)
 
+## Enhancements
+
+* [#3840](https://github.com/netbox-community/netbox/issues/3840) - Enhance search function when selecting VLANs for interface assignment
+
 ## Bug Fixes
 
 * [#2519](https://github.com/netbox-community/netbox/issues/2519) - Avoid race condition when provisioning "next available" IPs/prefixes via the API
