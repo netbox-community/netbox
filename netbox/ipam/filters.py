@@ -73,6 +73,10 @@ class AggregateFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
         method='search',
         label='Search',
     )
+    family = django_filters.NumberFilter(
+        field_name='prefix',
+        lookup_expr='family'
+    )
     prefix = django_filters.CharFilter(
         method='filter_prefix',
         label='Prefix',
@@ -133,6 +137,10 @@ class PrefixFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilt
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    family = django_filters.NumberFilter(
+        field_name='prefix',
+        lookup_expr='family'
     )
     prefix = django_filters.CharFilter(
         method='filter_prefix',
@@ -281,6 +289,10 @@ class IPAddressFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedF
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    family = django_filters.NumberFilter(
+        field_name='address',
+        lookup_expr='family'
     )
     parent = django_filters.CharFilter(
         method='search_by_parent',
