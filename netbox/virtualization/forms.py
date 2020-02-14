@@ -408,7 +408,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                 ip_choices = [(None, '---------')]
                 # Collect interface IPs
                 interface_ips = IPAddress.objects.prefetch_related('interface').filter(
-                    family=family, interface__virtual_machine=self.instance
+                    address__family=family, interface__virtual_machine=self.instance
                 )
                 if interface_ips:
                     ip_choices.append(
@@ -418,7 +418,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                     )
                 # Collect NAT IPs
                 nat_ips = IPAddress.objects.prefetch_related('nat_inside').filter(
-                    family=family, nat_inside__interface__virtual_machine=self.instance
+                    address__family=family, nat_inside__interface__virtual_machine=self.instance
                 )
                 if nat_ips:
                     ip_choices.append(
