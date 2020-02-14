@@ -351,6 +351,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     )
     role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.all(),
+        required=False,
         widget=APISelect(
             api_url="/api/dcim/device-roles/",
             additional_query_params={

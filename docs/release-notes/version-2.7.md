@@ -1,3 +1,11 @@
+# v2.7.7 (FUTURE)
+
+## Bug Fixes
+
+* [#4168](https://github.com/netbox-community/netbox/issues/4168) - Role is not required when creating a virtual machine
+
+---
+
 # v2.7.6 (2020-02-13)
 
 ## Bug Fixes
