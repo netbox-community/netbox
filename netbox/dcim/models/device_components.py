@@ -113,16 +113,33 @@ class CableTermination(models.Model):
                 (FrontPort, cable, Interface)
             ]
 
-        And an example of a trace where we stop at a rear port:
+        +-----------------+                                               +-----------------+
+        |                 |                                               |                 |
+        |     Device      |                                               |     Device      |
+        |                 |   +-----------------+    +-----------------+  |                 |
+        |  +-------------+|   |+-------------+  |    |  +-------------+|  |+-------------+  |
+        |  |             ||   ||             |  |    |  |             ||  ||             |  |
+        |  | Interface A |-----| FrontPort B |  |    |  | FrontPort E |----| Interface F |  |
+        |  |             ||   ||             |  |    |  |             ||  ||             |  |
+        |  +-------------+|   |+------+------+  |    |  +------+------+|  |+-------------+  |
+        +-----------------+   |       |         |    |         |       |  +-----------------+
+                              |  +----+--------+|    |+--------+----+  |
+                              |  |             ||    ||             |  |
+                              |  |  RearPort C |------| RearPort D  |  |
+                              |  |             ||    ||             |  |
+                              |  +-------------+|    |+-------------+  |
+                              +-----------------+    +-----------------+
 
-            [
-                (RearPort, Cable, FrontPort),
-                (RearPort, Cable, RearPort),
-                (FrontPort, cable, RearPort)
-            ]
+        When tracing from Interface A the trace method will reach RearPort C. If that RearPort only has 1 FrontPort it
+        is basically a cable extender and the trace continues. However when RearPort C has multiple FrontPorts the
+        trace will pause and start a separate trace from RearPort C.
 
-        In this last example we start tracing at a rear port, so the only thing that makes sense is to end at the
-        corresponding rear port.
+        That (sub)trace will reach RearPort D, at which point it doesn't know which FrontPort to continue with, so it
+        ends the (sub)trace there and returns the path from RearPort C to RearPort D. In more complicated examples
+        there can be a whole set of ports between RearPort C and D, which will be (sub)traced accordingly.
+
+        The initial trace resumes, and because it knows which FrontPort it came from, it can resume with FrontPort E,
+        and complete the trace to Interface F.
         """
         if not self.cable:
             return [(self, None, None)]
