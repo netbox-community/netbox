@@ -13,4 +13,4 @@ class IPAddressManager(models.Manager):
         IP address as a /32 or /128.
         """
         qs = super().get_queryset()
-        return qs.annotate(host=RawSQL('INET(HOST(ipam_ipaddress.address))', [])).order_by('family', 'host')
+        return qs.annotate(host=RawSQL('INET(HOST(ipam_ipaddress.address))', [])).order_by('host')

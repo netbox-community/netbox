@@ -207,7 +207,7 @@ class RIRListView(PermissionRequiredMixin, ObjectListView):
                 'deprecated': 0,
                 'available': 0,
             }
-            aggregate_list = Aggregate.objects.filter(family=family, rir=rir)
+            aggregate_list = Aggregate.objects.filter(prefix__family=family, rir=rir)
             for aggregate in aggregate_list:
 
                 queryset = Prefix.objects.filter(prefix__net_contained_or_equal=str(aggregate.prefix))

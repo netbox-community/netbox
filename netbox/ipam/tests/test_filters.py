@@ -96,12 +96,12 @@ class AggregateTestCase(TestCase):
         RIR.objects.bulk_create(rirs)
 
         aggregates = (
-            Aggregate(family=4, prefix='10.1.0.0/16', rir=rirs[0], date_added='2020-01-01'),
-            Aggregate(family=4, prefix='10.2.0.0/16', rir=rirs[0], date_added='2020-01-02'),
-            Aggregate(family=4, prefix='10.3.0.0/16', rir=rirs[1], date_added='2020-01-03'),
-            Aggregate(family=6, prefix='2001:db8:1::/48', rir=rirs[1], date_added='2020-01-04'),
-            Aggregate(family=6, prefix='2001:db8:2::/48', rir=rirs[2], date_added='2020-01-05'),
-            Aggregate(family=6, prefix='2001:db8:3::/48', rir=rirs[2], date_added='2020-01-06'),
+            Aggregate(prefix='10.1.0.0/16', rir=rirs[0], date_added='2020-01-01'),
+            Aggregate(prefix='10.2.0.0/16', rir=rirs[0], date_added='2020-01-02'),
+            Aggregate(prefix='10.3.0.0/16', rir=rirs[1], date_added='2020-01-03'),
+            Aggregate(prefix='2001:db8:1::/48', rir=rirs[1], date_added='2020-01-04'),
+            Aggregate(prefix='2001:db8:2::/48', rir=rirs[2], date_added='2020-01-05'),
+            Aggregate(prefix='2001:db8:3::/48', rir=rirs[2], date_added='2020-01-06'),
         )
         Aggregate.objects.bulk_create(aggregates)
 
@@ -199,16 +199,16 @@ class PrefixTestCase(TestCase):
         Role.objects.bulk_create(roles)
 
         prefixes = (
-            Prefix(family=4, prefix='10.0.0.0/24', site=None, vrf=None, vlan=None, role=None, is_pool=True),
-            Prefix(family=4, prefix='10.0.1.0/24', site=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0]),
-            Prefix(family=4, prefix='10.0.2.0/24', site=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
-            Prefix(family=4, prefix='10.0.3.0/24', site=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
-            Prefix(family=6, prefix='2001:db8::/64', site=None, vrf=None, vlan=None, role=None, is_pool=True),
-            Prefix(family=6, prefix='2001:db8:0:1::/64', site=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0]),
-            Prefix(family=6, prefix='2001:db8:0:2::/64', site=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
-            Prefix(family=6, prefix='2001:db8:0:3::/64', site=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
-            Prefix(family=4, prefix='10.0.0.0/16'),
-            Prefix(family=6, prefix='2001:db8::/32'),
+            Prefix(prefix='10.0.0.0/24', site=None, vrf=None, vlan=None, role=None, is_pool=True),
+            Prefix(prefix='10.0.1.0/24', site=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0]),
+            Prefix(prefix='10.0.2.0/24', site=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
+            Prefix(prefix='10.0.3.0/24', site=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
+            Prefix(prefix='2001:db8::/64', site=None, vrf=None, vlan=None, role=None, is_pool=True),
+            Prefix(prefix='2001:db8:0:1::/64', site=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0]),
+            Prefix(prefix='2001:db8:0:2::/64', site=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
+            Prefix(prefix='2001:db8:0:3::/64', site=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
+            Prefix(prefix='10.0.0.0/16'),
+            Prefix(prefix='2001:db8::/32'),
         )
         Prefix.objects.bulk_create(prefixes)
 
@@ -333,16 +333,16 @@ class IPAddressTestCase(TestCase):
         Interface.objects.bulk_create(interfaces)
 
         ipaddresses = (
-            IPAddress(family=4, address='10.0.0.1/24', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
-            IPAddress(family=4, address='10.0.0.2/24', vrf=vrfs[0], interface=interfaces[0], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
-            IPAddress(family=4, address='10.0.0.3/24', vrf=vrfs[1], interface=interfaces[1], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
-            IPAddress(family=4, address='10.0.0.4/24', vrf=vrfs[2], interface=interfaces[2], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
-            IPAddress(family=4, address='10.0.0.1/25', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
-            IPAddress(family=6, address='2001:db8::1/64', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
-            IPAddress(family=6, address='2001:db8::2/64', vrf=vrfs[0], interface=interfaces[3], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
-            IPAddress(family=6, address='2001:db8::3/64', vrf=vrfs[1], interface=interfaces[4], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
-            IPAddress(family=6, address='2001:db8::4/64', vrf=vrfs[2], interface=interfaces[5], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
-            IPAddress(family=6, address='2001:db8::1/65', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
+            IPAddress(address='10.0.0.1/24', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
+            IPAddress(address='10.0.0.2/24', vrf=vrfs[0], interface=interfaces[0], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
+            IPAddress(address='10.0.0.3/24', vrf=vrfs[1], interface=interfaces[1], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
+            IPAddress(address='10.0.0.4/24', vrf=vrfs[2], interface=interfaces[2], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
+            IPAddress(address='10.0.0.1/25', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
+            IPAddress(address='2001:db8::1/64', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
+            IPAddress(address='2001:db8::2/64', vrf=vrfs[0], interface=interfaces[3], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
+            IPAddress(address='2001:db8::3/64', vrf=vrfs[1], interface=interfaces[4], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
+            IPAddress(address='2001:db8::4/64', vrf=vrfs[2], interface=interfaces[5], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
+            IPAddress(address='2001:db8::1/65', vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
 
         )
         IPAddress.objects.bulk_create(ipaddresses)

@@ -82,13 +82,12 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         RIR.objects.bulk_create(rirs)
 
         Aggregate.objects.bulk_create([
-            Aggregate(family=4, prefix=IPNetwork('10.1.0.0/16'), rir=rirs[0]),
-            Aggregate(family=4, prefix=IPNetwork('10.2.0.0/16'), rir=rirs[0]),
-            Aggregate(family=4, prefix=IPNetwork('10.3.0.0/16'), rir=rirs[0]),
+            Aggregate(prefix=IPNetwork('10.1.0.0/16'), rir=rirs[0]),
+            Aggregate(prefix=IPNetwork('10.2.0.0/16'), rir=rirs[0]),
+            Aggregate(prefix=IPNetwork('10.3.0.0/16'), rir=rirs[0]),
         ])
 
         cls.form_data = {
-            'family': 4,
             'prefix': IPNetwork('10.99.0.0/16'),
             'rir': rirs[1].pk,
             'date_added': datetime.date(2020, 1, 1),
@@ -161,9 +160,9 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         Prefix.objects.bulk_create([
-            Prefix(family=4, prefix=IPNetwork('10.1.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
-            Prefix(family=4, prefix=IPNetwork('10.2.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
-            Prefix(family=4, prefix=IPNetwork('10.3.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
+            Prefix(prefix=IPNetwork('10.1.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
+            Prefix(prefix=IPNetwork('10.2.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
+            Prefix(prefix=IPNetwork('10.3.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
         ])
 
         cls.form_data = {
@@ -209,9 +208,9 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         IPAddress.objects.bulk_create([
-            IPAddress(family=4, address=IPNetwork('192.0.2.1/24'), vrf=vrfs[0]),
-            IPAddress(family=4, address=IPNetwork('192.0.2.2/24'), vrf=vrfs[0]),
-            IPAddress(family=4, address=IPNetwork('192.0.2.3/24'), vrf=vrfs[0]),
+            IPAddress(address=IPNetwork('192.0.2.1/24'), vrf=vrfs[0]),
+            IPAddress(address=IPNetwork('192.0.2.2/24'), vrf=vrfs[0]),
+            IPAddress(address=IPNetwork('192.0.2.3/24'), vrf=vrfs[0]),
         ])
 
         cls.form_data = {
