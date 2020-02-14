@@ -704,6 +704,22 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
             self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', site.pk)
             self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', site.pk)
 
+    def clean(self):
+        super().clean()
+
+        # Validate VLAN assignments
+        tagged_vlans = self.cleaned_data['tagged_vlans']
+
+        # Untagged interfaces cannot be assigned tagged VLANs
+        if self.cleaned_data['mode'] == InterfaceModeChoices.MODE_ACCESS and tagged_vlans:
+            raise forms.ValidationError({
+                'mode': "An access interface cannot have tagged VLANs assigned."
+            })
+
+        # Remove all tagged VLAN assignments from "tagged all" interfaces
+        elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED_ALL:
+            self.cleaned_data['tagged_vlans'] = []
+
 
 class InterfaceCreateForm(BootstrapMixin, forms.Form):
     virtual_machine = forms.ModelChoiceField(
