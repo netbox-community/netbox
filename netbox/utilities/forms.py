@@ -309,12 +309,17 @@ class APISelect(SelectWithDisabled):
 
     def add_additional_query_param(self, name, value):
         """
-        Add details for an additional query param in the form of a data-* attribute.
+        Add details for an additional query param in the form of a data-* JSON-encoded list attribute.
 
         :param name: The name of the query param
         :param value: The value of the query param
         """
-        self.attrs['data-additional-query-param-{}'.format(name)] = value
+        key = 'data-additional-query-param-{}'.format(name)
+
+        values = json.loads(self.attrs.get(key, '[]'))
+        values.append(value)
+
+        self.attrs[key] = json.dumps(values)
 
     def add_conditional_query_param(self, condition, value):
         """
