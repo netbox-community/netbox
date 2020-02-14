@@ -176,33 +176,6 @@ class RackViewSet(CustomFieldModelViewSet):
     serializer_class = serializers.RackSerializer
     filterset_class = filters.RackFilterSet
 
-    @swagger_auto_schema(deprecated=True)
-    @action(detail=True)
-    def units(self, request, pk=None):
-        """
-        List rack units (by rack)
-        """
-        # TODO: Remove this action detail route in v2.8
-        rack = get_object_or_404(Rack, pk=pk)
-        face = request.GET.get('face', 'front')
-        exclude_pk = request.GET.get('exclude', None)
-        if exclude_pk is not None:
-            try:
-                exclude_pk = int(exclude_pk)
-            except ValueError:
-                exclude_pk = None
-        elevation = rack.get_rack_units(face, exclude_pk)
-
-        # Enable filtering rack units by ID
-        q = request.GET.get('q', None)
-        if q:
-            elevation = [u for u in elevation if q in str(u['id'])]
-
-        page = self.paginate_queryset(elevation)
-        if page is not None:
-            rack_units = serializers.RackUnitSerializer(page, many=True, context={'request': request})
-            return self.get_paginated_response(rack_units.data)
-
     @swagger_auto_schema(
         responses={200: serializers.RackUnitSerializer(many=True)},
         query_serializer=serializers.RackElevationDetailFilterSerializer
