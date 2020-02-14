@@ -91,7 +91,7 @@ class AggregateFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
 
     class Meta:
         model = Aggregate
-        fields = ['family', 'date_added']
+        fields = ('date_added',)
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -211,7 +211,7 @@ class PrefixFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilt
 
     class Meta:
         model = Prefix
-        fields = ['family', 'is_pool']
+        fields = ('is_pool',)
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -350,7 +350,7 @@ class IPAddressFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedF
 
     class Meta:
         model = IPAddress
-        fields = ['family', 'dns_name']
+        fields = ('dns_name',)
 
     def search(self, queryset, name, value):
         if not value.strip():
