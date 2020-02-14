@@ -186,7 +186,6 @@ class RIRListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.RIRFilterSet
     filterset_form = forms.RIRFilterForm
     table = tables.RIRDetailTable
-    # TODO: Remove custom template
     template_name = 'ipam/rir_list.html'
 
     def alter_queryset(self, request):
@@ -296,7 +295,6 @@ class AggregateListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.AggregateFilterSet
     filterset_form = forms.AggregateFilterForm
     table = tables.AggregateDetailTable
-    # TODO: Remove custom template
     template_name = 'ipam/aggregate_list.html'
 
     def extra_context(self):
@@ -448,7 +446,6 @@ class PrefixListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.PrefixFilterSet
     filterset_form = forms.PrefixFilterForm
     table = tables.PrefixDetailTable
-    # TODO: Remove custom template
     template_name = 'ipam/prefix_list.html'
 
     def alter_queryset(self, request):

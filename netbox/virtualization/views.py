@@ -254,7 +254,6 @@ class VirtualMachineListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.VirtualMachineFilterSet
     filterset_form = forms.VirtualMachineFilterForm
     table = tables.VirtualMachineDetailTable
-    # TODO: Remove custom template
     template_name = 'virtualization/virtualmachine_list.html'
 
 
