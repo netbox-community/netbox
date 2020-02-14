@@ -1,3 +1,11 @@
+# v2.7.6 (FUTURE)
+
+## Bug Fixes
+
+* [#4166](https://github.com/netbox-community/netbox/issues/4166) - Fix schema migrations to enforce maximum character length for naturalized fields
+
+---
+
 # v2.7.5 (2020-02-13)
 
 **Note:** This release includes several database schema migrations that calculate and store copies of names for certain objects to improve natural ordering performance (see [#3799](https://github.com/netbox-community/netbox/issues/3799)). These migrations may take a few minutes to run if you have a very large number of objects defined in NetBox.

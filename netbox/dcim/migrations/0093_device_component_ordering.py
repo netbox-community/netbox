@@ -6,7 +6,7 @@ import utilities.ordering
 def _update_model_names(model):
     # Update each unique field value in bulk
     for name in model.objects.values_list('name', flat=True).order_by('name').distinct():
-        model.objects.filter(name=name).update(_name=utilities.ordering.naturalize(name))
+        model.objects.filter(name=name).update(_name=utilities.ordering.naturalize(name, max_length=100))
 
 
 def naturalize_consoleports(apps, schema_editor):
