@@ -71,7 +71,8 @@ class ObjectListView(View):
     filterset = None
     filterset_form = None
     table = None
-    template_name = None
+    template_name = 'utilities/obj_list.html'
+    action_buttons = ('add', 'import', 'export')
 
     def queryset_to_yaml(self):
         """
@@ -156,9 +157,11 @@ class ObjectListView(View):
         # Provide a hook to tweak the queryset based on the request immediately prior to rendering the object list
         self.queryset = self.alter_queryset(request)
 
-        # Compile user model permissions for access from within the template
-        perm_base_name = '{}.{{}}_{}'.format(model._meta.app_label, model._meta.model_name)
-        permissions = {p: request.user.has_perm(perm_base_name.format(p)) for p in ['add', 'change', 'delete']}
+        # Compile a dictionary indicating which permissions are available to the current user for this model
+        permissions = {}
+        for action in ('add', 'change', 'delete', 'view'):
+            perm_name = '{}.{}_{}'.format(model._meta.app_label, action, model._meta.model_name)
+            permissions[action] = request.user.has_perm(perm_name)
 
         # Construct the table based on the user's permissions
         table = self.table(self.queryset)
@@ -176,6 +179,7 @@ class ObjectListView(View):
             'content_type': content_type,
             'table': table,
             'permissions': permissions,
+            'action_buttons': self.action_buttons,
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
         }
         context.update(self.extra_context())
