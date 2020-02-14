@@ -9,6 +9,81 @@ from dcim.models import *
 class TraceTestCase(TestCase):
 
     def setUp(self):
+        """
+        This builds quite a convoluted connection between two routers to try and cover all the edge cases that might
+        go wrong, such as mixing up Front/RearPorts on a single device. We therefore loop the path through the same
+        patch panel's ports multiple times.
+
+                                    +-------------------------------------------------------------------+
+                                    |                                                                   |
+                                    |   +-----------------------------------------------------------+   |
+                                    |   |                                                           |   |
+                                    |   |   +------------------------+                              |   |
+                                    |   |   |                        |                              |   |
+        +---------------------+     |   |   |  +------------------+  |                              |   |
+        |       Router1       |     |   |   |  |      Panel1      |  |                              |   |
+        |                     |     |   |   |  |                  |  |                              |   |
+        | +-----------------+ |     |   |   |  | +-----+  +-----+ |  |                              |   |
+        | | SomeEthernet1/0 +--------------------+ RP1 +--+ FP1 +----+       +-------------------+  |   |
+        | +-----------------+ |     |   |   |  | +-----+  +-----+ |          |       MUX1        |  |   |
+        |                     |     |   |   |  |                  |          |                   |  |   |
+        | +-----------------+ |     |   |   |  | +-----+  +-----+ |          | +-----+           |  |   |
+        | | SomeEthernet1/1 | |     |   |   +----+ RP2 +--+ FP2 +--------------+ CH1 +----+      |  |   |
+        | +-----------------+ |     |   |      | +-----+  +-----+ |          | +-----+  +------+ |  |   |
+        |                     |     |   |      |                  |          |          | DWDM +----+   |
+        +---------------------+     |   |      | +-----+  +-----+ |          | +-----+  +------+ |      |
+                                    |   +--------+ RP3 +--+ FP3 +--------+   | | CH2 +----+      |      |
+                                    |          | +-----+  +-----+ |      |   | +-----+           |      |
+                                    |          |                  |      |   |                   |      |
+                                    |          | +-----+  +-----+ |      |   +-------------------+      |
+                                    +------------+ RP4 +--+ FP4 +----+   |                              |
+                                               | +-----+  +-----+ |  |   |   +-------------------+      |
+                                               |                  |  |   |   |       MUX2        |      |
+                                               +------------------+  |   |   |                   |      |
+                                                                     |   |   | +-----+           |      |
+                                                                     |   |   | | CH1 +----+      |      |
+                                                                     |   |   | +-----+  +------+ |      |
+                                                                     |   |   |          | DWDM +--------+
+                                                                     |   |   | +-----+  +------+ |
+                                                                     |   +-----+ CH2 +----+      |
+                                                                     |       | +-----+           |
+                                                                     |       |                   |
+                          +------------------------------------------+       +-------------------+
+                          |
+                          |
+                          |                                                       +---------------------+
+                          |                                                       |       Router2       |
+                          |                                                       |                     |
+                          |                                                       | +-----------------+ |
+                          |                                                       | | SomeEthernet2/0 | |
+                          |                       +-------------------+           | +-----------------+ |
+                          |                       |       MUX3        |           |                     |
+                          |  +--------------+     |                   |           | +-----------------+ |
+                          |  |   Circuit1   |     |           +-----+ |      +------+ SomeEthernet2/1 | |
+                          |  |              |     |      +----+ CH1 | |      |    | +-----------------+ |
+                          |  | +---+  +---+ |     | +------+  +-----+ |      |    |                     |
+                          +----+ A |  | Z +---------+ DWDM |          |      |    +---------------------+
+                             | +---+  +---+ |     | +------+  +-----+ |      |
+                             |              |     |      +----+ CH2 +----+   |
+                             +--------------+     |           +-----+ |  |   |
+                                                  |                   |  |   |
+                                                  +-------------------+  |   |
+                                                                         |   |
+                                               +-------------------------+   |
+                                               |                             |
+                                               |  +-------------------+      |
+                                               |  |       MUX4        |      |
+                                               |  |                   |      |
+                                               |  |           +-----+ |      |
+                                               |  |      +----+ CH1 +--------+
+                                               |  | +------+  +-----+ |
+                                               +----+ DWDM |          |
+                                                  | +------+  +-----+ |
+                                                  |      +----+ CH2 | |
+                                                  |           +-----+ |
+                                                  |                   |
+                                                  +-------------------+
+        """
         self.site = Site.objects.create(
             name='TestSite',
             slug='test-site'
@@ -63,7 +138,7 @@ class TraceTestCase(TestCase):
                 device_role=self.device_role['router']
             )
             self.router_interface[router_nr] = {}
-            for intf_nr in (0, 1, 2, 3):
+            for intf_nr in (0, 1):
                 self.router_interface[router_nr][intf_nr] = Interface.objects.create(
                     device=self.router[router_nr],
                     name='SomeEthernet{}/{}'.format(router_nr, intf_nr),
@@ -98,7 +173,7 @@ class TraceTestCase(TestCase):
                     rear_port_position=1
                 )
 
-        # DWDM MUXes with 8 channels each
+        # DWDM MUXes with 2 channels each
         self.mux = {}
         self.mux_rp = {}
         self.mux_fp = {}
@@ -118,7 +193,7 @@ class TraceTestCase(TestCase):
             )
 
             self.mux_fp[mux_nr] = {}
-            for port_nr in (1, 2, 3, 4, 5, 6, 7, 8):
+            for port_nr in (1, 2):
                 self.mux_fp[mux_nr][port_nr] = FrontPort.objects.create(
                     device=self.mux[mux_nr],
                     name="MUX{} CH{}".format(mux_nr, port_nr),
