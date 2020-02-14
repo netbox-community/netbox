@@ -13,13 +13,23 @@ class ExtrasConfig(AppConfig):
 
         # Check that we can connect to the configured Redis database.
         try:
-            rs = redis.Redis(
-                host=settings.WEBHOOKS_REDIS_HOST,
-                port=settings.WEBHOOKS_REDIS_PORT,
-                db=settings.WEBHOOKS_REDIS_DATABASE,
-                password=settings.WEBHOOKS_REDIS_PASSWORD or None,
-                ssl=settings.WEBHOOKS_REDIS_SSL,
-            )
+            if settings.WEBHOOKS_REDIS_USING_SENTINEL:
+                sentinel = redis.sentinel.Sentinel(
+                    settings.WEBHOOKS_REDIS_SENTINELS,
+                    socket_timeout=settings.WEBHOOKS_REDIS_DEFAULT_TIMEOUT
+                )
+                rs = sentinel.master_for(
+                    settings.WEBHOOKS_REDIS_SENTINEL_SERVICE,
+                    socket_timeout=settings.WEBHOOKS_REDIS_DEFAULT_TIMEOUT
+                )
+            else:
+                rs = redis.Redis(
+                    host=settings.WEBHOOKS_REDIS_HOST,
+                    port=settings.WEBHOOKS_REDIS_PORT,
+                    db=settings.WEBHOOKS_REDIS_DATABASE,
+                    password=settings.WEBHOOKS_REDIS_PASSWORD or None,
+                    ssl=settings.WEBHOOKS_REDIS_SSL,
+                )
             rs.ping()
         except redis.exceptions.ConnectionError:
             raise ImproperlyConfigured(
