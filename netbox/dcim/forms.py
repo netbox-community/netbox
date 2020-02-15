@@ -385,7 +385,6 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 class RackGroupForm(BootstrapMixin, forms.ModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
         widget=APISelect(
             api_url="/api/dcim/sites/"
         )
