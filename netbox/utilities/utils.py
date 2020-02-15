@@ -222,3 +222,19 @@ def querydict_to_dict(querydict):
         key: querydict.get(key) if len(value) == 1 and key != 'pk' else querydict.getlist(key)
         for key, value in querydict.lists()
     }
+
+
+def shallow_compare_dict(source_dict, destination_dict, exclude=None):
+    """
+    Return a new dictionary of the different keys. The values of `destination_dict` are returned. Only the equality of
+    the first layer of keys/values is checked. `exclude` is a list or tuple of keys to be ignored.
+    """
+    difference = {}
+
+    for key in destination_dict:
+        if source_dict.get(key) != destination_dict[key]:
+            if isinstance(exclude, (list, tuple)) and key in exclude:
+                continue
+            difference[key] = destination_dict[key]
+
+    return difference
