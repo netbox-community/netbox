@@ -2,6 +2,7 @@
 
 ## Enhancements
 
+* [#2511](https://github.com/netbox-community/netbox/issues/2511) - Compare object change to the previous change
 * [#3840](https://github.com/netbox-community/netbox/issues/3840) - Enhance search function when selecting VLANs for interface assignment
 * [#4170](https://github.com/netbox-community/netbox/issues/4170) - Improve color contrast in rack elevation drawings
 
