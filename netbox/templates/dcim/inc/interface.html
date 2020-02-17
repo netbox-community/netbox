@@ -184,17 +184,16 @@
     </td>
 </tr>
 
-
 {% with ipaddresses=iface.ip_addresses.all %}
     {% if ipaddresses %}
         <tr>
-{#             Placeholder#}
+            {# Placeholder#}
             {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
                 <td class="ipaddresses"></td>
             {% endif %}
 
-{#             IP addresses table#}
-            <td class="ipaddresses" colspan="9" style="padding: 0">
+            {# IP addresses table #}
+            <td colspan="9" style="padding: 0">
                 <table class="table table-condensed interface-ips">
                     <thead>
                         <tr class="text-muted">
@@ -208,12 +207,12 @@
                     {% for ip in iface.ip_addresses.all %}
                         <tr>
 
-{#                             IP address#}
+                            {# IP address #}
                             <td>
                                 <a href="{% url 'ipam:ipaddress' pk=ip.pk %}">{{ ip }}</a>
                             </td>
 
-                            {# Primary/status/role#}
+                            {# Primary/status/role #}
                             <td>
                                 {% if device.primary_ip4 == ip or device.primary_ip6 == ip %}
                                     <span class="label label-success">Primary</span>
@@ -224,7 +223,7 @@
                                 {% endif %}
                             </td>
 
-                            {#VRF#}
+                            {# VRF #}
                             <td>
                                 {% if ip.vrf %}
                                     <a href="{% url 'ipam:vrf' pk=ip.vrf.pk %}" title="{{ ip.vrf.rd }}">{{ ip.vrf.name }}</a>
@@ -233,7 +232,7 @@
                                 {% endif %}
                             </td>
 
-                            {#Description#}
+                            {# Description #}
                             <td>
                                 {% if ip.description %}
                                     {{ ip.description }}
@@ -242,7 +241,7 @@
                                 {% endif %}
                             </td>
 
-                            {#Buttons#}
+                            {# Buttons #}
                             <td class="text-right text-nowrap noprint">
                                 {% if perms.ipam.change_ipaddress %}
                                     <a href="{% url 'ipam:ipaddress_edit' pk=ip.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-info btn-xs">
@@ -309,29 +308,33 @@
                     {% endif %}
                 </tr>
 
-                {#Tagged VLANs#}
+                {# Tagged VLANs #}
 
                 {% if iface.tagged_vlans.all %}
                     {% for tag in iface.tagged_vlans.all %}
                         <tr>
-                            {#VLAN ID#}
+                            {# VLAN ID #}
                             <td>
                                 <a href="{% url 'ipam:vlan' tag.id %}">{{ tag.vid }}</a>
                             </td>
-                            {#VLAN tag#}
+
+                            {# VLAN tag #}
                             <td>
                                     <span class="text-success">
                                         <li class="fa fa-check"></li>
                                     </span>
                             </td>
-                            {#VLAN status#}
+
+                            {# VLAN status #}
                             <td>
                                         <span class="label label-primary"
                                               style="text-transform: capitalize">{{ tag.status }}</span>
                             </td>
-                            {#VLAN name#}
+
+                            {# VLAN name #}
                             <td>{{ tag.name }}</td>
-                            {#VLAN description#}
+
+                            {# VLAN description #}
                             <td>{{ tag.description }}</td>
                         </tr>
                     {% endfor %}
