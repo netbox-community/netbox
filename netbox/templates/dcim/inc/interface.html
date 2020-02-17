@@ -38,23 +38,6 @@
         {% endfor %}
     </td>
 
-    {#Tagged ports#}
-{#    <td>#}
-{#        {% if iface.tagged_vlans.all %}#}
-{#            {% for tag in iface.tagged_vlans.all %}#}
-{#                <a href="{% url 'ipam:vlan' tag.id %}">{{ tag }}</a>#}
-{#                <br>#}
-{#            {% endfor %}#}
-{#        {% endif %}#}
-{#    </td>#}
-{##}
-    {#Untagged ports#}
-{#    <td>#}
-{#        {% if iface.untagged_vlan %}#}
-{#            <a href="{% url 'ipam:vlan' iface.untagged_vlan.id %}">{{ iface.untagged_vlan }}</a>#}
-{#        {% endif %}#}
-{#    </td>#}
-
     {# MTU #}
     <td>{{ iface.mtu|default:"&mdash;" }}</td>
 
