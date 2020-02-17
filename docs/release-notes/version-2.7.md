@@ -2,7 +2,6 @@
 
 ## Enhancements
 
-* [#3377](https://github.com/netbox-community/netbox/issues/3377) - Include indirect devices when calculating power utilization
 * [#3799](https://github.com/netbox-community/netbox/issues/3799) - Greatly improve performance when ordering device components
 * [#4100](https://github.com/netbox-community/netbox/issues/4100) - Add device filter to component list views
 * [#4113](https://github.com/netbox-community/netbox/issues/4113) - Add bulk edit functionality for device type components
