@@ -8,7 +8,8 @@ from django_filters.utils import get_model_field, resolve_field
 
 from extras.models import Tag
 from utilities.constants import (
-    FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_LOOKUP_HELP_TEXT_MAP, FILTER_NUMERIC_BASED_LOOKUP_MAP
+    FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_LOOKUP_HELP_TEXT_MAP, FILTER_NEGATION_LOOKUP_MAP,
+    FILTER_NUMERIC_BASED_LOOKUP_MAP
 )
 
 
@@ -193,15 +194,6 @@ class BaseFilterSet(django_filters.FilterSet):
 
             # Choose the lookup expression map based on the filter type
             if isinstance(existing_filter, (
-                django_filters.filters.CharFilter,
-                django_filters.MultipleChoiceFilter,
-                MultiValueCharFilter,
-                MultiValueMACAddressFilter,
-                TagFilter
-            )):
-                lookup_map = FILTER_CHAR_BASED_LOOKUP_MAP
-
-            elif isinstance(existing_filter, (
                 MultiValueDateFilter,
                 MultiValueDateTimeFilter,
                 MultiValueNumberFilter,
@@ -212,13 +204,19 @@ class BaseFilterSet(django_filters.FilterSet):
             elif isinstance(existing_filter, (
                 django_filters.ModelChoiceFilter,
                 django_filters.ModelMultipleChoiceFilter,
-                NumericInFilter,
                 TreeNodeMultipleChoiceFilter,
-            )):
+                TagFilter
+            )) or existing_filter.extra.get('choices'):
                 # These filter types support only negation
-                lookup_map = dict(
-                    n='exact'
-                )
+                lookup_map = FILTER_NEGATION_LOOKUP_MAP
+
+            elif isinstance(existing_filter, (
+                django_filters.filters.CharFilter,
+                django_filters.MultipleChoiceFilter,
+                MultiValueCharFilter,
+                MultiValueMACAddressFilter
+            )):
+                lookup_map = FILTER_CHAR_BASED_LOOKUP_MAP
 
             else:
                 # Do not augment any other filter types with more lookup expressions
@@ -231,6 +229,8 @@ class BaseFilterSet(django_filters.FilterSet):
             # Create new filters for each lookup expression in the map
             for lookup_name, lookup_expr in lookup_map.items():
                 new_filter_name = '{}__{}'.format(existing_filter_name, lookup_name)
+                if existing_filter.lookup_expr == 'in':
+                    lookup_expr = 'in'  # 'in' lookups must remain to avoid unwanted slicing on certain querysets
 
                 try:
                     if existing_filter_name in cls.declared_filters:
@@ -255,7 +255,8 @@ class BaseFilterSet(django_filters.FilterSet):
 
                 if lookup_name.startswith('n'):
                     # This is a negation filter which requires a queryset.exclude() clause
-                    new_filter.exclude = True
+                    # Of course setting the negation of the existing filter's exclude attribute handles both cases
+                    new_filter.exclude = not existing_filter.exclude
 
                 new_filters[new_filter_name] = new_filter
 

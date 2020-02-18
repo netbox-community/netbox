@@ -53,6 +53,10 @@ FILTER_NUMERIC_BASED_LOOKUP_MAP = dict(
     gt='gt'
 )
 
+FILTER_NEGATION_LOOKUP_MAP = dict(
+    n='exact'
+)
+
 FILTER_LOOKUP_HELP_TEXT_MAP = dict(
     icontains='case insensitive contains',
     iendswith='case insensitive ends with',
