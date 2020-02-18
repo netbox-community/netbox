@@ -423,9 +423,10 @@ class RackElevationHelperMixin:
     def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_, reservation):
         link = drawing.add(
             drawing.a(
-                href='{}?{}'.format(
+                href='{}?{}&return_url=/dcim/racks/{}'.format(
                     reverse('dcim:device_add'),
-                    urlencode({'rack': rack.pk, 'site': rack.site.pk, 'face': face_id, 'position': id_})
+                    urlencode({'rack': rack.pk, 'site': rack.site.pk, 'face': face_id, 'position': id_}),
+                    rack.pk,
                 ),
                 target='_top'
             )

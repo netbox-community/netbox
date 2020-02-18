@@ -40,6 +40,14 @@ DEVICE_LINK = """
 </a>
 """
 
+DEVICE_ASSIGN_LINK = """
+{% if request.GET %}
+    <a href="{% url 'dcim:device_edit' pk=record.pk %}?rack={{ request.GET.rack }}&site={{ request.GET.site }}&face={{ request.GET.face }}&position={{ request.GET.position }}&return_url={{ request.GET.return_url }}">{{ record }}</a>
+{% else %}
+    <a href="{% url 'dcim:device_edit' pk=record.pk %}?rack={{ record.rack.pk }}&site={{ record.site.pk }}&face={{ record.face.pk }}&position={{ record.position.pk }}&return_url={{ request.GET.return_url }}">{{ record }}</a>
+{% endif %}
+"""
+
 REGION_ACTIONS = """
 <a href="{% url 'dcim:region_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Changelog">
     <i class="fa fa-history"></i>
@@ -692,6 +700,28 @@ class DeviceDetailTable(DeviceTable):
     class Meta(DeviceTable.Meta):
         model = Device
         fields = ('pk', 'name', 'status', 'tenant', 'site', 'rack', 'device_role', 'device_type', 'primary_ip')
+
+
+class DeviceAssignTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.TemplateColumn(
+        order_by=('_name',),
+        template_code=DEVICE_ASSIGN_LINK
+    )
+    status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
+    tenant = tables.TemplateColumn(template_code=COL_TENANT)
+    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
+    rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
+    device_role = tables.TemplateColumn(DEVICE_ROLE, verbose_name='Role')
+    device_type = tables.LinkColumn(
+        'dcim:devicetype', args=[Accessor('device_type.pk')], verbose_name='Type',
+        text=lambda record: record.device_type.display_name
+    )
+
+    class Meta(BaseTable.Meta):
+        model = Device
+        fields = ('pk', 'name', 'status', 'tenant', 'site', 'rack', 'device_role', 'device_type', 'primary_ip')
+        orderable = False
 
 
 class DeviceImportTable(BaseTable):

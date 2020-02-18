@@ -2,6 +2,7 @@
 
 ## Enhancements
 
+* [#1830](https://github.com/netbox-community/netbox/issues/1830) - Support Assgin existing device to a rack with 'add device' button
 * [#3840](https://github.com/netbox-community/netbox/issues/3840) - Enhance search function when selecting VLANs for interface assignment
 * [#4170](https://github.com/netbox-community/netbox/issues/4170) - Improve color contrast in rack elevation drawings
 

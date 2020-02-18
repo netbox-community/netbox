@@ -1,0 +1,12 @@
+{% load helpers %}
+
+<ul class="nav nav-tabs" style="margin-bottom: 20px">
+    <li role="presentation"{% if active_tab == 'add' %} class="active"{% endif %}>
+        <a href="{% url 'dcim:device_add' %}{% querystring request %}">New Device</a>
+    </li>
+    {% if 'rack' in request.GET %}
+        <li role="presentation"{% if active_tab == 'assign' %} class="active"{% endif %}>
+            <a href="{% url 'dcim:device_assign' %}{% querystring request %}">Assign Device</a>
+        </li>
+    {% endif %}
+</ul>

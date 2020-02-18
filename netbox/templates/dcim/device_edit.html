@@ -1,5 +1,13 @@
 {% extends 'utilities/obj_edit.html' %}
+{% load static %}
 {% load form_helpers %}
+{% load helpers %}
+
+{% block tabs %}
+    {% if not obj.pk %}
+        {% include 'dcim/inc/device_edit_header.html' with active_tab='add' %}
+    {% endif %}
+{% endblock %}
 
 {% block form %}
     <div class="panel panel-default">

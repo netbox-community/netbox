@@ -1223,6 +1223,53 @@ class DeviceEditView(DeviceCreateView):
     permission_required = 'dcim.change_device'
 
 
+class DeviceAssignView(PermissionRequiredMixin, View):
+    """
+    Search for Devices to be assigned to a Rack.
+    """
+    permission_required = 'dcim.change_device'
+
+    def dispatch(self, request, *args, **kwargs):
+
+        # Redirect user if a rack has not been provided
+        if 'rack' not in request.GET:
+            return redirect('dcim:device_add')
+        else:
+            # Restrict device assignment in the same site
+            self.site = request.GET['site']
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+
+        form = forms.DeviceAssignForm()
+
+        return render(request, 'dcim/device_assign.html', {
+            'form': form,
+            'return_url': request.GET.get('return_url', ''),
+        })
+
+    def post(self, request):
+
+        form = forms.DeviceAssignForm(request.POST)
+        table = None
+
+        if form.is_valid():
+
+            devices = Device.objects.filter(site=self.site).prefetch_related(
+                'tenant', 'site', 'rack', 'device_role', 'device_type__manufacturer'
+            )
+            # Limit to 100 results
+            devices = filters.DeviceFilterSet(request.POST, devices).qs[:100]
+            table = tables.DeviceAssignTable(devices)
+
+        return render(request, 'dcim/device_assign.html', {
+            'form': form,
+            'table': table,
+            'return_url': request.GET.get('return_url', ''),
+        })
+
+
 class DeviceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_device'
     model = Device

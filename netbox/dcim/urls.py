@@ -169,6 +169,7 @@ urlpatterns = [
     path('devices/import/child-devices/', views.ChildDeviceBulkImportView.as_view(), name='device_import_child'),
     path('devices/edit/', views.DeviceBulkEditView.as_view(), name='device_bulk_edit'),
     path('devices/delete/', views.DeviceBulkDeleteView.as_view(), name='device_bulk_delete'),
+    path('device/assign/', views.DeviceAssignView.as_view(), name='device_assign'),
     path('devices/<int:pk>/', views.DeviceView.as_view(), name='device'),
     path('devices/<int:pk>/edit/', views.DeviceEditView.as_view(), name='device_edit'),
     path('devices/<int:pk>/delete/', views.DeviceDeleteView.as_view(), name='device_delete'),

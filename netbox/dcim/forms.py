@@ -2137,6 +2137,13 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         ]
 
 
+class DeviceAssignForm(BootstrapMixin, forms.Form):
+    q = forms.CharField(
+        required=False,
+        label='Search',
+    )
+
+
 class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilterForm, CustomFieldFilterForm):
     model = Device
     field_order = [
