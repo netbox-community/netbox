@@ -13,6 +13,7 @@
 * [#4179](https://github.com/netbox-community/netbox/issues/4179) - Site is required when creating a rack group or power panel
 * [#4183](https://github.com/netbox-community/netbox/issues/4183) - Fix representation of NaturalOrderingField values in change log
 * [#4194](https://github.com/netbox-community/netbox/issues/4194) - Role field should not be required when searching/filtering secrets
+* [#4196](https://github.com/netbox-community/netbox/issues/4196) - Fix exception when viewing LLDP neighbors page
 
 ---
 

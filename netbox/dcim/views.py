@@ -31,6 +31,7 @@ from utilities.views import (
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
 from .choices import DeviceFaceChoices
+from .constants import NONCONNECTABLE_IFACE_TYPES
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
@@ -1181,7 +1182,7 @@ class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
     def get(self, request, pk):
 
         device = get_object_or_404(Device, pk=pk)
-        interfaces = device.vc_interfaces.connectable().prefetch_related(
+        interfaces = device.vc_interfaces.exclude(type__in=NONCONNECTABLE_IFACE_TYPES).prefetch_related(
             '_connected_interface__device'
         )
 
