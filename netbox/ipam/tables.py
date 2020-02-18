@@ -34,10 +34,16 @@ RIR_ACTIONS = """
 {% endif %}
 """
 
-UTILIZATION_GRAPH = """
+AGGREGATE_UTILIZATION_GRAPH = """
 {% load helpers %}
 {% if record.pk %}{% utilization_graph record.get_utilization %}{% else %}&mdash;{% endif %}
 """
+
+PREFIX_UTILIZATION_GRAPH = """
+{% load helpers %}
+{% if record.pk %}<a href="{% url 'ipam:prefix_ipaddresses' pk=record.pk %}">{% utilization_graph record.get_utilization %}</a>{% else %}&mdash;{% endif %}
+"""
+
 
 ROLE_PREFIX_COUNT = """
 <a href="{% url 'ipam:prefix_list' %}?role={{ record.slug }}">{{ value }}</a>
@@ -268,7 +274,7 @@ class AggregateTable(BaseTable):
 
 class AggregateDetailTable(AggregateTable):
     child_count = tables.Column(verbose_name='Prefixes')
-    utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
+    utilization = tables.TemplateColumn(AGGREGATE_UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
 
     class Meta(AggregateTable.Meta):
         fields = ('pk', 'prefix', 'rir', 'child_count', 'utilization', 'date_added', 'description')
@@ -326,7 +332,7 @@ class PrefixTable(BaseTable):
 
 
 class PrefixDetailTable(PrefixTable):
-    utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False)
+    utilization = tables.TemplateColumn(PREFIX_UTILIZATION_GRAPH, orderable=False)
     tenant = tables.TemplateColumn(template_code=COL_TENANT)
 
     class Meta(PrefixTable.Meta):
