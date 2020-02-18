@@ -21,7 +21,10 @@ class NaturalizationTestCase(TestCase):
         )
 
         for origin, naturalized in data:
-            self.assertEqual(naturalize(origin), naturalized)
+            self.assertEqual(naturalize(origin, max_length=50), naturalized)
+
+    def test_naturalize_max_length(self):
+        self.assertEqual(naturalize('abc123def456', max_length=10), 'abc0000012')
 
     def test_naturalize_interface(self):
 
@@ -40,4 +43,7 @@ class NaturalizationTestCase(TestCase):
         )
 
         for origin, naturalized in data:
-            self.assertEqual(naturalize_interface(origin), naturalized)
+            self.assertEqual(naturalize_interface(origin, max_length=50), naturalized)
+
+    def test_naturalize_interface_max_length(self):
+        self.assertEqual(naturalize_interface('Gi1/2/3', max_length=20), '0001000299999999Gi00')

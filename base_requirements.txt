@@ -22,6 +22,10 @@ django-filter
 # https://github.com/django-mptt/django-mptt
 django-mptt
 
+# Context managers for PostgreSQL advisory locks
+# https://github.com/Xof/django-pglocks
+django-pglocks
+
 # Prometheus metrics library for Django
 # https://github.com/korfuri/django-prometheus
 django-prometheus

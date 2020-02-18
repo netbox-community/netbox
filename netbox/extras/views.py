@@ -34,7 +34,7 @@ class TagListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.TagFilterSet
     filterset_form = forms.TagFilterForm
     table = TagTable
-    template_name = 'extras/tag_list.html'
+    action_buttons = ()
 
 
 class TagView(PermissionRequiredMixin, View):
@@ -111,7 +111,7 @@ class ConfigContextListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.ConfigContextFilterSet
     filterset_form = forms.ConfigContextFilterForm
     table = ConfigContextTable
-    template_name = 'extras/configcontext_list.html'
+    action_buttons = ('add',)
 
 
 class ConfigContextView(PermissionRequiredMixin, View):
@@ -191,6 +191,7 @@ class ObjectChangeListView(PermissionRequiredMixin, ObjectListView):
     filterset_form = forms.ObjectChangeFilterForm
     table = ObjectChangeTable
     template_name = 'extras/objectchange_list.html'
+    action_buttons = ('export',)
 
 
 class ObjectChangeView(PermissionRequiredMixin, View):

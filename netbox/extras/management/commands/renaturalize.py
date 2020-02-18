@@ -86,7 +86,7 @@ class Command(BaseCommand):
                 # Find all unique values for the field
                 queryset = model.objects.values_list(target_field, flat=True).order_by(target_field).distinct()
                 for value in queryset:
-                    naturalized_value = naturalize(value)
+                    naturalized_value = naturalize(value, max_length=field.max_length)
 
                     if options['verbosity'] >= 2:
                         self.stdout.write("  {} -> {}".format(value, naturalized_value), ending='')

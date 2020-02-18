@@ -1,3 +1,26 @@
+# v2.7.7 (FUTURE)
+
+## Enhancements
+
+* [#3840](https://github.com/netbox-community/netbox/issues/3840) - Enhance search function when selecting VLANs for interface assignment
+* [#4170](https://github.com/netbox-community/netbox/issues/4170) - Improve color contrast in rack elevation drawings
+
+## Bug Fixes
+
+* [#2519](https://github.com/netbox-community/netbox/issues/2519) - Avoid race condition when provisioning "next available" IPs/prefixes via the API
+* [#4168](https://github.com/netbox-community/netbox/issues/4168) - Role is not required when creating a virtual machine
+* [#4175](https://github.com/netbox-community/netbox/issues/4175) - Fix potential exception when bulk editing objects from a filtered list
+
+---
+
+# v2.7.6 (2020-02-13)
+
+## Bug Fixes
+
+* [#4166](https://github.com/netbox-community/netbox/issues/4166) - Fix schema migrations to enforce maximum character length for naturalized fields
+
+---
+
 # v2.7.5 (2020-02-13)
 
 **Note:** This release includes several database schema migrations that calculate and store copies of names for certain objects to improve natural ordering performance (see [#3799](https://github.com/netbox-community/netbox/issues/3799)). These migrations may take a few minutes to run if you have a very large number of objects defined in NetBox.

@@ -10,7 +10,7 @@ INTERFACE_NAME_REGEX = r'(^(?P<type>[^\d\.:]+)?)' \
                        r'(.(?P<vc>\d+)$)?'
 
 
-def naturalize(value, max_length=None, integer_places=8):
+def naturalize(value, max_length, integer_places=8):
     """
     Take an alphanumeric string and prepend all integers to `integer_places` places to ensure the strings
     are ordered naturally. For example:
@@ -39,10 +39,10 @@ def naturalize(value, max_length=None, integer_places=8):
             output.append(segment)
     ret = ''.join(output)
 
-    return ret[:max_length] if max_length else ret
+    return ret[:max_length]
 
 
-def naturalize_interface(value, max_length=None):
+def naturalize_interface(value, max_length):
     """
     Similar in nature to naturalize(), but takes into account a particular naming format adapted from the old
     InterfaceManager.
@@ -77,4 +77,4 @@ def naturalize_interface(value, max_length=None):
             output.append('000000')
 
     ret = ''.join(output)
-    return ret[:max_length] if max_length else ret
+    return ret[:max_length]
