@@ -10,6 +10,7 @@
 * [#2519](https://github.com/netbox-community/netbox/issues/2519) - Avoid race condition when provisioning "next available" IPs/prefixes via the API
 * [#4168](https://github.com/netbox-community/netbox/issues/4168) - Role is not required when creating a virtual machine
 * [#4175](https://github.com/netbox-community/netbox/issues/4175) - Fix potential exception when bulk editing objects from a filtered list
+* [#4183](https://github.com/netbox-community/netbox/issues/4183) - Fix representation of NaturalOrderingField values in change log
 
 ---
 
