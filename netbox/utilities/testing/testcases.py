@@ -57,6 +57,53 @@ class TestCase(_TestCase):
             expected_status, response.status_code, getattr(response, 'data', 'No data')
         ))
 
+
+class ModelViewTestCase(TestCase):
+    """
+    Base TestCase for model views. Subclass to test individual views.
+    """
+    model = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.model is None:
+            raise Exception("Test case requires model to be defined")
+
+    def _get_base_url(self):
+        """
+        Return the base format for a URL for the test's model. Override this to test for a model which belongs
+        to a different app (e.g. testing Interfaces within the virtualization app).
+        """
+        return '{}:{}_{{}}'.format(
+            self.model._meta.app_label,
+            self.model._meta.model_name
+        )
+
+    def _get_url(self, action, instance=None):
+        """
+        Return the URL name for a specific action. An instance must be specified for
+        get/edit/delete views.
+        """
+        url_format = self._get_base_url()
+
+        if action in ('list', 'add', 'import', 'bulk_edit', 'bulk_delete'):
+            return reverse(url_format.format(action))
+
+        elif action in ('get', 'edit', 'delete'):
+            if instance is None:
+                raise Exception("Resolving {} URL requires specifying an instance".format(action))
+            # Attempt to resolve using slug first
+            if hasattr(self.model, 'slug'):
+                try:
+                    return reverse(url_format.format(action), kwargs={'slug': instance.slug})
+                except NoReverseMatch:
+                    pass
+            return reverse(url_format.format(action), kwargs={'pk': instance.pk})
+
+        else:
+            raise Exception("Invalid action for URL resolution: {}".format(action))
+
     def assertInstanceEqual(self, instance, data):
         """
         Compare a model instance to a dictionary, checking that its attribute values match those specified
@@ -94,108 +141,14 @@ class APITestCase(TestCase):
         self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(self.token.key)}
 
 
-class StandardTestCases:
+class ViewTestCases:
     """
     We keep any TestCases with test_* methods inside a class to prevent unittest from trying to run them.
     """
-
-    class Views(TestCase):
+    class GetObjectViewTestCase(ModelViewTestCase):
         """
-        Stock TestCase suitable for testing all standard View functions:
-            - List objects
-            - View single object
-            - Create new object
-            - Modify existing object
-            - Delete existing object
-            - Import multiple new objects
+        Retrieve a single instance.
         """
-        model = None
-
-        # Data to be sent when creating/editing individual objects
-        form_data = {}
-
-        # CSV lines used for bulk import of new objects
-        csv_data = ()
-
-        # Form data used when creating multiple objects
-        bulk_create_data = {}
-
-        # Form data to be used when editing multiple objects at once
-        bulk_edit_data = {}
-
-        maxDiff = None
-
-        def __init__(self, *args, **kwargs):
-
-            super().__init__(*args, **kwargs)
-
-            if self.model is None:
-                raise Exception("Test case requires model to be defined")
-
-        #
-        # URL functions
-        #
-
-        def _get_base_url(self):
-            """
-            Return the base format for a URL for the test's model. Override this to test for a model which belongs
-            to a different app (e.g. testing Interfaces within the virtualization app).
-            """
-            return '{}:{}_{{}}'.format(
-                self.model._meta.app_label,
-                self.model._meta.model_name
-            )
-
-        def _get_url(self, action, instance=None):
-            """
-            Return the URL name for a specific action. An instance must be specified for
-            get/edit/delete views.
-            """
-            url_format = self._get_base_url()
-
-            if action in ('list', 'add', 'import', 'bulk_edit', 'bulk_delete'):
-                return reverse(url_format.format(action))
-
-            elif action in ('get', 'edit', 'delete'):
-                if instance is None:
-                    raise Exception("Resolving {} URL requires specifying an instance".format(action))
-                # Attempt to resolve using slug first
-                if hasattr(self.model, 'slug'):
-                    try:
-                        return reverse(url_format.format(action), kwargs={'slug': instance.slug})
-                    except NoReverseMatch:
-                        pass
-                return reverse(url_format.format(action), kwargs={'pk': instance.pk})
-
-            else:
-                raise Exception("Invalid action for URL resolution: {}".format(action))
-
-        #
-        # Standard view tests
-        # These methods will run by default. To disable a test, nullify its method on the subclasses TestCase:
-        #
-        #     test_list_objects = None
-        #
-
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-        def test_list_objects(self):
-            # Attempt to make the request without required permissions
-            with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.get(self._get_url('list')), 403)
-
-            # Assign the required permission and submit again
-            self.add_permissions(
-                '{}.view_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
-            )
-            response = self.client.get(self._get_url('list'))
-            self.assertHttpStatus(response, 200)
-
-            # Built-in CSV export
-            if hasattr(self.model, 'csv_headers'):
-                response = self.client.get('{}?export'.format(self._get_url('list')))
-                self.assertHttpStatus(response, 200)
-                self.assertEqual(response.get('Content-Type'), 'text/csv')
-
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_get_object(self):
             instance = self.model.objects.first()
@@ -210,6 +163,12 @@ class StandardTestCases:
             )
             response = self.client.get(instance.get_absolute_url())
             self.assertHttpStatus(response, 200)
+
+    class CreateObjectViewTestCase(ModelViewTestCase):
+        """
+        Create a single new instance.
+        """
+        form_data = {}
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_create_object(self):
@@ -235,6 +194,12 @@ class StandardTestCases:
             instance = self.model.objects.order_by('-pk').first()
             self.assertInstanceEqual(instance, self.form_data)
 
+    class EditObjectViewTestCase(ModelViewTestCase):
+        """
+        Edit a single existing instance.
+        """
+        form_data = {}
+
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_edit_object(self):
             instance = self.model.objects.first()
@@ -259,6 +224,10 @@ class StandardTestCases:
             instance = self.model.objects.get(pk=instance.pk)
             self.assertInstanceEqual(instance, self.form_data)
 
+    class DeleteObjectViewTestCase(ModelViewTestCase):
+        """
+        Delete a single instance.
+        """
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_delete_object(self):
             instance = self.model.objects.first()
@@ -283,6 +252,66 @@ class StandardTestCases:
             with self.assertRaises(ObjectDoesNotExist):
                 self.model.objects.get(pk=instance.pk)
 
+    class ListObjectsViewTestCase(ModelViewTestCase):
+        """
+        Retrieve multiple instances.
+        """
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def test_list_objects(self):
+            # Attempt to make the request without required permissions
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.get(self._get_url('list')), 403)
+
+            # Assign the required permission and submit again
+            self.add_permissions(
+                '{}.view_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
+            response = self.client.get(self._get_url('list'))
+            self.assertHttpStatus(response, 200)
+
+            # Built-in CSV export
+            if hasattr(self.model, 'csv_headers'):
+                response = self.client.get('{}?export'.format(self._get_url('list')))
+                self.assertHttpStatus(response, 200)
+                self.assertEqual(response.get('Content-Type'), 'text/csv')
+
+    class BulkCreateObjectsViewTestCase(ModelViewTestCase):
+        """
+        Create multiple instances using a single form. Expects the creation of three new instances by default.
+        """
+        bulk_create_count = 3
+        bulk_create_data = {}
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def test_bulk_create_objects(self):
+            initial_count = self.model.objects.count()
+            request = {
+                'path': self._get_url('add'),
+                'data': post_data(self.bulk_create_data),
+                'follow': False,  # Do not follow 302 redirects
+            }
+
+            # Attempt to make the request without required permissions
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.post(**request), 403)
+
+            # Assign the required permission and submit again
+            self.add_permissions(
+                '{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
+            response = self.client.post(**request)
+            self.assertHttpStatus(response, 302)
+
+            self.assertEqual(initial_count + self.bulk_create_count, self.model.objects.count())
+            for instance in self.model.objects.order_by('-pk')[:self.bulk_create_count]:
+                self.assertInstanceEqual(instance, self.bulk_create_data)
+
+    class ImportObjectsViewTestCase(ModelViewTestCase):
+        """
+        Create multiple instances from imported data.
+        """
+        csv_data = ()
+
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_import_objects(self):
             initial_count = self.model.objects.count()
@@ -306,6 +335,12 @@ class StandardTestCases:
             self.assertHttpStatus(response, 200)
 
             self.assertEqual(self.model.objects.count(), initial_count + len(self.csv_data) - 1)
+
+    class BulkEditObjectsViewTestCase(ModelViewTestCase):
+        """
+        Edit multiple instances.
+        """
+        bulk_edit_data = {}
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_bulk_edit_objects(self):
@@ -338,6 +373,10 @@ class StandardTestCases:
             for i, instance in enumerate(self.model.objects.filter(pk__in=pk_list)):
                 self.assertInstanceEqual(instance, self.bulk_edit_data)
 
+    class BulkDeleteObjectsViewTestCase(ModelViewTestCase):
+        """
+        Delete multiple instances.
+        """
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_bulk_delete_objects(self):
             pk_list = self.model.objects.values_list('pk', flat=True)
@@ -366,31 +405,55 @@ class StandardTestCases:
             # Check that all objects were deleted
             self.assertEqual(self.model.objects.count(), 0)
 
-        #
-        # Optional view tests
-        # These methods will run only if the required data
-        #
+    class PrimaryObjectViewTestCase(
+        GetObjectViewTestCase,
+        CreateObjectViewTestCase,
+        EditObjectViewTestCase,
+        DeleteObjectViewTestCase,
+        ListObjectsViewTestCase,
+        ImportObjectsViewTestCase,
+        BulkEditObjectsViewTestCase,
+        BulkDeleteObjectsViewTestCase,
+    ):
+        """
+        TestCase suitable for testing all standard View functions for primary objects
+        """
+        maxDiff = None
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-        def _test_bulk_create_objects(self, expected_count):
-            initial_count = self.model.objects.count()
-            request = {
-                'path': self._get_url('add'),
-                'data': post_data(self.bulk_create_data),
-                'follow': False,  # Do not follow 302 redirects
-            }
+    class OrganizationalObjectViewTestCase(
+        CreateObjectViewTestCase,
+        EditObjectViewTestCase,
+        ListObjectsViewTestCase,
+        ImportObjectsViewTestCase,
+        BulkDeleteObjectsViewTestCase,
+    ):
+        """
+        TestCase suitable for all organizational objects
+        """
+        maxDiff = None
 
-            # Attempt to make the request without required permissions
-            with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(**request), 403)
+    class DeviceComponentTemplateViewTestCase(
+        EditObjectViewTestCase,
+        DeleteObjectViewTestCase,
+        BulkCreateObjectsViewTestCase,
+        BulkEditObjectsViewTestCase,
+        BulkDeleteObjectsViewTestCase,
+    ):
+        """
+        TestCase suitable for testing device component template models (ConsolePortTemplates, InterfaceTemplates, etc.)
+        """
+        maxDiff = None
 
-            # Assign the required permission and submit again
-            self.add_permissions(
-                '{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
-            )
-            response = self.client.post(**request)
-            self.assertHttpStatus(response, 302)
-
-            self.assertEqual(initial_count + expected_count, self.model.objects.count())
-            for instance in self.model.objects.order_by('-pk')[:expected_count]:
-                self.assertInstanceEqual(instance, self.bulk_create_data)
+    class DeviceComponentViewTestCase(
+        EditObjectViewTestCase,
+        DeleteObjectViewTestCase,
+        ListObjectsViewTestCase,
+        BulkCreateObjectsViewTestCase,
+        ImportObjectsViewTestCase,
+        BulkEditObjectsViewTestCase,
+        BulkDeleteObjectsViewTestCase,
+    ):
+        """
+        TestCase suitable for testing device component models (ConsolePorts, Interfaces, etc.)
+        """
+        maxDiff = None

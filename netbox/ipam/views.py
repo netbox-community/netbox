@@ -118,7 +118,6 @@ class VRFListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.VRFFilterSet
     filterset_form = forms.VRFFilterForm
     table = tables.VRFTable
-    template_name = 'ipam/vrf_list.html'
 
 
 class VRFView(PermissionRequiredMixin, View):
@@ -293,7 +292,6 @@ class AggregateListView(PermissionRequiredMixin, ObjectListView):
     queryset = Aggregate.objects.prefetch_related('rir').annotate(
         child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
     )
-
     filterset = filters.AggregateFilterSet
     filterset_form = forms.AggregateFilterForm
     table = tables.AggregateDetailTable
@@ -411,7 +409,6 @@ class RoleListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'ipam.view_role'
     queryset = Role.objects.all()
     table = tables.RoleTable
-    template_name = 'ipam/role_list.html'
 
 
 class RoleCreateView(PermissionRequiredMixin, ObjectEditView):
@@ -644,7 +641,6 @@ class IPAddressListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.IPAddressFilterSet
     filterset_form = forms.IPAddressFilterForm
     table = tables.IPAddressDetailTable
-    template_name = 'ipam/ipaddress_list.html'
 
 
 class IPAddressView(PermissionRequiredMixin, View):
@@ -817,7 +813,6 @@ class VLANGroupListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.VLANGroupFilterSet
     filterset_form = forms.VLANGroupFilterForm
     table = tables.VLANGroupTable
-    template_name = 'ipam/vlangroup_list.html'
 
 
 class VLANGroupCreateView(PermissionRequiredMixin, ObjectEditView):
@@ -893,7 +888,6 @@ class VLANListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.VLANFilterSet
     filterset_form = forms.VLANFilterForm
     table = tables.VLANDetailTable
-    template_name = 'ipam/vlan_list.html'
 
 
 class VLANView(PermissionRequiredMixin, View):
@@ -989,7 +983,7 @@ class ServiceListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.ServiceFilterSet
     filterset_form = forms.ServiceFilterForm
     table = tables.ServiceTable
-    template_name = 'ipam/service_list.html'
+    action_buttons = ('export',)
 
 
 class ServiceView(PermissionRequiredMixin, View):

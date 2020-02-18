@@ -3,18 +3,13 @@ from netaddr import EUI
 from dcim.choices import InterfaceModeChoices
 from dcim.models import DeviceRole, Interface, Platform, Site
 from ipam.models import VLAN
-from utilities.testing import StandardTestCases
+from utilities.testing import ViewTestCases
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
-class ClusterGroupTestCase(StandardTestCases.Views):
+class ClusterGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = ClusterGroup
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -38,13 +33,8 @@ class ClusterGroupTestCase(StandardTestCases.Views):
         )
 
 
-class ClusterTypeTestCase(StandardTestCases.Views):
+class ClusterTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = ClusterType
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -68,7 +58,7 @@ class ClusterTypeTestCase(StandardTestCases.Views):
         )
 
 
-class ClusterTestCase(StandardTestCases.Views):
+class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Cluster
 
     @classmethod
@@ -124,7 +114,7 @@ class ClusterTestCase(StandardTestCases.Views):
         }
 
 
-class VirtualMachineTestCase(StandardTestCases.Views):
+class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VirtualMachine
 
     @classmethod
@@ -193,16 +183,15 @@ class VirtualMachineTestCase(StandardTestCases.Views):
         }
 
 
-class InterfaceTestCase(StandardTestCases.Views):
+class InterfaceTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.DeviceComponentViewTestCase,
+):
     model = Interface
 
     # Disable inapplicable tests
     test_list_objects = None
-    test_create_object = None
     test_import_objects = None
-
-    def test_bulk_create_objects(self):
-        return self._test_bulk_create_objects(expected_count=3)
 
     def _get_base_url(self):
         # Interface belongs to the DCIM app, so we have to override the base URL

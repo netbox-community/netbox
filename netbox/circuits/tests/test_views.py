@@ -2,10 +2,10 @@ import datetime
 
 from circuits.choices import *
 from circuits.models import Circuit, CircuitType, Provider
-from utilities.testing import StandardTestCases
+from utilities.testing import ViewTestCases
 
 
-class ProviderTestCase(StandardTestCases.Views):
+class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Provider
 
     @classmethod
@@ -46,13 +46,8 @@ class ProviderTestCase(StandardTestCases.Views):
         }
 
 
-class CircuitTypeTestCase(StandardTestCases.Views):
+class CircuitTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = CircuitType
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -77,7 +72,7 @@ class CircuitTypeTestCase(StandardTestCases.Views):
         )
 
 
-class CircuitTestCase(StandardTestCases.Views):
+class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Circuit
 
     @classmethod

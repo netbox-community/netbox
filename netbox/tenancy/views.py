@@ -22,7 +22,6 @@ class TenantGroupListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'tenancy.view_tenantgroup'
     queryset = TenantGroup.objects.annotate(tenant_count=Count('tenants'))
     table = tables.TenantGroupTable
-    template_name = 'tenancy/tenantgroup_list.html'
 
 
 class TenantGroupCreateView(PermissionRequiredMixin, ObjectEditView):
@@ -60,7 +59,6 @@ class TenantListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.TenantFilterSet
     filterset_form = forms.TenantFilterForm
     table = tables.TenantTable
-    template_name = 'tenancy/tenant_list.html'
 
 
 class TenantView(PermissionRequiredMixin, View):

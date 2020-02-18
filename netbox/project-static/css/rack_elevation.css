@@ -56,3 +56,12 @@ text {
 .blocked:hover+.add-device {
     fill: none;
 }
+
+.unit {
+    margin: 0;
+    padding: 5px 0px;
+
+    fill: #c0c0c0;
+    font-size: 10px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}

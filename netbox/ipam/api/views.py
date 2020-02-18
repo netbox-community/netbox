@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
+from django_pglocks import advisory_lock
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -10,6 +11,7 @@ from extras.api.views import CustomFieldModelViewSet
 from ipam import filters
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from utilities.api import FieldChoicesViewSet, ModelViewSet
+from utilities.constants import ADVISORY_LOCK_KEYS
 from utilities.utils import get_subquery
 from . import serializers
 
@@ -86,9 +88,13 @@ class PrefixViewSet(CustomFieldModelViewSet):
     filterset_class = filters.PrefixFilterSet
 
     @action(detail=True, url_path='available-prefixes', methods=['get', 'post'])
+    @advisory_lock(ADVISORY_LOCK_KEYS['available-prefixes'])
     def available_prefixes(self, request, pk=None):
         """
         A convenience method for returning available child prefixes within a parent.
+
+        The advisory lock decorator uses a PostgreSQL advisory lock to prevent this API from being
+        invoked in parallel, which results in a race condition where multiple insertions can occur.
         """
         prefix = get_object_or_404(Prefix, pk=pk)
         available_prefixes = prefix.get_available_prefixes()
@@ -180,11 +186,15 @@ class PrefixViewSet(CustomFieldModelViewSet):
             return Response(serializer.data)
 
     @action(detail=True, url_path='available-ips', methods=['get', 'post'])
+    @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
     def available_ips(self, request, pk=None):
         """
         A convenience method for returning available IP addresses within a prefix. By default, the number of IPs
         returned will be equivalent to PAGINATE_COUNT. An arbitrary limit (up to MAX_PAGE_SIZE, if set) may be passed,
         however results will not be paginated.
+
+        The advisory lock decorator uses a PostgreSQL advisory lock to prevent this API from being
+        invoked in parallel, which results in a race condition where multiple insertions can occur.
         """
         prefix = get_object_or_404(Prefix, pk=pk)
 

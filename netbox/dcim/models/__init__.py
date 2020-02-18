@@ -382,13 +382,17 @@ class RackElevationHelperMixin:
 
         # add gradients
         RackElevationHelperMixin._add_gradient(drawing, 'reserved', '#c7c7ff')
-        RackElevationHelperMixin._add_gradient(drawing, 'occupied', '#f0f0f0')
-        RackElevationHelperMixin._add_gradient(drawing, 'blocked', '#ffc7c7')
+        RackElevationHelperMixin._add_gradient(drawing, 'occupied', '#d7d7d7')
+        RackElevationHelperMixin._add_gradient(drawing, 'blocked', '#ffc0c0')
 
         return drawing
 
     @staticmethod
     def _draw_device_front(drawing, device, start, end, text):
+        name = str(device)
+        if device.devicebay_count:
+            name += ' ({}/{})'.format(device.get_children().count(), device.devicebay_count)
+
         color = device.device_role.color
         link = drawing.add(
             drawing.a(
@@ -403,7 +407,7 @@ class RackElevationHelperMixin:
         ))
         link.add(drawing.rect(start, end, style='fill: #{}'.format(color), class_='slot'))
         hex_color = '#{}'.format(foreground_color(color))
-        link.add(drawing.text(str(device), insert=text, fill=hex_color))
+        link.add(drawing.text(str(name), insert=text, fill=hex_color))
 
     @staticmethod
     def _draw_device_rear(drawing, device, start, end, text):
@@ -433,11 +437,19 @@ class RackElevationHelperMixin:
         link.add(drawing.rect(start, end, class_=class_))
         link.add(drawing.text("add device", insert=text, class_='add-device'))
 
-    def _draw_elevations(self, elevation, reserved_units, face, unit_width, unit_height):
+    def _draw_elevations(self, elevation, reserved_units, face, unit_width, unit_height, legend_width):
 
-        drawing = self._setup_drawing(unit_width, unit_height * self.u_height)
+        drawing = self._setup_drawing(unit_width + legend_width, unit_height * self.u_height)
 
         unit_cursor = 0
+        for ru in range(0, self.u_height):
+            start_y = ru * unit_height
+            position_coordinates = (legend_width / 2, start_y + unit_height / 2 + 2)
+            unit = ru + 1 if self.desc_units else self.u_height - ru
+            drawing.add(
+                drawing.text(str(unit), position_coordinates, class_="unit")
+            )
+
         for unit in elevation:
 
             # Loop through all units in the elevation
@@ -447,9 +459,9 @@ class RackElevationHelperMixin:
             # Setup drawing coordinates
             start_y = unit_cursor * unit_height
             end_y = unit_height * height
-            start_cordinates = (0, start_y)
-            end_cordinates = (unit_width, end_y)
-            text_cordinates = (unit_width / 2, start_y + end_y / 2)
+            start_cordinates = (legend_width, start_y)
+            end_cordinates = (legend_width + unit_width, end_y)
+            text_cordinates = (legend_width + (unit_width / 2), start_y + end_y / 2)
 
             # Draw the device
             if device and device.face == face:
@@ -471,7 +483,7 @@ class RackElevationHelperMixin:
             unit_cursor += height
 
         # Wrap the drawing with a border
-        drawing.add(drawing.rect((0, 0), (unit_width, self.u_height * unit_height), class_='rack'))
+        drawing.add(drawing.rect((legend_width, 0), (unit_width, self.u_height * unit_height), class_='rack'))
 
         return drawing
 
@@ -494,7 +506,8 @@ class RackElevationHelperMixin:
             self,
             face=DeviceFaceChoices.FACE_FRONT,
             unit_width=RACK_ELEVATION_UNIT_WIDTH_DEFAULT,
-            unit_height=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT
+            unit_height=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT,
+            legend_width=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT
     ):
         """
         Return an SVG of the rack elevation
@@ -507,7 +520,7 @@ class RackElevationHelperMixin:
         elevation = self.merge_elevations(face)
         reserved_units = self.get_reserved_units()
 
-        return self._draw_elevations(elevation, reserved_units, face, unit_width, unit_height)
+        return self._draw_elevations(elevation, reserved_units, face, unit_width, unit_height, legend_width)
 
 
 class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
