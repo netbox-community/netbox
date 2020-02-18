@@ -44,7 +44,6 @@ PREFIX_UTILIZATION_GRAPH = """
 {% if record.pk %}<a href="{% url 'ipam:prefix_ipaddresses' pk=record.pk %}">{% utilization_graph record.get_utilization %}</a>{% else %}&mdash;{% endif %}
 """
 
-
 ROLE_PREFIX_COUNT = """
 <a href="{% url 'ipam:prefix_list' %}?role={{ record.slug }}">{{ value }}</a>
 """
