@@ -62,8 +62,20 @@ footer p {
     }
 }
 
+/* Scroll the drop-down menus at or above 768px wide to match bootstrap's behavior for hiding dropdown menus */
+@media (min-width: 768px) {
+    .navbar-nav>li>ul {
+        max-height: calc(80vh - 50px);
+        overflow-y: auto;
+    }
+}
+
 /* Collapse the nav menu on displays less than 980px wide */
 @media (max-width: 979px) {
+    #navbar {
+        max-height: calc(80vh - 50px);
+        overflow-y: auto;
+    }
     .navbar-header {
         float: none;
     }

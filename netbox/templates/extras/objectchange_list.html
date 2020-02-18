@@ -1,20 +1,9 @@
-{% extends '_base.html' %}
-{% load buttons %}
+{% extends 'utilities/obj_list.html' %}
 
-{% block content %}
-<div class="pull-right noprint">
-    {% export_button content_type %}
-</div>
-<h1>{% block title %}Changelog{% endblock %}</h1>
-<div class="row">
-	<div class="col-md-9">
-        {% include 'utilities/obj_table.html' %}
-        <div class="text-muted text-right">
-            Changelog retention: {% if settings.CHANGELOG_RETENTION %}{{ settings.CHANGELOG_RETENTION }} days{% else %}Indefinite{% endif %}
-        </div>
+{% block title %}Change Log{% endblock %}
+
+{% block sidebar %}
+    <div class="text-muted">
+        Change log retention: {% if settings.CHANGELOG_RETENTION %}{{ settings.CHANGELOG_RETENTION }} days{% else %}Indefinite{% endif %}
     </div>
-    <div class="col-md-3 noprint">
-		{% include 'inc/search_panel.html' %}
-    </div>
-</div>
 {% endblock %}

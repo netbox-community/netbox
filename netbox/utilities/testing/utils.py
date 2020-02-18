@@ -2,35 +2,6 @@ import logging
 from contextlib import contextmanager
 
 from django.contrib.auth.models import Permission, User
-from django.forms.models import model_to_dict as _model_to_dict
-
-
-def model_to_dict(instance, fields=None, exclude=None):
-    """
-    Customized wrapper for Django's built-in model_to_dict(). Does the following:
-      - Excludes the instance ID field
-      - Exclude any fields prepended with an underscore
-      - Convert any assigned tags to a comma-separated string
-    """
-    _exclude = ['id']
-    if exclude is not None:
-        _exclude += exclude
-
-    model_dict = _model_to_dict(instance, fields=fields, exclude=_exclude)
-
-    for key in list(model_dict.keys()):
-        if key.startswith('_'):
-            del model_dict[key]
-
-        # TODO: Differentiate between tags assigned to the instance and a M2M field for tags (ex: ConfigContext)
-        elif key == 'tags':
-            model_dict[key] = ','.join(sorted([tag.name for tag in model_dict['tags']]))
-
-        # Convert ManyToManyField to list of instance PKs
-        elif model_dict[key] and type(model_dict[key]) in (list, tuple) and hasattr(model_dict[key][0], 'pk'):
-            model_dict[key] = [obj.pk for obj in model_dict[key]]
-
-    return model_dict
 
 
 def post_data(data):
@@ -50,11 +21,13 @@ def post_data(data):
     return ret
 
 
-def create_test_user(username='testuser', permissions=list()):
+def create_test_user(username='testuser', permissions=None):
     """
     Create a User with the given permissions.
     """
     user = User.objects.create_user(username=username)
+    if permissions is None:
+        permissions = ()
     for perm_name in permissions:
         app, codename = perm_name.split('.')
         perm = Permission.objects.get(content_type__app_label=app, codename=codename)

@@ -4,9 +4,9 @@ from django.db import models
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.managers import InterfaceManager
 from extras.models import ObjectChange
-from utilities.managers import NaturalOrderingManager
+from utilities.fields import NaturalOrderingField
+from utilities.ordering import naturalize_interface
 from utilities.utils import serialize_object
 from .device_components import (
     ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, PowerOutlet, PowerPort, RearPort,
@@ -58,17 +58,20 @@ class ConsolePortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
         blank=True
     )
 
-    objects = NaturalOrderingManager()
-
     class Meta:
-        ordering = ['device_type', 'name']
-        unique_together = ['device_type', 'name']
+        ordering = ('device_type', '_name')
+        unique_together = ('device_type', 'name')
 
     def __str__(self):
         return self.name
@@ -93,17 +96,20 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
         blank=True
     )
 
-    objects = NaturalOrderingManager()
-
     class Meta:
-        ordering = ['device_type', 'name']
-        unique_together = ['device_type', 'name']
+        ordering = ('device_type', '_name')
+        unique_together = ('device_type', 'name')
 
     def __str__(self):
         return self.name
@@ -128,6 +134,11 @@ class PowerPortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     type = models.CharField(
         max_length=50,
         choices=PowerPortTypeChoices,
@@ -146,11 +157,9 @@ class PowerPortTemplate(ComponentTemplateModel):
         help_text="Allocated power draw (watts)"
     )
 
-    objects = NaturalOrderingManager()
-
     class Meta:
-        ordering = ['device_type', 'name']
-        unique_together = ['device_type', 'name']
+        ordering = ('device_type', '_name')
+        unique_together = ('device_type', 'name')
 
     def __str__(self):
         return self.name
@@ -159,6 +168,7 @@ class PowerPortTemplate(ComponentTemplateModel):
         return PowerPort(
             device=device,
             name=self.name,
+            type=self.type,
             maximum_draw=self.maximum_draw,
             allocated_draw=self.allocated_draw
         )
@@ -175,6 +185,11 @@ class PowerOutletTemplate(ComponentTemplateModel):
     )
     name = models.CharField(
         max_length=50
+    )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
     )
     type = models.CharField(
         max_length=50,
@@ -195,11 +210,9 @@ class PowerOutletTemplate(ComponentTemplateModel):
         help_text="Phase (for three-phase feeds)"
     )
 
-    objects = NaturalOrderingManager()
-
     class Meta:
-        ordering = ['device_type', 'name']
-        unique_together = ['device_type', 'name']
+        ordering = ('device_type', '_name')
+        unique_together = ('device_type', 'name')
 
     def __str__(self):
         return self.name
@@ -220,6 +233,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
         return PowerOutlet(
             device=device,
             name=self.name,
+            type=self.type,
             power_port=power_port,
             feed_leg=self.feed_leg
         )
@@ -237,6 +251,12 @@ class InterfaceTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=64
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        naturalize_function=naturalize_interface,
+        max_length=100,
+        blank=True
+    )
     type = models.CharField(
         max_length=50,
         choices=InterfaceTypeChoices
@@ -246,11 +266,9 @@ class InterfaceTemplate(ComponentTemplateModel):
         verbose_name='Management only'
     )
 
-    objects = InterfaceManager()
-
     class Meta:
-        ordering = ['device_type', 'name']
-        unique_together = ['device_type', 'name']
+        ordering = ('device_type', '_name')
+        unique_together = ('device_type', 'name')
 
     def __str__(self):
         return self.name
@@ -276,6 +294,11 @@ class FrontPortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=64
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
@@ -290,14 +313,12 @@ class FrontPortTemplate(ComponentTemplateModel):
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
 
-    objects = NaturalOrderingManager()
-
     class Meta:
-        ordering = ['device_type', 'name']
-        unique_together = [
-            ['device_type', 'name'],
-            ['rear_port', 'rear_port_position'],
-        ]
+        ordering = ('device_type', '_name')
+        unique_together = (
+            ('device_type', 'name'),
+            ('rear_port', 'rear_port_position'),
+        )
 
     def __str__(self):
         return self.name
@@ -344,6 +365,11 @@ class RearPortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=64
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
@@ -353,11 +379,9 @@ class RearPortTemplate(ComponentTemplateModel):
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
 
-    objects = NaturalOrderingManager()
-
     class Meta:
-        ordering = ['device_type', 'name']
-        unique_together = ['device_type', 'name']
+        ordering = ('device_type', '_name')
+        unique_together = ('device_type', 'name')
 
     def __str__(self):
         return self.name
@@ -383,12 +407,15 @@ class DeviceBayTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
-
-    objects = NaturalOrderingManager()
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
 
     class Meta:
-        ordering = ['device_type', 'name']
-        unique_together = ['device_type', 'name']
+        ordering = ('device_type', '_name')
+        unique_together = ('device_type', 'name')
 
     def __str__(self):
         return self.name

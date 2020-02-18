@@ -10,9 +10,9 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.exceptions import LoopDetected
 from dcim.fields import MACAddressField
-from dcim.managers import InterfaceManager
 from extras.models import ObjectChange, TaggedItem
-from utilities.managers import NaturalOrderingManager
+from utilities.fields import NaturalOrderingField
+from utilities.ordering import naturalize_interface
 from utilities.utils import serialize_object
 from virtualization.choices import VMInterfaceTypeChoices
 
@@ -181,6 +181,11 @@ class ConsolePort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -197,15 +202,13 @@ class ConsolePort(CableTermination, ComponentModel):
         choices=CONNECTION_STATUS_CHOICES,
         blank=True
     )
-
-    objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'description']
 
     class Meta:
-        ordering = ['device', 'name']
-        unique_together = ['device', 'name']
+        ordering = ('device', '_name')
+        unique_together = ('device', 'name')
 
     def __str__(self):
         return self.name
@@ -238,6 +241,11 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -247,14 +255,13 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         choices=CONNECTION_STATUS_CHOICES,
         blank=True
     )
-
-    objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'description']
 
     class Meta:
-        unique_together = ['device', 'name']
+        ordering = ('device', '_name')
+        unique_together = ('device', 'name')
 
     def __str__(self):
         return self.name
@@ -286,6 +293,11 @@ class PowerPort(CableTermination, ComponentModel):
     )
     name = models.CharField(
         max_length=50
+    )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
     )
     type = models.CharField(
         max_length=50,
@@ -322,15 +334,13 @@ class PowerPort(CableTermination, ComponentModel):
         choices=CONNECTION_STATUS_CHOICES,
         blank=True
     )
-
-    objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'maximum_draw', 'allocated_draw', 'description']
 
     class Meta:
-        ordering = ['device', 'name']
-        unique_together = ['device', 'name']
+        ordering = ('device', '_name')
+        unique_together = ('device', 'name')
 
     def __str__(self):
         return self.name
@@ -433,6 +443,11 @@ class PowerOutlet(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     type = models.CharField(
         max_length=50,
         choices=PowerOutletTypeChoices,
@@ -455,14 +470,13 @@ class PowerOutlet(CableTermination, ComponentModel):
         choices=CONNECTION_STATUS_CHOICES,
         blank=True
     )
-
-    objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'power_port', 'feed_leg', 'description']
 
     class Meta:
-        unique_together = ['device', 'name']
+        ordering = ('device', '_name')
+        unique_together = ('device', 'name')
 
     def __str__(self):
         return self.name
@@ -514,6 +528,12 @@ class Interface(CableTermination, ComponentModel):
     )
     name = models.CharField(
         max_length=64
+    )
+    _name = NaturalOrderingField(
+        target_field='name',
+        naturalize_function=naturalize_interface,
+        max_length=100,
+        blank=True
     )
     _connected_interface = models.OneToOneField(
         to='self',
@@ -583,8 +603,6 @@ class Interface(CableTermination, ComponentModel):
         blank=True,
         verbose_name='Tagged VLANs'
     )
-
-    objects = InterfaceManager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
@@ -593,8 +611,9 @@ class Interface(CableTermination, ComponentModel):
     ]
 
     class Meta:
-        ordering = ['device', 'name']
-        unique_together = ['device', 'name']
+        # TODO: ordering and unique_together should include virtual_machine
+        ordering = ('device', '_name')
+        unique_together = ('device', 'name')
 
     def __str__(self):
         return self.name
@@ -761,6 +780,11 @@ class FrontPort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=64
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
@@ -774,20 +798,17 @@ class FrontPort(CableTermination, ComponentModel):
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
-
-    is_path_endpoint = False
-
-    objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'rear_port', 'rear_port_position', 'description']
+    is_path_endpoint = False
 
     class Meta:
-        ordering = ['device', 'name']
-        unique_together = [
-            ['device', 'name'],
-            ['rear_port', 'rear_port_position'],
-        ]
+        ordering = ('device', '_name')
+        unique_together = (
+            ('device', 'name'),
+            ('rear_port', 'rear_port_position'),
+        )
 
     def __str__(self):
         return self.name
@@ -831,6 +852,11 @@ class RearPort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=64
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
@@ -839,17 +865,14 @@ class RearPort(CableTermination, ComponentModel):
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
-
-    is_path_endpoint = False
-
-    objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'positions', 'description']
+    is_path_endpoint = False
 
     class Meta:
-        ordering = ['device', 'name']
-        unique_together = ['device', 'name']
+        ordering = ('device', '_name')
+        unique_together = ('device', 'name')
 
     def __str__(self):
         return self.name
@@ -881,6 +904,11 @@ class DeviceBay(ComponentModel):
         max_length=50,
         verbose_name='Name'
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     installed_device = models.OneToOneField(
         to='dcim.Device',
         on_delete=models.SET_NULL,
@@ -888,15 +916,13 @@ class DeviceBay(ComponentModel):
         blank=True,
         null=True
     )
-
-    objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'installed_device', 'description']
 
     class Meta:
-        ordering = ['device', 'name']
-        unique_together = ['device', 'name']
+        ordering = ('device', '_name')
+        unique_together = ('device', 'name')
 
     def __str__(self):
         return '{} - {}'.format(self.device.name, self.name)
@@ -960,6 +986,11 @@ class InventoryItem(ComponentModel):
         max_length=50,
         verbose_name='Name'
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',
         on_delete=models.PROTECT,
@@ -997,14 +1028,14 @@ class InventoryItem(ComponentModel):
     ]
 
     class Meta:
-        ordering = ['device__id', 'parent__id', 'name']
-        unique_together = ['device', 'parent', 'name']
+        ordering = ('device__id', 'parent__id', '_name')
+        unique_together = ('device', 'parent', 'name')
 
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
-        return self.device.get_absolute_url()
+        return reverse('dcim:device_inventory', kwargs={'pk': self.device.pk})
 
     def to_csv(self):
         return (

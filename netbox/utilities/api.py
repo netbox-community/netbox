@@ -61,10 +61,14 @@ class IsAuthenticatedOrLoginNotRequired(BasePermission):
 
 class ChoiceField(Field):
     """
-    Represent a ChoiceField as {'value': <DB value>, 'label': <string>}.
+    Represent a ChoiceField as {'value': <DB value>, 'label': <string>}. Accepts a single value on write.
+
+    :param choices: An iterable of choices in the form (value, key).
+    :param allow_blank: Allow blank values in addition to the listed choices.
     """
-    def __init__(self, choices, **kwargs):
+    def __init__(self, choices, allow_blank=False, **kwargs):
         self.choiceset = choices
+        self.allow_blank = allow_blank
         self._choices = dict()
 
         # Unpack grouped choices
@@ -76,6 +80,15 @@ class ChoiceField(Field):
                 self._choices[k] = v
 
         super().__init__(**kwargs)
+
+    def validate_empty_values(self, data):
+        # Convert null to an empty string unless allow_null == True
+        if data is None:
+            if self.allow_null:
+                return True, None
+            else:
+                data = ''
+        return super().validate_empty_values(data)
 
     def to_representation(self, obj):
         if obj is '':
@@ -93,6 +106,10 @@ class ChoiceField(Field):
         return data
 
     def to_internal_value(self, data):
+        if data is '':
+            if self.allow_blank:
+                return data
+            raise ValidationError("This field may not be blank.")
 
         # Provide an explicit error message if the request is trying to write a dict or list
         if isinstance(data, (dict, list)):

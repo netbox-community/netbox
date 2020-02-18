@@ -1,16 +1,15 @@
-from dcim.models import DeviceRole, Platform, Site
-from utilities.testing import StandardTestCases
+from netaddr import EUI
+
+from dcim.choices import InterfaceModeChoices
+from dcim.models import DeviceRole, Interface, Platform, Site
+from ipam.models import VLAN
+from utilities.testing import ViewTestCases
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
-class ClusterGroupTestCase(StandardTestCases.Views):
+class ClusterGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = ClusterGroup
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -34,13 +33,8 @@ class ClusterGroupTestCase(StandardTestCases.Views):
         )
 
 
-class ClusterTypeTestCase(StandardTestCases.Views):
+class ClusterTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = ClusterType
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_delete_object = None
-    test_bulk_edit_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -64,7 +58,7 @@ class ClusterTypeTestCase(StandardTestCases.Views):
         )
 
 
-class ClusterTestCase(StandardTestCases.Views):
+class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Cluster
 
     @classmethod
@@ -120,7 +114,7 @@ class ClusterTestCase(StandardTestCases.Views):
         }
 
 
-class VirtualMachineTestCase(StandardTestCases.Views):
+class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VirtualMachine
 
     @classmethod
@@ -187,3 +181,92 @@ class VirtualMachineTestCase(StandardTestCases.Views):
             'disk': 8000,
             'comments': 'New comments',
         }
+
+
+class InterfaceTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.DeviceComponentViewTestCase,
+):
+    model = Interface
+
+    # Disable inapplicable tests
+    test_list_objects = None
+    test_import_objects = None
+
+    def _get_base_url(self):
+        # Interface belongs to the DCIM app, so we have to override the base URL
+        return 'virtualization:interface_{}'
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        cluster = Cluster.objects.create(name='Cluster 1', type=clustertype, site=site)
+        virtualmachines = (
+            VirtualMachine(name='Virtual Machine 1', cluster=cluster, role=devicerole),
+            VirtualMachine(name='Virtual Machine 2', cluster=cluster, role=devicerole),
+        )
+        VirtualMachine.objects.bulk_create(virtualmachines)
+
+        Interface.objects.bulk_create([
+            Interface(virtual_machine=virtualmachines[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(virtual_machine=virtualmachines[0], name='Interface 2', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(virtual_machine=virtualmachines[0], name='Interface 3', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+        ])
+
+        vlans = (
+            VLAN(vid=1, name='VLAN1', site=site),
+            VLAN(vid=101, name='VLAN101', site=site),
+            VLAN(vid=102, name='VLAN102', site=site),
+            VLAN(vid=103, name='VLAN103', site=site),
+        )
+        VLAN.objects.bulk_create(vlans)
+
+        cls.form_data = {
+            'virtual_machine': virtualmachines[1].pk,
+            'name': 'Interface X',
+            'type': InterfaceTypeChoices.TYPE_VIRTUAL,
+            'enabled': False,
+            'mgmt_only': False,
+            'mac_address': EUI('01-02-03-04-05-06'),
+            'mtu': 2000,
+            'description': 'New description',
+            'mode': InterfaceModeChoices.MODE_TAGGED,
+            'untagged_vlan': vlans[0].pk,
+            'tagged_vlans': [v.pk for v in vlans[1:4]],
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
+        cls.bulk_create_data = {
+            'virtual_machine': virtualmachines[1].pk,
+            'name_pattern': 'Interface [4-6]',
+            'type': InterfaceTypeChoices.TYPE_VIRTUAL,
+            'enabled': False,
+            'mgmt_only': False,
+            'mac_address': EUI('01-02-03-04-05-06'),
+            'mtu': 2000,
+            'description': 'New description',
+            'mode': InterfaceModeChoices.MODE_TAGGED,
+            'untagged_vlan': vlans[0].pk,
+            'tagged_vlans': [v.pk for v in vlans[1:4]],
+            'tags': 'Alpha,Bravo,Charlie',
+        }
+
+        cls.bulk_edit_data = {
+            'virtual_machine': virtualmachines[1].pk,
+            'enabled': False,
+            'mtu': 2000,
+            'description': 'New description',
+            'mode': InterfaceModeChoices.MODE_TAGGED,
+            # 'untagged_vlan': vlans[0].pk,
+            # 'tagged_vlans': [v.pk for v in vlans[1:4]],
+        }
+
+        cls.csv_data = (
+            "device,name,type",
+            "Device 1,Interface 4,1000BASE-T (1GE)",
+            "Device 1,Interface 5,1000BASE-T (1GE)",
+            "Device 1,Interface 6,1000BASE-T (1GE)",
+        )

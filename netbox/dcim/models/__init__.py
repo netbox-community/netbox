@@ -22,8 +22,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import ASNField
 from extras.models import ConfigContextModel, CustomFieldModel, TaggedItem
-from utilities.fields import ColorField
-from utilities.managers import NaturalOrderingManager
+from utilities.fields import ColorField, NaturalOrderingField
 from utilities.models import ChangeLoggedModel
 from utilities.utils import foreground_color, to_meters
 from .device_component_templates import (
@@ -134,6 +133,11 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         max_length=50,
         unique=True
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     slug = models.SlugField(
         unique=True
     )
@@ -215,8 +219,6 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
-
-    objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
@@ -235,7 +237,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     }
 
     class Meta:
-        ordering = ['name']
+        ordering = ('_name',)
 
     def __str__(self):
         return self.name
@@ -380,13 +382,17 @@ class RackElevationHelperMixin:
 
         # add gradients
         RackElevationHelperMixin._add_gradient(drawing, 'reserved', '#c7c7ff')
-        RackElevationHelperMixin._add_gradient(drawing, 'occupied', '#f0f0f0')
-        RackElevationHelperMixin._add_gradient(drawing, 'blocked', '#ffc7c7')
+        RackElevationHelperMixin._add_gradient(drawing, 'occupied', '#d7d7d7')
+        RackElevationHelperMixin._add_gradient(drawing, 'blocked', '#ffc0c0')
 
         return drawing
 
     @staticmethod
     def _draw_device_front(drawing, device, start, end, text):
+        name = str(device)
+        if device.devicebay_count:
+            name += ' ({}/{})'.format(device.get_children().count(), device.devicebay_count)
+
         color = device.device_role.color
         link = drawing.add(
             drawing.a(
@@ -401,7 +407,7 @@ class RackElevationHelperMixin:
         ))
         link.add(drawing.rect(start, end, style='fill: #{}'.format(color), class_='slot'))
         hex_color = '#{}'.format(foreground_color(color))
-        link.add(drawing.text(str(device), insert=text, fill=hex_color))
+        link.add(drawing.text(str(name), insert=text, fill=hex_color))
 
     @staticmethod
     def _draw_device_rear(drawing, device, start, end, text):
@@ -431,11 +437,19 @@ class RackElevationHelperMixin:
         link.add(drawing.rect(start, end, class_=class_))
         link.add(drawing.text("add device", insert=text, class_='add-device'))
 
-    def _draw_elevations(self, elevation, reserved_units, face, unit_width, unit_height):
+    def _draw_elevations(self, elevation, reserved_units, face, unit_width, unit_height, legend_width):
 
-        drawing = self._setup_drawing(unit_width, unit_height * self.u_height)
+        drawing = self._setup_drawing(unit_width + legend_width, unit_height * self.u_height)
 
         unit_cursor = 0
+        for ru in range(0, self.u_height):
+            start_y = ru * unit_height
+            position_coordinates = (legend_width / 2, start_y + unit_height / 2 + 2)
+            unit = ru + 1 if self.desc_units else self.u_height - ru
+            drawing.add(
+                drawing.text(str(unit), position_coordinates, class_="unit")
+            )
+
         for unit in elevation:
 
             # Loop through all units in the elevation
@@ -445,9 +459,9 @@ class RackElevationHelperMixin:
             # Setup drawing coordinates
             start_y = unit_cursor * unit_height
             end_y = unit_height * height
-            start_cordinates = (0, start_y)
-            end_cordinates = (unit_width, end_y)
-            text_cordinates = (unit_width / 2, start_y + end_y / 2)
+            start_cordinates = (legend_width, start_y)
+            end_cordinates = (legend_width + unit_width, end_y)
+            text_cordinates = (legend_width + (unit_width / 2), start_y + end_y / 2)
 
             # Draw the device
             if device and device.face == face:
@@ -469,7 +483,7 @@ class RackElevationHelperMixin:
             unit_cursor += height
 
         # Wrap the drawing with a border
-        drawing.add(drawing.rect((0, 0), (unit_width, self.u_height * unit_height), class_='rack'))
+        drawing.add(drawing.rect((legend_width, 0), (unit_width, self.u_height * unit_height), class_='rack'))
 
         return drawing
 
@@ -492,7 +506,8 @@ class RackElevationHelperMixin:
             self,
             face=DeviceFaceChoices.FACE_FRONT,
             unit_width=RACK_ELEVATION_UNIT_WIDTH_DEFAULT,
-            unit_height=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT
+            unit_height=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT,
+            legend_width=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT
     ):
         """
         Return an SVG of the rack elevation
@@ -505,7 +520,7 @@ class RackElevationHelperMixin:
         elevation = self.merge_elevations(face)
         reserved_units = self.get_reserved_units()
 
-        return self._draw_elevations(elevation, reserved_units, face, unit_width, unit_height)
+        return self._draw_elevations(elevation, reserved_units, face, unit_width, unit_height, legend_width)
 
 
 class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
@@ -515,6 +530,11 @@ class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
     """
     name = models.CharField(
         max_length=50
+    )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
     )
     facility_id = models.CharField(
         max_length=50,
@@ -612,8 +632,6 @@ class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
-
-    objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
@@ -634,12 +652,12 @@ class Rack(ChangeLoggedModel, CustomFieldModel, RackElevationHelperMixin):
     }
 
     class Meta:
-        ordering = ('site', 'group', 'name', 'pk')  # (site, group, name) may be non-unique
-        unique_together = [
+        ordering = ('site', 'group', '_name', 'pk')  # (site, group, name) may be non-unique
+        unique_together = (
             # Name and facility_id must be unique *only* within a RackGroup
-            ['group', 'name'],
-            ['group', 'facility_id'],
-        ]
+            ('group', 'name'),
+            ('group', 'facility_id'),
+        )
 
     def __str__(self):
         return self.display_name or super().__str__()
@@ -1313,6 +1331,12 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         blank=True,
         null=True
     )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True,
+        null=True
+    )
     serial = models.CharField(
         max_length=50,
         blank=True,
@@ -1407,8 +1431,6 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
-
-    objects = NaturalOrderingManager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
@@ -1430,12 +1452,12 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     }
 
     class Meta:
-        ordering = ('name', 'pk')  # Name may be NULL
-        unique_together = [
-            ['site', 'tenant', 'name'],  # See validate_unique below
-            ['rack', 'position', 'face'],
-            ['virtual_chassis', 'vc_position'],
-        ]
+        ordering = ('_name', 'pk')  # Name may be null
+        unique_together = (
+            ('site', 'tenant', 'name'),  # See validate_unique below
+            ('rack', 'position', 'face'),
+            ('virtual_chassis', 'vc_position'),
+        )
         permissions = (
             ('napalm_read', 'Read-only access to devices via NAPALM'),
             ('napalm_write', 'Read/write access to devices via NAPALM'),
