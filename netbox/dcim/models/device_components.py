@@ -1,3 +1,4 @@
+from cacheops import cached_as
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -392,35 +393,25 @@ class PowerPort(CableTermination, ComponentModel):
             """
             Return tuple of (outlet_count, allocated_draw_total, maximum_draw_total).
             """
-            # Keep track of all the power ports that have already been processed
-            visited_power_ports = PowerPort.objects.none()
+            # Local outlets associated with this power port
+            if leg:
+                outlets = PowerOutlet.objects.filter(power_port=self, feed_leg=leg)
+            else:
+                outlets = PowerOutlet.objects.filter(power_port=self)
 
-            # Power outlets assigned to the current power port
-            power_outlets = PowerOutlet.objects.filter(power_port=self)
-            if leg is not None:
-                power_outlets = power_outlets.filter(feed_leg=leg)
+            @cached_as(self, extra=outlets)
+            def _stats():
+                return PowerPort.objects.filter(
+                    pk__in=outlets.values_list('downstream_powerports', flat=True),
+                ).aggregate(
+                    Sum('allocated_draw'),
+                    Sum('maximum_draw'),
+                )
 
-            # Cannot be cached as it will otherwise not update the per-leg stats when an outlet's leg changes.
-            connected_power_ports = PowerPort.objects.filter(_connected_poweroutlet__in=power_outlets).nocache()
+            # Power ports drawing power from the local outlets
+            stats = _stats()
 
-            # Only count the local outlets (i.e. ignore non-immediate ones)
-            outlet_count = power_outlets.count()
-            allocated_draw_total = maximum_draw_total = 0
-
-            while connected_power_ports:
-                summary = connected_power_ports.aggregate(Sum('allocated_draw'), Sum('maximum_draw'))
-                allocated_draw_total += summary.get('allocated_draw__sum') or 0
-                maximum_draw_total += summary.get('maximum_draw__sum') or 0
-
-                # Record the power ports processed in this iteration
-                visited_power_ports |= connected_power_ports
-
-                # Get the power ports connected to the power outlets which are assigned to the power ports of this
-                # iteration. The leg is not specified as it is only applicable for the root power port.
-                connected_power_ports = PowerPort.objects.exclude(pk__in=visited_power_ports).filter(
-                    _connected_poweroutlet__power_port__in=connected_power_ports)
-
-            return outlet_count, allocated_draw_total, maximum_draw_total
+            return outlets.count(), stats.get('allocated_draw__sum') or 0, stats.get('maximum_draw__sum') or 0
 
         # Calculate aggregate draw of all child power outlets if no numbers have been defined manually
         if self.allocated_draw is None and self.maximum_draw is None:
@@ -498,6 +489,11 @@ class PowerOutlet(CableTermination, ComponentModel):
         choices=CONNECTION_STATUS_CHOICES,
         blank=True
     )
+    downstream_powerports = models.ManyToManyField(
+        to='dcim.PowerPort',
+        related_name='upstream_poweroutlets',
+        blank=True
+    )
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'power_port', 'feed_leg', 'description']
@@ -529,6 +525,68 @@ class PowerOutlet(CableTermination, ComponentModel):
             raise ValidationError(
                 "Parent power port ({}) must belong to the same device".format(self.power_port)
             )
+
+    def save(self, *args, **kwargs):
+        # Remove possibly-stale references to the old downstream power ports in upsteam power ports
+        if self.pk:
+            for poweroutlet in self.calculate_upstream_poweroutlets():
+                poweroutlet.downstream_powerports.remove(*self.downstream_powerports.all())
+            # TODO: breaking a loop will erroneously clear the downstream power ports on downstream power outlets
+
+        # Make any toplogy changes
+        super().save(*args, **kwargs)
+
+        # Calculate the new downstream ports
+        downstream_powerports = self.calculate_downstream_powerports()
+
+        # Set to local downstream_powerports field, removing any existing values
+        self.downstream_powerports.set(downstream_powerports)
+
+        # Add to upstream power outlets' downstream_powerports field, keeping any existing values
+        for poweroutlet in self.calculate_upstream_poweroutlets():
+            poweroutlet.downstream_powerports.add(*downstream_powerports)
+
+    def calculate_downstream_powerports(self):
+        """
+        Return a queryset of the downstream power ports.
+        """
+        downstream_powerports = PowerPort.objects.none()
+
+        if hasattr(self, 'connected_endpoint'):
+            next_powerports = PowerPort.objects.filter(pk=self.connected_endpoint.pk)
+
+            while next_powerports:
+                downstream_powerports |= next_powerports
+
+                # Prevent loops by excluding those already matched
+                next_powerports = PowerPort.objects.exclude(
+                    pk__in=downstream_powerports
+                ).filter(
+                    _connected_poweroutlet__power_port__in=downstream_powerports
+                )
+
+        return downstream_powerports
+
+    def calculate_upstream_poweroutlets(self):
+        """
+        Return a queryset of the upstream power outlets.
+        """
+        upstream_poweroutlets = PowerOutlet.objects.none()
+
+        if self.power_port and self.power_port._connected_poweroutlet:
+            next_poweroutlets = PowerOutlet.objects.filter(pk=self.power_port._connected_poweroutlet.pk)
+
+            while next_poweroutlets:
+                upstream_poweroutlets |= next_poweroutlets
+
+                # Prevent loops by excluding those already matched
+                next_poweroutlets = PowerOutlet.objects.exclude(
+                    pk__in=upstream_poweroutlets
+                ).filter(
+                    connected_endpoint__poweroutlets__in=upstream_poweroutlets
+                )
+
+        return upstream_poweroutlets
 
 
 #
