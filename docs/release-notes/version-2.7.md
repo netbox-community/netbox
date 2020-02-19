@@ -17,6 +17,7 @@
 * [#4194](https://github.com/netbox-community/netbox/issues/4194) - Role field should not be required when searching/filtering secrets
 * [#4196](https://github.com/netbox-community/netbox/issues/4196) - Fix exception when viewing LLDP neighbors page
 * [#4202](https://github.com/netbox-community/netbox/issues/4202) - Prevent reassignment to master device when bulk editing VC member interfaces
+* [#4204](https://github.com/netbox-community/netbox/issues/4204) - Fix assignment of mask length when bulk editing prefixes
 
 ---
 
