@@ -2763,6 +2763,7 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
+        disabled=True,
         widget=forms.HiddenInput()
     )
     type = forms.ChoiceField(
@@ -3060,6 +3061,7 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
+        disabled=True,
         widget=forms.HiddenInput()
     )
     type = forms.ChoiceField(
