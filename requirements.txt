@@ -1,9 +1,9 @@
-Django>=2.2,<2.3
+Django>=3.0,<3.1
 django-cacheops==4.2
 django-cors-headers==3.2.1
-django-debug-toolbar==2.1
+django-debug-toolbar==2.2
 django-filter==2.2.0
-django-mptt==0.9.1
+django-mptt==0.11.0
 django-pglocks==1.0.4
 django-prometheus==1.1.0
 django-rq==2.2.0

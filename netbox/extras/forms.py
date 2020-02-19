@@ -467,7 +467,8 @@ class ScriptForm(BootstrapMixin, forms.Form):
             self.fields['_commit'].initial = False
 
         # Move _commit to the end of the form
-        self.fields.move_to_end('_commit', True)
+        commit = self.fields.pop('_commit')
+        self.fields['_commit'] = commit
 
     @property
     def requires_input(self):

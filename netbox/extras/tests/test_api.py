@@ -37,7 +37,7 @@ class AppTest(APITestCase):
         # Graph
         content_types = ContentType.objects.filter(GRAPH_MODELS)
         graph_type_choices = {
-            "{}.{}".format(ct.app_label, ct.model): ct.name for ct in content_types
+            "{}.{}".format(ct.app_label, ct.model): str(ct) for ct in content_types
         }
         self.assertEqual(choices_to_dict(response.data.get('graph:type')), graph_type_choices)
         self.assertEqual(choices_to_dict(response.data.get('graph:template_language')), TemplateLanguageChoices.as_dict())

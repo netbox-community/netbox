@@ -3,10 +3,10 @@ services:
   - postgresql
   - redis-server
 addons:
-  postgresql: "9.4"
+  postgresql: "9.6"
 language: python
 python:
-  - "3.5"
+  - "3.6"
 install:
   - pip install -r requirements.txt
   - pip install pycodestyle
