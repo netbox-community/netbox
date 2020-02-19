@@ -7,7 +7,7 @@
     <div class="row noprint">
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
-                <li><a href="{% url 'extras:objectchange_list' %}">Changelog</a></li>
+                <li><a href="{% url 'extras:objectchange_list' %}">Change Log</a></li>
                 {% if objectchange.related_object.get_absolute_url %}
                     <li><a href="{{ objectchange.related_object.get_absolute_url }}changelog/">{{ objectchange.related_object }}</a></li>
                 {% elif objectchange.changed_object.get_absolute_url %}

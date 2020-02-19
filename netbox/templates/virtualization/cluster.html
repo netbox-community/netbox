@@ -49,7 +49,7 @@
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'virtualization:cluster_changelog' pk=cluster.pk %}">Changelog</a>
+                <a href="{% url 'virtualization:cluster_changelog' pk=cluster.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>

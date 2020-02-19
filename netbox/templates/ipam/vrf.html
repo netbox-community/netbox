@@ -46,7 +46,7 @@
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'ipam:vrf_changelog' pk=vrf.pk %}">Changelog</a>
+                <a href="{% url 'ipam:vrf_changelog' pk=vrf.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>

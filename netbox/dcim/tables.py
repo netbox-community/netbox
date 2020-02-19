@@ -41,7 +41,7 @@ DEVICE_LINK = """
 """
 
 REGION_ACTIONS = """
-<a href="{% url 'dcim:region_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'dcim:region_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 {% if perms.dcim.change_region %}
@@ -50,7 +50,7 @@ REGION_ACTIONS = """
 """
 
 RACKGROUP_ACTIONS = """
-<a href="{% url 'dcim:rackgroup_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'dcim:rackgroup_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 <a href="{% url 'dcim:rack_elevation_list' %}?site={{ record.site.slug }}&group_id={{ record.pk }}" class="btn btn-xs btn-primary" title="View elevations">
@@ -64,7 +64,7 @@ RACKGROUP_ACTIONS = """
 """
 
 RACKROLE_ACTIONS = """
-<a href="{% url 'dcim:rackrole_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'dcim:rackrole_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 {% if perms.dcim.change_rackrole %}
@@ -86,7 +86,7 @@ RACK_DEVICE_COUNT = """
 """
 
 RACKRESERVATION_ACTIONS = """
-<a href="{% url 'dcim:rackreservation_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'dcim:rackreservation_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 {% if perms.dcim.change_rackreservation %}
@@ -95,7 +95,7 @@ RACKRESERVATION_ACTIONS = """
 """
 
 MANUFACTURER_ACTIONS = """
-<a href="{% url 'dcim:manufacturer_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'dcim:manufacturer_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 {% if perms.dcim.change_manufacturer %}
@@ -104,7 +104,7 @@ MANUFACTURER_ACTIONS = """
 """
 
 DEVICEROLE_ACTIONS = """
-<a href="{% url 'dcim:devicerole_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'dcim:devicerole_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 {% if perms.dcim.change_devicerole %}
@@ -129,7 +129,7 @@ PLATFORM_VM_COUNT = """
 """
 
 PLATFORM_ACTIONS = """
-<a href="{% url 'dcim:platform_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'dcim:platform_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 {% if perms.dcim.change_platform %}
@@ -166,7 +166,7 @@ UTILIZATION_GRAPH = """
 """
 
 VIRTUALCHASSIS_ACTIONS = """
-<a href="{% url 'dcim:virtualchassis_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'dcim:virtualchassis_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 {% if perms.dcim.change_virtualchassis %}

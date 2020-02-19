@@ -26,7 +26,7 @@ RIR_UTILIZATION = """
 """
 
 RIR_ACTIONS = """
-<a href="{% url 'ipam:rir_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'ipam:rir_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 {% if perms.ipam.change_rir %}
@@ -48,7 +48,7 @@ ROLE_VLAN_COUNT = """
 """
 
 ROLE_ACTIONS = """
-<a href="{% url 'ipam:role_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'ipam:role_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 {% if perms.ipam.change_role %}
@@ -145,7 +145,7 @@ VLAN_ROLE_LINK = """
 """
 
 VLANGROUP_ACTIONS = """
-<a href="{% url 'ipam:vlangroup_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'ipam:vlangroup_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 {% with next_vid=record.get_next_available_vid %}

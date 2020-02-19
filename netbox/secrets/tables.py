@@ -4,7 +4,7 @@ from utilities.tables import BaseTable, ToggleColumn
 from .models import SecretRole, Secret
 
 SECRETROLE_ACTIONS = """
-<a href="{% url 'secrets:secretrole_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'secrets:secretrole_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 {% if perms.secrets.change_secretrole %}
