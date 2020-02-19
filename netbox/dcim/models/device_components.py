@@ -399,8 +399,10 @@ class PowerPort(CableTermination, ComponentModel):
             else:
                 outlets = PowerOutlet.objects.filter(power_port=self)
 
+            # The outlets are used as extra to invalidate the cache when an outlet's leg is changed
             @cached_as(self, extra=outlets)
             def _stats():
+                # Power ports drawing power from the local outlets
                 return PowerPort.objects.filter(
                     pk__in=outlets.values_list('downstream_powerports', flat=True),
                 ).aggregate(
@@ -408,7 +410,6 @@ class PowerPort(CableTermination, ComponentModel):
                     Sum('maximum_draw'),
                 )
 
-            # Power ports drawing power from the local outlets
             stats = _stats()
 
             return outlets.count(), stats.get('allocated_draw__sum') or 0, stats.get('maximum_draw__sum') or 0
