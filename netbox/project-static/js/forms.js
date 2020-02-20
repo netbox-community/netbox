@@ -45,7 +45,7 @@ $(document).ready(function() {
     if (slug_field) {
         var slug_source = $('#id_' + slug_field.attr('slug-source'));
         var slug_length = slug_field.attr('maxlength');
-        if (slug_field[0].value) {
+        if (slug_field.val()) {
             slug_field.attr('_changed', true);
         }
         slug_field.change(function() {
