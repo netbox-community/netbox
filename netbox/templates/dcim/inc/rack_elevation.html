@@ -1,7 +1,4 @@
 {% load helpers %}
-
 <div class="rack_frame">
-
-  <object data="{% url 'dcim-api:rack-elevation' pk=rack.pk %}?face={{face}}&render=svg"></object>
-
+  <object data="{% url 'dcim-api:rack-elevation' pk=rack.pk %}?face={{face}}&render=svg" id="rack_{{ face }}"></object>
 </div>

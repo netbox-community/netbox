@@ -2,6 +2,7 @@
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
+{% load static %}
 
 {% block header %}
     <div class="row noprint">
@@ -45,6 +46,9 @@
     <h1>{% block title %}Rack {{ rack }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=rack %}
     <div class="pull-right noprint">
+        <button class="btn btn-sm btn-default toggle-images" selected="selected">
+            <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Show Images
+        </button>
         {% custom_links rack %}
     </div>
     <ul class="nav nav-tabs">
@@ -368,9 +372,5 @@
 {% endblock %}
 
 {% block javascript %}
-<script type="text/javascript">
-$(function() {
-  $('[data-toggle="popover"]').popover()
-})
-</script>
+<script src="{% static 'js/rack_elevations.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

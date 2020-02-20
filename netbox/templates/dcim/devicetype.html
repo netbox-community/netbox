@@ -110,6 +110,30 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Front Image</td>
+                    <td>
+                        {% if devicetype.front_image %}
+                            <a href="{{ devicetype.front_image.url }}">
+                                <img src="{{ devicetype.front_image.url }}" alt="{{ devicetype.front_image.name }}" class="img-responsive" />
+                            </a>
+                        {% else %}
+                            <span class="text-muted">&mdash;</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Rear Image</td>
+                    <td>
+                        {% if devicetype.rear_image %}
+                            <a href="{{ devicetype.rear_image.url }}">
+                                <img src="{{ devicetype.rear_image.url }}" alt="{{ devicetype.rear_image.name }}" class="img-responsive" />
+                            </a>
+                        {% else %}
+                            <span class="text-muted">&mdash;</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Instances</td>
                     <td><a href="{% url 'dcim:device_list' %}?device_type_id={{ devicetype.pk }}">{{ devicetype.instances.count }}</a></td>
                 </tr>
