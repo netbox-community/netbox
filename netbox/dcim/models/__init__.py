@@ -9,6 +9,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, F, ProtectedError, Sum
@@ -409,6 +410,13 @@ class RackElevationHelperMixin:
         hex_color = '#{}'.format(foreground_color(color))
         link.add(drawing.text(str(name), insert=text, fill=hex_color))
 
+        # Embed front device type image if one exists
+        if device.device_type.front_image:
+            url = device.device_type.front_image.url
+            image = drawing.image(href=url, insert=start, size=end, class_='device-image')
+            image.stretch()
+            link.add(image)
+
     @staticmethod
     def _draw_device_rear(drawing, device, start, end, text):
         rect = drawing.rect(start, end, class_="slot blocked")
@@ -418,6 +426,13 @@ class RackElevationHelperMixin:
         ))
         drawing.add(rect)
         drawing.add(drawing.text(str(device), insert=text))
+
+        # Embed rear device type image if one exists
+        if device.device_type.front_image:
+            url = device.device_type.rear_image.url
+            image = drawing.image(href=url, insert=start, size=end, class_='device-image')
+            image.stretch()
+            drawing.add(image)
 
     @staticmethod
     def _draw_empty(drawing, rack, start, end, text, id_, face_id, class_, reservation):
@@ -1025,6 +1040,14 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         help_text='Parent devices house child devices in device bays. Leave blank '
                   'if this device type is neither a parent nor a child.'
     )
+    front_image = models.ImageField(
+        upload_to='devicetype-images',
+        blank=True
+    )
+    rear_image = models.ImageField(
+        upload_to='devicetype-images',
+        blank=True
+    )
     comments = models.TextField(
         blank=True
     )
@@ -1055,6 +1078,10 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 
         # Save a copy of u_height for validation in clean()
         self._original_u_height = self.u_height
+
+        # Save references to the original front/rear images
+        self._original_front_image = self.front_image
+        self._original_rear_image = self.rear_image
 
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
@@ -1174,6 +1201,26 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
             raise ValidationError({
                 'u_height': "Child device types must be 0U."
             })
+
+    def save(self, *args, **kwargs):
+        ret = super().save(*args, **kwargs)
+
+        # Delete any previously uploaded image files that are no longer in use
+        if self.front_image != self._original_front_image:
+            self._original_front_image.delete(save=False)
+        if self.rear_image != self._original_rear_image:
+            self._original_rear_image.delete(save=False)
+
+        return ret
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+
+        # Delete any uploaded image files
+        if self.front_image:
+            self.front_image.delete(save=False)
+        if self.rear_image:
+            self.rear_image.delete(save=False)
 
     @property
     def display_name(self):

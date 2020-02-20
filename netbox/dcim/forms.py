@@ -930,8 +930,8 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = DeviceType
         fields = [
-            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'comments',
-            'tags',
+            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'front_image', 'rear_image', 'comments', 'tags',
         ]
         widgets = {
             'subdevice_role': StaticSelect2()

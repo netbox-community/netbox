@@ -47,6 +47,11 @@
     <div class="pull-right noprint">
         {% custom_links rack %}
     </div>
+    <div class="pull-right noprint">
+        <button class="btn btn-default btn-xs toggle-images" selected="selected">
+            <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Show Images
+        </button>
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ rack.get_absolute_url }}">Rack</a>
@@ -371,6 +376,22 @@
 <script type="text/javascript">
 $(function() {
   $('[data-toggle="popover"]').popover()
-})
+});
+// Toggle the display of device images
+$('button.toggle-images').click(function() {
+    var selected = $(this).attr('selected');
+    var rack_front = $("#rack_front");
+    var rack_rear = $("#rack_rear");
+    if (selected) {
+        $('.device-image', rack_front.contents()).addClass('hidden');
+        $('.device-image', rack_rear.contents()).addClass('hidden');
+    } else {
+        $('.device-image', rack_front.contents()).removeClass('hidden');
+        $('.device-image', rack_rear.contents()).removeClass('hidden');
+    }
+    $(this).attr('selected', !selected);
+    $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
+    return false;
+});
 </script>
 {% endblock %}
