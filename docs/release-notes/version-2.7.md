@@ -28,6 +28,7 @@ python3 manage.py renaturalize dcim.Interface
 * [#4202](https://github.com/netbox-community/netbox/issues/4202) - Prevent reassignment to master device when bulk editing VC member interfaces
 * [#4204](https://github.com/netbox-community/netbox/issues/4204) - Fix assignment of mask length when bulk editing prefixes
 * [#4211](https://github.com/netbox-community/netbox/issues/4211) - Include trailing text when naturalizing interface names
+* [#4213](https://github.com/netbox-community/netbox/issues/4213) - Restore display of tags and custom fields on power feed view
 
 ---
 
