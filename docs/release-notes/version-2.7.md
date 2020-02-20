@@ -9,6 +9,7 @@ python3 manage.py renaturalize dcim.Interface
 
 ## Enhancements
 
+* [#1529](https://github.com/netbox-community/netbox/issues/1529) - Enable display of device images in rack elevations
 * [#2511](https://github.com/netbox-community/netbox/issues/2511) - Compare object change to the previous change
 * [#3810](https://github.com/netbox-community/netbox/issues/3810) - Preserve slug value when editing existing objects
 * [#3840](https://github.com/netbox-community/netbox/issues/3840) - Enhance search function when selecting VLANs for interface assignment
