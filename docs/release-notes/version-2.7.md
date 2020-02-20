@@ -1,4 +1,4 @@
-# v2.7.7 (FUTURE)
+# v2.7.7 (2020-02-20)
 
 **Note:** This release fixes a bug affecting the natural ordering of interfaces. If any interfaces appear unordered in
 NetBox, run the following management command to recalculate their naturalized values after upgrading:
