@@ -187,6 +187,6 @@ class RackElevationSVG:
             unit_cursor += height
 
         # Wrap the drawing with a border
-        drawing.add(drawing.rect((legend_width, 0), (unit_width, self.rack.u_height * unit_height), class_='rack'))
+        drawing.add(drawing.rect((legend_width, 1), (unit_width - 1, self.rack.u_height * unit_height - 2), class_='rack'))
 
         return drawing
