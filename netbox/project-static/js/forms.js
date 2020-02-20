@@ -42,17 +42,23 @@ $(document).ready(function() {
         return s.substring(0, num_chars);           // Trim to first num_chars chars
     }
     var slug_field = $('#id_slug');
-    slug_field.change(function() {
-        $(this).attr('_changed', true);
-    });
     if (slug_field) {
         var slug_source = $('#id_' + slug_field.attr('slug-source'));
         var slug_length = slug_field.attr('maxlength');
+        if (slug_field.val()) {
+            slug_field.attr('_changed', true);
+        }
+        slug_field.change(function() {
+            $(this).attr('_changed', true);
+        });
         slug_source.on('keyup change', function() {
             if (slug_field && !slug_field.attr('_changed')) {
                 slug_field.val(slugify($(this).val(), (slug_length ? slug_length : 50)));
             }
-        })
+        });
+        $('button.reslugify').click(function() {
+            slug_field.val(slugify(slug_source.val(), (slug_length ? slug_length : 50)));
+        });
     }
 
     // Bulk edit nullification
@@ -190,15 +196,18 @@ $(document).ready(function() {
                 $.each(element.attributes, function(index, attr){
                     if (attr.name.includes("data-additional-query-param-")){
                         var param_name = attr.name.split("data-additional-query-param-")[1];
-                        if (param_name in parameters) {
-                            if (Array.isArray(parameters[param_name])) {
-                                parameters[param_name].push(attr.value)
+
+                        $.each($.parseJSON(attr.value), function(index, value) {
+                            if (param_name in parameters) {
+                                if (Array.isArray(parameters[param_name])) {
+                                    parameters[param_name].push(value);
+                                } else {
+                                    parameters[param_name] = [parameters[param_name], value];
+                                }
                             } else {
-                                parameters[param_name] = [parameters[param_name], attr.value]
+                                parameters[param_name] = value;
                             }
-                        } else {
-                            parameters[param_name] = attr.value;
-                        }
+                        });
                     }
                 });
 

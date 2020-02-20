@@ -186,11 +186,18 @@ class RackElevationDetailFilterSerializer(serializers.Serializer):
     unit_height = serializers.IntegerField(
         default=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT
     )
+    legend_width = serializers.IntegerField(
+        default=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT
+    )
     exclude = serializers.IntegerField(
         required=False,
         default=None
     )
     expand_devices = serializers.BooleanField(
+        required=False,
+        default=True
+    )
+    include_images = serializers.BooleanField(
         required=False,
         default=True
     )
@@ -220,7 +227,8 @@ class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
         model = DeviceType
         fields = [
             'id', 'manufacturer', 'model', 'slug', 'display_name', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
+            'subdevice_role', 'front_image', 'rear_image', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated', 'device_count',
         ]
 
 

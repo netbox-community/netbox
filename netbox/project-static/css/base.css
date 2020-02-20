@@ -179,25 +179,9 @@ nav ul.pagination {
 
 /* Racks */
 div.rack_header {
-    margin-left: 36px;
+    margin-left: 30px;
     text-align: center;
     width: 230px;
-}
-ul.rack_legend {
-    float: left;
-    list-style-type: none;
-    margin-right: 6px;
-    padding: 0;
-    width: 30px;
-}
-ul.rack_legend li {
-    color: #c0c0c0;
-    display: block;
-    font-size: 10px;
-    height: 20px;
-    overflow: hidden;
-    padding: 5px 0;
-    text-align: right;
 }
 
 /* Devices */

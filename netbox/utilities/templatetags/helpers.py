@@ -1,16 +1,16 @@
 import datetime
 import json
 import re
-import yaml
 
+import yaml
 from django import template
+from django.urls import NoReverseMatch, reverse
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
 from utilities.choices import unpack_grouped_choices
 from utilities.utils import foreground_color
-
 
 register = template.Library()
 
@@ -99,6 +99,21 @@ def model_name_plural(obj):
     Return the plural name of the model of the given object
     """
     return obj._meta.verbose_name_plural
+
+
+@register.filter()
+def url_name(model, action):
+    """
+    Return the URL name for the given model and action, or None if invalid.
+    """
+    url_name = '{}:{}_{}'.format(model._meta.app_label, model._meta.model_name, action)
+    try:
+        # Validate and return the URL name. We don't return the actual URL yet because many of the templates
+        # are written to pass a name to {% url %}.
+        reverse(url_name)
+        return url_name
+    except NoReverseMatch:
+        return None
 
 
 @register.filter()

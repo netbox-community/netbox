@@ -351,6 +351,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     )
     role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.all(),
+        required=False,
         widget=APISelect(
             api_url="/api/dcim/device-roles/",
             additional_query_params={
@@ -658,7 +659,10 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         widget=APISelect(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
@@ -667,7 +671,10 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         widget=APISelectMultiple(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
     tags = TagField(
@@ -695,35 +702,12 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Limit VLan choices to those in: global vlans, global groups, the current site's group, the current site
-        vlan_choices = []
-        global_vlans = VLAN.objects.filter(site=None, group=None)
-        vlan_choices.append(
-            ('Global', [(vlan.pk, vlan) for vlan in global_vlans])
-        )
-        for group in VLANGroup.objects.filter(site=None):
-            global_group_vlans = VLAN.objects.filter(group=group)
-            vlan_choices.append(
-                (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
-            )
-
+        # Add current site to VLANs query params
         site = getattr(self.instance.parent, 'site', None)
         if site is not None:
-
-            # Add non-grouped site VLANs
-            site_vlans = VLAN.objects.filter(site=site, group=None)
-            vlan_choices.append((site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
-
-            # Add grouped site VLANs
-            for group in VLANGroup.objects.filter(site=site):
-                site_group_vlans = VLAN.objects.filter(group=group)
-                vlan_choices.append((
-                    '{} / {}'.format(group.site.name, group.name),
-                    [(vlan.pk, vlan) for vlan in site_group_vlans]
-                ))
-
-        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
-        self.fields['tagged_vlans'].choices = vlan_choices
+            # Add current site to VLANs query params
+            self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', site.pk)
+            self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', site.pk)
 
     def clean(self):
         super().clean()
@@ -784,7 +768,10 @@ class InterfaceCreateForm(BootstrapMixin, forms.Form):
         widget=APISelect(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
@@ -793,7 +780,10 @@ class InterfaceCreateForm(BootstrapMixin, forms.Form):
         widget=APISelectMultiple(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
     tags = TagField(
@@ -807,35 +797,11 @@ class InterfaceCreateForm(BootstrapMixin, forms.Form):
             pk=self.initial.get('virtual_machine') or self.data.get('virtual_machine')
         )
 
-        # Limit VLAN choices to those in: global vlans, global groups, the current site's group, the current site
-        vlan_choices = []
-        global_vlans = VLAN.objects.filter(site=None, group=None)
-        vlan_choices.append(
-            ('Global', [(vlan.pk, vlan) for vlan in global_vlans])
-        )
-        for group in VLANGroup.objects.filter(site=None):
-            global_group_vlans = VLAN.objects.filter(group=group)
-            vlan_choices.append(
-                (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
-            )
-
         site = getattr(virtual_machine.cluster, 'site', None)
         if site is not None:
-
-            # Add non-grouped site VLANs
-            site_vlans = VLAN.objects.filter(site=site, group=None)
-            vlan_choices.append((site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
-
-            # Add grouped site VLANs
-            for group in VLANGroup.objects.filter(site=site):
-                site_group_vlans = VLAN.objects.filter(group=group)
-                vlan_choices.append((
-                    '{} / {}'.format(group.site.name, group.name),
-                    [(vlan.pk, vlan) for vlan in site_group_vlans]
-                ))
-
-        self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
-        self.fields['tagged_vlans'].choices = vlan_choices
+            # Add current site to VLANs query params
+            self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', site.pk)
+            self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', site.pk)
 
 
 class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -872,7 +838,10 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         widget=APISelect(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
@@ -881,7 +850,10 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         widget=APISelectMultiple(
             api_url="/api/ipam/vlans/",
             display_field='display_name',
-            full=True
+            full=True,
+            additional_query_params={
+                'site_id': 'null',
+            },
         )
     )
 
@@ -897,35 +869,11 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         if 'virtual_machine' in self.initial:
             parent_obj = VirtualMachine.objects.filter(pk=self.initial['virtual_machine']).first()
 
-            # Limit VLAN choices to global VLANs, VLANs in global groups, the current site's group, the current site
-            vlan_choices = []
-            global_vlans = VLAN.objects.filter(site=None, group=None)
-            vlan_choices.append(
-                ('Global', [(vlan.pk, vlan) for vlan in global_vlans])
-            )
-            for group in VLANGroup.objects.filter(site=None):
-                global_group_vlans = VLAN.objects.filter(group=group)
-                vlan_choices.append(
-                    (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
-                )
-            if parent_obj.cluster is not None:
-                site = getattr(parent_obj.cluster, 'site', None)
-                if site is not None:
-
-                    # Add non-grouped site VLANs
-                    site_vlans = VLAN.objects.filter(site=site, group=None)
-                    vlan_choices.append((site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
-
-                    # Add grouped site VLANs
-                    for group in VLANGroup.objects.filter(site=site):
-                        site_group_vlans = VLAN.objects.filter(group=group)
-                        vlan_choices.append((
-                            '{} / {}'.format(group.site.name, group.name),
-                            [(vlan.pk, vlan) for vlan in site_group_vlans]
-                        ))
-
-            self.fields['untagged_vlan'].choices = [(None, '---------')] + vlan_choices
-            self.fields['tagged_vlans'].choices = vlan_choices
+            site = getattr(parent_obj.cluster, 'site', None)
+            if site is not None:
+                # Add current site to VLANs query params
+                self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', site.pk)
+                self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', site.pk)
 
 
 #

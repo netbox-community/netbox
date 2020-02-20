@@ -27,3 +27,14 @@ COLOR_CHOICES = (
     ('111111', 'Black'),
     ('ffffff', 'White'),
 )
+
+# Keys for PostgreSQL advisory locks. These are arbitrary bigints used by
+# the advisory_lock contextmanager. When a lock is acquired,
+# one of these keys will be used to identify said lock.
+#
+# When adding a new key, pick something arbitrary and unique so
+# that it is easily searchable in query logs.
+ADVISORY_LOCK_KEYS = {
+    'available-prefixes': 100100,
+    'available-ips': 100200,
+}

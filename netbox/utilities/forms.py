@@ -132,6 +132,13 @@ class SmallTextarea(forms.Textarea):
     pass
 
 
+class SlugWidget(forms.TextInput):
+    """
+    Subclass TextInput and add a slug regeneration button next to the form field.
+    """
+    template_name = 'widgets/sluginput.html'
+
+
 class ColorSelect(forms.Select):
     """
     Extends the built-in Select widget to colorize each <option>.
@@ -309,12 +316,17 @@ class APISelect(SelectWithDisabled):
 
     def add_additional_query_param(self, name, value):
         """
-        Add details for an additional query param in the form of a data-* attribute.
+        Add details for an additional query param in the form of a data-* JSON-encoded list attribute.
 
         :param name: The name of the query param
         :param value: The value of the query param
         """
-        self.attrs['data-additional-query-param-{}'.format(name)] = value
+        key = 'data-additional-query-param-{}'.format(name)
+
+        values = json.loads(self.attrs.get(key, '[]'))
+        values.append(value)
+
+        self.attrs[key] = json.dumps(values)
 
     def add_conditional_query_param(self, condition, value):
         """
@@ -529,7 +541,8 @@ class SlugField(forms.SlugField):
     def __init__(self, slug_source='name', *args, **kwargs):
         label = kwargs.pop('label', "Slug")
         help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
-        super().__init__(label=label, help_text=help_text, *args, **kwargs)
+        widget = kwargs.pop('widget', SlugWidget)
+        super().__init__(label=label, help_text=help_text, widget=widget, *args, **kwargs)
         self.widget.attrs['slug-source'] = slug_source
 
 

@@ -56,8 +56,11 @@ class NaturalOrderingField(models.CharField):
         """
         Generate a naturalized value from the target field
         """
-        value = getattr(model_instance, self.target_field)
-        return self.naturalize_function(value, max_length=self.max_length)
+        original_value = getattr(model_instance, self.target_field)
+        naturalized_value = self.naturalize_function(original_value, max_length=self.max_length)
+        setattr(model_instance, self.attname, naturalized_value)
+
+        return naturalized_value
 
     def deconstruct(self):
         kwargs = super().deconstruct()[3]  # Pass kwargs from CharField

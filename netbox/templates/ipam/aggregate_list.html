@@ -1,31 +1,14 @@
-{% extends '_base.html' %}
-{% load buttons %}
+{% extends 'utilities/obj_list.html' %}
 {% load humanize %}
 
-{% block content %}
-<div class="pull-right noprint">
-    {% if perms.ipam.add_aggregate %}
-        {% add_button 'ipam:aggregate_add' %}
-        {% import_button 'ipam:aggregate_import' %}
-    {% endif %}
-    {% export_button content_type %}
-</div>
-<h1>{% block title %}Aggregates{% endblock %}</h1>
-<div class="row">
-	<div class="col-md-9">
-        {% include 'utilities/obj_table.html' with bulk_edit_url='ipam:aggregate_bulk_edit' bulk_delete_url='ipam:aggregate_bulk_delete' %}
-	</div>
-	<div class="col-md-3 noprint">
-		{% include 'inc/search_panel.html' %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong><i class="fa fa-bar-chart"></i> Statistics</strong>
-            </div>
-            <ul class="list-group">
-                <li class="list-group-item">Total IPv4 IPs <span class="badge">{{ ipv4_total|intcomma }}</span></li>
-                <li class="list-group-item">Total IPv6 /64s <span class="badge">{{ ipv6_total|intcomma }}</span></li>
-            </ul>
+{% block sidebar %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong><i class="fa fa-bar-chart"></i> Statistics</strong>
         </div>
-	</div>
-</div>
+        <ul class="list-group">
+            <li class="list-group-item">Total IPv4 IPs <span class="badge">{{ ipv4_total|intcomma }}</span></li>
+            <li class="list-group-item">Total IPv6 /64s <span class="badge">{{ ipv6_total|intcomma }}</span></li>
+        </ul>
+    </div>
 {% endblock %}

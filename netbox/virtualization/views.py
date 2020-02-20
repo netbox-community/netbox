@@ -26,7 +26,6 @@ class ClusterTypeListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'virtualization.view_clustertype'
     queryset = ClusterType.objects.annotate(cluster_count=Count('clusters'))
     table = tables.ClusterTypeTable
-    template_name = 'virtualization/clustertype_list.html'
 
 
 class ClusterTypeCreateView(PermissionRequiredMixin, ObjectEditView):
@@ -62,7 +61,6 @@ class ClusterGroupListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'virtualization.view_clustergroup'
     queryset = ClusterGroup.objects.annotate(cluster_count=Count('clusters'))
     table = tables.ClusterGroupTable
-    template_name = 'virtualization/clustergroup_list.html'
 
 
 class ClusterGroupCreateView(PermissionRequiredMixin, ObjectEditView):
@@ -100,7 +98,6 @@ class ClusterListView(PermissionRequiredMixin, ObjectListView):
     table = tables.ClusterTable
     filterset = filters.ClusterFilterSet
     filterset_form = forms.ClusterFilterForm
-    template_name = 'virtualization/cluster_list.html'
 
 
 class ClusterView(PermissionRequiredMixin, View):
