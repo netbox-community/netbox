@@ -549,14 +549,14 @@ class PowerOutlet(CableTermination, ComponentModel):
 
     def calculate_downstream_powerports(self):
         """
-        Return a queryset of the downstream power ports.
+        Return a queryset of the power ports drawing power from this outlet.
         """
         downstream_powerports = PowerPort.objects.none()
 
         if hasattr(self, 'connected_endpoint'):
             next_powerports = PowerPort.objects.filter(pk=self.connected_endpoint.pk)
 
-            while next_powerports:
+            while next_powerports.exists():
                 downstream_powerports |= next_powerports
 
                 # Prevent loops by excluding those already matched
@@ -570,14 +570,14 @@ class PowerOutlet(CableTermination, ComponentModel):
 
     def calculate_upstream_poweroutlets(self):
         """
-        Return a queryset of the upstream power outlets.
+        Return a queryset of the power outlets supplying power to this outlet.
         """
         upstream_poweroutlets = PowerOutlet.objects.none()
 
         if self.power_port and self.power_port._connected_poweroutlet:
             next_poweroutlets = PowerOutlet.objects.filter(pk=self.power_port._connected_poweroutlet.pk)
 
-            while next_poweroutlets:
+            while next_poweroutlets.exists():
                 upstream_poweroutlets |= next_poweroutlets
 
                 # Prevent loops by excluding those already matched

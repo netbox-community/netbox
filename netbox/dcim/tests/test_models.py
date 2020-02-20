@@ -658,7 +658,7 @@ class PowerCalculationTestCase(TestCase):
         """
         stats = self.power_port1.get_power_draw()
 
-        # Global stats: all devices 2
+        # Global stats: all devices/feeds
         self.assertEqual(stats['maximum'], 25 + 7 + 4)
         self.assertEqual(stats['allocated'], 10 + 5 + 3)
         self.assertEqual(stats['outlet_count'], 2)
