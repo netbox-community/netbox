@@ -121,6 +121,8 @@
                 </tr>
             </table>
         </div>
+        {% include 'inc/custom_fields_panel.html' with obj=powerfeed %}
+        {% include 'extras/inc/tags_panel.html' with tags=powerfeed.tags.all url='dcim:powerfeed_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Comments</strong>
