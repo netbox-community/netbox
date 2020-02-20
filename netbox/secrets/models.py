@@ -302,8 +302,8 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
     Device; Devices may have multiple Secrets associated with them. A name can optionally be defined along with the
     ciphertext; this string is stored as plain text in the database.
 
-    A Secret can be up to 65,536 bytes (64KB) in length. Each secret string will be padded with random data to a minimum
-    of 64 bytes during encryption in order to protect short strings from ciphertext analysis.
+    A Secret can be up to 65,535 bytes (64KB - 1B) in length. Each secret string will be padded with random data to
+    a minimum of 64 bytes during encryption in order to protect short strings from ciphertext analysis.
     """
     device = models.ForeignKey(
         to='dcim.Device',
@@ -320,7 +320,7 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
         blank=True
     )
     ciphertext = models.BinaryField(
-        max_length=65568,  # 16B IV + 2B pad length + {62-65550}B padded
+        max_length=65568,  # 128-bit IV + 16-bit pad length + 65535B secret + 15B padding
         editable=False
     )
     hash = models.CharField(
@@ -388,11 +388,7 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
         else:
             pad_length = 0
 
-        # Python 2 compatibility
-        if sys.version_info[0] < 3:
-            header = chr(len(s) >> 8) + chr(len(s) % 256)
-        else:
-            header = bytes([len(s) >> 8]) + bytes([len(s) % 256])
+        header = bytes([len(s) >> 8]) + bytes([len(s) % 256])
 
         return header + s + os.urandom(pad_length)
 
