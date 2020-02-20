@@ -11,9 +11,13 @@ from .choices import DeviceFaceChoices
 class RackElevationSVG:
     """
     Use this class to render a rack elevation as an SVG image.
+
+    :param rack: A NetBox Rack instance
+    :param include_images: If true, the SVG document will embed front/rear device face images, where available
     """
-    def __init__(self, rack):
+    def __init__(self, rack, include_images=True):
         self.rack = rack
+        self.include_images = include_images
 
     @staticmethod
     def _add_gradient(drawing, id_, color):
@@ -46,8 +50,7 @@ class RackElevationSVG:
 
         return drawing
 
-    @staticmethod
-    def _draw_device_front(drawing, device, start, end, text):
+    def _draw_device_front(self, drawing, device, start, end, text):
         name = str(device)
         if device.devicebay_count:
             name += ' ({}/{})'.format(device.get_children().count(), device.devicebay_count)
@@ -69,14 +72,13 @@ class RackElevationSVG:
         link.add(drawing.text(str(name), insert=text, fill=hex_color))
 
         # Embed front device type image if one exists
-        if device.device_type.front_image:
+        if self.include_images and device.device_type.front_image:
             url = device.device_type.front_image.url
             image = drawing.image(href=url, insert=start, size=end, class_='device-image')
             image.stretch()
             link.add(image)
 
-    @staticmethod
-    def _draw_device_rear(drawing, device, start, end, text):
+    def _draw_device_rear(self, drawing, device, start, end, text):
         rect = drawing.rect(start, end, class_="slot blocked")
         rect.set_desc('{} — {} ({}U) {} {}'.format(
             device.device_role, device.device_type.display_name,
@@ -86,7 +88,7 @@ class RackElevationSVG:
         drawing.add(drawing.text(str(device), insert=text))
 
         # Embed rear device type image if one exists
-        if device.device_type.front_image:
+        if self.include_images and device.device_type.front_image:
             url = device.device_type.rear_image.url
             image = drawing.image(href=url, insert=start, size=end, class_='device-image')
             image.stretch()
@@ -128,11 +130,12 @@ class RackElevationSVG:
 
         return elevation
 
-    def render(self, reserved_units, face, unit_width, unit_height, legend_width):
+    def render(self, face, unit_width, unit_height, legend_width):
         """
         Return an SVG document representing a rack elevation.
         """
         drawing = self._setup_drawing(unit_width + legend_width, unit_height * self.rack.u_height)
+        reserved_units = self.rack.get_reserved_units()
 
         unit_cursor = 0
         for ru in range(0, self.rack.u_height):

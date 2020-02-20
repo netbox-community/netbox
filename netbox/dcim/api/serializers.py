@@ -186,11 +186,18 @@ class RackElevationDetailFilterSerializer(serializers.Serializer):
     unit_height = serializers.IntegerField(
         default=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT
     )
+    legend_width = serializers.IntegerField(
+        default=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT
+    )
     exclude = serializers.IntegerField(
         required=False,
         default=None
     )
     expand_devices = serializers.BooleanField(
+        required=False,
+        default=True
+    )
+    include_images = serializers.BooleanField(
         required=False,
         default=True
     )

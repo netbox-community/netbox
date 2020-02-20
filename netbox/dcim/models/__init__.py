@@ -666,7 +666,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
             face=DeviceFaceChoices.FACE_FRONT,
             unit_width=RACK_ELEVATION_UNIT_WIDTH_DEFAULT,
             unit_height=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT,
-            legend_width=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT
+            legend_width=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT,
+            include_images=True
     ):
         """
         Return an SVG of the rack elevation
@@ -676,11 +677,11 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         :param unit_height: Height of each rack unit for the rendered drawing. Note this is not the total
             height of the elevation
         :param legend_width: Width of the unit legend, in pixels
+        :param include_images: Embed front/rear device images where available
         """
-        elevation = RackElevationSVG(self)
-        reserved_units = self.get_reserved_units()
+        elevation = RackElevationSVG(self, include_images=include_images)
 
-        return elevation.render(reserved_units, face, unit_width, unit_height, legend_width)
+        return elevation.render(face, unit_width, unit_height, legend_width)
 
     def get_0u_devices(self):
         return self.devices.filter(position=0)
