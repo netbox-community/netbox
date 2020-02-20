@@ -1,5 +1,12 @@
 # v2.7.7 (FUTURE)
 
+**Note:** This release fixes a bug affecting the natural ordering of interfaces. If any interfaces appear unordered in
+NetBox, run the following management command to recalculate their naturalized values after upgrading:
+
+```
+python3 manage.py renaturalize dcim.Interface
+``` 
+
 ## Enhancements
 
 * [#2511](https://github.com/netbox-community/netbox/issues/2511) - Compare object change to the previous change
@@ -19,6 +26,7 @@
 * [#4196](https://github.com/netbox-community/netbox/issues/4196) - Fix exception when viewing LLDP neighbors page
 * [#4202](https://github.com/netbox-community/netbox/issues/4202) - Prevent reassignment to master device when bulk editing VC member interfaces
 * [#4204](https://github.com/netbox-community/netbox/issues/4204) - Fix assignment of mask length when bulk editing prefixes
+* [#4211](https://github.com/netbox-community/netbox/issues/4211) - Include trailing text when naturalizing interface names
 
 ---
 
