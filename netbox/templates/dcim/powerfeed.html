@@ -123,18 +123,6 @@
         </div>
         {% include 'inc/custom_fields_panel.html' with obj=powerfeed %}
         {% include 'extras/inc/tags_panel.html' with tags=powerfeed.tags.all url='dcim:powerfeed_list' %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Comments</strong>
-            </div>
-            <div class="panel-body rendered-markdown">
-                {% if powerfeed.comments %}
-                    {{ powerfeed.comments|gfm }}
-                {% else %}
-                    <span class="text-muted">None</span>
-                {% endif %}
-            </div>
-        </div>
     </div>
     <div class="col-md-6">
         <div class="panel panel-default">
@@ -163,6 +151,18 @@
                     <td>{{ powerfeed.max_utilization }}%</td>
                 </tr>
             </table>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Comments</strong>
+            </div>
+            <div class="panel-body rendered-markdown">
+                {% if powerfeed.comments %}
+                    {{ powerfeed.comments|gfm }}
+                {% else %}
+                    <span class="text-muted">None</span>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
