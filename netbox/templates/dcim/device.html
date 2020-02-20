@@ -393,11 +393,16 @@
                                     <tr>
                                         <td style="padding-left: 20px">Leg {{ leg.name }}</td>
                                         <td>{{ leg.outlet_count }}</td>
-                                        <td>{{ leg.allocated }}</td>
-                                        <td>{{ powerfeed.available_power|divide:3 }}VA</td>
-                                        {% with phase_available=powerfeed.available_power|divide:3 %}
-                                            <td>{% utilization_graph leg.allocated|percentage:phase_available %}</td>
-                                        {% endwith %}
+                                        <td>{{ leg.allocated }}VA</td>
+                                        {% if powerfeed.available_power %}
+                                            <td>{{ powerfeed.available_power|divide:3 }}VA</td>
+                                            {% with phase_available=powerfeed.available_power|divide:3 %}
+                                                <td>{% utilization_graph leg.allocated|percentage:phase_available %}</td>
+                                            {% endwith %}
+                                        {% else %}
+                                            <td class="text-muted">&mdash;</td>
+                                            <td class="text-muted">&mdash;</td>
+                                        {% endif %}
                                     </tr>
                                 {% endfor %}
                             {% endwith %}

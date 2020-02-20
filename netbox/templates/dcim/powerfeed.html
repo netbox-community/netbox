@@ -110,7 +110,7 @@
                         {% if utilization %}
                             <td>
                                 {{ utilization.allocated }}VA / {{ powerfeed.available_power }}VA
-                                {% if powerfeed.available_power > 0 %}
+                                {% if powerfeed.available_power %}
                                     {% utilization_graph utilization.allocated|percentage:powerfeed.available_power %}
                                 {% endif %}
                             </td>
