@@ -2821,6 +2821,12 @@ class PowerOutletBulkDisconnectForm(ConfirmationForm):
 
 class InterfaceFilterForm(DeviceComponentFilterForm):
     model = Interface
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
     tag = TagFilterField(model)
 
 

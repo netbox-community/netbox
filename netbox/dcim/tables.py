@@ -795,11 +795,12 @@ class InterfaceTable(BaseTable):
 class InterfaceDetailTable(DeviceComponentDetailTable):
     parent = tables.LinkColumn(order_by=('device', 'virtual_machine'))
     name = tables.LinkColumn()
+    enabled = BooleanColumn()
 
     class Meta(InterfaceTable.Meta):
         order_by = ('parent', 'name')
-        fields = ('pk', 'parent', 'name', 'type', 'description', 'cable')
-        sequence = ('pk', 'parent', 'name', 'type', 'description', 'cable')
+        fields = ('pk', 'parent', 'name', 'enabled', 'type', 'description', 'cable')
+        sequence = ('pk', 'parent', 'name', 'enabled', 'type', 'description', 'cable')
 
 
 class FrontPortTable(BaseTable):
