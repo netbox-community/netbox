@@ -399,7 +399,7 @@ class PowerPort(CableTermination, ComponentModel):
                 outlets = PowerOutlet.objects.filter(power_port=self)
 
             # The outlets are used as extra to invalidate the cache when an outlet's leg is changed
-            @cached_as(self, extra=outlets)
+            @cached_as(self, extra=list(outlets.values_list('pk', flat=True)))
             def _stats():
                 # Power ports drawing power from the local outlets
                 return PowerPort.objects.filter(
