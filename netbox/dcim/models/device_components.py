@@ -1,3 +1,4 @@
+from cacheops import cached_as
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -383,37 +384,55 @@ class PowerPort(CableTermination, ComponentModel):
                 "Connected endpoint must be a PowerOutlet or PowerFeed, not {}.".format(type(value))
             )
 
-    def get_power_draw(self):
+    def get_power_draw(self, leg_stats=True):
         """
         Return the allocated and maximum power draw (in VA) and child PowerOutlet count for this PowerPort.
+        If `leg_stats` is True, the `legs` key in the returned dict is populated with a list of per-leg statistics.
         """
+        def get_power_stats(leg=None):
+            """
+            Return tuple of (outlet_count, allocated_draw_total, maximum_draw_total).
+            """
+            if leg:
+                outlets = PowerOutlet.objects.filter(power_port=self, feed_leg=leg)
+            else:
+                outlets = PowerOutlet.objects.filter(power_port=self)
+
+            # The outlets are used as extra to invalidate the cache when an outlet's leg is changed
+            @cached_as(self, extra=outlets)
+            def _stats():
+                # Power ports drawing power from the local outlets
+                return PowerPort.objects.filter(
+                    pk__in=outlets.values_list('downstream_powerports', flat=True),
+                ).aggregate(
+                    Sum('allocated_draw'),
+                    Sum('maximum_draw'),
+                )
+
+            stats = _stats()
+
+            return outlets.count(), stats.get('allocated_draw__sum') or 0, stats.get('maximum_draw__sum') or 0
+
         # Calculate aggregate draw of all child power outlets if no numbers have been defined manually
         if self.allocated_draw is None and self.maximum_draw is None:
-            outlet_ids = PowerOutlet.objects.filter(power_port=self).values_list('pk', flat=True)
-            utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
-                maximum_draw_total=Sum('maximum_draw'),
-                allocated_draw_total=Sum('allocated_draw'),
-            )
+            # Global results
+            outlet_count, allocated_draw_total, maximum_draw_total = get_power_stats()
             ret = {
-                'allocated': utilization['allocated_draw_total'] or 0,
-                'maximum': utilization['maximum_draw_total'] or 0,
-                'outlet_count': len(outlet_ids),
+                'allocated': allocated_draw_total,
+                'maximum': maximum_draw_total,
+                'outlet_count': outlet_count,
                 'legs': [],
             }
 
             # Calculate per-leg aggregates for three-phase feeds
-            if self._connected_powerfeed and self._connected_powerfeed.phase == PowerFeedPhaseChoices.PHASE_3PHASE:
+            if leg_stats and getattr(self._connected_powerfeed, 'phase', None) == PowerFeedPhaseChoices.PHASE_3PHASE:
                 for leg, leg_name in PowerOutletFeedLegChoices:
-                    outlet_ids = PowerOutlet.objects.filter(power_port=self, feed_leg=leg).values_list('pk', flat=True)
-                    utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
-                        maximum_draw_total=Sum('maximum_draw'),
-                        allocated_draw_total=Sum('allocated_draw'),
-                    )
+                    outlet_count, allocated_draw_total, maximum_draw_total = get_power_stats(leg)
                     ret['legs'].append({
                         'name': leg_name,
-                        'allocated': utilization['allocated_draw_total'] or 0,
-                        'maximum': utilization['maximum_draw_total'] or 0,
-                        'outlet_count': len(outlet_ids),
+                        'allocated': allocated_draw_total,
+                        'maximum': maximum_draw_total,
+                        'outlet_count': outlet_count,
                     })
 
             return ret

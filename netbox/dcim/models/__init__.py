@@ -708,19 +708,17 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         """
         Determine the utilization rate of power in the rack and return it as a percentage.
         """
-        power_stats = PowerFeed.objects.filter(
-            rack=self
-        ).annotate(
-            allocated_draw_total=Sum('connected_endpoint__poweroutlets__connected_endpoint__allocated_draw'),
-        ).values(
-            'allocated_draw_total',
-            'available_power'
-        )
+        # Sum up all of the available power from the power feeds assigned to the rack
+        available_power = PowerFeed.objects.filter(rack=self).aggregate(total=Sum('available_power'))
 
-        if power_stats:
-            allocated_draw_total = sum(x['allocated_draw_total'] for x in power_stats)
-            available_power_total = sum(x['available_power'] for x in power_stats)
-            return int(allocated_draw_total / available_power_total * 100) or 0
+        # Get the power draw of the power ports from the power feeds assigned to the rack
+        power_ports = PowerPort.objects.filter(_connected_powerfeed__rack=self)
+        feeds_stats = [x.get_power_draw(leg_stats=False) for x in power_ports]
+
+        if available_power.get('total') and feeds_stats:
+            available_power_total = available_power.get('total')
+            allocated_draw_total = sum([x.get('allocated') or 0 for x in feeds_stats])
+            return round(allocated_draw_total / available_power_total * 100)
         return 0
 
 
