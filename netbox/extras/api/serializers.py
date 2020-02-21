@@ -40,10 +40,14 @@ class GraphSerializer(ValidatedModelSerializer):
 
 
 class RenderedGraphSerializer(serializers.ModelSerializer):
-    embed_url = serializers.SerializerMethodField()
-    embed_link = serializers.SerializerMethodField()
+    embed_url = serializers.SerializerMethodField(
+        read_only=True
+    )
+    embed_link = serializers.SerializerMethodField(
+        read_only=True
+    )
     type = ContentTypeField(
-        queryset=ContentType.objects.all()
+        read_only=True
     )
 
     class Meta:
