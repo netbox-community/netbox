@@ -470,6 +470,16 @@ class PowerOutlet(CableTermination, ComponentModel):
         choices=CONNECTION_STATUS_CHOICES,
         blank=True
     )
+    downstream_powerports = models.ManyToManyField(
+        to='dcim.PowerPort',
+        related_name='upstream_poweroutlets',
+        blank=True
+    )
+    upstream_powerports = models.ManyToManyField(
+        to='dcim.PowerPort',
+        related_name='downstream_poweroutlets',
+        blank=True
+    )
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'power_port', 'feed_leg', 'description']
@@ -501,6 +511,66 @@ class PowerOutlet(CableTermination, ComponentModel):
             raise ValidationError(
                 "Parent power port ({}) must belong to the same device".format(self.power_port)
             )
+
+    def calculate_downstream_powerports(self):
+        """
+        Return a queryset of the power ports indirectly drawing power from this outlet.
+        """
+        powerports = PowerPort.objects.none()
+
+        if hasattr(self, 'connected_endpoint'):
+            next_powerports = PowerPort.objects.filter(pk=self.connected_endpoint.pk)
+
+            while next_powerports.exists():
+                powerports |= next_powerports
+
+                # Prevent loops by excluding those already matched
+                next_powerports = PowerPort.objects.exclude(
+                    pk__in=powerports,
+                ).filter(
+                    _connected_poweroutlet__power_port__in=powerports,
+                )
+
+        return powerports
+
+    def calculate_upstream_powerports(self):
+        """
+        Return a queryset of the power ports indirectly supplying power to this outlet.
+        """
+        powerports = PowerPort.objects.none()
+
+        if self.power_port:
+            next_powerports = PowerPort.objects.filter(pk=self.power_port.pk)
+
+            while next_powerports.exists():
+                powerports |= next_powerports
+
+                # Prevent loops by excluding those already matched
+                next_powerports = PowerPort.objects.exclude(
+                    pk__in=powerports,
+                ).filter(
+                    poweroutlets__connected_endpoint__in=powerports,
+                )
+
+        return powerports
+
+    def update_related_powerports(self):
+        """
+        Update the downstream and upstream power ports. This bubbles as needed to any parent power outlets, existing
+        and new.
+        """
+        upstream_powerports = self.calculate_upstream_powerports()
+        downstream_powerports = self.calculate_downstream_powerports()
+
+        old_parents = PowerOutlet.objects.filter(connected_endpoint__in=self.upstream_powerports.all())
+        new_parents = PowerOutlet.objects.filter(connected_endpoint__in=upstream_powerports)
+
+        for outlet in old_parents | new_parents:
+            outlet.upstream_powerports.set(outlet.calculate_upstream_powerports())
+            outlet.downstream_powerports.set(outlet.calculate_downstream_powerports())
+
+        self.upstream_powerports.set(self.calculate_upstream_powerports())
+        self.downstream_powerports.set(self.calculate_downstream_powerports())
 
 
 #

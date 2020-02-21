@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 
-from .models import Cable, Device, VirtualChassis
+from .models import Cable, Device, PowerOutlet, VirtualChassis
 
 
 @receiver(post_save, sender=VirtualChassis)
@@ -53,6 +53,12 @@ def update_connected_endpoints(instance, **kwargs):
         endpoint_b.connection_status = path_status
         endpoint_b.save()
 
+    # The cached fields for a power outlet need to be updated after a topology change (both endpoints changed)
+    if isinstance(endpoint_a, PowerOutlet):
+        endpoint_a.update_related_powerports()
+    elif isinstance(endpoint_b, PowerOutlet):
+        endpoint_b.update_related_powerports()
+
 
 @receiver(pre_delete, sender=Cable)
 def nullify_connected_endpoints(instance, **kwargs):
@@ -77,3 +83,9 @@ def nullify_connected_endpoints(instance, **kwargs):
         endpoint_b.connected_endpoint = None
         endpoint_b.connection_status = None
         endpoint_b.save()
+
+    # The cached fields for a power outlet need to be updated after a topology change (both endpoints changed)
+    if isinstance(endpoint_a, PowerOutlet):
+        endpoint_a.update_related_powerports()
+    elif isinstance(endpoint_b, PowerOutlet):
+        endpoint_b.update_related_powerports()
