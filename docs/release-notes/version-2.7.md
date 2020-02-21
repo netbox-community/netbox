@@ -3,6 +3,7 @@
 ## Bug Fixes
 
 * [#4224](https://github.com/netbox-community/netbox/issues/4224) - Fix display of rear device image if front image is not defined 
+* [#4232](https://github.com/netbox-community/netbox/issues/4232) - Enforce consistent background striping in rack elevations
 
 ---
 

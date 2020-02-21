@@ -22,8 +22,8 @@ class RackElevationSVG:
     @staticmethod
     def _add_gradient(drawing, id_, color):
         gradient = drawing.linearGradient(
-            start=('0', '0%'),
-            end=('0', '5%'),
+            start=(0, 0),
+            end=(0, 25),
             spreadMethod='repeat',
             id_=id_,
             gradientTransform='rotate(45, 0, 0)',
