@@ -5,11 +5,14 @@ from copy import deepcopy
 from datetime import timedelta
 
 from django.conf import settings
+from django.contrib import messages
 from django.db.models.signals import pre_delete, post_save
 from django.utils import timezone
 from django_prometheus.models import model_deletes, model_inserts, model_updates
+from redis.exceptions import RedisError
 
 from extras.utils import is_taggable
+from utilities.api import is_api_request
 from utilities.querysets import DummyQuerySet
 from .choices import ObjectChangeActionChoices
 from .models import ObjectChange
@@ -99,6 +102,7 @@ class ObjectChangeMiddleware(object):
             return response
 
         # Create records for any cached objects that were changed.
+        redis_failed = False
         for instance, action in _thread_locals.changed_objects:
 
             # Refresh cached custom field values
@@ -114,7 +118,16 @@ class ObjectChangeMiddleware(object):
                 objectchange.save()
 
             # Enqueue webhooks
-            enqueue_webhooks(instance, request.user, request.id, action)
+            try:
+                enqueue_webhooks(instance, request.user, request.id, action)
+            except RedisError as e:
+                if not redis_failed and not is_api_request(request):
+                    messages.error(
+                        request,
+                        "There was an error processing webhooks for this request. Check that the Redis service is "
+                        "running and reachable. The full error details were: {}".format(e)
+                    )
+                    redis_failed = True
 
             # Increment metric counters
             if action == ObjectChangeActionChoices.ACTION_CREATE:

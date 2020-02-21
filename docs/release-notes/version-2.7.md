@@ -1,5 +1,9 @@
 # v2.7.8 (FUTURE)
 
+## Enhancements
+
+* [#4173](https://github.com/netbox-community/netbox/issues/4173) - Return graceful error message when webhook queuing fails
+
 ## Bug Fixes
 
 * [#4224](https://github.com/netbox-community/netbox/issues/4224) - Fix display of rear device image if front image is not defined 
