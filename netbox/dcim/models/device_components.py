@@ -403,7 +403,7 @@ class PowerPort(CableTermination, ComponentModel):
             def _stats():
                 # Power ports drawing power from the local outlets
                 return PowerPort.objects.filter(
-                    pk__in=outlets.values_list('downstream_powerports', flat=True),
+                    pk__in=outlets.values_list('_downstream_powerports', flat=True),
                 ).aggregate(
                     Sum('allocated_draw'),
                     Sum('maximum_draw'),
@@ -489,14 +489,14 @@ class PowerOutlet(CableTermination, ComponentModel):
         choices=CONNECTION_STATUS_CHOICES,
         blank=True
     )
-    downstream_powerports = models.ManyToManyField(
+    _downstream_powerports = models.ManyToManyField(
         to='dcim.PowerPort',
-        related_name='upstream_poweroutlets',
+        related_name='_upstream_poweroutlets',
         blank=True
     )
-    upstream_powerports = models.ManyToManyField(
+    _upstream_powerports = models.ManyToManyField(
         to='dcim.PowerPort',
-        related_name='downstream_poweroutlets',
+        related_name='_downstream_poweroutlets',
         blank=True
     )
     tags = TaggableManager(through=TaggedItem)
@@ -581,15 +581,15 @@ class PowerOutlet(CableTermination, ComponentModel):
         upstream_powerports = self.calculate_upstream_powerports()
         downstream_powerports = self.calculate_downstream_powerports()
 
-        old_parents = PowerOutlet.objects.filter(connected_endpoint__in=self.upstream_powerports.all())
+        old_parents = PowerOutlet.objects.filter(connected_endpoint__in=self._upstream_powerports.all())
         new_parents = PowerOutlet.objects.filter(connected_endpoint__in=upstream_powerports)
 
         for outlet in old_parents | new_parents:
-            outlet.upstream_powerports.set(outlet.calculate_upstream_powerports())
-            outlet.downstream_powerports.set(outlet.calculate_downstream_powerports())
+            outlet._upstream_powerports.set(outlet.calculate_upstream_powerports())
+            outlet._downstream_powerports.set(outlet.calculate_downstream_powerports())
 
-        self.upstream_powerports.set(self.calculate_upstream_powerports())
-        self.downstream_powerports.set(self.calculate_downstream_powerports())
+        self._upstream_powerports.set(self.calculate_upstream_powerports())
+        self._downstream_powerports.set(self.calculate_downstream_powerports())
 
 
 #

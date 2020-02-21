@@ -708,17 +708,17 @@ class PowerCalculationTestCase(TestCase):
 
         # With a loop in the topology, all of the outlets affected by the loop have the same children. power_outlet12
         # is not part of the loop and should only have one child, power_port21.
-        self.assertEqual(self.power_outlet12.downstream_powerports.count(), 1)
-        self.assertEqual(self.power_outlet13.downstream_powerports.count(), 4)
-        self.assertEqual(self.power_outlet34.downstream_powerports.count(), 4)
-        self.assertEqual(self.power_outlet41.downstream_powerports.count(), 4)
+        self.assertEqual(self.power_outlet12._downstream_powerports.count(), 1)
+        self.assertEqual(self.power_outlet13._downstream_powerports.count(), 4)
+        self.assertEqual(self.power_outlet34._downstream_powerports.count(), 4)
+        self.assertEqual(self.power_outlet41._downstream_powerports.count(), 4)
 
         # When a loop-causing cable is removed, the downstream_powerports of the other outlets in the loop should be
         # updated appropriately. This test is necessary because, in a loop, each outlet is upstream and downstream of
         # every other outlet in that loop.
         loop_cable.delete()
 
-        self.assertEqual(self.power_outlet12.downstream_powerports.count(), 1)
-        self.assertEqual(self.power_outlet13.downstream_powerports.count(), 2)
-        self.assertEqual(self.power_outlet34.downstream_powerports.count(), 1)
-        self.assertEqual(self.power_outlet41.downstream_powerports.count(), 0)
+        self.assertEqual(self.power_outlet12._downstream_powerports.count(), 1)
+        self.assertEqual(self.power_outlet13._downstream_powerports.count(), 2)
+        self.assertEqual(self.power_outlet34._downstream_powerports.count(), 1)
+        self.assertEqual(self.power_outlet41._downstream_powerports.count(), 0)

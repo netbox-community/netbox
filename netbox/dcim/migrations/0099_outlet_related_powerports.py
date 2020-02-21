@@ -48,8 +48,8 @@ def update_related_powerports(apps, schema_editor):
                     _connected_poweroutlet__power_port__in=downstream_powerports,
                 )
 
-        poweroutlet.upstream_powerports.set(upstream_powerports)
-        poweroutlet.downstream_powerports.set(downstream_powerports)
+        poweroutlet._upstream_powerports.set(upstream_powerports)
+        poweroutlet._downstream_powerports.set(downstream_powerports)
 
 
 class Migration(migrations.Migration):
@@ -61,13 +61,13 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='poweroutlet',
-            name='downstream_powerports',
-            field=models.ManyToManyField(blank=True, related_name='upstream_poweroutlets', to='dcim.PowerPort'),
+            name='_downstream_powerports',
+            field=models.ManyToManyField(blank=True, related_name='_upstream_poweroutlets', to='dcim.PowerPort'),
         ),
         migrations.AddField(
             model_name='poweroutlet',
-            name='upstream_powerports',
-            field=models.ManyToManyField(blank=True, related_name='downstream_poweroutlets', to='dcim.PowerPort'),
+            name='_upstream_powerports',
+            field=models.ManyToManyField(blank=True, related_name='_downstream_poweroutlets', to='dcim.PowerPort'),
         ),
         migrations.RunPython(
             code=update_related_powerports,
