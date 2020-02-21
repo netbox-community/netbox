@@ -1,3 +1,11 @@
+# v2.7.8 (FUTURE)
+
+## Bug Fixes
+
+* [#4224](https://github.com/netbox-community/netbox/issues/4224) - Fix display of rear device image if front image is not defined 
+
+---
+
 # v2.7.7 (2020-02-20)
 
 **Note:** This release fixes a bug affecting the natural ordering of interfaces. If any interfaces appear unordered in
