@@ -7,7 +7,8 @@ INTERFACE_NAME_REGEX = r'(^(?P<type>[^\d\.:]+)?)' \
                        r'((?P<subposition>\d+)/)?' \
                        r'((?P<id>\d+))?' \
                        r'(:(?P<channel>\d+))?' \
-                       r'(.(?P<vc>\d+)$)?'
+                       r'(\.(?P<vc>\d+))?' \
+                       r'(?P<remainder>.*)$'
 
 
 def naturalize(value, max_length, integer_places=8):
@@ -50,7 +51,7 @@ def naturalize_interface(value, max_length):
     :param value: The value to be naturalized
     :param max_length: The maximum length of the returned string. Characters beyond this length will be stripped.
     """
-    output = []
+    output = ''
     match = re.search(INTERFACE_NAME_REGEX, value)
     if match is None:
         return value
@@ -60,21 +61,25 @@ def naturalize_interface(value, max_length):
     for part_name in ('slot', 'subslot', 'position', 'subposition'):
         part = match.group(part_name)
         if part is not None:
-            output.append(part.rjust(4, '0'))
+            output += part.rjust(4, '0')
         else:
-            output.append('9999')
+            output += '9999'
 
     # Append the type, if any.
     if match.group('type') is not None:
-        output.append(match.group('type'))
+        output += match.group('type')
 
-    # Finally, append any remaining fields, left-padding to six digits each.
+    # Append any remaining fields, left-padding to six digits each.
     for part_name in ('id', 'channel', 'vc'):
         part = match.group(part_name)
         if part is not None:
-            output.append(part.rjust(6, '0'))
+            output += part.rjust(6, '0')
         else:
-            output.append('000000')
+            output += '000000'
 
-    ret = ''.join(output)
-    return ret[:max_length]
+    # Finally, naturalize any remaining text and append it
+    if match.group('remainder') is not None and len(output) < max_length:
+        remainder = naturalize(match.group('remainder'), max_length - len(output))
+        output += remainder
+
+    return output[:max_length]

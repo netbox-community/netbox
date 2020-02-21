@@ -85,14 +85,19 @@ class UserKeyTestCase(TestCase):
 
 class SecretTestCase(TestCase):
 
+    @classmethod
+    def setUpTestData(cls):
+
+        # Generate a random key for encryption/decryption of secrets
+        cls.secret_key = generate_random_key()
+
     def test_01_encrypt_decrypt(self):
         """
         Test basic encryption and decryption functionality using a random master key.
         """
         plaintext = string.printable * 2
-        secret_key = generate_random_key()
         s = Secret(plaintext=plaintext)
-        s.encrypt(secret_key)
+        s.encrypt(self.secret_key)
 
         # Ensure plaintext is deleted upon encryption
         self.assertIsNone(s.plaintext, "Plaintext must be None after encrypting.")
@@ -112,7 +117,7 @@ class SecretTestCase(TestCase):
         self.assertFalse(s.validate("Invalid plaintext"), "Invalid plaintext validated against hash")
 
         # Test decryption
-        s.decrypt(secret_key)
+        s.decrypt(self.secret_key)
         self.assertEqual(plaintext, s.plaintext, "Decrypting Secret returned incorrect plaintext")
 
     def test_02_ciphertext_uniqueness(self):
@@ -120,15 +125,45 @@ class SecretTestCase(TestCase):
         Generate 50 Secrets using the same plaintext and check for duplicate IVs or payloads.
         """
         plaintext = "1234567890abcdef"
-        secret_key = generate_random_key()
         ivs = []
         ciphertexts = []
         for i in range(1, 51):
             s = Secret(plaintext=plaintext)
-            s.encrypt(secret_key)
+            s.encrypt(self.secret_key)
             ivs.append(s.ciphertext[0:16])
             ciphertexts.append(s.ciphertext[16:32])
         duplicate_ivs = [i for i, x in enumerate(ivs) if ivs.count(x) > 1]
         self.assertEqual(duplicate_ivs, [], "One or more duplicate IVs found!")
         duplicate_ciphertexts = [i for i, x in enumerate(ciphertexts) if ciphertexts.count(x) > 1]
         self.assertEqual(duplicate_ciphertexts, [], "One or more duplicate ciphertexts (first blocks) found!")
+
+    def test_minimum_length(self):
+        """
+        Test enforcement of the minimum length for ciphertexts.
+        """
+        plaintext = 'A'  # One-byte plaintext
+        secret = Secret(plaintext=plaintext)
+        secret.encrypt(self.secret_key)
+
+        # 16B IV + 2B length + 1B secret + 61B padding = 80 bytes
+        self.assertEqual(len(secret.ciphertext), 80)
+        self.assertIsNone(secret.plaintext)
+
+        secret.decrypt(self.secret_key)
+        self.assertEqual(secret.plaintext, plaintext)
+
+    def test_maximum_length(self):
+        """
+        Test encrypting a plaintext value of the maximum length.
+        """
+        plaintext = '0123456789abcdef' * 4096
+        plaintext = plaintext[:65535]  # 65,535 chars
+        secret = Secret(plaintext=plaintext)
+        secret.encrypt(self.secret_key)
+
+        # 16B IV + 2B length + 65535B secret + 15B padding = 65568 bytes
+        self.assertEqual(len(secret.ciphertext), 65568)
+        self.assertIsNone(secret.plaintext)
+
+        secret.decrypt(self.secret_key)
+        self.assertEqual(secret.plaintext, plaintext)

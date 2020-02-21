@@ -656,9 +656,8 @@ class BulkEditView(GetReturnURLMixin, View):
                                 try:
                                     model_field = model._meta.get_field(name)
                                 except FieldDoesNotExist:
-                                    # The form field is used to modify a field rather than set its value directly,
-                                    # so we skip it.
-                                    continue
+                                    # This form field is used to modify a field rather than set its value directly
+                                    model_field = None
 
                                 # Handle nullification
                                 if name in form.nullable_fields and name in nullified_fields:

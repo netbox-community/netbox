@@ -14,7 +14,7 @@
     </td>
     <td>{{ service.description }}</td>
     <td class="text-right noprint">
-        <a href="{% url 'ipam:service_changelog' pk=service.pk %}" class="btn btn-default btn-xs" title="Changelog">
+        <a href="{% url 'ipam:service_changelog' pk=service.pk %}" class="btn btn-default btn-xs" title="Change log">
             <i class="fa fa-history"></i>
         </a>
         {% if perms.ipam.change_service %}

@@ -132,6 +132,13 @@ class SmallTextarea(forms.Textarea):
     pass
 
 
+class SlugWidget(forms.TextInput):
+    """
+    Subclass TextInput and add a slug regeneration button next to the form field.
+    """
+    template_name = 'widgets/sluginput.html'
+
+
 class ColorSelect(forms.Select):
     """
     Extends the built-in Select widget to colorize each <option>.
@@ -534,7 +541,8 @@ class SlugField(forms.SlugField):
     def __init__(self, slug_source='name', *args, **kwargs):
         label = kwargs.pop('label', "Slug")
         help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
-        super().__init__(label=label, help_text=help_text, *args, **kwargs)
+        widget = kwargs.pop('widget', SlugWidget)
+        super().__init__(label=label, help_text=help_text, widget=widget, *args, **kwargs)
         self.widget.attrs['slug-source'] = slug_source
 
 

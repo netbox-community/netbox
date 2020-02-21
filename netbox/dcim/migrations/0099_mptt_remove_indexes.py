@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0096_interface_ordering'),
+        ('dcim', '0098_devicetype_images'),
     ]
 
     operations = [

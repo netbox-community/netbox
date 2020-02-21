@@ -12,6 +12,7 @@ from django_tables2 import RequestConfig
 
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
+from utilities.utils import shallow_compare_dict
 from utilities.views import BulkDeleteView, BulkEditView, ObjectDeleteView, ObjectEditView, ObjectListView
 from . import filters, forms
 from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult, Tag, TaggedItem
@@ -207,8 +208,31 @@ class ObjectChangeView(PermissionRequiredMixin, View):
             orderable=False
         )
 
+        objectchanges = ObjectChange.objects.filter(
+            changed_object_type=objectchange.changed_object_type,
+            changed_object_id=objectchange.changed_object_id,
+        )
+
+        next_change = objectchanges.filter(time__gt=objectchange.time).order_by('time').first()
+        prev_change = objectchanges.filter(time__lt=objectchange.time).order_by('-time').first()
+
+        if prev_change:
+            diff_added = shallow_compare_dict(
+                prev_change.object_data,
+                objectchange.object_data,
+                exclude=['last_updated'],
+            )
+            diff_removed = {x: prev_change.object_data.get(x) for x in diff_added}
+        else:
+            # No previous change; this is the initial change that added the object
+            diff_added = diff_removed = objectchange.object_data
+
         return render(request, 'extras/objectchange.html', {
             'objectchange': objectchange,
+            'diff_added': diff_added,
+            'diff_removed': diff_removed,
+            'next_change': next_change,
+            'prev_change': prev_change,
             'related_changes_table': related_changes_table,
             'related_changes_count': related_changes.count()
         })

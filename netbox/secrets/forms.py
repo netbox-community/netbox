@@ -185,7 +185,7 @@ class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
     role = DynamicModelMultipleChoiceField(
         queryset=SecretRole.objects.all(),
         to_field_name='slug',
-        required=True,
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/secrets/secret-roles/",
             value_field="slug",

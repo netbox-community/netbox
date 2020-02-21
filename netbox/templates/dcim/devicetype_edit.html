@@ -14,6 +14,13 @@
             {% render_field form.subdevice_role %}
         </div>
     </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Rack Images</strong></div>
+        <div class="panel-body">
+            {% render_field form.front_image %}
+            {% render_field form.rear_image %}
+        </div>
+    </div>
     {% if form.custom_fields %}
         <div class="panel panel-default">
             <div class="panel-heading"><strong>Custom Fields</strong></div>

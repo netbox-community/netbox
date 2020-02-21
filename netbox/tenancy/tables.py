@@ -4,7 +4,7 @@ from utilities.tables import BaseTable, ToggleColumn
 from .models import Tenant, TenantGroup
 
 TENANTGROUP_ACTIONS = """
-<a href="{% url 'tenancy:tenantgroup_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'tenancy:tenantgroup_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 {% if perms.tenancy.change_tenantgroup %}

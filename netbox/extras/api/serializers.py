@@ -40,10 +40,14 @@ class GraphSerializer(ValidatedModelSerializer):
 
 
 class RenderedGraphSerializer(serializers.ModelSerializer):
-    embed_url = serializers.SerializerMethodField()
-    embed_link = serializers.SerializerMethodField()
+    embed_url = serializers.SerializerMethodField(
+        read_only=True
+    )
+    embed_link = serializers.SerializerMethodField(
+        read_only=True
+    )
     type = ContentTypeField(
-        queryset=ContentType.objects.all()
+        read_only=True
     )
 
     class Meta:
@@ -62,6 +66,9 @@ class RenderedGraphSerializer(serializers.ModelSerializer):
 #
 
 class ExportTemplateSerializer(ValidatedModelSerializer):
+    content_type = ContentTypeField(
+        queryset=ContentType.objects.filter(EXPORTTEMPLATE_MODELS),
+    )
     template_language = ChoiceField(
         choices=TemplateLanguageChoices,
         default=TemplateLanguageChoices.LANGUAGE_JINJA2

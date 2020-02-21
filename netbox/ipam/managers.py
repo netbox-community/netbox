@@ -1,5 +1,6 @@
 from django.db import models
-from django.db.models.expressions import RawSQL
+
+from ipam.lookups import Host, Inet
 
 
 class IPAddressManager(models.Manager):
@@ -13,4 +14,4 @@ class IPAddressManager(models.Manager):
         IP address as a /32 or /128.
         """
         qs = super().get_queryset()
-        return qs.annotate(host=RawSQL('INET(HOST(ipam_ipaddress.address))', [])).order_by('host')
+        return qs.order_by(Inet(Host('address')))
