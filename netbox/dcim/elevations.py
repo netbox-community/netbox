@@ -88,7 +88,7 @@ class RackElevationSVG:
         drawing.add(drawing.text(str(device), insert=text))
 
         # Embed rear device type image if one exists
-        if self.include_images and device.device_type.front_image:
+        if self.include_images and device.device_type.rear_image:
             url = device.device_type.rear_image.url
             image = drawing.image(href=url, insert=start, size=end, class_='device-image')
             image.stretch()
