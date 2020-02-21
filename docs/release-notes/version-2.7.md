@@ -5,6 +5,7 @@
 * [#4224](https://github.com/netbox-community/netbox/issues/4224) - Fix display of rear device image if front image is not defined 
 * [#4228](https://github.com/netbox-community/netbox/issues/4228) - Improve fit of device images in rack elevations
 * [#4232](https://github.com/netbox-community/netbox/issues/4232) - Enforce consistent background striping in rack elevations
+* [#4235](https://github.com/netbox-community/netbox/issues/4235) - Fix API representation of `content_type` for export templates
 
 ---
 
