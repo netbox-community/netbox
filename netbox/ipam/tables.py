@@ -385,7 +385,7 @@ class InterfaceIPAddressTable(BaseTable):
     """
     List IP addresses assigned to a specific Interface.
     """
-    address = tables.TemplateColumn(IPADDRESS_ASSIGN_LINK, verbose_name='IP Address')
+    address = tables.LinkColumn(verbose_name='IP Address')
     vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
     status = tables.TemplateColumn(STATUS_LABEL)
     tenant = tables.TemplateColumn(template_code=TENANT_LINK)
