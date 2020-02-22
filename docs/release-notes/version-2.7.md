@@ -11,6 +11,7 @@
 * [#4232](https://github.com/netbox-community/netbox/issues/4232) - Enforce consistent background striping in rack elevations
 * [#4235](https://github.com/netbox-community/netbox/issues/4235) - Fix API representation of `content_type` for export templates
 * [#4239](https://github.com/netbox-community/netbox/issues/4239) - Fix exception when selecting all filtered objects during bulk edit
+* [#4240](https://github.com/netbox-community/netbox/issues/4240) - Fix exception when filtering foreign keys by NULL
 
 ---
 
