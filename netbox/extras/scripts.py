@@ -18,6 +18,7 @@ from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
 from utilities.exceptions import AbortTransaction
+from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .forms import ScriptForm
 from .signals import purge_changelog
 
@@ -195,6 +196,20 @@ class MultiObjectVar(ScriptVariable):
         # Update form field for MPTT (nested) objects
         if issubclass(queryset.model, MPTTModel):
             self.form_field = TreeNodeMultipleChoiceField
+
+
+class DynamicObjectVar(ObjectVar):
+    """
+    A dynamic netbox object variable.  APISelect will determine the available choices
+    """
+    form_field = DynamicModelChoiceField
+
+
+class DynamicMultiObjectVar(MultiObjectVar):
+    """
+    A multiple choice version of DynamicObjectVar
+    """
+    form_field = DynamicModelMultipleChoiceField
 
 
 class FileVar(ScriptVariable):
