@@ -2118,13 +2118,13 @@ class Cable(ChangeLoggedModel):
 
         # Determine overall path status (connected or planned)
         if self.status == CableStatusChoices.STATUS_CONNECTED:
-            path_status = CONNECTION_STATUS_CONNECTED
+            path_status = True
             for segment in a_path[1:] + b_path[1:]:
                 if segment[1] is None or segment[1].status != CableStatusChoices.STATUS_CONNECTED:
-                    path_status = CONNECTION_STATUS_PLANNED
+                    path_status = False
                     break
         else:
-            path_status = CONNECTION_STATUS_PLANNED
+            path_status = False
 
         a_endpoint = a_path[-1][2]
         b_endpoint = b_path[-1][2]
