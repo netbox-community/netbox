@@ -572,7 +572,7 @@ class DynamicModelChoiceMixin:
 
         # Modify the QuerySet of the field before we return it. Limit choices to any data already bound: Options
         # will be populated on-demand via the APISelect widget.
-        data = bound_field.data or bound_field.initial
+        data = self.prepare_value(bound_field.data or bound_field.initial)
         if data:
             filter = self.filter(field_name=self.to_field_name or 'pk', queryset=self.queryset)
             self.queryset = filter.filter(self.queryset, data)
