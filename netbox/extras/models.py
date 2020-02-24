@@ -90,8 +90,7 @@ class Webhook(models.Model):
         help_text='The complete list of official content types is available '
                   '<a href="https://www.iana.org/assignments/media-types/media-types.xhtml">here</a>.'
     )
-    additional_headers = JSONField(
-        null=True,
+    additional_headers = models.TextField(
         blank=True,
         help_text="User supplied headers which should be added to the request in addition to the HTTP content type. "
                   "Headers are supplied as key/value pairs in a JSON object."
