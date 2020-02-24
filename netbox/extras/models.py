@@ -1,3 +1,4 @@
+import json
 from collections import OrderedDict
 from datetime import date
 
@@ -12,6 +13,7 @@ from django.http import HttpResponse
 from django.template import Template, Context
 from django.urls import reverse
 from django.utils.text import slugify
+from rest_framework.utils.encoders import JSONEncoder
 from taggit.models import TagBase, GenericTaggedItemBase
 
 from utilities.fields import ColorField
@@ -92,8 +94,9 @@ class Webhook(models.Model):
     )
     additional_headers = models.TextField(
         blank=True,
-        help_text="User supplied headers which should be added to the request in addition to the HTTP content type. "
-                  "Headers are supplied as key/value pairs in a JSON object."
+        help_text="User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. "
+                  "Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is "
+                  "support with the same context as the request body (below)."
     )
     body_template = models.TextField(
         blank=True,
@@ -139,14 +142,29 @@ class Webhook(models.Model):
 
         if not self.ssl_verification and self.ca_file_path:
             raise ValidationError({
-                'ca_file_path': 'Do not specify a CA certificate file if SSL verification is dissabled.'
+                'ca_file_path': 'Do not specify a CA certificate file if SSL verification is disabled.'
             })
 
-        # Verify that JSON data is provided as an object
-        if self.additional_headers and type(self.additional_headers) is not dict:
-            raise ValidationError({
-                'additional_headers': 'Header JSON data must be in object form. Example: {"X-API-KEY": "abc123"}'
-            })
+    def render_headers(self, context):
+        """
+        Render additional_headers and return a dict of Header: Value pairs.
+        """
+        if not self.additional_headers:
+            return {}
+        ret = {}
+        data = render_jinja2(self.additional_headers, context)
+        for line in data.splitlines():
+            header, value = line.split(':')
+            ret[header.strip()] = value.strip()
+        return ret
+
+    def render_body(self, context):
+        if self.body_template:
+            return render_jinja2(self.body_template, context)
+        elif self.http_content_type == HTTP_CONTENT_TYPE_JSON:
+            return json.dumps(context, cls=JSONEncoder)
+        else:
+            return context
 
 
 #
