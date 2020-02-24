@@ -57,19 +57,6 @@ FILTER_NEGATION_LOOKUP_MAP = dict(
     n='exact'
 )
 
-FILTER_LOOKUP_HELP_TEXT_MAP = dict(
-    icontains='case insensitive contains',
-    iendswith='case insensitive ends with',
-    istartswith='case insensitive starts with',
-    iexact='case insensitive exact',
-    exact='case sensitive exact',
-    lt='less than',
-    lte='less than or equal',
-    gt='greater than',
-    gte='greater than or equal',
-    n='negated'
-)
-
 
 # Keys for PostgreSQL advisory locks. These are arbitrary bigints used by
 # the advisory_lock contextmanager. When a lock is acquired,

@@ -8,8 +8,7 @@ from django_filters.utils import get_model_field, resolve_field
 
 from extras.models import Tag
 from utilities.constants import (
-    FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_LOOKUP_HELP_TEXT_MAP, FILTER_NEGATION_LOOKUP_MAP,
-    FILTER_NUMERIC_BASED_LOOKUP_MAP
+    FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_NEGATION_LOOKUP_MAP, FILTER_NUMERIC_BASED_LOOKUP_MAP
 )
 
 
