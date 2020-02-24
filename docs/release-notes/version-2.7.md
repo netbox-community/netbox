@@ -6,6 +6,7 @@
 
 ## Bug Fixes
 
+* [#4221](https://github.com/netbox-community/netbox/issues/4221) - Fix exception when deleting a device with interface connections when an interfaces webhook is defined
 * [#4224](https://github.com/netbox-community/netbox/issues/4224) - Fix display of rear device image if front image is not defined 
 * [#4228](https://github.com/netbox-community/netbox/issues/4228) - Improve fit of device images in rack elevations
 * [#4230](https://github.com/netbox-community/netbox/issues/4230) - Fix rack units filtering on elevation endpoint
