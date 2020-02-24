@@ -2,6 +2,7 @@
 
 ## Enhancements
 
+* [#3145](https://github.com/netbox-community/netbox/issues/3145) - Add a "decommissioning" cable status
 * [#4173](https://github.com/netbox-community/netbox/issues/4173) - Return graceful error message when webhook queuing fails
 
 ## Bug Fixes
