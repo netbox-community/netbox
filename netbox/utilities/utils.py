@@ -31,8 +31,9 @@ def csv_format(data):
         if not isinstance(value, str):
             value = '{}'.format(value)
 
-        # Double-quote the value if it contains a comma
+        # Double-quote the value if it contains a comma or line break
         if ',' in value or '\n' in value:
+            value = value.replace('"', '""')  # Escape double-quotes
             csv.append('"{}"'.format(value))
         else:
             csv.append('{}'.format(value))
