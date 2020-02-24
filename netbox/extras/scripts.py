@@ -26,6 +26,8 @@ __all__ = [
     'BaseScript',
     'BooleanVar',
     'ChoiceVar',
+    'DynamicObjectVar',
+    'DynamicMultiObjectVar',
     'FileVar',
     'IntegerVar',
     'IPAddressVar',
