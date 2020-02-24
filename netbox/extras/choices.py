@@ -118,23 +118,3 @@ class TemplateLanguageChoices(ChoiceSet):
         LANGUAGE_DJANGO: 10,
         LANGUAGE_JINJA2: 20,
     }
-
-
-#
-# Webhooks
-#
-
-class WebhookContentTypeChoices(ChoiceSet):
-
-    CONTENTTYPE_JSON = 'application/json'
-    CONTENTTYPE_FORMDATA = 'application/x-www-form-urlencoded'
-
-    CHOICES = (
-        (CONTENTTYPE_JSON, 'JSON'),
-        (CONTENTTYPE_FORMDATA, 'Form data'),
-    )
-
-    LEGACY_MAP = {
-        CONTENTTYPE_JSON: 1,
-        CONTENTTYPE_FORMDATA: 2,
-    }

@@ -26,7 +26,7 @@ class WebhookForm(forms.ModelForm):
 
     class Meta:
         model = Webhook
-        exclude = []
+        exclude = ()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -38,13 +38,27 @@ class WebhookForm(forms.ModelForm):
 @admin.register(Webhook, site=admin_site)
 class WebhookAdmin(admin.ModelAdmin):
     list_display = [
-        'name', 'models', 'payload_url', 'http_content_type', 'enabled', 'type_create', 'type_update',
-        'type_delete', 'ssl_verification',
+        'name', 'models', 'payload_url', 'http_content_type', 'enabled', 'type_create', 'type_update', 'type_delete',
+        'ssl_verification',
     ]
     list_filter = [
         'enabled', 'type_create', 'type_update', 'type_delete', 'obj_type',
     ]
     form = WebhookForm
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'obj_type', 'enabled')
+        }),
+        ('Events', {
+            'fields': ('type_create', 'type_update', 'type_delete')
+        }),
+        ('HTTP Request', {
+            'fields': ('payload_url', 'http_content_type', 'additional_headers', 'body_template', 'secret')
+        }),
+        ('SSL', {
+            'fields': ('ssl_verification', 'ca_file_path')
+        })
+    )
 
     def models(self, obj):
         return ', '.join([ct.name for ct in obj.obj_type.all()])

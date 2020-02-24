@@ -52,7 +52,6 @@ class Webhook(models.Model):
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
     Each Webhook can be limited to firing only on certain actions or certain object types.
     """
-
     obj_type = models.ManyToManyField(
         to=ContentType,
         related_name='webhooks',
@@ -81,17 +80,28 @@ class Webhook(models.Model):
         verbose_name='URL',
         help_text="A POST will be sent to this URL when the webhook is called."
     )
+    enabled = models.BooleanField(
+        default=True
+    )
     http_content_type = models.CharField(
-        max_length=50,
-        choices=WebhookContentTypeChoices,
-        default=WebhookContentTypeChoices.CONTENTTYPE_JSON,
-        verbose_name='HTTP content type'
+        max_length=100,
+        default=HTTP_CONTENT_TYPE_JSON,
+        verbose_name='HTTP content type',
+        help_text='The complete list of official content types is available '
+                  '<a href="https://www.iana.org/assignments/media-types/media-types.xhtml">here</a>.'
     )
     additional_headers = JSONField(
         null=True,
         blank=True,
         help_text="User supplied headers which should be added to the request in addition to the HTTP content type. "
                   "Headers are supplied as key/value pairs in a JSON object."
+    )
+    body_template = models.TextField(
+        blank=True,
+        help_text='Jinja2 template for a custom request body. If blank, a JSON object or form data representing the '
+                  'change will be included. Available context data includes: <code>event</code>, '
+                  '<code>timestamp</code>, <code>model</code>, <code>username</code>, <code>request_id</code>, and '
+                  '<code>data</code>.'
     )
     secret = models.CharField(
         max_length=255,
@@ -100,9 +110,6 @@ class Webhook(models.Model):
                   "header containing a HMAC hex digest of the payload body using "
                   "the secret as the key. The secret is not transmitted in "
                   "the request."
-    )
-    enabled = models.BooleanField(
-        default=True
     )
     ssl_verification = models.BooleanField(
         default=True,
@@ -126,9 +133,6 @@ class Webhook(models.Model):
         return self.name
 
     def clean(self):
-        """
-        Validate model
-        """
         if not self.type_create and not self.type_delete and not self.type_update:
             raise ValidationError(
                 "You must select at least one type: create, update, and/or delete."
