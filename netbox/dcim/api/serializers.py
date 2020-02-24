@@ -172,6 +172,10 @@ class RackReservationSerializer(ValidatedModelSerializer):
 
 
 class RackElevationDetailFilterSerializer(serializers.Serializer):
+    q = serializers.CharField(
+        required=False,
+        default=None
+    )
     face = serializers.ChoiceField(
         choices=DeviceFaceChoices,
         default=DeviceFaceChoices.FACE_FRONT

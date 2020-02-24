@@ -596,6 +596,28 @@ class RackTest(APITestCase):
 
         self.assertEqual(response.data['count'], 42)
 
+    def test_get_elevation_rack_units(self):
+
+        url = '{}?q=3'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': self.rack1.pk}))
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 13)
+
+        url = '{}?q=U3'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': self.rack1.pk}))
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 11)
+
+        url = '{}?q=10'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': self.rack1.pk}))
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 1)
+
+        url = '{}?q=U20'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': self.rack1.pk}))
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 1)
+
     def test_get_rack_elevation(self):
 
         url = reverse('dcim-api:rack-elevation', kwargs={'pk': self.rack1.pk})
