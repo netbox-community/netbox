@@ -101,6 +101,10 @@ class ObjectChangeMiddleware(object):
         if not _thread_locals.changed_objects:
             return response
 
+        # Disconnect our receivers from the post_save and post_delete signals.
+        post_save.disconnect(handle_changed_object, dispatch_uid='handle_changed_object')
+        pre_delete.disconnect(handle_deleted_object, dispatch_uid='handle_deleted_object')
+
         # Create records for any cached objects that were changed.
         redis_failed = False
         for instance, action in _thread_locals.changed_objects:
