@@ -278,7 +278,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
         allow_blank=True,
         required=False
     )
-    power_port = PowerPortTemplateSerializer(
+    power_port = NestedPowerPortTemplateSerializer(
         required=False
     )
     feed_leg = ChoiceField(
