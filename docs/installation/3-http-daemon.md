@@ -99,6 +99,9 @@ Save the contents of the above example in `/etc/apache2/sites-available/netbox.c
 
 To enable SSL, consider this guide on [securing Apache with Let's Encrypt](https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-16-04).
 
+!!! note
+    Certain components of NetBox (such as the display of rack elevation diagrams) rely on the use of embedded objects. Ensure that your HTTP server configuration does not override the `X-Frame-Options` response header set by NetBox.
+
 # gunicorn Installation
 
 Install gunicorn:
