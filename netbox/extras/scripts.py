@@ -63,10 +63,6 @@ class ScriptVariable:
             self.field_attrs['widget'] = widget
         self.field_attrs['required'] = required
 
-        # Initialize the list of optional validators if none have already been defined
-        if 'validators' not in self.field_attrs:
-            self.field_attrs['validators'] = []
-
     def as_field(self):
         """
         Render the variable as a Django form field.
@@ -227,14 +223,12 @@ class IPNetworkVar(ScriptVariable):
     An IPv4 or IPv6 prefix.
     """
     form_field = IPNetworkFormField
-    field_attrs = {
-        'validators': [prefix_validator]
-    }
 
     def __init__(self, min_prefix_length=None, max_prefix_length=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Optional minimum/maximum prefix lengths
+        # Set prefix validator and optional minimum/maximum prefix lengths
+        self.field_attrs['validators'] = [prefix_validator]
         if min_prefix_length is not None:
             self.field_attrs['validators'].append(
                 MinPrefixLengthValidator(min_prefix_length)
