@@ -1956,6 +1956,7 @@ class Cable(ChangeLoggedModel):
     STATUS_CLASS_MAP = {
         CableStatusChoices.STATUS_CONNECTED: 'success',
         CableStatusChoices.STATUS_PLANNED: 'info',
+        CableStatusChoices.STATUS_DECOMMISSIONING: 'warning',
     }
 
     class Meta:
@@ -2116,14 +2117,14 @@ class Cable(ChangeLoggedModel):
         b_path = self.termination_a.trace()
 
         # Determine overall path status (connected or planned)
-        if self.status == CableStatusChoices.STATUS_PLANNED:
-            path_status = CONNECTION_STATUS_PLANNED
-        else:
+        if self.status == CableStatusChoices.STATUS_CONNECTED:
             path_status = CONNECTION_STATUS_CONNECTED
             for segment in a_path[1:] + b_path[1:]:
-                if segment[1] is None or segment[1].status == CableStatusChoices.STATUS_PLANNED:
+                if segment[1] is None or segment[1].status != CableStatusChoices.STATUS_CONNECTED:
                     path_status = CONNECTION_STATUS_PLANNED
                     break
+        else:
+            path_status = CONNECTION_STATUS_PLANNED
 
         a_endpoint = a_path[-1][2]
         b_endpoint = b_path[-1][2]

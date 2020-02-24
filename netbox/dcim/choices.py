@@ -973,10 +973,12 @@ class CableStatusChoices(ChoiceSet):
 
     STATUS_CONNECTED = 'connected'
     STATUS_PLANNED = 'planned'
+    STATUS_DECOMMISSIONING = 'decommissioning'
 
     CHOICES = (
         (STATUS_CONNECTED, 'Connected'),
         (STATUS_PLANNED, 'Planned'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning'),
     )
 
     LEGACY_MAP = {
