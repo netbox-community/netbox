@@ -170,6 +170,39 @@ class BaseFilterSet(django_filters.FilterSet):
         },
     })
 
+    @staticmethod
+    def _get_filter_lookup_dict(existing_filter):
+        # Choose the lookup expression map based on the filter type
+        if isinstance(existing_filter, (
+            MultiValueDateFilter,
+            MultiValueDateTimeFilter,
+            MultiValueNumberFilter,
+            MultiValueTimeFilter
+        )):
+            lookup_map = FILTER_NUMERIC_BASED_LOOKUP_MAP
+
+        elif isinstance(existing_filter, (
+            django_filters.ModelChoiceFilter,
+            django_filters.ModelMultipleChoiceFilter,
+            TreeNodeMultipleChoiceFilter,
+            TagFilter
+        )) or existing_filter.extra.get('choices'):
+            # These filter types support only negation
+            lookup_map = FILTER_NEGATION_LOOKUP_MAP
+
+        elif isinstance(existing_filter, (
+            django_filters.filters.CharFilter,
+            django_filters.MultipleChoiceFilter,
+            MultiValueCharFilter,
+            MultiValueMACAddressFilter
+        )):
+            lookup_map = FILTER_CHAR_BASED_LOOKUP_MAP
+
+        else:
+            lookup_map = None
+
+        return lookup_map
+
     @classmethod
     def get_filters(cls):
         """
@@ -192,33 +225,9 @@ class BaseFilterSet(django_filters.FilterSet):
                 continue
 
             # Choose the lookup expression map based on the filter type
-            if isinstance(existing_filter, (
-                MultiValueDateFilter,
-                MultiValueDateTimeFilter,
-                MultiValueNumberFilter,
-                MultiValueTimeFilter
-            )):
-                lookup_map = FILTER_NUMERIC_BASED_LOOKUP_MAP
-
-            elif isinstance(existing_filter, (
-                django_filters.ModelChoiceFilter,
-                django_filters.ModelMultipleChoiceFilter,
-                TreeNodeMultipleChoiceFilter,
-                TagFilter
-            )) or existing_filter.extra.get('choices'):
-                # These filter types support only negation
-                lookup_map = FILTER_NEGATION_LOOKUP_MAP
-
-            elif isinstance(existing_filter, (
-                django_filters.filters.CharFilter,
-                django_filters.MultipleChoiceFilter,
-                MultiValueCharFilter,
-                MultiValueMACAddressFilter
-            )):
-                lookup_map = FILTER_CHAR_BASED_LOOKUP_MAP
-
-            else:
-                # Do not augment any other filter types with more lookup expressions
+            lookup_map = cls._get_filter_lookup_dict(existing_filter)
+            if lookup_map is None:
+                # Do not augment this filter type with more lookup expressions
                 continue
 
             # Get properties of the existing filter for later use
@@ -247,6 +256,7 @@ class BaseFilterSet(django_filters.FilterSet):
                         )
                     else:
                         # The filter field is listed in Meta.fields so we can safely rely on default behaviour
+                        # Will raise FieldLookupError if the lookup is invalid
                         new_filter = cls.filter_for_field(field, field_name, lookup_expr)
                 except django_filters.exceptions.FieldLookupError:
                     # The filter could not be created because the lookup expression is not supported on the field
