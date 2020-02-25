@@ -106,10 +106,9 @@ class Webhook(models.Model):
     )
     body_template = models.TextField(
         blank=True,
-        help_text='Jinja2 template for a custom request body. If blank, a JSON object or form data representing the '
-                  'change will be included. Available context data includes: <code>event</code>, '
-                  '<code>timestamp</code>, <code>model</code>, <code>username</code>, <code>request_id</code>, and '
-                  '<code>data</code>.'
+        help_text='Jinja2 template for a custom request body. If blank, a JSON object representing the change will be '
+                  'included. Available context data includes: <code>event</code>, <code>model</code>, '
+                  '<code>timestamp</code>, <code>username</code>, <code>request_id</code>, and <code>data</code>.'
     )
     secret = models.CharField(
         max_length=255,
@@ -165,12 +164,13 @@ class Webhook(models.Model):
         return ret
 
     def render_body(self, context):
+        """
+        Render the body template, if defined. Otherwise, jump the context as a JSON object.
+        """
         if self.body_template:
             return render_jinja2(self.body_template, context)
-        elif self.http_content_type == HTTP_CONTENT_TYPE_JSON:
-            return json.dumps(context, cls=JSONEncoder)
         else:
-            return context
+            return json.dumps(context, cls=JSONEncoder)
 
 
 #

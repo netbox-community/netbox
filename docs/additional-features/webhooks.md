@@ -42,7 +42,7 @@ The following data is available as context for Jinja2 templates:
 
 ### Default Request Body
 
-If no body template is specified, and the HTTP content type is `application/json`, the request body will be populated with a JSON object containing the context data. For example, a newly created site might appear as follows:
+If no body template is specified, the request body will be populated with a JSON object containing the context data. For example, a newly created site might appear as follows:
 
 ```no-highlight
 {

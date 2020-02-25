@@ -58,7 +58,7 @@ class WebhookAdmin(admin.ModelAdmin):
         }),
         ('HTTP Request', {
             'fields': (
-                'http_method', 'payload_url', 'http_content_type', 'additional_headers', 'body_template', 'secret',
+                'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
             )
         }),
         ('SSL', {
