@@ -21,6 +21,7 @@
 * [#4241](https://github.com/netbox-community/netbox/issues/4241) - Correct IP address hyperlinks on interface view
 * [#4246](https://github.com/netbox-community/netbox/issues/4246) - Fix duplication of field attributes when multiple IPNetworkVars are present in a script
 * [#4252](https://github.com/netbox-community/netbox/issues/4252) - Fix power port assignment for power outlet templates created via REST API
+* [#4272](https://github.com/netbox-community/netbox/issues/4272) - Interface type should be required by API serializer
 
 ---
 
