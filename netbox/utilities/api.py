@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldError, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import ManyToManyField, ProtectedError
 from django.http import Http404
+from django.urls import reverse
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
 from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
@@ -39,6 +40,14 @@ def get_serializer_for_model(model, prefix=''):
         raise SerializerNotFound(
             "Could not determine serializer for {}.{} with prefix '{}'".format(app_name, model_name, prefix)
         )
+
+
+def is_api_request(request):
+    """
+    Return True of the request is being made via the REST API.
+    """
+    api_path = reverse('api-root')
+    return request.path_info.startswith(api_path)
 
 
 #

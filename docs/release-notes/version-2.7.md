@@ -1,3 +1,32 @@
+# v2.7.8 (2020-02-25)
+
+## Enhancements
+
+* [#3145](https://github.com/netbox-community/netbox/issues/3145) - Add a "decommissioning" cable status
+* [#4173](https://github.com/netbox-community/netbox/issues/4173) - Return graceful error message when webhook queuing fails
+* [#4227](https://github.com/netbox-community/netbox/issues/4227) - Omit internal fields from the change log data
+* [#4237](https://github.com/netbox-community/netbox/issues/4237) - Support Jinja2 templating for webhook payload and headers
+* [#4262](https://github.com/netbox-community/netbox/issues/4262) - Extend custom scripts to pass the `commit` value via `run()`
+* [#4267](https://github.com/netbox-community/netbox/issues/4267) - Denote rack role on rack elevations list
+
+## Bug Fixes
+
+* [#4221](https://github.com/netbox-community/netbox/issues/4221) - Fix exception when deleting a device with interface connections when an interfaces webhook is defined
+* [#4222](https://github.com/netbox-community/netbox/issues/4222) - Escape double quotes on encapsulated values during CSV export
+* [#4224](https://github.com/netbox-community/netbox/issues/4224) - Fix display of rear device image if front image is not defined
+* [#4228](https://github.com/netbox-community/netbox/issues/4228) - Improve fit of device images in rack elevations
+* [#4230](https://github.com/netbox-community/netbox/issues/4230) - Fix rack units filtering on elevation endpoint
+* [#4232](https://github.com/netbox-community/netbox/issues/4232) - Enforce consistent background striping in rack elevations
+* [#4235](https://github.com/netbox-community/netbox/issues/4235) - Fix API representation of `content_type` for export templates
+* [#4239](https://github.com/netbox-community/netbox/issues/4239) - Fix exception when selecting all filtered objects during bulk edit
+* [#4240](https://github.com/netbox-community/netbox/issues/4240) - Fix exception when filtering foreign keys by NULL
+* [#4241](https://github.com/netbox-community/netbox/issues/4241) - Correct IP address hyperlinks on interface view
+* [#4246](https://github.com/netbox-community/netbox/issues/4246) - Fix duplication of field attributes when multiple IPNetworkVars are present in a script
+* [#4252](https://github.com/netbox-community/netbox/issues/4252) - Fix power port assignment for power outlet templates created via REST API
+* [#4272](https://github.com/netbox-community/netbox/issues/4272) - Interface type should be required by API serializer
+
+---
+
 # v2.7.7 (2020-02-20)
 
 **Note:** This release fixes a bug affecting the natural ordering of interfaces. If any interfaces appear unordered in
@@ -5,7 +34,7 @@ NetBox, run the following management command to recalculate their naturalized va
 
 ```
 python3 manage.py renaturalize dcim.Interface
-``` 
+```
 
 ## Enhancements
 

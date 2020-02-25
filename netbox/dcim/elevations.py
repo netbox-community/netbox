@@ -6,6 +6,7 @@ from django.utils.http import urlencode
 
 from utilities.utils import foreground_color
 from .choices import DeviceFaceChoices
+from .constants import RACK_ELEVATION_BORDER_WIDTH
 
 
 class RackElevationSVG:
@@ -22,8 +23,8 @@ class RackElevationSVG:
     @staticmethod
     def _add_gradient(drawing, id_, color):
         gradient = drawing.linearGradient(
-            start=('0', '0%'),
-            end=('0', '5%'),
+            start=(0, 0),
+            end=(0, 25),
             spreadMethod='repeat',
             id_=id_,
             gradientTransform='rotate(45, 0, 0)',
@@ -75,7 +76,7 @@ class RackElevationSVG:
         if self.include_images and device.device_type.front_image:
             url = device.device_type.front_image.url
             image = drawing.image(href=url, insert=start, size=end, class_='device-image')
-            image.stretch()
+            image.fit(scale='slice')
             link.add(image)
 
     def _draw_device_rear(self, drawing, device, start, end, text):
@@ -88,10 +89,10 @@ class RackElevationSVG:
         drawing.add(drawing.text(str(device), insert=text))
 
         # Embed rear device type image if one exists
-        if self.include_images and device.device_type.front_image:
+        if self.include_images and device.device_type.rear_image:
             url = device.device_type.rear_image.url
             image = drawing.image(href=url, insert=start, size=end, class_='device-image')
-            image.stretch()
+            image.fit(scale='slice')
             drawing.add(image)
 
     @staticmethod
@@ -134,13 +135,16 @@ class RackElevationSVG:
         """
         Return an SVG document representing a rack elevation.
         """
-        drawing = self._setup_drawing(unit_width + legend_width, unit_height * self.rack.u_height)
+        drawing = self._setup_drawing(
+            unit_width + legend_width + RACK_ELEVATION_BORDER_WIDTH * 2,
+            unit_height * self.rack.u_height + RACK_ELEVATION_BORDER_WIDTH * 2
+        )
         reserved_units = self.rack.get_reserved_units()
 
         unit_cursor = 0
         for ru in range(0, self.rack.u_height):
             start_y = ru * unit_height
-            position_coordinates = (legend_width / 2, start_y + unit_height / 2 + 2)
+            position_coordinates = (legend_width / 2, start_y + unit_height / 2 + RACK_ELEVATION_BORDER_WIDTH)
             unit = ru + 1 if self.rack.desc_units else self.rack.u_height - ru
             drawing.add(
                 drawing.text(str(unit), position_coordinates, class_="unit")
@@ -153,11 +157,12 @@ class RackElevationSVG:
             height = unit.get('height', 1)
 
             # Setup drawing coordinates
-            start_y = unit_cursor * unit_height
+            x_offset = legend_width + RACK_ELEVATION_BORDER_WIDTH
+            y_offset = unit_cursor * unit_height + RACK_ELEVATION_BORDER_WIDTH
             end_y = unit_height * height
-            start_cordinates = (legend_width, start_y)
-            end_cordinates = (legend_width + unit_width, end_y)
-            text_cordinates = (legend_width + (unit_width / 2), start_y + end_y / 2)
+            start_cordinates = (x_offset, y_offset)
+            end_cordinates = (unit_width, end_y)
+            text_cordinates = (x_offset + (unit_width / 2), y_offset + end_y / 2)
 
             # Draw the device
             if device and device.face == face:
@@ -187,6 +192,13 @@ class RackElevationSVG:
             unit_cursor += height
 
         # Wrap the drawing with a border
-        drawing.add(drawing.rect((legend_width, 1), (unit_width - 1, self.rack.u_height * unit_height - 2), class_='rack'))
+        border_width = RACK_ELEVATION_BORDER_WIDTH
+        border_offset = RACK_ELEVATION_BORDER_WIDTH / 2
+        frame = drawing.rect(
+            insert=(legend_width + border_offset, border_offset),
+            size=(unit_width + border_width, self.rack.u_height * unit_height + border_width),
+            class_='rack'
+        )
+        drawing.add(frame)
 
         return drawing

@@ -20,10 +20,10 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import ASNField
 from dcim.elevations import RackElevationSVG
-from extras.models import ConfigContextModel, CustomFieldModel, TaggedItem
+from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.models import ChangeLoggedModel
-from utilities.utils import to_meters
+from utilities.utils import serialize_object, to_meters
 from .device_component_templates import (
     ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, FrontPortTemplate, InterfaceTemplate,
     PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
@@ -117,6 +117,15 @@ class Region(MPTTModel, ChangeLoggedModel):
             Q(region=self) |
             Q(region__in=self.get_descendants())
         ).count()
+
+    def to_objectchange(self, action):
+        # Remove MPTT-internal fields
+        return ObjectChange(
+            changed_object=self,
+            object_repr=str(self),
+            action=action,
+            object_data=serialize_object(self, exclude=['level', 'lft', 'rght', 'tree_id'])
+        )
 
 
 #
@@ -1956,6 +1965,7 @@ class Cable(ChangeLoggedModel):
     STATUS_CLASS_MAP = {
         CableStatusChoices.STATUS_CONNECTED: 'success',
         CableStatusChoices.STATUS_PLANNED: 'info',
+        CableStatusChoices.STATUS_DECOMMISSIONING: 'warning',
     }
 
     class Meta:
@@ -2116,14 +2126,14 @@ class Cable(ChangeLoggedModel):
         b_path = self.termination_a.trace()
 
         # Determine overall path status (connected or planned)
-        if self.status == CableStatusChoices.STATUS_PLANNED:
-            path_status = CONNECTION_STATUS_PLANNED
-        else:
-            path_status = CONNECTION_STATUS_CONNECTED
+        if self.status == CableStatusChoices.STATUS_CONNECTED:
+            path_status = True
             for segment in a_path[1:] + b_path[1:]:
-                if segment[1] is None or segment[1].status == CableStatusChoices.STATUS_PLANNED:
-                    path_status = CONNECTION_STATUS_PLANNED
+                if segment[1] is None or segment[1].status != CableStatusChoices.STATUS_CONNECTED:
+                    path_status = False
                     break
+        else:
+            path_status = False
 
         a_endpoint = a_path[-1][2]
         b_endpoint = b_path[-1][2]

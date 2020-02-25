@@ -5,6 +5,7 @@ from django.db import ProgrammingError
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 
+from .api import is_api_request
 from .views import server_error
 
 
@@ -38,9 +39,8 @@ class APIVersionMiddleware(object):
         self.get_response = get_response
 
     def __call__(self, request):
-        api_path = reverse('api-root')
         response = self.get_response(request)
-        if request.path_info.startswith(api_path):
+        if is_api_request(request):
             response['API-Version'] = settings.REST_FRAMEWORK_VERSION
         return response
 

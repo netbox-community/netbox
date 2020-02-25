@@ -9,10 +9,10 @@ from .choices import InterfaceTypeChoices
 
 RACK_U_HEIGHT_DEFAULT = 42
 
+RACK_ELEVATION_BORDER_WIDTH = 2
 RACK_ELEVATION_LEGEND_WIDTH_DEFAULT = 30
-
-RACK_ELEVATION_UNIT_WIDTH_DEFAULT = 230
-RACK_ELEVATION_UNIT_HEIGHT_DEFAULT = 20
+RACK_ELEVATION_UNIT_WIDTH_DEFAULT = 220
+RACK_ELEVATION_UNIT_HEIGHT_DEFAULT = 22
 
 
 #
@@ -61,13 +61,10 @@ POWERFEED_MAX_UTILIZATION_DEFAULT = 80  # Percentage
 # Cabling and connections
 #
 
-# TODO: Replace with CableStatusChoices?
 # Console/power/interface connection statuses
-CONNECTION_STATUS_PLANNED = False
-CONNECTION_STATUS_CONNECTED = True
 CONNECTION_STATUS_CHOICES = [
-    [CONNECTION_STATUS_PLANNED, 'Planned'],
-    [CONNECTION_STATUS_CONNECTED, 'Connected'],
+    [False, 'Not Connected'],
+    [True, 'Connected'],
 ]
 
 # Cable endpoint types
