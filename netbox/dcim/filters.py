@@ -77,7 +77,7 @@ class RegionFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class SiteFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class SiteFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -170,7 +170,7 @@ class RackRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'color']
 
 
-class RackFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -497,7 +497,13 @@ class PlatformFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'napalm_driver']
 
 
-class DeviceFilterSet(BaseFilterSet, LocalConfigContextFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class DeviceFilterSet(
+    BaseFilterSet,
+    TenancyFilterSet,
+    LocalConfigContextFilterSet,
+    CustomFieldFilterSet,
+    CreatedUpdatedFilterSet
+):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
