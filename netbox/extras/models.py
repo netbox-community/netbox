@@ -1,3 +1,4 @@
+import json
 from collections import OrderedDict
 from datetime import date
 
@@ -12,6 +13,7 @@ from django.http import HttpResponse
 from django.template import Template, Context
 from django.urls import reverse
 from django.utils.text import slugify
+from rest_framework.utils.encoders import JSONEncoder
 from taggit.models import TagBase, GenericTaggedItemBase
 
 from utilities.fields import ColorField
@@ -52,7 +54,6 @@ class Webhook(models.Model):
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
     Each Webhook can be limited to firing only on certain actions or certain object types.
     """
-
     obj_type = models.ManyToManyField(
         to=ContentType,
         related_name='webhooks',
@@ -81,17 +82,33 @@ class Webhook(models.Model):
         verbose_name='URL',
         help_text="A POST will be sent to this URL when the webhook is called."
     )
-    http_content_type = models.CharField(
-        max_length=50,
-        choices=WebhookContentTypeChoices,
-        default=WebhookContentTypeChoices.CONTENTTYPE_JSON,
-        verbose_name='HTTP content type'
+    enabled = models.BooleanField(
+        default=True
     )
-    additional_headers = JSONField(
-        null=True,
+    http_method = models.CharField(
+        max_length=30,
+        choices=WebhookHttpMethodChoices,
+        default=WebhookHttpMethodChoices.METHOD_POST,
+        verbose_name='HTTP method'
+    )
+    http_content_type = models.CharField(
+        max_length=100,
+        default=HTTP_CONTENT_TYPE_JSON,
+        verbose_name='HTTP content type',
+        help_text='The complete list of official content types is available '
+                  '<a href="https://www.iana.org/assignments/media-types/media-types.xhtml">here</a>.'
+    )
+    additional_headers = models.TextField(
         blank=True,
-        help_text="User supplied headers which should be added to the request in addition to the HTTP content type. "
-                  "Headers are supplied as key/value pairs in a JSON object."
+        help_text="User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. "
+                  "Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is "
+                  "support with the same context as the request body (below)."
+    )
+    body_template = models.TextField(
+        blank=True,
+        help_text='Jinja2 template for a custom request body. If blank, a JSON object representing the change will be '
+                  'included. Available context data includes: <code>event</code>, <code>model</code>, '
+                  '<code>timestamp</code>, <code>username</code>, <code>request_id</code>, and <code>data</code>.'
     )
     secret = models.CharField(
         max_length=255,
@@ -100,9 +117,6 @@ class Webhook(models.Model):
                   "header containing a HMAC hex digest of the payload body using "
                   "the secret as the key. The secret is not transmitted in "
                   "the request."
-    )
-    enabled = models.BooleanField(
-        default=True
     )
     ssl_verification = models.BooleanField(
         default=True,
@@ -126,9 +140,6 @@ class Webhook(models.Model):
         return self.name
 
     def clean(self):
-        """
-        Validate model
-        """
         if not self.type_create and not self.type_delete and not self.type_update:
             raise ValidationError(
                 "You must select at least one type: create, update, and/or delete."
@@ -136,14 +147,30 @@ class Webhook(models.Model):
 
         if not self.ssl_verification and self.ca_file_path:
             raise ValidationError({
-                'ca_file_path': 'Do not specify a CA certificate file if SSL verification is dissabled.'
+                'ca_file_path': 'Do not specify a CA certificate file if SSL verification is disabled.'
             })
 
-        # Verify that JSON data is provided as an object
-        if self.additional_headers and type(self.additional_headers) is not dict:
-            raise ValidationError({
-                'additional_headers': 'Header JSON data must be in object form. Example: {"X-API-KEY": "abc123"}'
-            })
+    def render_headers(self, context):
+        """
+        Render additional_headers and return a dict of Header: Value pairs.
+        """
+        if not self.additional_headers:
+            return {}
+        ret = {}
+        data = render_jinja2(self.additional_headers, context)
+        for line in data.splitlines():
+            header, value = line.split(':')
+            ret[header.strip()] = value.strip()
+        return ret
+
+    def render_body(self, context):
+        """
+        Render the body template, if defined. Otherwise, jump the context as a JSON object.
+        """
+        if self.body_template:
+            return render_jinja2(self.body_template, context)
+        else:
+            return json.dumps(context, cls=JSONEncoder)
 
 
 #
