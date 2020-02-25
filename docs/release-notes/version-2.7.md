@@ -6,6 +6,7 @@
 * [#4173](https://github.com/netbox-community/netbox/issues/4173) - Return graceful error message when webhook queuing fails
 * [#4227](https://github.com/netbox-community/netbox/issues/4227) - Omit internal fields from the change log data
 * [#4237](https://github.com/netbox-community/netbox/issues/4237) - Support Jinja2 templating for webhook payload and headers
+* [#4262](https://github.com/netbox-community/netbox/issues/4262) - Extend custom scripts to pass the `commit` value via `run()`
 * [#4267](https://github.com/netbox-community/netbox/issues/4267) - Denote rack role on rack elevations list
 
 ## Bug Fixes

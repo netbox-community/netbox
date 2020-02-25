@@ -286,7 +286,7 @@ class BaseScript:
 
         return vars
 
-    def run(self, data):
+    def run(self, data, commit):
         raise NotImplementedError("The script must define a run() method.")
 
     def as_form(self, data=None, files=None, initial=None):
@@ -383,10 +383,17 @@ def run_script(script, data, request, commit=True):
     # Add the current request as a property of the script
     script.request = request
 
+    # Determine whether the script accepts a 'commit' argument (this was introduced in v2.7.8)
+    kwargs = {
+        'data': data
+    }
+    if 'commit' in inspect.signature(script.run).parameters:
+        kwargs['commit'] = commit
+
     try:
         with transaction.atomic():
             start_time = time.time()
-            output = script.run(data)
+            output = script.run(**kwargs)
             end_time = time.time()
             if not commit:
                 raise AbortTransaction()
