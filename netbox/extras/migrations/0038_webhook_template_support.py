@@ -23,6 +23,11 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='webhook',
+            name='http_method',
+            field=models.CharField(default='POST', max_length=30),
+        ),
+        migrations.AddField(
+            model_name='webhook',
             name='body_template',
             field=models.TextField(blank=True),
         ),

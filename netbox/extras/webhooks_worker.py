@@ -43,13 +43,15 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
 
     # Prepare the HTTP request
     params = {
-        'method': 'POST',
+        'method': webhook.http_method,
         'url': webhook.payload_url,
         'headers': headers,
         'data': body,
     }
     logger.info(
-        "Sending webhook to {}: {} {}".format(params['url'], context['model'], context['event'])
+        "Sending {} request to {} ({} {})".format(
+            params['method'], params['url'], context['model'], context['event']
+        )
     )
     logger.debug(params)
     try:

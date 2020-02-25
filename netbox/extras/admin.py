@@ -47,16 +47,24 @@ class WebhookAdmin(admin.ModelAdmin):
     form = WebhookForm
     fieldsets = (
         (None, {
-            'fields': ('name', 'obj_type', 'enabled')
+            'fields': (
+                'name', 'obj_type', 'enabled',
+            )
         }),
         ('Events', {
-            'fields': ('type_create', 'type_update', 'type_delete')
+            'fields': (
+                'type_create', 'type_update', 'type_delete',
+            )
         }),
         ('HTTP Request', {
-            'fields': ('payload_url', 'http_content_type', 'additional_headers', 'body_template', 'secret')
+            'fields': (
+                'http_method', 'payload_url', 'http_content_type', 'additional_headers', 'body_template', 'secret',
+            )
         }),
         ('SSL', {
-            'fields': ('ssl_verification', 'ca_file_path')
+            'fields': (
+                'ssl_verification', 'ca_file_path',
+            )
         })
     )
 

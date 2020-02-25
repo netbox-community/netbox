@@ -85,6 +85,12 @@ class Webhook(models.Model):
     enabled = models.BooleanField(
         default=True
     )
+    http_method = models.CharField(
+        max_length=30,
+        choices=WebhookHttpMethodChoices,
+        default=WebhookHttpMethodChoices.METHOD_POST,
+        verbose_name='HTTP method'
+    )
     http_content_type = models.CharField(
         max_length=100,
         default=HTTP_CONTENT_TYPE_JSON,
