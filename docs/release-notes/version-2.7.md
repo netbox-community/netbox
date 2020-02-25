@@ -4,12 +4,13 @@
 
 * [#3145](https://github.com/netbox-community/netbox/issues/3145) - Add a "decommissioning" cable status
 * [#4173](https://github.com/netbox-community/netbox/issues/4173) - Return graceful error message when webhook queuing fails
+* [#4227](https://github.com/netbox-community/netbox/issues/4227) - Omit internal fields from the change log data
 
 ## Bug Fixes
 
 * [#4221](https://github.com/netbox-community/netbox/issues/4221) - Fix exception when deleting a device with interface connections when an interfaces webhook is defined
 * [#4222](https://github.com/netbox-community/netbox/issues/4222) - Escape double quotes on encapsulated values during CSV export
-* [#4224](https://github.com/netbox-community/netbox/issues/4224) - Fix display of rear device image if front image is not defined 
+* [#4224](https://github.com/netbox-community/netbox/issues/4224) - Fix display of rear device image if front image is not defined
 * [#4228](https://github.com/netbox-community/netbox/issues/4228) - Improve fit of device images in rack elevations
 * [#4230](https://github.com/netbox-community/netbox/issues/4230) - Fix rack units filtering on elevation endpoint
 * [#4232](https://github.com/netbox-community/netbox/issues/4232) - Enforce consistent background striping in rack elevations
@@ -29,7 +30,7 @@ NetBox, run the following management command to recalculate their naturalized va
 
 ```
 python3 manage.py renaturalize dcim.Interface
-``` 
+```
 
 ## Enhancements
 

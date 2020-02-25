@@ -81,10 +81,12 @@ def get_subquery(model, field):
     return subquery
 
 
-def serialize_object(obj, extra=None):
+def serialize_object(obj, extra=None, exclude=None):
     """
     Return a generic JSON representation of an object using Django's built-in serializer. (This is used for things like
-    change logging, not the REST API.) Optionally include a dictionary to supplement the object data.
+    change logging, not the REST API.) Optionally include a dictionary to supplement the object data. A list of keys
+    can be provided to exclude them from the returned dictionary. Private fields (prefaced with an underscore) are
+    implicitly excluded.
     """
     json_str = serialize('json', [obj])
     data = json.loads(json_str)[0]['fields']
@@ -102,6 +104,16 @@ def serialize_object(obj, extra=None):
     # Append any extra data
     if extra is not None:
         data.update(extra)
+
+    # Copy keys to list to avoid 'dictionary changed size during iteration' exception
+    for key in list(data):
+        # Private fields shouldn't be logged in the object change
+        if isinstance(key, str) and key.startswith('_'):
+            data.pop(key)
+
+        # Explicitly excluded keys
+        if isinstance(exclude, (list, tuple)) and key in exclude:
+            data.pop(key)
 
     return data
 
