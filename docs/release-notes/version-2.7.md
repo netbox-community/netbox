@@ -5,6 +5,7 @@
 * [#3145](https://github.com/netbox-community/netbox/issues/3145) - Add a "decommissioning" cable status
 * [#4173](https://github.com/netbox-community/netbox/issues/4173) - Return graceful error message when webhook queuing fails
 * [#4227](https://github.com/netbox-community/netbox/issues/4227) - Omit internal fields from the change log data
+* [#4237](https://github.com/netbox-community/netbox/issues/4237) - Support Jinja2 templating for webhook payload and headers
 
 ## Bug Fixes
 
