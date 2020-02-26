@@ -60,21 +60,9 @@ This guide assumes that NetBox is installed at `/opt/netbox`. Pull down the most
 # git status
 ```
 
-## Rebuild the Virtual Environment
-
-Destroy and recreate the Python virtual environment. This ensures that an up-to-date version of each dependency is installed while and that any obsolete packages are no longer present.
-
-```no-highlight
-# cd /opt/netbox
-# rm -rf venv
-# python3 -m venv venv
-# source venv/bin/activate
-(venv) # pip3 install -r requirements.txt 
-```
-
 ## Run the Upgrade Script
 
-Once the new code is in place, run the upgrade script (which may need to be run as root depending on how your environment is configured).
+Once the new code is in place, run the upgrade script:
 
 ```no-highlight
 # ./upgrade.sh
@@ -82,7 +70,8 @@ Once the new code is in place, run the upgrade script (which may need to be run 
 
 This script:
 
-* Installs or upgrades any new required Python packages
+* Destroys and rebuilds the Python virtual environment
+* Installs all required Python packages
 * Applies any database migrations that were included in the release
 * Collects all static files to be served by the HTTP service
 
@@ -94,9 +83,9 @@ This script:
 
     This may occur due to semantic differences in environment, and can be safely ignored. Never attempt to create new migrations unless you are intentionally modifying the database schema.
 
-## Restart the WSGI Service
+## Restart the NetBox Services
 
-Finally, restart the WSGI services to run the new code. If you followed this guide for the initial installation, this is done using `systemctl:
+Finally, restart the gunicorn and RQ services:
 
 ```no-highlight
 # sudo systemctl restart netbox
@@ -104,4 +93,4 @@ Finally, restart the WSGI services to run the new code. If you followed this gui
 ```
 
 !!! note
-    It's possible you are still using supervisord instead of the linux native systemd.  If you are still using supervisord you can restart the services by either restarting supervisord or by using supervisorctl to restart netbox.
+    It's possible you are still using supervisord instead of systemd.  If so, please see the instructions for [migrating to systemd](migrating-to-systemd.md).
