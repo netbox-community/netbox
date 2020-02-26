@@ -88,8 +88,7 @@ This script:
 Finally, restart the gunicorn and RQ services:
 
 ```no-highlight
-# sudo systemctl restart netbox
-# sudo systemctl restart netbox-rq
+# sudo systemctl restart netbox netbox-rq
 ```
 
 !!! note

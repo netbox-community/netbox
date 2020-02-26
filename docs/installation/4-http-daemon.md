@@ -125,10 +125,8 @@ Then, start the `netbox` and `netbox-rq` services and enable them to initiate at
 
 ```no-highlight
 # systemctl daemon-reload
-# systemctl start netbox.service
-# systemctl start netbox-rq.service
-# systemctl enable netbox.service
-# systemctl enable netbox-rq.service
+# systemctl start netbox netbox-rq
+# systemctl enable netbox netbox-rq
 ```
 
 You can use the command `systemctl status netbox` to verify that the WSGI service is running:
