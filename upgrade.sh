@@ -18,8 +18,10 @@ fi
 COMMAND="/usr/bin/python3 -m venv ${VIRTUALENV}"
 echo "Creating a new virtual environment at ${VIRTUALENV}..."
 eval $COMMAND || {
-  echo "Failed to create the virtual environment. Check that you have the"
-  echo "required system packages installed."
+  echo "--------------------------------------------------------------------"
+  echo "ERROR: Failed to create the virtual environment. Check that you have"
+  echo "the required system packages installed."
+  echo "--------------------------------------------------------------------"
   exit 1
 }
 
@@ -52,11 +54,13 @@ echo "Clearing cache data ($COMMAND)..."
 eval $COMMAND
 
 if [ WARN_MISSING_VENV ]; then
-  echo "No existing virtual environment was detected. A new one has been"
-  echo "created. Update your systemd service files to reflect the new"
+  echo "--------------------------------------------------------------------"
+  echo "WARNING: No existing virtual environment was detected. A new one has"
+  echo "been created. Update your systemd service files to reflect the new"
   echo "executables."
   echo "  Python: ${VIRTUALENV}/bin/python"
   echo "  gunicorn: ${VIRTUALENV}/bin/gunicorn"
+  echo "--------------------------------------------------------------------"
 fi
 
 echo "Upgrade complete! Don't forget to restart the NetBox services:"
