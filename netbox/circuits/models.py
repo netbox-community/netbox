@@ -10,6 +10,7 @@ from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
 from .choices import *
+from .querysets import CircuitQuerySet
 
 
 __all__ = (
@@ -184,6 +185,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
+    objects = CircuitQuerySet.as_manager()
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
