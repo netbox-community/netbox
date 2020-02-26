@@ -12,7 +12,7 @@ Group=www-data
 
 WorkingDirectory=/opt/netbox
 
-ExecStart=/usr/bin/python3 /opt/netbox/netbox/manage.py rqworker
+ExecStart=/opt/netbox/venv/bin/python3 /opt/netbox/netbox/manage.py rqworker
 
 Restart=on-failure
 RestartSec=30
