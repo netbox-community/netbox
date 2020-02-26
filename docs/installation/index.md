@@ -3,9 +3,10 @@
 The following sections detail how to set up a new instance of NetBox:
 
 1. [PostgreSQL database](1-postgresql.md)
-2. [NetBox components](2-netbox.md)
-3. [HTTP daemon](3-http-daemon.md)
-4. [LDAP authentication](4-ldap.md) (optional)
+1. [Redis](2-redis.md)
+3. [NetBox components](3-netbox.md)
+4. [HTTP daemon](4-http-daemon.md)
+5. [LDAP authentication](5-ldap.md) (optional)
 
 # Upgrading
 

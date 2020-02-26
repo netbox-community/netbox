@@ -3,7 +3,7 @@
 NetBox supports integration with the [NAPALM automation](https://napalm-automation.net/) library. NAPALM allows NetBox to fetch live data from devices and return it to a requester via its REST API.
 
 !!! info
-    To enable the integration, the NAPALM library must be installed. See [installation steps](../../installation/2-netbox/#napalm-automation-optional) for more information.
+    To enable the integration, the NAPALM library must be installed. See [installation steps](../../installation/3-netbox/#napalm-automation-optional) for more information.
 
 ```
 GET /api/dcim/devices/1/napalm/?method=get_environment

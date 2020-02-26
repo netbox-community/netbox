@@ -1,15 +1,21 @@
-site_name: NetBox
-theme: readthedocs
+site_name: NetBox Documentation
+site_url: https://netbox.readthedocs.io/
 repo_url: https://github.com/netbox-community/netbox
+theme:
+    name: readthedocs
+    navigation_depth: 3
+markdown_extensions:
+    - admonition:
 
-pages:
+nav:
     - Introduction: 'index.md'
     - Installation:
         - Installing NetBox: 'installation/index.md'
         - 1. PostgreSQL: 'installation/1-postgresql.md'
-        - 2. NetBox: 'installation/2-netbox.md'
-        - 3. HTTP Daemon: 'installation/3-http-daemon.md'
-        - 4. LDAP (Optional): 'installation/4-ldap.md'
+        - 2. Redis: 'installation/2-redis.md'
+        - 3. NetBox: 'installation/3-netbox.md'
+        - 4. HTTP Daemon: 'installation/4-http-daemon.md'
+        - 5. LDAP (Optional): 'installation/5-ldap.md'
         - Upgrading NetBox: 'installation/upgrading.md'
         - Migrating to Python3: 'installation/migrating-to-python3.md'
         - Migrating to systemd: 'installation/migrating-to-systemd.md'
@@ -76,6 +82,3 @@ pages:
         - Version 1.2: 'release-notes/version-1.2.md'
         - Version 1.1: 'release-notes/version-1.1.md'
         - Version 1.0: 'release-notes/version-1.0.md'
-
-markdown_extensions:
-    - admonition:

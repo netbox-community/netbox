@@ -3,9 +3,9 @@ We'll set up a simple WSGI front end using [gunicorn](http://gunicorn.org/) for 
 !!! info
     For the sake of brevity, only Ubuntu 18.04 instructions are provided here, but this sort of web server and WSGI configuration is not unique to NetBox. Please consult your distribution's documentation for assistance if needed.
 
-# Web Server Installation
+## HTTP Daemon Installation
 
-## Option A: nginx
+### Option A: nginx
 
 The following will serve as a minimal nginx configuration. Be sure to modify your server name and installation path appropriately.
 
@@ -52,7 +52,7 @@ Restart the nginx service to use the new configuration.
 
 To enable SSL, consider this guide on [securing nginx with Let's Encrypt](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04).
 
-## Option B: Apache
+### Option B: Apache
 
 ```no-highlight
 # apt-get install -y apache2 libapache2-mod-wsgi-py3
@@ -102,7 +102,7 @@ To enable SSL, consider this guide on [securing Apache with Let's Encrypt](https
 !!! note
     Certain components of NetBox (such as the display of rack elevation diagrams) rely on the use of embedded objects. Ensure that your HTTP server configuration does not override the `X-Frame-Options` response header set by NetBox.
 
-# gunicorn Installation
+## gunicorn Installation
 
 Install gunicorn:
 
@@ -119,7 +119,7 @@ Copy `/opt/netbox/contrib/gunicorn.py` to `/opt/netbox/gunicorn.py`. We make a c
 
 You may wish to edit this file to change the bound IP address or port number, or to make performance-related adjustments.
 
-# systemd configuration
+## systemd configuration
 
 We'll use systemd to control the daemonization of NetBox services. First, copy `contrib/netbox.service` and `contrib/netbox-rq.service` to the `/etc/systemd/system/` directory:
 
