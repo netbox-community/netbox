@@ -1,5 +1,11 @@
 # v2.7.9 (FUTURE)
 
+**Note:** This release will deploy a Python virtual environment on upgrade in the `venv/` directory. This will require modifying the paths to your Python and gunicorn executables in the systemd service files. For more detail, please see the [upgrade instructions](https://netbox.readthedocs.io/en/stable/installation/upgrading/).
+
+## Enhancements
+
+* [#3949](https://github.com/netbox-community/netbox/issues/3949) - Revised the installation docs and upgrade script to employ a Python virtual environment
+
 ## Bug Fixes
 
 * [#4277](https://github.com/netbox-community/netbox/issues/4277) - Fix filtering of clusters by tenant
