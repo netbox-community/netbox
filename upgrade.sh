@@ -10,12 +10,18 @@ if [ -d "$VIRTUALENV" ]; then
   COMMAND="rm -rf ${VIRTUALENV}"
   echo "Removing old virtual environment..."
   eval $COMMAND
+else
+  WARN_MISSING_VENV=1
 fi
 
 # Create a new virtual environment
 COMMAND="/usr/bin/python3 -m venv ${VIRTUALENV}"
 echo "Creating a new virtual environment at ${VIRTUALENV}..."
-eval $COMMAND
+eval $COMMAND || (
+  echo "Failed to create the virtual environment. Check that you have the"
+  echo "required system packages installed."
+  exit 1
+)
 
 # Activate the virtual environment
 source "${VIRTUALENV}/bin/activate"
@@ -45,6 +51,13 @@ COMMAND="python3 netbox/manage.py invalidate all"
 echo "Clearing cache data ($COMMAND)..."
 eval $COMMAND
 
+if [ WARN_MISSING_VENV ]; then
+  echo "No existing virtual environment was detected. A new one has been"
+  echo "created. Update your systemd service files to reflect the new"
+  echo "executables."
+  echo "  Python: ${VIRTUALENV}/bin/python"
+  echo "  gunicorn: ${VIRTUALENV}/bin/gunicorn"
+fi
+
 echo "Upgrade complete! Don't forget to restart the NetBox services:"
-echo "  sudo systemctl restart netbox"
-echo "  sudo systemctl restart netbox-rq"
+echo "  sudo systemctl restart netbox netbox-rq"

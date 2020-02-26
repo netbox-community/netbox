@@ -85,6 +85,9 @@ This script:
 
 ## Restart the NetBox Services
 
+!!! warning
+    If you are upgrading from an installation that does not use a Python virtual environment, you'll need to update the systemd service files to reference the new Python and gunicorn executables before restarting the services. These are located in `/opt/netbox/venv/bin/`. See the example service files in `/opt/netbox/contrib/` for reference.
+
 Finally, restart the gunicorn and RQ services:
 
 ```no-highlight
