@@ -104,10 +104,10 @@ To enable SSL, consider this guide on [securing Apache with Let's Encrypt](https
 
 ## gunicorn Installation
 
-Install gunicorn:
+Check that the Python virtual environment created in [the previous step](3-netbox.md#set-up-python-environment) is still active, and install the `gunicorn` Python package. (If the virtual environment is not active, activate it with the command `source /opt/netbox/venv/bin/activate`.)
 
 ```no-highlight
-# pip3 install gunicorn
+(venv) # pip3 install gunicorn
 ```
 
 Copy `/opt/netbox/contrib/gunicorn.py` to `/opt/netbox/gunicorn.py`. We make a copy of this file to ensure that any changes to it do not get overwritten by a future upgrade.

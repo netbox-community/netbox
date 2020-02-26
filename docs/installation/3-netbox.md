@@ -5,7 +5,7 @@ This section of the documentation discusses installing and configuring the NetBo
 #### Ubuntu
 
 ```no-highlight
-# apt-get install -y python3 python3-pip python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
+# apt-get install -y python3 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
 ```
 
 #### CentOS
@@ -73,31 +73,35 @@ Checking connectivity... done.
 
     `# chown -R netbox:netbox /opt/netbox/netbox/media/`
 
-## Install Python Packages
+## Set Up Python Environment
 
-Install the required Python packages using pip. (If you encounter any compilation errors during this step, ensure that you've installed all of the system dependencies listed above.)
-
-```no-highlight
-# pip3 install -r requirements.txt
-```
-
-!!! note
-    If you encounter errors while installing the required packages, check that you're running a recent version of pip (v9.0.1 or higher) with the command `pip3 -V`.
-
-### NAPALM Automation (Optional)
-
-NetBox supports integration with the [NAPALM automation](https://napalm-automation.net/) library. NAPALM allows NetBox to fetch live data from devices and return it to a requester via its REST API. Installation of NAPALM is optional. To enable it, install the `napalm` package using pip or pip3:
+We'll use a Python [virtual environment](https://docs.python.org/3.6/tutorial/venv.html) to ensure NetBox's required packages don't conflict with anything in the base system. This will create a directory named `venv` in our NetBox root.
 
 ```no-highlight
-# pip3 install napalm
+# python3 -m venv /opt/netbox/venv
 ```
 
-### Remote File Storage (Optional)
+Next, activate the virtual environment and install the required Python packages. You should see your console prompt change to indicate the active environment. (Activating the virtual environment updates your command shell to use the local copy of Python that we just installed for NetBox instead of the system's Python interpreter.)
+
+```no-highlight
+# source venv/bin/activate
+(venv) # pip3 install -r requirements.txt
+```
+
+#### NAPALM Automation (Optional)
+
+NetBox supports integration with the [NAPALM automation](https://napalm-automation.net/) library. NAPALM allows NetBox to fetch live data from devices and return it to a requester via its REST API. Installation of NAPALM is optional. To enable it, install the `napalm` package:
+
+```no-highlight
+(venv) # pip3 install napalm
+```
+
+#### Remote File Storage (Optional)
 
 By default, NetBox will use the local filesystem to storage uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired backend](../../configuration/optional-settings/#storage_backend) in `configuration.py`.
 
 ```no-highlight
-# pip3 install django-storages
+(venv) # pip3 install django-storages
 ```
 
 ## Configuration
@@ -105,8 +109,8 @@ By default, NetBox will use the local filesystem to storage uploaded files. To u
 Move into the NetBox configuration directory and make a copy of `configuration.example.py` named `configuration.py`.
 
 ```no-highlight
-# cd netbox/netbox/
-# cp configuration.example.py configuration.py
+(venv) # cd netbox/netbox/
+(venv) # cp configuration.example.py configuration.py
 ```
 
 Open `configuration.py` with your preferred editor and set the following variables:
@@ -182,8 +186,8 @@ You may use the script located at `netbox/generate_secret_key.py` to generate a 
 Before NetBox can run, we need to install the database schema. This is done by running `python3 manage.py migrate` from the `netbox` directory (`/opt/netbox/netbox/` in our example):
 
 ```no-highlight
-# cd /opt/netbox/netbox/
-# python3 manage.py migrate
+(venv) # cd /opt/netbox/netbox/
+(venv) # python3 manage.py migrate
 Operations to perform:
   Apply all migrations: dcim, sessions, admin, ipam, utilities, auth, circuits, contenttypes, extras, secrets, users
 Running migrations:
@@ -201,7 +205,7 @@ If this step results in a PostgreSQL authentication error, ensure that the usern
 NetBox does not come with any predefined user accounts. You'll need to create a super user to be able to log into NetBox:
 
 ```no-highlight
-# python3 manage.py createsuperuser
+(venv) # python3 manage.py createsuperuser
 Username: admin
 Email address: admin@example.com
 Password:
@@ -212,7 +216,7 @@ Superuser created successfully.
 ## Collect Static Files
 
 ```no-highlight
-# python3 manage.py collectstatic --no-input
+(venv) # python3 manage.py collectstatic --no-input
 
 959 static files copied to '/opt/netbox/netbox/static'.
 ```
@@ -222,7 +226,7 @@ Superuser created successfully.
 At this point, NetBox should be able to run. We can verify this by starting a development instance:
 
 ```no-highlight
-# python3 manage.py runserver 0.0.0.0:8000 --insecure
+(venv) # python3 manage.py runserver 0.0.0.0:8000 --insecure
 Performing system checks...
 
 System check identified no issues (0 silenced).
