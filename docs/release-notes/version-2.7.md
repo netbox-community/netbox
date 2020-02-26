@@ -1,3 +1,11 @@
+# v2.7.9 (FUTURE)
+
+## Bug Fixes
+
+* [#4277](https://github.com/netbox-community/netbox/issues/4277) - Fix filtering of clusters by tenant
+
+---
+
 # v2.7.8 (2020-02-25)
 
 ## Enhancements
