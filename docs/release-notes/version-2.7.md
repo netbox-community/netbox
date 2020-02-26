@@ -5,6 +5,7 @@
 ## Enhancements
 
 * [#3949](https://github.com/netbox-community/netbox/issues/3949) - Revised the installation docs and upgrade script to employ a Python virtual environment
+* [#4281](https://github.com/netbox-community/netbox/issues/4281) - Allow filtering device component list views by type
 
 ## Bug Fixes
 
