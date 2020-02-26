@@ -13,6 +13,7 @@ django-taggit-serializer==0.1.7
 django-timezone-field==4.0
 djangorestframework==3.10.3
 drf-yasg[validation]==1.17.0
+gunicorn==20.0.4
 Jinja2==2.10.3
 Markdown==2.6.11
 netaddr==0.7.19

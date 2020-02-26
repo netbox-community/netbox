@@ -1,12 +1,12 @@
-# Review the Release Notes
+## Review the Release Notes
 
 Prior to upgrading your NetBox instance, be sure to carefully review all [release notes](../../release-notes/) that have been published since your current version was released. Although the upgrade process typically does not involve additional work, certain releases may introduce breaking or backward-incompatible changes. These are called out in the release notes under the version in which the change went into effect.
 
-# Install the Latest Code
+## Install the Latest Code
 
 As with the initial installation, you can upgrade NetBox by either downloading the latest release package or by cloning the `master` branch of the git repository. 
 
-## Option A: Download a Release
+### Option A: Download a Release
 
 Download the [latest stable release](https://github.com/netbox-community/netbox/releases) from GitHub as a tarball or ZIP archive. Extract it to your desired path. In this example, we'll use `/opt/netbox`.
 
@@ -34,7 +34,7 @@ Be sure to replicate your uploaded media as well. (The exact action necessary wi
 Also make sure to copy over any reports that you've made. Note that if you made them in a separate directory (`/opt/netbox-reports` for example), then you will not need to copy them - the config file that you copied earlier will point to the correct location.
 
 ```no-highlight
-# cp -r /opt/netbox-X.Y.X/netbox/reports /opt/netbox/netbox/reports/
+# cp -r /opt/netbox-X.Y.Z/netbox/reports /opt/netbox/netbox/reports/
 ```
 
 If you followed the original installation guide to set up gunicorn, be sure to copy its configuration as well:
@@ -49,7 +49,7 @@ Copy the LDAP configuration if using LDAP:
 # cp netbox-X.Y.Z/netbox/netbox/ldap_config.py netbox/netbox/netbox/ldap_config.py
 ```
 
-## Option B: Clone the Git Repository (latest master release)
+### Option B: Clone the Git Repository (latest master release)
 
 This guide assumes that NetBox is installed at `/opt/netbox`. Pull down the most recent iteration of the master branch:
 
@@ -60,7 +60,19 @@ This guide assumes that NetBox is installed at `/opt/netbox`. Pull down the most
 # git status
 ```
 
-# Run the Upgrade Script
+## Rebuild the Virtual Environment
+
+Destroy and recreate the Python virtual environment. This ensures that an up-to-date version of each dependency is installed while and that any obsolete packages are no longer present.
+
+```no-highlight
+# cd /opt/netbox
+# rm -rf venv
+# python3 -m venv venv
+# source venv/bin/activate
+(venv) # pip3 install -r requirements.txt 
+```
+
+## Run the Upgrade Script
 
 Once the new code is in place, run the upgrade script (which may need to be run as root depending on how your environment is configured).
 
@@ -82,7 +94,7 @@ This script:
 
     This may occur due to semantic differences in environment, and can be safely ignored. Never attempt to create new migrations unless you are intentionally modifying the database schema.
 
-# Restart the WSGI Service
+## Restart the WSGI Service
 
 Finally, restart the WSGI services to run the new code. If you followed this guide for the initial installation, this is done using `systemctl:
 

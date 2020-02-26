@@ -58,6 +58,10 @@ djangorestframework
 # https://github.com/axnsan12/drf-yasg
 drf-yasg[validation]
 
+# WSGI HTTP server
+# https://gunicorn.org/
+gunicorn
+
 # Platform-agnostic template rendering engine
 # https://github.com/pallets/jinja
 Jinja2

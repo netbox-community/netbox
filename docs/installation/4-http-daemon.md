@@ -102,15 +102,9 @@ To enable SSL, consider this guide on [securing Apache with Let's Encrypt](https
 !!! note
     Certain components of NetBox (such as the display of rack elevation diagrams) rely on the use of embedded objects. Ensure that your HTTP server configuration does not override the `X-Frame-Options` response header set by NetBox.
 
-## gunicorn Installation
+## gunicorn Configuration
 
-Check that the Python virtual environment created in [the previous step](3-netbox.md#set-up-python-environment) is still active, and install the `gunicorn` Python package. (If the virtual environment is not active, activate it with the command `source /opt/netbox/venv/bin/activate`.)
-
-```no-highlight
-(venv) # pip3 install gunicorn
-```
-
-Copy `/opt/netbox/contrib/gunicorn.py` to `/opt/netbox/gunicorn.py`. We make a copy of this file to ensure that any changes to it do not get overwritten by a future upgrade.
+Copy `/opt/netbox/contrib/gunicorn.py` to `/opt/netbox/gunicorn.py`. (We make a copy of this file to ensure that any changes to it do not get overwritten by a future upgrade.)
 
 ```no-highlight
 # cd /opt/netbox
@@ -119,16 +113,13 @@ Copy `/opt/netbox/contrib/gunicorn.py` to `/opt/netbox/gunicorn.py`. We make a c
 
 You may wish to edit this file to change the bound IP address or port number, or to make performance-related adjustments.
 
-## systemd configuration
+## systemd Configuration
 
 We'll use systemd to control the daemonization of NetBox services. First, copy `contrib/netbox.service` and `contrib/netbox-rq.service` to the `/etc/systemd/system/` directory:
 
 ```no-highlight
 # cp contrib/*.service /etc/systemd/system/
 ```
-
-!!! note
-    These service files assume that gunicorn is installed at `/usr/local/bin/gunicorn`. If the output of `which gunicorn` indicates a different path, you'll need to correct the `ExecStart` path in both files.
 
 Then, start the `netbox` and `netbox-rq` services and enable them to initiate at boot time:
 
