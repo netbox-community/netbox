@@ -7,7 +7,7 @@ from utilities.tables import BaseTable, ToggleColumn
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 CLUSTERTYPE_ACTIONS = """
-<a href="{% url 'virtualization:clustertype_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'virtualization:clustertype_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 {% if perms.virtualization.change_clustertype %}
@@ -16,7 +16,7 @@ CLUSTERTYPE_ACTIONS = """
 """
 
 CLUSTERGROUP_ACTIONS = """
-<a href="{% url 'virtualization:clustergroup_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'virtualization:clustergroup_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 {% if perms.virtualization.change_clustergroup %}

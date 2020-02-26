@@ -626,12 +626,13 @@ class BulkEditView(GetReturnURLMixin, View):
 
         model = self.queryset.model
 
-        # Create a mutable copy of the POST data
-        post_data = request.POST.copy()
-
         # If we are editing *all* objects in the queryset, replace the PK list with all matched objects.
-        if post_data.get('_all') and self.filterset is not None:
-            post_data['pk'] = [obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs]
+        if request.POST.get('_all') and self.filterset is not None:
+            pk_list = [
+                obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs
+            ]
+        else:
+            pk_list = request.POST.getlist('pk')
 
         if '_apply' in request.POST:
             form = self.form(model, request.POST)
@@ -656,9 +657,8 @@ class BulkEditView(GetReturnURLMixin, View):
                                 try:
                                     model_field = model._meta.get_field(name)
                                 except FieldDoesNotExist:
-                                    # The form field is used to modify a field rather than set its value directly,
-                                    # so we skip it.
-                                    continue
+                                    # This form field is used to modify a field rather than set its value directly
+                                    model_field = None
 
                                 # Handle nullification
                                 if name in form.nullable_fields and name in nullified_fields:
@@ -716,12 +716,10 @@ class BulkEditView(GetReturnURLMixin, View):
                     messages.error(self.request, "{} failed validation: {}".format(obj, e))
 
         else:
-            # Pass the PK list as initial data to avoid binding the form
-            initial_data = querydict_to_dict(post_data)
-            form = self.form(model, initial=initial_data)
+            form = self.form(model, initial={'pk': pk_list})
 
         # Retrieve objects being edited
-        table = self.table(self.queryset.filter(pk__in=post_data.getlist('pk')), orderable=False)
+        table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
             messages.warning(request, "No {} were selected.".format(model._meta.verbose_name_plural))
             return redirect(self.get_return_url(request))

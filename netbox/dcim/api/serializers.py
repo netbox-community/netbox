@@ -172,6 +172,10 @@ class RackReservationSerializer(ValidatedModelSerializer):
 
 
 class RackElevationDetailFilterSerializer(serializers.Serializer):
+    q = serializers.CharField(
+        required=False,
+        default=None
+    )
     face = serializers.ChoiceField(
         choices=DeviceFaceChoices,
         default=DeviceFaceChoices.FACE_FRONT
@@ -186,11 +190,18 @@ class RackElevationDetailFilterSerializer(serializers.Serializer):
     unit_height = serializers.IntegerField(
         default=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT
     )
+    legend_width = serializers.IntegerField(
+        default=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT
+    )
     exclude = serializers.IntegerField(
         required=False,
         default=None
     )
     expand_devices = serializers.BooleanField(
+        required=False,
+        default=True
+    )
+    include_images = serializers.BooleanField(
         required=False,
         default=True
     )
@@ -220,7 +231,8 @@ class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
         model = DeviceType
         fields = [
             'id', 'manufacturer', 'model', 'slug', 'display_name', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
+            'subdevice_role', 'front_image', 'rear_image', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated', 'device_count',
         ]
 
 
@@ -270,7 +282,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
         allow_blank=True,
         required=False
     )
-    power_port = PowerPortTemplateSerializer(
+    power_port = NestedPowerPortTemplateSerializer(
         required=False
     )
     feed_leg = ChoiceField(
@@ -286,7 +298,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
-    type = ChoiceField(choices=InterfaceTypeChoices, required=False)
+    type = ChoiceField(choices=InterfaceTypeChoices)
 
     class Meta:
         model = InterfaceTemplate
@@ -506,7 +518,7 @@ class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
 
 class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
-    type = ChoiceField(choices=InterfaceTypeChoices, required=False)
+    type = ChoiceField(choices=InterfaceTypeChoices)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)

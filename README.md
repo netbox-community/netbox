@@ -26,7 +26,11 @@ or join us in the #netbox Slack channel on [NetworkToCode](https://networktocode
 
 ![Screenshot of main page](docs/media/screenshot1.png "Main page")
 
+---
+
 ![Screenshot of rack elevation](docs/media/screenshot2.png "Rack elevation")
+
+---
 
 ![Screenshot of prefix hierarchy](docs/media/screenshot3.png "Prefix hierarchy")
 

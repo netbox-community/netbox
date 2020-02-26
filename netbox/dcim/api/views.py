@@ -220,7 +220,13 @@ class RackViewSet(CustomFieldModelViewSet):
 
         if data['render'] == 'svg':
             # Render and return the elevation as an SVG drawing with the correct content type
-            drawing = rack.get_elevation_svg(data['face'], data['unit_width'], data['unit_height'])
+            drawing = rack.get_elevation_svg(
+                face=data['face'],
+                unit_width=data['unit_width'],
+                unit_height=data['unit_height'],
+                legend_width=data['legend_width'],
+                include_images=data['include_images']
+            )
             return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
 
         else:
@@ -230,6 +236,11 @@ class RackViewSet(CustomFieldModelViewSet):
                 exclude=data['exclude'],
                 expand_devices=data['expand_devices']
             )
+
+            # Enable filtering rack units by ID
+            q = data['q']
+            if q:
+                elevation = [u for u in elevation if q in str(u['id']) or q in str(u['name'])]
 
             page = self.paginate_queryset(elevation)
             if page is not None:

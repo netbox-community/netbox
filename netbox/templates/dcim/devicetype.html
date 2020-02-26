@@ -54,7 +54,7 @@
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'dcim:devicetype_changelog' pk=devicetype.pk %}">Changelog</a>
+                <a href="{% url 'dcim:devicetype_changelog' pk=devicetype.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>
@@ -104,6 +104,30 @@
                             <label class="label label-primary">Parent</label>
                         {% elif devicetype.subdevice_role == False %}
                             <label class="label label-info">Child</label>
+                        {% else %}
+                            <span class="text-muted">&mdash;</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Front Image</td>
+                    <td>
+                        {% if devicetype.front_image %}
+                            <a href="{{ devicetype.front_image.url }}">
+                                <img src="{{ devicetype.front_image.url }}" alt="{{ devicetype.front_image.name }}" class="img-responsive" />
+                            </a>
+                        {% else %}
+                            <span class="text-muted">&mdash;</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Rear Image</td>
+                    <td>
+                        {% if devicetype.rear_image %}
+                            <a href="{{ devicetype.rear_image.url }}">
+                                <img src="{{ devicetype.rear_image.url }}" alt="{{ devicetype.rear_image.name }}" class="img-responsive" />
+                            </a>
                         {% else %}
                             <span class="text-muted">&mdash;</span>
                         {% endif %}

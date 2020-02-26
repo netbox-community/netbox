@@ -138,6 +138,8 @@ LOG_LEVEL_CODES = {
     LOG_FAILURE: 'failure',
 }
 
+HTTP_CONTENT_TYPE_JSON = 'application/json'
+
 # Models which support registered webhooks
 WEBHOOK_MODELS = Q(
     Q(app_label='circuits', model__in=[

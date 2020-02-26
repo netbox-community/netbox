@@ -54,7 +54,7 @@
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'circuits:provider_changelog' slug=provider.slug %}">Changelog</a>
+                <a href="{% url 'circuits:provider_changelog' slug=provider.slug %}">Change Log</a>
             </li>
         {% endif %}
     </ul>

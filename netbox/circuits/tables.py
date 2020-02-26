@@ -6,7 +6,7 @@ from utilities.tables import BaseTable, ToggleColumn
 from .models import Circuit, CircuitType, Provider
 
 CIRCUITTYPE_ACTIONS = """
-<a href="{% url 'circuits:circuittype_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
+<a href="{% url 'circuits:circuittype_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
 </a>
 {% if perms.circuit.change_circuittype %}

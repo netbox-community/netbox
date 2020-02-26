@@ -195,6 +195,7 @@ class ConsolePortTypeChoices(ChoiceSet):
 
     TYPE_DE9 = 'de-9'
     TYPE_DB25 = 'db-25'
+    TYPE_RJ11 = 'rj-11'
     TYPE_RJ12 = 'rj-12'
     TYPE_RJ45 = 'rj-45'
     TYPE_USB_A = 'usb-a'
@@ -210,6 +211,7 @@ class ConsolePortTypeChoices(ChoiceSet):
         ('Serial', (
             (TYPE_DE9, 'DE-9'),
             (TYPE_DB25, 'DB-25'),
+            (TYPE_RJ11, 'RJ-11'),
             (TYPE_RJ12, 'RJ-12'),
             (TYPE_RJ45, 'RJ-45'),
         )),
@@ -971,10 +973,12 @@ class CableStatusChoices(ChoiceSet):
 
     STATUS_CONNECTED = 'connected'
     STATUS_PLANNED = 'planned'
+    STATUS_DECOMMISSIONING = 'decommissioning'
 
     CHOICES = (
         (STATUS_CONNECTED, 'Connected'),
         (STATUS_PLANNED, 'Planned'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning'),
     )
 
     LEGACY_MAP = {

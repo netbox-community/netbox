@@ -7,7 +7,7 @@
     <div class="row noprint">
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
-                <li><a href="{% url 'extras:objectchange_list' %}">Changelog</a></li>
+                <li><a href="{% url 'extras:objectchange_list' %}">Change Log</a></li>
                 {% if objectchange.related_object.get_absolute_url %}
                     <li><a href="{{ objectchange.related_object.get_absolute_url }}changelog/">{{ objectchange.related_object }}</a></li>
                 {% elif objectchange.changed_object.get_absolute_url %}
@@ -82,6 +82,35 @@
                         </td>
                     </tr>
                 </table>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Difference</strong>
+                    <div class="btn-group btn-group-xs pull-right noprint">
+                        <a {% if prev_change %}href="{% url 'extras:objectchange' pk=prev_change.pk %}"{% else %}disabled{% endif %} class="btn btn-default">
+                            <span class="fa fa-chevron-left" aria-hidden="true"></span> Previous
+                        </a>
+                        <a {% if next_change %}href="{% url 'extras:objectchange' pk=next_change.pk %}"{% else %}disabled{% endif %} class="btn btn-default">
+                            Next <span class="fa fa-chevron-right" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    {% if diff_added == diff_removed %}
+                        <span class="text-muted" style="margin-left: 10px;">
+                            {% if objectchange.action == 'create' %}
+                                Object created
+                            {% elif objectchange.action == 'delete' %}
+                                Object deleted
+                            {% else %}
+                                No changes
+                            {% endif %}
+                        </span>
+                    {% else %}
+                        <pre style="background-color: #ffdce0;">{{ diff_removed|render_json }}</pre>
+                        <pre style="background-color: #cdffd8;">{{ diff_added|render_json }}</pre>
+                    {% endif %}
+                </div>
             </div>
         </div>
         <div class="col-md-7">

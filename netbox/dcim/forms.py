@@ -385,7 +385,6 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 class RackGroupForm(BootstrapMixin, forms.ModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
         widget=APISelect(
             api_url="/api/dcim/sites/"
         )
@@ -931,8 +930,8 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = DeviceType
         fields = [
-            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'comments',
-            'tags',
+            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'front_image', 'rear_image', 'comments', 'tags',
         ]
         widgets = {
             'subdevice_role': StaticSelect2()
@@ -2764,6 +2763,7 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
+        disabled=True,
         widget=forms.HiddenInput()
     )
     type = forms.ChoiceField(
@@ -2821,6 +2821,12 @@ class PowerOutletBulkDisconnectForm(ConfirmationForm):
 
 class InterfaceFilterForm(DeviceComponentFilterForm):
     model = Interface
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
     tag = TagFilterField(model)
 
 
@@ -3061,6 +3067,7 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
+        disabled=True,
         widget=forms.HiddenInput()
     )
     type = forms.ChoiceField(
@@ -4522,7 +4529,6 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
 class PowerPanelForm(BootstrapMixin, forms.ModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
         widget=APISelect(
             api_url="/api/dcim/sites/",
             filter_for={

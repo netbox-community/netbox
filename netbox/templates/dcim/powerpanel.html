@@ -48,7 +48,7 @@
         </li>
         {% if perms.extras.view_objectchange %}
             <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-                <a href="{% url 'dcim:powerpanel_changelog' pk=powerpanel.pk %}">Changelog</a>
+                <a href="{% url 'dcim:powerpanel_changelog' pk=powerpanel.pk %}">Change Log</a>
             </li>
         {% endif %}
     </ul>

@@ -14,7 +14,7 @@ text {
     background-color: #f0f0f0;
     fill: none;
     stroke: black;
-    stroke-width: 3px;
+    stroke-width: 2px;
 }
 .slot {
     fill: #f7f7f7;
@@ -56,7 +56,6 @@ text {
 .blocked:hover+.add-device {
     fill: none;
 }
-
 .unit {
     margin: 0;
     padding: 5px 0px;
@@ -64,4 +63,7 @@ text {
     fill: #c0c0c0;
     font-size: 10px;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.hidden {
+    visibility: hidden;
 }

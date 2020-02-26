@@ -35,7 +35,7 @@ class ClusterGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class ClusterFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class ClusterFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -86,10 +86,6 @@ class ClusterFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilter
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
         label='Cluster type (slug)',
-    )
-    tenant = django_filters.ModelMultipleChoiceFilter(
-        queryset=Tenant.objects.all(),
-        label="Tenant (ID)"
     )
     tag = TagFilter()
 

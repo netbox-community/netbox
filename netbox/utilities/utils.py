@@ -31,8 +31,9 @@ def csv_format(data):
         if not isinstance(value, str):
             value = '{}'.format(value)
 
-        # Double-quote the value if it contains a comma
+        # Double-quote the value if it contains a comma or line break
         if ',' in value or '\n' in value:
+            value = value.replace('"', '""')  # Escape double-quotes
             csv.append('"{}"'.format(value))
         else:
             csv.append('{}'.format(value))
@@ -80,10 +81,12 @@ def get_subquery(model, field):
     return subquery
 
 
-def serialize_object(obj, extra=None):
+def serialize_object(obj, extra=None, exclude=None):
     """
     Return a generic JSON representation of an object using Django's built-in serializer. (This is used for things like
-    change logging, not the REST API.) Optionally include a dictionary to supplement the object data.
+    change logging, not the REST API.) Optionally include a dictionary to supplement the object data. A list of keys
+    can be provided to exclude them from the returned dictionary. Private fields (prefaced with an underscore) are
+    implicitly excluded.
     """
     json_str = serialize('json', [obj])
     data = json.loads(json_str)[0]['fields']
@@ -101,6 +104,16 @@ def serialize_object(obj, extra=None):
     # Append any extra data
     if extra is not None:
         data.update(extra)
+
+    # Copy keys to list to avoid 'dictionary changed size during iteration' exception
+    for key in list(data):
+        # Private fields shouldn't be logged in the object change
+        if isinstance(key, str) and key.startswith('_'):
+            data.pop(key)
+
+        # Explicitly excluded keys
+        if isinstance(exclude, (list, tuple)) and key in exclude:
+            data.pop(key)
 
     return data
 
@@ -222,3 +235,19 @@ def querydict_to_dict(querydict):
         key: querydict.get(key) if len(value) == 1 and key != 'pk' else querydict.getlist(key)
         for key, value in querydict.lists()
     }
+
+
+def shallow_compare_dict(source_dict, destination_dict, exclude=None):
+    """
+    Return a new dictionary of the different keys. The values of `destination_dict` are returned. Only the equality of
+    the first layer of keys/values is checked. `exclude` is a list or tuple of keys to be ignored.
+    """
+    difference = {}
+
+    for key in destination_dict:
+        if source_dict.get(key) != destination_dict[key]:
+            if isinstance(exclude, (list, tuple)) and key in exclude:
+                continue
+            difference[key] = destination_dict[key]
+
+    return difference

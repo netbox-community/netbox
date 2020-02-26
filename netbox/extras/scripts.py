@@ -63,10 +63,6 @@ class ScriptVariable:
             self.field_attrs['widget'] = widget
         self.field_attrs['required'] = required
 
-        # Initialize the list of optional validators if none have already been defined
-        if 'validators' not in self.field_attrs:
-            self.field_attrs['validators'] = []
-
     def as_field(self):
         """
         Render the variable as a Django form field.
@@ -227,14 +223,12 @@ class IPNetworkVar(ScriptVariable):
     An IPv4 or IPv6 prefix.
     """
     form_field = IPNetworkFormField
-    field_attrs = {
-        'validators': [prefix_validator]
-    }
 
     def __init__(self, min_prefix_length=None, max_prefix_length=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Optional minimum/maximum prefix lengths
+        # Set prefix validator and optional minimum/maximum prefix lengths
+        self.field_attrs['validators'] = [prefix_validator]
         if min_prefix_length is not None:
             self.field_attrs['validators'].append(
                 MinPrefixLengthValidator(min_prefix_length)
@@ -292,7 +286,7 @@ class BaseScript:
 
         return vars
 
-    def run(self, data):
+    def run(self, data, commit):
         raise NotImplementedError("The script must define a run() method.")
 
     def as_form(self, data=None, files=None, initial=None):
@@ -389,10 +383,17 @@ def run_script(script, data, request, commit=True):
     # Add the current request as a property of the script
     script.request = request
 
+    # Determine whether the script accepts a 'commit' argument (this was introduced in v2.7.8)
+    kwargs = {
+        'data': data
+    }
+    if 'commit' in inspect.signature(script.run).parameters:
+        kwargs['commit'] = commit
+
     try:
         with transaction.atomic():
             start_time = time.time()
-            output = script.run(data)
+            output = script.run(**kwargs)
             end_time = time.time()
             if not commit:
                 raise AbortTransaction()
