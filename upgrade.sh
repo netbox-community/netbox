@@ -17,11 +17,11 @@ fi
 # Create a new virtual environment
 COMMAND="/usr/bin/python3 -m venv ${VIRTUALENV}"
 echo "Creating a new virtual environment at ${VIRTUALENV}..."
-eval $COMMAND || (
+eval $COMMAND || {
   echo "Failed to create the virtual environment. Check that you have the"
   echo "required system packages installed."
   exit 1
-)
+}
 
 # Activate the virtual environment
 source "${VIRTUALENV}/bin/activate"
