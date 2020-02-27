@@ -159,9 +159,11 @@ Enforcement of unique IP space can be toggled on a per-VRF basis. To enforce uni
 
 ## UPDATE_REPO_URL
 
-Default: 'https://api.github.com/repos/netbox-community/netbox'
+Default: None
 
 The releases of this repository are checked to detect new releases, which are shown on the home page of the web interface. You can change this to your own fork of the NetBox repository, or set it to `None` to disable the check. The URL provided **must** be compatible with the GitHub API.
+
+Use `'https://api.github.com/repos/netbox-community/netbox'` to check for release in the official NetBox repository.
 
 ---
 

@@ -125,8 +125,9 @@ EXEMPT_VIEW_PERMISSIONS = [
 ]
 
 # This repository is used to check whether there is a new release of NetBox available. Set to None to disable the
-# version check.
-UPDATE_REPO_URL = 'https://api.github.com/repos/netbox-community/netbox'
+# version check or use the URL below to check for release in the official NetBox repository.
+UPDATE_REPO_URL = None
+# UPDATE_REPO_URL = 'https://api.github.com/repos/netbox-community/netbox'
 
 # This determines how often the GitHub API is called to check the latest release of NetBox. Must be at least 1 hour.
 UPDATE_CACHE_TIMEOUT = 24 * 3600
