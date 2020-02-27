@@ -2,6 +2,7 @@
 {% load helpers %}
 
 {% block header %}
+    {{ block.super }}
     {% if new_release %}
         <div class="alert alert-info" role="alert">
             A new release is available:
