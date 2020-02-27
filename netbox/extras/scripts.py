@@ -26,8 +26,6 @@ __all__ = [
     'BaseScript',
     'BooleanVar',
     'ChoiceVar',
-    'DynamicObjectVar',
-    'DynamicMultiObjectVar',
     'FileVar',
     'IntegerVar',
     'IPAddressVar',
@@ -170,10 +168,10 @@ class ObjectVar(ScriptVariable):
     """
     NetBox object representation. The provided QuerySet will determine the choices available.
     """
-    form_field = forms.ModelChoiceField
+    form_field = DynamicModelChoiceField
 
-    def __init__(self, queryset, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, queryset, widget, *args, **kwargs):
+        super().__init__(widget=widget, *args, **kwargs)
 
         # Queryset for field choices
         self.field_attrs['queryset'] = queryset
@@ -187,10 +185,10 @@ class MultiObjectVar(ScriptVariable):
     """
     Like ObjectVar, but can represent one or more objects.
     """
-    form_field = forms.ModelMultipleChoiceField
+    form_field = DynamicModelMultipleChoiceField
 
-    def __init__(self, queryset, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, queryset, widget, *args, **kwargs):
+        super().__init__(widget=widget, *args, **kwargs)
 
         # Queryset for field choices
         self.field_attrs['queryset'] = queryset
@@ -198,20 +196,6 @@ class MultiObjectVar(ScriptVariable):
         # Update form field for MPTT (nested) objects
         if issubclass(queryset.model, MPTTModel):
             self.form_field = TreeNodeMultipleChoiceField
-
-
-class DynamicObjectVar(ObjectVar):
-    """
-    A dynamic netbox object variable.  APISelect will determine the available choices
-    """
-    form_field = DynamicModelChoiceField
-
-
-class DynamicMultiObjectVar(MultiObjectVar):
-    """
-    A multiple choice version of DynamicObjectVar
-    """
-    form_field = DynamicModelMultipleChoiceField
 
 
 class FileVar(ScriptVariable):
