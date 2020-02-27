@@ -324,8 +324,9 @@ if UPDATE_REPO_URL:
             "'https://api.github.com/repos/<owner>/<repository>'"
         )
 
+    # Don't allow ? (query) and # (fragment) in the URL
     if query or fragment:
-        raise ImproperlyConfigured("UPDATE_REPO_URL may not contain a query or fragment")
+        raise ImproperlyConfigured("UPDATE_REPO_URL may not contain a ? (query) or # (fragment)")
 
 # Enforce a cache timeout of at least an hour to protect GitHub
 if UPDATE_CACHE_TIMEOUT < 3600:
