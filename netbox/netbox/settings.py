@@ -80,9 +80,9 @@ DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 EMAIL = getattr(configuration, 'EMAIL', {})
 ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
-GITHUB_REPOSITORY_API = getattr(configuration, 'GITHUB_REPOSITORY_API',
-                                'https://api.github.com/repos/netbox-community/netbox')
-GITHUB_CACHE_TIMEOUT = getattr(configuration, 'GITHUB_CACHE_TIMEOUT', 24 * 3600)
+UPDATE_REPO_URL = getattr(configuration, 'UPDATE_REPO_URL',
+                          'https://api.github.com/repos/netbox-community/netbox')
+UPDATE_CACHE_TIMEOUT = getattr(configuration, 'UPDATE_CACHE_TIMEOUT', 24 * 3600)
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
@@ -308,15 +308,15 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # GitHub repository for version check
-if GITHUB_REPOSITORY_API:
-    GITHUB_REPOSITORY_API = GITHUB_REPOSITORY_API.rstrip('/')
+if UPDATE_REPO_URL:
+    UPDATE_REPO_URL = UPDATE_REPO_URL.rstrip('/')
     try:
-        scheme, netloc, path, query, fragment = urlsplit(GITHUB_REPOSITORY_API)
+        scheme, netloc, path, query, fragment = urlsplit(UPDATE_REPO_URL)
     except ValueError:
-        raise ImproperlyConfigured("GITHUB_REPOSITORY_API must be a valid URL")
+        raise ImproperlyConfigured("UPDATE_REPO_URL must be a valid URL")
 
     if scheme not in ('http', 'https'):
-        raise ImproperlyConfigured("GITHUB_REPOSITORY_API must be a valid http:// or https:// URL")
+        raise ImproperlyConfigured("UPDATE_REPO_URL must be a valid http:// or https:// URL")
 
     if not re.fullmatch(r'/repos/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', path):
         raise ImproperlyConfigured(
@@ -325,11 +325,11 @@ if GITHUB_REPOSITORY_API:
         )
 
     if query or fragment:
-        raise ImproperlyConfigured("GITHUB_REPOSITORY_API may not contain a query or fragment")
+        raise ImproperlyConfigured("UPDATE_REPO_URL may not contain a query or fragment")
 
 # Enforce a cache timeout of at least an hour to protect GitHub
-if GITHUB_CACHE_TIMEOUT < 3600:
-    raise ImproperlyConfigured("GITHUB_CACHE_TIMEOUT has to be at least 3600 seconds (1 hour)")
+if UPDATE_CACHE_TIMEOUT < 3600:
+    raise ImproperlyConfigured("UPDATE_CACHE_TIMEOUT has to be at least 3600 seconds (1 hour)")
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'

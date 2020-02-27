@@ -4,9 +4,9 @@ from django.conf import settings
 from packaging import version
 
 
-@cached(timeout=settings.GITHUB_CACHE_TIMEOUT, extra=settings.GITHUB_REPOSITORY_API)
+@cached(timeout=settings.UPDATE_CACHE_TIMEOUT, extra=settings.UPDATE_REPO_URL)
 def get_releases(pre_releases=False):
-    url = '{}/releases'.format(settings.GITHUB_REPOSITORY_API)
+    url = '{}/releases'.format(settings.UPDATE_REPO_URL)
     headers = {
         'Accept': 'application/vnd.github.v3+json',
     }
@@ -27,7 +27,7 @@ def get_releases(pre_releases=False):
 
 
 def get_latest_release(pre_releases=False):
-    if settings.GITHUB_REPOSITORY_API:
+    if settings.UPDATE_REPO_URL:
         releases = get_releases(pre_releases)
         if releases:
             return max(releases)
