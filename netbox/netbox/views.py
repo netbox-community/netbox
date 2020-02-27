@@ -246,7 +246,7 @@ class HomeView(View):
         new_release = None
         new_release_url = None
 
-        if request.user.is_staff:
+        if request.user.is_staff or request.user.is_superuser:
             # Only check for new releases if the current user might be able to do anything about it
             latest_release, github_url = get_latest_release()
             if isinstance(latest_release, version.Version):
