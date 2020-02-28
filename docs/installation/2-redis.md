@@ -12,6 +12,8 @@
 # yum install -y redis
 ```
 
+You may wish to modify the Redis configuration at `/etc/redis.conf` or `/etc/redis/redis.conf`, however in most cases the default configuration is sufficient.
+
 ## Verify Service Status
 
 Use the `redis-cli` utility to ensure the Redis service is functional:
