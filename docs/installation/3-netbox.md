@@ -68,10 +68,14 @@ Resolving deltas: 100% (1495/1495), done.
 Checking connectivity... done.
 ```
 
-!!! warning
-    Ensure that the media directory (`/opt/netbox/netbox/media/` in this example) and all its subdirectories are writable by the user account as which NetBox runs. If the NetBox process does not have permission to write to this directory, attempts to upload files (e.g. image attachments) will fail. (The appropriate user account will vary by platform.)
+## Create the NetBox User
 
-    `# chown -R netbox:netbox /opt/netbox/netbox/media/`
+Create a system user account named `netbox`. We'll configure the WSGI and HTTP services to run under this account. We'll also assign this user ownership of the media directory. This ensures that NetBox will be able to save local files.
+
+```
+# adduser --system --group netbox
+# chown --recursive netbox /opt/netbox/netbox/media/`
+```
 
 ## Set Up Python Environment
 

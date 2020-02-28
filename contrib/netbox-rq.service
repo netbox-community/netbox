@@ -7,9 +7,8 @@ Wants=network-online.target
 [Service]
 Type=simple
 
-User=www-data
-Group=www-data
-
+User=netbox
+Group=netbox
 WorkingDirectory=/opt/netbox
 
 ExecStart=/opt/netbox/venv/bin/python3 /opt/netbox/netbox/manage.py rqworker
