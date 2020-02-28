@@ -291,6 +291,54 @@ When determining the primary IP address for a device, IPv6 is preferred over IPv
 
 ---
 
+## REMOTE_AUTH_ENABLED
+
+Default: `False`
+
+NetBox can be configured to support remote user authentication by inferring user authentication from an HTTP header set by the HTTP reverse proxy (e.g. nginx or Apache). Set this to `True` to enable this functionality. (Local authenitcation will still take effect as a fallback.)
+
+---
+
+## REMOTE_AUTH_BACKEND
+
+Default: `'utilities.auth_backends.RemoteUserBackend'`
+
+Python path to the custom [Django authentication backend]() to use for external user authentication, if not using NetBox's built-in backend. (Requires `REMOTE_AUTH_ENABLED`.)
+
+---
+
+## REMOTE_AUTH_HEADER
+
+Default: `'HTTP_REMOTE_USER'`
+
+When remote user authentication is in use, this is the name of the HTTP header which informs NetBox of the currently authenticated user. (Requires `REMOTE_AUTH_ENABLED`.)
+
+---
+
+## REMOTE_AUTH_AUTO_CREATE_USER
+
+Default: `True`
+
+If true, NetBox will automatically create local accounts for users authenticated via a remote service. (Requires `REMOTE_AUTH_ENABLED`.)
+
+---
+
+## REMOTE_AUTH_DEFAULT_GROUPS
+
+Default: `[]` (Empty list)
+
+The list of groups to assign a new user account when created using remote authentication. (Requires `REMOTE_AUTH_ENABLED`.)
+
+---
+
+## REMOTE_AUTH_DEFAULT_PERMISSIONS
+
+Default: `[]` (Empty list)
+
+The list of permissions to assign a new user account when created using remote authentication. (Requires `REMOTE_AUTH_ENABLED`.)
+
+---
+
 ## REPORTS_ROOT
 
 Default: $BASE_DIR/netbox/reports/
