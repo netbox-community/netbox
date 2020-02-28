@@ -21,8 +21,8 @@ If a recent enough version of PostgreSQL is not available through your distribut
 CentOS 7.5 does not ship with a recent enough version of PostgreSQL, so it will need to be installed from an external repository. The instructions below show the installation of PostgreSQL 9.6.
 
 ```no-highlight
-# yum install https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm
-# yum install postgresql96 postgresql96-server postgresql96-devel
+# yum install -y https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm
+# yum install -y postgresql96 postgresql96-server postgresql96-devel
 # /usr/pgsql-9.6/bin/postgresql96-setup initdb
 ```
 

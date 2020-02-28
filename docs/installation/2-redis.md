@@ -9,7 +9,10 @@
 #### CentOS
 
 ```no-highlight
+# yum install -y epel-release
 # yum install -y redis
+# systemctl start redis
+# systemctl enable redis
 ```
 
 You may wish to modify the Redis configuration at `/etc/redis.conf` or `/etc/redis/redis.conf`, however in most cases the default configuration is sufficient.

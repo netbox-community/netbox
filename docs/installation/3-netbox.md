@@ -11,10 +11,8 @@ This section of the documentation discusses installing and configuring the NetBo
 #### CentOS
 
 ```no-highlight
-# yum install -y epel-release
 # yum install -y gcc python36 python36-devel python36-setuptools libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config
 # easy_install-3.6 pip
-# ln -s /usr/bin/python3.6 /usr/bin/python3
 ```
 
 ## Download NetBox
@@ -72,9 +70,12 @@ Checking connectivity... done.
 
 Create a system user account named `netbox`. We'll configure the WSGI and HTTP services to run under this account. We'll also assign this user ownership of the media directory. This ensures that NetBox will be able to save local files.
 
+!!! note
+    CentOS users may need to create the `netbox` group first.
+
 ```
 # adduser --system --group netbox
-# chown --recursive netbox /opt/netbox/netbox/media/`
+# chown --recursive netbox /opt/netbox/netbox/media/
 ```
 
 ## Set Up Python Environment

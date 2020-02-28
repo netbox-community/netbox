@@ -146,7 +146,20 @@ You can use the command `systemctl status netbox` to verify that the WSGI servic
 ...
 ```
 
-At this point, you should be able to connect to the HTTP service at the server name or IP address you provided. If you are unable to connect, check that the nginx service is running and properly configured. If you receive a 502 (bad gateway) error, this indicates that gunicorn is misconfigured or not running.
+At this point, you should be able to connect to the HTTP service at the server name or IP address you provided.
 
 !!! info
     Please keep in mind that the configurations provided here are bare minimums required to get NetBox up and running. You may want to make adjustments to better suit your production environment.
+
+## Troubleshooting
+
+If you are unable to connect to the HTTP server, check that:
+
+* Nginx/Apache is running and configured to listen on the correct port.
+* Access is not being blocked by a firewall. (Try connecting locally from the server itself.)
+
+If you are able to connect but receive a 502 (bad gateway) error, check the following:
+
+* The NetBox system process (gunicorn) is running: `systemctl status netbox`
+* nginx/Apache is configured to connect to the port on which gunicorn is listening (default is 8001).
+* SELinux is not preventing the reverse proxy connection. You may need to allow HTTP network connections with the command `setsebool -P httpd_can_network_connect 1`
