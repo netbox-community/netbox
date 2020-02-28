@@ -12,6 +12,7 @@
 * [#4277](https://github.com/netbox-community/netbox/issues/4277) - Fix filtering of clusters by tenant
 * [#4282](https://github.com/netbox-community/netbox/issues/4282) - Fix label on export button for device types
 * [#4285](https://github.com/netbox-community/netbox/issues/4285) - Include A/Z termination sites in provider circuits table
+* [#4295](https://github.com/netbox-community/netbox/issues/4295) - Fix assignment of parent LAG during interface bulk edit
 
 ---
 

@@ -716,7 +716,10 @@ class BulkEditView(GetReturnURLMixin, View):
                     messages.error(self.request, "{} failed validation: {}".format(obj, e))
 
         else:
-            form = self.form(model, initial={'pk': pk_list})
+            # Pass GET parameters as initial data for the form, and include the PK list
+            initial_data = request.GET.copy()
+            initial_data.update({'pk': pk_list})
+            form = self.form(model, initial=initial_data)
 
         # Retrieve objects being edited
         table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
