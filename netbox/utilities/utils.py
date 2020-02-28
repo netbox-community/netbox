@@ -225,18 +225,6 @@ def prepare_cloned_fields(instance):
     return param_string
 
 
-def querydict_to_dict(querydict):
-    """
-    Convert a django.http.QueryDict object to a regular Python dictionary, preserving lists of multiple values.
-    (QueryDict.dict() will return only the last value in a list for each key.)
-    """
-    assert isinstance(querydict, QueryDict)
-    return {
-        key: querydict.get(key) if len(value) == 1 and key != 'pk' else querydict.getlist(key)
-        for key, value in querydict.lists()
-    }
-
-
 def shallow_compare_dict(source_dict, destination_dict, exclude=None):
     """
     Return a new dictionary of the different keys. The values of `destination_dict` are returned. Only the equality of

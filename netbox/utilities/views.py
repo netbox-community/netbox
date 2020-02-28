@@ -25,7 +25,7 @@ from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
 from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField
-from utilities.utils import csv_format, prepare_cloned_fields, querydict_to_dict
+from utilities.utils import csv_format, prepare_cloned_fields
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm, ImportForm
 from .paginator import EnhancedPaginator
