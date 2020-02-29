@@ -1,3 +1,6 @@
+import importlib
+
+from django.apps import apps
 from django.conf import settings
 from django.conf.urls import include
 from django.urls import path, re_path
@@ -64,6 +67,21 @@ _patterns = [
     path('admin/webhook-backend-status/', include('django_rq.urls')),
 
 ]
+
+# Plugins
+plugin_patterns = []
+for app in apps.get_app_configs():
+    if hasattr(app, 'NetBoxPluginMeta'):
+        if importlib.util.find_spec('{}.urls'.format(app.name)):
+            urls = importlib.import_module('{}.urls'.format(app.name))
+            url_slug = getattr(app.NetBoxPluginMeta, 'url_slug', app.label)
+            plugin_patterns.append(
+                path('{}/'.format(url_slug), include((urls.urlpatterns, app.label)))
+            )
+
+_patterns.append(
+    path('plugins/', include((plugin_patterns, 'plugins')))
+)
 
 if settings.DEBUG:
     import debug_toolbar

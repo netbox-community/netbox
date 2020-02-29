@@ -1,3 +1,4 @@
+import importlib
 import logging
 import os
 import platform
@@ -6,6 +7,7 @@ import warnings
 
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
+from pkg_resources import iter_entry_points
 
 
 #
@@ -92,6 +94,7 @@ NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
 NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
 NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
 PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
+PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
@@ -591,3 +594,55 @@ PER_PAGE_DEFAULTS = [
 if PAGINATE_COUNT not in PER_PAGE_DEFAULTS:
     PER_PAGE_DEFAULTS.append(PAGINATE_COUNT)
     PER_PAGE_DEFAULTS = sorted(PER_PAGE_DEFAULTS)
+
+
+#
+# Plugins
+#
+
+PLUGINS = []
+for entry_point in iter_entry_points(group='netbox.plugin', name=None):
+    plugin = entry_point.module_name
+    PLUGINS.append(plugin)
+    INSTALLED_APPS.append(plugin)
+
+    try:
+        module = importlib.import_module(plugin)
+        default_app_config = getattr(module, 'default_app_config')
+        module, app_config = default_app_config.rsplit('.', 1)
+        app_config = getattr(importlib.import_module(module), app_config)
+    except ImportError:
+        raise ImproperlyConfigured('Plugin config for {} could not be imported!'.format(plugin))
+
+    app_config_meta = getattr(app_config, 'NetBoxPluginMeta', None)
+    if not app_config_meta:
+        raise ImproperlyConfigured(
+            'The app config for plugin {} does not contain an inner meta class'.format(plugin)
+        )
+
+    # Add middleware
+    plugin_middleware = getattr(app_config_meta, 'middleware', [])
+    if plugin_middleware:
+        MIDDLEWARE.extend(plugin_middleware)
+
+    # Add middleware
+    plugin_installed_apps = getattr(app_config_meta, 'installed_apps', [])
+    if plugin_installed_apps:
+        INSTALLED_APPS.extend(plugin_installed_apps)
+
+    # Verify required configuration settings
+    if plugin not in PLUGINS_CONFIG:
+        PLUGINS_CONFIG[plugin] = {}
+    for setting in getattr(app_config_meta, 'required_settings', []):
+        if setting not in PLUGINS_CONFIG[plugin]:
+            raise ImproperlyConfigured(
+                "Plugin {} requires '{}' to be present in the PLUGINS_CONFIG section of configuration.py.".format(
+                    plugin, 
+                    setting
+                )
+            )
+
+    # Set defined default setting values
+    for setting, value in getattr(app_config_meta, 'default_settings', {}).items():
+        if setting not in PLUGINS_CONFIG[plugin]:
+            PLUGINS_CONFIG[plugin][setting] = value
