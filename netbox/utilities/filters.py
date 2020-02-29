@@ -8,7 +8,8 @@ from django_filters.utils import get_model_field, resolve_field
 
 from extras.models import Tag
 from utilities.constants import (
-    FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_NEGATION_LOOKUP_MAP, FILTER_NUMERIC_BASED_LOOKUP_MAP
+    FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_NEGATION_LOOKUP_MAP, FILTER_TREENODE_NEGATION_LOOKUP_MAP,
+    FILTER_NUMERIC_BASED_LOOKUP_MAP
 )
 
 
@@ -182,9 +183,14 @@ class BaseFilterSet(django_filters.FilterSet):
             lookup_map = FILTER_NUMERIC_BASED_LOOKUP_MAP
 
         elif isinstance(existing_filter, (
+            TreeNodeMultipleChoiceFilter,
+        )):
+            # TreeNodeMultipleChoiceFilter only support negation but must maintain the `in` lookup expression
+            lookup_map = FILTER_TREENODE_NEGATION_LOOKUP_MAP
+
+        elif isinstance(existing_filter, (
             django_filters.ModelChoiceFilter,
             django_filters.ModelMultipleChoiceFilter,
-            TreeNodeMultipleChoiceFilter,
             TagFilter
         )) or existing_filter.extra.get('choices'):
             # These filter types support only negation
@@ -237,8 +243,6 @@ class BaseFilterSet(django_filters.FilterSet):
             # Create new filters for each lookup expression in the map
             for lookup_name, lookup_expr in lookup_map.items():
                 new_filter_name = '{}__{}'.format(existing_filter_name, lookup_name)
-                if existing_filter.lookup_expr == 'in':
-                    lookup_expr = 'in'  # 'in' lookups must remain to avoid unwanted slicing on certain querysets
 
                 try:
                     if existing_filter_name in cls.declared_filters:

@@ -57,6 +57,10 @@ FILTER_NEGATION_LOOKUP_MAP = dict(
     n='exact'
 )
 
+FILTER_TREENODE_NEGATION_LOOKUP_MAP = dict(
+    n='in'
+)
+
 
 # Keys for PostgreSQL advisory locks. These are arbitrary bigints used by
 # the advisory_lock contextmanager. When a lock is acquired,
