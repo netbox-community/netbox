@@ -261,7 +261,7 @@ INSTALLED_APPS = [
 ]
 
 # Middleware
-MIDDLEWARE = (
+MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -277,7 +277,7 @@ MIDDLEWARE = (
     'utilities.middleware.APIVersionMiddleware',
     'extras.middleware.ObjectChangeMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
-)
+]
 
 ROOT_URLCONF = 'netbox.urls'
 
@@ -622,12 +622,12 @@ for entry_point in iter_entry_points(group='netbox.plugin', name=None):
 
     # Add middleware
     plugin_middleware = getattr(app_config_meta, 'middleware', [])
-    if plugin_middleware:
+    if plugin_middleware and isinstance(plugin_middleware, list):
         MIDDLEWARE.extend(plugin_middleware)
 
-    # Add middleware
+    # Add installed apps
     plugin_installed_apps = getattr(app_config_meta, 'installed_apps', [])
-    if plugin_installed_apps:
+    if plugin_installed_apps and isinstance(plugin_installed_apps, list):
         INSTALLED_APPS.extend(plugin_installed_apps)
 
     # Verify required configuration settings
@@ -637,7 +637,7 @@ for entry_point in iter_entry_points(group='netbox.plugin', name=None):
         if setting not in PLUGINS_CONFIG[plugin]:
             raise ImproperlyConfigured(
                 "Plugin {} requires '{}' to be present in the PLUGINS_CONFIG section of configuration.py.".format(
-                    plugin, 
+                    plugin,
                     setting
                 )
             )

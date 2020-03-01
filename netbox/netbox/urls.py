@@ -70,17 +70,30 @@ _patterns = [
 
 # Plugins
 plugin_patterns = []
+plugin_api_patterns = []
 for app in apps.get_app_configs():
     if hasattr(app, 'NetBoxPluginMeta'):
         if importlib.util.find_spec('{}.urls'.format(app.name)):
             urls = importlib.import_module('{}.urls'.format(app.name))
             url_slug = getattr(app.NetBoxPluginMeta, 'url_slug', app.label)
-            plugin_patterns.append(
-                path('{}/'.format(url_slug), include((urls.urlpatterns, app.label)))
-            )
+            if hasattr(urls, 'urlpatterns'):
+                plugin_patterns.append(
+                    path('{}/'.format(url_slug), include((urls.urlpatterns, app.label)))
+                )
+        if importlib.util.find_spec('{}.api'.format(app.name)):
+            if importlib.util.find_spec('{}.api.urls'.format(app.name)):
+                urls = importlib.import_module('{}.api.urls'.format(app.name))
+                if hasattr(urls, 'urlpatterns'):
+                    url_slug = getattr(app.NetBoxPluginMeta, 'url_slug', app.label)
+                    plugin_api_patterns.append(
+                        path('{}/'.format(url_slug), include((urls.urlpatterns, app.label)))
+                    )
 
 _patterns.append(
     path('plugins/', include((plugin_patterns, 'plugins')))
+)
+_patterns.append(
+    path('api/plugins/', include((plugin_api_patterns, 'plugins-api')))
 )
 
 if settings.DEBUG:
