@@ -187,6 +187,18 @@ PREFER_IPV4 = False
 # this setting is derived from the installed location.
 # SCRIPTS_ROOT = '/opt/netbox/netbox/scripts'
 
+# Enable plugin support in netbox. This setting must be enabled for any installed plugins to function.
+PLUGINS_ENABLED = False
+
+# Plugins configuration settings. These settings are used by various plugins that the user may have installed.
+# Each key in the dictionary is the name of an installed plugin and its value is a dictionary of settings.
+# PLUGINS_CONFIG = {
+#     'my_plugin': {
+#         'foo': 'bar',
+#         'buzz': 'bazz'
+#     }
+# }
+
 # By default, NetBox will store session data in the database. Alternatively, a file path can be specified here to use
 # local file storage instead. (This can be useful for enabling authentication on a standby instance with read-only
 # database access.) Note that the user as which NetBox runs must have read and write permissions to this path.
