@@ -89,6 +89,10 @@ class CustomChoiceFieldInspector(FieldInspector):
                 value_schema = openapi.Schema(type=schema_type)
                 value_schema['x-nullable'] = True
 
+            if isinstance(choices[0], int):
+                # Change value_schema for IPAddressFamilyChoices, RackWidthChoices
+                value_schema = openapi.Schema(type=openapi.TYPE_INTEGER)
+
             schema = SwaggerType(type=openapi.TYPE_OBJECT, required=["label", "value"], properties={
                 "label": openapi.Schema(type=openapi.TYPE_STRING),
                 "value": value_schema
