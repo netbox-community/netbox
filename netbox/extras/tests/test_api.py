@@ -582,7 +582,7 @@ class ScriptTest(APITestCase):
         var2 = IntegerVar()
         var3 = BooleanVar()
 
-        def run(self, data):
+        def run(self, data, commit=True):
 
             self.log_info(data['var1'])
             self.log_success(data['var2'])

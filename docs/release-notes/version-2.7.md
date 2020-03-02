@@ -9,11 +9,12 @@
 
 ## Bug Fixes
 
-* [#4277](https://github.com/netbox-community/netbox/issues/4277) - Fix filtering of clusters by tenant
 * [#4274](https://github.com/netbox-community/netbox/issues/4274) - Fix incorrect schema definition of `int` type choicefields
+* [#4277](https://github.com/netbox-community/netbox/issues/4277) - Fix filtering of clusters by tenant
 * [#4282](https://github.com/netbox-community/netbox/issues/4282) - Fix label on export button for device types
 * [#4285](https://github.com/netbox-community/netbox/issues/4285) - Include A/Z termination sites in provider circuits table
 * [#4295](https://github.com/netbox-community/netbox/issues/4295) - Fix assignment of parent LAG during interface bulk edit
+* [#4300](https://github.com/netbox-community/netbox/issues/4300) - Pass "commit" argument when executing scripts via REST API
 * [#4301](https://github.com/netbox-community/netbox/issues/4301) - Fix exception when deleting device type with components
 
 ---
