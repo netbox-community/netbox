@@ -1,3 +1,4 @@
+import logging
 from collections import OrderedDict
 
 import pytz
@@ -294,25 +295,35 @@ class ModelViewSet(_ModelViewSet):
         return super().get_serializer(*args, **kwargs)
 
     def get_serializer_class(self):
+        logger = logging.getLogger('netbox.api.views.ModelViewSet')
 
         # If 'brief' has been passed as a query param, find and return the nested serializer for this model, if one
         # exists
         request = self.get_serializer_context()['request']
-        if request.query_params.get('brief', False):
+        if request.query_params.get('brief'):
+            logger.debug("Request is for 'brief' format; initializing nested serializer")
             try:
-                return get_serializer_for_model(self.queryset.model, prefix='Nested')
+                serializer = get_serializer_for_model(self.queryset.model, prefix='Nested')
+                logger.debug(f"Using serializer {serializer}")
+                return serializer
             except SerializerNotFound:
                 pass
 
         # Fall back to the hard-coded serializer class
+        logger.debug(f"Using serializer {self.serializer_class}")
         return self.serializer_class
 
     def dispatch(self, request, *args, **kwargs):
+        logger = logging.getLogger('netbox.api.views.ModelViewSet')
+
         try:
             return super().dispatch(request, *args, **kwargs)
         except ProtectedError as e:
-            models = ['{} ({})'.format(o, o._meta) for o in e.protected_objects.all()]
+            models = [
+                '{} ({})'.format(o, o._meta) for o in e.protected_objects.all()
+            ]
             msg = 'Unable to delete object. The following dependent objects were found: {}'.format(', '.join(models))
+            logger.warning(msg)
             return self.finalize_response(
                 request,
                 Response({'detail': msg}, status=409),
