@@ -418,6 +418,7 @@ class DeviceSerializer(TaggitSerializer, CustomFieldModelSerializer):
         """
         return obj.local_context_data
 
+
 class DeviceWithConfigContextSerializer(DeviceSerializer):
     config_context = serializers.SerializerMethodField()
 
