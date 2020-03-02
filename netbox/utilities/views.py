@@ -1,3 +1,4 @@
+import logging
 import sys
 from copy import deepcopy
 
@@ -219,35 +220,36 @@ class ObjectEditView(GetReturnURLMixin, View):
         # given some parameter from the request URL.
         return obj
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
+        self.obj = self.alter_obj(self.get_object(kwargs), request, args, kwargs)
 
-        obj = self.get_object(kwargs)
-        obj = self.alter_obj(obj, request, args, kwargs)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
         # Parse initial data manually to avoid setting field values as lists
         initial_data = {k: request.GET[k] for k in request.GET}
-        form = self.model_form(instance=obj, initial=initial_data)
+        form = self.model_form(instance=self.obj, initial=initial_data)
 
         return render(request, self.template_name, {
-            'obj': obj,
+            'obj': self.obj,
             'obj_type': self.model._meta.verbose_name,
             'form': form,
-            'return_url': self.get_return_url(request, obj),
+            'return_url': self.get_return_url(request, self.obj),
         })
 
     def post(self, request, *args, **kwargs):
-
-        obj = self.get_object(kwargs)
-        obj = self.alter_obj(obj, request, args, kwargs)
-        form = self.model_form(request.POST, request.FILES, instance=obj)
+        logger = logging.getLogger('netbox.views.ObjectEditView')
+        form = self.model_form(request.POST, request.FILES, instance=self.obj)
 
         if form.is_valid():
-            obj_created = not form.instance.pk
-            obj = form.save()
+            logger.debug("Form validation was successful")
 
+            obj = form.save()
             msg = '{} {}'.format(
-                'Created' if obj_created else 'Modified',
+                'Created' if not form.instance.pk else 'Modified',
                 self.model._meta.verbose_name
             )
+            logger.info(f"{msg} {obj} (PK: {obj.pk})")
             if hasattr(obj, 'get_absolute_url'):
                 msg = '{} <a href="{}">{}</a>'.format(msg, obj.get_absolute_url(), escape(obj))
             else:
@@ -269,11 +271,14 @@ class ObjectEditView(GetReturnURLMixin, View):
             else:
                 return redirect(self.get_return_url(request, obj))
 
+        else:
+            logger.debug("Form validation failed")
+
         return render(request, self.template_name, {
-            'obj': obj,
+            'obj': self.obj,
             'obj_type': self.model._meta.verbose_name,
             'form': form,
-            'return_url': self.get_return_url(request, obj),
+            'return_url': self.get_return_url(request, self.obj),
         })
 
 
@@ -295,7 +300,6 @@ class ObjectDeleteView(GetReturnURLMixin, View):
             return get_object_or_404(self.model, pk=kwargs['pk'])
 
     def get(self, request, **kwargs):
-
         obj = self.get_object(kwargs)
         form = ConfirmationForm(initial=request.GET)
 
@@ -307,18 +311,22 @@ class ObjectDeleteView(GetReturnURLMixin, View):
         })
 
     def post(self, request, **kwargs):
-
+        logger = logging.getLogger('netbox.views.ObjectDeleteView')
         obj = self.get_object(kwargs)
         form = ConfirmationForm(request.POST)
+
         if form.is_valid():
+            logger.debug("Form validation was successful")
 
             try:
                 obj.delete()
             except ProtectedError as e:
+                logger.info("Caught ProtectedError while attempting to delete object")
                 handle_protectederror(obj, request, e)
                 return redirect(obj.get_absolute_url())
 
             msg = 'Deleted {} {}'.format(self.model._meta.verbose_name, obj)
+            logger.info(msg)
             messages.success(request, msg)
 
             return_url = form.cleaned_data.get('return_url')
@@ -326,6 +334,9 @@ class ObjectDeleteView(GetReturnURLMixin, View):
                 return redirect(return_url)
             else:
                 return redirect(self.get_return_url(request, obj))
+
+        else:
+            logger.debug("Form validation failed")
 
         return render(request, self.template_name, {
             'obj': obj,
@@ -350,7 +361,6 @@ class BulkCreateView(GetReturnURLMixin, View):
     template_name = None
 
     def get(self, request):
-
         # Set initial values for visible form fields from query args
         initial = {}
         for field in getattr(self.model_form._meta, 'fields', []):
@@ -368,13 +378,13 @@ class BulkCreateView(GetReturnURLMixin, View):
         })
 
     def post(self, request):
-
+        logger = logging.getLogger('netbox.views.BulkCreateView')
         model = self.model_form._meta.model
         form = self.form(request.POST)
         model_form = self.model_form(request.POST)
 
         if form.is_valid():
-
+            logger.debug("Form validation was successful")
             pattern = form.cleaned_data['pattern']
             new_objs = []
 
@@ -392,6 +402,7 @@ class BulkCreateView(GetReturnURLMixin, View):
                         # Validate each new object independently.
                         if model_form.is_valid():
                             obj = model_form.save()
+                            logger.debug(f"Created {obj} (PK: {obj.pk})")
                             new_objs.append(obj)
                         else:
                             # Copy any errors on the pattern target field to the pattern form.
@@ -403,6 +414,7 @@ class BulkCreateView(GetReturnURLMixin, View):
 
                     # If we make it to this point, validation has succeeded on all new objects.
                     msg = "Added {} {}".format(len(new_objs), model._meta.verbose_name_plural)
+                    logger.info(msg)
                     messages.success(request, msg)
 
                     if '_addanother' in request.POST:
@@ -411,6 +423,9 @@ class BulkCreateView(GetReturnURLMixin, View):
 
             except IntegrityError:
                 pass
+
+        else:
+            logger.debug("Form validation failed")
 
         return render(request, self.template_name, {
             'form': form,
@@ -430,7 +445,6 @@ class ObjectImportView(GetReturnURLMixin, View):
     template_name = 'utilities/obj_import.html'
 
     def get(self, request):
-
         form = ImportForm()
 
         return render(request, self.template_name, {
@@ -440,9 +454,11 @@ class ObjectImportView(GetReturnURLMixin, View):
         })
 
     def post(self, request):
-
+        logger = logging.getLogger('netbox.views.ObjectImportView')
         form = ImportForm(request.POST)
+
         if form.is_valid():
+            logger.debug("Import form validation was successful")
 
             # Initialize model form
             data = form.cleaned_data['data']
@@ -463,9 +479,11 @@ class ObjectImportView(GetReturnURLMixin, View):
 
                         # Save the primary object
                         obj = model_form.save()
+                        logger.debug(f"Created {obj} (PK: {obj.pk})")
 
                         # Iterate through the related object forms (if any), validating and saving each instance.
                         for field_name, related_object_form in self.related_object_forms.items():
+                            logger.debug("Processing form for related objects: {related_object_form}")
 
                             for i, rel_obj_data in enumerate(data.get(field_name, list())):
 
@@ -489,7 +507,7 @@ class ObjectImportView(GetReturnURLMixin, View):
                     pass
 
             if not model_form.errors:
-
+                logger.info(f"Import object {obj} (PK: {obj.pk})")
                 messages.success(request, mark_safe('Imported object: <a href="{}">{}</a>'.format(
                     obj.get_absolute_url(), obj
                 )))
@@ -504,6 +522,7 @@ class ObjectImportView(GetReturnURLMixin, View):
                     return redirect(self.get_return_url(request, obj))
 
             else:
+                logger.debug("Model form validation failed")
 
                 # Replicate model form errors for display
                 for field, errors in model_form.errors.items():
@@ -512,6 +531,9 @@ class ObjectImportView(GetReturnURLMixin, View):
                             form.add_error(None, err)
                         else:
                             form.add_error(None, "{}: {}".format(field, err))
+
+        else:
+            logger.debug("Import form validation failed")
 
         return render(request, self.template_name, {
             'form': form,
@@ -560,14 +582,14 @@ class BulkImportView(GetReturnURLMixin, View):
         })
 
     def post(self, request):
-
+        logger = logging.getLogger('netbox.views.BulkImportView')
         new_objs = []
         form = self._import_form(request.POST)
 
         if form.is_valid():
+            logger.debug("Form validation was successful")
 
             try:
-
                 # Iterate through CSV data and bind each row to a new model form instance.
                 with transaction.atomic():
                     for row, data in enumerate(form.cleaned_data['csv'], start=1):
@@ -585,6 +607,7 @@ class BulkImportView(GetReturnURLMixin, View):
 
                 if new_objs:
                     msg = 'Imported {} {}'.format(len(new_objs), new_objs[0]._meta.verbose_name_plural)
+                    logger.info(msg)
                     messages.success(request, msg)
 
                     return render(request, "import_success.html", {
@@ -594,6 +617,9 @@ class BulkImportView(GetReturnURLMixin, View):
 
             except ValidationError:
                 pass
+
+        else:
+            logger.debug("Form validation failed")
 
         return render(request, self.template_name, {
             'form': form,
@@ -623,7 +649,7 @@ class BulkEditView(GetReturnURLMixin, View):
         return redirect(self.get_return_url(request))
 
     def post(self, request, **kwargs):
-
+        logger = logging.getLogger('netbox.views.BulkEditView')
         model = self.queryset.model
 
         # Create a mutable copy of the POST data
@@ -635,8 +661,9 @@ class BulkEditView(GetReturnURLMixin, View):
 
         if '_apply' in request.POST:
             form = self.form(model, request.POST)
-            if form.is_valid():
 
+            if form.is_valid():
+                logger.debug("Form validation was successful")
                 custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
                 standard_fields = [
                     field for field in form.fields if field not in custom_fields + ['pk']
@@ -676,6 +703,7 @@ class BulkEditView(GetReturnURLMixin, View):
 
                             obj.full_clean()
                             obj.save()
+                            logger.debug(f"Saved {obj} (PK: {obj.pk})")
 
                             # Update custom fields
                             obj_type = ContentType.objects.get_for_model(model)
@@ -696,6 +724,7 @@ class BulkEditView(GetReturnURLMixin, View):
                                         )
                                     cfv.value = form.cleaned_data[name]
                                     cfv.save()
+                            logger.debug(f"Saved custom fields for {obj} (PK: {obj.pk})")
 
                             # Add/remove tags
                             if form.cleaned_data.get('add_tags', None):
@@ -707,12 +736,16 @@ class BulkEditView(GetReturnURLMixin, View):
 
                     if updated_count:
                         msg = 'Updated {} {}'.format(updated_count, model._meta.verbose_name_plural)
+                        logger.info(msg)
                         messages.success(self.request, msg)
 
                     return redirect(self.get_return_url(request))
 
                 except ValidationError as e:
                     messages.error(self.request, "{} failed validation: {}".format(obj, e))
+
+            else:
+                logger.debug("Form validation failed")
 
         else:
             # Pass the PK list as initial data to avoid binding the form
@@ -753,7 +786,7 @@ class BulkDeleteView(GetReturnURLMixin, View):
         return redirect(self.get_return_url(request))
 
     def post(self, request, **kwargs):
-
+        logger = logging.getLogger('netbox.views.BulkDeleteView')
         model = self.queryset.model
 
         # Are we deleting *all* objects in the queryset or just a selected subset?
@@ -770,18 +803,24 @@ class BulkDeleteView(GetReturnURLMixin, View):
         if '_confirm' in request.POST:
             form = form_cls(request.POST)
             if form.is_valid():
+                logger.debug("Form validation was successful")
 
                 # Delete objects
                 queryset = model.objects.filter(pk__in=pk_list)
                 try:
                     deleted_count = queryset.delete()[1][model._meta.label]
                 except ProtectedError as e:
+                    logger.info("Caught ProtectedError while attempting to delete objects")
                     handle_protectederror(list(queryset), request, e)
                     return redirect(self.get_return_url(request))
 
                 msg = 'Deleted {} {}'.format(deleted_count, model._meta.verbose_name_plural)
+                logger.info(msg)
                 messages.success(request, msg)
                 return redirect(self.get_return_url(request))
+
+            else:
+                logger.debug("Form validation failed")
 
         else:
             form = form_cls(initial={
@@ -806,12 +845,12 @@ class BulkDeleteView(GetReturnURLMixin, View):
         """
         Provide a standard bulk delete form if none has been specified for the view
         """
-
         class BulkDeleteForm(ConfirmationForm):
             pk = ModelMultipleChoiceField(queryset=self.queryset, widget=MultipleHiddenInput)
 
         if self.form:
             return self.form
+
         return BulkDeleteForm
 
 
@@ -900,7 +939,7 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
     template_name = 'utilities/obj_bulk_add_component.html'
 
     def post(self, request):
-
+        logger = logging.getLogger('netbox.views.BulkComponentCreateView')
         parent_model_name = self.parent_model._meta.verbose_name_plural
         model_name = self.model._meta.verbose_name_plural
 
@@ -918,10 +957,13 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
 
         if '_create' in request.POST:
             form = self.form(request.POST)
+
             if form.is_valid():
+                logger.debug("Form validation was successful")
 
                 new_components = []
                 data = deepcopy(form.cleaned_data)
+
                 for obj in data['pk']:
 
                     names = data['name_pattern']
@@ -941,14 +983,19 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
 
                 if not form.errors:
                     self.model.objects.bulk_create(new_components)
-
-                    messages.success(request, "Added {} {} to {} {}.".format(
+                    msg = "Added {} {} to {} {}.".format(
                         len(new_components),
                         model_name,
                         len(form.cleaned_data['pk']),
                         parent_model_name
-                    ))
+                    )
+                    logger.info(msg)
+                    messages.success(request, msg)
+
                     return redirect(self.get_return_url(request))
+
+            else:
+                logger.debug("Form validation failed")
 
         else:
             form = self.form(initial={'pk': pk_list})
