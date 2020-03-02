@@ -1,14 +1,21 @@
-from django.conf import settings
-from django.test import TestCase
 import django_filters
+from django.conf import settings
+from django.db import models
+from django.test import TestCase
+from mptt.fields import TreeForeignKey
+from taggit.managers import TaggableManager
 
-from dcim.filters import DeviceFilterSet, SiteFilterSet
 from dcim.choices import *
+from dcim.fields import MACAddressField
+from dcim.filters import DeviceFilterSet, SiteFilterSet
 from dcim.models import (
     Device, DeviceRole, DeviceType, Interface, Manufacturer, Platform, Rack, Region, Site
 )
-from ipam.models import IPAddress
-from utilities.filters import BaseFilterSet, TreeNodeMultipleChoiceFilter
+from extras.models import TaggedItem
+from utilities.filters import (
+    BaseFilterSet, MACAddressFilter, MultiValueCharFilter, MultiValueDateFilter, MultiValueDateTimeFilter,
+    MultiValueNumberFilter, MultiValueTimeFilter, TagFilter, TreeNodeMultipleChoiceFilter,
+)
 
 
 class TreeNodeMultipleChoiceFilterTest(TestCase):
@@ -67,10 +74,261 @@ class TreeNodeMultipleChoiceFilterTest(TestCase):
         self.assertEqual(qs[1], self.site3)
 
 
+class DummyModel(models.Model):
+    """
+    Dummy model used by BaseFilterSetTest for filter validation. Should never appear in a schema migration.
+    """
+    charfield = models.CharField(
+        max_length=10
+    )
+    choicefield = models.IntegerField(
+        choices=(('A', 1), ('B', 2), ('C', 3))
+    )
+    datefield = models.DateField()
+    datetimefield = models.DateTimeField()
+    integerfield = models.IntegerField()
+    macaddressfield = MACAddressField()
+    timefield = models.TimeField()
+    treeforeignkeyfield = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE
+    )
+
+    tags = TaggableManager(through=TaggedItem)
+
+
+class BaseFilterSetTest(TestCase):
+    """
+    Ensure that a BaseFilterSet automatically creates the expected set of filters for each filter type.
+    """
+    class DummyFilterSet(BaseFilterSet):
+        charfield = django_filters.CharFilter()
+        macaddressfield = MACAddressFilter()
+        modelchoicefield = django_filters.ModelChoiceFilter(
+            field_name='integerfield',  # We're pretending this is a ForeignKey field
+            queryset=Site.objects.all()
+        )
+        modelmultiplechoicefield = django_filters.ModelMultipleChoiceFilter(
+            field_name='integerfield',  # We're pretending this is a ForeignKey field
+            queryset=Site.objects.all()
+        )
+        multiplechoicefield = django_filters.MultipleChoiceFilter(
+            field_name='choicefield'
+        )
+        multivaluecharfield = MultiValueCharFilter(
+            field_name='charfield'
+        )
+        tagfield = TagFilter()
+        treeforeignkeyfield = TreeNodeMultipleChoiceFilter(
+            queryset=DummyModel.objects.all()
+        )
+
+        class Meta:
+            model = DummyModel
+            fields = (
+                'charfield',
+                'choicefield',
+                'datefield',
+                'datetimefield',
+                'integerfield',
+                'macaddressfield',
+                'modelchoicefield',
+                'modelmultiplechoicefield',
+                'multiplechoicefield',
+                'tagfield',
+                'timefield',
+                'treeforeignkeyfield',
+            )
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.filters = cls.DummyFilterSet().filters
+
+    def test_char_filter(self):
+        self.assertIsInstance(self.filters['charfield'], django_filters.CharFilter)
+        self.assertEqual(self.filters['charfield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['charfield'].exclude, False)
+        self.assertEqual(self.filters['charfield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['charfield__n'].exclude, True)
+        self.assertEqual(self.filters['charfield__ie'].lookup_expr, 'iexact')
+        self.assertEqual(self.filters['charfield__ie'].exclude, False)
+        self.assertEqual(self.filters['charfield__nie'].lookup_expr, 'iexact')
+        self.assertEqual(self.filters['charfield__nie'].exclude, True)
+        self.assertEqual(self.filters['charfield__ic'].lookup_expr, 'icontains')
+        self.assertEqual(self.filters['charfield__ic'].exclude, False)
+        self.assertEqual(self.filters['charfield__nic'].lookup_expr, 'icontains')
+        self.assertEqual(self.filters['charfield__nic'].exclude, True)
+        self.assertEqual(self.filters['charfield__isw'].lookup_expr, 'istartswith')
+        self.assertEqual(self.filters['charfield__isw'].exclude, False)
+        self.assertEqual(self.filters['charfield__nisw'].lookup_expr, 'istartswith')
+        self.assertEqual(self.filters['charfield__nisw'].exclude, True)
+        self.assertEqual(self.filters['charfield__iew'].lookup_expr, 'iendswith')
+        self.assertEqual(self.filters['charfield__iew'].exclude, False)
+        self.assertEqual(self.filters['charfield__niew'].lookup_expr, 'iendswith')
+        self.assertEqual(self.filters['charfield__niew'].exclude, True)
+
+    def test_mac_address_filter(self):
+        self.assertIsInstance(self.filters['macaddressfield'], MACAddressFilter)
+        self.assertEqual(self.filters['macaddressfield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['macaddressfield'].exclude, False)
+        self.assertEqual(self.filters['macaddressfield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['macaddressfield__n'].exclude, True)
+        self.assertEqual(self.filters['macaddressfield__ie'].lookup_expr, 'iexact')
+        self.assertEqual(self.filters['macaddressfield__ie'].exclude, False)
+        self.assertEqual(self.filters['macaddressfield__nie'].lookup_expr, 'iexact')
+        self.assertEqual(self.filters['macaddressfield__nie'].exclude, True)
+        self.assertEqual(self.filters['macaddressfield__ic'].lookup_expr, 'icontains')
+        self.assertEqual(self.filters['macaddressfield__ic'].exclude, False)
+        self.assertEqual(self.filters['macaddressfield__nic'].lookup_expr, 'icontains')
+        self.assertEqual(self.filters['macaddressfield__nic'].exclude, True)
+        self.assertEqual(self.filters['macaddressfield__isw'].lookup_expr, 'istartswith')
+        self.assertEqual(self.filters['macaddressfield__isw'].exclude, False)
+        self.assertEqual(self.filters['macaddressfield__nisw'].lookup_expr, 'istartswith')
+        self.assertEqual(self.filters['macaddressfield__nisw'].exclude, True)
+        self.assertEqual(self.filters['macaddressfield__iew'].lookup_expr, 'iendswith')
+        self.assertEqual(self.filters['macaddressfield__iew'].exclude, False)
+        self.assertEqual(self.filters['macaddressfield__niew'].lookup_expr, 'iendswith')
+        self.assertEqual(self.filters['macaddressfield__niew'].exclude, True)
+
+    def test_model_choice_filter(self):
+        self.assertIsInstance(self.filters['modelchoicefield'], django_filters.ModelChoiceFilter)
+        self.assertEqual(self.filters['modelchoicefield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['modelchoicefield'].exclude, False)
+        self.assertEqual(self.filters['modelchoicefield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['modelchoicefield__n'].exclude, True)
+
+    def test_model_multiple_choice_filter(self):
+        self.assertIsInstance(self.filters['modelmultiplechoicefield'], django_filters.ModelMultipleChoiceFilter)
+        self.assertEqual(self.filters['modelmultiplechoicefield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['modelmultiplechoicefield'].exclude, False)
+        self.assertEqual(self.filters['modelmultiplechoicefield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['modelmultiplechoicefield__n'].exclude, True)
+
+    def test_multi_value_char_filter(self):
+        self.assertIsInstance(self.filters['multivaluecharfield'], MultiValueCharFilter)
+        self.assertEqual(self.filters['multivaluecharfield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['multivaluecharfield'].exclude, False)
+        self.assertEqual(self.filters['multivaluecharfield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['multivaluecharfield__n'].exclude, True)
+        self.assertEqual(self.filters['multivaluecharfield__ie'].lookup_expr, 'iexact')
+        self.assertEqual(self.filters['multivaluecharfield__ie'].exclude, False)
+        self.assertEqual(self.filters['multivaluecharfield__nie'].lookup_expr, 'iexact')
+        self.assertEqual(self.filters['multivaluecharfield__nie'].exclude, True)
+        self.assertEqual(self.filters['multivaluecharfield__ic'].lookup_expr, 'icontains')
+        self.assertEqual(self.filters['multivaluecharfield__ic'].exclude, False)
+        self.assertEqual(self.filters['multivaluecharfield__nic'].lookup_expr, 'icontains')
+        self.assertEqual(self.filters['multivaluecharfield__nic'].exclude, True)
+        self.assertEqual(self.filters['multivaluecharfield__isw'].lookup_expr, 'istartswith')
+        self.assertEqual(self.filters['multivaluecharfield__isw'].exclude, False)
+        self.assertEqual(self.filters['multivaluecharfield__nisw'].lookup_expr, 'istartswith')
+        self.assertEqual(self.filters['multivaluecharfield__nisw'].exclude, True)
+        self.assertEqual(self.filters['multivaluecharfield__iew'].lookup_expr, 'iendswith')
+        self.assertEqual(self.filters['multivaluecharfield__iew'].exclude, False)
+        self.assertEqual(self.filters['multivaluecharfield__niew'].lookup_expr, 'iendswith')
+        self.assertEqual(self.filters['multivaluecharfield__niew'].exclude, True)
+
+    def test_multi_value_date_filter(self):
+        self.assertIsInstance(self.filters['datefield'], MultiValueDateFilter)
+        self.assertEqual(self.filters['datefield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['datefield'].exclude, False)
+        self.assertEqual(self.filters['datefield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['datefield__n'].exclude, True)
+        self.assertEqual(self.filters['datefield__lt'].lookup_expr, 'lt')
+        self.assertEqual(self.filters['datefield__lt'].exclude, False)
+        self.assertEqual(self.filters['datefield__lte'].lookup_expr, 'lte')
+        self.assertEqual(self.filters['datefield__lte'].exclude, False)
+        self.assertEqual(self.filters['datefield__gt'].lookup_expr, 'gt')
+        self.assertEqual(self.filters['datefield__gt'].exclude, False)
+        self.assertEqual(self.filters['datefield__gte'].lookup_expr, 'gte')
+        self.assertEqual(self.filters['datefield__gte'].exclude, False)
+
+    def test_multi_value_datetime_filter(self):
+        self.assertIsInstance(self.filters['datetimefield'], MultiValueDateTimeFilter)
+        self.assertEqual(self.filters['datetimefield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['datetimefield'].exclude, False)
+        self.assertEqual(self.filters['datetimefield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['datetimefield__n'].exclude, True)
+        self.assertEqual(self.filters['datetimefield__lt'].lookup_expr, 'lt')
+        self.assertEqual(self.filters['datetimefield__lt'].exclude, False)
+        self.assertEqual(self.filters['datetimefield__lte'].lookup_expr, 'lte')
+        self.assertEqual(self.filters['datetimefield__lte'].exclude, False)
+        self.assertEqual(self.filters['datetimefield__gt'].lookup_expr, 'gt')
+        self.assertEqual(self.filters['datetimefield__gt'].exclude, False)
+        self.assertEqual(self.filters['datetimefield__gte'].lookup_expr, 'gte')
+        self.assertEqual(self.filters['datetimefield__gte'].exclude, False)
+
+    def test_multi_value_number_filter(self):
+        self.assertIsInstance(self.filters['integerfield'], MultiValueNumberFilter)
+        self.assertEqual(self.filters['integerfield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['integerfield'].exclude, False)
+        self.assertEqual(self.filters['integerfield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['integerfield__n'].exclude, True)
+        self.assertEqual(self.filters['integerfield__lt'].lookup_expr, 'lt')
+        self.assertEqual(self.filters['integerfield__lt'].exclude, False)
+        self.assertEqual(self.filters['integerfield__lte'].lookup_expr, 'lte')
+        self.assertEqual(self.filters['integerfield__lte'].exclude, False)
+        self.assertEqual(self.filters['integerfield__gt'].lookup_expr, 'gt')
+        self.assertEqual(self.filters['integerfield__gt'].exclude, False)
+        self.assertEqual(self.filters['integerfield__gte'].lookup_expr, 'gte')
+        self.assertEqual(self.filters['integerfield__gte'].exclude, False)
+
+    def test_multi_value_time_filter(self):
+        self.assertIsInstance(self.filters['timefield'], MultiValueTimeFilter)
+        self.assertEqual(self.filters['timefield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['timefield'].exclude, False)
+        self.assertEqual(self.filters['timefield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['timefield__n'].exclude, True)
+        self.assertEqual(self.filters['timefield__lt'].lookup_expr, 'lt')
+        self.assertEqual(self.filters['timefield__lt'].exclude, False)
+        self.assertEqual(self.filters['timefield__lte'].lookup_expr, 'lte')
+        self.assertEqual(self.filters['timefield__lte'].exclude, False)
+        self.assertEqual(self.filters['timefield__gt'].lookup_expr, 'gt')
+        self.assertEqual(self.filters['timefield__gt'].exclude, False)
+        self.assertEqual(self.filters['timefield__gte'].lookup_expr, 'gte')
+        self.assertEqual(self.filters['timefield__gte'].exclude, False)
+
+    def test_multiple_choice_filter(self):
+        self.assertIsInstance(self.filters['multiplechoicefield'], django_filters.MultipleChoiceFilter)
+        self.assertEqual(self.filters['multiplechoicefield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['multiplechoicefield'].exclude, False)
+        self.assertEqual(self.filters['multiplechoicefield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['multiplechoicefield__n'].exclude, True)
+        self.assertEqual(self.filters['multiplechoicefield__ie'].lookup_expr, 'iexact')
+        self.assertEqual(self.filters['multiplechoicefield__ie'].exclude, False)
+        self.assertEqual(self.filters['multiplechoicefield__nie'].lookup_expr, 'iexact')
+        self.assertEqual(self.filters['multiplechoicefield__nie'].exclude, True)
+        self.assertEqual(self.filters['multiplechoicefield__ic'].lookup_expr, 'icontains')
+        self.assertEqual(self.filters['multiplechoicefield__ic'].exclude, False)
+        self.assertEqual(self.filters['multiplechoicefield__nic'].lookup_expr, 'icontains')
+        self.assertEqual(self.filters['multiplechoicefield__nic'].exclude, True)
+        self.assertEqual(self.filters['multiplechoicefield__isw'].lookup_expr, 'istartswith')
+        self.assertEqual(self.filters['multiplechoicefield__isw'].exclude, False)
+        self.assertEqual(self.filters['multiplechoicefield__nisw'].lookup_expr, 'istartswith')
+        self.assertEqual(self.filters['multiplechoicefield__nisw'].exclude, True)
+        self.assertEqual(self.filters['multiplechoicefield__iew'].lookup_expr, 'iendswith')
+        self.assertEqual(self.filters['multiplechoicefield__iew'].exclude, False)
+        self.assertEqual(self.filters['multiplechoicefield__niew'].lookup_expr, 'iendswith')
+        self.assertEqual(self.filters['multiplechoicefield__niew'].exclude, True)
+
+    def test_tag_filter(self):
+        self.assertIsInstance(self.filters['tagfield'], TagFilter)
+        self.assertEqual(self.filters['tagfield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['tagfield'].exclude, False)
+        self.assertEqual(self.filters['tagfield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['tagfield__n'].exclude, True)
+
+    def test_tree_node_multiple_choice_filter(self):
+        self.assertIsInstance(self.filters['treeforeignkeyfield'], TreeNodeMultipleChoiceFilter)
+        # TODO: lookup_expr different for negation?
+        self.assertEqual(self.filters['treeforeignkeyfield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['treeforeignkeyfield'].exclude, False)
+        self.assertEqual(self.filters['treeforeignkeyfield__n'].lookup_expr, 'in')
+        self.assertEqual(self.filters['treeforeignkeyfield__n'].exclude, True)
+
+
 class DynamicFilterLookupExpressionTest(TestCase):
     """
-    These tests ensure of the utilities.filters.BaseFilterSet.get_filters() method
-    correctly generates dynamic filter expressions
+    Validate function of automatically generated filters using the Device model as an example.
     """
     device_queryset = Device.objects.all()
     device_filterset = DeviceFilterSet
