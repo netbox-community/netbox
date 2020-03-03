@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -29,10 +30,17 @@ class CustomFieldDefaultValues:
         value = {}
         for field in fields:
             if field.default:
-                if field.type == CustomFieldTypeChoices.TYPE_SELECT:
-                    field_value = field.choices.get(value=field.default).pk
+                if field.type == CustomFieldTypeChoices.TYPE_INTEGER:
+                    field_value = int(field.default)
                 elif field.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
-                    field_value = bool(field.default)
+                    # TODO: Fix default value assignment for boolean custom fields
+                    field_value = False if field.default.lower() == 'false' else bool(field.default)
+                elif field.type == CustomFieldTypeChoices.TYPE_SELECT:
+                    try:
+                        field_value = field.choices.get(value=field.default).pk
+                    except ObjectDoesNotExist:
+                        # Invalid default value
+                        field_value = None
                 else:
                     field_value = field.default
                 value[field.name] = field_value
