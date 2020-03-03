@@ -25,7 +25,7 @@ from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
 from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField
-from utilities.utils import csv_format, prepare_cloned_fields, querydict_to_dict
+from utilities.utils import csv_format, prepare_cloned_fields
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm, ImportForm
 from .paginator import EnhancedPaginator
@@ -626,12 +626,13 @@ class BulkEditView(GetReturnURLMixin, View):
 
         model = self.queryset.model
 
-        # Create a mutable copy of the POST data
-        post_data = request.POST.copy()
-
         # If we are editing *all* objects in the queryset, replace the PK list with all matched objects.
-        if post_data.get('_all') and self.filterset is not None:
-            post_data['pk'] = [obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs]
+        if request.POST.get('_all') and self.filterset is not None:
+            pk_list = [
+                obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs
+            ]
+        else:
+            pk_list = request.POST.getlist('pk')
 
         if '_apply' in request.POST:
             form = self.form(model, request.POST)
@@ -715,12 +716,19 @@ class BulkEditView(GetReturnURLMixin, View):
                     messages.error(self.request, "{} failed validation: {}".format(obj, e))
 
         else:
-            # Pass the PK list as initial data to avoid binding the form
-            initial_data = querydict_to_dict(post_data)
+            # Include the PK list as initial data for the form
+            initial_data = {'pk': pk_list}
+
+            # Check for other contextual data needed for the form. We avoid passing all of request.GET because the
+            # filter values will conflict with the bulk edit form fields.
+            # TODO: Find a better way to accomplish this
+            if 'device' in request.GET:
+                initial_data['device'] = request.GET.get('device')
+
             form = self.form(model, initial=initial_data)
 
         # Retrieve objects being edited
-        table = self.table(self.queryset.filter(pk__in=post_data.getlist('pk')), orderable=False)
+        table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
             messages.warning(request, "No {} were selected.".format(model._meta.verbose_name_plural))
             return redirect(self.get_return_url(request))

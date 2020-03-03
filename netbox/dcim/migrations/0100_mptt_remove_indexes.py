@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0098_devicetype_images'),
+        ('dcim', '0099_powerfeed_negative_voltage'),
     ]
 
     operations = [

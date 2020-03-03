@@ -1,11 +1,55 @@
-# v2.7.8 (FUTURE)
+# v2.7.9 (FUTURE)
+
+**Note:** This release will deploy a Python virtual environment on upgrade in the `venv/` directory. This will require modifying the paths to your Python and gunicorn executables in the systemd service files. For more detail, please see the [upgrade instructions](https://netbox.readthedocs.io/en/stable/installation/upgrading/).
+
+## Enhancements
+
+* [#3949](https://github.com/netbox-community/netbox/issues/3949) - Revised the installation docs and upgrade script to employ a Python virtual environment
+* [#4218](https://github.com/netbox-community/netbox/issues/4218) - Allow negative voltage for DC power feeds
+* [#4281](https://github.com/netbox-community/netbox/issues/4281) - Allow filtering device component list views by type
+* [#4284](https://github.com/netbox-community/netbox/issues/4284) - Add MRJ21 port and cable types
+* [#4290](https://github.com/netbox-community/netbox/issues/4290) - Include device name in tooltip on rack elevations
+* [#4305](https://github.com/netbox-community/netbox/issues/4305) - Add 10-inch option for rack width
 
 ## Bug Fixes
 
-* [#4224](https://github.com/netbox-community/netbox/issues/4224) - Fix display of rear device image if front image is not defined 
+* [#4274](https://github.com/netbox-community/netbox/issues/4274) - Fix incorrect schema definition of `int` type choicefields
+* [#4277](https://github.com/netbox-community/netbox/issues/4277) - Fix filtering of clusters by tenant
+* [#4282](https://github.com/netbox-community/netbox/issues/4282) - Fix label on export button for device types
+* [#4285](https://github.com/netbox-community/netbox/issues/4285) - Include A/Z termination sites in provider circuits table
+* [#4295](https://github.com/netbox-community/netbox/issues/4295) - Fix assignment of parent LAG during interface bulk edit
+* [#4300](https://github.com/netbox-community/netbox/issues/4300) - Pass "commit" argument when executing scripts via REST API
+* [#4301](https://github.com/netbox-community/netbox/issues/4301) - Fix exception when deleting device type with components
+* [#4306](https://github.com/netbox-community/netbox/issues/4306) - Fix toggling of device images for all racks in elevations view
+
+---
+
+# v2.7.8 (2020-02-25)
+
+## Enhancements
+
+* [#3145](https://github.com/netbox-community/netbox/issues/3145) - Add a "decommissioning" cable status
+* [#4173](https://github.com/netbox-community/netbox/issues/4173) - Return graceful error message when webhook queuing fails
+* [#4227](https://github.com/netbox-community/netbox/issues/4227) - Omit internal fields from the change log data
+* [#4237](https://github.com/netbox-community/netbox/issues/4237) - Support Jinja2 templating for webhook payload and headers
+* [#4262](https://github.com/netbox-community/netbox/issues/4262) - Extend custom scripts to pass the `commit` value via `run()`
+* [#4267](https://github.com/netbox-community/netbox/issues/4267) - Denote rack role on rack elevations list
+
+## Bug Fixes
+
+* [#4221](https://github.com/netbox-community/netbox/issues/4221) - Fix exception when deleting a device with interface connections when an interfaces webhook is defined
+* [#4222](https://github.com/netbox-community/netbox/issues/4222) - Escape double quotes on encapsulated values during CSV export
+* [#4224](https://github.com/netbox-community/netbox/issues/4224) - Fix display of rear device image if front image is not defined
 * [#4228](https://github.com/netbox-community/netbox/issues/4228) - Improve fit of device images in rack elevations
+* [#4230](https://github.com/netbox-community/netbox/issues/4230) - Fix rack units filtering on elevation endpoint
 * [#4232](https://github.com/netbox-community/netbox/issues/4232) - Enforce consistent background striping in rack elevations
 * [#4235](https://github.com/netbox-community/netbox/issues/4235) - Fix API representation of `content_type` for export templates
+* [#4239](https://github.com/netbox-community/netbox/issues/4239) - Fix exception when selecting all filtered objects during bulk edit
+* [#4240](https://github.com/netbox-community/netbox/issues/4240) - Fix exception when filtering foreign keys by NULL
+* [#4241](https://github.com/netbox-community/netbox/issues/4241) - Correct IP address hyperlinks on interface view
+* [#4246](https://github.com/netbox-community/netbox/issues/4246) - Fix duplication of field attributes when multiple IPNetworkVars are present in a script
+* [#4252](https://github.com/netbox-community/netbox/issues/4252) - Fix power port assignment for power outlet templates created via REST API
+* [#4272](https://github.com/netbox-community/netbox/issues/4272) - Interface type should be required by API serializer
 
 ---
 
@@ -16,7 +60,7 @@ NetBox, run the following management command to recalculate their naturalized va
 
 ```
 python3 manage.py renaturalize dcim.Interface
-``` 
+```
 
 ## Enhancements
 

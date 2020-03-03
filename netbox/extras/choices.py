@@ -124,17 +124,18 @@ class TemplateLanguageChoices(ChoiceSet):
 # Webhooks
 #
 
-class WebhookContentTypeChoices(ChoiceSet):
+class WebhookHttpMethodChoices(ChoiceSet):
 
-    CONTENTTYPE_JSON = 'application/json'
-    CONTENTTYPE_FORMDATA = 'application/x-www-form-urlencoded'
+    METHOD_GET = 'GET'
+    METHOD_POST = 'POST'
+    METHOD_PUT = 'PUT'
+    METHOD_PATCH = 'PATCH'
+    METHOD_DELETE = 'DELETE'
 
     CHOICES = (
-        (CONTENTTYPE_JSON, 'JSON'),
-        (CONTENTTYPE_FORMDATA, 'Form data'),
+        (METHOD_GET, 'GET'),
+        (METHOD_POST, 'POST'),
+        (METHOD_PUT, 'PUT'),
+        (METHOD_PATCH, 'PATCH'),
+        (METHOD_DELETE, 'DELETE'),
     )
-
-    LEGACY_MAP = {
-        CONTENTTYPE_JSON: 1,
-        CONTENTTYPE_FORMDATA: 2,
-    }

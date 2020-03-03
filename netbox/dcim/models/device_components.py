@@ -360,9 +360,21 @@ class PowerPort(CableTermination, ComponentModel):
 
     @property
     def connected_endpoint(self):
-        if self._connected_poweroutlet:
-            return self._connected_poweroutlet
-        return self._connected_powerfeed
+        """
+        Return the connected PowerOutlet, if it exists, or the connected PowerFeed, if it exists. We have to check for
+        ObjectDoesNotExist in case the referenced object has been deleted from the database.
+        """
+        try:
+            if self._connected_poweroutlet:
+                return self._connected_poweroutlet
+        except ObjectDoesNotExist:
+            pass
+        try:
+            if self._connected_powerfeed:
+                return self._connected_powerfeed
+        except ObjectDoesNotExist:
+            pass
+        return None
 
     @connected_endpoint.setter
     def connected_endpoint(self, value):
@@ -717,9 +729,21 @@ class Interface(CableTermination, ComponentModel):
 
     @property
     def connected_endpoint(self):
-        if self._connected_interface:
-            return self._connected_interface
-        return self._connected_circuittermination
+        """
+        Return the connected Interface, if it exists, or the connected CircuitTermination, if it exists. We have to
+        check for ObjectDoesNotExist in case the referenced object has been deleted from the database.
+        """
+        try:
+            if self._connected_interface:
+                return self._connected_interface
+        except ObjectDoesNotExist:
+            pass
+        try:
+            if self._connected_circuittermination:
+                return self._connected_circuittermination
+        except ObjectDoesNotExist:
+            pass
+        return None
 
     @connected_endpoint.setter
     def connected_endpoint(self, value):

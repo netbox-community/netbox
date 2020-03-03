@@ -61,13 +61,10 @@ POWERFEED_MAX_UTILIZATION_DEFAULT = 80  # Percentage
 # Cabling and connections
 #
 
-# TODO: Replace with CableStatusChoices?
 # Console/power/interface connection statuses
-CONNECTION_STATUS_PLANNED = False
-CONNECTION_STATUS_CONNECTED = True
 CONNECTION_STATUS_CHOICES = [
-    [CONNECTION_STATUS_PLANNED, 'Planned'],
-    [CONNECTION_STATUS_CONNECTED, 'Connected'],
+    [False, 'Not Connected'],
+    [True, 'Connected'],
 ]
 
 # Cable endpoint types

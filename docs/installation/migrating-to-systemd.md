@@ -1,16 +1,17 @@
-# Migration
-
-Migration is not required, as supervisord will still continue to function.
+This document contains instructions for migrating from a legacy NetBox deployment using [supervisor](http://supervisord.org/) to a systemd-based approach.
 
 ## Ubuntu
 
-### Remove supervisord:
+### Uninstall supervisord:
 
 ```no-highlight
 # apt-get remove -y supervisord
 ```
 
-### systemd configuration:
+### Configure systemd:
+
+!!! note
+    These instructions assume the presence of a Python virtual environment at `/opt/netbox/venv`. If you have not created this environment, please refer to the [installation instructions](3-netbox.md#set-up-python-environment) for direction.
 
 We'll use systemd to control the daemonization of NetBox services. First, copy `contrib/netbox.service` and `contrib/netbox-rq.service` to the `/etc/systemd/system/` directory:
 
@@ -19,19 +20,14 @@ We'll use systemd to control the daemonization of NetBox services. First, copy `
 ```
 
 !!! note
-    These service files assume that gunicorn is installed at `/usr/local/bin/gunicorn`. If the output of `which gunicorn` indicates a different path, you'll need to correct the `ExecStart` path in both files.
-
-!!! note
-    You may need to modify the user that the systemd service runs as.  Please verify the user for httpd on your specific release and edit both files to match your httpd service under user and group.  The username could be "nobody", "nginx", "apache", "www-data" or any number of other usernames.
+    You may need to modify the user that the systemd service runs as.  Please verify the user for httpd on your specific release and edit both files to match your httpd service under user and group.  The username could be "nobody", "nginx", "apache", "www-data", or something else.
 
 Then, start the `netbox` and `netbox-rq` services and enable them to initiate at boot time:
 
 ```no-highlight
 # systemctl daemon-reload
-# systemctl start netbox.service
-# systemctl start netbox-rq.service
-# systemctl enable netbox.service
-# systemctl enable netbox-rq.service
+# systemctl start netbox netbox-rq
+# systemctl enable netbox netbox-rq
 ```
 
 You can use the command `systemctl status netbox` to verify that the WSGI service is running:
@@ -51,7 +47,7 @@ You can use the command `systemctl status netbox` to verify that the WSGI servic
 ...
 ```
 
-At this point, you should be able to connect to the HTTP service at the server name or IP address you provided. If you are unable to connect, check that the nginx service is running and properly configured. If you receive a 502 (bad gateway) error, this indicates that gunicorn is misconfigured or not running.
+At this point, you should be able to connect to the HTTP service at the server name or IP address you provided. If you are unable to connect, check that the nginx service is running and properly configured. If you receive a 502 (bad gateway) error, this indicates that gunicorn is misconfigured or not running. Issue the command `journalctl -xe` to see why the services were unable to start.
 
 !!! info
     Please keep in mind that the configurations provided here are bare minimums required to get NetBox up and running. You may want to make adjustments to better suit your production environment.

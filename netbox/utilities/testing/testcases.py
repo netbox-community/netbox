@@ -172,24 +172,29 @@ class ViewTestCases:
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_create_object(self):
+
+            # Try GET without permission
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.post(self._get_url('add')), 403)
+
+            # Try GET with permission
+            self.add_permissions(
+                '{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
+            response = self.client.get(path=self._get_url('add'))
+            self.assertHttpStatus(response, 200)
+
+            # Try POST with permission
             initial_count = self.model.objects.count()
             request = {
                 'path': self._get_url('add'),
                 'data': post_data(self.form_data),
                 'follow': False,  # Do not follow 302 redirects
             }
-
-            # Attempt to make the request without required permissions
-            with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(**request), 403)
-
-            # Assign the required permission and submit again
-            self.add_permissions(
-                '{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
-            )
             response = self.client.post(**request)
             self.assertHttpStatus(response, 302)
 
+            # Validate object creation
             self.assertEqual(initial_count + 1, self.model.objects.count())
             instance = self.model.objects.order_by('-pk').first()
             self.assertInstanceEqual(instance, self.form_data)
@@ -204,23 +209,27 @@ class ViewTestCases:
         def test_edit_object(self):
             instance = self.model.objects.first()
 
+            # Try GET without permission
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.post(self._get_url('edit', instance)), 403)
+
+            # Try GET with permission
+            self.add_permissions(
+                '{}.change_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
+            response = self.client.get(path=self._get_url('edit', instance))
+            self.assertHttpStatus(response, 200)
+
+            # Try POST with permission
             request = {
                 'path': self._get_url('edit', instance),
                 'data': post_data(self.form_data),
                 'follow': False,  # Do not follow 302 redirects
             }
-
-            # Attempt to make the request without required permissions
-            with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(**request), 403)
-
-            # Assign the required permission and submit again
-            self.add_permissions(
-                '{}.change_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
-            )
             response = self.client.post(**request)
             self.assertHttpStatus(response, 302)
 
+            # Validate object modifications
             instance = self.model.objects.get(pk=instance.pk)
             self.assertInstanceEqual(instance, self.form_data)
 
@@ -232,23 +241,26 @@ class ViewTestCases:
         def test_delete_object(self):
             instance = self.model.objects.first()
 
+            # Try GET without permissions
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.post(self._get_url('delete', instance)), 403)
+
+            # Try GET with permission
+            self.add_permissions(
+                '{}.delete_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
+            response = self.client.get(path=self._get_url('delete', instance))
+            self.assertHttpStatus(response, 200)
+
             request = {
                 'path': self._get_url('delete', instance),
                 'data': {'confirm': True},
                 'follow': False,  # Do not follow 302 redirects
             }
-
-            # Attempt to make the request without required permissions
-            with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(**request), 403)
-
-            # Assign the required permission and submit again
-            self.add_permissions(
-                '{}.delete_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
-            )
             response = self.client.post(**request)
             self.assertHttpStatus(response, 302)
 
+            # Validate object deletion
             with self.assertRaises(ObjectDoesNotExist):
                 self.model.objects.get(pk=instance.pk)
 
@@ -314,6 +326,20 @@ class ViewTestCases:
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_import_objects(self):
+
+            # Test GET without permission
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.get(self._get_url('import')), 403)
+
+            # Test GET with permission
+            self.add_permissions(
+                '{}.view_{}'.format(self.model._meta.app_label, self.model._meta.model_name),
+                '{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            )
+            response = self.client.get(self._get_url('import'))
+            self.assertHttpStatus(response, 200)
+
+            # Test POST with permission
             initial_count = self.model.objects.count()
             request = {
                 'path': self._get_url('import'),
@@ -321,19 +347,10 @@ class ViewTestCases:
                     'csv': '\n'.join(self.csv_data)
                 }
             }
-
-            # Attempt to make the request without required permissions
-            with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(**request), 403)
-
-            # Assign the required permission and submit again
-            self.add_permissions(
-                '{}.view_{}'.format(self.model._meta.app_label, self.model._meta.model_name),
-                '{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
-            )
             response = self.client.post(**request)
             self.assertHttpStatus(response, 200)
 
+            # Validate import of new objects
             self.assertEqual(self.model.objects.count(), initial_count + len(self.csv_data) - 1)
 
     class BulkEditObjectsViewTestCase(ModelViewTestCase):

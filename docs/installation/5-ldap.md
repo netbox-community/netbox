@@ -1,8 +1,8 @@
 This guide explains how to implement LDAP authentication using an external server. User authentication will fall back to built-in Django users in the event of a failure.
 
-# Requirements
+## Install Requirements
 
-## Install openldap-devel
+#### Install openldap-devel
 
 On Ubuntu:
 
@@ -16,17 +16,17 @@ On CentOS:
 sudo yum install -y openldap-devel
 ```
 
-## Install django-auth-ldap
+#### Install django-auth-ldap
 
 ```no-highlight
 pip3 install django-auth-ldap
 ```
 
-# Configuration
+## Configuration
 
 Create a file in the same directory as `configuration.py` (typically `netbox/netbox/`) named `ldap_config.py`. Define all of the parameters required below in `ldap_config.py`. Complete documentation of all `django-auth-ldap` configuration options is included in the project's [official documentation](http://django-auth-ldap.readthedocs.io/).
 
-## General Server Configuration
+### General Server Configuration
 
 !!! info
     When using Windows Server 2012 you may need to specify a port on `AUTH_LDAP_SERVER_URI`. Use `3269` for secure, or `3268` for non-secure.
@@ -54,7 +54,7 @@ LDAP_IGNORE_CERT_ERRORS = True
 
 STARTTLS can be configured by setting `AUTH_LDAP_START_TLS = True` and using the `ldap://` URI scheme.
 
-## User Authentication
+### User Authentication
 
 !!! info
     When using Windows Server 2012, `AUTH_LDAP_USER_DN_TEMPLATE` should be set to None.
@@ -79,7 +79,7 @@ AUTH_LDAP_USER_ATTR_MAP = {
 }
 ```
 
-# User Groups for Permissions
+## User Groups for Permissions
 
 !!! info
     When using Microsoft Active Directory, support for nested groups can be activated by using `NestedGroupOfNamesType()` instead of `GroupOfNamesType()` for `AUTH_LDAP_GROUP_TYPE`. You will also need to modify the import line to use `NestedGroupOfNamesType` instead of `GroupOfNamesType` .
@@ -121,7 +121,7 @@ AUTH_LDAP_CACHE_TIMEOUT = 3600
 !!! warning
     Authentication will fail if the groups (the distinguished names) do not exist in the LDAP directory.
 
-# Troubleshooting LDAP
+## Troubleshooting LDAP
 
 `supervisorctl restart netbox` restarts the Netbox service, and initiates any changes made to `ldap_config.py`. If there are syntax errors present, the NetBox process will not spawn an instance, and errors should be logged to `/var/log/supervisor/`.
 
