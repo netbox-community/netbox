@@ -67,7 +67,6 @@ class VirtualMachineSerializer(TaggitSerializer, CustomFieldModelSerializer):
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
-    local_context_data = serializers.SerializerMethodField()
 
     class Meta:
         model = VirtualMachine
@@ -77,12 +76,6 @@ class VirtualMachineSerializer(TaggitSerializer, CustomFieldModelSerializer):
             'created', 'last_updated',
         ]
         validators = []
-
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
-    def get_local_context_data(self, obj):
-        """Used to strongly type the local_context_data field for Swagger generation
-        """
-        return obj.local_context_data
 
 
 class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):

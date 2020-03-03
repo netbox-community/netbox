@@ -376,7 +376,6 @@ class DeviceSerializer(TaggitSerializer, CustomFieldModelSerializer):
     cluster = NestedClusterSerializer(required=False, allow_null=True)
     virtual_chassis = NestedVirtualChassisSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
-    local_context_data = serializers.SerializerMethodField()
 
     class Meta:
         model = Device
@@ -411,12 +410,6 @@ class DeviceSerializer(TaggitSerializer, CustomFieldModelSerializer):
         data = NestedDeviceSerializer(instance=device_bay.device, context=context).data
         data['device_bay'] = NestedDeviceBaySerializer(instance=device_bay, context=context).data
         return data
-
-    @swagger_serializer_method(serializer_or_field=serializers.DictField)
-    def get_local_context_data(self, obj):
-        """Used to strongly type the local_context_data field for Swagger generation
-        """
-        return obj.local_context_data
 
 
 class DeviceWithConfigContextSerializer(DeviceSerializer):
