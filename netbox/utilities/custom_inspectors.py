@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import JSONField
 from drf_yasg import openapi
 from drf_yasg.inspectors import FieldInspector, NotHandled, PaginatorInspector, FilterInspector, SwaggerAutoSchema
 from drf_yasg.utils import get_serializer_ref_name
@@ -116,6 +117,15 @@ class NullableBooleanFieldInspector(FieldInspector):
                 result['x-nullable'] = True
                 result.type = 'boolean'
 
+        return result
+
+
+class JSONFieldInspector(FieldInspector):
+    """Required because by default, Swagger sees a JSONField as a string and not dict
+    """
+    def process_result(self, result, method_name, obj, **kwargs):
+        if isinstance(result, openapi.Schema) and isinstance(obj, JSONField):
+            result.type = 'dict'
         return result
 
 
