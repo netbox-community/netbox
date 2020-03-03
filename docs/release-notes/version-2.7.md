@@ -7,6 +7,7 @@
 * [#3949](https://github.com/netbox-community/netbox/issues/3949) - Revised the installation docs and upgrade script to employ a Python virtual environment
 * [#4281](https://github.com/netbox-community/netbox/issues/4281) - Allow filtering device component list views by type
 * [#4284](https://github.com/netbox-community/netbox/issues/4284) - Add MRJ21 port and cable types
+* [#4290](https://github.com/netbox-community/netbox/issues/4290) - Include device name in tooltip on rack elevations
 * [#4305](https://github.com/netbox-community/netbox/issues/4305) - Add 10-inch option for rack width
 
 ## Bug Fixes
