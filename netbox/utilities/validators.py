@@ -1,6 +1,6 @@
 import re
 
-from django.core.validators import _lazy_re_compile, URLValidator
+from django.core.validators import _lazy_re_compile, BaseValidator, URLValidator
 
 
 class EnhancedURLValidator(URLValidator):
@@ -26,3 +26,13 @@ class EnhancedURLValidator(URLValidator):
         r'(?:[/?#][^\s]*)?'                 # Path
         r'\Z', re.IGNORECASE)
     schemes = AnyURLScheme()
+
+
+class ExclusionValidator(BaseValidator):
+    """
+    Ensure that a field's value is not equal to any of the specified values.
+    """
+    message = 'This value may not be %(show_value)s.'
+
+    def compare(self, a, b):
+        return a in b
