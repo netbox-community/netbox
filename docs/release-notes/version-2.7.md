@@ -16,6 +16,7 @@
 * [#4295](https://github.com/netbox-community/netbox/issues/4295) - Fix assignment of parent LAG during interface bulk edit
 * [#4300](https://github.com/netbox-community/netbox/issues/4300) - Pass "commit" argument when executing scripts via REST API
 * [#4301](https://github.com/netbox-community/netbox/issues/4301) - Fix exception when deleting device type with components
+* [#4306](https://github.com/netbox-community/netbox/issues/4306) - Fix toggling of device images for all racks in elevations view
 
 ---
 
