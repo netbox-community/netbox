@@ -55,10 +55,12 @@ class RackTypeChoices(ChoiceSet):
 
 class RackWidthChoices(ChoiceSet):
 
+    WIDTH_10IN = 10
     WIDTH_19IN = 19
     WIDTH_23IN = 23
 
     CHOICES = (
+        (WIDTH_10IN, '10 inches'),
         (WIDTH_19IN, '19 inches'),
         (WIDTH_23IN, '23 inches'),
     )
