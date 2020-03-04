@@ -48,6 +48,11 @@ COMMAND="python3 netbox/manage.py remove_stale_contenttypes --no-input"
 echo "Removing stale content types ($COMMAND)..."
 eval $COMMAND
 
+# Delete any expired user sessions
+COMMAND="python3 netbox/manage.py clearsessions"
+echo "Removing expired user sessions ($COMMAND)..."
+eval $COMMAND
+
 # Clear all cached data
 COMMAND="python3 netbox/manage.py invalidate all"
 echo "Clearing cache data ($COMMAND)..."

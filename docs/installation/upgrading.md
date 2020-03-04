@@ -74,6 +74,9 @@ This script:
 * Installs all required Python packages
 * Applies any database migrations that were included in the release
 * Collects all static files to be served by the HTTP service
+* Deletes stale content types from the database
+* Deletes all expired user sessions from the database
+* Clears all cached data to prevent conflicts with the new release
 
 !!! note
     It's possible that the upgrade script will display a notice warning of unreflected database migrations:
