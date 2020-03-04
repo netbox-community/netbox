@@ -343,6 +343,26 @@ class ModelViewSet(_ModelViewSet):
         """
         return super().retrieve(*args, **kwargs)
 
+    #
+    # Logging
+    #
+
+    def perform_create(self, serializer):
+        model = serializer.child.Meta.model if hasattr(serializer, 'many') else serializer.Meta.model
+        logger = logging.getLogger('netbox.api.views.ModelViewSet')
+        logger.info(f"Creating new {model._meta.verbose_name}")
+        return super().perform_create(serializer)
+
+    def perform_update(self, serializer):
+        logger = logging.getLogger('netbox.api.views.ModelViewSet')
+        logger.info(f"Updating {serializer.instance} (PK: {serializer.instance.pk})")
+        return super().perform_update(serializer)
+
+    def perform_destroy(self, instance):
+        logger = logging.getLogger('netbox.api.views.ModelViewSet')
+        logger.info(f"Deleting {instance} (PK: {instance.pk})")
+        return super().perform_destroy(instance)
+
 
 class FieldChoicesViewSet(ViewSet):
     """
