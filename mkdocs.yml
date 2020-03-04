@@ -2,7 +2,7 @@ site_name: NetBox
 theme: readthedocs
 repo_url: https://github.com/netbox-community/netbox
 
-pages:
+nav:
     - Introduction: 'index.md'
     - Installation:
         - Installing NetBox: 'installation/index.md'
@@ -58,6 +58,7 @@ pages:
         - Release Checklist: 'development/release-checklist.md'
         - Squashing Migrations: 'development/squashing-migrations.md'
     - Release Notes:
+        - Version 2.8: 'release-notes/version-2.8.md'
         - Version 2.7: 'release-notes/version-2.7.md'
         - Version 2.6: 'release-notes/version-2.6.md'
         - Version 2.5: 'release-notes/version-2.5.md'

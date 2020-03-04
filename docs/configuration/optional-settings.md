@@ -183,6 +183,14 @@ LOGGING = {
 }
 ```
 
+### Available Loggers
+
+* `netbox.auth.*` - Authentication events
+* `netbox.api.views.*` - Views which handle business logic for the REST API
+* `netbox.reports.*` - Report execution (`module.name`)
+* `netbox.scripts.*` - Custom script execution (`module.name`)
+* `netbox.views.*` - Views which handle business logic for the web UI
+
 ---
 
 ## LOGIN_REQUIRED
