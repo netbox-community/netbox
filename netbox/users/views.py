@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
@@ -24,6 +26,9 @@ from .models import Token
 #
 
 class LoginView(View):
+    """
+    Perform user authentication via the web UI.
+    """
     template_name = 'login.html'
 
     @method_decorator(sensitive_post_parameters('password'))
@@ -38,24 +43,34 @@ class LoginView(View):
         })
 
     def post(self, request):
+        logger = logging.getLogger('netbox.auth.login')
         form = LoginForm(request, data=request.POST)
+
         if form.is_valid():
+            logger.debug("Login form validation was successful")
 
             # Determine where to direct user after successful login
-            redirect_to = request.POST.get('next', '')
-            if not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
+            redirect_to = request.POST.get('next')
+            if redirect_to and not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
+                logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {redirect_to}")
                 redirect_to = reverse('home')
 
             # If maintenance mode is enabled, assume the database is read-only, and disable updating the user's
             # last_login time upon authentication.
             if settings.MAINTENANCE_MODE:
+                logger.warning("Maintenance mode enabled: disabling update of most recent login time")
                 user_logged_in.disconnect(update_last_login, dispatch_uid='update_last_login')
 
             # Authenticate user
             auth_login(request, form.get_user())
+            logger.info(f"User {request.user} successfully authenticated")
             messages.info(request, "Logged in as {}.".format(request.user))
 
+            logger.debug(f"Redirecting user to {redirect_to}")
             return HttpResponseRedirect(redirect_to)
+
+        else:
+            logger.debug("Login form validation failed")
 
         return render(request, self.template_name, {
             'form': form,
@@ -63,11 +78,16 @@ class LoginView(View):
 
 
 class LogoutView(View):
-
+    """
+    Deauthenticate a web user.
+    """
     def get(self, request):
+        logger = logging.getLogger('netbox.auth.logout')
 
         # Log out the user
+        username = request.user
         auth_logout(request)
+        logger.info(f"User {username} has logged out")
         messages.info(request, "You have logged out.")
 
         # Delete session key cookie (if set) upon logout
