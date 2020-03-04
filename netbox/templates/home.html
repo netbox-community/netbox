@@ -1,6 +1,19 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
+{% block header %}
+    {{ block.super }}
+    {% if new_release %}
+        <div class="alert alert-info" role="alert">
+            A new release is available:
+            {% if new_release_url %}<a target="_blank" href="{{ new_release_url }}">{% endif %}
+                NetBox v{{ new_release }}
+            {% if latest_version_url %}</a>{% endif %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+
 {% block content %}
 {% include 'search_form.html' %}
 <div class="row">

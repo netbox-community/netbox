@@ -1,8 +1,10 @@
 import logging
 import os
 import platform
+import re
 import socket
 import warnings
+from urllib.parse import urlsplit
 
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
@@ -78,6 +80,8 @@ DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 EMAIL = getattr(configuration, 'EMAIL', {})
 ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
+UPDATE_REPO_URL = getattr(configuration, 'UPDATE_REPO_URL', None)
+UPDATE_CACHE_TIMEOUT = getattr(configuration, 'UPDATE_CACHE_TIMEOUT', 24 * 3600)
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
@@ -301,6 +305,31 @@ TEMPLATES = [
 AUTHENTICATION_BACKENDS = [
     'utilities.auth_backends.ViewExemptModelBackend',
 ]
+
+# GitHub repository for version check
+if UPDATE_REPO_URL:
+    UPDATE_REPO_URL = UPDATE_REPO_URL.rstrip('/')
+    try:
+        scheme, netloc, path, query, fragment = urlsplit(UPDATE_REPO_URL)
+    except ValueError:
+        raise ImproperlyConfigured("UPDATE_REPO_URL must be a valid URL")
+
+    if scheme not in ('http', 'https'):
+        raise ImproperlyConfigured("UPDATE_REPO_URL must be a valid http:// or https:// URL")
+
+    if not re.fullmatch(r'/repos/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', path):
+        raise ImproperlyConfigured(
+            "GITHUB_REPOSITORY must contain the base URL of the GitHub API in a form like "
+            "'https://api.github.com/repos/<owner>/<repository>'"
+        )
+
+    # Don't allow ? (query) and # (fragment) in the URL
+    if query or fragment:
+        raise ImproperlyConfigured("UPDATE_REPO_URL may not contain a ? (query) or # (fragment)")
+
+# Enforce a cache timeout of at least an hour to protect GitHub
+if UPDATE_CACHE_TIMEOUT < 3600:
+    raise ImproperlyConfigured("UPDATE_CACHE_TIMEOUT has to be at least 3600 seconds (1 hour)")
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'

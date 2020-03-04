@@ -1,8 +1,10 @@
 from collections import OrderedDict
 
-from django.db.models import Count, F
+from django.conf import settings
+from django.db.models import Count, F, OuterRef, Subquery
 from django.shortcuts import render
 from django.views.generic import View
+from packaging import version
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
@@ -31,6 +33,7 @@ from secrets.tables import SecretTable
 from tenancy.filters import TenantFilterSet
 from tenancy.models import Tenant
 from tenancy.tables import TenantTable
+from utilities.releases import get_latest_release
 from virtualization.filters import ClusterFilterSet, VirtualMachineFilterSet
 from virtualization.models import Cluster, VirtualMachine
 from virtualization.tables import ClusterTable, VirtualMachineDetailTable
@@ -240,11 +243,25 @@ class HomeView(View):
 
         }
 
+        new_release = None
+        new_release_url = None
+
+        if request.user.is_staff or request.user.is_superuser:
+            # Only check for new releases if the current user might be able to do anything about it
+            latest_release, github_url = get_latest_release()
+            if isinstance(latest_release, version.Version):
+                current_version = version.parse(settings.VERSION)
+                if latest_release > current_version:
+                    new_release = str(latest_release)
+                    new_release_url = github_url
+
         return render(request, self.template_name, {
             'search_form': SearchForm(),
             'stats': stats,
             'report_results': ReportResult.objects.order_by('-created')[:10],
-            'changelog': ObjectChange.objects.prefetch_related('user', 'changed_object_type')[:15]
+            'changelog': ObjectChange.objects.prefetch_related('user', 'changed_object_type')[:15],
+            'new_release': new_release,
+            'new_release_url': new_release_url,
         })
 
 
