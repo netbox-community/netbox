@@ -20,7 +20,8 @@ echo "Creating a new virtual environment at ${VIRTUALENV}..."
 eval $COMMAND || {
   echo "--------------------------------------------------------------------"
   echo "ERROR: Failed to create the virtual environment. Check that you have"
-  echo "the required system packages installed."
+  echo "the required system packages installed and the following path is"
+  echo "writable: ${VIRTUALENV}"
   echo "--------------------------------------------------------------------"
   exit 1
 }
@@ -62,9 +63,13 @@ if [ WARN_MISSING_VENV ]; then
   echo "--------------------------------------------------------------------"
   echo "WARNING: No existing virtual environment was detected. A new one has"
   echo "been created. Update your systemd service files to reflect the new"
-  echo "executables."
-  echo "  Python: ${VIRTUALENV}/bin/python"
-  echo "  gunicorn: ${VIRTUALENV}/bin/gunicorn"
+  echo "Python and gunicorn executables."
+  echo ""
+  echo "netbox.service ExecStart:"
+  echo "  ${VIRTUALENV}/bin/gunicorn"
+  echo ""
+  echo "netbox-rq.service ExecStart:"
+  echo "  ${VIRTUALENV}/bin/python"
   echo "--------------------------------------------------------------------"
 fi
 
