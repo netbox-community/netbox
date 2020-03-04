@@ -6,6 +6,7 @@
 
 * [#3949](https://github.com/netbox-community/netbox/issues/3949) - Revised the installation docs and upgrade script to employ a Python virtual environment
 * [#4119](https://github.com/netbox-community/netbox/issues/4119) - Extend upgrade script to clear expired user sessions
+* [#4121](https://github.com/netbox-community/netbox/issues/4121) - Add dynamic lookup expressions for all filters
 * [#4218](https://github.com/netbox-community/netbox/issues/4218) - Allow negative voltage for DC power feeds
 * [#4281](https://github.com/netbox-community/netbox/issues/4281) - Allow filtering device component list views by type
 * [#4284](https://github.com/netbox-community/netbox/issues/4284) - Add MRJ21 port and cable types
