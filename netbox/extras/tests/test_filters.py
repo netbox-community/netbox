@@ -28,8 +28,8 @@ class GraphTestCase(TestCase):
         Graph.objects.bulk_create(graphs)
 
     def test_name(self):
-        params = {'name': 'Graph 1'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'name': ['Graph 1', 'Graph 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
         content_type = ContentType.objects.filter(GRAPH_MODELS).first()
@@ -59,8 +59,8 @@ class ExportTemplateTestCase(TestCase):
         ExportTemplate.objects.bulk_create(export_templates)
 
     def test_name(self):
-        params = {'name': 'Export Template 1'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'name': ['Export Template 1', 'Export Template 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_content_type(self):
         params = {'content_type': ContentType.objects.get(model='site').pk}
@@ -154,8 +154,8 @@ class ConfigContextTestCase(TestCase):
             c.tenants.set([tenants[i]])
 
     def test_name(self):
-        params = {'name': 'Config Context 1'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'name': ['Config Context 1', 'Config Context 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_is_active(self):
         params = {'is_active': True}

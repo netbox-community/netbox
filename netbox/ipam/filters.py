@@ -8,7 +8,8 @@ from dcim.models import Device, Interface, Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
-    MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
+    BaseFilterSet, MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet,
+    NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import VirtualMachine
 from .choices import *
@@ -28,7 +29,7 @@ __all__ = (
 )
 
 
-class VRFFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class VRFFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -53,7 +54,7 @@ class VRFFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterS
         fields = ['name', 'rd', 'enforce_unique']
 
 
-class RIRFilterSet(NameSlugSearchFilterSet):
+class RIRFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -64,7 +65,7 @@ class RIRFilterSet(NameSlugSearchFilterSet):
         fields = ['name', 'slug', 'is_private']
 
 
-class AggregateFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class AggregateFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -114,7 +115,7 @@ class AggregateFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
             return queryset.none()
 
 
-class RoleFilterSet(NameSlugSearchFilterSet):
+class RoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -125,7 +126,7 @@ class RoleFilterSet(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class PrefixFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -166,12 +167,14 @@ class PrefixFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilt
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -273,7 +276,7 @@ class PrefixFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilt
         return queryset.filter(prefix__net_mask_length=value)
 
 
-class IPAddressFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -397,15 +400,17 @@ class IPAddressFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedF
         return queryset.exclude(interface__isnull=value)
 
 
-class VLANGroupFilterSet(NameSlugSearchFilterSet):
+class VLANGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -425,7 +430,7 @@ class VLANGroupFilterSet(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class VLANFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class VLANFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -436,12 +441,14 @@ class VLANFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilter
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -496,7 +503,7 @@ class VLANFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilter
         return queryset.filter(qs_filter)
 
 
-class ServiceFilterSet(CreatedUpdatedFilterSet):
+class ServiceFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
