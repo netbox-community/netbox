@@ -18,6 +18,7 @@
 * [#4282](https://github.com/netbox-community/netbox/issues/4282) - Fix label on export button for device types
 * [#4285](https://github.com/netbox-community/netbox/issues/4285) - Include A/Z termination sites in provider circuits table
 * [#4295](https://github.com/netbox-community/netbox/issues/4295) - Fix assignment of parent LAG during interface bulk edit
+* [#4298](https://github.com/netbox-community/netbox/issues/4298) - Fix bulk creation of objects with custom fields via REST API
 * [#4300](https://github.com/netbox-community/netbox/issues/4300) - Pass "commit" argument when executing scripts via REST API
 * [#4301](https://github.com/netbox-community/netbox/issues/4301) - Fix exception when deleting device type with components
 * [#4306](https://github.com/netbox-community/netbox/issues/4306) - Fix toggling of device images for all racks in elevations view
