@@ -70,8 +70,11 @@ if [ WARN_MISSING_VENV ]; then
   echo ""
   echo "netbox-rq.service ExecStart:"
   echo "  ${VIRTUALENV}/bin/python"
+  echo ""
+  echo "After modifying these files, reload the systemctl daemon:"
+  echo "  > systemctl daemon-reload"
   echo "--------------------------------------------------------------------"
 fi
 
 echo "Upgrade complete! Don't forget to restart the NetBox services:"
-echo "  sudo systemctl restart netbox netbox-rq"
+echo "  > sudo systemctl restart netbox netbox-rq"
