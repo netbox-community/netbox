@@ -32,6 +32,7 @@ nav:
         - VLANs: 'core-functionality/vlans.md'
         - Sites and Racks: 'core-functionality/sites-and-racks.md'
         - Devices: 'core-functionality/devices.md'
+        - Device Types: 'core-functionality/device-types.md'
         - Virtual Machines: 'core-functionality/virtual-machines.md'
         - Services: 'core-functionality/services.md'
         - Circuits: 'core-functionality/circuits.md'
