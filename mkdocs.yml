@@ -6,7 +6,7 @@ python:
         - requirements: docs/requirements.txt
 theme:
     name: readthedocs
-    navigation_depth: 6
+    navigation_depth: 3
 markdown_extensions:
     - admonition:
     - markdown_include.include:
