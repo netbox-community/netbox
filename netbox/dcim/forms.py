@@ -2344,6 +2344,11 @@ class DeviceBulkAddInterfaceForm(DeviceBulkAddComponentForm):
 
 class ConsolePortFilterForm(DeviceComponentFilterForm):
     model = ConsolePort
+    type = forms.MultipleChoiceField(
+        choices=ConsolePortTypeChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
     tag = TagFilterField(model)
 
 
@@ -2429,6 +2434,11 @@ class ConsolePortCSVForm(forms.ModelForm):
 
 class ConsoleServerPortFilterForm(DeviceComponentFilterForm):
     model = ConsoleServerPort
+    type = forms.MultipleChoiceField(
+        choices=ConsolePortTypeChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
     tag = TagFilterField(model)
 
 
@@ -2528,6 +2538,11 @@ class ConsoleServerPortCSVForm(forms.ModelForm):
 
 class PowerPortFilterForm(DeviceComponentFilterForm):
     model = PowerPort
+    type = forms.MultipleChoiceField(
+        choices=PowerPortTypeChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
     tag = TagFilterField(model)
 
 
@@ -2633,6 +2648,11 @@ class PowerPortCSVForm(forms.ModelForm):
 
 class PowerOutletFilterForm(DeviceComponentFilterForm):
     model = PowerOutlet
+    type = forms.MultipleChoiceField(
+        choices=PowerOutletTypeChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
     tag = TagFilterField(model)
 
 
@@ -2821,6 +2841,11 @@ class PowerOutletBulkDisconnectForm(ConfirmationForm):
 
 class InterfaceFilterForm(DeviceComponentFilterForm):
     model = Interface
+    type = forms.MultipleChoiceField(
+        choices=InterfaceTypeChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
     enabled = forms.NullBooleanField(
         required=False,
         widget=StaticSelect2(
@@ -3190,6 +3215,11 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
 
 class FrontPortFilterForm(DeviceComponentFilterForm):
     model = FrontPort
+    type = forms.MultipleChoiceField(
+        choices=PortTypeChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
     tag = TagFilterField(model)
 
 
@@ -3379,6 +3409,11 @@ class FrontPortBulkDisconnectForm(ConfirmationForm):
 
 class RearPortFilterForm(DeviceComponentFilterForm):
     model = RearPort
+    type = forms.MultipleChoiceField(
+        choices=PortTypeChoices,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
     tag = TagFilterField(model)
 
 

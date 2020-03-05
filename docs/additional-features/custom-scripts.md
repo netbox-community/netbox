@@ -27,11 +27,17 @@ class MyScript(Script):
     var2 = IntegerVar(...)
     var3 = ObjectVar(...)
 
-    def run(self, data):
+    def run(self, data, commit):
         ...
 ```
 
-The `run()` method is passed a single argument: a dictionary containing all of the variable data passed via the web form. Your script can reference this data during execution.
+The `run()` method should accept two arguments:
+
+* `data` - A dictionary containing all of the variable data passed via the web form.
+* `commit` - A boolean indicating whether database changes will be committed.
+
+!!! note
+    The `commit` argument was introduced in NetBox v2.7.8. Backward compatibility is maintained for scripts which accept only the `data` argument, however moving forward scripts should accept both arguments.
 
 Defining variables is optional: You may create a script with only a `run()` method if no user input is needed.
 
@@ -196,7 +202,7 @@ These variables are presented as a web form to be completed by the user. Once su
 ```
 from django.utils.text import slugify
 
-from dcim.constants import *
+from dcim.choices import DeviceStatusChoices, SiteStatusChoices
 from dcim.models import Device, DeviceRole, DeviceType, Site
 from extras.scripts import *
 
@@ -222,13 +228,13 @@ class NewBranchScript(Script):
         )
     )
 
-    def run(self, data):
+    def run(self, data, commit):
 
         # Create the new site
         site = Site(
             name=data['site_name'],
             slug=slugify(data['site_name']),
-            status=SITE_STATUS_PLANNED
+            status=SiteStatusChoices.STATUS_PLANNED
         )
         site.save()
         self.log_success("Created new site: {}".format(site))
@@ -240,7 +246,7 @@ class NewBranchScript(Script):
                 device_type=data['switch_model'],
                 name='{}-switch{}'.format(site.slug, i),
                 site=site,
-                status=DEVICE_STATUS_PLANNED,
+                status=DeviceStatusChoices.STATUS_PLANNED,
                 device_role=switch_role
             )
             switch.save()

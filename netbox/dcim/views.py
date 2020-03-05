@@ -357,7 +357,7 @@ class RackElevationListView(PermissionRequiredMixin, View):
 
     def get(self, request):
 
-        racks = Rack.objects.prefetch_related('site', 'group', 'tenant', 'role', 'devices__device_type')
+        racks = Rack.objects.prefetch_related('role')
         racks = filters.RackFilterSet(request.GET, racks).qs
         total_count = racks.count()
 

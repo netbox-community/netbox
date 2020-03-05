@@ -276,6 +276,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
+        label='VRF',
         widget=APISelect(
             api_url="/api/ipam/vrfs/",
         )

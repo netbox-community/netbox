@@ -1,52 +1,67 @@
 #!/bin/bash
 # This script will prepare NetBox to run after the code has been upgraded to
 # its most recent release.
-#
-# Once the script completes, remember to restart the WSGI service (e.g.
-# gunicorn or uWSGI).
 
 cd "$(dirname "$0")"
+VIRTUALENV="$(pwd -P)/venv"
 
-PYTHON="python3"
-PIP="pip3"
+# Remove the existing virtual environment (if any)
+if [ -d "$VIRTUALENV" ]; then
+  COMMAND="rm -rf ${VIRTUALENV}"
+  echo "Removing old virtual environment..."
+  eval $COMMAND
+else
+  WARN_MISSING_VENV=1
+fi
 
-# Uninstall any Python packages which are no longer needed
-COMMAND="${PIP} uninstall -r old_requirements.txt -y"
-echo "Removing old Python packages ($COMMAND)..."
-eval $COMMAND
-
-# Install any new Python packages
-COMMAND="${PIP} install -r requirements.txt --upgrade"
-echo "Updating required Python packages ($COMMAND)..."
-eval $COMMAND
-
-# Validate Python dependencies
-COMMAND="${PIP} check"
-echo "Validating Python dependencies ($COMMAND)..."
-eval $COMMAND || (
-  echo "******** PLEASE FIX THE DEPENDENCIES BEFORE CONTINUING ********"
-  echo "* Manually install newer version(s) of the highlighted packages"
-  echo "* so that 'pip3 check' passes. For more information see:"
-  echo "* https://github.com/pypa/pip/issues/988"
+# Create a new virtual environment
+COMMAND="/usr/bin/python3 -m venv ${VIRTUALENV}"
+echo "Creating a new virtual environment at ${VIRTUALENV}..."
+eval $COMMAND || {
+  echo "--------------------------------------------------------------------"
+  echo "ERROR: Failed to create the virtual environment. Check that you have"
+  echo "the required system packages installed."
+  echo "--------------------------------------------------------------------"
   exit 1
-)
+}
+
+# Activate the virtual environment
+source "${VIRTUALENV}/bin/activate"
+
+# Install Python packages
+COMMAND="pip3 install -r requirements.txt"
+echo "Installing Python packages ($COMMAND)..."
+eval $COMMAND
 
 # Apply any database migrations
-COMMAND="${PYTHON} netbox/manage.py migrate"
+COMMAND="python3 netbox/manage.py migrate"
 echo "Applying database migrations ($COMMAND)..."
 eval $COMMAND
 
-# Delete any stale content types
-COMMAND="${PYTHON} netbox/manage.py remove_stale_contenttypes --no-input"
-echo "Removing stale content types ($COMMAND)..."
-eval $COMMAND
-
 # Collect static files
-COMMAND="${PYTHON} netbox/manage.py collectstatic --no-input"
+COMMAND="python3 netbox/manage.py collectstatic --no-input"
 echo "Collecting static files ($COMMAND)..."
 eval $COMMAND
 
+# Delete any stale content types
+COMMAND="python3 netbox/manage.py remove_stale_contenttypes --no-input"
+echo "Removing stale content types ($COMMAND)..."
+eval $COMMAND
+
 # Clear all cached data
-COMMAND="${PYTHON} netbox/manage.py invalidate all"
+COMMAND="python3 netbox/manage.py invalidate all"
 echo "Clearing cache data ($COMMAND)..."
 eval $COMMAND
+
+if [ WARN_MISSING_VENV ]; then
+  echo "--------------------------------------------------------------------"
+  echo "WARNING: No existing virtual environment was detected. A new one has"
+  echo "been created. Update your systemd service files to reflect the new"
+  echo "executables."
+  echo "  Python: ${VIRTUALENV}/bin/python"
+  echo "  gunicorn: ${VIRTUALENV}/bin/gunicorn"
+  echo "--------------------------------------------------------------------"
+fi
+
+echo "Upgrade complete! Don't forget to restart the NetBox services:"
+echo "  sudo systemctl restart netbox netbox-rq"

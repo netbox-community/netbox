@@ -172,6 +172,10 @@ class RackReservationSerializer(ValidatedModelSerializer):
 
 
 class RackElevationDetailFilterSerializer(serializers.Serializer):
+    q = serializers.CharField(
+        required=False,
+        default=None
+    )
     face = serializers.ChoiceField(
         choices=DeviceFaceChoices,
         default=DeviceFaceChoices.FACE_FRONT
@@ -278,7 +282,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
         allow_blank=True,
         required=False
     )
-    power_port = PowerPortTemplateSerializer(
+    power_port = NestedPowerPortTemplateSerializer(
         required=False
     )
     feed_leg = ChoiceField(
@@ -294,7 +298,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
-    type = ChoiceField(choices=InterfaceTypeChoices, required=False)
+    type = ChoiceField(choices=InterfaceTypeChoices)
 
     class Meta:
         model = InterfaceTemplate
@@ -514,7 +518,7 @@ class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
 
 class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
-    type = ChoiceField(choices=InterfaceTypeChoices, required=False)
+    type = ChoiceField(choices=InterfaceTypeChoices)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)

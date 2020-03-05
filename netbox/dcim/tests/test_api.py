@@ -4,7 +4,6 @@ from netaddr import IPNetwork
 from rest_framework import status
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
-from dcim.api import serializers
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
@@ -588,6 +587,28 @@ class RackTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['name'], self.rack1.name)
+
+    def test_get_elevation_rack_units(self):
+
+        url = '{}?q=3'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': self.rack1.pk}))
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 13)
+
+        url = '{}?q=U3'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': self.rack1.pk}))
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 11)
+
+        url = '{}?q=10'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': self.rack1.pk}))
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 1)
+
+        url = '{}?q=U20'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': self.rack1.pk}))
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 1)
 
     def test_get_rack_elevation(self):
 
@@ -1441,13 +1462,13 @@ class InterfaceTemplateTest(APITestCase):
             manufacturer=self.manufacturer, model='Test Device Type 1', slug='test-device-type-1'
         )
         self.interfacetemplate1 = InterfaceTemplate.objects.create(
-            device_type=self.devicetype, name='Test Interface Template 1'
+            device_type=self.devicetype, name='Test Interface Template 1', type='1000base-t'
         )
         self.interfacetemplate2 = InterfaceTemplate.objects.create(
-            device_type=self.devicetype, name='Test Interface Template 2'
+            device_type=self.devicetype, name='Test Interface Template 2', type='1000base-t'
         )
         self.interfacetemplate3 = InterfaceTemplate.objects.create(
-            device_type=self.devicetype, name='Test Interface Template 3'
+            device_type=self.devicetype, name='Test Interface Template 3', type='1000base-t'
         )
 
     def test_get_interfacetemplate(self):
@@ -1469,6 +1490,7 @@ class InterfaceTemplateTest(APITestCase):
         data = {
             'device_type': self.devicetype.pk,
             'name': 'Test Interface Template 4',
+            'type': '1000base-t',
         }
 
         url = reverse('dcim-api:interfacetemplate-list')
@@ -1486,14 +1508,17 @@ class InterfaceTemplateTest(APITestCase):
             {
                 'device_type': self.devicetype.pk,
                 'name': 'Test Interface Template 4',
+                'type': '1000base-t',
             },
             {
                 'device_type': self.devicetype.pk,
                 'name': 'Test Interface Template 5',
+                'type': '1000base-t',
             },
             {
                 'device_type': self.devicetype.pk,
                 'name': 'Test Interface Template 6',
+                'type': '1000base-t',
             },
         ]
 
@@ -1511,6 +1536,7 @@ class InterfaceTemplateTest(APITestCase):
         data = {
             'device_type': self.devicetype.pk,
             'name': 'Test Interface Template X',
+            'type': '1000base-x-gbic',
         }
 
         url = reverse('dcim-api:interfacetemplate-detail', kwargs={'pk': self.interfacetemplate1.pk})
@@ -2621,9 +2647,9 @@ class InterfaceTest(APITestCase):
         self.device = Device.objects.create(
             device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
         )
-        self.interface1 = Interface.objects.create(device=self.device, name='Test Interface 1')
-        self.interface2 = Interface.objects.create(device=self.device, name='Test Interface 2')
-        self.interface3 = Interface.objects.create(device=self.device, name='Test Interface 3')
+        self.interface1 = Interface.objects.create(device=self.device, name='Test Interface 1', type='1000base-t')
+        self.interface2 = Interface.objects.create(device=self.device, name='Test Interface 2', type='1000base-t')
+        self.interface3 = Interface.objects.create(device=self.device, name='Test Interface 3', type='1000base-t')
 
         self.vlan1 = VLAN.objects.create(name="Test VLAN 1", vid=1)
         self.vlan2 = VLAN.objects.create(name="Test VLAN 2", vid=2)
@@ -2684,6 +2710,7 @@ class InterfaceTest(APITestCase):
         data = {
             'device': self.device.pk,
             'name': 'Test Interface 4',
+            'type': '1000base-t',
         }
 
         url = reverse('dcim-api:interface-list')
@@ -2700,6 +2727,7 @@ class InterfaceTest(APITestCase):
         data = {
             'device': self.device.pk,
             'name': 'Test Interface 4',
+            'type': '1000base-t',
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': self.vlan3.id,
             'tagged_vlans': [self.vlan1.id, self.vlan2.id],
@@ -2721,14 +2749,17 @@ class InterfaceTest(APITestCase):
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 4',
+                'type': '1000base-t',
             },
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 5',
+                'type': '1000base-t',
             },
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 6',
+                'type': '1000base-t',
             },
         ]
 
@@ -2747,6 +2778,7 @@ class InterfaceTest(APITestCase):
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 4',
+                'type': '1000base-t',
                 'mode': InterfaceModeChoices.MODE_TAGGED,
                 'untagged_vlan': self.vlan2.id,
                 'tagged_vlans': [self.vlan1.id],
@@ -2754,6 +2786,7 @@ class InterfaceTest(APITestCase):
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 5',
+                'type': '1000base-t',
                 'mode': InterfaceModeChoices.MODE_TAGGED,
                 'untagged_vlan': self.vlan2.id,
                 'tagged_vlans': [self.vlan1.id],
@@ -2761,6 +2794,7 @@ class InterfaceTest(APITestCase):
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 6',
+                'type': '1000base-t',
                 'mode': InterfaceModeChoices.MODE_TAGGED,
                 'untagged_vlan': self.vlan2.id,
                 'tagged_vlans': [self.vlan1.id],
@@ -2786,6 +2820,7 @@ class InterfaceTest(APITestCase):
         data = {
             'device': self.device.pk,
             'name': 'Test Interface X',
+            'type': '1000base-x-gbic',
             'lag': lag_interface.pk,
         }
 

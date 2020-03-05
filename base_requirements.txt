@@ -58,6 +58,10 @@ djangorestframework
 # https://github.com/axnsan12/drf-yasg
 drf-yasg[validation]
 
+# WSGI HTTP server
+# https://gunicorn.org/
+gunicorn
+
 # Platform-agnostic template rendering engine
 # https://github.com/pallets/jinja
 Jinja2
@@ -98,3 +102,7 @@ redis
 # SVG image rendering (used for rack elevations)
 # https://github.com/mozman/svgwrite
 svgwrite
+
+# Python package management tool
+# https://pythonwheels.com/
+wheel

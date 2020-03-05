@@ -7,12 +7,12 @@ Wants=network-online.target
 [Service]
 Type=simple
 
-User=www-data
-Group=www-data
+User=netbox
+Group=netbox
 PIDFile=/var/tmp/netbox.pid
 WorkingDirectory=/opt/netbox
 
-ExecStart=/usr/local/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox --config /opt/netbox/gunicorn.py netbox.wsgi
+ExecStart=/opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox --config /opt/netbox/gunicorn.py netbox.wsgi
 
 Restart=on-failure
 RestartSec=30
