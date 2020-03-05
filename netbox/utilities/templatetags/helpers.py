@@ -63,8 +63,8 @@ def gfm(value):
     # Strip HTML tags
     value = strip_tags(value)
 
-    # Render Markdown with GFM extension
-    html = markdown(value, extensions=['mdx_gfm'])
+    # Render Markdown with GitHub-flavored extension
+    html = markdown(value, extensions=['gfm'])
 
     return mark_safe(html)
 
@@ -225,7 +225,8 @@ def get_docs(model):
     with open(path) as docfile:
         content = docfile.read()
 
-    content = markdown(content, extensions=['mdx_gfm'])
+    # Render Markdown with GFM, admonition
+    content = markdown(content, extensions=['gfm', 'admonition'])
 
     return mark_safe(content)
 
