@@ -1,15 +1,5 @@
-# Power Panel
-
-A power panel represents the distribution board where power circuits – and their circuit breakers – terminate on. If you have multiple power panels in your data center, you should model them as such in NetBox to assist you in determining the redundancy of your power allocation.
-
-# Power Feed
-
-A power feed identifies the power outlet/drop that goes to a rack and is terminated to a power panel. Power feeds have a supply type (AC/DC), voltage, amperage, and phase type (single/three).
-
-Power feeds are optionally assigned to a rack. In addition, a power port – and only one – can connect to a power feed; in the context of a PDU, the power feed is analogous to the power outlet that a PDU's power port/inlet connects to.
-
-!!! info
-    The power usage of a rack is calculated when a power feed (or multiple) is assigned to that rack and connected to a power port.
+{!docs/models/dcim/powerpanel.md!}
+{!docs/models/dcim/powerfeed.md!}
 
 # Power Outlet
 
@@ -21,7 +11,6 @@ A power port is the inlet of a device where it draws its power. Power ports are 
 
 !!! info
     If the draw of a power port is left empty, it will be dynamically calculated based on the power outlets associated with that power port. This is usually the case on the power ports of devices that supply power, like a PDU.
-
 
 # Example
 
