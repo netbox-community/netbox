@@ -15,11 +15,10 @@ djangorestframework==3.10.3
 drf-yasg[validation]==1.17.0
 gunicorn==20.0.4
 Jinja2==2.10.3
-Markdown==2.6.11
+Markdown==3.2.1
 netaddr==0.7.19
 Pillow==7.0.0
 psycopg2-binary==2.8.4
-py-gfm==0.1.4
 pycryptodome==3.9.4
 PyYAML==5.3
 redis==3.3.11

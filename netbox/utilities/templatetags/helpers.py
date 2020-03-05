@@ -55,16 +55,17 @@ def getkey(value, key):
     return value[key]
 
 
+# TODO: Rename this filter as py-gfm is no longer in use
 @register.filter(is_safe=True)
 def gfm(value):
     """
-    Render text as GitHub-Flavored Markdown
+    Render text as Markdown
     """
     # Strip HTML tags
     value = strip_tags(value)
 
-    # Render Markdown with GitHub-flavored extension
-    html = markdown(value, extensions=['gfm'])
+    # Render Markdown
+    html = markdown(value, extensions=['fenced_code'])
 
     return mark_safe(html)
 
@@ -225,8 +226,8 @@ def get_docs(model):
     with open(path) as docfile:
         content = docfile.read()
 
-    # Render Markdown with GFM, admonition
-    content = markdown(content, extensions=['gfm', 'admonition'])
+    # Render Markdown with the admonition extension
+    content = markdown(content, extensions=['admonition', 'fenced_code'])
 
     return mark_safe(content)
 
