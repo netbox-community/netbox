@@ -216,6 +216,20 @@ def percentage(x, y):
     return round(x / y * 100)
 
 
+@register.filter()
+def get_docs(model):
+    """
+    Render and return documentation for the specified model.
+    """
+    path = '../docs/models/{}/{}.md'.format(model._meta.app_label, model._meta.model_name)
+    with open(path) as docfile:
+        content = docfile.read()
+
+    content = markdown(content, extensions=['mdx_gfm'])
+
+    return mark_safe(content)
+
+
 #
 # Tags
 #
