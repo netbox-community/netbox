@@ -1,11 +1,16 @@
 site_name: NetBox Documentation
 site_url: https://netbox.readthedocs.io/
 repo_url: https://github.com/netbox-community/netbox
+python:
+    install:
+        - requirements: docs/requirements.txt
 theme:
     name: readthedocs
     navigation_depth: 3
 markdown_extensions:
     - admonition:
+    - markdown_include.include:
+        headingOffset: 1
 
 nav:
     - Introduction: 'index.md'

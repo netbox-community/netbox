@@ -1,0 +1,2 @@
+mkdocs
+git+https://github.com/cmacmackin/markdown-include.git
