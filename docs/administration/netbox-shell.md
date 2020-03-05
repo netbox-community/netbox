@@ -1,3 +1,5 @@
+# The NetBox Python Shell
+
 NetBox includes a Python shell within which objects can be directly queried, created, modified, and deleted. To enter the shell, run the following command:
 
 ```
