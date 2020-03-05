@@ -1,7 +1,3 @@
-# Circuits
-
-Circuits are used to model communication links between sites. Each circuit is associated with a provider.
-
 {!docs/models/circuits/provider.md!}
 
 ---
