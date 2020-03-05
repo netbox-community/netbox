@@ -6,7 +6,7 @@ python:
         - requirements: docs/requirements.txt
 theme:
     name: readthedocs
-    navigation_depth: 3
+    navigation_depth: 6
 markdown_extensions:
     - admonition:
     - markdown_include.include:
@@ -29,16 +29,16 @@ nav:
         - Optional Settings: 'configuration/optional-settings.md'
     - Core Functionality:
         - IP Address Management: 'core-functionality/ipam.md'
-        - VLANs: 'core-functionality/vlans.md'
+        - VLAN Management: 'core-functionality/vlans.md'
         - Sites and Racks: 'core-functionality/sites-and-racks.md'
-        - Devices: 'core-functionality/devices.md'
+        - Devices and Cabling: 'core-functionality/devices.md'
         - Device Types: 'core-functionality/device-types.md'
-        - Virtual Machines: 'core-functionality/virtual-machines.md'
-        - Services: 'core-functionality/services.md'
+        - Virtualization: 'core-functionality/virtualization.md'
+        - Service Mapping: 'core-functionality/services.md'
         - Circuits: 'core-functionality/circuits.md'
-        - Power: 'core-functionality/power.md'
+        - Power Tracking: 'core-functionality/power.md'
         - Secrets: 'core-functionality/secrets.md'
-        - Tenancy: 'core-functionality/tenancy.md'
+        - Tenancy Assignment: 'core-functionality/tenancy.md'
     - Additional Features:
         - Caching: 'additional-features/caching.md'
         - Change Logging: 'additional-features/change-logging.md'

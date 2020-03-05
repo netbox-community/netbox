@@ -1,4 +1,4 @@
-# Interfaces
+## Interfaces
 
 Interfaces connect to one another in a symmetric manner: If interface A connects to interface B, interface B therefore connects to interface A. Each type of connection can be classified as either *planned* or *connected*.
 

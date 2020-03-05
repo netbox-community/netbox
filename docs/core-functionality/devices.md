@@ -1,8 +1,12 @@
+# Devices and Cabling
+
 {!docs/models/dcim/device.md!}
 {!docs/models/dcim/devicerole.md!}
 {!docs/models/dcim/platform.md!}
 
 ---
+
+## Device Components
 
 {!docs/models/dcim/consoleport.md!}
 {!docs/models/dcim/consoleserverport.md!}

@@ -1,3 +1,5 @@
+# Circuits
+
 {!docs/models/circuits/provider.md!}
 
 ---

@@ -1,3 +1,5 @@
+# Power Tracking
+
 {!docs/models/dcim/powerpanel.md!}
 {!docs/models/dcim/powerfeed.md!}
 

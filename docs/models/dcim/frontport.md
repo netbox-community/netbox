@@ -1,4 +1,4 @@
-# Front Ports
+## Front Ports
 
 Front ports are pass-through ports used to represent physical cable connections that comprise part of a longer path. For example, the ports on the front face of a UTP patch panel would be modeled in NetBox as front ports.
 
