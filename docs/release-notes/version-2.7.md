@@ -1,8 +1,10 @@
-# v2.7.9 (FUTURE)
+# NetBox v2.7 Release Notes
+
+## v2.7.9 (FUTURE)
 
 **Note:** This release will deploy a Python virtual environment on upgrade in the `venv/` directory. This will require modifying the paths to your Python and gunicorn executables in the systemd service files. For more detail, please see the [upgrade instructions](https://netbox.readthedocs.io/en/stable/installation/upgrading/).
 
-## Enhancements
+### Enhancements
 
 * [#3949](https://github.com/netbox-community/netbox/issues/3949) - Revised the installation docs and upgrade script to employ a Python virtual environment
 * [#4119](https://github.com/netbox-community/netbox/issues/4119) - Extend upgrade script to clear expired user sessions
@@ -13,7 +15,7 @@
 * [#4290](https://github.com/netbox-community/netbox/issues/4290) - Include device name in tooltip on rack elevations
 * [#4305](https://github.com/netbox-community/netbox/issues/4305) - Add 10-inch option for rack width
 
-## Bug Fixes
+### Bug Fixes
 
 * [#4274](https://github.com/netbox-community/netbox/issues/4274) - Fix incorrect schema definition of `int` type choicefields
 * [#4277](https://github.com/netbox-community/netbox/issues/4277) - Fix filtering of clusters by tenant
@@ -27,9 +29,9 @@
 
 ---
 
-# v2.7.8 (2020-02-25)
+## v2.7.8 (2020-02-25)
 
-## Enhancements
+### Enhancements
 
 * [#3145](https://github.com/netbox-community/netbox/issues/3145) - Add a "decommissioning" cable status
 * [#4173](https://github.com/netbox-community/netbox/issues/4173) - Return graceful error message when webhook queuing fails
@@ -38,7 +40,7 @@
 * [#4262](https://github.com/netbox-community/netbox/issues/4262) - Extend custom scripts to pass the `commit` value via `run()`
 * [#4267](https://github.com/netbox-community/netbox/issues/4267) - Denote rack role on rack elevations list
 
-## Bug Fixes
+### Bug Fixes
 
 * [#4221](https://github.com/netbox-community/netbox/issues/4221) - Fix exception when deleting a device with interface connections when an interfaces webhook is defined
 * [#4222](https://github.com/netbox-community/netbox/issues/4222) - Escape double quotes on encapsulated values during CSV export
@@ -56,7 +58,7 @@
 
 ---
 
-# v2.7.7 (2020-02-20)
+## v2.7.7 (2020-02-20)
 
 **Note:** This release fixes a bug affecting the natural ordering of interfaces. If any interfaces appear unordered in
 NetBox, run the following management command to recalculate their naturalized values after upgrading:
@@ -65,7 +67,7 @@ NetBox, run the following management command to recalculate their naturalized va
 python3 manage.py renaturalize dcim.Interface
 ```
 
-## Enhancements
+### Enhancements
 
 * [#1529](https://github.com/netbox-community/netbox/issues/1529) - Enable display of device images in rack elevations
 * [#2511](https://github.com/netbox-community/netbox/issues/2511) - Compare object change to the previous change
@@ -75,7 +77,7 @@ python3 manage.py renaturalize dcim.Interface
 * [#4206](https://github.com/netbox-community/netbox/issues/4206) - Add RJ-11 console port type
 * [#4209](https://github.com/netbox-community/netbox/issues/4209) - Enable filtering interfaces list view by enabled
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2519](https://github.com/netbox-community/netbox/issues/2519) - Avoid race condition when provisioning "next available" IPs/prefixes via the API
 * [#3967](https://github.com/netbox-community/netbox/issues/3967) - Fix missing migration for interface templates of type "other"
@@ -92,19 +94,19 @@ python3 manage.py renaturalize dcim.Interface
 
 ---
 
-# v2.7.6 (2020-02-13)
+## v2.7.6 (2020-02-13)
 
-## Bug Fixes
+### Bug Fixes
 
 * [#4166](https://github.com/netbox-community/netbox/issues/4166) - Fix schema migrations to enforce maximum character length for naturalized fields
 
 ---
 
-# v2.7.5 (2020-02-13)
+## v2.7.5 (2020-02-13)
 
 **Note:** This release includes several database schema migrations that calculate and store copies of names for certain objects to improve natural ordering performance (see [#3799](https://github.com/netbox-community/netbox/issues/3799)). These migrations may take a few minutes to run if you have a very large number of objects defined in NetBox.
 
-## Enhancements
+### Enhancements
 
 * [#3766](https://github.com/netbox-community/netbox/issues/3766) - Allow custom script authors to specify the form widget for each variable
 * [#3799](https://github.com/netbox-community/netbox/issues/3799) - Greatly improve performance when ordering device components
@@ -116,7 +118,7 @@ python3 manage.py renaturalize dcim.Interface
 * [#4116](https://github.com/netbox-community/netbox/issues/4116) - Enable bulk edit and delete functions for device component list views
 * [#4129](https://github.com/netbox-community/netbox/issues/4129) - Add buttons to delete individual device type components
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3507](https://github.com/netbox-community/netbox/issues/3507) - Fix filtering IP addresses by multiple devices
 * [#3995](https://github.com/netbox-community/netbox/issues/3995) - Make dropdown menus in the navigation bar scrollable on small screens
@@ -135,9 +137,9 @@ python3 manage.py renaturalize dcim.Interface
 
 ---
 
-# v2.7.4 (2020-02-04)
+## v2.7.4 (2020-02-04)
 
-## Enhancements
+### Enhancements
 
 * [#568](https://github.com/netbox-community/netbox/issues/568) - Allow custom fields to be imported and exported using CSV
 * [#2921](https://github.com/netbox-community/netbox/issues/2921) - Replace tags filter with Select2 widget
@@ -145,7 +147,7 @@ python3 manage.py renaturalize dcim.Interface
 * [#3886](https://github.com/netbox-community/netbox/issues/3886) - Enable assigning config contexts by cluster and cluster group
 * [#4051](https://github.com/netbox-community/netbox/issues/4051) - Disable the `makemigrations` management command
 
-## Bug Fixes
+### Bug Fixes
 
 * [#4030](https://github.com/netbox-community/netbox/issues/4030) - Fix exception when bulk editing interfaces (revised)
 * [#4043](https://github.com/netbox-community/netbox/issues/4043) - Fix toggling of required fields in custom scripts
@@ -159,9 +161,9 @@ python3 manage.py renaturalize dcim.Interface
 
 ---
 
-# v2.7.3 (2020-01-28)
+## v2.7.3 (2020-01-28)
 
-## Enhancements
+### Enhancements
 
 * [#3310](https://github.com/netbox-community/netbox/issues/3310) - Pre-select site/rack for B side when creating a new cable
 * [#3338](https://github.com/netbox-community/netbox/issues/3338) - Include circuit terminations in API representation of circuits
@@ -169,7 +171,7 @@ python3 manage.py renaturalize dcim.Interface
 * [#3978](https://github.com/netbox-community/netbox/issues/3978) - Add VRF filtering to search NAT IP
 * [#4005](https://github.com/netbox-community/netbox/issues/4005) - Include timezone context in webhook timestamps
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3950](https://github.com/netbox-community/netbox/issues/3950) - Automatically select parent manufacturer when specifying initial device type during device creation
 * [#3982](https://github.com/netbox-community/netbox/issues/3982) - Restore tooltip for reservations on rack elevations
@@ -188,15 +190,15 @@ python3 manage.py renaturalize dcim.Interface
 
 ---
 
-# v2.7.2 (2020-01-21)
+## v2.7.2 (2020-01-21)
 
-## Enhancements
+### Enhancements
 
 * [#3135](https://github.com/netbox-community/netbox/issues/3135) - Documented power modelling
 * [#3842](https://github.com/netbox-community/netbox/issues/3842) - Add 802.11ax interface type
 * [#3954](https://github.com/netbox-community/netbox/issues/3954) - Add `device_bays` filter for devices and device types
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3721](https://github.com/netbox-community/netbox/issues/3721) - Allow Unicode characters in tag slugs
 * [#3923](https://github.com/netbox-community/netbox/issues/3923) - Indicate validation failure when using SSH-style RSA keys
@@ -212,9 +214,9 @@ python3 manage.py renaturalize dcim.Interface
 
 ---
 
-# v2.7.1 (2020-01-16)
+## v2.7.1 (2020-01-16)
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3941](https://github.com/netbox-community/netbox/issues/3941) - Fixed exception when attempting to assign IP to interface
 * [#3943](https://github.com/netbox-community/netbox/issues/3943) - Prevent rack elevation links from opening new tabs/windows
@@ -222,16 +224,16 @@ python3 manage.py renaturalize dcim.Interface
 
 ---
 
-# v2.7.0 (2020-01-16)
+## v2.7.0 (2020-01-16)
 
 **Note:** This release completely removes the topology map feature ([#2745](https://github.com/netbox-community/netbox/issues/2745)).
 
 **Note:** NetBox v2.7 is the last major release that will support Python 3.5. Beginning with NetBox v2.8, Python 3.6 or
 higher will be required.
 
-## New Features
+### New Features
 
-### Enhanced Device Type Import ([#451](https://github.com/netbox-community/netbox/issues/451))
+#### Enhanced Device Type Import ([#451](https://github.com/netbox-community/netbox/issues/451))
 
 NetBox now supports the import of device types and related component templates using definitions written in YAML or
 JSON. For example, the following will create a new device type with four network interfaces, two power ports, and a
@@ -261,7 +263,7 @@ console-ports:
 This new functionality replaces the old CSV-based import form, which did not allow for bulk import of component
 templates.
 
-### Bulk Import of Device Components ([#822](https://github.com/netbox-community/netbox/issues/822))
+#### Bulk Import of Device Components ([#822](https://github.com/netbox-community/netbox/issues/822))
 
 Device components such as console ports, power ports, and interfaces can now be imported in bulk to multiple devices in
 CSV format. Here's an example showing the bulk import of interfaces to several devices:
@@ -276,7 +278,7 @@ Switch2,Vlan200,Virtual
 
 The import form for each type of device component is available under the "Devices" item in the navigation menu.
 
-### External File Storage ([#1814](https://github.com/netbox-community/netbox/issues/1814))
+#### External File Storage ([#1814](https://github.com/netbox-community/netbox/issues/1814))
 
 In prior releases, the only option for storing uploaded files (e.g. image attachments) was to save them to the local
 filesystem on the NetBox server. This release introduces support for several remote storage backends provided by the
@@ -312,7 +314,7 @@ STORAGE_CONFIG = {
 
 Thanks to [@steffann](https://github.com/steffann) for contributing this work!
 
-### Rack Elevations Rendered via SVG ([#2248](https://github.com/netbox-community/netbox/issues/2248))
+#### Rack Elevations Rendered via SVG ([#2248](https://github.com/netbox-community/netbox/issues/2248))
 
 NetBox v2.7 introduces a new method of rendering rack elevations as an
 [SVG image](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics) via a REST API endpoint. This replaces the prior
@@ -341,20 +343,20 @@ request either the `front` or `rear` of the elevation. Below is in example reque
 
 Thanks to [@hellerve](https://github.com/hellerve) for doing the heavy lifting on this!
 
-## Changes
+### Changes
 
-### Topology Maps Removed ([#2745](https://github.com/netbox-community/netbox/issues/2745))
+#### Topology Maps Removed ([#2745](https://github.com/netbox-community/netbox/issues/2745))
 
 The topology maps feature has been removed to help focus NetBox development efforts. Please replicate any required data
 to another source before upgrading NetBox to v2.7, as any existing topology maps will be deleted.
 
-### Supervisor Replaced with systemd ([#2902](https://github.com/netbox-community/netbox/issues/2902))
+#### Supervisor Replaced with systemd ([#2902](https://github.com/netbox-community/netbox/issues/2902))
 
 The NetBox [installation documentation](https://netbox.readthedocs.io/en/stable/installation/) has been updated to
 provide instructions for managing the WSGI and RQ services using systemd instead of supervisor. This removes the need to
 install supervisor and simplifies administration of the processes.
 
-### Redis Configuration ([#3282](https://github.com/netbox-community/netbox/issues/3282))
+#### Redis Configuration ([#3282](https://github.com/netbox-community/netbox/issues/3282))
 
 NetBox v2.6 introduced request caching and added the `CACHE_DATABASE` option to the existing `REDIS` database
 configuration parameter. This did not, however, allow for using two different Redis connections for the separate caching
@@ -402,14 +404,14 @@ Note that the `CACHE_DATABASE` parameter has been removed and the connection set
 `webhooks` and `caching`. This allows the user to make use of separate Redis instances if desired. It is fine to use the
 same Redis service for both functions, although the database identifiers should be different.
 
-### WEBHOOKS_ENABLED Configuration Setting Removed ([#3408](https://github.com/netbox-community/netbox/issues/3408))
+#### WEBHOOKS_ENABLED Configuration Setting Removed ([#3408](https://github.com/netbox-community/netbox/issues/3408))
 
 As `django-rq` is now a required library, NetBox assumes that the RQ worker process is running. The installation and
 upgrade documentation has been updated to reflect this, and the `WEBHOOKS_ENABLED` configuration parameter is no longer
 used. Please ensure that both the NetBox WSGI service and the RQ worker process are running on all production
 installations.
 
-### API Choice Fields Now Use String Values ([#3569](https://github.com/netbox-community/netbox/issues/3569))
+#### API Choice Fields Now Use String Values ([#3569](https://github.com/netbox-community/netbox/issues/3569))
 
 NetBox's REST API presents fields which reference a particular choice as a dictionary with two keys: `value` and
 `label`. In previous versions, `value` was an integer which represented a particular choice in the database. This has
@@ -441,7 +443,7 @@ Note that that all v2.7 releases will continue to accept the legacy integer valu
 `PATCH`) to maintain backward compatibility. Additionally, the legacy numeric identifier is conveyed in the `id` field
 for convenient reference as consumers adopt to the new string values. This behavior will be discontinued in NetBox v2.8.
 
-## Enhancements
+### Enhancements
 
 * [#33](https://github.com/netbox-community/netbox/issues/33) - Add ability to clone objects (pre-populate form fields)
 * [#648](https://github.com/netbox-community/netbox/issues/648) - Pre-populate form fields when selecting "create and
@@ -464,7 +466,7 @@ for convenient reference as consumers adopt to the new string values. This behav
 * [#3731](https://github.com/netbox-community/netbox/issues/3731) - Change Graph.type to a ContentType foreign key field
 * [#3801](https://github.com/netbox-community/netbox/issues/3801) - Use YAML for export of device types
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3830](https://github.com/netbox-community/netbox/issues/3830) - Ensure deterministic ordering for all models
 * [#3900](https://github.com/netbox-community/netbox/issues/3900) - Fix exception when deleting device types
@@ -476,12 +478,12 @@ for convenient reference as consumers adopt to the new string values. This behav
 * [#3930](https://github.com/netbox-community/netbox/issues/3930) - Fix API rendering of the `family` field for
   aggregates
 
-## Bug Fixes (From Beta)
+### Bug Fixes (From Beta)
 
 * [#3868](https://github.com/netbox-community/netbox/issues/3868) - Fix creation of interfaces for virtual machines
 * [#3878](https://github.com/netbox-community/netbox/issues/3878) - Fix database migration for cable status field
 
-## API Changes
+### API Changes
 
 * Choice fields now use human-friendly strings for their values instead of integers (see
   [#3569](https://github.com/netbox-community/netbox/issues/3569)).
