@@ -7,7 +7,7 @@ from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
 from utilities.filters import (
     BaseFilterSet, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter,
-    NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
+    NameSlugSearchFilterSet, TagFilter, TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import Cluster
 from .choices import *
@@ -78,10 +78,6 @@ class RegionFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
 
 class SiteFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -171,10 +167,6 @@ class RackRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
 
 class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -251,10 +243,6 @@ class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Creat
 
 
 class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -319,10 +307,6 @@ class ManufacturerFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
 
 class DeviceTypeFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -504,10 +488,6 @@ class DeviceFilterSet(
     CustomFieldFilterSet,
     CreatedUpdatedFilterSet
 ):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1236,10 +1216,6 @@ class InterfaceConnectionFilterSet(BaseFilterSet):
 
 
 class PowerPanelFilterSet(BaseFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1287,10 +1263,6 @@ class PowerPanelFilterSet(BaseFilterSet):
 
 
 class PowerFeedFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',

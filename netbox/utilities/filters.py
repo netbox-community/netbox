@@ -80,13 +80,6 @@ class TreeNodeMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
         return super().filter(qs, value)
 
 
-class NumericInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
-    """
-    Filters for a set of numeric values. Example: id__in=100,200,300
-    """
-    pass
-
-
 class NullableCharFieldFilter(django_filters.CharFilter):
     """
     Allow matching on null field values by passing a special string used to signify NULL.

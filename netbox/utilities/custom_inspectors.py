@@ -131,16 +131,6 @@ class JSONFieldInspector(FieldInspector):
         return result
 
 
-class IdInFilterInspector(FilterInspector):
-    def process_result(self, result, method_name, obj, **kwargs):
-        if isinstance(result, list):
-            params = [p for p in result if isinstance(p, openapi.Parameter) and p.name == 'id__in']
-            for p in params:
-                p.type = 'string'
-
-        return result
-
-
 class NullablePaginatorInspector(PaginatorInspector):
     def process_result(self, result, method_name, obj, **kwargs):
         if method_name == 'get_paginated_response' and isinstance(result, openapi.Schema):
