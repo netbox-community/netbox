@@ -4,6 +4,7 @@ import re
 
 import yaml
 from django import template
+from django.conf import settings
 from django.urls import NoReverseMatch, reverse
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
@@ -222,9 +223,18 @@ def get_docs(model):
     """
     Render and return documentation for the specified model.
     """
-    path = '../docs/models/{}/{}.md'.format(model._meta.app_label, model._meta.model_name)
-    with open(path) as docfile:
-        content = docfile.read()
+    path = '{}/models/{}/{}.md'.format(
+        settings.DOCS_ROOT,
+        model._meta.app_label,
+        model._meta.model_name
+    )
+    try:
+        with open(path) as docfile:
+            content = docfile.read()
+    except FileNotFoundError:
+        return "Unable to load documentation, file not found: {}".format(path)
+    except IOError:
+        return "Unable to load documentation, error reading file: {}".format(path)
 
     # Render Markdown with the admonition extension
     content = markdown(content, extensions=['admonition', 'fenced_code'])

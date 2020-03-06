@@ -98,6 +98,14 @@ This parameter serves as a safeguard to prevent some potentially dangerous behav
 
 ---
 
+## DOCS_ROOT
+
+Default: `$INSTALL_DIR/docs/`
+
+The file path to NetBox's documentation. This is used when presenting context-sensitive documentation in the web UI. by default, this will be the `docs/` directory within the root NetBox installation path. (Set this to `None` to disable the embedded documentation.)
+
+---
+
 ## EMAIL
 
 In order to send email, NetBox needs an email server configured. The following items can be defined within the `EMAIL` setting:

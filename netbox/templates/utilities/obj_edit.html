@@ -11,9 +11,11 @@
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
                 <h3>
-                    <div class="pull-right">
-                        <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#docs_modal"><i class="fa fa-question"></i></button>
-                    </div>
+                    {% if settings.DOCS_ROOT %}
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#docs_modal"><i class="fa fa-question"></i></button>
+                        </div>
+                    {% endif %}
                     {% block title %}{% if obj.pk %}Editing {{ obj_type }} {{ obj }}{% else %}Add a new {{ obj_type }}{% endif %}{% endblock %}
                 </h3>
                 {% block tabs %}{% endblock %}
@@ -49,5 +51,7 @@
             </div>
         </div>
     </form>
-    {% include 'inc/modal.html' with name='docs' content=obj|get_docs %}
+    {% if settings.DOCS_ROOT %}
+        {% include 'inc/modal.html' with name='docs' content=obj|get_docs %}
+    {% endif %}
 {% endblock %}
