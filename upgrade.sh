@@ -29,9 +29,14 @@ eval $COMMAND || {
 # Activate the virtual environment
 source "${VIRTUALENV}/bin/activate"
 
+# Install necessary system packages
+COMMAND="pip3 install wheel"
+echo "Installing Python system packages ($COMMAND)..."
+eval $COMMAND || exit 1
+
 # Install Python packages
 COMMAND="pip3 install -r requirements.txt"
-echo "Installing Python packages ($COMMAND)..."
+echo "Installing dependencies ($COMMAND)..."
 eval $COMMAND || exit 1
 
 # Apply any database migrations
