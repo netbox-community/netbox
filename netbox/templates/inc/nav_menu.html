@@ -338,6 +338,11 @@
                         <li class="divider"></li>
                         <li class="dropdown-header">Services</li>
                         <li{% if not perms.ipam.view_service %} class="disabled"{% endif %}>
+                            {% if perms.ipam.add_vservice %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'ipam:service_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
                             <a href="{% url 'ipam:service_list' %}">Services</a>
                         </li>
                     </ul>

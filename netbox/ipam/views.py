@@ -1015,6 +1015,13 @@ class ServiceCreateView(PermissionRequiredMixin, ObjectEditView):
         return service.parent.get_absolute_url()
 
 
+class ServiceBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'ipam.add_service'
+    model_form = forms.ServiceCSVForm
+    table = tables.ServiceTable
+    default_return_url = 'ipam:service_list'
+
+
 class ServiceEditView(ServiceCreateView):
     permission_required = 'ipam.change_service'
 
