@@ -1553,9 +1553,6 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = PowerPanel
 
-    # Disable inapplicable tests
-    test_bulk_edit_objects = None
-
     @classmethod
     def setUpTestData(cls):
 
@@ -1589,6 +1586,11 @@ class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Site 1,Rack Group 1,Power Panel 5",
             "Site 1,Rack Group 1,Power Panel 6",
         )
+
+        cls.bulk_edit_data = {
+            'site': sites[1].pk,
+            'rack_group': rackgroups[1].pk,
+        }
 
 
 class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):

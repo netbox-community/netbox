@@ -331,6 +331,7 @@ urlpatterns = [
     path('power-panels/', views.PowerPanelListView.as_view(), name='powerpanel_list'),
     path('power-panels/add/', views.PowerPanelCreateView.as_view(), name='powerpanel_add'),
     path('power-panels/import/', views.PowerPanelBulkImportView.as_view(), name='powerpanel_import'),
+    path('power-panels/edit/', views.PowerPanelBulkEditView.as_view(), name='powerpanel_bulk_edit'),
     path('power-panels/delete/', views.PowerPanelBulkDeleteView.as_view(), name='powerpanel_bulk_delete'),
     path('power-panels/<int:pk>/', views.PowerPanelView.as_view(), name='powerpanel'),
     path('power-panels/<int:pk>/edit/', views.PowerPanelEditView.as_view(), name='powerpanel_edit'),

@@ -2569,6 +2569,15 @@ class PowerPanelBulkImportView(PermissionRequiredMixin, BulkImportView):
     default_return_url = 'dcim:powerpanel_list'
 
 
+class PowerPanelBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_powerpanel'
+    queryset = PowerPanel.objects.prefetch_related('site', 'rack_group')
+    filterset = filters.PowerPanelFilterSet
+    table = tables.PowerPanelTable
+    form = forms.PowerPanelBulkEditForm
+    default_return_url = 'dcim:powerpanel_list'
+
+
 class PowerPanelBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_powerpanel'
     queryset = PowerPanel.objects.prefetch_related(

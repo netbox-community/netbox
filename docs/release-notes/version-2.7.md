@@ -1,3 +1,11 @@
+# v2.7.10 (FUTURE)
+
+## Enhancements
+
+* [#4323](https://github.com/netbox-community/netbox/issues/4323) - Add bulk edit view for power panels
+
+---
+
 # v2.7.9 (2020-03-06)
 
 **Note:** This release will deploy a Python virtual environment on upgrade in the `venv/` directory. This will require modifying the paths to your Python and gunicorn executables in the systemd service files. For more detail, please see the [upgrade instructions](https://netbox.readthedocs.io/en/stable/installation/upgrading/).
