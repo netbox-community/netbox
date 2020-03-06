@@ -32,32 +32,32 @@ source "${VIRTUALENV}/bin/activate"
 # Install Python packages
 COMMAND="pip3 install -r requirements.txt"
 echo "Installing Python packages ($COMMAND)..."
-eval $COMMAND
+eval $COMMAND || exit 1
 
 # Apply any database migrations
 COMMAND="python3 netbox/manage.py migrate"
 echo "Applying database migrations ($COMMAND)..."
-eval $COMMAND
+eval $COMMAND || exit 1
 
 # Collect static files
 COMMAND="python3 netbox/manage.py collectstatic --no-input"
 echo "Collecting static files ($COMMAND)..."
-eval $COMMAND
+eval $COMMAND || exit 1
 
 # Delete any stale content types
 COMMAND="python3 netbox/manage.py remove_stale_contenttypes --no-input"
 echo "Removing stale content types ($COMMAND)..."
-eval $COMMAND
+eval $COMMAND || exit 1
 
 # Delete any expired user sessions
 COMMAND="python3 netbox/manage.py clearsessions"
 echo "Removing expired user sessions ($COMMAND)..."
-eval $COMMAND
+eval $COMMAND || exit 1
 
 # Clear all cached data
 COMMAND="python3 netbox/manage.py invalidate all"
 echo "Clearing cache data ($COMMAND)..."
-eval $COMMAND
+eval $COMMAND || exit 1
 
 if [ WARN_MISSING_VENV ]; then
   echo "--------------------------------------------------------------------"
