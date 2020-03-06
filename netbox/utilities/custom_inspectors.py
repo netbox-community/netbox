@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import JSONField
 from drf_yasg import openapi
 from drf_yasg.inspectors import FieldInspector, NotHandled, PaginatorInspector, FilterInspector, SwaggerAutoSchema
 from drf_yasg.utils import get_serializer_ref_name
@@ -75,26 +76,28 @@ class CustomChoiceFieldInspector(FieldInspector):
         SwaggerType, _ = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
 
         if isinstance(field, ChoiceField):
-            value_schema = openapi.Schema(type=openapi.TYPE_STRING)
+            choices = field._choices
+            choice_value = list(choices.keys())
+            choice_label = list(choices.values())
+            value_schema = openapi.Schema(type=openapi.TYPE_STRING, enum=choice_value)
 
-            choices = list(field._choices.keys())
-            if set([None] + choices) == {None, True, False}:
+            if set([None] + choice_value) == {None, True, False}:
                 # DeviceType.subdevice_role, Device.face and InterfaceConnection.connection_status all need to be
                 # differentiated since they each have subtly different values in their choice keys.
                 # - subdevice_role and connection_status are booleans, although subdevice_role includes None
                 # - face is an integer set {0, 1} which is easily confused with {False, True}
                 schema_type = openapi.TYPE_STRING
-                if all(type(x) == bool for x in [c for c in choices if c is not None]):
+                if all(type(x) == bool for x in [c for c in choice_value if c is not None]):
                     schema_type = openapi.TYPE_BOOLEAN
-                value_schema = openapi.Schema(type=schema_type)
+                value_schema = openapi.Schema(type=schema_type, enum=choice_value)
                 value_schema['x-nullable'] = True
 
-            if isinstance(choices[0], int):
+            if isinstance(choice_value[0], int):
                 # Change value_schema for IPAddressFamilyChoices, RackWidthChoices
-                value_schema = openapi.Schema(type=openapi.TYPE_INTEGER)
+                value_schema = openapi.Schema(type=openapi.TYPE_INTEGER, enum=choice_value)
 
             schema = SwaggerType(type=openapi.TYPE_OBJECT, required=["label", "value"], properties={
-                "label": openapi.Schema(type=openapi.TYPE_STRING),
+                "label": openapi.Schema(type=openapi.TYPE_STRING, enum=choice_label),
                 "value": value_schema
             })
 
@@ -116,6 +119,15 @@ class NullableBooleanFieldInspector(FieldInspector):
                 result['x-nullable'] = True
                 result.type = 'boolean'
 
+        return result
+
+
+class JSONFieldInspector(FieldInspector):
+    """Required because by default, Swagger sees a JSONField as a string and not dict
+    """
+    def process_result(self, result, method_name, obj, **kwargs):
+        if isinstance(result, openapi.Schema) and isinstance(obj, JSONField):
+            result.type = 'dict'
         return result
 
 

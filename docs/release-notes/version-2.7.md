@@ -1,10 +1,13 @@
-# v2.7.9 (FUTURE)
+# v2.7.9 (2020-03-06)
 
 **Note:** This release will deploy a Python virtual environment on upgrade in the `venv/` directory. This will require modifying the paths to your Python and gunicorn executables in the systemd service files. For more detail, please see the [upgrade instructions](https://netbox.readthedocs.io/en/stable/installation/upgrading/).
 
 ## Enhancements
 
 * [#3949](https://github.com/netbox-community/netbox/issues/3949) - Revised the installation docs and upgrade script to employ a Python virtual environment
+* [#4062](https://github.com/netbox-community/netbox/issues/4062) - Enumerate ChoiceField type and value in API
+* [#4119](https://github.com/netbox-community/netbox/issues/4119) - Extend upgrade script to clear expired user sessions
+* [#4121](https://github.com/netbox-community/netbox/issues/4121) - Add dynamic lookup expressions for all filters
 * [#4218](https://github.com/netbox-community/netbox/issues/4218) - Allow negative voltage for DC power feeds
 * [#4281](https://github.com/netbox-community/netbox/issues/4281) - Allow filtering device component list views by type
 * [#4284](https://github.com/netbox-community/netbox/issues/4284) - Add MRJ21 port and cable types
@@ -18,6 +21,7 @@
 * [#4282](https://github.com/netbox-community/netbox/issues/4282) - Fix label on export button for device types
 * [#4285](https://github.com/netbox-community/netbox/issues/4285) - Include A/Z termination sites in provider circuits table
 * [#4295](https://github.com/netbox-community/netbox/issues/4295) - Fix assignment of parent LAG during interface bulk edit
+* [#4298](https://github.com/netbox-community/netbox/issues/4298) - Fix bulk creation of objects with custom fields via REST API
 * [#4300](https://github.com/netbox-community/netbox/issues/4300) - Pass "commit" argument when executing scripts via REST API
 * [#4301](https://github.com/netbox-community/netbox/issues/4301) - Fix exception when deleting device type with components
 * [#4306](https://github.com/netbox-community/netbox/issues/4306) - Fix toggling of device images for all racks in elevations view

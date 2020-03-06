@@ -62,6 +62,8 @@ Lists of objects can be filtered using a set of query parameters. For example, t
 GET /api/dcim/interfaces/?device_id=123
 ```
 
+See [filtering](filtering.md) for more details.
+
 # Serialization
 
 The NetBox API employs three types of serializers to represent model data:

@@ -6,8 +6,8 @@ from tenancy.filters import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
 from utilities.filters import (
-    MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, NumericInFilter,
-    TagFilter, TreeNodeMultipleChoiceFilter,
+    BaseFilterSet, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter,
+    NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import Cluster
 from .choices import *
@@ -60,7 +60,7 @@ __all__ = (
 )
 
 
-class RegionFilterSet(NameSlugSearchFilterSet):
+class RegionFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Region.objects.all(),
         label='Parent region (ID)',
@@ -77,7 +77,7 @@ class RegionFilterSet(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class SiteFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class SiteFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -92,12 +92,14 @@ class SiteFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilter
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='region__in',
+        field_name='region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='region__in',
+        field_name='region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -131,15 +133,17 @@ class SiteFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilter
         return queryset.filter(qs_filter)
 
 
-class RackGroupFilterSet(NameSlugSearchFilterSet):
+class RackGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -159,14 +163,14 @@ class RackGroupFilterSet(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class RackRoleFilterSet(NameSlugSearchFilterSet):
+class RackRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = RackRole
         fields = ['id', 'name', 'slug', 'color']
 
 
-class RackFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -177,12 +181,14 @@ class RackFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilter
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -244,7 +250,7 @@ class RackFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilter
         )
 
 
-class RackReservationFilterSet(TenancyFilterSet):
+class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -305,14 +311,14 @@ class RackReservationFilterSet(TenancyFilterSet):
         )
 
 
-class ManufacturerFilterSet(NameSlugSearchFilterSet):
+class ManufacturerFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = Manufacturer
         fields = ['id', 'name', 'slug']
 
 
-class DeviceTypeFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class DeviceTypeFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -410,70 +416,70 @@ class DeviceTypeComponentFilterSet(NameSlugSearchFilterSet):
     )
 
 
-class ConsolePortTemplateFilterSet(DeviceTypeComponentFilterSet):
+class ConsolePortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
 
     class Meta:
         model = ConsolePortTemplate
         fields = ['id', 'name', 'type']
 
 
-class ConsoleServerPortTemplateFilterSet(DeviceTypeComponentFilterSet):
+class ConsoleServerPortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
 
     class Meta:
         model = ConsoleServerPortTemplate
         fields = ['id', 'name', 'type']
 
 
-class PowerPortTemplateFilterSet(DeviceTypeComponentFilterSet):
+class PowerPortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
 
     class Meta:
         model = PowerPortTemplate
         fields = ['id', 'name', 'type', 'maximum_draw', 'allocated_draw']
 
 
-class PowerOutletTemplateFilterSet(DeviceTypeComponentFilterSet):
+class PowerOutletTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
 
     class Meta:
         model = PowerOutletTemplate
         fields = ['id', 'name', 'type', 'feed_leg']
 
 
-class InterfaceTemplateFilterSet(DeviceTypeComponentFilterSet):
+class InterfaceTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
 
     class Meta:
         model = InterfaceTemplate
         fields = ['id', 'name', 'type', 'mgmt_only']
 
 
-class FrontPortTemplateFilterSet(DeviceTypeComponentFilterSet):
+class FrontPortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
 
     class Meta:
         model = FrontPortTemplate
         fields = ['id', 'name', 'type']
 
 
-class RearPortTemplateFilterSet(DeviceTypeComponentFilterSet):
+class RearPortTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
 
     class Meta:
         model = RearPortTemplate
         fields = ['id', 'name', 'type', 'positions']
 
 
-class DeviceBayTemplateFilterSet(DeviceTypeComponentFilterSet):
+class DeviceBayTemplateFilterSet(BaseFilterSet, DeviceTypeComponentFilterSet):
 
     class Meta:
         model = DeviceBayTemplate
         fields = ['id', 'name']
 
 
-class DeviceRoleFilterSet(NameSlugSearchFilterSet):
+class DeviceRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = DeviceRole
         fields = ['id', 'name', 'slug', 'color', 'vm_role']
 
 
-class PlatformFilterSet(NameSlugSearchFilterSet):
+class PlatformFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer',
         queryset=Manufacturer.objects.all(),
@@ -491,7 +497,13 @@ class PlatformFilterSet(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'napalm_driver']
 
 
-class DeviceFilterSet(LocalConfigContextFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class DeviceFilterSet(
+    BaseFilterSet,
+    TenancyFilterSet,
+    LocalConfigContextFilterSet,
+    CustomFieldFilterSet,
+    CreatedUpdatedFilterSet
+):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -538,12 +550,14 @@ class DeviceFilterSet(LocalConfigContextFilterSet, TenancyFilterSet, CustomField
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -697,12 +711,14 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='device__site__region__in',
+        field_name='device__site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='device__site__region__in',
+        field_name='device__site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -738,7 +754,7 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         )
 
 
-class ConsolePortFilterSet(DeviceComponentFilterSet):
+class ConsolePortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
         null_value=None
@@ -754,7 +770,7 @@ class ConsolePortFilterSet(DeviceComponentFilterSet):
         fields = ['id', 'name', 'description', 'connection_status']
 
 
-class ConsoleServerPortFilterSet(DeviceComponentFilterSet):
+class ConsoleServerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
         null_value=None
@@ -770,7 +786,7 @@ class ConsoleServerPortFilterSet(DeviceComponentFilterSet):
         fields = ['id', 'name', 'description', 'connection_status']
 
 
-class PowerPortFilterSet(DeviceComponentFilterSet):
+class PowerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerPortTypeChoices,
         null_value=None
@@ -786,7 +802,7 @@ class PowerPortFilterSet(DeviceComponentFilterSet):
         fields = ['id', 'name', 'maximum_draw', 'allocated_draw', 'description', 'connection_status']
 
 
-class PowerOutletFilterSet(DeviceComponentFilterSet):
+class PowerOutletFilterSet(BaseFilterSet, DeviceComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerOutletTypeChoices,
         null_value=None
@@ -802,7 +818,7 @@ class PowerOutletFilterSet(DeviceComponentFilterSet):
         fields = ['id', 'name', 'feed_leg', 'description', 'connection_status']
 
 
-class InterfaceFilterSet(DeviceComponentFilterSet):
+class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -900,7 +916,7 @@ class InterfaceFilterSet(DeviceComponentFilterSet):
         }.get(value, queryset.none())
 
 
-class FrontPortFilterSet(DeviceComponentFilterSet):
+class FrontPortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
     cabled = django_filters.BooleanFilter(
         field_name='cable',
         lookup_expr='isnull',
@@ -912,7 +928,7 @@ class FrontPortFilterSet(DeviceComponentFilterSet):
         fields = ['id', 'name', 'type', 'description']
 
 
-class RearPortFilterSet(DeviceComponentFilterSet):
+class RearPortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
     cabled = django_filters.BooleanFilter(
         field_name='cable',
         lookup_expr='isnull',
@@ -924,26 +940,28 @@ class RearPortFilterSet(DeviceComponentFilterSet):
         fields = ['id', 'name', 'type', 'positions', 'description']
 
 
-class DeviceBayFilterSet(DeviceComponentFilterSet):
+class DeviceBayFilterSet(BaseFilterSet, DeviceComponentFilterSet):
 
     class Meta:
         model = DeviceBay
         fields = ['id', 'name', 'description']
 
 
-class InventoryItemFilterSet(DeviceComponentFilterSet):
+class InventoryItemFilterSet(BaseFilterSet, DeviceComponentFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='device__site__region__in',
+        field_name='device__site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='device__site__region__in',
+        field_name='device__site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -1002,19 +1020,21 @@ class InventoryItemFilterSet(DeviceComponentFilterSet):
         return queryset.filter(qs_filter)
 
 
-class VirtualChassisFilterSet(django_filters.FilterSet):
+class VirtualChassisFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='master__site__region__in',
+        field_name='master__site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='master__site__region__in',
+        field_name='master__site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -1056,7 +1076,7 @@ class VirtualChassisFilterSet(django_filters.FilterSet):
         return queryset.filter(qs_filter)
 
 
-class CableFilterSet(django_filters.FilterSet):
+class CableFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1119,7 +1139,7 @@ class CableFilterSet(django_filters.FilterSet):
         return queryset
 
 
-class ConsoleConnectionFilterSet(django_filters.FilterSet):
+class ConsoleConnectionFilterSet(BaseFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -1150,7 +1170,7 @@ class ConsoleConnectionFilterSet(django_filters.FilterSet):
         )
 
 
-class PowerConnectionFilterSet(django_filters.FilterSet):
+class PowerConnectionFilterSet(BaseFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -1181,7 +1201,7 @@ class PowerConnectionFilterSet(django_filters.FilterSet):
         )
 
 
-class InterfaceConnectionFilterSet(django_filters.FilterSet):
+class InterfaceConnectionFilterSet(BaseFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -1215,7 +1235,7 @@ class InterfaceConnectionFilterSet(django_filters.FilterSet):
         )
 
 
-class PowerPanelFilterSet(django_filters.FilterSet):
+class PowerPanelFilterSet(BaseFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -1226,12 +1246,14 @@ class PowerPanelFilterSet(django_filters.FilterSet):
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -1264,7 +1286,7 @@ class PowerPanelFilterSet(django_filters.FilterSet):
         return queryset.filter(qs_filter)
 
 
-class PowerFeedFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class PowerFeedFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -1275,12 +1297,14 @@ class PowerFeedFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='power_panel__site__region__in',
+        field_name='power_panel__site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='power_panel__site__region__in',
+        field_name='power_panel__site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
