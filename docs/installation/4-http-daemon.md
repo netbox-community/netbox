@@ -3,9 +3,9 @@ We'll set up a simple WSGI front end using [gunicorn](http://gunicorn.org/) for 
 !!! info
     For the sake of brevity, only Ubuntu 18.04 instructions are provided here, but this sort of web server and WSGI configuration is not unique to NetBox. Please consult your distribution's documentation for assistance if needed.
 
-# Web Server Installation
+## HTTP Daemon Installation
 
-## Option A: nginx
+### Option A: nginx
 
 The following will serve as a minimal nginx configuration. Be sure to modify your server name and installation path appropriately.
 
@@ -52,7 +52,7 @@ Restart the nginx service to use the new configuration.
 
 To enable SSL, consider this guide on [securing nginx with Let's Encrypt](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04).
 
-## Option B: Apache
+### Option B: Apache
 
 ```no-highlight
 # apt-get install -y apache2 libapache2-mod-wsgi-py3
@@ -102,15 +102,9 @@ To enable SSL, consider this guide on [securing Apache with Let's Encrypt](https
 !!! note
     Certain components of NetBox (such as the display of rack elevation diagrams) rely on the use of embedded objects. Ensure that your HTTP server configuration does not override the `X-Frame-Options` response header set by NetBox.
 
-# gunicorn Installation
+## gunicorn Configuration
 
-Install gunicorn:
-
-```no-highlight
-# pip3 install gunicorn
-```
-
-Copy `/opt/netbox/contrib/gunicorn.py` to `/opt/netbox/gunicorn.py`. We make a copy of this file to ensure that any changes to it do not get overwritten by a future upgrade.
+Copy `/opt/netbox/contrib/gunicorn.py` to `/opt/netbox/gunicorn.py`. (We make a copy of this file to ensure that any changes to it do not get overwritten by a future upgrade.)
 
 ```no-highlight
 # cd /opt/netbox
@@ -119,7 +113,7 @@ Copy `/opt/netbox/contrib/gunicorn.py` to `/opt/netbox/gunicorn.py`. We make a c
 
 You may wish to edit this file to change the bound IP address or port number, or to make performance-related adjustments.
 
-# systemd configuration
+## systemd Configuration
 
 We'll use systemd to control the daemonization of NetBox services. First, copy `contrib/netbox.service` and `contrib/netbox-rq.service` to the `/etc/systemd/system/` directory:
 
@@ -127,17 +121,12 @@ We'll use systemd to control the daemonization of NetBox services. First, copy `
 # cp contrib/*.service /etc/systemd/system/
 ```
 
-!!! note
-    These service files assume that gunicorn is installed at `/usr/local/bin/gunicorn`. If the output of `which gunicorn` indicates a different path, you'll need to correct the `ExecStart` path in both files.
-
 Then, start the `netbox` and `netbox-rq` services and enable them to initiate at boot time:
 
 ```no-highlight
 # systemctl daemon-reload
-# systemctl start netbox.service
-# systemctl start netbox-rq.service
-# systemctl enable netbox.service
-# systemctl enable netbox-rq.service
+# systemctl start netbox netbox-rq
+# systemctl enable netbox netbox-rq
 ```
 
 You can use the command `systemctl status netbox` to verify that the WSGI service is running:
@@ -157,7 +146,20 @@ You can use the command `systemctl status netbox` to verify that the WSGI servic
 ...
 ```
 
-At this point, you should be able to connect to the HTTP service at the server name or IP address you provided. If you are unable to connect, check that the nginx service is running and properly configured. If you receive a 502 (bad gateway) error, this indicates that gunicorn is misconfigured or not running.
+At this point, you should be able to connect to the HTTP service at the server name or IP address you provided.
 
 !!! info
     Please keep in mind that the configurations provided here are bare minimums required to get NetBox up and running. You may want to make adjustments to better suit your production environment.
+
+## Troubleshooting
+
+If you are unable to connect to the HTTP server, check that:
+
+* Nginx/Apache is running and configured to listen on the correct port.
+* Access is not being blocked by a firewall. (Try connecting locally from the server itself.)
+
+If you are able to connect but receive a 502 (bad gateway) error, check the following:
+
+* The NetBox system process (gunicorn) is running: `systemctl status netbox`
+* nginx/Apache is configured to connect to the port on which gunicorn is listening (default is 8001).
+* SELinux is not preventing the reverse proxy connection. You may need to allow HTTP network connections with the command `setsebool -P httpd_can_network_connect 1`

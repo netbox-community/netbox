@@ -24,6 +24,7 @@ from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, Ta
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object, to_meters
+from utilities.validators import ExclusionValidator
 from .device_component_templates import (
     ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, FrontPortTemplate, InterfaceTemplate,
     PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
@@ -1775,9 +1776,9 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         choices=PowerFeedPhaseChoices,
         default=PowerFeedPhaseChoices.PHASE_SINGLE
     )
-    voltage = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1)],
-        default=POWERFEED_VOLTAGE_DEFAULT
+    voltage = models.SmallIntegerField(
+        default=POWERFEED_VOLTAGE_DEFAULT,
+        validators=[ExclusionValidator([0])]
     )
     amperage = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)],
@@ -1859,10 +1860,16 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
                 self.rack, self.rack.site, self.power_panel, self.power_panel.site
             ))
 
+        # AC voltage cannot be negative
+        if self.voltage < 0 and self.supply == PowerFeedSupplyChoices.SUPPLY_AC:
+            raise ValidationError({
+                "voltage": "Voltage cannot be negative for AC supply"
+            })
+
     def save(self, *args, **kwargs):
 
         # Cache the available_power property on the instance
-        kva = self.voltage * self.amperage * (self.max_utilization / 100)
+        kva = abs(self.voltage) * self.amperage * (self.max_utilization / 100)
         if self.phase == PowerFeedPhaseChoices.PHASE_3PHASE:
             self.available_power = round(kva * 1.732)
         else:

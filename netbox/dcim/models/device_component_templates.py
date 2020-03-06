@@ -1,4 +1,4 @@
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -37,11 +37,17 @@ class ComponentTemplateModel(models.Model):
         raise NotImplementedError()
 
     def to_objectchange(self, action):
+        # Annotate the parent DeviceType
+        try:
+            device_type = self.device_type
+        except ObjectDoesNotExist:
+            # The parent DeviceType has already been deleted
+            device_type = None
         return ObjectChange(
             changed_object=self,
             object_repr=str(self),
             action=action,
-            related_object=self.device_type,
+            related_object=device_type,
             object_data=serialize_object(self)
         )
 

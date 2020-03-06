@@ -12,7 +12,7 @@ from django.core.exceptions import ImproperlyConfigured
 # Environment setup
 #
 
-VERSION = '2.7.8'
+VERSION = '2.7.9'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -506,6 +506,7 @@ REST_FRAMEWORK = {
 SWAGGER_SETTINGS = {
     'DEFAULT_AUTO_SCHEMA_CLASS': 'utilities.custom_inspectors.NetBoxSwaggerAutoSchema',
     'DEFAULT_FIELD_INSPECTORS': [
+        'utilities.custom_inspectors.JSONFieldInspector',
         'utilities.custom_inspectors.NullableBooleanFieldInspector',
         'utilities.custom_inspectors.CustomChoiceFieldInspector',
         'utilities.custom_inspectors.TagListFieldInspector',

@@ -55,10 +55,12 @@ class RackTypeChoices(ChoiceSet):
 
 class RackWidthChoices(ChoiceSet):
 
+    WIDTH_10IN = 10
     WIDTH_19IN = 19
     WIDTH_23IN = 23
 
     CHOICES = (
+        (WIDTH_10IN, '10 inches'),
         (WIDTH_19IN, '19 inches'),
         (WIDTH_23IN, '23 inches'),
     )
@@ -836,6 +838,7 @@ class PortTypeChoices(ChoiceSet):
     TYPE_8P8C = '8p8c'
     TYPE_110_PUNCH = '110-punch'
     TYPE_BNC = 'bnc'
+    TYPE_MRJ21 = 'mrj21'
     TYPE_ST = 'st'
     TYPE_SC = 'sc'
     TYPE_SC_APC = 'sc-apc'
@@ -854,6 +857,7 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_8P8C, '8P8C'),
                 (TYPE_110_PUNCH, '110 Punch'),
                 (TYPE_BNC, 'BNC'),
+                (TYPE_MRJ21, 'MRJ21'),
             ),
         ),
         (
@@ -904,6 +908,7 @@ class CableTypeChoices(ChoiceSet):
     TYPE_CAT7 = 'cat7'
     TYPE_DAC_ACTIVE = 'dac-active'
     TYPE_DAC_PASSIVE = 'dac-passive'
+    TYPE_MRJ21_TRUNK = 'mrj21-trunk'
     TYPE_COAXIAL = 'coaxial'
     TYPE_MMF = 'mmf'
     TYPE_MMF_OM1 = 'mmf-om1'
@@ -927,6 +932,7 @@ class CableTypeChoices(ChoiceSet):
                 (TYPE_CAT7, 'CAT7'),
                 (TYPE_DAC_ACTIVE, 'Direct Attach Copper (Active)'),
                 (TYPE_DAC_PASSIVE, 'Direct Attach Copper (Passive)'),
+                (TYPE_MRJ21_TRUNK, 'MRJ21 Trunk'),
                 (TYPE_COAXIAL, 'Coaxial'),
             ),
         ),

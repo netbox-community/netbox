@@ -37,10 +37,14 @@ class ProviderView(PermissionRequiredMixin, View):
     def get(self, request, slug):
 
         provider = get_object_or_404(Provider, slug=slug)
-        circuits = Circuit.objects.filter(provider=provider).prefetch_related('type', 'tenant', 'terminations__site')
+        circuits = Circuit.objects.filter(
+            provider=provider
+        ).prefetch_related(
+            'type', 'tenant', 'terminations__site'
+        ).annotate_sites()
         show_graphs = Graph.objects.filter(type__model='provider').exists()
 
-        circuits_table = tables.CircuitTable(circuits, orderable=False)
+        circuits_table = tables.CircuitTable(circuits)
         circuits_table.columns.hide('provider')
 
         paginate = {
@@ -142,10 +146,7 @@ class CircuitListView(PermissionRequiredMixin, ObjectListView):
     _terminations = CircuitTermination.objects.filter(circuit=OuterRef('pk'))
     queryset = Circuit.objects.prefetch_related(
         'provider', 'type', 'tenant', 'terminations__site'
-    ).annotate(
-        a_side=Subquery(_terminations.filter(term_side='A').values('site__name')[:1]),
-        z_side=Subquery(_terminations.filter(term_side='Z').values('site__name')[:1]),
-    )
+    ).annotate_sites()
     filterset = filters.CircuitFilterSet
     filterset_form = forms.CircuitFilterForm
     table = tables.CircuitTable

@@ -20,6 +20,16 @@ class RackElevationSVG:
         self.rack = rack
         self.include_images = include_images
 
+    def _get_device_description(self, device):
+        return '{} ({}) — {} ({}U) {} {}'.format(
+            device.name,
+            device.device_role,
+            device.device_type.display_name,
+            device.device_type.u_height,
+            device.asset_tag or '',
+            device.serial or ''
+        )
+
     @staticmethod
     def _add_gradient(drawing, id_, color):
         gradient = drawing.linearGradient(
@@ -64,10 +74,7 @@ class RackElevationSVG:
                 fill='black'
             )
         )
-        link.set_desc('{} — {} ({}U) {} {}'.format(
-            device.device_role, device.device_type.display_name,
-            device.device_type.u_height, device.asset_tag or '', device.serial or ''
-        ))
+        link.set_desc(self._get_device_description(device))
         link.add(drawing.rect(start, end, style='fill: #{}'.format(color), class_='slot'))
         hex_color = '#{}'.format(foreground_color(color))
         link.add(drawing.text(str(name), insert=text, fill=hex_color))
@@ -81,10 +88,7 @@ class RackElevationSVG:
 
     def _draw_device_rear(self, drawing, device, start, end, text):
         rect = drawing.rect(start, end, class_="slot blocked")
-        rect.set_desc('{} — {} ({}U) {} {}'.format(
-            device.device_role, device.device_type.display_name,
-            device.device_type.u_height, device.asset_tag or '', device.serial or ''
-        ))
+        rect.set_desc(self._get_device_description(device))
         drawing.add(rect)
         drawing.add(drawing.text(str(device), insert=text))
 
