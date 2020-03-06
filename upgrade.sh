@@ -64,7 +64,7 @@ COMMAND="python3 netbox/manage.py invalidate all"
 echo "Clearing cache data ($COMMAND)..."
 eval $COMMAND || exit 1
 
-if [ WARN_MISSING_VENV ]; then
+if [ -v WARN_MISSING_VENV ]; then
   echo "--------------------------------------------------------------------"
   echo "WARNING: No existing virtual environment was detected. A new one has"
   echo "been created. Update your systemd service files to reflect the new"
