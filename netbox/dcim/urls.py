@@ -51,6 +51,7 @@ urlpatterns = [
 
     # Rack reservations
     path('rack-reservations/', views.RackReservationListView.as_view(), name='rackreservation_list'),
+    path('rack-reservations/import/', views.RackReservationImportView.as_view(), name='rackreservation_import'),
     path('rack-reservations/edit/', views.RackReservationBulkEditView.as_view(), name='rackreservation_bulk_edit'),
     path('rack-reservations/delete/', views.RackReservationBulkDeleteView.as_view(), name='rackreservation_bulk_delete'),
     path('rack-reservations/<int:pk>/edit/', views.RackReservationEditView.as_view(), name='rackreservation_edit'),

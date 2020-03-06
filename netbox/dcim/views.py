@@ -470,7 +470,7 @@ class RackReservationListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.RackReservationFilterSet
     filterset_form = forms.RackReservationFilterForm
     table = tables.RackReservationTable
-    action_buttons = ()
+    action_buttons = ('export',)
 
 
 class RackReservationCreateView(PermissionRequiredMixin, ObjectEditView):
@@ -498,6 +498,13 @@ class RackReservationDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
     def get_return_url(self, request, obj):
         return obj.rack.get_absolute_url()
+
+
+class RackReservationImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_rackreservation'
+    model_form = forms.RackReservationCSVForm
+    table = tables.RackReservationTable
+    default_return_url = 'dcim:rackreservation_list'
 
 
 class RackReservationBulkEditView(PermissionRequiredMixin, BulkEditView):

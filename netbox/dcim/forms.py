@@ -829,6 +829,70 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
         return unit_choices
 
 
+class RackReservationCSVForm(forms.ModelForm):
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        help_text='Name of parent site',
+        error_messages={
+            'invalid_choice': 'Invalid site name.',
+        }
+    )
+    rack_group = forms.ModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Name of rack group',
+        error_messages={
+            'invalid_choice': 'Invalid rack group name.',
+        }
+    )
+    rack = forms.CharField(
+        required=True,
+        help_text='Name of parent rack'
+    )
+    units = forms.CharField(
+        required=True,
+        help_text='Rack units'
+    )
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned tenant',
+        error_messages={
+            'invalid_choice': 'Tenant not found.',
+        }
+    )
+
+    class Meta:
+        model = RackReservation
+        # fields = RackReservation.csv_headers
+        fields = ['site', 'rack_group', 'rack', 'units', 'tenant', 'description']  # Can't set user
+        help_texts = {
+        }
+
+    def clean(self):
+
+        super().clean()
+
+        site = self.cleaned_data.get('site')
+        rack_group = self.cleaned_data.get('rack_group')
+        rack_name = self.cleaned_data.get('rack')
+
+        # Validate rack
+        if site and rack_group and rack_name:
+            try:
+                self.instance.rack = Rack.objects.get(site=site, group__name=rack_group, name=rack_name)
+            except Rack.DoesNotExist:
+                raise forms.ValidationError("Rack {} not found in site {} group {}".format(rack_name, site, rack_group))
+        elif site and rack_name:
+            try:
+                self.instance.rack = Rack.objects.get(site=site, group__isnull=True, name=rack_name)
+            except Rack.DoesNotExist:
+                raise forms.ValidationError("Rack {} not found in site {} (no group)".format(rack_name, site))
+
+
 class RackReservationBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RackReservation.objects.all(),
