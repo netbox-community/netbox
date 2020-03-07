@@ -5,6 +5,10 @@
 * [#4323](https://github.com/netbox-community/netbox/issues/4323) - Add bulk edit view for power panels
 * [#4324](https://github.com/netbox-community/netbox/issues/4324) - Add CSV import view for services
 
+## Bug Fixes
+
+* [#4326](https://github.com/netbox-community/netbox/issues/4326) - Exclude Python modules without Script classes from scripts list
+
 ---
 
 # v2.7.9 (2020-03-06)
