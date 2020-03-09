@@ -10,6 +10,7 @@
 * [#4323](https://github.com/netbox-community/netbox/issues/4323) - Add bulk edit view for power panels
 * [#4324](https://github.com/netbox-community/netbox/issues/4324) - Add CSV import view for services
 * [#4325](https://github.com/netbox-community/netbox/issues/4324) - Add CSV import view for rack reservations
+* [#4332](https://github.com/netbox-community/netbox/issues/4332) - Redirect to a user-friendly error page when CSS/JS resources fail to load
 
 ### Bug Fixes
 
