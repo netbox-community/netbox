@@ -31,22 +31,6 @@ def placeholder(value):
     return mark_safe(placeholder)
 
 
-@register.filter()
-def getlist(value, arg):
-    """
-    Return all values of a QueryDict key
-    """
-    return value.getlist(arg)
-
-
-@register.filter
-def getkey(value, key):
-    """
-    Return a dictionary item specified by key
-    """
-    return value[key]
-
-
 # TODO: Rename this filter as py-gfm is no longer in use
 @register.filter(is_safe=True)
 def gfm(value):
