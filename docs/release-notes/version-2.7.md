@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#4217](https://github.com/netbox-community/netbox/issues/4217) - Embed model documentation within web UI
 * [#4323](https://github.com/netbox-community/netbox/issues/4323) - Add bulk edit view for power panels
 * [#4324](https://github.com/netbox-community/netbox/issues/4324) - Add CSV import view for services
 
