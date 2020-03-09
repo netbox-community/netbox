@@ -90,7 +90,7 @@
                 </div>
                 <div class="panel-body rendered-markdown">
                     {% if tag.comments %}
-                        {{ tag.comments|markdown }}
+                        {{ tag.comments|render_markdown }}
                     {% else %}
                         <span class="text-muted">None</span>
                     {% endif %}

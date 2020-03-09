@@ -88,11 +88,11 @@
                 </tr>
                 <tr>
                     <td>NOC Contact</td>
-                    <td class="rendered-markdown">{{ provider.noc_contact|markdown|placeholder }}</td>
+                    <td class="rendered-markdown">{{ provider.noc_contact|render_markdown|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Admin Contact</td>
-                    <td class="rendered-markdown">{{ provider.admin_contact|markdown|placeholder }}</td>
+                    <td class="rendered-markdown">{{ provider.admin_contact|render_markdown|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Circuits</td>
@@ -110,7 +110,7 @@
             </div>
             <div class="panel-body rendered-markdown">
                 {% if provider.comments %}
-                    {{ provider.comments|markdown }}
+                    {{ provider.comments|render_markdown }}
                 {% else %}
                     <span class="text-muted">None</span>
                 {% endif %}

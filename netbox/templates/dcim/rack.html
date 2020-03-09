@@ -198,7 +198,7 @@
             </div>
             <div class="panel-body rendered-markdown">
                 {% if rack.comments %}
-                    {{ rack.comments|markdown }}
+                    {{ rack.comments|render_markdown }}
                 {% else %}
                     <span class="text-muted">None</span>
                 {% endif %}
