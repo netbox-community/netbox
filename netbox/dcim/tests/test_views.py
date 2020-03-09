@@ -176,9 +176,6 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     test_get_object = None
     test_create_object = None
 
-    # TODO: Fix URL name for view
-    test_import_objects = None
-
     @classmethod
     def setUpTestData(cls):
 
@@ -203,6 +200,13 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'tenant': None,
             'description': 'Rack reservation',
         }
+
+        cls.csv_data = (
+            'site,rack_name,units,description',
+            'Site 1,Rack 1,"10,11,12",Reservation 1',
+            'Site 1,Rack 1,"13,14,15",Reservation 2',
+            'Site 1,Rack 1,"16,17,18",Reservation 3',
+        )
 
         cls.bulk_edit_data = {
             'user': user3.pk,

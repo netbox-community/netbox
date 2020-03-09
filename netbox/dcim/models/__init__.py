@@ -761,6 +761,8 @@ class RackReservation(ChangeLoggedModel):
         max_length=100
     )
 
+    csv_headers = ['site', 'rack_group', 'rack', 'units', 'tenant', 'user', 'description']
+
     class Meta:
         ordering = ['created']
 
@@ -792,6 +794,17 @@ class RackReservation(ChangeLoggedModel):
                         ', '.join([str(u) for u in conflicting_units]),
                     )
                 })
+
+    def to_csv(self):
+        return (
+            self.rack.site.name,
+            self.rack.group if self.rack.group else None,
+            self.rack.name,
+            ','.join([str(u) for u in self.units]),
+            self.tenant.name if self.tenant else None,
+            self.user.username,
+            self.description
+        )
 
     @property
     def unit_list(self):

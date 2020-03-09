@@ -206,7 +206,7 @@ class SecretBulkImportView(BulkImportView):
 
     master_key = None
 
-    def _save_obj(self, obj_form):
+    def _save_obj(self, obj_form, request):
         """
         Encrypt each object before saving it to the database.
         """
