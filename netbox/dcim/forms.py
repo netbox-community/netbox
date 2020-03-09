@@ -838,18 +838,12 @@ class RackReservationCSVForm(forms.ModelForm):
             'invalid_choice': 'Invalid site name.',
         }
     )
-    rack_group = forms.ModelChoiceField(
-        queryset=RackGroup.objects.all(),
-        to_field_name='name',
+    rack_group = forms.CharField(
         required=False,
-        help_text='Name of rack group',
-        error_messages={
-            'invalid_choice': 'Invalid rack group name.',
-        }
+        help_text="Rack's group (if any)"
     )
-    rack = forms.CharField(
-        required=True,
-        help_text='Name of parent rack'
+    rack_name = forms.CharField(
+        help_text="Rack name"
     )
     units = forms.CharField(
         required=True,
@@ -867,8 +861,7 @@ class RackReservationCSVForm(forms.ModelForm):
 
     class Meta:
         model = RackReservation
-        # fields = RackReservation.csv_headers
-        fields = ['site', 'rack_group', 'rack', 'units', 'tenant', 'description']  # Can't set user
+        fields = ('site', 'rack_group', 'rack_name', 'units', 'tenant', 'description')
         help_texts = {
         }
 
@@ -878,7 +871,7 @@ class RackReservationCSVForm(forms.ModelForm):
 
         site = self.cleaned_data.get('site')
         rack_group = self.cleaned_data.get('rack_group')
-        rack_name = self.cleaned_data.get('rack')
+        rack_name = self.cleaned_data.get('rack_name')
 
         # Validate rack
         if site and rack_group and rack_name:

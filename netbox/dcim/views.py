@@ -506,6 +506,16 @@ class RackReservationImportView(PermissionRequiredMixin, BulkImportView):
     table = tables.RackReservationTable
     default_return_url = 'dcim:rackreservation_list'
 
+    def _save_obj(self, obj_form, request):
+        """
+        Assign the currently authenticated user to the RackReservation.
+        """
+        instance = obj_form.save(commit=False)
+        instance.user = request.user
+        instance.save()
+
+        return instance
+
 
 class RackReservationBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_rackreservation'
@@ -1252,7 +1262,7 @@ class ChildDeviceBulkImportView(PermissionRequiredMixin, BulkImportView):
     template_name = 'dcim/device_import_child.html'
     default_return_url = 'dcim:device_list'
 
-    def _save_obj(self, obj_form):
+    def _save_obj(self, obj_form, request):
 
         obj = obj_form.save()
 
