@@ -2,11 +2,14 @@
 
 ## v2.7.10 (FUTURE)
 
+**Note:** If your deployment requires any non-core Python packages (such as `napalm`, `django-storages`, or `django-auth-ldap`), list them in a file named `local_requirements.txt` in the NetBox root directory (alongside `requirements.txt`). This will ensure they are detected and re-installed by the upgrade script when the Python virtual environment is rebuilt.
+
 ### Enhancements
 
 * [#4217](https://github.com/netbox-community/netbox/issues/4217) - Embed model documentation within web UI
 * [#4323](https://github.com/netbox-community/netbox/issues/4323) - Add bulk edit view for power panels
 * [#4324](https://github.com/netbox-community/netbox/issues/4324) - Add CSV import view for services
+* [#4325](https://github.com/netbox-community/netbox/issues/4324) - Add CSV import view for rack reservations
 
 ### Bug Fixes
 
