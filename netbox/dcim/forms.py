@@ -845,9 +845,10 @@ class RackReservationCSVForm(forms.ModelForm):
     rack_name = forms.CharField(
         help_text="Rack name"
     )
-    units = forms.CharField(
+    units = SimpleArrayField(
+        base_field=forms.IntegerField(),
         required=True,
-        help_text='Rack units'
+        help_text='Comma-separated list of individual unit numbers'
     )
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
