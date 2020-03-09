@@ -158,7 +158,7 @@
             </div>
             <div class="panel-body rendered-markdown">
                 {% if powerfeed.comments %}
-                    {{ powerfeed.comments|gfm }}
+                    {{ powerfeed.comments|markdown }}
                 {% else %}
                     <span class="text-muted">None</span>
                 {% endif %}

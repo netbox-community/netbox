@@ -152,7 +152,7 @@
             </div>
             <div class="panel-body rendered-markdown">
                 {% if virtualmachine.comments %}
-                    {{ virtualmachine.comments|gfm }}
+                    {{ virtualmachine.comments|markdown }}
                 {% else %}
                     <span class="text-muted">None</span>
                 {% endif %}

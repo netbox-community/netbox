@@ -115,7 +115,7 @@
             </div>
             <div class="panel-body rendered-markdown">
                 {% if cluster.comments %}
-                    {{ cluster.comments|gfm }}
+                    {{ cluster.comments|markdown }}
                 {% else %}
                     <span class="text-muted">None</span>
                 {% endif %}

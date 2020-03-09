@@ -31,9 +31,8 @@ def placeholder(value):
     return mark_safe(placeholder)
 
 
-# TODO: Rename this filter as py-gfm is no longer in use
 @register.filter(is_safe=True)
-def gfm(value):
+def render_markdown(value):
     """
     Render text as Markdown
     """
