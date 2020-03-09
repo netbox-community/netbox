@@ -15,7 +15,7 @@
         {% export_button content_type %}
     {% endif %}
 </div>
-<h1>{% block title %}{{ content_type.model_class|model_name_plural|bettertitle }}{% endblock %}</h1>
+<h1>{% block title %}{{ content_type.model_class|meta:"verbose_name_plural"|bettertitle }}{% endblock %}</h1>
 <div class="row">
     <div class="col-md-{% if filter_form %}9{% else %}12{% endif %}">
         {% with bulk_edit_url=content_type.model_class|url_name:"bulk_edit" bulk_delete_url=content_type.model_class|url_name:"bulk_delete" %}

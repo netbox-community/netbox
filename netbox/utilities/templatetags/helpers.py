@@ -21,15 +21,6 @@ register = template.Library()
 #
 
 @register.filter()
-def oneline(value):
-    """
-    Replace each line break with a single space
-    """
-    value = value.replace('\r', '')
-    return value.replace('\n', ' ')
-
-
-@register.filter()
 def placeholder(value):
     """
     Render a muted placeholder if value equates to False.
@@ -40,25 +31,8 @@ def placeholder(value):
     return mark_safe(placeholder)
 
 
-@register.filter()
-def getlist(value, arg):
-    """
-    Return all values of a QueryDict key
-    """
-    return value.getlist(arg)
-
-
-@register.filter
-def getkey(value, key):
-    """
-    Return a dictionary item specified by key
-    """
-    return value[key]
-
-
-# TODO: Rename this filter as py-gfm is no longer in use
 @register.filter(is_safe=True)
-def gfm(value):
+def render_markdown(value):
     """
     Render text as Markdown
     """
@@ -88,19 +62,12 @@ def render_yaml(value):
 
 
 @register.filter()
-def model_name(obj):
+def meta(obj, attr):
     """
-    Return the name of the model of the given object
+    Return the specified Meta attribute of a model. This is needed because Django does not permit templates
+    to access attributes which begin with an underscore (e.g. _meta).
     """
-    return obj._meta.verbose_name
-
-
-@register.filter()
-def model_name_plural(obj):
-    """
-    Return the plural name of the model of the given object
-    """
-    return obj._meta.verbose_name_plural
+    return getattr(obj._meta, attr, '')
 
 
 @register.filter()
@@ -116,14 +83,6 @@ def url_name(model, action):
         return url_name
     except NoReverseMatch:
         return None
-
-
-@register.filter()
-def contains(value, arg):
-    """
-    Test whether a value contains any of a given set of strings. `arg` should be a comma-separated list of strings.
-    """
-    return any(s in value for s in arg.split(','))
 
 
 @register.filter()
