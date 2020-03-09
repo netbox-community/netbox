@@ -93,14 +93,6 @@ def url_name(model, action):
 
 
 @register.filter()
-def contains(value, arg):
-    """
-    Test whether a value contains any of a given set of strings. `arg` should be a comma-separated list of strings.
-    """
-    return any(s in value for s in arg.split(','))
-
-
-@register.filter()
 def bettertitle(value):
     """
     Alternative to the builtin title(); uppercases words without replacing letters that are already uppercase.
