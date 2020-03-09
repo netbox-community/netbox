@@ -62,19 +62,12 @@ def render_yaml(value):
 
 
 @register.filter()
-def model_name(obj):
+def meta(obj, attr):
     """
-    Return the name of the model of the given object
+    Return the specified Meta attribute of a model. This is needed because Django does not permit templates
+    to access attributes which begin with an underscore (e.g. _meta).
     """
-    return obj._meta.verbose_name
-
-
-@register.filter()
-def model_name_plural(obj):
-    """
-    Return the plural name of the model of the given object
-    """
-    return obj._meta.verbose_name_plural
+    return getattr(obj._meta, attr, '')
 
 
 @register.filter()
