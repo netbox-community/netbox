@@ -98,7 +98,3 @@ redis
 # SVG image rendering (used for rack elevations)
 # https://github.com/mozman/svgwrite
 svgwrite
-
-# Python package management tool
-# https://pythonwheels.com/
-wheel

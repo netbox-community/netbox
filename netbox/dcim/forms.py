@@ -4621,6 +4621,35 @@ class PowerPanelCSVForm(forms.ModelForm):
                 )
 
 
+class PowerPanelBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=PowerPanel.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/sites/",
+            filter_for={
+                'rack_group': 'site_id',
+            }
+        )
+    )
+    rack_group = DynamicModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/rack-groups/"
+        )
+    )
+
+    class Meta:
+        nullable_fields = (
+            'rack_group',
+        )
+
+
 class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = PowerPanel
     q = forms.CharField(

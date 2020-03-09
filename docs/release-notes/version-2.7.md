@@ -1,12 +1,26 @@
 # NetBox v2.7 Release Notes
 
-## v2.7.9 (FUTURE)
+## v2.7.10 (FUTURE)
+
+### Enhancements
+
+* [#4323](https://github.com/netbox-community/netbox/issues/4323) - Add bulk edit view for power panels
+* [#4324](https://github.com/netbox-community/netbox/issues/4324) - Add CSV import view for services
+
+### Bug Fixes
+
+* [#4326](https://github.com/netbox-community/netbox/issues/4326) - Exclude Python modules without Script classes from scripts list
+
+---
+
+## v2.7.9 (2020-03-06)
 
 **Note:** This release will deploy a Python virtual environment on upgrade in the `venv/` directory. This will require modifying the paths to your Python and gunicorn executables in the systemd service files. For more detail, please see the [upgrade instructions](https://netbox.readthedocs.io/en/stable/installation/upgrading/).
 
 ### Enhancements
 
 * [#3949](https://github.com/netbox-community/netbox/issues/3949) - Revised the installation docs and upgrade script to employ a Python virtual environment
+* [#4062](https://github.com/netbox-community/netbox/issues/4062) - Enumerate ChoiceField type and value in API
 * [#4119](https://github.com/netbox-community/netbox/issues/4119) - Extend upgrade script to clear expired user sessions
 * [#4121](https://github.com/netbox-community/netbox/issues/4121) - Add dynamic lookup expressions for all filters
 * [#4218](https://github.com/netbox-community/netbox/issues/4218) - Allow negative voltage for DC power feeds
