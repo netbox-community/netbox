@@ -64,7 +64,7 @@ This guide assumes that NetBox is installed at `/opt/netbox`. Pull down the most
 
 ## Run the Upgrade Script
 
-Once the new code is in place, run the upgrade script:
+Once the new code is in place, verify that any optional Python packages required by your deployment (e.g. `napalm` or `django-auth-ldap`) are listed in `local_requirements.txt`. Then, run the upgrade script:
 
 ```no-highlight
 # ./upgrade.sh
@@ -73,7 +73,8 @@ Once the new code is in place, run the upgrade script:
 This script:
 
 * Destroys and rebuilds the Python virtual environment
-* Installs all required Python packages
+* Installs all required Python packages (listed in `requirements.txt`)
+* Installs any additional packages from `local_requirements.txt`
 * Applies any database migrations that were included in the release
 * Collects all static files to be served by the HTTP service
 * Deletes stale content types from the database

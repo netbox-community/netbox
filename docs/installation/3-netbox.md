@@ -103,12 +103,24 @@ NetBox supports integration with the [NAPALM automation](https://napalm-automati
 (venv) # pip3 install napalm
 ```
 
+To ensure NAPALM is automatically re-installed during future upgrades, create a file named `local_requirements.txt` in the NetBox root directory (alongside `requirements.txt`) and list the `napalm` package:
+
+```no-highlight
+# echo napalm >> local_requirements.txt
+```
+
 ### Remote File Storage (Optional)
 
 By default, NetBox will use the local filesystem to storage uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired backend](../../configuration/optional-settings/#storage_backend) in `configuration.py`.
 
 ```no-highlight
 (venv) # pip3 install django-storages
+```
+
+Don't forget to add the `django-storages` package to `local_requirements.txt` to ensure it gets re-installed during future upgrades:
+
+```no-highlight
+# echo django-storages >> local_requirements.txt
 ```
 
 ## Configuration

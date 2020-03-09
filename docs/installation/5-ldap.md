@@ -4,24 +4,34 @@ This guide explains how to implement LDAP authentication using an external serve
 
 ## Install Requirements
 
-### Install openldap-devel
+### Install System Packages
 
 On Ubuntu:
 
 ```no-highlight
-sudo apt-get install -y libldap2-dev libsasl2-dev libssl-dev
+# apt-get install -y libldap2-dev libsasl2-dev libssl-dev
 ```
 
 On CentOS:
 
 ```no-highlight
-sudo yum install -y openldap-devel
+# yum install -y openldap-devel
 ```
 
 ### Install django-auth-ldap
 
+Activate the Python virtual environment and install the `django-auth-ldap` package using pip:
+
 ```no-highlight
-pip3 install django-auth-ldap
+# cd /opt/netbox/
+# source venv/bin/activate
+(venv) # pip3 install django-auth-ldap
+```
+
+Once installed, add the package to `local_requirements.txt` to ensure it is re-installed during future rebuilds of the virtual environment:
+
+```no-highlight
+(venv) # echo django-auth-ldap >> local_requirements.txt
 ```
 
 ## Configuration

@@ -34,10 +34,20 @@ COMMAND="pip3 install wheel"
 echo "Installing Python system packages ($COMMAND)..."
 eval $COMMAND || exit 1
 
-# Install Python packages
+# Install required Python packages
 COMMAND="pip3 install -r requirements.txt"
-echo "Installing dependencies ($COMMAND)..."
+echo "Installing core dependencies ($COMMAND)..."
 eval $COMMAND || exit 1
+
+# Install optional packages (if any)
+if [ -f "local_requirements.txt" ]
+then
+  COMMAND="pip3 install -r local_requirements.txt"
+  echo "Installing local dependencies ($COMMAND)..."
+  eval $COMMAND || exit 1
+else
+  echo "Skipping local dependencies (local_requirements.txt not found)"
+fi
 
 # Apply any database migrations
 COMMAND="python3 netbox/manage.py migrate"
