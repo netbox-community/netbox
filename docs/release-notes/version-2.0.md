@@ -1,6 +1,8 @@
-# v2.0.10 (2017-07-14)
+# NetBox v2.0 Release Notes
 
-## Bug Fixes
+## v2.0.10 (2017-07-14)
+
+### Bug Fixes
 
 * [#1312](https://github.com/netbox-community/netbox/issues/1312) - Catch error when attempting to activate a user key with an invalid private key
 * [#1333](https://github.com/netbox-community/netbox/issues/1333) - Corrected label on is_console_server field of DeviceType bulk edit form
@@ -10,24 +12,24 @@
 
 ---
 
-# v2.0.9 (2017-07-10)
+## v2.0.9 (2017-07-10)
 
-## Bug Fixes
+### Bug Fixes
 
 * [#1319](https://github.com/netbox-community/netbox/issues/1319) - Fixed server error when attempting to create console/power connections
 * [#1325](https://github.com/netbox-community/netbox/issues/1325) - Retain interface attachment when editing a circuit termination
 
 ---
 
-# v2.0.8 (2017-07-05)
+## v2.0.8 (2017-07-05)
 
-## Enhancements
+### Enhancements
 
 * [#1298](https://github.com/netbox-community/netbox/issues/1298) - Calculate prefix utilization based on its status (container or non-container)
 * [#1303](https://github.com/netbox-community/netbox/issues/1303) - Highlight installed interface connections in green on device view
 * [#1315](https://github.com/netbox-community/netbox/issues/1315) - Enforce lowercase file extensions for image attachments
 
-## Bug Fixes
+### Bug Fixes
 
 * [#1279](https://github.com/netbox-community/netbox/issues/1279) - Fix primary_ip assignment during IP address import
 * [#1281](https://github.com/netbox-community/netbox/issues/1281) - Show LLDP neighbors tab on device view only if necessary conditions are met
@@ -39,13 +41,13 @@
 
 ---
 
-# v2.0.7 (2017-06-15)
+## v2.0.7 (2017-06-15)
 
-## Enhancements
+### Enhancements
 
 * [#626](https://github.com/netbox-community/netbox/issues/626) - Added bulk disconnect function for console/power/interface connections on device view
 
-## Bug Fixes
+### Bug Fixes
 
 * [#1238](https://github.com/netbox-community/netbox/issues/1238) - Fix error when editing an IP with a NAT assignment which has no assigned device
 * [#1263](https://github.com/netbox-community/netbox/issues/1263) - Differentiate add and edit permissions for objects
@@ -58,9 +60,9 @@
 
 ---
 
-# v2.0.6 (2017-06-12)
+## v2.0.6 (2017-06-12)
 
-## Enhancements
+### Enhancements
 
 * [#40](https://github.com/netbox-community/netbox/issues/40) - Added IP utilization graph to prefix list
 * [#704](https://github.com/netbox-community/netbox/issues/704) - Allow filtering VLANs by group when editing prefixes
@@ -68,25 +70,25 @@
 * [#990](https://github.com/netbox-community/netbox/issues/990) - Enable logging configuration in configuration.py
 * [#1180](https://github.com/netbox-community/netbox/issues/1180) - Simplified the process of finding related devices when viewing a device
 
-## Bug Fixes
+### Bug Fixes
 
 * [#1253](https://github.com/netbox-community/netbox/issues/1253) - Improved `upgrade.sh` to allow forcing Python2
 
 ---
 
-# v2.0.5 (2017-06-08)
+## v2.0.5 (2017-06-08)
 
-## Notes
+### Notes
 
 The maximum number of objects an API consumer can request has been set to 1000 (e.g. `?limit=1000`). This limit can be modified by defining `MAX_PAGE_SIZE` in confgiuration.py. (To remove this limit, set `MAX_PAGE_SIZE=0`.)
 
-## Enhancements
+### Enhancements
 
 * [#655](https://github.com/netbox-community/netbox/issues/655) - Implemented header-based CSV import of objects
 * [#1190](https://github.com/netbox-community/netbox/issues/1190) - Allow partial string matching when searching on custom fields
 * [#1237](https://github.com/netbox-community/netbox/issues/1237) - Enabled setting limit=0 to disable pagination in API requests; added `MAX_PAGE_SIZE` configuration setting
 
-## Bug Fixes
+### Bug Fixes
 
 * [#837](https://github.com/netbox-community/netbox/issues/837) - Enforce uniqueness where applicable during bulk import of IP addresses
 * [#1226](https://github.com/netbox-community/netbox/issues/1226) - Improved validation for custom field values submitted via the API
@@ -99,9 +101,9 @@ The maximum number of objects an API consumer can request has been set to 1000 (
 
 ---
 
-# v2.0.4 (2017-05-25)
+## v2.0.4 (2017-05-25)
 
-## Bug Fixes
+### Bug Fixes
 
 * [#1206](https://github.com/netbox-community/netbox/issues/1206) - Fix redirection in admin UI after activating secret keys when BASE_PATH is set
 * [#1207](https://github.com/netbox-community/netbox/issues/1207) - Include nested LAG serializer when showing interface connections (API)
@@ -115,14 +117,14 @@ The maximum number of objects an API consumer can request has been set to 1000 (
 
 ---
 
-# v2.0.3 (2017-05-18)
+## v2.0.3 (2017-05-18)
 
-## Enhancements
+### Enhancements
 
 * [#1196](https://github.com/netbox-community/netbox/issues/1196) - Added a lag_id filter to the API interfaces view
 * [#1198](https://github.com/netbox-community/netbox/issues/1198) - Allow filtering unracked devices on device list
 
-## Bug Fixes
+### Bug Fixes
 
 * [#1157](https://github.com/netbox-community/netbox/issues/1157) - Hide nav menu search bar on small displays
 * [#1186](https://github.com/netbox-community/netbox/issues/1186) - Corrected VLAN edit form so that site assignment is not required
@@ -137,9 +139,9 @@ The maximum number of objects an API consumer can request has been set to 1000 (
 
 ---
 
-# v2.0.2 (2017-05-15)
+## v2.0.2 (2017-05-15)
 
-## Enhancements
+### Enhancements
 
 * [#1122](https://github.com/netbox-community/netbox/issues/1122) - Include NAT inside IPs in IP address list
 * [#1137](https://github.com/netbox-community/netbox/issues/1137) - Allow filtering devices list by rack
@@ -149,7 +151,7 @@ The maximum number of objects an API consumer can request has been set to 1000 (
 * [#1179](https://github.com/netbox-community/netbox/issues/1179) - Adjust topology map text color based on node background
 * On all object edit forms, allow filtering the tenant list by tenant group
 
-## Bug Fixes
+### Bug Fixes
 
 * [#1158](https://github.com/netbox-community/netbox/issues/1158) - Exception thrown when creating a device component with an invalid name
 * [#1159](https://github.com/netbox-community/netbox/issues/1159) - Only superusers can see "edit IP" buttons on the device interfaces list
@@ -162,9 +164,9 @@ The maximum number of objects an API consumer can request has been set to 1000 (
 
 ---
 
-# v2.0.1 (2017-05-10)
+## v2.0.1 (2017-05-10)
 
-## Bug Fixes
+### Bug Fixes
 
 * [#1149](https://github.com/netbox-community/netbox/issues/1149) - Port list does not populate when creating a console or power connection
 * [#1150](https://github.com/netbox-community/netbox/issues/1150) - Error when uploading image attachments with Unicode names under Python 2
@@ -174,27 +176,27 @@ The maximum number of objects an API consumer can request has been set to 1000 (
 
 ---
 
-# v2.0.0 (2017-05-09)
+## v2.0.0 (2017-05-09)
 
-## New Features
+### New Features
 
-### API 2.0 ([#113](https://github.com/netbox-community/netbox/issues/113))
+#### API 2.0 ([#113](https://github.com/netbox-community/netbox/issues/113))
 
 The NetBox API has been completely rewritten and now features full read/write ability.
 
-### Image Attachments ([#152](https://github.com/netbox-community/netbox/issues/152))
+#### Image Attachments ([#152](https://github.com/netbox-community/netbox/issues/152))
 
 Users are now able to attach photos and other images to sites, racks, and devices. (Please ensure that the new `media` directory is writable by the system account NetBox runs as.)
 
-### Global Search ([#159](https://github.com/netbox-community/netbox/issues/159))
+#### Global Search ([#159](https://github.com/netbox-community/netbox/issues/159))
 
 NetBox now supports searching across all primary object types at once.
 
-### Rack Elevations View ([#951](https://github.com/netbox-community/netbox/issues/951))
+#### Rack Elevations View ([#951](https://github.com/netbox-community/netbox/issues/951))
 
 A new view has been introduced to display the elevations of multiple racks side-by-side.
 
-## Enhancements
+### Enhancements
 
 * [#154](https://github.com/netbox-community/netbox/issues/154) - Expanded device status field to include options other than active/offline
 * [#430](https://github.com/netbox-community/netbox/issues/430) - Include circuits when rendering topology maps
@@ -202,7 +204,7 @@ A new view has been introduced to display the elevations of multiple racks side-
 * [#1100](https://github.com/netbox-community/netbox/issues/1100) - Add a "view all" link to completed bulk import views is_pool for prefixes)
 * [#1110](https://github.com/netbox-community/netbox/issues/1110) - Expand bulk edit forms to include boolean fields (e.g. toggle is_pool for prefixes)
 
-## Bug Fixes
+### Bug Fixes
 
 From v1.9.6:
 
@@ -223,7 +225,7 @@ From beta3:
 * [#1126](https://github.com/netbox-community/netbox/issues/1126) - Fixed server error when editing a user key via admin UI attachment
 * [#1132](https://github.com/netbox-community/netbox/issues/1132) - Prompt user to unlock session key when importing secrets
 
-## Additional Changes
+### Additional Changes
 
 * The Module DCIM model has been renamed to InventoryItem to better reflect its intended function, and to make room for work on [#824](https://github.com/netbox-community/netbox/issues/824).
 * Redundant portions of the admin UI have been removed ([#973](https://github.com/netbox-community/netbox/issues/973)).

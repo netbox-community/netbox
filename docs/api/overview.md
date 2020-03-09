@@ -1,4 +1,6 @@
-# What is a REST API?
+# The NetBox REST API
+
+## What is a REST API?
 
 REST stands for [representational state transfer](https://en.wikipedia.org/wiki/Representational_state_transfer). It's a particular type of API which employs HTTP to create, retrieve, update, and delete objects from a database. (This set of operations is commonly referred to as CRUD.) Each type of operation is associated with a particular HTTP verb:
 
@@ -32,11 +34,11 @@ $ curl -s http://localhost:8000/api/ipam/ip-addresses/2954/ | jq '.'
 
 Each attribute of the NetBox object is expressed as a field in the dictionary. Fields may include their own nested objects, as in the case of the `status` field above. Every object includes a primary key named `id` which uniquely identifies it in the database.
 
-# Interactive Documentation
+## Interactive Documentation
 
 Comprehensive, interactive documentation of all API endpoints is available on a running NetBox instance at `/api/docs/`. This interface provides a convenient sandbox for researching and experimenting with NetBox's various API endpoints and different request types.
 
-# URL Hierarchy
+## URL Hierarchy
 
 NetBox's entire API is housed under the API root at `https://<hostname>/api/`. The URL structure is divided at the root level by application: circuits, DCIM, extras, IPAM, secrets, and tenancy. Within each application, each model has its own path. For example, the provider and circuit objects are located under the "circuits" application:
 
@@ -64,7 +66,7 @@ GET /api/dcim/interfaces/?device_id=123
 
 See [filtering](filtering.md) for more details.
 
-# Serialization
+## Serialization
 
 The NetBox API employs three types of serializers to represent model data:
 
@@ -108,7 +110,7 @@ The base serializer is used to represent the default view of a model. This inclu
 }
 ```
 
-## Related Objects
+### Related Objects
 
 Related objects (e.g. `ForeignKey` fields) are represented using a nested serializer. A nested serializer provides a minimal representation of an object, including only its URL and enough information to display the object to a user. When performing write API actions (`POST`, `PUT`, and `PATCH`), related objects may be specified by either numeric ID (primary key), or by a set of attributes sufficiently unique to return the desired object.
 
@@ -139,7 +141,7 @@ Or by a set of nested attributes used to identify the rack:
 
 Note that if the provided parameters do not return exactly one object, a validation error is raised.
 
-## Brief Format
+### Brief Format
 
 Most API endpoints support an optional "brief" format, which returns only a minimal representation of each object in the response. This is useful when you need only a list of the objects themselves without any related data, such as when populating a drop-down list in a form.
 
@@ -185,7 +187,7 @@ GET /api/ipam/prefixes/13980/?brief=1
 
 The brief format is supported for both lists and individual objects.
 
-## Static Choice Fields
+### Static Choice Fields
 
 Some model fields, such as the `status` field in the above example, utilize static integers corresponding to static choices. The available choices can be retrieved from the read-only `_choices` endpoint within each app. A specific `model:field` tuple may optionally be specified in the URL.
 
@@ -216,7 +218,7 @@ Thus, to set a prefix's status to "Reserved," it would be assigned the integer `
 
 A request for `GET /api/ipam/_choices/` will return choices for _all_ fields belonging to models within the IPAM app.
 
-# Pagination
+## Pagination
 
 API responses which contain a list of objects (for example, a request to `/api/dcim/devices/`) will be paginated to avoid unnecessary overhead. The root JSON object will contain the following attributes:
 
@@ -270,7 +272,7 @@ The maximum number of objects that can be returned is limited by the [`MAX_PAGE_
 !!! warning
     Disabling the page size limit introduces a potential for very resource-intensive requests, since one API request can effectively retrieve an entire table from the database.
 
-# Filtering
+## Filtering
 
 A list of objects retrieved via the API can be filtered by passing one or more query parameters. The same parameters used by the web UI work for the API as well. For example, to return only prefixes with a status of "Active" (`1`):
 
@@ -303,7 +305,7 @@ The choices available for fixed choice fields such as `status` are exposed in th
 
 For most fields, when a filter is passed multiple times, objects matching _any_ of the provided values will be returned. For example, `GET /api/dcim/sites/?name=Foo&name=Bar` will return all sites named "Foo" _or_ "Bar". The exception to this rule is ManyToManyFields which may have multiple values assigned. Tags are the most common example of a ManyToManyField. For example, `GET /api/dcim/sites/?tag=foo&tag=bar` will return only sites tagged with both "foo" _and_ "bar".
 
-## Custom Fields
+### Custom Fields
 
 To filter on a custom field, prepend `cf_` to the field name. For example, the following query will return only sites where a custom field named `foo` is equal to 123:
 

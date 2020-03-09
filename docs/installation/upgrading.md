@@ -1,3 +1,5 @@
+# Upgrading to a New NetBox Release
+
 ## Review the Release Notes
 
 Prior to upgrading your NetBox instance, be sure to carefully review all [release notes](../../release-notes/) that have been published since your current version was released. Although the upgrade process typically does not involve additional work, certain releases may introduce breaking or backward-incompatible changes. These are called out in the release notes under the version in which the change went into effect.
@@ -49,7 +51,7 @@ Copy the LDAP configuration if using LDAP:
 # cp netbox-X.Y.Z/netbox/netbox/ldap_config.py netbox/netbox/netbox/ldap_config.py
 ```
 
-### Option B: Clone the Git Repository (latest master release)
+### Option B: Clone the Git Repository
 
 This guide assumes that NetBox is installed at `/opt/netbox`. Pull down the most recent iteration of the master branch:
 

@@ -1,6 +1,8 @@
+# Working with Secrets
+
 As with most other objects, the NetBox API can be used to create, modify, and delete secrets. However, additional steps are needed to encrypt or decrypt secret data.
 
-# Generating a Session Key
+## Generating a Session Key
 
 In order to encrypt or decrypt secret data, a session key must be attached to the API request. To generate a session key, send an authenticated request to the `/api/secrets/get-session-key/` endpoint with the private RSA key which matches your [UserKey](../../core-functionality/secrets/#user-keys). The private key must be POSTed with the name `private_key`.
 
@@ -19,7 +21,7 @@ $ curl -X POST http://localhost:8000/api/secrets/get-session-key/ \
 
 The request uses your private key to unlock your stored copy of the master key and generate a session key which can be attached in the `X-Session-Key` header of future API requests.
 
-# Retrieving Secrets
+## Retrieving Secrets
 
 A session key is not needed to retrieve unencrypted secrets: The secret is returned like any normal object with its `plaintext` field set to null.
 
@@ -112,7 +114,7 @@ $ curl http://localhost:8000/api/secrets/secrets/?limit=3 \
 }
 ```
 
-# Creating Secrets
+## Creating Secrets
 
 Session keys are also used to decrypt new or modified secrets. This is done by setting the `plaintext` field of the submitted object:
 

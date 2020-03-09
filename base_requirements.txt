@@ -83,10 +83,6 @@ Pillow
 # https://github.com/psycopg/psycopg2
 psycopg2-binary
 
-# GitHub-flavored Markdown extensions
-# https://github.com/zopieux/py-gfm
-py-gfm
-
 # Extensive cryptographic library (fork of pycrypto)
 # https://github.com/Legrandin/pycryptodome
 pycryptodome

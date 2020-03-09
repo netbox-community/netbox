@@ -1,13 +1,14 @@
+# NetBox v2.4 Release Notes
 
-# v2.4.9 (2018-12-07)
+## v2.4.9 (2018-12-07)
 
-## Enhancements
+### Enhancements
 
 * [#2089](https://github.com/netbox-community/netbox/issues/2089) - Add SONET interface form factors
 * [#2495](https://github.com/netbox-community/netbox/issues/2495) - Enable deep-merging of config context data
 * [#2597](https://github.com/netbox-community/netbox/issues/2597) - Add FibreChannel SFP28 (32GFC) interface form factor
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2400](https://github.com/netbox-community/netbox/issues/2400) - Correct representation of nested object assignment in API docs
 * [#2576](https://github.com/netbox-community/netbox/issues/2576) - Correct type for count_* fields in site API representation
@@ -20,14 +21,14 @@
 
 ---
 
-# v2.4.8 (2018-11-20)
+## v2.4.8 (2018-11-20)
 
-## Enhancements
+### Enhancements
 
 * [#2490](https://github.com/netbox-community/netbox/issues/2490) - Added bulk editing for config contexts
 * [#2557](https://github.com/netbox-community/netbox/issues/2557) - Added object view for tags
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2473](https://github.com/netbox-community/netbox/issues/2473) - Fix encoding of long (>127 character) secrets
 * [#2558](https://github.com/netbox-community/netbox/issues/2558) - Filter on all tags when multiple are passed
@@ -38,15 +39,15 @@
 
 ---
 
-# v2.4.7 (2018-11-06)
+## v2.4.7 (2018-11-06)
 
-## Enhancements
+### Enhancements
 
 * [#2388](https://github.com/netbox-community/netbox/issues/2388) - Enable filtering of devices/VMs by region
 * [#2427](https://github.com/netbox-community/netbox/issues/2427) - Allow filtering of interfaces by assigned VLAN or VLAN ID
 * [#2512](https://github.com/netbox-community/netbox/issues/2512) - Add device field to inventory item filter form
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2502](https://github.com/netbox-community/netbox/issues/2502) - Allow duplicate VIPs inside a uniqueness-enforced VRF
 * [#2514](https://github.com/netbox-community/netbox/issues/2514) - Prevent new connections to already connected interfaces
@@ -56,14 +57,14 @@
 
 ---
 
-# v2.4.6 (2018-10-05)
+## v2.4.6 (2018-10-05)
 
-## Enhancements
+### Enhancements
 
 * [#2479](https://github.com/netbox-community/netbox/issues/2479) - Add user permissions for creating/modifying API tokens
 * [#2487](https://github.com/netbox-community/netbox/issues/2487) - Return abbreviated API output when passed `?brief=1`
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2393](https://github.com/netbox-community/netbox/issues/2393) - Fix Unicode support for CSV import under Python 2
 * [#2483](https://github.com/netbox-community/netbox/issues/2483) - Set max item count of API-populated form fields to MAX_PAGE_SIZE
@@ -74,16 +75,16 @@
 
 ---
 
-# v2.4.5 (2018-10-02)
+## v2.4.5 (2018-10-02)
 
-## Enhancements
+### Enhancements
 
 * [#2392](https://github.com/netbox-community/netbox/issues/2392) - Implemented local context data for devices and virtual machines
 * [#2402](https://github.com/netbox-community/netbox/issues/2402) - Order and format JSON data in form fields
 * [#2432](https://github.com/netbox-community/netbox/issues/2432) - Link remote interface connections to the Interface view
 * [#2438](https://github.com/netbox-community/netbox/issues/2438) - API optimizations for tagged objects
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2406](https://github.com/netbox-community/netbox/issues/2406) - Remove hard-coded limit of 1000 objects from API-populated form fields
 * [#2414](https://github.com/netbox-community/netbox/issues/2414) - Tags field missing from device/VM component creation forms
@@ -95,16 +96,16 @@
 
 ---
 
-# v2.4.4 (2018-08-22)
+## v2.4.4 (2018-08-22)
 
-## Enhancements
+### Enhancements
 
 * [#2168](https://github.com/netbox-community/netbox/issues/2168) - Added Extreme SummitStack interface form factors
 * [#2356](https://github.com/netbox-community/netbox/issues/2356) - Include cluster site as read-only field in VirtualMachine serializer
 * [#2362](https://github.com/netbox-community/netbox/issues/2362) - Implemented custom admin site to properly handle BASE_PATH
 * [#2254](https://github.com/netbox-community/netbox/issues/2254) - Implemented searchability for Rack Groups
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2353](https://github.com/netbox-community/netbox/issues/2353) - Handle `DoesNotExist` exception when deleting a device with connected interfaces
 * [#2354](https://github.com/netbox-community/netbox/issues/2354) - Increased maximum MTU for interfaces to 65536 bytes
@@ -117,13 +118,13 @@
 
 ---
 
-# v2.4.3 (2018-08-09)
+## v2.4.3 (2018-08-09)
 
-## Enhancements
+### Enhancements
 
 * [#2333](https://github.com/netbox-community/netbox/issues/2333) - Added search filters for ConfigContexts
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2334](https://github.com/netbox-community/netbox/issues/2334) - TypeError raised when WritableNestedSerializer receives a non-integer value
 * [#2335](https://github.com/netbox-community/netbox/issues/2335) - API requires group field when creating/updating a rack
@@ -135,9 +136,9 @@
 
 ---
 
-# v2.4.2 (2018-08-08)
+## v2.4.2 (2018-08-08)
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2318](https://github.com/netbox-community/netbox/issues/2318) - ImportError when viewing a report
 * [#2319](https://github.com/netbox-community/netbox/issues/2319) - Extend ChoiceField to properly handle true/false choice keys
@@ -149,9 +150,9 @@
 
 ---
 
-# v2.4.1 (2018-08-07)
+## v2.4.1 (2018-08-07)
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2303](https://github.com/netbox-community/netbox/issues/2303) - Always redirect to parent object when bulk editing/deleting components
 * [#2308](https://github.com/netbox-community/netbox/issues/2308) - Custom fields panel absent from object view in UI
@@ -162,29 +163,29 @@
 
 ---
 
-# v2.4.0 (2018-08-06)
+## v2.4.0 (2018-08-06)
 
-## New Features
+### New Features
 
-### Webhooks ([#81](https://github.com/netbox-community/netbox/issues/81))
+#### Webhooks ([#81](https://github.com/netbox-community/netbox/issues/81))
 
 Webhooks enable NetBox to send a representation of an object every time one is created, updated, or deleted. Webhooks are sent from NetBox to external services via HTTP, and can be limited by object type. Services which receive a webhook can act on the data provided by NetBox to automate other tasks.
 
 Special thanks to [John Anderson](https://github.com/lampwins) for doing the heavy lifting for this feature!
 
-### Tagging ([#132](https://github.com/netbox-community/netbox/issues/132))
+#### Tagging ([#132](https://github.com/netbox-community/netbox/issues/132))
 
 Tags are free-form labels which can be assigned to a variety of objects in NetBox. Tags can be used to categorize and filter objects in addition to built-in and custom fields. Objects to which tags apply now include a `tags` field in the API.
 
-### Contextual Configuration Data ([#1349](https://github.com/netbox-community/netbox/issues/1349))
+#### Contextual Configuration Data ([#1349](https://github.com/netbox-community/netbox/issues/1349))
 
 Sometimes it is desirable to associate arbitrary data with a group of devices to aid in their configuration. (For example, you might want to associate a set of syslog servers for all devices at a particular site.) Context data enables the association of arbitrary data (expressed in JSON format) to devices and virtual machines grouped by region, site, role, platform, and/or tenancy. Context data is arranged hierarchically, so that data with a higher weight can be entered to override more general lower-weight data. Multiple instances of data are automatically merged by NetBox to present a single dictionary for each object.
 
-### Change Logging ([#1898](https://github.com/netbox-community/netbox/issues/1898))
+#### Change Logging ([#1898](https://github.com/netbox-community/netbox/issues/1898))
 
 When an object is created, updated, or deleted, NetBox now automatically records a serialized representation of that object (similar to how it appears in the REST API) as well the event time and user account associated with the change.
 
-## Enhancements
+### Enhancements
 
 * [#238](https://github.com/netbox-community/netbox/issues/238) - Allow racks with the same name within a site (but in different groups)
 * [#971](https://github.com/netbox-community/netbox/issues/971) - Add a view to show all VLAN IDs available within a group
@@ -199,12 +200,12 @@ When an object is created, updated, or deleted, NetBox now automatically records
 * [#2157](https://github.com/netbox-community/netbox/issues/2157) - Fixed natural ordering of objects when sorted by name
 * [#2225](https://github.com/netbox-community/netbox/issues/2225) - Add "view elevations" button for site rack groups
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2272](https://github.com/netbox-community/netbox/issues/2272) - Allow subdevice_role to be null on DeviceTypeSerializer"
 * [#2286](https://github.com/netbox-community/netbox/issues/2286) - Fixed "mark connected" button for PDU outlet connections
 
-## API Changes
+### API Changes
 
 * Introduced the `/extras/config-contexts/`, `/extras/object-changes/`, and `/extras/tags/` API endpoints
 * API writes now return a nested representation of related objects (rather than only a numeric ID)
@@ -213,15 +214,15 @@ When an object is created, updated, or deleted, NetBox now automatically records
 * The ipam.Service and secrets.Secret serializers now include custom fields
 * The dcim.Platform serializer now includes a free-form (JSON) `napalm_args` field
 
-## Changes Since v2.4-beta1
+### Changes Since v2.4-beta1
 
-### Enhancements
+#### Enhancements
 
 * [#2229](https://github.com/netbox-community/netbox/issues/2229) - Allow mapping of ConfigContexts to tenant groups
 * [#2259](https://github.com/netbox-community/netbox/issues/2259) - Add changelog tab to interface view
 * [#2264](https://github.com/netbox-community/netbox/issues/2264) - Added "map it" link for site GPS coordinates
 
-### Bug Fixes
+#### Bug Fixes
 
 * [#2137](https://github.com/netbox-community/netbox/issues/2137) - Fixed JSON serialization of dates
 * [#2258](https://github.com/netbox-community/netbox/issues/2258) - Include changed object type on home page changelog

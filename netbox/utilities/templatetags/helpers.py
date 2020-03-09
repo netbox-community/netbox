@@ -4,6 +4,7 @@ import re
 
 import yaml
 from django import template
+from django.conf import settings
 from django.urls import NoReverseMatch, reverse
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
@@ -55,16 +56,17 @@ def getkey(value, key):
     return value[key]
 
 
+# TODO: Rename this filter as py-gfm is no longer in use
 @register.filter(is_safe=True)
 def gfm(value):
     """
-    Render text as GitHub-Flavored Markdown
+    Render text as Markdown
     """
     # Strip HTML tags
     value = strip_tags(value)
 
-    # Render Markdown with GFM extension
-    html = markdown(value, extensions=['mdx_gfm'])
+    # Render Markdown
+    html = markdown(value, extensions=['fenced_code'])
 
     return mark_safe(html)
 
@@ -214,6 +216,30 @@ def percentage(x, y):
     if x is None or y is None:
         return None
     return round(x / y * 100)
+
+
+@register.filter()
+def get_docs(model):
+    """
+    Render and return documentation for the specified model.
+    """
+    path = '{}/models/{}/{}.md'.format(
+        settings.DOCS_ROOT,
+        model._meta.app_label,
+        model._meta.model_name
+    )
+    try:
+        with open(path) as docfile:
+            content = docfile.read()
+    except FileNotFoundError:
+        return "Unable to load documentation, file not found: {}".format(path)
+    except IOError:
+        return "Unable to load documentation, error reading file: {}".format(path)
+
+    # Render Markdown with the admonition extension
+    content = markdown(content, extensions=['admonition', 'fenced_code'])
+
+    return mark_safe(content)
 
 
 #
