@@ -1333,6 +1333,7 @@ class ConsolePortBulkImportView(PermissionRequiredMixin, BulkImportView):
 class ConsolePortBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_consoleport'
     queryset = ConsolePort.objects.all()
+    filterset = filters.ConsolePortFilterSet
     table = tables.ConsolePortTable
     form = forms.ConsolePortBulkEditForm
 
@@ -1340,6 +1341,7 @@ class ConsolePortBulkEditView(PermissionRequiredMixin, BulkEditView):
 class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_consoleport'
     queryset = ConsolePort.objects.all()
+    filterset = filters.ConsolePortFilterSet
     table = tables.ConsolePortTable
     default_return_url = 'dcim:consoleport_list'
 
@@ -1386,6 +1388,7 @@ class ConsoleServerPortBulkImportView(PermissionRequiredMixin, BulkImportView):
 class ConsoleServerPortBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_consoleserverport'
     queryset = ConsoleServerPort.objects.all()
+    filterset = filters.ConsoleServerPortFilterSet
     table = tables.ConsoleServerPortTable
     form = forms.ConsoleServerPortBulkEditForm
 
@@ -1405,6 +1408,7 @@ class ConsoleServerPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnec
 class ConsoleServerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_consoleserverport'
     queryset = ConsoleServerPort.objects.all()
+    filterset = filters.ConsoleServerPortFilterSet
     table = tables.ConsoleServerPortTable
     default_return_url = 'dcim:consoleserverport_list'
 
@@ -1451,6 +1455,7 @@ class PowerPortBulkImportView(PermissionRequiredMixin, BulkImportView):
 class PowerPortBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_powerport'
     queryset = PowerPort.objects.all()
+    filterset = filters.PowerPortFilterSet
     table = tables.PowerPortTable
     form = forms.PowerPortBulkEditForm
 
@@ -1458,6 +1463,7 @@ class PowerPortBulkEditView(PermissionRequiredMixin, BulkEditView):
 class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_powerport'
     queryset = PowerPort.objects.all()
+    filterset = filters.PowerPortFilterSet
     table = tables.PowerPortTable
     default_return_url = 'dcim:powerport_list'
 
@@ -1504,6 +1510,7 @@ class PowerOutletBulkImportView(PermissionRequiredMixin, BulkImportView):
 class PowerOutletBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_poweroutlet'
     queryset = PowerOutlet.objects.all()
+    filterset = filters.PowerOutletFilterSet
     table = tables.PowerOutletTable
     form = forms.PowerOutletBulkEditForm
 
@@ -1523,6 +1530,7 @@ class PowerOutletBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView)
 class PowerOutletBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_poweroutlet'
     queryset = PowerOutlet.objects.all()
+    filterset = filters.PowerOutletFilterSet
     table = tables.PowerOutletTable
     default_return_url = 'dcim:poweroutlet_list'
 
@@ -1606,6 +1614,7 @@ class InterfaceBulkImportView(PermissionRequiredMixin, BulkImportView):
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_interface'
     queryset = Interface.objects.all()
+    filterset = filters.InterfaceFilterSet
     table = tables.InterfaceTable
     form = forms.InterfaceBulkEditForm
 
@@ -1625,6 +1634,7 @@ class InterfaceBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
 class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_interface'
     queryset = Interface.objects.all()
+    filterset = filters.InterfaceFilterSet
     table = tables.InterfaceTable
     default_return_url = 'dcim:interface_list'
 
@@ -1671,6 +1681,7 @@ class FrontPortBulkImportView(PermissionRequiredMixin, BulkImportView):
 class FrontPortBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_frontport'
     queryset = FrontPort.objects.all()
+    filterset = filters.FrontPortFilterSet
     table = tables.FrontPortTable
     form = forms.FrontPortBulkEditForm
 
@@ -1690,6 +1701,7 @@ class FrontPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
 class FrontPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_frontport'
     queryset = FrontPort.objects.all()
+    filterset = filters.FrontPortFilterSet
     table = tables.FrontPortTable
     default_return_url = 'dcim:frontport_list'
 
@@ -1736,6 +1748,7 @@ class RearPortBulkImportView(PermissionRequiredMixin, BulkImportView):
 class RearPortBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_rearport'
     queryset = RearPort.objects.all()
+    filterset = filters.RearPortFilterSet
     table = tables.RearPortTable
     form = forms.RearPortBulkEditForm
 
@@ -1755,6 +1768,7 @@ class RearPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
 class RearPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rearport'
     queryset = RearPort.objects.all()
+    filterset = filters.RearPortFilterSet
     table = tables.RearPortTable
     default_return_url = 'dcim:rearport_list'
 
@@ -1878,6 +1892,7 @@ class DeviceBayBulkRenameView(PermissionRequiredMixin, BulkRenameView):
 class DeviceBayBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_devicebay'
     queryset = DeviceBay.objects.all()
+    filterset = filters.DeviceBayFilterSet
     table = tables.DeviceBayTable
     default_return_url = 'dcim:devicebay_list'
 

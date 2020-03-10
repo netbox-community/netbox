@@ -16,6 +16,7 @@
 
 * [#4326](https://github.com/netbox-community/netbox/issues/4326) - Exclude Python modules without Script classes from scripts list
 * [#4336](https://github.com/netbox-community/netbox/issues/4336) - Ensure interfaces without a channel/unit are ordered before a channel/unit of zero
+* [#4337](https://github.com/netbox-community/netbox/issues/4337) - Allow bulk editing/deletion of all device components matching a query
 
 ---
 
