@@ -333,9 +333,6 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Service
 
-    # Disable inapplicable tests
-    test_import_objects = None
-
     # TODO: Resolve URL for Service creation
     test_create_object = None
 
@@ -364,6 +361,13 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'A new service',
             'tags': 'Alpha,Bravo,Charlie',
         }
+
+        cls.csv_data = (
+            "device,name,protocol,port,description",
+            "Device 1,Service 1,TCP,1,First service",
+            "Device 1,Service 2,TCP,2,Second service",
+            "Device 1,Service 3,UDP,3,Third service",
+        )
 
         cls.bulk_edit_data = {
             'protocol': ServiceProtocolChoices.PROTOCOL_UDP,

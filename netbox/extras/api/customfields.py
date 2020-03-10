@@ -1,9 +1,11 @@
 from datetime import datetime
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.fields import CreateOnlyDefault
 
 from extras.choices import *
 from extras.models import CustomField, CustomFieldChoice, CustomFieldValue
@@ -13,6 +15,43 @@ from utilities.api import ValidatedModelSerializer
 #
 # Custom fields
 #
+
+class CustomFieldDefaultValues:
+    """
+    Return a dictionary of all CustomFields assigned to the parent model and their default values.
+    """
+    def __call__(self):
+
+        # Retrieve the CustomFields for the parent model
+        content_type = ContentType.objects.get_for_model(self.model)
+        fields = CustomField.objects.filter(obj_type=content_type)
+
+        # Populate the default value for each CustomField
+        value = {}
+        for field in fields:
+            if field.default:
+                if field.type == CustomFieldTypeChoices.TYPE_INTEGER:
+                    field_value = int(field.default)
+                elif field.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
+                    # TODO: Fix default value assignment for boolean custom fields
+                    field_value = False if field.default.lower() == 'false' else bool(field.default)
+                elif field.type == CustomFieldTypeChoices.TYPE_SELECT:
+                    try:
+                        field_value = field.choices.get(value=field.default).pk
+                    except ObjectDoesNotExist:
+                        # Invalid default value
+                        field_value = None
+                else:
+                    field_value = field.default
+                value[field.name] = field_value
+            else:
+                value[field.name] = None
+
+        return value
+
+    def set_context(self, serializer_field):
+        self.model = serializer_field.parent.Meta.model
+
 
 class CustomFieldsSerializer(serializers.BaseSerializer):
 
@@ -94,53 +133,35 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
     """
     Extends ModelSerializer to render any CustomFields and their values associated with an object.
     """
-    custom_fields = CustomFieldsSerializer(required=False)
+    custom_fields = CustomFieldsSerializer(
+        required=False,
+        default=CreateOnlyDefault(CustomFieldDefaultValues())
+    )
 
     def __init__(self, *args, **kwargs):
-
-        def _populate_custom_fields(instance, fields):
-            instance.custom_fields = {}
-            for field in fields:
-                value = instance.cf.get(field.name)
-                if field.type == CustomFieldTypeChoices.TYPE_SELECT and value is not None:
-                    instance.custom_fields[field.name] = CustomFieldChoiceSerializer(value).data
-                else:
-                    instance.custom_fields[field.name] = value
-
         super().__init__(*args, **kwargs)
 
-        # Retrieve the set of CustomFields which apply to this type of object
-        content_type = ContentType.objects.get_for_model(self.Meta.model)
-        fields = CustomField.objects.filter(obj_type=content_type)
-
         if self.instance is not None:
+
+            # Retrieve the set of CustomFields which apply to this type of object
+            content_type = ContentType.objects.get_for_model(self.Meta.model)
+            fields = CustomField.objects.filter(obj_type=content_type)
 
             # Populate CustomFieldValues for each instance from database
             try:
                 for obj in self.instance:
-                    _populate_custom_fields(obj, fields)
+                    self._populate_custom_fields(obj, fields)
             except TypeError:
-                _populate_custom_fields(self.instance, fields)
+                self._populate_custom_fields(self.instance, fields)
 
-        else:
-
-            if not hasattr(self, 'initial_data'):
-                self.initial_data = {}
-
-            # Populate default values
-            if fields and 'custom_fields' not in self.initial_data:
-                self.initial_data['custom_fields'] = {}
-
-            # Populate initial data using custom field default values
-            for field in fields:
-                if field.name not in self.initial_data['custom_fields'] and field.default:
-                    if field.type == CustomFieldTypeChoices.TYPE_SELECT:
-                        field_value = field.choices.get(value=field.default).pk
-                    elif field.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
-                        field_value = bool(field.default)
-                    else:
-                        field_value = field.default
-                    self.initial_data['custom_fields'][field.name] = field_value
+    def _populate_custom_fields(self, instance, custom_fields):
+        instance.custom_fields = {}
+        for field in custom_fields:
+            value = instance.cf.get(field.name)
+            if field.type == CustomFieldTypeChoices.TYPE_SELECT and value is not None:
+                instance.custom_fields[field.name] = CustomFieldChoiceSerializer(value).data
+            else:
+                instance.custom_fields[field.name] = value
 
     def _save_custom_fields(self, instance, custom_fields):
         content_type = ContentType.objects.get_for_model(self.Meta.model)

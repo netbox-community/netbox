@@ -20,10 +20,11 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import ASNField
 from dcim.elevations import RackElevationSVG
-from extras.models import ConfigContextModel, CustomFieldModel, TaggedItem
+from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.models import ChangeLoggedModel
-from utilities.utils import to_meters
+from utilities.utils import serialize_object, to_meters
+from utilities.validators import ExclusionValidator
 from .device_component_templates import (
     ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, FrontPortTemplate, InterfaceTemplate,
     PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
@@ -117,6 +118,15 @@ class Region(MPTTModel, ChangeLoggedModel):
             Q(region=self) |
             Q(region__in=self.get_descendants())
         ).count()
+
+    def to_objectchange(self, action):
+        # Remove MPTT-internal fields
+        return ObjectChange(
+            changed_object=self,
+            object_repr=str(self),
+            action=action,
+            object_data=serialize_object(self, exclude=['level', 'lft', 'rght', 'tree_id'])
+        )
 
 
 #
@@ -751,6 +761,8 @@ class RackReservation(ChangeLoggedModel):
         max_length=100
     )
 
+    csv_headers = ['site', 'rack_group', 'rack', 'units', 'tenant', 'user', 'description']
+
     class Meta:
         ordering = ['created']
 
@@ -782,6 +794,17 @@ class RackReservation(ChangeLoggedModel):
                         ', '.join([str(u) for u in conflicting_units]),
                     )
                 })
+
+    def to_csv(self):
+        return (
+            self.rack.site.name,
+            self.rack.group if self.rack.group else None,
+            self.rack.name,
+            ','.join([str(u) for u in self.units]),
+            self.tenant.name if self.tenant else None,
+            self.user.username,
+            self.description
+        )
 
     @property
     def unit_list(self):
@@ -1766,9 +1789,9 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         choices=PowerFeedPhaseChoices,
         default=PowerFeedPhaseChoices.PHASE_SINGLE
     )
-    voltage = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1)],
-        default=POWERFEED_VOLTAGE_DEFAULT
+    voltage = models.SmallIntegerField(
+        default=POWERFEED_VOLTAGE_DEFAULT,
+        validators=[ExclusionValidator([0])]
     )
     amperage = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)],
@@ -1850,10 +1873,16 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
                 self.rack, self.rack.site, self.power_panel, self.power_panel.site
             ))
 
+        # AC voltage cannot be negative
+        if self.voltage < 0 and self.supply == PowerFeedSupplyChoices.SUPPLY_AC:
+            raise ValidationError({
+                "voltage": "Voltage cannot be negative for AC supply"
+            })
+
     def save(self, *args, **kwargs):
 
         # Cache the available_power property on the instance
-        kva = self.voltage * self.amperage * (self.max_utilization / 100)
+        kva = abs(self.voltage) * self.amperage * (self.max_utilization / 100)
         if self.phase == PowerFeedPhaseChoices.PHASE_3PHASE:
             self.available_power = round(kva * 1.732)
         else:
@@ -1956,6 +1985,7 @@ class Cable(ChangeLoggedModel):
     STATUS_CLASS_MAP = {
         CableStatusChoices.STATUS_CONNECTED: 'success',
         CableStatusChoices.STATUS_PLANNED: 'info',
+        CableStatusChoices.STATUS_DECOMMISSIONING: 'warning',
     }
 
     class Meta:
@@ -2116,14 +2146,14 @@ class Cable(ChangeLoggedModel):
         b_path = self.termination_a.trace()
 
         # Determine overall path status (connected or planned)
-        if self.status == CableStatusChoices.STATUS_PLANNED:
-            path_status = CONNECTION_STATUS_PLANNED
-        else:
-            path_status = CONNECTION_STATUS_CONNECTED
+        if self.status == CableStatusChoices.STATUS_CONNECTED:
+            path_status = True
             for segment in a_path[1:] + b_path[1:]:
-                if segment[1] is None or segment[1].status == CableStatusChoices.STATUS_PLANNED:
-                    path_status = CONNECTION_STATUS_PLANNED
+                if segment[1] is None or segment[1].status != CableStatusChoices.STATUS_CONNECTED:
+                    path_status = False
                     break
+        else:
+            path_status = False
 
         a_endpoint = a_path[-1][2]
         b_endpoint = b_path[-1][2]

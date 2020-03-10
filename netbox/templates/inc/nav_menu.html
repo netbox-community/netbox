@@ -67,11 +67,16 @@
                             {% endif %}
                             <a href="{% url 'dcim:rackrole_list' %}">Rack Roles</a>
                         </li>
+                        <li{% if not perms.dcim.view_rackreservation %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_rackreservation %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:rackreservation_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:rackreservation_list' %}">Reservations</a>
+                        </li>
                         <li{% if not perms.dcim.view_rack %} class="disabled"{% endif %}>
                             <a href="{% url 'dcim:rack_elevation_list' %}">Elevations</a>
-                        </li>
-                        <li{% if not perms.dcim.view_rackreservation %} class="disabled"{% endif %}>
-                            <a href="{% url 'dcim:rackreservation_list' %}">Reservations</a>
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Tenancy</li>
@@ -338,6 +343,11 @@
                         <li class="divider"></li>
                         <li class="dropdown-header">Services</li>
                         <li{% if not perms.ipam.view_service %} class="disabled"{% endif %}>
+                            {% if perms.ipam.add_service %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'ipam:service_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
                             <a href="{% url 'ipam:service_list' %}">Services</a>
                         </li>
                     </ul>

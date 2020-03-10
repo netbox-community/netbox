@@ -61,11 +61,6 @@ class TenantTestCase(TestCase):
         params = {'slug': ['tenant-1', 'tenant-2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:2]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_group(self):
         group = TenantGroup.objects.all()[:2]
         params = {'group_id': [group[0].pk, group[1].pk]}

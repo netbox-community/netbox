@@ -3,7 +3,7 @@ from django.db.models import Q
 
 from dcim.models import Device
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
-from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
+from utilities.filters import BaseFilterSet, NameSlugSearchFilterSet, TagFilter
 from .models import Secret, SecretRole
 
 
@@ -13,18 +13,14 @@ __all__ = (
 )
 
 
-class SecretRoleFilterSet(NameSlugSearchFilterSet):
+class SecretRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = SecretRole
         fields = ['id', 'name', 'slug']
 
 
-class SecretFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
+class SecretFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

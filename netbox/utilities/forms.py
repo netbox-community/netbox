@@ -2,8 +2,9 @@ import csv
 import json
 import re
 from io import StringIO
-import yaml
 
+import django_filters
+import yaml
 from django import forms
 from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
@@ -497,14 +498,14 @@ class ExpandableIPAddressField(forms.CharField):
 
 class CommentField(forms.CharField):
     """
-    A textarea with support for GitHub-Flavored Markdown. Exists mostly just to add a standard help_text.
+    A textarea with support for Markdown rendering. Exists mostly just to add a standard help_text.
     """
     widget = forms.Textarea
     default_label = ''
-    # TODO: Port GFM syntax cheat sheet to internal documentation
+    # TODO: Port Markdown cheat sheet to internal documentation
     default_helptext = '<i class="fa fa-info-circle"></i> '\
                        '<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">'\
-                       'GitHub-Flavored Markdown</a> syntax is supported'
+                       'Markdown</a> syntax is supported'
 
     def __init__(self, *args, **kwargs):
         required = kwargs.pop('required', False)
@@ -564,18 +565,17 @@ class TagFilterField(forms.MultipleChoiceField):
 
 
 class DynamicModelChoiceMixin:
-    field_modifier = ''
+    filter = django_filters.ModelChoiceFilter
 
     def get_bound_field(self, form, field_name):
         bound_field = BoundField(form, self, field_name)
 
         # Modify the QuerySet of the field before we return it. Limit choices to any data already bound: Options
         # will be populated on-demand via the APISelect widget.
-        field_name = '{}{}'.format(self.to_field_name or 'pk', self.field_modifier)
-        if bound_field.data:
-            self.queryset = self.queryset.filter(**{field_name: self.prepare_value(bound_field.data)})
-        elif bound_field.initial:
-            self.queryset = self.queryset.filter(**{field_name: self.prepare_value(bound_field.initial)})
+        data = self.prepare_value(bound_field.data or bound_field.initial)
+        if data:
+            filter = self.filter(field_name=self.to_field_name or 'pk', queryset=self.queryset)
+            self.queryset = filter.filter(self.queryset, data)
         else:
             self.queryset = self.queryset.none()
 
@@ -594,7 +594,7 @@ class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultip
     """
     A multiple-choice version of DynamicModelChoiceField.
     """
-    field_modifier = '__in'
+    filter = django_filters.ModelMultipleChoiceFilter
 
 
 class LaxURLField(forms.URLField):

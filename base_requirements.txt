@@ -58,6 +58,10 @@ djangorestframework
 # https://github.com/axnsan12/drf-yasg
 drf-yasg[validation]
 
+# WSGI HTTP server
+# https://gunicorn.org/
+gunicorn
+
 # Platform-agnostic template rendering engine
 # https://github.com/pallets/jinja
 Jinja2
@@ -78,10 +82,6 @@ Pillow
 # PostgreSQL database adapter for Python
 # https://github.com/psycopg/psycopg2
 psycopg2-binary
-
-# GitHub-flavored Markdown extensions
-# https://github.com/zopieux/py-gfm
-py-gfm
 
 # Extensive cryptographic library (fork of pycrypto)
 # https://github.com/Legrandin/pycryptodome

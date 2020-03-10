@@ -210,6 +210,11 @@ class RackViewSet(CustomFieldModelViewSet):
                 expand_devices=data['expand_devices']
             )
 
+            # Enable filtering rack units by ID
+            q = data['q']
+            if q:
+                elevation = [u for u in elevation if q in str(u['id']) or q in str(u['name'])]
+
             page = self.paginate_queryset(elevation)
             if page is not None:
                 rack_units = serializers.RackUnitSerializer(page, many=True, context={'request': request})

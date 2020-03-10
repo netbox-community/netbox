@@ -35,7 +35,7 @@
             </div>
             <div class="panel-body">
                 <div class="form-group">
-                    <label class="col-md-3 control-label">{{ obj.interface.parent|model_name|bettertitle }}</label>
+                    <label class="col-md-3 control-label">{{ obj.interface.parent|meta:"verbose_name"|bettertitle }}</label>
                     <div class="col-md-9">
                         <p class="form-control-static">
                             <a href="{{ obj.interface.parent.get_absolute_url }}">{{ obj.interface.parent }}</a>

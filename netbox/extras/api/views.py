@@ -14,7 +14,7 @@ from extras.models import (
     ConfigContext, CustomFieldChoice, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, Tag,
 )
 from extras.reports import get_report, get_reports
-from extras.scripts import get_script, get_scripts
+from extras.scripts import get_script, get_scripts, run_script
 from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, ModelViewSet
 from . import serializers
 
@@ -265,8 +265,9 @@ class ScriptViewSet(ViewSet):
         input_serializer = serializers.ScriptInputSerializer(data=request.data)
 
         if input_serializer.is_valid():
-            output = script.run(input_serializer.data['data'])
-            script.output = output
+            data = input_serializer.data['data']
+            commit = input_serializer.data['commit']
+            script.output, execution_time = run_script(script, data, request, commit)
             output_serializer = serializers.ScriptOutputSerializer(script)
 
             return Response(output_serializer.data)
