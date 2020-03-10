@@ -498,14 +498,14 @@ class ExpandableIPAddressField(forms.CharField):
 
 class CommentField(forms.CharField):
     """
-    A textarea with support for GitHub-Flavored Markdown. Exists mostly just to add a standard help_text.
+    A textarea with support for Markdown rendering. Exists mostly just to add a standard help_text.
     """
     widget = forms.Textarea
     default_label = ''
-    # TODO: Port GFM syntax cheat sheet to internal documentation
+    # TODO: Port Markdown cheat sheet to internal documentation
     default_helptext = '<i class="fa fa-info-circle"></i> '\
                        '<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">'\
-                       'GitHub-Flavored Markdown</a> syntax is supported'
+                       'Markdown</a> syntax is supported'
 
     def __init__(self, *args, **kwargs):
         required = kwargs.pop('required', False)

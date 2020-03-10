@@ -8,7 +8,8 @@ from dcim.models import Device, Interface, Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
-    MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
+    BaseFilterSet, MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, TagFilter,
+    TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import VirtualMachine
 from .choices import *
@@ -28,11 +29,7 @@ __all__ = (
 )
 
 
-class VRFFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
+class VRFFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -53,22 +50,14 @@ class VRFFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterS
         fields = ['name', 'rd', 'enforce_unique']
 
 
-class RIRFilterSet(NameSlugSearchFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
+class RIRFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = RIR
         fields = ['name', 'slug', 'is_private']
 
 
-class AggregateFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
+class AggregateFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -114,11 +103,11 @@ class AggregateFilterSet(CustomFieldFilterSet, CreatedUpdatedFilterSet):
         try:
             query = str(netaddr.IPNetwork(value).cidr)
             return queryset.filter(prefix=query)
-        except ValidationError:
+        except (AddrFormatError, ValueError):
             return queryset.none()
 
 
-class RoleFilterSet(NameSlugSearchFilterSet):
+class RoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -129,11 +118,7 @@ class RoleFilterSet(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class PrefixFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
+class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -174,12 +159,14 @@ class PrefixFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilt
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -238,7 +225,7 @@ class PrefixFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilt
         try:
             query = str(netaddr.IPNetwork(value).cidr)
             return queryset.filter(prefix=query)
-        except ValidationError:
+        except (AddrFormatError, ValueError):
             return queryset.none()
 
     def search_within(self, queryset, name, value):
@@ -281,11 +268,7 @@ class PrefixFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilt
         return queryset.filter(prefix__net_mask_length=value)
 
 
-class IPAddressFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
+class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -409,15 +392,17 @@ class IPAddressFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedF
         return queryset.exclude(interface__isnull=value)
 
 
-class VLANGroupFilterSet(NameSlugSearchFilterSet):
+class VLANGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -437,23 +422,21 @@ class VLANGroupFilterSet(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class VLANFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
+class VLANFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region__in',
+        field_name='site__region',
+        lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -508,7 +491,7 @@ class VLANFilterSet(TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilter
         return queryset.filter(qs_filter)
 
 
-class ServiceFilterSet(CreatedUpdatedFilterSet):
+class ServiceFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

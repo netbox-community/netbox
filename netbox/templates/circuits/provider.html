@@ -88,11 +88,11 @@
                 </tr>
                 <tr>
                     <td>NOC Contact</td>
-                    <td class="rendered-markdown">{{ provider.noc_contact|gfm|placeholder }}</td>
+                    <td class="rendered-markdown">{{ provider.noc_contact|render_markdown|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Admin Contact</td>
-                    <td class="rendered-markdown">{{ provider.admin_contact|gfm|placeholder }}</td>
+                    <td class="rendered-markdown">{{ provider.admin_contact|render_markdown|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Circuits</td>
@@ -110,7 +110,7 @@
             </div>
             <div class="panel-body rendered-markdown">
                 {% if provider.comments %}
-                    {{ provider.comments|gfm }}
+                    {{ provider.comments|render_markdown }}
                 {% else %}
                     <span class="text-muted">None</span>
                 {% endif %}
@@ -134,7 +134,7 @@
     {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page %}
     </div>
 </div>
-{% include 'inc/modal.html' with modal_name='graphs' %}
+{% include 'inc/modal.html' with name='graphs' title='Graphs' %}
 {% endblock %}
 
 {% block javascript %}

@@ -1,3 +1,5 @@
+# PostgreSQL Database Installation
+
 This section entails the installation and configuration of a local PostgreSQL database. If you already have a PostgreSQL database service in place, skip to [the next section](2-redis.md).
 
 !!! warning

@@ -566,7 +566,7 @@ class BulkImportView(GetReturnURLMixin, View):
 
         return ImportForm(*args, **kwargs)
 
-    def _save_obj(self, obj_form):
+    def _save_obj(self, obj_form, request):
         """
         Provide a hook to modify the object immediately before saving it (e.g. to encrypt secret data).
         """
@@ -595,7 +595,7 @@ class BulkImportView(GetReturnURLMixin, View):
                     for row, data in enumerate(form.cleaned_data['csv'], start=1):
                         obj_form = self.model_form(data)
                         if obj_form.is_valid():
-                            obj = self._save_obj(obj_form)
+                            obj = self._save_obj(obj_form, request)
                             new_objs.append(obj)
                         else:
                             for field, err in obj_form.errors.items():

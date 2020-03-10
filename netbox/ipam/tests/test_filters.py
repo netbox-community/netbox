@@ -53,11 +53,6 @@ class VRFTestCase(TestCase):
         params = {'enforce_unique': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:3]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
     def test_tenant(self):
         tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
@@ -102,11 +97,6 @@ class RIRTestCase(TestCase):
         params = {'is_private': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'is_private': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:3]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
@@ -265,11 +255,6 @@ class PrefixTestCase(TestCase):
         params = {'is_pool': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
 
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:3]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
     def test_within(self):
         params = {'within': '10.0.0.0/16'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
@@ -424,11 +409,6 @@ class IPAddressTestCase(TestCase):
     def test_dns_name(self):
         params = {'dns_name': ['ipaddress-a', 'ipaddress-b']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:3]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_parent(self):
         params = {'parent': '10.0.0.0/24'}
@@ -638,11 +618,6 @@ class VLANTestCase(TestCase):
 
     def test_rd(self):
         params = {'vid': ['101', '201', '301']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:3]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_region(self):

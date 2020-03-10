@@ -1,11 +1,16 @@
-<div class="modal fade" id="{{ modal_name }}_modal" tabindex="-1" role="dialog">
+<div class="modal fade" id="{{ name }}_modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header">
+            {% if title %}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">{{ title }}</h4>
+                </div>
+            {% endif %}
+            <div class="modal-body">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="{{ modal_name }}_modal_title">Modal title</h4>
+                {{ content }}
             </div>
-            <div class="modal-body"></div>
         </div>
     </div>
 </div>

@@ -1,10 +1,12 @@
-# v2.3.7 (2018-07-26)
+# NetBox v2.3 Release Notes
 
-## Enhancements
+## v2.3.7 (2018-07-26)
+
+### Enhancements
 
 * [#2166](https://github.com/netbox-community/netbox/issues/2166) - Enable partial matching on device asset_tag during search
 
-## Bug Fixes
+### Bug Fixes
 
 * [#1977](https://github.com/netbox-community/netbox/issues/1977) - Fixed exception when creating a virtual chassis with a non-master device in position 1
 * [#1992](https://github.com/netbox-community/netbox/issues/1992) - Isolate errors when one of multiple NAPALM methods fails
@@ -19,29 +21,29 @@
 
 ---
 
-# v2.3.6 (2018-07-16)
+## v2.3.6 (2018-07-16)
 
-## Enhancements
+### Enhancements
 
 * [#2107](https://github.com/netbox-community/netbox/issues/2107) - Added virtual chassis to global search
 * [#2125](https://github.com/netbox-community/netbox/issues/2125) - Show child status in device bay list
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2214](https://github.com/netbox-community/netbox/issues/2214) - Error when assigning a VLAN to an interface on a VM in a cluster with no assigned site
 * [#2239](https://github.com/netbox-community/netbox/issues/2239) - Pin django-filter to version 1.1.0
 
 ---
 
-# v2.3.5 (2018-07-02)
+## v2.3.5 (2018-07-02)
 
-## Enhancements
+### Enhancements
 
 * [#2159](https://github.com/netbox-community/netbox/issues/2159) - Allow custom choice field to specify a default choice
 * [#2177](https://github.com/netbox-community/netbox/issues/2177) - Include device serial number in rack elevation pop-up
 * [#2194](https://github.com/netbox-community/netbox/issues/2194) - Added `address` filter to IPAddress model
 
-## Bug Fixes
+### Bug Fixes
 
 * [#1826](https://github.com/netbox-community/netbox/issues/1826) - Corrected description of security parameters under API definition
 * [#2021](https://github.com/netbox-community/netbox/issues/2021) - Fix recursion error when viewing API docs under Python 3.4
@@ -54,9 +56,9 @@
 
 ---
 
-# v2.3.4 (2018-06-07)
+## v2.3.4 (2018-06-07)
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2066](https://github.com/netbox-community/netbox/issues/2066) - Catch `AddrFormatError` exception on invalid IP addresses
 * [#2075](https://github.com/netbox-community/netbox/issues/2075) - Enable tenant assignment when creating a rack reservation via the API
@@ -72,13 +74,13 @@
 
 ---
 
-# v2.3.3 (2018-04-19)
+## v2.3.3 (2018-04-19)
 
-## Enhancements
+### Enhancements
 
 * [#1990](https://github.com/netbox-community/netbox/issues/1990) - Improved search function when assigning an IP address to an interface
 
-## Bug Fixes
+### Bug Fixes
 
 * [#1975](https://github.com/netbox-community/netbox/issues/1975) - Correct filtering logic for custom boolean fields
 * [#1988](https://github.com/netbox-community/netbox/issues/1988) - Order interfaces naturally when bulk renaming
@@ -93,9 +95,9 @@
 
 ---
 
-# v2.3.2 (2018-03-22)
+## v2.3.2 (2018-03-22)
 
-## Enhancements
+### Enhancements
 
 * [#1586](https://github.com/netbox-community/netbox/issues/1586) - Extend bulk interface creation to support alphanumeric characters
 * [#1866](https://github.com/netbox-community/netbox/issues/1866) - Introduced AnnotatedMultipleChoiceField for filter forms
@@ -105,7 +107,7 @@
 * [#1949](https://github.com/netbox-community/netbox/issues/1949) - Added a button to view elevations on rack groups list
 * [#1952](https://github.com/netbox-community/netbox/issues/1952) - Implemented a more robust mechanism for assigning VLANs to interfaces
 
-## Bug Fixes
+### Bug Fixes
 
 * [#1948](https://github.com/netbox-community/netbox/issues/1948) - Fix TypeError when attempting to add a member to an existing virtual chassis
 * [#1951](https://github.com/netbox-community/netbox/issues/1951) - Fix TypeError exception when importing platforms
@@ -116,13 +118,13 @@
 
 ---
 
-# v2.3.1 (2018-03-01)
+## v2.3.1 (2018-03-01)
 
-## Enhancements
+### Enhancements
 
 * [#1910](https://github.com/netbox-community/netbox/issues/1910) - Added filters for cluster group and cluster type
 
-## Bug Fixes
+### Bug Fixes
 
 * [#1915](https://github.com/netbox-community/netbox/issues/1915) - Redirect to device view after deleting a component
 * [#1919](https://github.com/netbox-community/netbox/issues/1919) - Prevent exception when attempting to create a virtual machine without selecting devices
@@ -137,19 +139,19 @@
 
 ---
 
-# v2.3.0 (2018-02-26)
+## v2.3.0 (2018-02-26)
 
-## New Features
+### New Features
 
-### Virtual Chassis ([#99](https://github.com/netbox-community/netbox/issues/99))
+#### Virtual Chassis ([#99](https://github.com/netbox-community/netbox/issues/99))
 
 A virtual chassis represents a set of physical devices with a shared control plane; for example, a stack of switches managed as a single device. Viewing the master device of a virtual chassis will show all member interfaces and IP addresses.
 
-### Interface VLAN Assignments ([#150](https://github.com/netbox-community/netbox/issues/150))
+#### Interface VLAN Assignments ([#150](https://github.com/netbox-community/netbox/issues/150))
 
 Interfaces can now be assigned an 802.1Q mode (access or trunked) and associated with particular VLANs. Thanks to [John Anderson](https://github.com/lampwins) for his work on this!
 
-### Bulk Object Creation via the API ([#1553](https://github.com/netbox-community/netbox/issues/1553))
+#### Bulk Object Creation via the API ([#1553](https://github.com/netbox-community/netbox/issues/1553))
 
 The REST API now supports the creation of multiple objects of the same type using a single POST request. For example, to create multiple devices:
 
@@ -163,7 +165,7 @@ curl -X POST -H "Authorization: Token <TOKEN>" -H "Content-Type: application/jso
 
 Bulk creation is all-or-none: If any of the creations fails, the entire operation is rolled back.
 
-### Automatic Provisioning of Next Available Prefixes ([#1694](https://github.com/netbox-community/netbox/issues/1694))
+#### Automatic Provisioning of Next Available Prefixes ([#1694](https://github.com/netbox-community/netbox/issues/1694))
 
 Similar to IP addresses, NetBox now supports automated provisioning of available prefixes from within a parent prefix. For example, to retrieve the next three available /28s within a parent /24:
 
@@ -177,11 +179,11 @@ curl -X POST -H "Authorization: Token <TOKEN>" -H "Content-Type: application/jso
 
 If the parent prefix cannot accommodate all requested prefixes, the operation is cancelled and no new prefixes are created.
 
-### Bulk Renaming of Device/VM Components ([#1781](https://github.com/netbox-community/netbox/issues/1781))
+#### Bulk Renaming of Device/VM Components ([#1781](https://github.com/netbox-community/netbox/issues/1781))
 
 Device components (interfaces, console ports, etc.) can now be renamed in bulk via the web interface. This was implemented primarily to support the bulk renumbering of interfaces whose parent is part of a virtual chassis.
 
-## Enhancements
+### Enhancements
 
 * [#1283](https://github.com/netbox-community/netbox/issues/1283) - Added a `time_zone` field to the site model
 * [#1321](https://github.com/netbox-community/netbox/issues/1321) - Added `created` and `last_updated` fields for relevant models to their API serializers
@@ -192,7 +194,7 @@ Device components (interfaces, console ports, etc.) can now be renamed in bulk v
 * [#1821](https://github.com/netbox-community/netbox/issues/1821) - Added a `description` field to the site model
 * [#1864](https://github.com/netbox-community/netbox/issues/1864) - Added a `status` field to the circuit model
 
-## Bug Fixes
+### Bug Fixes
 
 * [#1136](https://github.com/netbox-community/netbox/issues/1136) - Enforce model validation during bulk update
 * [#1645](https://github.com/netbox-community/netbox/issues/1645) - Simplified interface serialzier for IP addresses and optimized API view queryset
@@ -206,11 +208,11 @@ Device components (interfaces, console ports, etc.) can now be renamed in bulk v
 
 \* New since v2.3-beta2
 
-## Breaking Changes
+### Breaking Changes
 
 * Constants representing device status have been renamed for clarity (for example, `STATUS_ACTIVE` is now `DEVICE_STATUS_ACTIVE`). Custom validation reports will need to be updated if they reference any of these constants.
 
-## API Changes
+### API Changes
 
 * API creation calls now accept either a single JSON object or a list of JSON objects. If multiple objects are passed and one or more them fail validation, no objects will be created.
 * Added `created` and `last_updated` fields for objects inheriting from CreatedUpdatedModel.

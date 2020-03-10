@@ -327,7 +327,7 @@
                 </div>
                 <div class="panel-body rendered-markdown">
                     {% if device.comments %}
-                        {{ device.comments|gfm }}
+                        {{ device.comments|render_markdown }}
                     {% else %}
                         <span class="text-muted">None</span>
                     {% endif %}
@@ -875,7 +875,7 @@
             {% endif %}
         </div>
     </div>
-{% include 'inc/modal.html' with modal_name='graphs' %}
+{% include 'inc/modal.html' with name='graphs' title='Graphs' %}
 {% include 'secrets/inc/private_key_modal.html' %}
 {% endblock %}
 

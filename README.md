@@ -1,5 +1,7 @@
 ![NetBox](docs/netbox_logo.svg "NetBox logo")
 
+**The [2020 NetBox user survey](https://docs.google.com/forms/d/1OVZuC4kQ-6kJbVf0bDB6vgkL9H96xF6phvYzby23elk/edit) is open!** Your feedback helps guide the project's long-term development.
+
 NetBox is an IP address management (IPAM) and data center infrastructure
 management (DCIM) tool. Initially conceived by the network engineering team at
 [DigitalOcean](https://www.digitalocean.com/), NetBox was developed specifically
@@ -22,7 +24,7 @@ or join us in the #netbox Slack channel on [NetworkToCode](https://networktocode
 | **master** | [![Build Status](https://travis-ci.org/netbox-community/netbox.svg?branch=master)](https://travis-ci.com/netbox-community/netbox/) |
 | **develop** | [![Build Status](https://travis-ci.org/netbox-community/netbox.svg?branch=develop)](https://travis-ci.com/netbox-community/netbox/) |
 
-## Screenshots
+### Screenshots
 
 ![Screenshot of main page](docs/media/screenshot1.png "Main page")
 
@@ -34,13 +36,13 @@ or join us in the #netbox Slack channel on [NetworkToCode](https://networktocode
 
 ![Screenshot of prefix hierarchy](docs/media/screenshot3.png "Prefix hierarchy")
 
-# Installation
+## Installation
 
 Please see [the documentation](http://netbox.readthedocs.io/en/stable/) for
 instructions on installing NetBox. To upgrade NetBox, please download the [latest release](https://github.com/netbox-community/netbox/releases)
 and run `upgrade.sh`.
 
-# Providing Feedback
+## Providing Feedback
 
 Feature requests and bug reports must be submitted as GiHub issues. (Please be
 sure to use the [appropriate template](https://github.com/netbox-community/netbox/issues/new/choose).)
@@ -49,6 +51,6 @@ For general discussion, please consider joining our [mailing list](https://group
 If you are interested in contributing to the development of NetBox, please read
 our [contributing guide](CONTRIBUTING.md) prior to beginning any work.
 
-# Related projects
+## Related projects
 
 Please see [our wiki](https://github.com/netbox-community/netbox/wiki/Community-Contributions) for a list of relevant community projects.

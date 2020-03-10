@@ -7,6 +7,7 @@
 ## API Changes
 
 * dcim.Rack: The `/api/dcim/racks/<pk>/units/` endpoint has been replaced with `/api/dcim/racks/<pk>/elevation/`.
+* The `id__in` filter has been removed. Use the format `?id=1&id=2` instead. ([#4313](https://github.com/netbox-community/netbox/issues/4313))
 
 ## Other Changes
 

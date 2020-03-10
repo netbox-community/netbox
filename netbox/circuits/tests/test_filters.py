@@ -70,11 +70,6 @@ class ProviderTestCase(TestCase):
         params = {'account': ['1234', '2345']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:3]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
@@ -193,11 +188,6 @@ class CircuitTestCase(TestCase):
     def test_commit_rate(self):
         params = {'commit_rate': ['1000', '2000']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:3]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_provider(self):
         provider = Provider.objects.first()
