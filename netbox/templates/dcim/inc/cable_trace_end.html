@@ -17,7 +17,7 @@
     <div class="panel-body text-center">
         {% if end.device %}
             {# Device component #}
-            {% with model=end|model_name %}
+            {% with model=end|meta:"verbose_name" %}
                 <strong>{{ model|bettertitle }} {{ end }}</strong><br />
                 {% if model == 'interface' %}
                     {{ end.get_type_display }}

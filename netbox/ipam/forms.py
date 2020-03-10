@@ -1382,6 +1382,37 @@ class ServiceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     tag = TagFilterField(model)
 
 
+class ServiceCSVForm(CustomFieldModelCSVForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name or ID of device',
+        error_messages={
+            'invalid_choice': 'Device not found.',
+        }
+    )
+    virtual_machine = FlexibleModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name or ID of virtual machine',
+        error_messages={
+            'invalid_choice': 'Virtual machine not found.',
+        }
+    )
+    protocol = CSVChoiceField(
+        choices=ServiceProtocolChoices,
+        help_text='IP protocol'
+    )
+
+    class Meta:
+        model = Service
+        fields = Service.csv_headers
+        help_texts = {
+        }
+
+
 class ServiceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Service.objects.all(),

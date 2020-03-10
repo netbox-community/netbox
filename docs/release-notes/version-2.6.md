@@ -1,6 +1,8 @@
-# v2.6.12 (2020-01-13)
+# NetBox v2.6 Release Notes
 
-## Enhancements
+## v2.6.12 (2020-01-13)
+
+### Enhancements
 
 * [#1982](https://github.com/netbox-community/netbox/issues/1982) - Improved NAPALM method documentation in Swagger (OpenAPI)
 * [#2050](https://github.com/netbox-community/netbox/issues/2050) - Preview image attachments when hovering over the link
@@ -18,7 +20,7 @@
 * [#3851](https://github.com/netbox-community/netbox/issues/3851) - Allow passing initial data to custom script forms
 * [#3891](https://github.com/netbox-community/netbox/issues/3891) - Add `local_context_data` filter for virtual machines
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3589](https://github.com/netbox-community/netbox/issues/3589) - Fix validation on tagged VLANs of an interface
 * [#3849](https://github.com/netbox-community/netbox/issues/3849) - Fix ordering of models when dumping data to JSON
@@ -35,18 +37,18 @@
 
 ---
 
-# v2.6.11 (2020-01-03)
+## v2.6.11 (2020-01-03)
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3831](https://github.com/netbox-community/netbox/issues/3831) - Fix API-driven filter field rendering (#3812 regression)
 * [#3833](https://github.com/netbox-community/netbox/issues/3833) - Add missing region filters for multiple objects
 
 ---
 
-# v2.6.10 (2020-01-02)
+## v2.6.10 (2020-01-02)
 
-## Enhancements
+### Enhancements
 
 * [#2233](https://github.com/netbox-community/netbox/issues/2233) - Add ability to move inventory items between devices
 * [#2892](https://github.com/netbox-community/netbox/issues/2892) - Extend admin UI to allow deleting old report results
@@ -58,7 +60,7 @@
 * [#3812](https://github.com/netbox-community/netbox/issues/3812) - Optimize size of pages containing a dynamic selection field
 * [#3827](https://github.com/netbox-community/netbox/issues/3827) - Allow filtering console/power/interface connections by device ID
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3106](https://github.com/netbox-community/netbox/issues/3106) - Restrict queryset of chained fields when form validation fails
 * [#3695](https://github.com/netbox-community/netbox/issues/3695) - Include A/Z termination sites for circuits in global search
@@ -70,15 +72,15 @@
 
 ---
 
-# v2.6.9 (2019-12-16)
+## v2.6.9 (2019-12-16)
 
-## Enhancements
+### Enhancements
 
 * [#3152](https://github.com/netbox-community/netbox/issues/3152) - Include direct link to rack elevations on site view
 * [#3441](https://github.com/netbox-community/netbox/issues/3441) - Move virtual machine results near devices in global search
 * [#3761](https://github.com/netbox-community/netbox/issues/3761) - Added copy button for API tokens
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2170](https://github.com/netbox-community/netbox/issues/2170) - Prevent the deletion of a virtual chassis when a cross-member LAG is present
 * [#2358](https://github.com/netbox-community/netbox/issues/2358) - Respect custom field default values when creating objects via the REST API
@@ -87,9 +89,9 @@
 
 ---
 
-# v2.6.8 (2019-12-10)
+## v2.6.8 (2019-12-10)
 
-## Enhancements
+### Enhancements
 
 * [#3139](https://github.com/netbox-community/netbox/issues/3139) - Disable password change form for LDAP-authenticated users
 * [#3457](https://github.com/netbox-community/netbox/issues/3457) - Display cable colors on device view
@@ -97,7 +99,7 @@
 * [#3663](https://github.com/netbox-community/netbox/issues/3663) - Add query filters for `created` and `last_updated` fields
 * [#3722](https://github.com/netbox-community/netbox/issues/3722) - Allow the underscore character in IPAddress DNS names
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3312](https://github.com/netbox-community/netbox/issues/3312) - Fix validation error when editing power cables in bulk
 * [#3644](https://github.com/netbox-community/netbox/issues/3644) - Fix exception when connecting a cable to a RearPort with no corresponding FrontPort
@@ -111,9 +113,9 @@
 
 ---
 
-# v2.6.7 (2019-11-01)
+## v2.6.7 (2019-11-01)
 
-## Enhancements
+### Enhancements
 
 * [#3445](https://github.com/netbox-community/netbox/issues/3445) - Add support for additional user defined headers to be added to webhook requests
 * [#3499](https://github.com/netbox-community/netbox/issues/3499) - Add `ca_file_path` to Webhook model to support user supplied CA certificate verification of webhook requests
@@ -121,7 +123,7 @@
 * [#3619](https://github.com/netbox-community/netbox/issues/3619) - Add 400GE OSFP interface type
 * [#3659](https://github.com/netbox-community/netbox/issues/3659) - Add filtering for objects in admin UI
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3309](https://github.com/netbox-community/netbox/issues/3309) - Rewrite change logging middleware to resolve sporadic testing failures
 * [#3340](https://github.com/netbox-community/netbox/issues/3340) - Add missing options to connect front ports to console ports
@@ -135,13 +137,13 @@
 
 ---
 
-# v2.6.6 (2019-10-10)
+## v2.6.6 (2019-10-10)
 
-## Notes
+### Notes
 
 * This release includes a migration which automatically updates all existing cables to enable filtering by site/rack (see [#3259](https://github.com/netbox-community/netbox/issues/3259)). This migration may take several minutes to complete on installations with tens of thousands of cables defined.
 
-## Enhancements
+### Enhancements
 
 * [#1941](https://github.com/netbox-community/netbox/issues/1941) - Add InfiniBand interface types
 * [#3259](https://github.com/netbox-community/netbox/issues/3259) - Add `rack` and `site` filters for cables
@@ -151,7 +153,7 @@
 * [#3580](https://github.com/netbox-community/netbox/issues/3580) - Render text and URL fields as textareas in the custom link form
 * [#3581](https://github.com/netbox-community/netbox/issues/3581) - Introduce `commit_default` custom script attribute to not commit changes by default
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3458](https://github.com/netbox-community/netbox/issues/3458) - Prevent primary IP address for a device/VM from being reassigned
 * [#3463](https://github.com/netbox-community/netbox/issues/3463) - Correct CSV headers for exported power feeds
@@ -165,9 +167,9 @@
 
 ---
 
-# v2.6.5 (2019-09-25)
+## v2.6.5 (2019-09-25)
 
-## Enhancements
+### Enhancements
 
 * [#3297](https://github.com/netbox-community/netbox/issues/3297) - Include reserved units when calculating rack utilization
 * [#3347](https://github.com/netbox-community/netbox/issues/3347) - Extend upgrade script to automatically remove stale content types
@@ -176,7 +178,7 @@
 * [#3524](https://github.com/netbox-community/netbox/issues/3524) - Enable bulk editing of power outlet/power port associations
 * [#3529](https://github.com/netbox-community/netbox/issues/3529) - Enable filtering circuits list by region
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3435](https://github.com/netbox-community/netbox/issues/3435) - Change IP/prefix CSV export to reference VRF name instead of RD
 * [#3464](https://github.com/netbox-community/netbox/issues/3464) - Fix foreground text color on color picker fields
@@ -189,9 +191,9 @@
 
 ---
 
-# v2.6.4 (2019-09-19)
+## v2.6.4 (2019-09-19)
 
-## Enhancements
+### Enhancements
 
 * [#2160](https://github.com/netbox-community/netbox/issues/2160) - Add bulk editing for interface VLAN assignment
 * [#3027](https://github.com/netbox-community/netbox/issues/3028) - Add `local_context_data` boolean filter for devices
@@ -200,7 +202,7 @@
 * [#3485](https://github.com/netbox-community/netbox/issues/3485) - Enable embedded graphs for devices
 * [#3510](https://github.com/netbox-community/netbox/issues/3510) - Add minimum/maximum prefix length enforcement for `IPNetworkVar`
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3489](https://github.com/netbox-community/netbox/issues/3489) - Prevent exception triggered by webhook upon object deletion
 * [#3501](https://github.com/netbox-community/netbox/issues/3501) - Fix rendering of checkboxes on custom script forms
@@ -210,17 +212,17 @@
 
 ---
 
-# v2.6.3 (2019-09-04)
+## v2.6.3 (2019-09-04)
 
-## New Features
+### New Features
 
-### Custom Scripts ([#3415](https://github.com/netbox-community/netbox/issues/3415))
+#### Custom Scripts ([#3415](https://github.com/netbox-community/netbox/issues/3415))
 
 Custom scripts allow for the execution of arbitrary code via the NetBox UI. They can be used to automatically create, manipulate, or clean up objects or perform other tasks within NetBox. Scripts are defined as Python files which contain one or more subclasses of `extras.scripts.Script`. Variable fields can be defined within scripts, which render as form fields within the web UI to prompt the user for input data. Scripts are executed and information is logged via the web UI. Please see [the docs](https://netbox.readthedocs.io/en/stable/additional-features/custom-scripts/) for more detail.
 
 Note: There are currently no API endpoints for this feature. These are planned for the upcoming v2.7 release.
 
-## Enhancements
+### Enhancements
 
 * [#3386](https://github.com/netbox-community/netbox/issues/3386) - Add `mac_address` filter for virtual machines
 * [#3391](https://github.com/netbox-community/netbox/issues/3391) - Update Bootstrap CSS to v3.4.1
@@ -230,7 +232,7 @@ Note: There are currently no API endpoints for this feature. These are planned f
 * [#3454](https://github.com/netbox-community/netbox/issues/3454) - Enable filtering circuits by region
 * [#3456](https://github.com/netbox-community/netbox/issues/3456) - Enable bulk editing of tag color
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3392](https://github.com/netbox-community/netbox/issues/3392) - Add database index for ObjectChange time
 * [#3420](https://github.com/netbox-community/netbox/issues/3420) - Serial number filter for racks, devices, and inventory items is now case-insensitive
@@ -241,9 +243,9 @@ Note: There are currently no API endpoints for this feature. These are planned f
 
 ---
 
-# v2.6.2 (2019-08-02)
+## v2.6.2 (2019-08-02)
 
-## Enhancements
+### Enhancements
 
 * [#984](https://github.com/netbox-community/netbox/issues/984) - Allow ordering circuits by A/Z side
 * [#3307](https://github.com/netbox-community/netbox/issues/3307) - Add power panels count to home page
@@ -252,7 +254,7 @@ Note: There are currently no API endpoints for this feature. These are planned f
 * [#3368](https://github.com/netbox-community/netbox/issues/3368) - Indicate indefinite changelog retention when applicable
 * [#3370](https://github.com/netbox-community/netbox/issues/3370) - Add filter class to VirtualChassis API
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3018](https://github.com/netbox-community/netbox/issues/3018) - Components connected via a cable must have an equal number of positions
 * [#3289](https://github.com/netbox-community/netbox/issues/3289) - Prevent position from being nullified when moving a device to a new rack
@@ -266,15 +268,15 @@ Note: There are currently no API endpoints for this feature. These are planned f
 
 ---
 
-# v2.6.1 (2019-06-25)
+## v2.6.1 (2019-06-25)
 
-## Enhancements
+### Enhancements
 
 * [#3154](https://github.com/netbox-community/netbox/issues/3154) - Add `virtual_chassis_member` device filter
 * [#3277](https://github.com/netbox-community/netbox/issues/3277) - Add cable trace buttons for console and power ports
 * [#3281](https://github.com/netbox-community/netbox/issues/3281) - Hide custom links which render as empty text
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3229](https://github.com/netbox-community/netbox/issues/3229) - Limit rack group selection by parent site on racks list
 * [#3269](https://github.com/netbox-community/netbox/issues/3269) - Raise validation error when specifying non-existent cable terminations
@@ -286,11 +288,11 @@ Note: There are currently no API endpoints for this feature. These are planned f
 
 ---
 
-# v2.6.0 (2019-06-20)
+## v2.6.0 (2019-06-20)
 
-## New Features
+### New Features
 
-### Power Panels and Feeds ([#54](https://github.com/netbox-community/netbox/issues/54))
+#### Power Panels and Feeds ([#54](https://github.com/netbox-community/netbox/issues/54))
 
 NetBox now supports power circuit modeling via two new models: power panels and power feeds. Power feeds are terminated
 to power panels and are optionally associated with individual racks. Each power feed defines a supply type (AC/DC),
@@ -301,7 +303,7 @@ Additionally, the power port model, which represents a device's power input, has
 denoting maximum and allocated draw, in volt-amperes. This allows a device (e.g. a PDU) to calculate its total load
 compared to its connected power feed.
 
-### Caching ([#2647](https://github.com/netbox-community/netbox/issues/2647))
+#### Caching ([#2647](https://github.com/netbox-community/netbox/issues/2647))
 
 To improve performance, NetBox now supports caching for most object and list views. Caching is implemented using Redis,
 which is now a required dependency. (Previously, Redis was required only if webhooks were enabled.)
@@ -309,11 +311,11 @@ which is now a required dependency. (Previously, Redis was required only if webh
 A new configuration parameter is available to control the cache timeout:
 
 ```
-# Cache timeout (in seconds)
+## Cache timeout (in seconds)
 CACHE_TIMEOUT = 900
 ```
 
-### View Permissions ([#323](https://github.com/netbox-community/netbox/issues/323))
+#### View Permissions ([#323](https://github.com/netbox-community/netbox/issues/323))
 
 Django 2.1 introduced the ability to enforce view-only permissions for different object types. NetBox now enforces
 these by default. You can grant view permission to a user or group by assigning the "can view" permission for the
@@ -335,7 +337,7 @@ To exclude _all_ objects, effectively disabling view permissions and restoring p
 EXEMPT_VIEW_PERMISSIONS = ['*']
 ```
 
-### Custom Links ([#969](https://github.com/netbox-community/netbox/issues/969))
+#### Custom Links ([#969](https://github.com/netbox-community/netbox/issues/969))
 
 Custom links are created under the admin UI and will be displayed on each object of the selected type. Link text and
 URLs can be formed from Jinja2 template code, with the viewed object passed as context data. For example, to link to an
@@ -348,7 +350,7 @@ https://nms.example.com/nodes/?name={{ obj.name }}
 Custom links appear as buttons at the top of the object view. Grouped links will render as a dropdown menu beneath a
 single button.
 
-### Prometheus Metrics ([#3104](https://github.com/netbox-community/netbox/issues/3104))
+#### Prometheus Metrics ([#3104](https://github.com/netbox-community/netbox/issues/3104))
 
 NetBox now supports exposing native Prometheus metrics from the application. [Prometheus](https://prometheus.io/) is a
 popular time series metric platform used for monitoring. Metric exposition can be toggled with the `METRICS_ENABLED`
@@ -372,9 +374,9 @@ different types of metrics, including:
 For the exhaustive list of exposed metrics, visit the `/metrics` endpoint on your NetBox instance. See the documentation
 for more details on using Prometheus metrics in NetBox.
 
-## Changes
+### Changes
 
-### New Dependency: Redis
+#### New Dependency: Redis
 
 [Redis](https://redis.io/) is an in-memory data store similar to memcached. While Redis has been an optional component
 of NetBox since the introduction of webhooks in version 2.4, it is now required to support NetBox's new caching
@@ -401,7 +403,7 @@ an additional `CACHE_DATABASE` setting has been added with a default value of 1 
 highly recommended to keep the webhook and cache databases seperate. Using the same database number for both may result
 in webhook processing data being lost during cache flushing events.
 
-### API Support for Specifying Related Objects by Attributes([#3077](https://github.com/netbox-community/netbox/issues/3077))
+#### API Support for Specifying Related Objects by Attributes([#3077](https://github.com/netbox-community/netbox/issues/3077))
 
 Previously, specifying a related object in an API request required knowing the primary key (integer ID) of that object.
 For example, when creating a new device, its rack would be specified as an integer:
@@ -433,7 +435,7 @@ rack can be identified by its name and parent site:
 There is no limit to the depth of nested references. Note that if the provided parameters do not return exactly one
 object, a validation error is raised.
 
-### API Device/VM Config Context Included by Default ([#2350](https://github.com/netbox-community/netbox/issues/2350))
+#### API Device/VM Config Context Included by Default ([#2350](https://github.com/netbox-community/netbox/issues/2350))
 
 The rendered config context for devices and VMs is now included by default in all API results (list and detail views).
 Previously, the rendered config context was available only in the detail view for individual objects. Users with large
@@ -441,19 +443,19 @@ amounts of context data may observe a performance drop when returning multiple o
 the rendered config context is not needed, the query parameter `?exclude=config_context` may be appended to the request
 URL to exclude the config context data from the API response.
 
-### Changes to Tag Permissions
+#### Changes to Tag Permissions
 
 NetBox now makes use of its own `Tag` model instead of the stock model which ships with django-taggit. This new model
 lives in the `extras` app and thus any permissions that you may have configured using "Taggit | Tag" should be changed
 to now use "Extras | Tag." Also note that the admin interface for tags has been removed as it was redundant to the
 functionality provided by the front end UI.
 
-### CORS_ORIGIN_WHITELIST Requires URI Scheme
+#### CORS_ORIGIN_WHITELIST Requires URI Scheme
 
 If you have the `CORS_ORIGIN_WHITELIST` configuration parameter defined, note that each origin must now incldue a URI
 scheme. This change was introuced in django-cors-headers 3.0.
 
-## Enhancements
+### Enhancements
 
 * [#166](https://github.com/netbox-community/netbox/issues/166) - Add `dns_name` field to IPAddress
 * [#524](https://github.com/netbox-community/netbox/issues/524) - Added power utilization graphs to power feeds, devices, and racks
@@ -467,14 +469,14 @@ scheme. This change was introuced in django-cors-headers 3.0.
 * [#3038](https://github.com/netbox-community/netbox/issues/3038) - OR logic now used when multiple values of a query filter are passed
 * [#3264](https://github.com/netbox-community/netbox/issues/3264) - Annotate changelog retention time on UI
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2968](https://github.com/netbox-community/netbox/issues/2968) - Correct API documentation for SerializerMethodFields
 * [#3176](https://github.com/netbox-community/netbox/issues/3176) - Add cable trace button for console server ports and power outlets
 * [#3231](https://github.com/netbox-community/netbox/issues/3231) - Fixed cosmetic error indicating a missing schema migration
 * [#3239](https://github.com/netbox-community/netbox/issues/3239) - Corrected count of tags reported via API
 
-## Bug Fixes From v2.6-beta1
+### Bug Fixes From v2.6-beta1
 
 * [#3123](https://github.com/netbox-community/netbox/issues/3123) - Exempt `/metrics` view from authentication
 * [#3125](https://github.com/netbox-community/netbox/issues/3125) - Fix exception when viewing PDUs
@@ -487,7 +489,7 @@ scheme. This change was introuced in django-cors-headers 3.0.
 * [#3207](https://github.com/netbox-community/netbox/issues/3207) - Fix link for connecting interface to rear port
 * [#3258](https://github.com/netbox-community/netbox/issues/3258) - Exception raised when creating/viewing a circuit with a non-connected termination
 
-## API Changes
+### API Changes
 
 * New API endpoints for power modeling: `/api/dcim/power-panels/` and `/api/dcim/power-feeds/`
 * New API endpoint for custom field choices: `/api/extras/_custom_field_choices/`

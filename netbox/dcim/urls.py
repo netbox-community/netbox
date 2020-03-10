@@ -51,6 +51,7 @@ urlpatterns = [
 
     # Rack reservations
     path('rack-reservations/', views.RackReservationListView.as_view(), name='rackreservation_list'),
+    path('rack-reservations/import/', views.RackReservationImportView.as_view(), name='rackreservation_import'),
     path('rack-reservations/edit/', views.RackReservationBulkEditView.as_view(), name='rackreservation_bulk_edit'),
     path('rack-reservations/delete/', views.RackReservationBulkDeleteView.as_view(), name='rackreservation_bulk_delete'),
     path('rack-reservations/<int:pk>/edit/', views.RackReservationEditView.as_view(), name='rackreservation_edit'),
@@ -331,6 +332,7 @@ urlpatterns = [
     path('power-panels/', views.PowerPanelListView.as_view(), name='powerpanel_list'),
     path('power-panels/add/', views.PowerPanelCreateView.as_view(), name='powerpanel_add'),
     path('power-panels/import/', views.PowerPanelBulkImportView.as_view(), name='powerpanel_import'),
+    path('power-panels/edit/', views.PowerPanelBulkEditView.as_view(), name='powerpanel_bulk_edit'),
     path('power-panels/delete/', views.PowerPanelBulkDeleteView.as_view(), name='powerpanel_bulk_delete'),
     path('power-panels/<int:pk>/', views.PowerPanelView.as_view(), name='powerpanel'),
     path('power-panels/<int:pk>/edit/', views.PowerPanelEditView.as_view(), name='powerpanel_edit'),

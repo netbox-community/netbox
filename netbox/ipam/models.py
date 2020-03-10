@@ -1027,7 +1027,7 @@ class Service(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'virtual_machine', 'name', 'protocol', 'description']
+    csv_headers = ['device', 'virtual_machine', 'name', 'protocol', 'port', 'description']
 
     class Meta:
         ordering = ('protocol', 'port', 'pk')  # (protocol, port) may be non-unique

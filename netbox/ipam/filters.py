@@ -111,7 +111,7 @@ class AggregateFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilt
         try:
             query = str(netaddr.IPNetwork(value).cidr)
             return queryset.filter(prefix=query)
-        except ValidationError:
+        except (AddrFormatError, ValueError):
             return queryset.none()
 
 
@@ -233,7 +233,7 @@ class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Cre
         try:
             query = str(netaddr.IPNetwork(value).cidr)
             return queryset.filter(prefix=query)
-        except ValidationError:
+        except (AddrFormatError, ValueError):
             return queryset.none()
 
     def search_within(self, queryset, name, value):

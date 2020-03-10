@@ -143,7 +143,7 @@
                     <td>
                         {% if site.physical_address %}
                             <div class="pull-right noprint">
-                                <a href="http://maps.google.com/?q={{ site.physical_address|oneline|urlencode }}" target="_blank" class="btn btn-primary btn-xs">
+                                <a href="http://maps.google.com/?q={{ site.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-xs">
                                     <i class="glyphicon glyphicon-map-marker"></i> Map it
                                 </a>
                             </div>
@@ -206,7 +206,7 @@
             </div>
             <div class="panel-body rendered-markdown">
                 {% if site.comments %}
-                    {{ site.comments|gfm }}
+                    {{ site.comments|render_markdown }}
                 {% else %}
                     <span class="text-muted">None</span>
                 {% endif %}
@@ -288,7 +288,7 @@
         </div>
 	</div>
 </div>
-{% include 'inc/modal.html' with modal_name='graphs' %}
+{% include 'inc/modal.html' with name='graphs' title='Graphs' %}
 {% endblock %}
 
 {% block javascript %}

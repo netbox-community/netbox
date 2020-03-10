@@ -234,6 +234,58 @@ table.report th a {
     margin-bottom: 0;
 }
 
+/* Admonition (docs) */
+.admonition {
+    margin-bottom: 10px;
+    padding-bottom: 2px;
+}
+.admonition p {
+    padding: 0 12px;
+}
+.admonition pre {
+    margin: 0 12px 10px;
+}
+.admonition p.admonition-title {
+    color: rgb(255, 255, 255);
+    font-weight: bold;
+    padding: 4px 12px;
+}
+.admonition p.admonition-title::before {
+    content: "\f06a";
+    font-family: "FontAwesome";
+    margin-right: 4px;
+}
+/* Admonition - Note */
+.admonition.note {
+    background-color: rgb(231, 242, 250);
+}
+.admonition.note .admonition-title {
+    background-color: rgb(106, 176, 222);
+}
+.admonition.note .admonition-title::before {
+    content: "\f05a";
+}
+/* Admonition - Warning */
+.admonition.warning {
+    background-color: rgb(255, 237, 204);
+}
+.admonition.warning .admonition-title {
+    background-color: rgb(240, 179, 126);
+}
+.admonition.warning .admonition-title::before {
+    content: "\f06a";
+}
+/* Admonition - Danger */
+.admonition.danger {
+    background-color: rgb(253, 243, 242);
+}
+.admonition.danger .admonition-title {
+    background-color: rgb(242, 159, 151);
+}
+.admonition.danger .admonition-title::before {
+    content: "\f071";
+}
+
 /* AJAX loader */
 .loading {
     position: fixed;
