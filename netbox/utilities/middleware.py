@@ -37,7 +37,10 @@ class RemoteUserMiddleware(RemoteUserMiddleware_):
     Custom implementation of Django's RemoteUserMiddleware which allows for a user-configurable HTTP header name.
     """
     force_logout_if_no_header = False
-    header = settings.REMOTE_AUTH_HEADER
+
+    @property
+    def header(self):
+        return settings.REMOTE_AUTH_HEADER
 
 
 class APIVersionMiddleware(object):
