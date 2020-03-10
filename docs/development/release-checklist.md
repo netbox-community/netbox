@@ -1,6 +1,8 @@
-# Minor Version Bumps
+# Release Checklist
 
-## Update Requirements
+## Minor Version Bumps
+
+### Update Requirements
 
 Required Python packages are maintained in two files. `base_requirements.txt` contains a list of all the packages required by NetBox. Some of them may be pinned to a specific version of the package due to a known issue. For example:
 
@@ -23,7 +25,7 @@ pip install -U -r base_requirements.txt
 3. Run all tests and check that the UI and API function as expected.
 4. Update the package versions in `requirements.txt` as appropriate.
 
-## Update Static Libraries
+### Update Static Libraries
 
 Update the following static libraries to their most recent stable release:
 
@@ -33,41 +35,41 @@ Update the following static libraries to their most recent stable release:
 * jQuery
 * jQuery UI
 
-## Squash Schema Migrations
+### Squash Schema Migrations
 
 Database schema migrations should be squashed for each new minor release. See the [squashing guide](squashing-migrations.md) for the detailed process.
 
-## Create a new Release Notes Page
+### Create a new Release Notes Page
 
 Create a file at `/docs/release-notes/X.Y.md` to establish the release notes for the new release. Add the file to the table of contents within `mkdocs.yml`.
 
-## Manually Perform a New Install
+### Manually Perform a New Install
 
 Create a new installation of NetBox by following [the current documentation](http://netbox.readthedocs.io/en/latest/). This should be a manual process, so that issues with the documentation can be identified and corrected.
 
-## Close the Release Milestone
+### Close the Release Milestone
 
 Close the release milestone on GitHub. Ensure that there are no remaining open issues associated with it.
 
 ---
 
-# All Releases
+## All Releases
 
-## Verify CI Build Status
+### Verify CI Build Status
 
 Ensure that continuous integration testing on the `develop` branch is completing successfully.
 
-## Update Version and Changelog
+### Update Version and Changelog
 
 Update the `VERSION` constant in `settings.py` to the new release version and annotate the current data in the release notes for the new version.
 
-## Submit a Pull Request
+### Submit a Pull Request
 
-Submit a pull request title **"Release vX.Y.X"** to merge the `develop` branch into `master`. Include a brief change log listing the features, improvements, and/or bugs addressed in the release.
+Submit a pull request title **"Release vX.Y.Z"** to merge the `develop` branch into `master`. Include a brief change log listing the features, improvements, and/or bugs addressed in the release.
 
 Once CI has completed on the PR, merge it.
 
-## Create a New Release
+### Create a New Release
 
 Draft a [new release](https://github.com/netbox-community/netbox/releases/new) with the following parameters.
 
@@ -77,7 +79,7 @@ Draft a [new release](https://github.com/netbox-community/netbox/releases/new) w
 
 Copy the description from the pull request into the release notes.
 
-## Update the Development Version
+### Update the Development Version
 
 On the `develop` branch, update `VERSION` in `settings.py` to point to the next release. For example, if you just released v2.3.4, set:
 
@@ -85,6 +87,6 @@ On the `develop` branch, update `VERSION` in `settings.py` to point to the next 
 VERSION = 'v2.3.5-dev'
 ```
 
-## Announce the Release
+### Announce the Release
 
 Announce the release on the [mailing list](https://groups.google.com/forum/#!forum/netbox-discuss). Include a link to the release and the (HTML-formatted) release notes.

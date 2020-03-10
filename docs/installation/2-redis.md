@@ -1,12 +1,16 @@
+# Redis Installation
+
+## Install Redis
+
 [Redis](https://redis.io/) is an in-memory key-value store which NetBox employs for caching and queuing. This section entails the installation and configuration of a local Redis instance. If you already have a Redis service in place, skip to [the next section](3-netbox.md).
 
-#### Ubuntu
+### Ubuntu
 
 ```no-highlight
 # apt-get install -y redis-server
 ```
 
-#### CentOS
+### CentOS
 
 ```no-highlight
 # yum install -y epel-release

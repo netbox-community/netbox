@@ -1,14 +1,16 @@
+# NetBox Installation
+
 This section of the documentation discusses installing and configuring the NetBox application. Begin by installing all system packages required by NetBox and its dependencies:
 
 ## Install System Packages
 
-#### Ubuntu
+### Ubuntu
 
 ```no-highlight
 # apt-get install -y python3 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
 ```
 
-#### CentOS
+### CentOS
 
 ```no-highlight
 # yum install -y gcc python36 python36-devel python36-setuptools libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config
@@ -93,7 +95,7 @@ Next, activate the virtual environment and install the required Python packages.
 (venv) # pip3 install -r requirements.txt
 ```
 
-#### NAPALM Automation (Optional)
+### NAPALM Automation (Optional)
 
 NetBox supports integration with the [NAPALM automation](https://napalm-automation.net/) library. NAPALM allows NetBox to fetch live data from devices and return it to a requester via its REST API. Installation of NAPALM is optional. To enable it, install the `napalm` package:
 
@@ -101,12 +103,24 @@ NetBox supports integration with the [NAPALM automation](https://napalm-automati
 (venv) # pip3 install napalm
 ```
 
-#### Remote File Storage (Optional)
+To ensure NAPALM is automatically re-installed during future upgrades, create a file named `local_requirements.txt` in the NetBox root directory (alongside `requirements.txt`) and list the `napalm` package:
+
+```no-highlight
+# echo napalm >> local_requirements.txt
+```
+
+### Remote File Storage (Optional)
 
 By default, NetBox will use the local filesystem to storage uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired backend](../../configuration/optional-settings/#storage_backend) in `configuration.py`.
 
 ```no-highlight
 (venv) # pip3 install django-storages
+```
+
+Don't forget to add the `django-storages` package to `local_requirements.txt` to ensure it gets re-installed during future upgrades:
+
+```no-highlight
+# echo django-storages >> local_requirements.txt
 ```
 
 ## Configuration

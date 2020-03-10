@@ -1,11 +1,16 @@
 site_name: NetBox Documentation
 site_url: https://netbox.readthedocs.io/
 repo_url: https://github.com/netbox-community/netbox
+python:
+    install:
+        - requirements: docs/requirements.txt
 theme:
     name: readthedocs
     navigation_depth: 3
 markdown_extensions:
     - admonition:
+    - markdown_include.include:
+        headingOffset: 1
 
 nav:
     - Introduction: 'index.md'
@@ -24,15 +29,16 @@ nav:
         - Optional Settings: 'configuration/optional-settings.md'
     - Core Functionality:
         - IP Address Management: 'core-functionality/ipam.md'
-        - VLANs: 'core-functionality/vlans.md'
+        - VLAN Management: 'core-functionality/vlans.md'
         - Sites and Racks: 'core-functionality/sites-and-racks.md'
-        - Devices: 'core-functionality/devices.md'
-        - Virtual Machines: 'core-functionality/virtual-machines.md'
-        - Services: 'core-functionality/services.md'
+        - Devices and Cabling: 'core-functionality/devices.md'
+        - Device Types: 'core-functionality/device-types.md'
+        - Virtualization: 'core-functionality/virtualization.md'
+        - Service Mapping: 'core-functionality/services.md'
         - Circuits: 'core-functionality/circuits.md'
-        - Power: 'core-functionality/power.md'
+        - Power Tracking: 'core-functionality/power.md'
         - Secrets: 'core-functionality/secrets.md'
-        - Tenancy: 'core-functionality/tenancy.md'
+        - Tenancy Assignment: 'core-functionality/tenancy.md'
     - Additional Features:
         - Caching: 'additional-features/caching.md'
         - Change Logging: 'additional-features/change-logging.md'
@@ -52,10 +58,10 @@ nav:
         - NetBox Shell: 'administration/netbox-shell.md'
     - API:
         - Overview: 'api/overview.md'
+        - Filtering: 'api/filtering.md'
         - Authentication: 'api/authentication.md'
         - Working with Secrets: 'api/working-with-secrets.md'
         - Examples: 'api/examples.md'
-        - Filtering: 'api/filtering.md'
     - Development:
         - Introduction: 'development/index.md'
         - Style Guide: 'development/style-guide.md'
@@ -73,13 +79,3 @@ nav:
         - Version 2.2: 'release-notes/version-2.2.md'
         - Version 2.1: 'release-notes/version-2.1.md'
         - Version 2.0: 'release-notes/version-2.0.md'
-        - Version 1.9: 'release-notes/version-1.9.md'
-        - Version 1.8: 'release-notes/version-1.8.md'
-        - Version 1.7: 'release-notes/version-1.7.md'
-        - Version 1.6: 'release-notes/version-1.6.md'
-        - Version 1.5: 'release-notes/version-1.5.md'
-        - Version 1.4: 'release-notes/version-1.4.md'
-        - Version 1.3: 'release-notes/version-1.3.md'
-        - Version 1.2: 'release-notes/version-1.2.md'
-        - Version 1.1: 'release-notes/version-1.1.md'
-        - Version 1.0: 'release-notes/version-1.0.md'

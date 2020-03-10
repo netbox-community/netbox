@@ -4,6 +4,7 @@ import re
 
 import yaml
 from django import template
+from django.conf import settings
 from django.urls import NoReverseMatch, reverse
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
@@ -20,15 +21,6 @@ register = template.Library()
 #
 
 @register.filter()
-def oneline(value):
-    """
-    Replace each line break with a single space
-    """
-    value = value.replace('\r', '')
-    return value.replace('\n', ' ')
-
-
-@register.filter()
 def placeholder(value):
     """
     Render a muted placeholder if value equates to False.
@@ -39,32 +31,16 @@ def placeholder(value):
     return mark_safe(placeholder)
 
 
-@register.filter()
-def getlist(value, arg):
-    """
-    Return all values of a QueryDict key
-    """
-    return value.getlist(arg)
-
-
-@register.filter
-def getkey(value, key):
-    """
-    Return a dictionary item specified by key
-    """
-    return value[key]
-
-
 @register.filter(is_safe=True)
-def gfm(value):
+def render_markdown(value):
     """
-    Render text as GitHub-Flavored Markdown
+    Render text as Markdown
     """
     # Strip HTML tags
     value = strip_tags(value)
 
-    # Render Markdown with GFM extension
-    html = markdown(value, extensions=['mdx_gfm'])
+    # Render Markdown
+    html = markdown(value, extensions=['fenced_code'])
 
     return mark_safe(html)
 
@@ -86,19 +62,12 @@ def render_yaml(value):
 
 
 @register.filter()
-def model_name(obj):
+def meta(obj, attr):
     """
-    Return the name of the model of the given object
+    Return the specified Meta attribute of a model. This is needed because Django does not permit templates
+    to access attributes which begin with an underscore (e.g. _meta).
     """
-    return obj._meta.verbose_name
-
-
-@register.filter()
-def model_name_plural(obj):
-    """
-    Return the plural name of the model of the given object
-    """
-    return obj._meta.verbose_name_plural
+    return getattr(obj._meta, attr, '')
 
 
 @register.filter()
@@ -114,14 +83,6 @@ def url_name(model, action):
         return url_name
     except NoReverseMatch:
         return None
-
-
-@register.filter()
-def contains(value, arg):
-    """
-    Test whether a value contains any of a given set of strings. `arg` should be a comma-separated list of strings.
-    """
-    return any(s in value for s in arg.split(','))
 
 
 @register.filter()
@@ -214,6 +175,30 @@ def percentage(x, y):
     if x is None or y is None:
         return None
     return round(x / y * 100)
+
+
+@register.filter()
+def get_docs(model):
+    """
+    Render and return documentation for the specified model.
+    """
+    path = '{}/models/{}/{}.md'.format(
+        settings.DOCS_ROOT,
+        model._meta.app_label,
+        model._meta.model_name
+    )
+    try:
+        with open(path) as docfile:
+            content = docfile.read()
+    except FileNotFoundError:
+        return "Unable to load documentation, file not found: {}".format(path)
+    except IOError:
+        return "Unable to load documentation, error reading file: {}".format(path)
+
+    # Render Markdown with the admonition extension
+    content = markdown(content, extensions=['admonition', 'fenced_code'])
+
+    return mark_safe(content)
 
 
 #

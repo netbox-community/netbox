@@ -29,10 +29,25 @@ eval $COMMAND || {
 # Activate the virtual environment
 source "${VIRTUALENV}/bin/activate"
 
-# Install Python packages
-COMMAND="pip3 install -r requirements.txt"
-echo "Installing Python packages ($COMMAND)..."
+# Install necessary system packages
+COMMAND="pip3 install wheel"
+echo "Installing Python system packages ($COMMAND)..."
 eval $COMMAND || exit 1
+
+# Install required Python packages
+COMMAND="pip3 install -r requirements.txt"
+echo "Installing core dependencies ($COMMAND)..."
+eval $COMMAND || exit 1
+
+# Install optional packages (if any)
+if [ -f "local_requirements.txt" ]
+then
+  COMMAND="pip3 install -r local_requirements.txt"
+  echo "Installing local dependencies ($COMMAND)..."
+  eval $COMMAND || exit 1
+else
+  echo "Skipping local dependencies (local_requirements.txt not found)"
+fi
 
 # Apply any database migrations
 COMMAND="python3 netbox/manage.py migrate"
@@ -59,7 +74,7 @@ COMMAND="python3 netbox/manage.py invalidate all"
 echo "Clearing cache data ($COMMAND)..."
 eval $COMMAND || exit 1
 
-if [ WARN_MISSING_VENV ]; then
+if [ -v WARN_MISSING_VENV ]; then
   echo "--------------------------------------------------------------------"
   echo "WARNING: No existing virtual environment was detected. A new one has"
   echo "been created. Update your systemd service files to reflect the new"

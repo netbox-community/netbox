@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Static Media Failure - NetBox</title>
+    <meta charset="UTF-8">
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+        }
+        li.tip {
+            line-height: 150%;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div style="margin: auto; width: 800px">
+        <h1>Static Media Failure</h1>
+        <h3>
+            The following static media file failed to load:
+            <a href="{% static filename %}"><code style="color: red">{{ filename }}</code></a>
+        </h3>
+        <p>Check the following:</p>
+        <ul>
+            <li class="tip">
+                <code><strong>manage.py collectstatic</strong></code> was run during the most recent upgrade. This installs the most recent
+                iteration of each static file into the static root path.
+            </li>
+            <li class="tip">
+                The HTTP service (e.g. nginx or Apache) is configured to serve files from the <code>STATIC_ROOT</code> path.
+                Refer to <a href="https://netbox.readthedocs.io/en/stable/installation/">the installation
+                documentation</a> for further guidance.
+                    <ul>
+                        {% if request.user.is_staff or request.user.is_superuser %}
+                            <li><code>STATIC_ROOT: <strong>{{ settings.STATIC_ROOT }}</strong></code></li>
+                        {% endif %}
+                        <li><code>STATIC_URL: <strong>{{ settings.STATIC_URL }}</strong></code></li>
+                    </ul>
+            </li>
+            <li class="tip">
+                The file <code>{{ filename }}</code> exists in the static root directory and is readable by the HTTP process.
+            </li>
+        </ul>
+        <p>Click <a href="/">here</a> to attempt loading NetBox again.</p>
+    </div>
+</body>
+</html>

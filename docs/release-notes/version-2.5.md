@@ -1,6 +1,8 @@
-# v2.5.13 (2019-05-31)
+# NetBox v2.5 Release Notes
 
-## Enhancements
+## v2.5.13 (2019-05-31)
+
+### Enhancements
 
 * [#2813](https://github.com/netbox-community/netbox/issues/2813) - Add tenant group filters
 * [#3085](https://github.com/netbox-community/netbox/issues/3085) - Catch all exceptions during export template rendering
@@ -11,7 +13,7 @@
 * [#3185](https://github.com/netbox-community/netbox/issues/3185) - Improve performance for custom field access within templates
 * [#3186](https://github.com/netbox-community/netbox/issues/3186) - Add interface name filter for IP addresses
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3031](https://github.com/netbox-community/netbox/issues/3031) - Fixed form field population of tags with spaces
 * [#3132](https://github.com/netbox-community/netbox/issues/3132) - Circuit termination missing from available cable termination types
@@ -25,9 +27,9 @@
 
 ---
 
-# v2.5.12 (2019-05-01)
+## v2.5.12 (2019-05-01)
 
-## Bug Fixes
+### Bug Fixes
 
 * [#3127](https://github.com/netbox-community/netbox/issues/3127) - Fix natural ordering of device components
 
@@ -35,17 +37,17 @@
 
 2.5.11 (2019-04-29)
 
-## Notes
+### Notes
 
 This release upgrades the Django framework to version 2.2.
 
-## Enhancements
+### Enhancements
 
 * [#2986](https://github.com/netbox-community/netbox/issues/2986) - Improve natural ordering of device components
 * [#3023](https://github.com/netbox-community/netbox/issues/3023) - Add support for filtering cables by connected device
 * [#3070](https://github.com/netbox-community/netbox/issues/3070) - Add decommissioning status for devices
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2621](https://github.com/netbox-community/netbox/issues/2621) - Upgrade Django requirement to 2.2 to fix object deletion issue in the changelog middleware
 * [#3072](https://github.com/netbox-community/netbox/issues/3072) - Preserve multiselect filter values when updating per-page count for list views
@@ -55,13 +57,13 @@ This release upgrades the Django framework to version 2.2.
 
 ---
 
-# v2.5.10 (2019-04-08)
+## v2.5.10 (2019-04-08)
 
-## Enhancements
+### Enhancements
 
 * [#3052](https://github.com/netbox-community/netbox/issues/3052) - Add Jinja2 support for export templates
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2937](https://github.com/netbox-community/netbox/issues/2937) - Redirect to list view after editing an object from list view
 * [#3036](https://github.com/netbox-community/netbox/issues/3036) - DCIM interfaces API endpoint should not include VM interfaces
@@ -73,15 +75,15 @@ This release upgrades the Django framework to version 2.2.
 
 ---
 
-# v2.5.9 (2019-04-01)
+## v2.5.9 (2019-04-01)
 
-## Enhancements
+### Enhancements
 
 * [#2933](https://github.com/netbox-community/netbox/issues/2933) - Add username to outbound webhook requests
 * [#3011](https://github.com/netbox-community/netbox/issues/3011) - Add SSL support for django-rq (requires django-rq v1.3.1+)
 * [#3025](https://github.com/netbox-community/netbox/issues/3025) - Add request ID to outbound webhook requests (for correlating all changes part of a single request)
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2207](https://github.com/netbox-community/netbox/issues/2207) - Fixes deterministic ordering of interfaces
 * [#2577](https://github.com/netbox-community/netbox/issues/2577) - Clarification of wording in API regarding filtering
@@ -98,13 +100,13 @@ This release upgrades the Django framework to version 2.2.
 
 ---
 
-# v2.5.8 (2019-03-11)
+## v2.5.8 (2019-03-11)
 
-## Enhancements
+### Enhancements
 
 * [#2435](https://github.com/netbox-community/netbox/issues/2435) - Printer friendly CSS
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2065](https://github.com/netbox-community/netbox/issues/2065) - Correct documentation for VM interface serializer
 * [#2705](https://github.com/netbox-community/netbox/issues/2705) - Fix endpoint grouping in API docs
@@ -128,9 +130,9 @@ This release upgrades the Django framework to version 2.2.
 
 ---
 
-# v2.5.7 (2019-02-21)
+## v2.5.7 (2019-02-21)
 
-## Enhancements
+### Enhancements
 
 * [#2357](https://github.com/netbox-community/netbox/issues/2357) - Enable filtering of devices by rack face
 * [#2638](https://github.com/netbox-community/netbox/issues/2638) - Add button to copy unlocked secret to clipboard
@@ -140,7 +142,7 @@ This release upgrades the Django framework to version 2.2.
 * [#2898](https://github.com/netbox-community/netbox/issues/2898) - Enable filtering cables list by connection status
 * [#2903](https://github.com/netbox-community/netbox/issues/2903) - Clarify purpose of tags field on interface edit form
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2852](https://github.com/netbox-community/netbox/issues/2852) - Allow filtering devices by null rack position
 * [#2884](https://github.com/netbox-community/netbox/issues/2884) - Don't display connect button for wireless interfaces
@@ -156,16 +158,16 @@ This release upgrades the Django framework to version 2.2.
 
 ---
 
-# v2.5.6 (2019-02-13)
+## v2.5.6 (2019-02-13)
 
-## Enhancements
+### Enhancements
 
 * [#2758](https://github.com/netbox-community/netbox/issues/2758) - Add cable trace button to pass-through ports
 * [#2839](https://github.com/netbox-community/netbox/issues/2839) - Add "110 punch" type for pass-through ports
 * [#2854](https://github.com/netbox-community/netbox/issues/2854) - Enable bulk editing of pass-through ports
 * [#2866](https://github.com/netbox-community/netbox/issues/2866) - Add cellular interface types (GSM/CDMA/LTE)
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2841](https://github.com/netbox-community/netbox/issues/2841) - Fix filtering by VRF for prefix and IP address lists
 * [#2844](https://github.com/netbox-community/netbox/issues/2844) - Correct display of far cable end for pass-through ports
@@ -179,15 +181,15 @@ This release upgrades the Django framework to version 2.2.
 
 ---
 
-# v2.5.5 (2019-01-31)
+## v2.5.5 (2019-01-31)
 
-## Enhancements
+### Enhancements
 
 * [#2805](https://github.com/netbox-community/netbox/issues/2805) - Allow null route distinguisher for VRFs
 * [#2809](https://github.com/netbox-community/netbox/issues/2809) - Remove VRF child prefixes table; link to main prefixes view
 * [#2825](https://github.com/netbox-community/netbox/issues/2825) - Include directly connected device for front/rear ports
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2824](https://github.com/netbox-community/netbox/issues/2824) - Fix template exception when viewing rack elevations list
 * [#2833](https://github.com/netbox-community/netbox/issues/2833) - Fix form widget for front port template creation
@@ -196,9 +198,9 @@ This release upgrades the Django framework to version 2.2.
 
 ---
 
-# v2.5.4 (2019-01-29)
+## v2.5.4 (2019-01-29)
 
-## Enhancements
+### Enhancements
 
 * [#2516](https://github.com/netbox-community/netbox/issues/2516) - Implemented Select2 for all Model backed selection fields
 * [#2590](https://github.com/netbox-community/netbox/issues/2590) - Implemented the color picker with Select2 to show colors in the background
@@ -211,7 +213,7 @@ This release upgrades the Django framework to version 2.2.
 * [#2808](https://github.com/netbox-community/netbox/issues/2808) - Loosen version pinning for Django to allow patch releases
 * [#2810](https://github.com/netbox-community/netbox/issues/2810) - Include description fields in interface connections export
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2779](https://github.com/netbox-community/netbox/issues/2779) - Include "none" option when filter IP addresses by role
 * [#2783](https://github.com/netbox-community/netbox/issues/2783) - Fix AttributeError exception when attempting to delete region(s)
@@ -222,9 +224,9 @@ This release upgrades the Django framework to version 2.2.
 
 ---
 
-# v2.5.3 (2019-01-11)
+## v2.5.3 (2019-01-11)
 
-## Enhancements
+### Enhancements
 
 * [#1630](https://github.com/netbox-community/netbox/issues/1630) - Enable bulk editing of prefix/IP mask length
 * [#1870](https://github.com/netbox-community/netbox/issues/1870) - Add per-page toggle to object lists
@@ -234,7 +236,7 @@ This release upgrades the Django framework to version 2.2.
 * [#2693](https://github.com/netbox-community/netbox/issues/2693) - Additional cable colors
 * [#2726](https://github.com/netbox-community/netbox/issues/2726) - Include cables in global search
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2742](https://github.com/netbox-community/netbox/issues/2742) - Preserve cluster assignment when editing a device
 * [#2757](https://github.com/netbox-community/netbox/issues/2757) - Always treat first/last IPs within a /31 or /127 as usable
@@ -244,14 +246,14 @@ This release upgrades the Django framework to version 2.2.
 
 ---
 
-# v2.5.2 (2018-12-21)
+## v2.5.2 (2018-12-21)
 
-## Enhancements
+### Enhancements
 
 * [#2561](https://github.com/netbox-community/netbox/issues/2561) - Add 200G and 400G interface types
 * [#2701](https://github.com/netbox-community/netbox/issues/2701) - Enable filtering of prefixes by exact prefix value
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2673](https://github.com/netbox-community/netbox/issues/2673) - Fix exception on LLDP neighbors view for device with a circuit connected
 * [#2691](https://github.com/netbox-community/netbox/issues/2691) - Cable trace should follow circuits
@@ -266,14 +268,14 @@ This release upgrades the Django framework to version 2.2.
 
 ---
 
-# v2.5.1 (2018-12-13)
+## v2.5.1 (2018-12-13)
 
-## Enhancements
+### Enhancements
 
 * [#2655](https://github.com/netbox-community/netbox/issues/2655) - Add 128GFC Fibrechannel interface type
 * [#2674](https://github.com/netbox-community/netbox/issues/2674) - Enable filtering changelog by object type under web UI
 
-## Bug Fixes
+### Bug Fixes
 
 * [#2662](https://github.com/netbox-community/netbox/issues/2662) - Fix ImproperlyConfigured exception when rendering API docs
 * [#2663](https://github.com/netbox-community/netbox/issues/2663) - Prevent duplicate interfaces from appearing under VLAN members view
@@ -287,33 +289,33 @@ This release upgrades the Django framework to version 2.2.
 
 ---
 
-# v2.5.0 (2018-12-10)
+## v2.5.0 (2018-12-10)
 
-## Notes
+### Notes
 
-### Python 3 Required
+#### Python 3 Required
 
 As promised, Python 2 support has been completed removed. Python 3.5 or higher is now required to run NetBox. Please see [our Python 3 migration guide](https://netbox.readthedocs.io/en/stable/installation/migrating-to-python3/) for assistance with upgrading.
 
-### Removed Deprecated User Activity Log
+#### Removed Deprecated User Activity Log
 
 The UserAction model, which was deprecated by the new change logging feature in NetBox v2.4, has been removed. If you need to archive legacy user activity, do so prior to upgrading to NetBox v2.5, as the database migration will remove all data associated with this model.
 
-### View Permissions in Django 2.1
+#### View Permissions in Django 2.1
 
 Django 2.1 introduces view permissions for object types (not to be confused with object-level permissions). Implementation of [#323](https://github.com/netbox-community/netbox/issues/323) is planned for NetBox v2.6. Users are encourage to begin assigning view permissions as desired in preparation for their eventual enforcement.
 
-### upgrade.sh No Longer Invokes sudo
+#### upgrade.sh No Longer Invokes sudo
 
 The `upgrade.sh` script has been tweaked so that it no longer invokes `sudo` internally. This was done to ensure compatibility when running NetBox inside a Python virtual environment. If you need elevated permissions when upgrading NetBox, call the upgrade script with `sudo upgrade.sh`.
 
-## New Features
+### New Features
 
-### Patch Panels and Cables ([#20](https://github.com/netbox-community/netbox/issues/20))
+#### Patch Panels and Cables ([#20](https://github.com/netbox-community/netbox/issues/20))
 
 NetBox now supports modeling physical cables for console, power, and interface connections. The new pass-through port component type has also been introduced to model patch panels and similar devices.
 
-## Enhancements
+### Enhancements
 
 * [#450](https://github.com/netbox-community/netbox/issues/450) - Added `outer_width` and `outer_depth` fields to rack model
 * [#867](https://github.com/netbox-community/netbox/issues/867) - Added `description` field to circuit terminations
@@ -329,7 +331,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2426](https://github.com/netbox-community/netbox/issues/2426) - Introduced `SESSION_FILE_PATH` configuration setting for authentication without write access to database
 * [#2594](https://github.com/netbox-community/netbox/issues/2594) - `upgrade.sh` no longer invokes sudo
 
-## Changes From v2.5-beta2
+### Changes From v2.5-beta2
 
 * [#2474](https://github.com/netbox-community/netbox/issues/2474) - Add `cabled` and `connection_status` filters for device components
 * [#2616](https://github.com/netbox-community/netbox/issues/2616) - Convert Rack `outer_unit` and Cable `length_unit` to integer-based choice fields
@@ -341,7 +343,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2648](https://github.com/netbox-community/netbox/issues/2648) - Include the `connection_status` field in nested represenations of connectable device components
 * [#2649](https://github.com/netbox-community/netbox/issues/2649) - Add `connected_endpoint_type` to connectable device component API representations
 
-## API Changes
+### API Changes
 
 * The `/extras/recent-activity/` endpoint (replaced by change logging in v2.4) has been removed
 * The `rpc_client` field has been removed from dcim.Platform (see #2367)

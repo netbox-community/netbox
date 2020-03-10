@@ -451,7 +451,8 @@ def get_scripts(use_names=False):
         module_scripts = OrderedDict()
         for name, cls in inspect.getmembers(module, is_script):
             module_scripts[name] = cls
-        scripts[module_name] = module_scripts
+        if module_scripts:
+            scripts[module_name] = module_scripts
 
     return scripts
 

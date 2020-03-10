@@ -1,6 +1,8 @@
+# REST API Authentication
+
 The NetBox API employs token-based authentication. For convenience, cookie authentication can also be used when navigating the browsable API.
 
-# Tokens
+## Tokens
 
 A token is a unique identifier that identifies a user to the API. Each user in NetBox may have one or more tokens which he or she can use to authenticate to the API. To create a token, navigate to the API tokens page at `/user/api-tokens/`.
 
@@ -13,7 +15,7 @@ By default, a token can be used for all operations available via the API. Desele
 
 Additionally, a token can be set to expire at a specific time. This can be useful if an external client needs to be granted temporary access to NetBox.
 
-# Authenticating to the API
+## Authenticating to the API
 
 By default, read operations will be available without authentication. In this case, a token may be included in the request, but is not necessary.
 
