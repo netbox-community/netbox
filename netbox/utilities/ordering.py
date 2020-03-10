@@ -75,7 +75,8 @@ def naturalize_interface(value, max_length):
         if part is not None:
             output += part.rjust(6, '0')
         else:
-            output += '000000'
+            # Append a "null" signifier to ensure ordering before a zero value
+            output += '......'
 
     # Finally, naturalize any remaining text and append it
     if match.group('remainder') is not None and len(output) < max_length:
