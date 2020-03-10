@@ -2089,6 +2089,20 @@ class DeviceTest(APITestCase):
 
         self.assertFalse('config_context' in response.data['results'][0])
 
+    def test_unique_name_per_site_constraint(self):
+
+        data = {
+            'device_type': self.devicetype1.pk,
+            'device_role': self.devicerole1.pk,
+            'name': 'Test Device 1',
+            'site': self.site1.pk,
+        }
+
+        url = reverse('dcim-api:device-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
 
 class ConsolePortTest(APITestCase):
 

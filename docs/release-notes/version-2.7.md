@@ -1,5 +1,11 @@
 # NetBox v2.7 Release Notes
 
+## v2.7.11 (FUTURE)
+
+### Bug Fixes
+
+* [#4340](https://github.com/netbox-community/netbox/issues/4340) - Enforce unique constraints for device and virtual machine names in the API
+
 ## v2.7.10 (2020-03-10)
 
 **Note:** If your deployment requires any non-core Python packages (such as `napalm`, `django-storages`, or `django-auth-ldap`), list them in a file named `local_requirements.txt` in the NetBox root directory (alongside `requirements.txt`). This will ensure they are detected and re-installed by the upgrade script when the Python virtual environment is rebuilt.
