@@ -16,6 +16,7 @@
 
 * [#4326](https://github.com/netbox-community/netbox/issues/4326) - Exclude Python modules without Script classes from scripts list
 * [#4337](https://github.com/netbox-community/netbox/issues/4337) - Allow bulk editing/deletion of all device components matching a query
+* [#4338](https://github.com/netbox-community/netbox/issues/4338) - Catch `AddrFormatError` exception when filtering aggregates/prefixes by an invalid prefix
 
 ---
 
