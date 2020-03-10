@@ -27,28 +27,29 @@ Copy the 'configuration.py' you created when first installing to the new version
 # cp netbox-X.Y.Z/netbox/netbox/configuration.py netbox/netbox/netbox/configuration.py
 ```
 
+Also copy the LDAP configuration if using LDAP:
+
+```no-highlight
+# cp netbox-X.Y.Z/netbox/netbox/ldap_config.py netbox/netbox/netbox/ldap_config.py
+```
+
 Be sure to replicate your uploaded media as well. (The exact action necessary will depend on where you choose to store your media, but in general moving or copying the media directory will suffice.)
 
 ```no-highlight
 # cp -pr netbox-X.Y.Z/netbox/media/ netbox/netbox/
 ```
 
-Also make sure to copy over any reports that you've made. Note that if you made them in a separate directory (`/opt/netbox-reports` for example), then you will not need to copy them - the config file that you copied earlier will point to the correct location.
+Also make sure to copy over any custom scripts and reports that you've made. Note that if these are stored outside the project root, you will not need to copy them. (Check the `SCRIPTS_ROOT` and `REPORTS_ROOT` parameters in the configuration file above if you're unsure.)
 
 ```no-highlight
+# cp -r /opt/netbox-X.Y.Z/netbox/scripts /opt/netbox/netbox/scripts/
 # cp -r /opt/netbox-X.Y.Z/netbox/reports /opt/netbox/netbox/reports/
 ```
 
 If you followed the original installation guide to set up gunicorn, be sure to copy its configuration as well:
 
 ```no-highlight
-# cp netbox-X.Y.Z/gunicorn_config.py netbox/gunicorn_config.py
-```
-
-Copy the LDAP configuration if using LDAP:
-
-```no-highlight
-# cp netbox-X.Y.Z/netbox/netbox/ldap_config.py netbox/netbox/netbox/ldap_config.py
+# cp netbox-X.Y.Z/gunicorn.py netbox/gunicorn.py
 ```
 
 ### Option B: Clone the Git Repository
