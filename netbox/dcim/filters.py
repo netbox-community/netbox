@@ -204,15 +204,18 @@ class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Creat
         to_field_name='slug',
         label='Site (slug)',
     )
-    group_id = django_filters.ModelMultipleChoiceFilter(
+    group_id = TreeNodeMultipleChoiceFilter(
         queryset=RackGroup.objects.all(),
-        label='Group (ID)',
+        field_name='group',
+        lookup_expr='in',
+        label='Rack group (ID)',
     )
-    group = django_filters.ModelMultipleChoiceFilter(
-        field_name='group__slug',
+    group = TreeNodeMultipleChoiceFilter(
         queryset=RackGroup.objects.all(),
+        field_name='group',
+        lookup_expr='in',
         to_field_name='slug',
-        label='Group',
+        label='Rack group (slug)',
     )
     status = django_filters.MultipleChoiceFilter(
         choices=RackStatusChoices,
@@ -272,16 +275,18 @@ class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
-    group_id = django_filters.ModelMultipleChoiceFilter(
+    group_id = TreeNodeMultipleChoiceFilter(
+        queryset=RackGroup.objects.all(),
         field_name='rack__group',
-        queryset=RackGroup.objects.all(),
-        label='Group (ID)',
+        lookup_expr='in',
+        label='Rack group (ID)',
     )
-    group = django_filters.ModelMultipleChoiceFilter(
-        field_name='rack__group__slug',
+    group = TreeNodeMultipleChoiceFilter(
         queryset=RackGroup.objects.all(),
+        field_name='rack__group',
+        lookup_expr='in',
         to_field_name='slug',
-        label='Group',
+        label='Rack group (slug)',
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
@@ -561,9 +566,10 @@ class DeviceFilterSet(
         to_field_name='slug',
         label='Site name (slug)',
     )
-    rack_group_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='rack__group',
+    rack_group_id = TreeNodeMultipleChoiceFilter(
         queryset=RackGroup.objects.all(),
+        field_name='rack__group',
+        lookup_expr='in',
         label='Rack group (ID)',
     )
     rack_id = django_filters.ModelMultipleChoiceFilter(
@@ -1253,9 +1259,10 @@ class PowerPanelFilterSet(BaseFilterSet):
         to_field_name='slug',
         label='Site name (slug)',
     )
-    rack_group_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='rack_group',
+    rack_group_id = TreeNodeMultipleChoiceFilter(
         queryset=RackGroup.objects.all(),
+        field_name='rack_group',
+        lookup_expr='in',
         label='Rack group (ID)',
     )
 
