@@ -277,13 +277,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'utilities.middleware.ExceptionHandlingMiddleware',
+    'utilities.middleware.RemoteUserMiddleware',
     'utilities.middleware.LoginRequiredMiddleware',
     'utilities.middleware.APIVersionMiddleware',
     'extras.middleware.ObjectChangeMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
-if REMOTE_AUTH_ENABLED:
-    MIDDLEWARE.append('utilities.middleware.RemoteUserMiddleware')
 
 ROOT_URLCONF = 'netbox.urls'
 
@@ -308,10 +307,9 @@ TEMPLATES = [
 
 # Set up authentication backends
 AUTHENTICATION_BACKENDS = [
+    REMOTE_AUTH_BACKEND,
     'utilities.auth_backends.ViewExemptModelBackend',
 ]
-if REMOTE_AUTH_ENABLED:
-    AUTHENTICATION_BACKENDS.insert(0, REMOTE_AUTH_BACKEND)
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'

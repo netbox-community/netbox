@@ -42,6 +42,14 @@ class RemoteUserMiddleware(RemoteUserMiddleware_):
     def header(self):
         return settings.REMOTE_AUTH_HEADER
 
+    def process_request(self, request):
+
+        # Bypass middleware if remote authentication is not enabled
+        if not settings.REMOTE_AUTH_ENABLED:
+            return
+
+        return super().process_request(request)
+
 
 class APIVersionMiddleware(object):
     """

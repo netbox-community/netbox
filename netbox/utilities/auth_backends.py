@@ -37,7 +37,7 @@ class RemoteUserBackend(ViewExemptModelBackend, RemoteUserBackend_):
     """
     @property
     def create_unknown_user(self):
-        return bool(settings.REMOTE_AUTH_AUTO_CREATE_USER)
+        return settings.REMOTE_AUTH_AUTO_CREATE_USER
 
     def configure_user(self, request, user):
         logger = logging.getLogger('netbox.authentication.RemoteUserBackend')
