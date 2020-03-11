@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#4340](https://github.com/netbox-community/netbox/issues/4340) - Enforce unique constraints for device and virtual machine names in the API
+* [#4343](https://github.com/netbox-community/netbox/issues/4343) - Fix Markdown support for tables
 
 ## v2.7.10 (2020-03-10)
 
