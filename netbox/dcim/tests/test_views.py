@@ -122,11 +122,13 @@ class RackGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         site = Site(name='Site 1', slug='site-1')
         site.save()
 
-        RackGroup.objects.bulk_create([
+        rack_groups = (
             RackGroup(name='Rack Group 1', slug='rack-group-1', site=site),
             RackGroup(name='Rack Group 2', slug='rack-group-2', site=site),
             RackGroup(name='Rack Group 3', slug='rack-group-3', site=site),
-        ])
+        )
+        for rackgroup in rack_groups:
+            rackgroup.save()
 
         cls.form_data = {
             'name': 'Rack Group X',
@@ -231,7 +233,8 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
             RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1])
         )
-        RackGroup.objects.bulk_create(rackgroups)
+        for rackgroup in rackgroups:
+            rackgroup.save()
 
         rackroles = (
             RackRole(name='Rack Role 1', slug='rack-role-1'),
@@ -1570,7 +1573,8 @@ class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
             RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
         )
-        RackGroup.objects.bulk_create(rackgroups)
+        for rackgroup in rackgroups:
+            rackgroup.save()
 
         PowerPanel.objects.bulk_create((
             PowerPanel(site=sites[0], rack_group=rackgroups[0], name='Power Panel 1'),

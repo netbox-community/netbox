@@ -386,7 +386,17 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         widget=APISelect(
-            api_url="/api/dcim/sites/"
+            api_url="/api/dcim/sites/",
+            filter_for={
+                'parent': 'site_id',
+            }
+        )
+    )
+    parent = DynamicModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/rack-groups/"
         )
     )
     slug = SlugField()
@@ -394,7 +404,7 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = RackGroup
         fields = (
-            'site', 'name', 'slug',
+            'site', 'parent', 'name', 'slug',
         )
 
 
@@ -405,6 +415,15 @@ class RackGroupCSVForm(forms.ModelForm):
         help_text='Name of parent site',
         error_messages={
             'invalid_choice': 'Site not found.',
+        }
+    )
+    parent = forms.ModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of parent rack group',
+        error_messages={
+            'invalid_choice': 'Rack group not found.',
         }
     )
 
@@ -426,7 +445,8 @@ class RackGroupFilterForm(BootstrapMixin, forms.Form):
             api_url="/api/dcim/regions/",
             value_field="slug",
             filter_for={
-                'site': 'region'
+                'site': 'region',
+                'parent': 'region',
             }
         )
     )
@@ -436,6 +456,18 @@ class RackGroupFilterForm(BootstrapMixin, forms.Form):
         required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
+            value_field="slug",
+            filter_for={
+                'parent': 'site',
+            }
+        )
+    )
+    parent = DynamicModelMultipleChoiceField(
+        queryset=RackGroup.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/dcim/rack-groups/",
             value_field="slug",
         )
     )

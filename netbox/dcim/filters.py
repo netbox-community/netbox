@@ -153,6 +153,16 @@ class RackGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=RackGroup.objects.all(),
+        label='Rack group (ID)',
+    )
+    parent = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent__slug',
+        queryset=RackGroup.objects.all(),
+        to_field_name='slug',
+        label='Rack group (slug)',
+    )
 
     class Meta:
         model = RackGroup
