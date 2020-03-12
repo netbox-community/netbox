@@ -550,7 +550,6 @@ class Graph(models.Model):
     def embed_url(self, obj):
         context = {'obj': obj}
 
-        # TODO: Remove in v2.8
         if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
             template = Template(self.source)
             return template.render(Context(context))
@@ -564,7 +563,6 @@ class Graph(models.Model):
 
         context = {'obj': obj}
 
-        # TODO: Remove in v2.8
         if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
             template = Template(self.link)
             return template.render(Context(context))
