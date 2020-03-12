@@ -24,8 +24,9 @@ If further customization of remote authentication is desired (for instance, if y
 
 ### API Changes
 
-* dcim.Rack: The `/api/dcim/racks/<pk>/units/` endpoint has been replaced with `/api/dcim/racks/<pk>/elevation/`.
+* The `_choices` API endpoints have been removed. Instead, use an `OPTIONS` request to a model's endpoint to view the available values for all fields. ([#3416](https://github.com/netbox-community/netbox/issues/3416))
 * The `id__in` filter has been removed. Use the format `?id=1&id=2` instead. ([#4313](https://github.com/netbox-community/netbox/issues/4313))
+* dcim.Rack: The `/api/dcim/racks/<pk>/units/` endpoint has been replaced with `/api/dcim/racks/<pk>/elevation/`.
 
 ### Other Changes
 
