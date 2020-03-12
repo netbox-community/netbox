@@ -18,6 +18,8 @@ If further customization of remote authentication is desired (for instance, if y
 
 ### Enhancements
 
+* [#1754](https://github.com/netbox-community/netbox/issues/1754) - Added support for nested rack groups
+* [#3939](https://github.com/netbox-community/netbox/issues/3939) - Added support for nested tenant groups
 * [#4195](https://github.com/netbox-community/netbox/issues/4195) - Enabled application logging (see [logging configuration](../configuration/optional-settings.md#logging))
 
 ### API Changes
