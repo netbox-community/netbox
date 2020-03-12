@@ -51,6 +51,7 @@ urlpatterns = [
 
     # Rack reservations
     path('rack-reservations/', views.RackReservationListView.as_view(), name='rackreservation_list'),
+    path('rack-reservations/add/', views.RackReservationCreateView.as_view(), name='rackreservation_add'),
     path('rack-reservations/import/', views.RackReservationImportView.as_view(), name='rackreservation_import'),
     path('rack-reservations/edit/', views.RackReservationBulkEditView.as_view(), name='rackreservation_bulk_edit'),
     path('rack-reservations/delete/', views.RackReservationBulkDeleteView.as_view(), name='rackreservation_bulk_delete'),
@@ -69,7 +70,6 @@ urlpatterns = [
     path('racks/<int:pk>/edit/', views.RackEditView.as_view(), name='rack_edit'),
     path('racks/<int:pk>/delete/', views.RackDeleteView.as_view(), name='rack_delete'),
     path('racks/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='rack_changelog', kwargs={'model': Rack}),
-    path('racks/<int:rack>/reservations/add/', views.RackReservationCreateView.as_view(), name='rack_add_reservation'),
     path('racks/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='rack_add_image', kwargs={'model': Rack}),
 
     # Manufacturers

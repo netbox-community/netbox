@@ -477,15 +477,15 @@ class RackReservationCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_rackreservation'
     model = RackReservation
     model_form = forms.RackReservationForm
+    template_name = 'dcim/rackreservation_edit.html'
+    default_return_url = 'dcim:rackreservation_list'
 
     def alter_obj(self, obj, request, args, kwargs):
         if not obj.pk:
-            obj.rack = get_object_or_404(Rack, pk=kwargs['rack'])
+            if 'rack' in request.GET:
+                obj.rack = get_object_or_404(Rack, pk=request.GET.get('rack'))
             obj.user = request.user
         return obj
-
-    def get_return_url(self, request, obj):
-        return obj.rack.get_absolute_url()
 
 
 class RackReservationEditView(RackReservationCreateView):
@@ -495,9 +495,7 @@ class RackReservationEditView(RackReservationCreateView):
 class RackReservationDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_rackreservation'
     model = RackReservation
-
-    def get_return_url(self, request, obj):
-        return obj.rack.get_absolute_url()
+    default_return_url = 'dcim:rackreservation_list'
 
 
 class RackReservationImportView(PermissionRequiredMixin, BulkImportView):

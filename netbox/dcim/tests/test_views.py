@@ -174,7 +174,6 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     # Disable inapplicable tests
     test_get_object = None
-    test_create_object = None
 
     @classmethod
     def setUpTestData(cls):
