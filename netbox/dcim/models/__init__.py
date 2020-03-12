@@ -21,7 +21,7 @@ from dcim.constants import *
 from dcim.fields import ASNField
 from dcim.elevations import RackElevationSVG
 from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
-from extras.utils import extras_functionality
+from extras.utils import extras_features
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object, to_meters
@@ -1221,7 +1221,7 @@ class Platform(ChangeLoggedModel):
         )
 
 
-@extras_functionality(['webhooks', 'custom_fields', 'export_templates', 'custom_links', 'graphs'])
+@extras_features(['webhooks', 'custom_fields', 'export_templates', 'custom_links', 'graphs'])
 class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
