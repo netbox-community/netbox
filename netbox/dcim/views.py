@@ -266,7 +266,13 @@ class SiteBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class RackGroupListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_rackgroup'
-    queryset = RackGroup.objects.prefetch_related('site').annotate(rack_count=Count('racks'))
+    queryset = RackGroup.objects.add_related_count(
+        RackGroup.objects.all(),
+        Rack,
+        'group',
+        'rack_count',
+        cumulative=True
+    ).prefetch_related('site')
     filterset = filters.RackGroupFilterSet
     filterset_form = forms.RackGroupFilterForm
     table = tables.RackGroupTable

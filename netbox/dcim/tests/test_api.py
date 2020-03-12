@@ -349,9 +349,11 @@ class RackGroupTest(APITestCase):
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
-        self.rackgroup1 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 1', slug='test-rack-group-1')
-        self.rackgroup2 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 2', slug='test-rack-group-2')
-        self.rackgroup3 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 3', slug='test-rack-group-3')
+        self.parent_rackgroup1 = RackGroup.objects.create(site=self.site1, name='Parent Rack Group 1', slug='parent-rack-group-1')
+        self.parent_rackgroup2 = RackGroup.objects.create(site=self.site2, name='Parent Rack Group 2', slug='parent-rack-group-2')
+        self.rackgroup1 = RackGroup.objects.create(site=self.site1, name='Rack Group 1', slug='rack-group-1', parent=self.parent_rackgroup1)
+        self.rackgroup2 = RackGroup.objects.create(site=self.site1, name='Rack Group 2', slug='rack-group-2', parent=self.parent_rackgroup1)
+        self.rackgroup3 = RackGroup.objects.create(site=self.site1, name='Rack Group 3', slug='rack-group-3', parent=self.parent_rackgroup1)
 
     def test_get_rackgroup(self):
 
@@ -365,7 +367,7 @@ class RackGroupTest(APITestCase):
         url = reverse('dcim-api:rackgroup-list')
         response = self.client.get(url, **self.header)
 
-        self.assertEqual(response.data['count'], 3)
+        self.assertEqual(response.data['count'], 5)
 
     def test_list_rackgroups_brief(self):
 
@@ -380,20 +382,22 @@ class RackGroupTest(APITestCase):
     def test_create_rackgroup(self):
 
         data = {
-            'name': 'Test Rack Group 4',
-            'slug': 'test-rack-group-4',
+            'name': 'Rack Group 4',
+            'slug': 'rack-group-4',
             'site': self.site1.pk,
+            'parent': self.parent_rackgroup1.pk,
         }
 
         url = reverse('dcim-api:rackgroup-list')
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(RackGroup.objects.count(), 4)
+        self.assertEqual(RackGroup.objects.count(), 6)
         rackgroup4 = RackGroup.objects.get(pk=response.data['id'])
         self.assertEqual(rackgroup4.name, data['name'])
         self.assertEqual(rackgroup4.slug, data['slug'])
         self.assertEqual(rackgroup4.site_id, data['site'])
+        self.assertEqual(rackgroup4.parent_id, data['parent'])
 
     def test_create_rackgroup_bulk(self):
 
@@ -402,16 +406,19 @@ class RackGroupTest(APITestCase):
                 'name': 'Test Rack Group 4',
                 'slug': 'test-rack-group-4',
                 'site': self.site1.pk,
+                'parent': self.parent_rackgroup1.pk,
             },
             {
                 'name': 'Test Rack Group 5',
                 'slug': 'test-rack-group-5',
                 'site': self.site1.pk,
+                'parent': self.parent_rackgroup1.pk,
             },
             {
                 'name': 'Test Rack Group 6',
                 'slug': 'test-rack-group-6',
                 'site': self.site1.pk,
+                'parent': self.parent_rackgroup1.pk,
             },
         ]
 
@@ -419,7 +426,7 @@ class RackGroupTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(RackGroup.objects.count(), 6)
+        self.assertEqual(RackGroup.objects.count(), 8)
         self.assertEqual(response.data[0]['name'], data[0]['name'])
         self.assertEqual(response.data[1]['name'], data[1]['name'])
         self.assertEqual(response.data[2]['name'], data[2]['name'])
@@ -430,17 +437,19 @@ class RackGroupTest(APITestCase):
             'name': 'Test Rack Group X',
             'slug': 'test-rack-group-x',
             'site': self.site2.pk,
+            'parent': self.parent_rackgroup2.pk,
         }
 
         url = reverse('dcim-api:rackgroup-detail', kwargs={'pk': self.rackgroup1.pk})
         response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(RackGroup.objects.count(), 3)
+        self.assertEqual(RackGroup.objects.count(), 5)
         rackgroup1 = RackGroup.objects.get(pk=response.data['id'])
         self.assertEqual(rackgroup1.name, data['name'])
         self.assertEqual(rackgroup1.slug, data['slug'])
         self.assertEqual(rackgroup1.site_id, data['site'])
+        self.assertEqual(rackgroup1.parent_id, data['parent'])
 
     def test_delete_rackgroup(self):
 
@@ -448,7 +457,7 @@ class RackGroupTest(APITestCase):
         response = self.client.delete(url, **self.header)
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(RackGroup.objects.count(), 2)
+        self.assertEqual(RackGroup.objects.count(), 4)
 
 
 class RackRoleTest(APITestCase):

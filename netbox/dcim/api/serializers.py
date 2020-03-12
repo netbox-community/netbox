@@ -96,11 +96,12 @@ class SiteSerializer(TaggitSerializer, CustomFieldModelSerializer):
 
 class RackGroupSerializer(ValidatedModelSerializer):
     site = NestedSiteSerializer()
+    parent = NestedRackGroupSerializer(required=False, allow_null=True)
     rack_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = RackGroup
-        fields = ['id', 'name', 'slug', 'site', 'rack_count']
+        fields = ['id', 'name', 'slug', 'site', 'parent', 'rack_count']
 
 
 class RackRoleSerializer(ValidatedModelSerializer):

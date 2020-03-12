@@ -11,13 +11,13 @@ from .models import (
     VirtualChassis,
 )
 
-REGION_LINK = """
+MPTT_LINK = """
 {% if record.get_children %}
     <span style="padding-left: {{ record.get_ancestors|length }}0px "><i class="fa fa-caret-right"></i>
 {% else %}
     <span style="padding-left: {{ record.get_ancestors|length }}9px">
 {% endif %}
-    <a href="{% url 'dcim:site_list' %}?region={{ record.slug }}">{{ record.name }}</a>
+    <a href="{{ record.get_absolute_url }}">{{ record.name }}</a>
 </span>
 """
 
@@ -214,7 +214,7 @@ def get_component_template_actions(model_name):
 
 class RegionTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.TemplateColumn(template_code=REGION_LINK, orderable=False)
+    name = tables.TemplateColumn(template_code=MPTT_LINK, orderable=False)
     site_count = tables.Column(verbose_name='Sites')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(
@@ -250,7 +250,10 @@ class SiteTable(BaseTable):
 
 class RackGroupTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.TemplateColumn(
+        template_code=MPTT_LINK,
+        orderable=False
+    )
     site = tables.LinkColumn(
         viewname='dcim:site',
         args=[Accessor('site.slug')],
