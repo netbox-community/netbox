@@ -15,20 +15,8 @@ from extras.models import (
 )
 from extras.reports import get_report, get_reports
 from extras.scripts import get_script, get_scripts, run_script
-from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, ModelViewSet
+from utilities.api import IsAuthenticatedOrLoginNotRequired, ModelViewSet
 from . import serializers
-
-
-#
-# Field choices
-#
-
-class ExtrasFieldChoicesViewSet(FieldChoicesViewSet):
-    fields = (
-        (serializers.ExportTemplateSerializer, ['template_language']),
-        (serializers.GraphSerializer, ['type', 'template_language']),
-        (serializers.ObjectChangeSerializer, ['action']),
-    )
 
 
 #
