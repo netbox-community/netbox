@@ -1,6 +1,7 @@
 from urllib import parse
 
 from django.conf import settings
+from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.db import ProgrammingError
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
@@ -29,6 +30,25 @@ class LoginRequiredMiddleware(object):
                     )
                 )
         return self.get_response(request)
+
+
+class RemoteUserMiddleware(RemoteUserMiddleware_):
+    """
+    Custom implementation of Django's RemoteUserMiddleware which allows for a user-configurable HTTP header name.
+    """
+    force_logout_if_no_header = False
+
+    @property
+    def header(self):
+        return settings.REMOTE_AUTH_HEADER
+
+    def process_request(self, request):
+
+        # Bypass middleware if remote authentication is not enabled
+        if not settings.REMOTE_AUTH_ENABLED:
+            return
+
+        return super().process_request(request)
 
 
 class APIVersionMiddleware(object):

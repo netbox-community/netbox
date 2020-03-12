@@ -81,7 +81,8 @@ class SiteTestCase(TestCase):
             TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
             TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
         )
-        TenantGroup.objects.bulk_create(tenant_groups)
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
 
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
@@ -186,12 +187,21 @@ class RackGroupTestCase(TestCase):
         )
         Site.objects.bulk_create(sites)
 
-        rack_groups = (
-            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
-            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
-            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2]),
+        parent_rack_groups = (
+            RackGroup(name='Parent Rack Group 1', slug='parent-rack-group-1', site=sites[0]),
+            RackGroup(name='Parent Rack Group 2', slug='parent-rack-group-2', site=sites[1]),
+            RackGroup(name='Parent Rack Group 3', slug='parent-rack-group-3', site=sites[2]),
         )
-        RackGroup.objects.bulk_create(rack_groups)
+        for rackgroup in parent_rack_groups:
+            rackgroup.save()
+
+        rack_groups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0], parent=parent_rack_groups[0]),
+            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1], parent=parent_rack_groups[1]),
+            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2], parent=parent_rack_groups[2]),
+        )
+        for rackgroup in rack_groups:
+            rackgroup.save()
 
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
@@ -209,15 +219,22 @@ class RackGroupTestCase(TestCase):
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'region': [regions[0].slug, regions[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_parent(self):
+        parent_groups = RackGroup.objects.filter(name__startswith='Parent')[:2]
+        params = {'parent_id': [parent_groups[0].pk, parent_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'parent': [parent_groups[0].slug, parent_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -280,7 +297,8 @@ class RackTestCase(TestCase):
             RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
             RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2]),
         )
-        RackGroup.objects.bulk_create(rack_groups)
+        for rackgroup in rack_groups:
+            rackgroup.save()
 
         rack_roles = (
             RackRole(name='Rack Role 1', slug='rack-role-1'),
@@ -294,7 +312,8 @@ class RackTestCase(TestCase):
             TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
             TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
         )
-        TenantGroup.objects.bulk_create(tenant_groups)
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
 
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
@@ -432,7 +451,8 @@ class RackReservationTestCase(TestCase):
             RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
             RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2]),
         )
-        RackGroup.objects.bulk_create(rack_groups)
+        for rackgroup in rack_groups:
+            rackgroup.save()
 
         racks = (
             Rack(name='Rack 1', site=sites[0], group=rack_groups[0]),
@@ -453,7 +473,8 @@ class RackReservationTestCase(TestCase):
             TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
             TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
         )
-        TenantGroup.objects.bulk_create(tenant_groups)
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
 
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
@@ -1146,7 +1167,8 @@ class DeviceTestCase(TestCase):
             RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
             RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2]),
         )
-        RackGroup.objects.bulk_create(rack_groups)
+        for rackgroup in rack_groups:
+            rackgroup.save()
 
         racks = (
             Rack(name='Rack 1', site=sites[0], group=rack_groups[0]),
@@ -1168,7 +1190,8 @@ class DeviceTestCase(TestCase):
             TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
             TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
         )
-        TenantGroup.objects.bulk_create(tenant_groups)
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
 
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
@@ -2559,7 +2582,8 @@ class PowerPanelTestCase(TestCase):
             RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1]),
             RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2]),
         )
-        RackGroup.objects.bulk_create(rack_groups)
+        for rackgroup in rack_groups:
+            rackgroup.save()
 
         power_panels = (
             PowerPanel(name='Power Panel 1', site=sites[0], rack_group=rack_groups[0]),

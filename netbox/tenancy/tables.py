@@ -3,6 +3,16 @@ import django_tables2 as tables
 from utilities.tables import BaseTable, ToggleColumn
 from .models import Tenant, TenantGroup
 
+MPTT_LINK = """
+{% if record.get_children %}
+    <span style="padding-left: {{ record.get_ancestors|length }}0px "><i class="fa fa-caret-right"></i>
+{% else %}
+    <span style="padding-left: {{ record.get_ancestors|length }}9px">
+{% endif %}
+    <a href="{{ record.get_absolute_url }}">{{ record.name }}</a>
+</span>
+"""
+
 TENANTGROUP_ACTIONS = """
 <a href="{% url 'tenancy:tenantgroup_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
@@ -27,11 +37,18 @@ COL_TENANT = """
 
 class TenantGroupTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(verbose_name='Name')
-    tenant_count = tables.Column(verbose_name='Tenants')
-    slug = tables.Column(verbose_name='Slug')
+    name = tables.TemplateColumn(
+        template_code=MPTT_LINK,
+        orderable=False
+    )
+    tenant_count = tables.Column(
+        verbose_name='Tenants'
+    )
+    slug = tables.Column()
     actions = tables.TemplateColumn(
-        template_code=TENANTGROUP_ACTIONS, attrs={'td': {'class': 'text-right noprint'}}, verbose_name=''
+        template_code=TENANTGROUP_ACTIONS,
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
     )
 
     class Meta(BaseTable.Meta):

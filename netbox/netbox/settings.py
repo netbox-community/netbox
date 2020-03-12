@@ -98,6 +98,12 @@ PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
 PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
 PLUGINS_ENABLED = getattr(configuration, 'PLUGINS_ENABLED', False)
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
+REMOTE_AUTH_AUTO_CREATE_USER = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_USER', False)
+REMOTE_AUTH_BACKEND = getattr(configuration, 'REMOTE_AUTH_BACKEND', 'utilities.auth_backends.RemoteUserBackend')
+REMOTE_AUTH_DEFAULT_GROUPS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_GROUPS', [])
+REMOTE_AUTH_DEFAULT_PERMISSIONS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_PERMISSIONS', [])
+REMOTE_AUTH_ENABLED = getattr(configuration, 'REMOTE_AUTH_ENABLED', False)
+REMOTE_AUTH_HEADER = getattr(configuration, 'REMOTE_AUTH_HEADER', 'HTTP_REMOTE_USER')
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
 SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
@@ -275,6 +281,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'utilities.middleware.ExceptionHandlingMiddleware',
+    'utilities.middleware.RemoteUserMiddleware',
     'utilities.middleware.LoginRequiredMiddleware',
     'utilities.middleware.APIVersionMiddleware',
     'extras.middleware.ObjectChangeMiddleware',
@@ -302,8 +309,9 @@ TEMPLATES = [
     },
 ]
 
-# Authentication
+# Set up authentication backends
 AUTHENTICATION_BACKENDS = [
+    REMOTE_AUTH_BACKEND,
     'utilities.auth_backends.ViewExemptModelBackend',
 ]
 

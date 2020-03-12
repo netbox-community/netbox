@@ -283,7 +283,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
 # Racks
 #
 
-class RackGroup(ChangeLoggedModel):
+class RackGroup(MPTTModel, ChangeLoggedModel):
     """
     Racks can be grouped as subsets within a Site. The scope of a group will depend on how Sites are defined. For
     example, if a Site spans a corporate campus, a RackGroup might be defined to represent each building within that
@@ -298,8 +298,16 @@ class RackGroup(ChangeLoggedModel):
         on_delete=models.CASCADE,
         related_name='rack_groups'
     )
+    parent = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        db_index=True
+    )
 
-    csv_headers = ['site', 'name', 'slug']
+    csv_headers = ['site', 'parent', 'name', 'slug']
 
     class Meta:
         ordering = ['site', 'name']
@@ -307,6 +315,9 @@ class RackGroup(ChangeLoggedModel):
             ['site', 'name'],
             ['site', 'slug'],
         ]
+
+    class MPTTMeta:
+        order_insertion_by = ['name']
 
     def __str__(self):
         return self.name
@@ -317,9 +328,25 @@ class RackGroup(ChangeLoggedModel):
     def to_csv(self):
         return (
             self.site,
+            self.parent.name if self.parent else '',
             self.name,
             self.slug,
         )
+
+    def to_objectchange(self, action):
+        # Remove MPTT-internal fields
+        return ObjectChange(
+            changed_object=self,
+            object_repr=str(self),
+            action=action,
+            object_data=serialize_object(self, exclude=['level', 'lft', 'rght', 'tree_id'])
+        )
+
+    def clean(self):
+
+        # Parent RackGroup (if any) must belong to the same Site
+        if self.parent and self.parent.site != self.site:
+            raise ValidationError(f"Parent rack group ({self.parent}) must belong to the same site ({self.site})")
 
 
 class RackRole(ChangeLoggedModel):
