@@ -11,12 +11,21 @@ class TenantGroupTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
 
-        groups = (
-            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
-            TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
+        parent_tenant_groups = (
+            TenantGroup(name='Parent Tenant Group 1', slug='parent-tenant-group-1'),
+            TenantGroup(name='Parent Tenant Group 2', slug='parent-tenant-group-2'),
+            TenantGroup(name='Parent Tenant Group 3', slug='parent-tenant-group-3'),
         )
-        TenantGroup.objects.bulk_create(groups)
+        for tenantgroup in parent_tenant_groups:
+            tenantgroup.save()
+
+        tenant_groups = (
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1', parent=parent_tenant_groups[0]),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2', parent=parent_tenant_groups[1]),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3', parent=parent_tenant_groups[2]),
+        )
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
 
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
@@ -31,6 +40,13 @@ class TenantGroupTestCase(TestCase):
         params = {'slug': ['tenant-group-1', 'tenant-group-2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_parent(self):
+        parent_groups = TenantGroup.objects.filter(name__startswith='Parent')[:2]
+        params = {'parent_id': [parent_groups[0].pk, parent_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'parent': [parent_groups[0].slug, parent_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
 
 class TenantTestCase(TestCase):
     queryset = Tenant.objects.all()
@@ -39,17 +55,18 @@ class TenantTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
 
-        groups = (
+        tenant_groups = (
             TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
             TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
             TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
-        TenantGroup.objects.bulk_create(groups)
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
 
         tenants = (
-            Tenant(name='Tenant 1', slug='tenant-1', group=groups[0]),
-            Tenant(name='Tenant 2', slug='tenant-2', group=groups[1]),
-            Tenant(name='Tenant 3', slug='tenant-3', group=groups[2]),
+            Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
+            Tenant(name='Tenant 2', slug='tenant-2', group=tenant_groups[1]),
+            Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[2]),
         )
         Tenant.objects.bulk_create(tenants)
 

@@ -20,7 +20,13 @@ from .models import Tenant, TenantGroup
 
 class TenantGroupListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'tenancy.view_tenantgroup'
-    queryset = TenantGroup.objects.annotate(tenant_count=Count('tenants'))
+    queryset = TenantGroup.objects.add_related_count(
+        TenantGroup.objects.all(),
+        Tenant,
+        'group',
+        'tenant_count',
+        cumulative=True
+    )
     table = tables.TenantGroupTable
 
 

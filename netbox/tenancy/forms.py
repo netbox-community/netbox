@@ -16,16 +16,32 @@ from .models import Tenant, TenantGroup
 #
 
 class TenantGroupForm(BootstrapMixin, forms.ModelForm):
+    parent = DynamicModelChoiceField(
+        queryset=TenantGroup.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/tenancy/tenant-groups/"
+        )
+    )
     slug = SlugField()
 
     class Meta:
         model = TenantGroup
         fields = [
-            'name', 'slug',
+            'parent', 'name', 'slug',
         ]
 
 
 class TenantGroupCSVForm(forms.ModelForm):
+    parent = forms.ModelChoiceField(
+        queryset=TenantGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of parent tenant group',
+        error_messages={
+            'invalid_choice': 'Tenant group not found.',
+        }
+    )
     slug = SlugField()
 
     class Meta:
