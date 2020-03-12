@@ -187,37 +187,6 @@ GET /api/ipam/prefixes/13980/?brief=1
 
 The brief format is supported for both lists and individual objects.
 
-### Static Choice Fields
-
-Some model fields, such as the `status` field in the above example, utilize static integers corresponding to static choices. The available choices can be retrieved from the read-only `_choices` endpoint within each app. A specific `model:field` tuple may optionally be specified in the URL.
-
-Each choice includes a human-friendly label and its corresponding numeric value. For example, `GET /api/ipam/_choices/prefix:status/` will return:
-
-```
-[
-    {
-        "value": 0,
-        "label": "Container"
-    },
-    {
-        "value": 1,
-        "label": "Active"
-    },
-    {
-        "value": 2,
-        "label": "Reserved"
-    },
-    {
-        "value": 3,
-        "label": "Deprecated"
-    }
-]
-```
-
-Thus, to set a prefix's status to "Reserved," it would be assigned the integer `2`.
-
-A request for `GET /api/ipam/_choices/` will return choices for _all_ fields belonging to models within the IPAM app.
-
 ## Pagination
 
 API responses which contain a list of objects (for example, a request to `/api/dcim/devices/`) will be paginated to avoid unnecessary overhead. The root JSON object will contain the following attributes:
@@ -280,27 +249,32 @@ A list of objects retrieved via the API can be filtered by passing one or more q
 GET /api/ipam/prefixes/?status=1
 ```
 
-The choices available for fixed choice fields such as `status` are exposed in the API under a special `_choices` endpoint for each NetBox app. For example, the available choices for `Prefix.status` are listed at `/api/ipam/_choices/` under the key `prefix:status`:
+The choices available for fixed choice fields such as `status` can be retrieved by sending an `OPTIONS` API request for the desired endpoint:
 
-```
-"prefix:status": [
-    {
-        "label": "Container",
-        "value": 0
-    },
-    {
-        "label": "Active",
-        "value": 1
-    },
-    {
-        "label": "Reserved",
-        "value": 2
-    },
-    {
-        "label": "Deprecated",
-        "value": 3
-    }
-],
+```no-highlight
+$ curl -s -X OPTIONS \
+-H "Content-Type: application/json" \
+-H "Accept: application/json; indent=4" \
+http://localhost:8000/api/ipam/prefixes/ | jq ".actions.POST.status.choices"
+[
+  {
+    "value": "container",
+    "display_name": "Container"
+  },
+  {
+    "value": "active",
+    "display_name": "Active"
+  },
+  {
+    "value": "reserved",
+    "display_name": "Reserved"
+  },
+  {
+    "value": "deprecated",
+    "display_name": "Deprecated"
+  }
+]
+
 ```
 
 For most fields, when a filter is passed multiple times, objects matching _any_ of the provided values will be returned. For example, `GET /api/dcim/sites/?name=Foo&name=Bar` will return all sites named "Foo" _or_ "Bar". The exception to this rule is ManyToManyFields which may have multiple values assigned. Tags are the most common example of a ManyToManyField. For example, `GET /api/dcim/sites/?tag=foo&tag=bar` will return only sites tagged with both "foo" _and_ "bar".

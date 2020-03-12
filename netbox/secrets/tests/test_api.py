@@ -19,13 +19,6 @@ class AppTest(APITestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_choices(self):
-
-        url = reverse('secrets-api:field-choice-list')
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.status_code, 200)
-
 
 class SecretRoleTest(APITestCase):
 

@@ -36,33 +36,6 @@ def create_test_user(username='testuser', permissions=None):
     return user
 
 
-def choices_to_dict(choices_list):
-    """
-    Convert a list of field choices to a dictionary suitable for direct comparison with a ChoiceSet. For example:
-
-        [
-            {
-                "value": "choice-1",
-                "label": "First Choice"
-            },
-            {
-                "value": "choice-2",
-                "label": "Second Choice"
-            }
-        ]
-
-    Becomes:
-
-        {
-            "choice-1": "First Choice",
-            "choice-2": "Second Choice
-        }
-    """
-    return {
-        choice['value']: choice['label'] for choice in choices_list
-    }
-
-
 @contextmanager
 def disable_warnings(logger_name):
     """

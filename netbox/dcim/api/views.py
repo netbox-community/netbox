@@ -26,41 +26,12 @@ from extras.api.views import CustomFieldModelViewSet
 from extras.models import Graph
 from ipam.models import Prefix, VLAN
 from utilities.api import (
-    get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, FieldChoicesViewSet, ModelViewSet, ServiceUnavailable,
+    get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, ModelViewSet, ServiceUnavailable,
 )
 from utilities.utils import get_subquery
 from virtualization.models import VirtualMachine
 from . import serializers
 from .exceptions import MissingFilterException
-
-
-#
-# Field choices
-#
-
-class DCIMFieldChoicesViewSet(FieldChoicesViewSet):
-    fields = (
-        (serializers.CableSerializer, ['length_unit', 'status', 'termination_a_type', 'termination_b_type', 'type']),
-        (serializers.ConsolePortSerializer, ['type', 'connection_status']),
-        (serializers.ConsolePortTemplateSerializer, ['type']),
-        (serializers.ConsoleServerPortSerializer, ['type']),
-        (serializers.ConsoleServerPortTemplateSerializer, ['type']),
-        (serializers.DeviceSerializer, ['face', 'status']),
-        (serializers.DeviceTypeSerializer, ['subdevice_role']),
-        (serializers.FrontPortSerializer, ['type']),
-        (serializers.FrontPortTemplateSerializer, ['type']),
-        (serializers.InterfaceSerializer, ['type', 'mode']),
-        (serializers.InterfaceTemplateSerializer, ['type']),
-        (serializers.PowerFeedSerializer, ['phase', 'status', 'supply', 'type']),
-        (serializers.PowerOutletSerializer, ['type', 'feed_leg']),
-        (serializers.PowerOutletTemplateSerializer, ['type', 'feed_leg']),
-        (serializers.PowerPortSerializer, ['type', 'connection_status']),
-        (serializers.PowerPortTemplateSerializer, ['type']),
-        (serializers.RackSerializer, ['outer_unit', 'status', 'type', 'width']),
-        (serializers.RearPortSerializer, ['type']),
-        (serializers.RearPortTemplateSerializer, ['type']),
-        (serializers.SiteSerializer, ['status']),
-    )
 
 
 # Mixins
