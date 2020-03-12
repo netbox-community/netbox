@@ -55,7 +55,7 @@ NetBox is built on the [Django](https://djangoproject.com/) Python framework and
 
 ## Supported Python Versions
 
-NetBox supports Python 3.5, 3.6, and 3.7 environments currently. Python 3.5 is scheduled to be unsupported in NetBox v2.8.
+NetBox supports Python 3.6 and 3.7 environments currently. (Support for Python 3.5 was removed in NetBox v2.8.)
 
 ## Getting Started
 
