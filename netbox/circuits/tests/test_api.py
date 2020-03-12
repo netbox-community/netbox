@@ -6,7 +6,7 @@ from circuits.choices import *
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim.models import Site
 from extras.models import Graph
-from utilities.testing import APITestCase, choices_to_dict
+from utilities.testing import APITestCase
 
 
 class AppTest(APITestCase):
@@ -17,19 +17,6 @@ class AppTest(APITestCase):
         response = self.client.get('{}?format=api'.format(url), **self.header)
 
         self.assertEqual(response.status_code, 200)
-
-    def test_choices(self):
-
-        url = reverse('circuits-api:field-choice-list')
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.status_code, 200)
-
-        # Circuit
-        self.assertEqual(choices_to_dict(response.data.get('circuit:status')), CircuitStatusChoices.as_dict())
-
-        # CircuitTermination
-        self.assertEqual(choices_to_dict(response.data.get('circuit-termination:term_side')), CircuitTerminationSideChoices.as_dict())
 
 
 class ProviderTest(APITestCase):
