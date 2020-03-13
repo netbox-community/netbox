@@ -82,19 +82,12 @@
                             <span class="label color-block" style="background-color: #{{ tag.color }}">&nbsp;</span>
                         </td>
                     </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>
+                            {{ tag.description }}
+                        </td>
                 </table>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Comments</strong>
-                </div>
-                <div class="panel-body rendered-markdown">
-                    {% if tag.comments %}
-                        {{ tag.comments|render_markdown }}
-                    {% else %}
-                        <span class="text-muted">None</span>
-                    {% endif %}
-                </div>
             </div>
         </div>
         <div class="col-md-6">

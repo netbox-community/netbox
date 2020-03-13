@@ -91,7 +91,7 @@ class TagSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'slug', 'color', 'comments', 'tagged_items']
+        fields = ['id', 'name', 'slug', 'color', 'description', 'tagged_items']
 
 
 #

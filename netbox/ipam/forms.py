@@ -119,7 +119,7 @@ class RIRForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = RIR
         fields = [
-            'name', 'slug', 'is_private',
+            'name', 'slug', 'is_private', 'description',
         ]
 
 
@@ -1048,7 +1048,7 @@ class VLANGroupForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = VLANGroup
         fields = [
-            'site', 'name', 'slug',
+            'site', 'name', 'slug', 'description',
         ]
 
 

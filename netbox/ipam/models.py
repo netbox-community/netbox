@@ -63,7 +63,7 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
         help_text='Prevent duplicate prefixes/IP addresses within this VRF'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     custom_field_values = GenericRelation(
@@ -123,8 +123,12 @@ class RIR(ChangeLoggedModel):
         verbose_name='Private',
         help_text='IP space managed by this RIR is considered private'
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug', 'is_private']
+    csv_headers = ['name', 'slug', 'is_private', 'description']
 
     class Meta:
         ordering = ['name']
@@ -142,6 +146,7 @@ class RIR(ChangeLoggedModel):
             self.name,
             self.slug,
             self.is_private,
+            self.description,
         )
 
 
@@ -162,7 +167,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         null=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     custom_field_values = GenericRelation(
@@ -261,7 +266,7 @@ class Role(ChangeLoggedModel):
         default=1000
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True,
     )
 
@@ -342,7 +347,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         help_text='All IP addresses within this prefix are considered usable'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     custom_field_values = GenericRelation(
@@ -612,7 +617,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         help_text='Hostname or FQDN (not case-sensitive)'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     custom_field_values = GenericRelation(
@@ -812,8 +817,12 @@ class VLANGroup(ChangeLoggedModel):
         blank=True,
         null=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug', 'site']
+    csv_headers = ['name', 'slug', 'site', 'description']
 
     class Meta:
         ordering = ('site', 'name', 'pk')  # (site, name) may be non-unique
@@ -835,6 +844,7 @@ class VLANGroup(ChangeLoggedModel):
             self.name,
             self.slug,
             self.site.name if self.site else None,
+            self.description,
         )
 
     def get_next_available_vid(self):
@@ -898,7 +908,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         null=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     custom_field_values = GenericRelation(
@@ -1010,7 +1020,7 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         verbose_name='IP addresses'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     custom_field_values = GenericRelation(

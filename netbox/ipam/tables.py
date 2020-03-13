@@ -211,7 +211,7 @@ class RIRTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RIR
-        fields = ('pk', 'name', 'is_private', 'aggregate_count', 'actions')
+        fields = ('pk', 'name', 'is_private', 'aggregate_count', 'description', 'actions')
 
 
 class RIRDetailTable(RIRTable):
@@ -410,7 +410,7 @@ class VLANGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VLANGroup
-        fields = ('pk', 'name', 'site', 'vlan_count', 'slug', 'actions')
+        fields = ('pk', 'name', 'site', 'vlan_count', 'slug', 'description', 'actions')
 
 
 #

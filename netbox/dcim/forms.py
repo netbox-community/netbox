@@ -192,7 +192,7 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Region
         fields = (
-            'parent', 'name', 'slug',
+            'parent', 'name', 'slug', 'description',
         )
 
 
@@ -404,7 +404,7 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = RackGroup
         fields = (
-            'site', 'parent', 'name', 'slug',
+            'site', 'parent', 'name', 'slug', 'description',
         )
 
 
@@ -983,7 +983,7 @@ class ManufacturerForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Manufacturer
         fields = [
-            'name', 'slug',
+            'name', 'slug', 'description',
         ]
 
 
@@ -1768,7 +1768,7 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Platform
         fields = [
-            'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args',
+            'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description',
         ]
         widgets = {
             'napalm_args': SmallTextarea(),

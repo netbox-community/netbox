@@ -77,12 +77,12 @@ class RIRTestCase(TestCase):
     def setUpTestData(cls):
 
         rirs = (
-            RIR(name='RIR 1', slug='rir-1', is_private=False),
-            RIR(name='RIR 2', slug='rir-2', is_private=False),
-            RIR(name='RIR 3', slug='rir-3', is_private=False),
-            RIR(name='RIR 4', slug='rir-4', is_private=True),
-            RIR(name='RIR 5', slug='rir-5', is_private=True),
-            RIR(name='RIR 6', slug='rir-6', is_private=True),
+            RIR(name='RIR 1', slug='rir-1', is_private=False, description='A'),
+            RIR(name='RIR 2', slug='rir-2', is_private=False, description='B'),
+            RIR(name='RIR 3', slug='rir-3', is_private=False, description='C'),
+            RIR(name='RIR 4', slug='rir-4', is_private=True, description='D'),
+            RIR(name='RIR 5', slug='rir-5', is_private=True, description='E'),
+            RIR(name='RIR 6', slug='rir-6', is_private=True, description='F'),
         )
         RIR.objects.bulk_create(rirs)
 
@@ -92,6 +92,10 @@ class RIRTestCase(TestCase):
 
     def test_slug(self):
         params = {'slug': ['rir-1', 'rir-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_is_private(self):
@@ -519,9 +523,9 @@ class VLANGroupTestCase(TestCase):
         Site.objects.bulk_create(sites)
 
         vlan_groups = (
-            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', site=sites[0]),
-            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', site=sites[1]),
-            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', site=sites[2]),
+            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', site=sites[0], description='A'),
+            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', site=sites[1], description='B'),
+            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', site=sites[2], description='C'),
             VLANGroup(name='VLAN Group 4', slug='vlan-group-4', site=None),
         )
         VLANGroup.objects.bulk_create(vlan_groups)
@@ -537,6 +541,10 @@ class VLANGroupTestCase(TestCase):
 
     def test_slug(self):
         params = {'slug': ['vlan-group-1', 'vlan-group-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):

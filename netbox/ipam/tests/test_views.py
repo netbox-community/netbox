@@ -59,13 +59,14 @@ class RIRTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'name': 'RIR X',
             'slug': 'rir-x',
             'is_private': True,
+            'description': 'A new RIR',
         }
 
         cls.csv_data = (
-            "name,slug",
-            "RIR 4,rir-4",
-            "RIR 5,rir-5",
-            "RIR 6,rir-6",
+            "name,slug,description",
+            "RIR 4,rir-4,Fourth RIR",
+            "RIR 5,rir-5,Fifth RIR",
+            "RIR 6,rir-6,Sixth RIR",
         )
 
 
@@ -261,13 +262,14 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'name': 'VLAN Group X',
             'slug': 'vlan-group-x',
             'site': site.pk,
+            'description': 'A new VLAN group',
         }
 
         cls.csv_data = (
-            "name,slug",
-            "VLAN Group 4,vlan-group-4",
-            "VLAN Group 5,vlan-group-5",
-            "VLAN Group 6,vlan-group-6",
+            "name,slug,description",
+            "VLAN Group 4,vlan-group-4,Fourth VLAN group",
+            "VLAN Group 5,vlan-group-5,Fifth VLAN group",
+            "VLAN Group 6,vlan-group-6,Sixth VLAN group",
         )
 
 

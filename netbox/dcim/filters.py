@@ -74,7 +74,7 @@ class RegionFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = Region
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class SiteFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
@@ -166,7 +166,7 @@ class RackGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = RackGroup
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class RackRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
@@ -318,7 +318,7 @@ class ManufacturerFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = Manufacturer
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class DeviceTypeFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
@@ -493,7 +493,7 @@ class PlatformFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = Platform
-        fields = ['id', 'name', 'slug', 'napalm_driver']
+        fields = ['id', 'name', 'slug', 'napalm_driver', 'description']
 
 
 class DeviceFilterSet(

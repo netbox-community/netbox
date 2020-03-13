@@ -27,7 +27,7 @@ class TenantGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = TenantGroup
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class TenantFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):

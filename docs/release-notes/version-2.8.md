@@ -20,13 +20,24 @@ If further customization of remote authentication is desired (for instance, if y
 
 * [#1754](https://github.com/netbox-community/netbox/issues/1754) - Added support for nested rack groups
 * [#3939](https://github.com/netbox-community/netbox/issues/3939) - Added support for nested tenant groups
+* [#4078](https://github.com/netbox-community/netbox/issues/4078) - Standardized description fields across all models
 * [#4195](https://github.com/netbox-community/netbox/issues/4195) - Enabled application logging (see [logging configuration](../configuration/optional-settings.md#logging))
 
 ### API Changes
 
 * The `_choices` API endpoints have been removed. Instead, use an `OPTIONS` request to a model's endpoint to view the available values for all fields. ([#3416](https://github.com/netbox-community/netbox/issues/3416))
 * The `id__in` filter has been removed. Use the format `?id=1&id=2` instead. ([#4313](https://github.com/netbox-community/netbox/issues/4313))
+* dcim.Manufacturer: Added a `description` field
+* dcim.Platform: Added a `description` field
 * dcim.Rack: The `/api/dcim/racks/<pk>/units/` endpoint has been replaced with `/api/dcim/racks/<pk>/elevation/`.
+* dcim.RackGroup: Added a `description` field
+* dcim.Region: Added a `description` field
+* extras.Tag: Renamed `comments` to `description`; truncated length to 200 characters; removed Markdown rendering
+* ipam.RIR: Added a `description` field
+* ipam.VLANGroup: Added a `description` field
+* tenancy.TenantGroup: Added a `description` field
+* virtualization.ClusterGroup: Added a `description` field
+* virtualization.ClusterType: Added a `description` field
 
 ### Other Changes
 

@@ -34,8 +34,12 @@ class TenantGroup(MPTTModel, ChangeLoggedModel):
         null=True,
         db_index=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug', 'parent']
+    csv_headers = ['name', 'slug', 'parent', 'description']
 
     class Meta:
         ordering = ['name']
@@ -54,6 +58,7 @@ class TenantGroup(MPTTModel, ChangeLoggedModel):
             self.name,
             self.slug,
             self.parent.name if self.parent else '',
+            self.description,
         )
 
     def to_objectchange(self, action):
@@ -86,9 +91,8 @@ class Tenant(ChangeLoggedModel, CustomFieldModel):
         null=True
     )
     description = models.CharField(
-        max_length=100,
-        blank=True,
-        help_text='Long-form name (optional)'
+        max_length=200,
+        blank=True
     )
     comments = models.TextField(
         blank=True

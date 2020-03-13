@@ -20,9 +20,9 @@ class TenantGroupTestCase(TestCase):
             tenantgroup.save()
 
         tenant_groups = (
-            TenantGroup(name='Tenant Group 1', slug='tenant-group-1', parent=parent_tenant_groups[0]),
-            TenantGroup(name='Tenant Group 2', slug='tenant-group-2', parent=parent_tenant_groups[1]),
-            TenantGroup(name='Tenant Group 3', slug='tenant-group-3', parent=parent_tenant_groups[2]),
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1', parent=parent_tenant_groups[0], description='A'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2', parent=parent_tenant_groups[1], description='B'),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3', parent=parent_tenant_groups[2], description='C'),
         )
         for tenantgroup in tenant_groups:
             tenantgroup.save()
@@ -38,6 +38,10 @@ class TenantGroupTestCase(TestCase):
 
     def test_slug(self):
         params = {'slug': ['tenant-group-1', 'tenant-group-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_parent(self):

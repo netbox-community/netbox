@@ -24,7 +24,7 @@ class ClusterTypeSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ClusterType
-        fields = ['id', 'name', 'slug', 'cluster_count']
+        fields = ['id', 'name', 'slug', 'description', 'cluster_count']
 
 
 class ClusterGroupSerializer(ValidatedModelSerializer):
@@ -32,7 +32,7 @@ class ClusterGroupSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ClusterGroup
-        fields = ['id', 'name', 'slug', 'cluster_count']
+        fields = ['id', 'name', 'slug', 'description', 'cluster_count']
 
 
 class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):

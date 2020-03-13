@@ -94,8 +94,12 @@ class Region(MPTTModel, ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug', 'parent']
+    csv_headers = ['name', 'slug', 'parent', 'description']
 
     class MPTTMeta:
         order_insertion_by = ['name']
@@ -111,6 +115,7 @@ class Region(MPTTModel, ChangeLoggedModel):
             self.name,
             self.slug,
             self.parent.name if self.parent else None,
+            self.description,
         )
 
     def get_site_count(self):
@@ -182,7 +187,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         blank=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     physical_address = models.CharField(
@@ -306,8 +311,12 @@ class RackGroup(MPTTModel, ChangeLoggedModel):
         null=True,
         db_index=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['site', 'parent', 'name', 'slug']
+    csv_headers = ['site', 'parent', 'name', 'slug', 'description']
 
     class Meta:
         ordering = ['site', 'name']
@@ -331,6 +340,7 @@ class RackGroup(MPTTModel, ChangeLoggedModel):
             self.parent.name if self.parent else '',
             self.name,
             self.slug,
+            self.description,
         )
 
     def to_objectchange(self, action):
@@ -362,7 +372,7 @@ class RackRole(ChangeLoggedModel):
     )
     color = ColorField()
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True,
     )
 
@@ -785,7 +795,7 @@ class RackReservation(ChangeLoggedModel):
         on_delete=models.PROTECT
     )
     description = models.CharField(
-        max_length=100
+        max_length=200
     )
 
     csv_headers = ['site', 'rack_group', 'rack', 'units', 'tenant', 'user', 'description']
@@ -858,8 +868,12 @@ class Manufacturer(ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug']
+    csv_headers = ['name', 'slug', 'description']
 
     class Meta:
         ordering = ['name']
@@ -874,6 +888,7 @@ class Manufacturer(ChangeLoggedModel):
         return (
             self.name,
             self.slug,
+            self.description
         )
 
 
@@ -1142,7 +1157,7 @@ class DeviceRole(ChangeLoggedModel):
         help_text='Virtual machines may be assigned to this role'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True,
     )
 
@@ -1198,8 +1213,12 @@ class Platform(ChangeLoggedModel):
         verbose_name='NAPALM arguments',
         help_text='Additional arguments to pass when initiating the NAPALM driver (JSON format)'
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args']
+    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description']
 
     class Meta:
         ordering = ['name']
@@ -1217,6 +1236,7 @@ class Platform(ChangeLoggedModel):
             self.manufacturer.name if self.manufacturer else None,
             self.napalm_driver,
             self.napalm_args,
+            self.description,
         )
 
 

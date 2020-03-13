@@ -17,7 +17,7 @@ class TenantGroupSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = TenantGroup
-        fields = ['id', 'name', 'slug', 'parent', 'tenant_count']
+        fields = ['id', 'name', 'slug', 'parent', 'description', 'tenant_count']
 
 
 class TenantSerializer(TaggitSerializer, CustomFieldModelSerializer):
