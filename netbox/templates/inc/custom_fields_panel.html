@@ -7,7 +7,7 @@
             <table class="table table-hover panel-body attr-table">
                 {% for field, value in custom_fields.items %}
                     <tr>
-                        <td>{{ field }}</td>
+                        <td><span title="{{ field.description }}">{{ field }}</span></td>
                         <td>
                             {% if field.type == 'boolean' and value == True %}
                                 <i class="glyphicon glyphicon-ok text-success" title="True"></i>
