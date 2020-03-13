@@ -1051,9 +1051,9 @@ class Tag(TagBase, ChangeLoggedModel):
     color = ColorField(
         default='9e9e9e'
     )
-    comments = models.TextField(
+    description = models.CharField(
+        max_length=200,
         blank=True,
-        default=''
     )
 
     def get_absolute_url(self):

@@ -32,6 +32,7 @@ If further customization of remote authentication is desired (for instance, if y
 * dcim.Rack: The `/api/dcim/racks/<pk>/units/` endpoint has been replaced with `/api/dcim/racks/<pk>/elevation/`.
 * dcim.RackGroup: Added a `description` field
 * dcim.Region: Added a `description` field
+* extras.Tag: Renamed `comments` to `description`; truncated length to 200 characters; removed Markdown rendering
 * ipam.RIR: Added a `description` field
 * ipam.VLANGroup: Added a `description` field
 * tenancy.TenantGroup: Added a `description` field
