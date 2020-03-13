@@ -3,12 +3,11 @@
 
 {% block header %}
     {{ block.super }}
-    {% if new_release %}
-        <div class="alert alert-info" role="alert">
-            A new release is available:
-            {% if new_release_url %}<a target="_blank" href="{{ new_release_url }}">{% endif %}
-                NetBox v{{ new_release }}
-            {% if latest_version_url %}</a>{% endif %}
+    {% if new_release and request.user.is_staff or request.user.is_superuser %}
+        <div class="alert alert-info text-center" role="alert">
+            <i class="fa fa-info-circle"></i>
+            A new release is available: <a href="{{ new_release_url }}">NetBox v{{ new_release }}</a> |
+            <a href="https://netbox.readthedocs.io/en/stable/installation/upgrading/">Upgrade instructions</a>
         </div>
     {% endif %}
 {% endblock %}
