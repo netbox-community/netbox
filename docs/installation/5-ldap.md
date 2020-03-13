@@ -1,25 +1,37 @@
+# LDAP Configuration
+
 This guide explains how to implement LDAP authentication using an external server. User authentication will fall back to built-in Django users in the event of a failure.
 
 ## Install Requirements
 
-#### Install openldap-devel
+### Install System Packages
 
 On Ubuntu:
 
 ```no-highlight
-sudo apt-get install -y libldap2-dev libsasl2-dev libssl-dev
+# apt-get install -y libldap2-dev libsasl2-dev libssl-dev
 ```
 
 On CentOS:
 
 ```no-highlight
-sudo yum install -y openldap-devel
+# yum install -y openldap-devel
 ```
 
-#### Install django-auth-ldap
+### Install django-auth-ldap
+
+Activate the Python virtual environment and install the `django-auth-ldap` package using pip:
 
 ```no-highlight
-pip3 install django-auth-ldap
+# cd /opt/netbox/
+# source venv/bin/activate
+(venv) # pip3 install django-auth-ldap
+```
+
+Once installed, add the package to `local_requirements.txt` to ensure it is re-installed during future rebuilds of the virtual environment:
+
+```no-highlight
+(venv) # echo django-auth-ldap >> local_requirements.txt
 ```
 
 ## Configuration
@@ -79,7 +91,7 @@ AUTH_LDAP_USER_ATTR_MAP = {
 }
 ```
 
-## User Groups for Permissions
+### User Groups for Permissions
 
 !!! info
     When using Microsoft Active Directory, support for nested groups can be activated by using `NestedGroupOfNamesType()` instead of `GroupOfNamesType()` for `AUTH_LDAP_GROUP_TYPE`. You will also need to modify the import line to use `NestedGroupOfNamesType` instead of `GroupOfNamesType` .

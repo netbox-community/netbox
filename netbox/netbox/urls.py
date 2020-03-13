@@ -5,7 +5,7 @@ from django.views.static import serve
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
-from netbox.views import APIRootView, HomeView, SearchView
+from netbox.views import APIRootView, HomeView, StaticMediaFailureView, SearchView
 from users.views import LoginView, LogoutView
 from .admin import admin_site
 
@@ -62,6 +62,9 @@ _patterns = [
     # Admin
     path('admin/', admin_site.urls),
     path('admin/webhook-backend-status/', include('django_rq.urls')),
+
+    # Errors
+    path('media-failure/', StaticMediaFailureView.as_view(), name='media_failure'),
 
 ]
 

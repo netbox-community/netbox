@@ -149,7 +149,7 @@
             </div>
             <div class="panel-body rendered-markdown">
                 {% if devicetype.comments %}
-                    {{ devicetype.comments|gfm }}
+                    {{ devicetype.comments|render_markdown }}
                 {% else %}
                     <span class="text-muted">None</span>
                 {% endif %}

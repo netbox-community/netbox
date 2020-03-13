@@ -791,6 +791,13 @@ class RackElevationFilterForm(RackFilterForm):
 #
 
 class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
+    rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(),
+        required=False,
+        widget=forms.HiddenInput()
+    )
+    # TODO: Change this to an API-backed form field. We can't do this currently because we want to retain
+    # the multi-line <select> widget for easy selection of multiple rack units.
     units = SimpleArrayField(
         base_field=forms.IntegerField(),
         widget=ArrayFieldSelectMultiple(
@@ -809,7 +816,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
     class Meta:
         model = RackReservation
         fields = [
-            'units', 'user', 'tenant_group', 'tenant', 'description',
+            'rack', 'units', 'user', 'tenant_group', 'tenant', 'description',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -817,7 +824,8 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Populate rack unit choices
-        self.fields['units'].widget.choices = self._get_unit_choices()
+        if hasattr(self.instance, 'rack'):
+            self.fields['units'].widget.choices = self._get_unit_choices()
 
     def _get_unit_choices(self):
         rack = self.instance.rack
@@ -827,6 +835,64 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
                 reserved_units.append(u)
         unit_choices = [(u, {'label': str(u), 'disabled': u in reserved_units}) for u in rack.units]
         return unit_choices
+
+
+class RackReservationCSVForm(forms.ModelForm):
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        help_text='Name of parent site',
+        error_messages={
+            'invalid_choice': 'Invalid site name.',
+        }
+    )
+    rack_group = forms.CharField(
+        required=False,
+        help_text="Rack's group (if any)"
+    )
+    rack_name = forms.CharField(
+        help_text="Rack name"
+    )
+    units = SimpleArrayField(
+        base_field=forms.IntegerField(),
+        required=True,
+        help_text='Comma-separated list of individual unit numbers'
+    )
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned tenant',
+        error_messages={
+            'invalid_choice': 'Tenant not found.',
+        }
+    )
+
+    class Meta:
+        model = RackReservation
+        fields = ('site', 'rack_group', 'rack_name', 'units', 'tenant', 'description')
+        help_texts = {
+        }
+
+    def clean(self):
+
+        super().clean()
+
+        site = self.cleaned_data.get('site')
+        rack_group = self.cleaned_data.get('rack_group')
+        rack_name = self.cleaned_data.get('rack_name')
+
+        # Validate rack
+        if site and rack_group and rack_name:
+            try:
+                self.instance.rack = Rack.objects.get(site=site, group__name=rack_group, name=rack_name)
+            except Rack.DoesNotExist:
+                raise forms.ValidationError("Rack {} not found in site {} group {}".format(rack_name, site, rack_group))
+        elif site and rack_name:
+            try:
+                self.instance.rack = Rack.objects.get(site=site, group__isnull=True, name=rack_name)
+            except Rack.DoesNotExist:
+                raise forms.ValidationError("Rack {} not found in site {} (no group)".format(rack_name, site))
 
 
 class RackReservationBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -4619,6 +4685,35 @@ class PowerPanelCSVForm(forms.ModelForm):
                 raise forms.ValidationError(
                     "Rack group {} not found in site {}".format(rack_group_name, site)
                 )
+
+
+class PowerPanelBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=PowerPanel.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/sites/",
+            filter_for={
+                'rack_group': 'site_id',
+            }
+        )
+    )
+    rack_group = DynamicModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/rack-groups/"
+        )
+    )
+
+    class Meta:
+        nullable_fields = (
+            'rack_group',
+        )
 
 
 class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):

@@ -501,6 +501,18 @@ class VirtualMachineTest(APITestCase):
 
         self.assertFalse('config_context' in response.data['results'][0])
 
+    def test_unique_name_per_cluster_constraint(self):
+
+        data = {
+            'name': 'Test Virtual Machine 1',
+            'cluster': self.cluster1.pk,
+        }
+
+        url = reverse('virtualization-api:virtualmachine-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
 
 class InterfaceTest(APITestCase):
 

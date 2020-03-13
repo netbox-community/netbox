@@ -174,10 +174,6 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     # Disable inapplicable tests
     test_get_object = None
-    test_create_object = None
-
-    # TODO: Fix URL name for view
-    test_import_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -203,6 +199,13 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'tenant': None,
             'description': 'Rack reservation',
         }
+
+        cls.csv_data = (
+            'site,rack_name,units,description',
+            'Site 1,Rack 1,"10,11,12",Reservation 1',
+            'Site 1,Rack 1,"13,14,15",Reservation 2',
+            'Site 1,Rack 1,"16,17,18",Reservation 3',
+        )
 
         cls.bulk_edit_data = {
             'user': user3.pk,
@@ -1553,9 +1556,6 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = PowerPanel
 
-    # Disable inapplicable tests
-    test_bulk_edit_objects = None
-
     @classmethod
     def setUpTestData(cls):
 
@@ -1589,6 +1589,11 @@ class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "Site 1,Rack Group 1,Power Panel 5",
             "Site 1,Rack Group 1,Power Panel 6",
         )
+
+        cls.bulk_edit_data = {
+            'site': sites[1].pk,
+            'rack_group': rackgroups[1].pk,
+        }
 
 
 class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):

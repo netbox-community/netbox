@@ -14,7 +14,7 @@ To authenticate a request, attach your token in an `Authorization` header:
 curl -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0"
 ```
 
-### Retrieving a list of sites
+## Retrieving a list of sites
 
 Send a `GET` request to the object list endpoint. The response contains a paginated list of JSON objects.
 
@@ -51,7 +51,7 @@ $ curl -H "Accept: application/json; indent=4" http://localhost/api/dcim/sites/
 }
 ```
 
-### Retrieving a single site by ID
+## Retrieving a single site by ID
 
 Send a `GET` request to the object detail endpoint. The response contains a single JSON object.
 
@@ -80,7 +80,7 @@ $ curl -H "Accept: application/json; indent=4" http://localhost/api/dcim/sites/6
 }
 ```
 
-### Creating a new site
+## Creating a new site
 
 Send a `POST` request to the site list endpoint with token authentication and JSON-formatted data. Only mandatory fields are required. This example includes one non required field, "region."
 
@@ -104,7 +104,7 @@ $ curl -X POST -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0
 ```
 Note that in this example we are creating a site bound to a region with the ID of 5. For write API actions (`POST`, `PUT`, and `PATCH`) the integer ID value is used for `ForeignKey` (related model) relationships, instead of the nested representation that is used in the `GET` (list) action.
 
-### Modify an existing site
+## Modify an existing site
 
 Make an authenticated `PUT` request to the site detail endpoint. As with a create (`POST`) request, all mandatory fields must be included.
 
@@ -112,14 +112,14 @@ Make an authenticated `PUT` request to the site detail endpoint. As with a creat
 $ curl -X PUT -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0" -H "Content-Type: application/json" -H "Accept: application/json; indent=4" http://localhost:8000/api/dcim/sites/16/ --data '{"name": "Renamed Site", "slug": "renamed-site"}'
 ```
 
-### Modify an object by changing a field
+## Modify an object by changing a field
 
 Make an authenticated `PATCH` request to the device endpoint. With `PATCH`, unlike `POST` and `PUT`, we only specify the field that is being changed. In this example, we add a serial number to a device.
 ```
 $ curl -X PATCH -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0" -H "Content-Type: application/json" -H "Accept: application/json; indent=4" http://localhost:8000/api/dcim/devices/2549/ --data '{"serial": "FTX1123A090"}'
 ```
 
-### Delete an existing site
+## Delete an existing site
 
 Send an authenticated `DELETE` request to the site detail endpoint.
 

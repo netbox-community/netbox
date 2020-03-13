@@ -1,14 +1,16 @@
+# Migrating to systemd
+
 This document contains instructions for migrating from a legacy NetBox deployment using [supervisor](http://supervisord.org/) to a systemd-based approach.
 
 ## Ubuntu
 
-### Uninstall supervisord:
+### Uninstall supervisord
 
 ```no-highlight
 # apt-get remove -y supervisord
 ```
 
-### Configure systemd:
+### Configure systemd
 
 !!! note
     These instructions assume the presence of a Python virtual environment at `/opt/netbox/venv`. If you have not created this environment, please refer to the [installation instructions](3-netbox.md#set-up-python-environment) for direction.

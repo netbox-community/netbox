@@ -317,6 +317,16 @@ class SearchView(View):
         })
 
 
+class StaticMediaFailureView(View):
+    """
+    Display a user-friendly error message with troubleshooting tips when a static media file fails to load.
+    """
+    def get(self, request):
+        return render(request, 'media_failure.html', {
+            'filename': request.GET.get('filename')
+        })
+
+
 class APIRootView(APIView):
     _ignore_model_permissions = True
     exclude_from_schema = True

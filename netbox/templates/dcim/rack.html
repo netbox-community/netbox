@@ -198,7 +198,7 @@
             </div>
             <div class="panel-body rendered-markdown">
                 {% if rack.comments %}
-                    {{ rack.comments|gfm }}
+                    {{ rack.comments|render_markdown }}
                 {% else %}
                     <span class="text-muted">None</span>
                 {% endif %}
@@ -285,12 +285,12 @@
                             </td>
                             <td class="text-right noprint">
                                 {% if perms.dcim.change_rackreservation %}
-                                    <a href="{% url 'dcim:rackreservation_edit' pk=resv.pk %}" class="btn btn-warning btn-xs" title="Edit reservation">
+                                    <a href="{% url 'dcim:rackreservation_edit' pk=resv.pk %}&return_url={{ rack.get_absolute_url }}" class="btn btn-warning btn-xs" title="Edit reservation">
                                         <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
                                     </a>
                                 {% endif %}
                                 {% if perms.dcim.delete_rackreservation %}
-                                    <a href="{% url 'dcim:rackreservation_delete' pk=resv.pk %}" class="btn btn-danger btn-xs" title="Delete reservation">
+                                    <a href="{% url 'dcim:rackreservation_delete' pk=resv.pk %}&return_url={{ rack.get_absolute_url }}" class="btn btn-danger btn-xs" title="Delete reservation">
                                         <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                                     </a>
                                 {% endif %}
@@ -303,7 +303,7 @@
             {% endif %}
             {% if perms.dcim.add_rackreservation %}
                 <div class="panel-footer text-right noprint">
-                    <a href="{% url 'dcim:rack_add_reservation' rack=rack.pk %}" class="btn btn-primary btn-xs">
+                    <a href="{% url 'dcim:rackreservation_add' %}?rack={{ rack.pk }}&return_url={{ rack.get_absolute_url }}" class="btn btn-primary btn-xs">
                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                         Add a reservation
                     </a>
