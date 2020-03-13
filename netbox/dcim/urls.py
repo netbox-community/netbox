@@ -2,7 +2,6 @@ from django.urls import path
 
 from extras.views import ObjectChangeLogView, ImageAttachmentEditView
 from ipam.views import ServiceCreateView
-from secrets.views import secret_add
 from . import views
 from .models import (
     Cable, ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, FrontPort, Interface, Manufacturer, Platform,
@@ -179,7 +178,6 @@ urlpatterns = [
     path('devices/<int:pk>/status/', views.DeviceStatusView.as_view(), name='device_status'),
     path('devices/<int:pk>/lldp-neighbors/', views.DeviceLLDPNeighborsView.as_view(), name='device_lldp_neighbors'),
     path('devices/<int:pk>/config/', views.DeviceConfigView.as_view(), name='device_config'),
-    path('devices/<int:pk>/add-secret/', secret_add, name='device_addsecret'),
     path('devices/<int:device>/services/assign/', ServiceCreateView.as_view(), name='device_service_assign'),
     path('devices/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='device_add_image', kwargs={'model': Device}),
 
