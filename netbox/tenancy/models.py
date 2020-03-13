@@ -86,9 +86,8 @@ class Tenant(ChangeLoggedModel, CustomFieldModel):
         null=True
     )
     description = models.CharField(
-        max_length=100,
-        blank=True,
-        help_text='Long-form name (optional)'
+        max_length=200,
+        blank=True
     )
     comments = models.TextField(
         blank=True

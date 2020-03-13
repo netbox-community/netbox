@@ -182,7 +182,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         blank=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     physical_address = models.CharField(
@@ -362,7 +362,7 @@ class RackRole(ChangeLoggedModel):
     )
     color = ColorField()
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True,
     )
 
@@ -785,7 +785,7 @@ class RackReservation(ChangeLoggedModel):
         on_delete=models.PROTECT
     )
     description = models.CharField(
-        max_length=100
+        max_length=200
     )
 
     csv_headers = ['site', 'rack_group', 'rack', 'units', 'tenant', 'user', 'description']
@@ -1142,7 +1142,7 @@ class DeviceRole(ChangeLoggedModel):
         help_text='Virtual machines may be assigned to this role'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True,
     )
 

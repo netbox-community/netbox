@@ -39,7 +39,7 @@ class Token(models.Model):
         help_text='Permit create/update/delete operations using this key'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
 
