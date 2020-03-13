@@ -769,6 +769,9 @@ class RackReservation(ChangeLoggedModel):
     def __str__(self):
         return "Reservation for rack {}".format(self.rack)
 
+    def get_absolute_url(self):
+        return reverse('dcim:rackreservation', args=[self.pk])
+
     def clean(self):
 
         if self.units:

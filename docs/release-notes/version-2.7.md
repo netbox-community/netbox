@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#4309](https://github.com/netbox-community/netbox/issues/4309) - Add descriptive tooltip to custom fields on object views
+* [#4369](https://github.com/netbox-community/netbox/issues/4369) - Add a dedicated view for rack reservations
 
 ### Bug Fixes
 

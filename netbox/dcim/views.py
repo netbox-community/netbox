@@ -473,6 +473,18 @@ class RackReservationListView(PermissionRequiredMixin, ObjectListView):
     action_buttons = ('export',)
 
 
+class RackReservationView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.view_rackreservation'
+
+    def get(self, request, pk):
+
+        rackreservation = get_object_or_404(RackReservation.objects.prefetch_related('rack'), pk=pk)
+
+        return render(request, 'dcim/rackreservation.html', {
+            'rackreservation': rackreservation,
+        })
+
+
 class RackReservationCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_rackreservation'
     model = RackReservation

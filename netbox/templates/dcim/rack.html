@@ -271,7 +271,9 @@
                     </tr>
                     {% for resv in reservations %}
                         <tr>
-                            <td>{{ resv.unit_list }}</td>
+                            <td>
+                                <a href="{{ resv.get_absolute_url }}">{{ resv.unit_list }}</a>
+                            </td>
                             <td>
                                 {% if resv.tenant %}
                                     <a href="{{ resv.tenant.get_absolute_url }}">{{ resv.tenant }}</a>
