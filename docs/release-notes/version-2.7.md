@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#4309](https://github.com/netbox-community/netbox/issues/4309) - Add descriptive tooltip to custom fields on object views
+* [#4352](https://github.com/netbox-community/netbox/issues/4352) - Add custom links to interface model
 
 ### Bug Fixes
 

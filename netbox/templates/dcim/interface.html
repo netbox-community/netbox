@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block header %}
@@ -28,6 +29,9 @@
         {% endif %}
     </div>
     <h1>{% block title %}{{ interface.parent }} / {{ interface.name }}{% endblock %}</h1>
+    <div class="pull-right noprint">
+        {% custom_links interface %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ interface.get_absolute_url }}">Interface</a>

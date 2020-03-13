@@ -48,6 +48,7 @@ CUSTOMLINK_MODELS = Q(
         'powerfeed',
         'rack',
         'site',
+        'interface',
     ]) |
     Q(app_label='ipam', model__in=[
         'aggregate',
