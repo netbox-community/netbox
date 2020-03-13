@@ -165,24 +165,6 @@ Enforcement of unique IP space can be toggled on a per-VRF basis. To enforce uni
 
 ---
 
-## UPDATE_REPO_URL
-
-Default: None
-
-The releases of this repository are checked to detect new releases, which are shown on the home page of the web interface. You can change this to your own fork of the NetBox repository, or set it to `None` to disable the check. The URL provided **must** be compatible with the GitHub API.
-
-Use `'https://api.github.com/repos/netbox-community/netbox'` to check for release in the official NetBox repository.
-
----
-
-## UPDATE_CACHE_TIMEOUT
-
-Default: 86,400 (24 hours)
-
-The number of seconds to retain the latest version that is fetched from the GitHub API before automatically invalidating it and fetching it from the API again. This must be set to at least one hour (3600 seconds).
-
----
-
 ## LOGGING
 
 By default, all messages of INFO severity or higher will be logged to the console. Additionally, if `DEBUG` is False and email access has been configured, ERROR and CRITICAL messages will be emailed to the users defined in `ADMINS`.
@@ -366,6 +348,24 @@ If `STORAGE_BACKEND` is not defined, this setting will be ignored.
 Default: UTC
 
 The time zone NetBox will use when dealing with dates and times. It is recommended to use UTC time unless you have a specific need to use a local time zone. [List of available time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+
+---
+
+## UPDATE_CACHE_TIMEOUT
+
+Default: 86,400 (24 hours)
+
+The number of seconds to retain the latest version that is fetched from the GitHub API before automatically invalidating it and fetching it from the API again. This must be set to at least one hour (3600 seconds).
+
+---
+
+## UPDATE_REPO_URL
+
+Default: None
+
+The releases of this repository are checked to detect new releases, which are shown on the home page of the web interface. You can change this to your own fork of the NetBox repository, or set it to `None` to disable the check. The URL provided **must** be compatible with the GitHub API.
+
+Use `'https://api.github.com/repos/netbox-community/netbox/releases'` to check for release in the official NetBox repository.
 
 ---
 

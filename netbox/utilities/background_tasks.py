@@ -12,7 +12,7 @@ logger = logging.getLogger('netbox.releases')
 
 @job
 def get_releases(pre_releases=False):
-    url = '{}/releases'.format(settings.UPDATE_REPO_URL)
+    url = settings.UPDATE_REPO_URL
     headers = {
         'Accept': 'application/vnd.github.v3+json',
     }
