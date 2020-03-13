@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from django.conf import settings
-from django.db.models import Count, F, OuterRef, Subquery
+from django.db.models import Count, F
 from django.shortcuts import render
 from django.views.generic import View
 from packaging import version
