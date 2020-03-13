@@ -123,8 +123,12 @@ class RIR(ChangeLoggedModel):
         verbose_name='Private',
         help_text='IP space managed by this RIR is considered private'
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug', 'is_private']
+    csv_headers = ['name', 'slug', 'is_private', 'description']
 
     class Meta:
         ordering = ['name']
@@ -142,6 +146,7 @@ class RIR(ChangeLoggedModel):
             self.name,
             self.slug,
             self.is_private,
+            self.description,
         )
 
 
@@ -812,8 +817,12 @@ class VLANGroup(ChangeLoggedModel):
         blank=True,
         null=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug', 'site']
+    csv_headers = ['name', 'slug', 'site', 'description']
 
     class Meta:
         ordering = ('site', 'name', 'pk')  # (site, name) may be non-unique
@@ -835,6 +844,7 @@ class VLANGroup(ChangeLoggedModel):
             self.name,
             self.slug,
             self.site.name if self.site else None,
+            self.description,
         )
 
     def get_next_available_vid(self):

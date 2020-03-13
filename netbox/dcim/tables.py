@@ -225,7 +225,7 @@ class RegionTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Region
-        fields = ('pk', 'name', 'site_count', 'slug', 'actions')
+        fields = ('pk', 'name', 'site_count', 'description', 'slug', 'actions')
 
 
 #
@@ -271,7 +271,7 @@ class RackGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RackGroup
-        fields = ('pk', 'name', 'site', 'rack_count', 'slug', 'actions')
+        fields = ('pk', 'name', 'site', 'rack_count', 'description', 'slug', 'actions')
 
 
 #
@@ -383,7 +383,9 @@ class ManufacturerTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Manufacturer
-        fields = ('pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'slug', 'actions')
+        fields = (
+            'pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug', 'actions',
+        )
 
 
 #
@@ -659,7 +661,9 @@ class PlatformTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Platform
-        fields = ('pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'napalm_driver', 'actions')
+        fields = (
+            'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'napalm_driver', 'description', 'actions',
+        )
 
 
 #

@@ -31,7 +31,7 @@ class ClusterTypeForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ClusterType
         fields = [
-            'name', 'slug',
+            'name', 'slug', 'description',
         ]
 
 
@@ -56,7 +56,7 @@ class ClusterGroupForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ClusterGroup
         fields = [
-            'name', 'slug',
+            'name', 'slug', 'description',
         ]
 
 

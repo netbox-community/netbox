@@ -53,7 +53,7 @@ class TenantGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = TenantGroup
-        fields = ('pk', 'name', 'tenant_count', 'slug', 'actions')
+        fields = ('pk', 'name', 'tenant_count', 'description', 'slug', 'actions')
 
 
 #

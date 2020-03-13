@@ -55,7 +55,7 @@ class ClusterTypeTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ClusterType
-        fields = ('pk', 'name', 'cluster_count', 'actions')
+        fields = ('pk', 'name', 'cluster_count', 'description', 'actions')
 
 
 #
@@ -74,7 +74,7 @@ class ClusterGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ClusterGroup
-        fields = ('pk', 'name', 'cluster_count', 'actions')
+        fields = ('pk', 'name', 'cluster_count', 'description', 'actions')
 
 
 #

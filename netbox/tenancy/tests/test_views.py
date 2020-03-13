@@ -19,13 +19,14 @@ class TenantGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         cls.form_data = {
             'name': 'Tenant Group X',
             'slug': 'tenant-group-x',
+            'description': 'A new tenant group',
         }
 
         cls.csv_data = (
-            "name,slug",
-            "Tenant Group 4,tenant-group-4",
-            "Tenant Group 5,tenant-group-5",
-            "Tenant Group 6,tenant-group-6",
+            "name,slug,description",
+            "Tenant Group 4,tenant-group-4,Fourth tenant group",
+            "Tenant Group 5,tenant-group-5,Fifth tenant group",
+            "Tenant Group 6,tenant-group-6,Sixth tenant group",
         )
 
 

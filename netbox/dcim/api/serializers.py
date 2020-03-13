@@ -64,7 +64,7 @@ class RegionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Region
-        fields = ['id', 'name', 'slug', 'parent', 'site_count']
+        fields = ['id', 'name', 'slug', 'parent', 'description', 'site_count']
 
 
 class SiteSerializer(TaggitSerializer, CustomFieldModelSerializer):
@@ -101,7 +101,7 @@ class RackGroupSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = RackGroup
-        fields = ['id', 'name', 'slug', 'site', 'parent', 'rack_count']
+        fields = ['id', 'name', 'slug', 'site', 'parent', 'description', 'rack_count']
 
 
 class RackRoleSerializer(ValidatedModelSerializer):
@@ -219,7 +219,9 @@ class ManufacturerSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = Manufacturer
-        fields = ['id', 'name', 'slug', 'devicetype_count', 'inventoryitem_count', 'platform_count']
+        fields = [
+            'id', 'name', 'slug', 'description', 'devicetype_count', 'inventoryitem_count', 'platform_count',
+        ]
 
 
 class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
@@ -356,7 +358,7 @@ class PlatformSerializer(ValidatedModelSerializer):
     class Meta:
         model = Platform
         fields = [
-            'id', 'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'device_count',
+            'id', 'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description', 'device_count',
             'virtualmachine_count',
         ]
 

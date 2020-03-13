@@ -34,8 +34,12 @@ class ClusterType(ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug']
+    csv_headers = ['name', 'slug', 'description']
 
     class Meta:
         ordering = ['name']
@@ -50,6 +54,7 @@ class ClusterType(ChangeLoggedModel):
         return (
             self.name,
             self.slug,
+            self.description,
         )
 
 
@@ -68,8 +73,12 @@ class ClusterGroup(ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug']
+    csv_headers = ['name', 'slug', 'description']
 
     class Meta:
         ordering = ['name']
@@ -84,6 +93,7 @@ class ClusterGroup(ChangeLoggedModel):
         return (
             self.name,
             self.slug,
+            self.description,
         )
 
 

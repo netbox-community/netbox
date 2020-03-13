@@ -54,7 +54,7 @@ class RIRFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = RIR
-        fields = ['name', 'slug', 'is_private']
+        fields = ['name', 'slug', 'is_private', 'description']
 
 
 class AggregateFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
@@ -419,7 +419,7 @@ class VLANGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = VLANGroup
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class VLANFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
