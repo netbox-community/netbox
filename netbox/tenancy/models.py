@@ -4,6 +4,7 @@ from django.urls import reverse
 from taggit.managers import TaggableManager
 
 from extras.models import CustomFieldModel, TaggedItem
+from extras.utils import extras_features
 from utilities.models import ChangeLoggedModel
 
 
@@ -43,6 +44,7 @@ class TenantGroup(ChangeLoggedModel):
         )
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Tenant(ChangeLoggedModel, CustomFieldModel):
     """
     A Tenant represents an organization served by the NetBox owner. This is typically a customer or an internal

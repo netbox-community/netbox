@@ -7,6 +7,7 @@ from taggit.managers import TaggableManager
 
 from dcim.models import Device
 from extras.models import ConfigContextModel, CustomFieldModel, TaggedItem
+from extras.utils import extras_features
 from utilities.models import ChangeLoggedModel
 from .choices import *
 
@@ -91,6 +92,7 @@ class ClusterGroup(ChangeLoggedModel):
 # Clusters
 #
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Cluster(ChangeLoggedModel, CustomFieldModel):
     """
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
@@ -177,6 +179,7 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
 # Virtual machines
 #
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     """
     A virtual machine which runs inside a Cluster.

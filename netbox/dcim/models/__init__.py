@@ -21,6 +21,7 @@ from dcim.constants import *
 from dcim.fields import ASNField
 from dcim.elevations import RackElevationSVG
 from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
+from extras.utils import extras_features
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object, to_meters
@@ -75,6 +76,7 @@ __all__ = (
 # Regions
 #
 
+@extras_features('export_templates', 'webhooks')
 class Region(MPTTModel, ChangeLoggedModel):
     """
     Sites can be grouped within geographic Regions.
@@ -133,6 +135,7 @@ class Region(MPTTModel, ChangeLoggedModel):
 # Sites
 #
 
+@extras_features('custom_fields', 'custom_links', 'graphs', 'export_templates', 'webhooks')
 class Site(ChangeLoggedModel, CustomFieldModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
@@ -283,6 +286,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
 # Racks
 #
 
+@extras_features('export_templates')
 class RackGroup(ChangeLoggedModel):
     """
     Racks can be grouped as subsets within a Site. The scope of a group will depend on how Sites are defined. For
@@ -359,6 +363,7 @@ class RackRole(ChangeLoggedModel):
         )
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Rack(ChangeLoggedModel, CustomFieldModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
@@ -823,6 +828,7 @@ class RackReservation(ChangeLoggedModel):
 # Device Types
 #
 
+@extras_features('export_templates', 'webhooks')
 class Manufacturer(ChangeLoggedModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
@@ -853,6 +859,7 @@ class Manufacturer(ChangeLoggedModel):
         )
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class DeviceType(ChangeLoggedModel, CustomFieldModel):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
@@ -1196,6 +1203,7 @@ class Platform(ChangeLoggedModel):
         )
 
 
+@extras_features('custom_fields', 'custom_links', 'graphs', 'export_templates', 'webhooks')
 class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
@@ -1631,6 +1639,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 # Virtual chassis
 #
 
+@extras_features('export_templates', 'webhooks')
 class VirtualChassis(ChangeLoggedModel):
     """
     A collection of Devices which operate with a shared control plane (e.g. a switch stack).
@@ -1697,6 +1706,7 @@ class VirtualChassis(ChangeLoggedModel):
 # Power
 #
 
+@extras_features('custom_links', 'export_templates', 'webhooks')
 class PowerPanel(ChangeLoggedModel):
     """
     A distribution point for electrical power; e.g. a data center RPP.
@@ -1743,6 +1753,7 @@ class PowerPanel(ChangeLoggedModel):
             ))
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     """
     An electrical circuit delivered from a PowerPanel.
@@ -1904,6 +1915,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
 # Cables
 #
 
+@extras_features('custom_links', 'export_templates', 'webhooks')
 class Cable(ChangeLoggedModel):
     """
     A physical connection between two endpoints.
