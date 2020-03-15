@@ -8,19 +8,8 @@ from circuits.models import Provider, CircuitTermination, CircuitType, Circuit
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
 from extras.models import Graph
-from utilities.api import FieldChoicesViewSet, ModelViewSet
+from utilities.api import ModelViewSet
 from . import serializers
-
-
-#
-# Field choices
-#
-
-class CircuitsFieldChoicesViewSet(FieldChoicesViewSet):
-    fields = (
-        (serializers.CircuitSerializer, ['status']),
-        (serializers.CircuitTerminationSerializer, ['term_side']),
-    )
 
 
 #

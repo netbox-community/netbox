@@ -21,6 +21,7 @@ from dcim.constants import *
 from dcim.fields import ASNField
 from dcim.elevations import RackElevationSVG
 from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
+from extras.utils import extras_features
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object, to_meters
@@ -75,6 +76,7 @@ __all__ = (
 # Regions
 #
 
+@extras_features('export_templates', 'webhooks')
 class Region(MPTTModel, ChangeLoggedModel):
     """
     Sites can be grouped within geographic Regions.
@@ -94,8 +96,12 @@ class Region(MPTTModel, ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug', 'parent']
+    csv_headers = ['name', 'slug', 'parent', 'description']
 
     class MPTTMeta:
         order_insertion_by = ['name']
@@ -111,6 +117,7 @@ class Region(MPTTModel, ChangeLoggedModel):
             self.name,
             self.slug,
             self.parent.name if self.parent else None,
+            self.description,
         )
 
     def get_site_count(self):
@@ -133,6 +140,7 @@ class Region(MPTTModel, ChangeLoggedModel):
 # Sites
 #
 
+@extras_features('custom_fields', 'custom_links', 'graphs', 'export_templates', 'webhooks')
 class Site(ChangeLoggedModel, CustomFieldModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
@@ -182,7 +190,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         blank=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     physical_address = models.CharField(
@@ -283,6 +291,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
 # Racks
 #
 
+@extras_features('export_templates')
 class RackGroup(MPTTModel, ChangeLoggedModel):
     """
     Racks can be grouped as subsets within a Site. The scope of a group will depend on how Sites are defined. For
@@ -306,8 +315,12 @@ class RackGroup(MPTTModel, ChangeLoggedModel):
         null=True,
         db_index=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['site', 'parent', 'name', 'slug']
+    csv_headers = ['site', 'parent', 'name', 'slug', 'description']
 
     class Meta:
         ordering = ['site', 'name']
@@ -331,6 +344,7 @@ class RackGroup(MPTTModel, ChangeLoggedModel):
             self.parent.name if self.parent else '',
             self.name,
             self.slug,
+            self.description,
         )
 
     def to_objectchange(self, action):
@@ -362,7 +376,7 @@ class RackRole(ChangeLoggedModel):
     )
     color = ColorField()
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True,
     )
 
@@ -386,6 +400,7 @@ class RackRole(ChangeLoggedModel):
         )
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Rack(ChangeLoggedModel, CustomFieldModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
@@ -785,7 +800,7 @@ class RackReservation(ChangeLoggedModel):
         on_delete=models.PROTECT
     )
     description = models.CharField(
-        max_length=100
+        max_length=200
     )
 
     csv_headers = ['site', 'rack_group', 'rack', 'units', 'tenant', 'user', 'description']
@@ -795,6 +810,9 @@ class RackReservation(ChangeLoggedModel):
 
     def __str__(self):
         return "Reservation for rack {}".format(self.rack)
+
+    def get_absolute_url(self):
+        return reverse('dcim:rackreservation', args=[self.pk])
 
     def clean(self):
 
@@ -847,6 +865,7 @@ class RackReservation(ChangeLoggedModel):
 # Device Types
 #
 
+@extras_features('export_templates', 'webhooks')
 class Manufacturer(ChangeLoggedModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
@@ -858,8 +877,12 @@ class Manufacturer(ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug']
+    csv_headers = ['name', 'slug', 'description']
 
     class Meta:
         ordering = ['name']
@@ -874,9 +897,11 @@ class Manufacturer(ChangeLoggedModel):
         return (
             self.name,
             self.slug,
+            self.description
         )
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class DeviceType(ChangeLoggedModel, CustomFieldModel):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
@@ -1142,7 +1167,7 @@ class DeviceRole(ChangeLoggedModel):
         help_text='Virtual machines may be assigned to this role'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True,
     )
 
@@ -1198,8 +1223,12 @@ class Platform(ChangeLoggedModel):
         verbose_name='NAPALM arguments',
         help_text='Additional arguments to pass when initiating the NAPALM driver (JSON format)'
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args']
+    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description']
 
     class Meta:
         ordering = ['name']
@@ -1217,9 +1246,11 @@ class Platform(ChangeLoggedModel):
             self.manufacturer.name if self.manufacturer else None,
             self.napalm_driver,
             self.napalm_args,
+            self.description,
         )
 
 
+@extras_features('custom_fields', 'custom_links', 'graphs', 'export_templates', 'webhooks')
 class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
@@ -1655,6 +1686,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 # Virtual chassis
 #
 
+@extras_features('export_templates', 'webhooks')
 class VirtualChassis(ChangeLoggedModel):
     """
     A collection of Devices which operate with a shared control plane (e.g. a switch stack).
@@ -1721,6 +1753,7 @@ class VirtualChassis(ChangeLoggedModel):
 # Power
 #
 
+@extras_features('custom_links', 'export_templates', 'webhooks')
 class PowerPanel(ChangeLoggedModel):
     """
     A distribution point for electrical power; e.g. a data center RPP.
@@ -1767,6 +1800,7 @@ class PowerPanel(ChangeLoggedModel):
             ))
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     """
     An electrical circuit delivered from a PowerPanel.
@@ -1928,6 +1962,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
 # Cables
 #
 
+@extras_features('custom_links', 'export_templates', 'webhooks')
 class Cable(ChangeLoggedModel):
     """
     A physical connection between two endpoints.

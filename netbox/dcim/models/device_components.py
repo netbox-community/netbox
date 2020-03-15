@@ -11,6 +11,7 @@ from dcim.constants import *
 from dcim.exceptions import LoopDetected
 from dcim.fields import MACAddressField
 from extras.models import ObjectChange, TaggedItem
+from extras.utils import extras_features
 from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.utils import serialize_object
@@ -33,7 +34,7 @@ __all__ = (
 
 class ComponentModel(models.Model):
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
 
@@ -169,6 +170,7 @@ class CableTermination(models.Model):
 # Console ports
 #
 
+@extras_features('export_templates', 'webhooks')
 class ConsolePort(CableTermination, ComponentModel):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
@@ -229,6 +231,7 @@ class ConsolePort(CableTermination, ComponentModel):
 # Console server ports
 #
 
+@extras_features('webhooks')
 class ConsoleServerPort(CableTermination, ComponentModel):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
@@ -282,6 +285,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
 # Power ports
 #
 
+@extras_features('export_templates', 'webhooks')
 class PowerPort(CableTermination, ComponentModel):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
@@ -443,6 +447,7 @@ class PowerPort(CableTermination, ComponentModel):
 # Power outlets
 #
 
+@extras_features('webhooks')
 class PowerOutlet(CableTermination, ComponentModel):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
@@ -519,6 +524,7 @@ class PowerOutlet(CableTermination, ComponentModel):
 # Interfaces
 #
 
+@extras_features('graphs', 'export_templates', 'webhooks')
 class Interface(CableTermination, ComponentModel):
     """
     A network interface within a Device or VirtualMachine. A physical Interface can connect to exactly one other
@@ -792,6 +798,7 @@ class Interface(CableTermination, ComponentModel):
 # Pass-through ports
 #
 
+@extras_features('webhooks')
 class FrontPort(CableTermination, ComponentModel):
     """
     A pass-through port on the front of a Device.
@@ -864,6 +871,7 @@ class FrontPort(CableTermination, ComponentModel):
             )
 
 
+@extras_features('webhooks')
 class RearPort(CableTermination, ComponentModel):
     """
     A pass-through port on the rear of a Device.
@@ -915,6 +923,7 @@ class RearPort(CableTermination, ComponentModel):
 # Device bays
 #
 
+@extras_features('webhooks')
 class DeviceBay(ComponentModel):
     """
     An empty space within a Device which can house a child device
@@ -989,6 +998,7 @@ class DeviceBay(ComponentModel):
 # Inventory items
 #
 
+@extras_features('export_templates', 'webhooks')
 class InventoryItem(ComponentModel):
     """
     An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.

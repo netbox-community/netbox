@@ -22,6 +22,7 @@ from utilities.utils import deepmerge, render_jinja2
 from .choices import *
 from .constants import *
 from .querysets import ConfigContextQuerySet
+from .utils import FeatureQuerySet
 
 
 __all__ = (
@@ -58,7 +59,7 @@ class Webhook(models.Model):
         to=ContentType,
         related_name='webhooks',
         verbose_name='Object types',
-        limit_choices_to=WEBHOOK_MODELS,
+        limit_choices_to=FeatureQuerySet('webhooks'),
         help_text="The object(s) to which this Webhook applies."
     )
     name = models.CharField(
@@ -223,7 +224,7 @@ class CustomField(models.Model):
         to=ContentType,
         related_name='custom_fields',
         verbose_name='Object(s)',
-        limit_choices_to=CUSTOMFIELD_MODELS,
+        limit_choices_to=FeatureQuerySet('custom_fields'),
         help_text='The object(s) to which this field applies.'
     )
     type = models.CharField(
@@ -242,7 +243,7 @@ class CustomField(models.Model):
                   'the field\'s name will be used)'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     required = models.BooleanField(
@@ -470,7 +471,7 @@ class CustomLink(models.Model):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=CUSTOMLINK_MODELS
+        limit_choices_to=FeatureQuerySet('custom_links')
     )
     name = models.CharField(
         max_length=100,
@@ -518,7 +519,7 @@ class Graph(models.Model):
     type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=GRAPH_MODELS
+        limit_choices_to=FeatureQuerySet('graphs')
     )
     weight = models.PositiveSmallIntegerField(
         default=1000
@@ -550,7 +551,6 @@ class Graph(models.Model):
     def embed_url(self, obj):
         context = {'obj': obj}
 
-        # TODO: Remove in v2.8
         if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
             template = Template(self.source)
             return template.render(Context(context))
@@ -564,7 +564,6 @@ class Graph(models.Model):
 
         context = {'obj': obj}
 
-        # TODO: Remove in v2.8
         if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
             template = Template(self.link)
             return template.render(Context(context))
@@ -581,7 +580,7 @@ class ExportTemplate(models.Model):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=EXPORTTEMPLATE_MODELS
+        limit_choices_to=FeatureQuerySet('export_templates')
     )
     name = models.CharField(
         max_length=100
@@ -766,7 +765,7 @@ class ConfigContext(models.Model):
         default=1000
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     is_active = models.BooleanField(
@@ -1053,9 +1052,9 @@ class Tag(TagBase, ChangeLoggedModel):
     color = ColorField(
         default='9e9e9e'
     )
-    comments = models.TextField(
+    description = models.CharField(
+        max_length=200,
         blank=True,
-        default=''
     )
 
     def get_absolute_url(self):

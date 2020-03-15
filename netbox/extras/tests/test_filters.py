@@ -3,8 +3,8 @@ from django.test import TestCase
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from extras.choices import *
-from extras.constants import GRAPH_MODELS
 from extras.filters import *
+from extras.utils import FeatureQuerySet
 from extras.models import ConfigContext, ExportTemplate, Graph
 from tenancy.models import Tenant, TenantGroup
 from virtualization.models import Cluster, ClusterGroup, ClusterType
@@ -18,7 +18,7 @@ class GraphTestCase(TestCase):
     def setUpTestData(cls):
 
         # Get the first three available types
-        content_types = ContentType.objects.filter(GRAPH_MODELS)[:3]
+        content_types = ContentType.objects.filter(FeatureQuerySet('graphs').get_queryset())[:3]
 
         graphs = (
             Graph(name='Graph 1', type=content_types[0], template_language=TemplateLanguageChoices.LANGUAGE_DJANGO, source='http://example.com/1'),
@@ -32,11 +32,10 @@ class GraphTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
-        content_type = ContentType.objects.filter(GRAPH_MODELS).first()
+        content_type = ContentType.objects.filter(FeatureQuerySet('graphs').get_queryset()).first()
         params = {'type': content_type.pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    # TODO: Remove in v2.8
     def test_template_language(self):
         params = {'template_language': TemplateLanguageChoices.LANGUAGE_JINJA2}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

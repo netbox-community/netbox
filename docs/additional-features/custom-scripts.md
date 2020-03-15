@@ -63,7 +63,7 @@ A human-friendly description of what your script does.
 
 ### `field_order`
 
-A list of field names indicating the order in which the form fields should appear. This is optional, however on Python 3.5 and earlier the fields will appear in random order. (Declarative ordering is preserved on Python 3.6 and above.) For example:
+A list of field names indicating the order in which the form fields should appear. This is optional, and should not be required on Python 3.6 and above. For example:
 
 ```
 field_order = ['var1', 'var2', 'var3']

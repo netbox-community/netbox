@@ -192,7 +192,7 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Region
         fields = (
-            'parent', 'name', 'slug',
+            'parent', 'name', 'slug', 'description',
         )
 
 
@@ -404,7 +404,7 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = RackGroup
         fields = (
-            'site', 'parent', 'name', 'slug',
+            'site', 'parent', 'name', 'slug', 'description',
         )
 
 
@@ -823,6 +823,13 @@ class RackElevationFilterForm(RackFilterForm):
 #
 
 class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
+    rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(),
+        required=False,
+        widget=forms.HiddenInput()
+    )
+    # TODO: Change this to an API-backed form field. We can't do this currently because we want to retain
+    # the multi-line <select> widget for easy selection of multiple rack units.
     units = SimpleArrayField(
         base_field=forms.IntegerField(),
         widget=ArrayFieldSelectMultiple(
@@ -841,7 +848,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
     class Meta:
         model = RackReservation
         fields = [
-            'units', 'user', 'tenant_group', 'tenant', 'description',
+            'rack', 'units', 'user', 'tenant_group', 'tenant', 'description',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -849,7 +856,8 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Populate rack unit choices
-        self.fields['units'].widget.choices = self._get_unit_choices()
+        if hasattr(self.instance, 'rack'):
+            self.fields['units'].widget.choices = self._get_unit_choices()
 
     def _get_unit_choices(self):
         rack = self.instance.rack
@@ -983,7 +991,7 @@ class ManufacturerForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Manufacturer
         fields = [
-            'name', 'slug',
+            'name', 'slug', 'description',
         ]
 
 
@@ -1768,7 +1776,7 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Platform
         fields = [
-            'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args',
+            'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description',
         ]
         widgets = {
             'napalm_args': SmallTextarea(),

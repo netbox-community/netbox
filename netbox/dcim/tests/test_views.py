@@ -46,13 +46,14 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'name': 'Region X',
             'slug': 'region-x',
             'parent': regions[2].pk,
+            'description': 'A new region',
         }
 
         cls.csv_data = (
-            "name,slug",
-            "Region 4,region-4",
-            "Region 5,region-5",
-            "Region 6,region-6",
+            "name,slug,description",
+            "Region 4,region-4,Fourth region",
+            "Region 5,region-5,Fifth region",
+            "Region 6,region-6,Sixth region",
         )
 
 
@@ -134,13 +135,14 @@ class RackGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'name': 'Rack Group X',
             'slug': 'rack-group-x',
             'site': site.pk,
+            'description': 'A new rack group',
         }
 
         cls.csv_data = (
-            "site,name,slug",
-            "Site 1,Rack Group 4,rack-group-4",
-            "Site 1,Rack Group 5,rack-group-5",
-            "Site 1,Rack Group 6,rack-group-6",
+            "site,name,slug,description",
+            "Site 1,Rack Group 4,rack-group-4,Fourth rack group",
+            "Site 1,Rack Group 5,rack-group-5,Fifth rack group",
+            "Site 1,Rack Group 6,rack-group-6,Sixth rack group",
         )
 
 
@@ -173,10 +175,6 @@ class RackRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
 class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = RackReservation
-
-    # Disable inapplicable tests
-    test_get_object = None
-    test_create_object = None
 
     @classmethod
     def setUpTestData(cls):
@@ -309,13 +307,14 @@ class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         cls.form_data = {
             'name': 'Manufacturer X',
             'slug': 'manufacturer-x',
+            'description': 'A new manufacturer',
         }
 
         cls.csv_data = (
-            "name,slug",
-            "Manufacturer 4,manufacturer-4",
-            "Manufacturer 5,manufacturer-5",
-            "Manufacturer 6,manufacturer-6",
+            "name,slug,description",
+            "Manufacturer 4,manufacturer-4,Fourth manufacturer",
+            "Manufacturer 5,manufacturer-5,Fifth manufacturer",
+            "Manufacturer 6,manufacturer-6,Sixth manufacturer",
         )
 
 
@@ -868,13 +867,14 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'manufacturer': manufacturer.pk,
             'napalm_driver': 'junos',
             'napalm_args': None,
+            'description': 'A new platform',
         }
 
         cls.csv_data = (
-            "name,slug",
-            "Platform 4,platform-4",
-            "Platform 5,platform-5",
-            "Platform 6,platform-6",
+            "name,slug,description",
+            "Platform 4,platform-4,Fourth platform",
+            "Platform 5,platform-5,Fifth platform",
+            "Platform 6,platform-6,Sixth platform",
         )
 
 

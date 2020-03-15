@@ -7,6 +7,7 @@ from taggit.managers import TaggableManager
 
 from dcim.models import Device
 from extras.models import ConfigContextModel, CustomFieldModel, TaggedItem
+from extras.utils import extras_features
 from utilities.models import ChangeLoggedModel
 from .choices import *
 
@@ -34,8 +35,12 @@ class ClusterType(ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug']
+    csv_headers = ['name', 'slug', 'description']
 
     class Meta:
         ordering = ['name']
@@ -50,6 +55,7 @@ class ClusterType(ChangeLoggedModel):
         return (
             self.name,
             self.slug,
+            self.description,
         )
 
 
@@ -68,8 +74,12 @@ class ClusterGroup(ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug']
+    csv_headers = ['name', 'slug', 'description']
 
     class Meta:
         ordering = ['name']
@@ -84,6 +94,7 @@ class ClusterGroup(ChangeLoggedModel):
         return (
             self.name,
             self.slug,
+            self.description,
         )
 
 
@@ -91,6 +102,7 @@ class ClusterGroup(ChangeLoggedModel):
 # Clusters
 #
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Cluster(ChangeLoggedModel, CustomFieldModel):
     """
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
@@ -177,6 +189,7 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
 # Virtual machines
 #
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     """
     A virtual machine which runs inside a Cluster.

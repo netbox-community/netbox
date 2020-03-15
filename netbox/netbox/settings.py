@@ -23,15 +23,9 @@ HOSTNAME = platform.node()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Validate Python version
-if platform.python_version_tuple() < ('3', '5'):
+if platform.python_version_tuple() < ('3', '6'):
     raise RuntimeError(
-        "NetBox requires Python 3.5 or higher (current: Python {})".format(platform.python_version())
-    )
-elif platform.python_version_tuple() < ('3', '6'):
-    warnings.warn(
-        "Python 3.6 or higher will be required starting with NetBox v2.8 (current: Python {})".format(
-            platform.python_version()
-        )
+        "NetBox requires Python 3.6 or higher (current: Python {})".format(platform.python_version())
     )
 
 

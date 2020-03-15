@@ -10,6 +10,7 @@ from taggit.managers import TaggableManager
 
 from dcim.models import Device, Interface
 from extras.models import CustomFieldModel, ObjectChange, TaggedItem
+from extras.utils import extras_features
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
 from virtualization.models import VirtualMachine
@@ -34,6 +35,7 @@ __all__ = (
 )
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class VRF(ChangeLoggedModel, CustomFieldModel):
     """
     A virtual routing and forwarding (VRF) table represents a discrete layer three forwarding domain (e.g. a routing
@@ -63,7 +65,7 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
         help_text='Prevent duplicate prefixes/IP addresses within this VRF'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     custom_field_values = GenericRelation(
@@ -123,8 +125,12 @@ class RIR(ChangeLoggedModel):
         verbose_name='Private',
         help_text='IP space managed by this RIR is considered private'
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug', 'is_private']
+    csv_headers = ['name', 'slug', 'is_private', 'description']
 
     class Meta:
         ordering = ['name']
@@ -142,9 +148,11 @@ class RIR(ChangeLoggedModel):
             self.name,
             self.slug,
             self.is_private,
+            self.description,
         )
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Aggregate(ChangeLoggedModel, CustomFieldModel):
     """
     An aggregate exists at the root level of the IP address space hierarchy in NetBox. Aggregates are used to organize
@@ -162,7 +170,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         null=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     custom_field_values = GenericRelation(
@@ -261,7 +269,7 @@ class Role(ChangeLoggedModel):
         default=1000
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True,
     )
 
@@ -282,6 +290,7 @@ class Role(ChangeLoggedModel):
         )
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Prefix(ChangeLoggedModel, CustomFieldModel):
     """
     A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be assigned to Sites and
@@ -342,7 +351,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         help_text='All IP addresses within this prefix are considered usable'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     custom_field_values = GenericRelation(
@@ -547,6 +556,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
             return int(float(child_count) / prefix_size * 100)
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class IPAddress(ChangeLoggedModel, CustomFieldModel):
     """
     An IPAddress represents an individual IPv4 or IPv6 address and its mask. The mask length should match what is
@@ -612,7 +622,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         help_text='Hostname or FQDN (not case-sensitive)'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     custom_field_values = GenericRelation(
@@ -812,8 +822,12 @@ class VLANGroup(ChangeLoggedModel):
         blank=True,
         null=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug', 'site']
+    csv_headers = ['name', 'slug', 'site', 'description']
 
     class Meta:
         ordering = ('site', 'name', 'pk')  # (site, name) may be non-unique
@@ -835,6 +849,7 @@ class VLANGroup(ChangeLoggedModel):
             self.name,
             self.slug,
             self.site.name if self.site else None,
+            self.description,
         )
 
     def get_next_available_vid(self):
@@ -848,6 +863,7 @@ class VLANGroup(ChangeLoggedModel):
         return None
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class VLAN(ChangeLoggedModel, CustomFieldModel):
     """
     A VLAN is a distinct layer two forwarding domain identified by a 12-bit integer (1-4094). Each VLAN must be assigned
@@ -898,7 +914,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         null=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     custom_field_values = GenericRelation(
@@ -972,6 +988,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         ).distinct()
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Service(ChangeLoggedModel, CustomFieldModel):
     """
     A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device or VirtualMachine. A Service may
@@ -1010,7 +1027,7 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         verbose_name='IP addresses'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     custom_field_values = GenericRelation(

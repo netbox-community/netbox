@@ -14,9 +14,6 @@ class IPAMRootView(routers.APIRootView):
 router = routers.DefaultRouter()
 router.APIRootView = IPAMRootView
 
-# Field choices
-router.register('_choices', views.IPAMFieldChoicesViewSet, basename='field-choice')
-
 # VRFs
 router.register('vrfs', views.VRFViewSet)
 

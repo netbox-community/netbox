@@ -11,21 +11,13 @@ from rest_framework.viewsets import ViewSet
 from secrets import filters
 from secrets.exceptions import InvalidKey
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
-from utilities.api import FieldChoicesViewSet, ModelViewSet
+from utilities.api import ModelViewSet
 from . import serializers
 
 ERR_USERKEY_MISSING = "No UserKey found for the current user."
 ERR_USERKEY_INACTIVE = "UserKey has not been activated for decryption."
 ERR_PRIVKEY_MISSING = "Private key was not provided."
 ERR_PRIVKEY_INVALID = "Invalid private key."
-
-
-#
-# Field choices
-#
-
-class SecretsFieldChoicesViewSet(FieldChoicesViewSet):
-    fields = ()
 
 
 #

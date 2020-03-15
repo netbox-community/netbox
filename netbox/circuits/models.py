@@ -7,6 +7,7 @@ from dcim.constants import CONNECTION_STATUS_CHOICES
 from dcim.fields import ASNField
 from dcim.models import CableTermination
 from extras.models import CustomFieldModel, ObjectChange, TaggedItem
+from extras.utils import extras_features
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
 from .choices import *
@@ -21,6 +22,7 @@ __all__ = (
 )
 
 
+@extras_features('custom_fields', 'custom_links', 'graphs', 'export_templates', 'webhooks')
 class Provider(ChangeLoggedModel, CustomFieldModel):
     """
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
@@ -108,7 +110,7 @@ class CircuitType(ChangeLoggedModel):
         unique=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True,
     )
 
@@ -131,6 +133,7 @@ class CircuitType(ChangeLoggedModel):
         )
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Circuit(ChangeLoggedModel, CustomFieldModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
@@ -173,7 +176,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         null=True,
         verbose_name='Commit rate (Kbps)')
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     comments = models.TextField(
@@ -292,7 +295,7 @@ class CircuitTermination(CableTermination):
         verbose_name='Patch panel/port(s)'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
 

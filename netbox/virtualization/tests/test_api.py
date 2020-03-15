@@ -5,7 +5,7 @@ from rest_framework import status
 from dcim.choices import InterfaceModeChoices
 from dcim.models import Interface
 from ipam.models import IPAddress, VLAN
-from utilities.testing import APITestCase, choices_to_dict, disable_warnings
+from utilities.testing import APITestCase, disable_warnings
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -18,19 +18,6 @@ class AppTest(APITestCase):
         response = self.client.get('{}?format=api'.format(url), **self.header)
 
         self.assertEqual(response.status_code, 200)
-
-    def test_choices(self):
-
-        url = reverse('virtualization-api:field-choice-list')
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.status_code, 200)
-
-        # VirtualMachine
-        self.assertEqual(choices_to_dict(response.data.get('virtual-machine:status')), VirtualMachineStatusChoices.as_dict())
-
-        # Interface
-        self.assertEqual(choices_to_dict(response.data.get('interface:type')), VMInterfaceTypeChoices.as_dict())
 
 
 class ClusterTypeTest(APITestCase):
@@ -500,6 +487,18 @@ class VirtualMachineTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertFalse('config_context' in response.data['results'][0])
+
+    def test_unique_name_per_cluster_constraint(self):
+
+        data = {
+            'name': 'Test Virtual Machine 1',
+            'cluster': self.cluster1.pk,
+        }
+
+        url = reverse('virtualization-api:virtualmachine-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
 class InterfaceTest(APITestCase):

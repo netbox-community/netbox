@@ -225,7 +225,7 @@ class RegionTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Region
-        fields = ('pk', 'name', 'site_count', 'slug', 'actions')
+        fields = ('pk', 'name', 'site_count', 'description', 'slug', 'actions')
 
 
 #
@@ -271,7 +271,7 @@ class RackGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RackGroup
-        fields = ('pk', 'name', 'site', 'rack_count', 'slug', 'actions')
+        fields = ('pk', 'name', 'site', 'rack_count', 'description', 'slug', 'actions')
 
 
 #
@@ -341,21 +341,38 @@ class RackDetailTable(RackTable):
 
 class RackReservationTable(BaseTable):
     pk = ToggleColumn()
+    reservation = tables.LinkColumn(
+        viewname='dcim:rackreservation',
+        args=[Accessor('pk')],
+        accessor='pk'
+    )
     site = tables.LinkColumn(
         viewname='dcim:site',
         accessor=Accessor('rack.site'),
         args=[Accessor('rack.site.slug')],
     )
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
-    rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
-    unit_list = tables.Column(orderable=False, verbose_name='Units')
+    tenant = tables.TemplateColumn(
+        template_code=COL_TENANT
+    )
+    rack = tables.LinkColumn(
+        viewname='dcim:rack',
+        args=[Accessor('rack.pk')]
+    )
+    unit_list = tables.Column(
+        orderable=False,
+        verbose_name='Units'
+    )
     actions = tables.TemplateColumn(
-        template_code=RACKRESERVATION_ACTIONS, attrs={'td': {'class': 'text-right noprint'}}, verbose_name=''
+        template_code=RACKRESERVATION_ACTIONS,
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
     )
 
     class Meta(BaseTable.Meta):
         model = RackReservation
-        fields = ('pk', 'site', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'actions')
+        fields = (
+            'pk', 'reservation', 'site', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'actions',
+        )
 
 
 #
@@ -383,7 +400,9 @@ class ManufacturerTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Manufacturer
-        fields = ('pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'slug', 'actions')
+        fields = (
+            'pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug', 'actions',
+        )
 
 
 #
@@ -659,7 +678,9 @@ class PlatformTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Platform
-        fields = ('pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'napalm_driver', 'actions')
+        fields = (
+            'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'napalm_driver', 'description', 'actions',
+        )
 
 
 #

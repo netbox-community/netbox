@@ -17,14 +17,15 @@ from virtualization.models import Cluster, ClusterType
 
 class RegionTestCase(TestCase):
     queryset = Region.objects.all()
+    filterset = RegionFilterSet
 
     @classmethod
     def setUpTestData(cls):
 
         regions = (
-            Region(name='Region 1', slug='region-1'),
-            Region(name='Region 2', slug='region-2'),
-            Region(name='Region 3', slug='region-3'),
+            Region(name='Region 1', slug='region-1', description='A'),
+            Region(name='Region 2', slug='region-2', description='B'),
+            Region(name='Region 3', slug='region-3', description='C'),
         )
         for region in regions:
             region.save()
@@ -43,22 +44,26 @@ class RegionTestCase(TestCase):
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
         params = {'id': [str(id) for id in id_list]}
-        self.assertEqual(RegionFilterSet(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Region 1', 'Region 2']}
-        self.assertEqual(RegionFilterSet(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_slug(self):
         params = {'slug': ['region-1', 'region-2']}
-        self.assertEqual(RegionFilterSet(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['A', 'B']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_parent(self):
         parent_regions = Region.objects.filter(parent__isnull=True)[:2]
         params = {'parent_id': [parent_regions[0].pk, parent_regions[1].pk]}
-        self.assertEqual(RegionFilterSet(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'parent': [parent_regions[0].slug, parent_regions[1].slug]}
-        self.assertEqual(RegionFilterSet(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class SiteTestCase(TestCase):
@@ -196,9 +201,9 @@ class RackGroupTestCase(TestCase):
             rackgroup.save()
 
         rack_groups = (
-            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0], parent=parent_rack_groups[0]),
-            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1], parent=parent_rack_groups[1]),
-            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2], parent=parent_rack_groups[2]),
+            RackGroup(name='Rack Group 1', slug='rack-group-1', site=sites[0], parent=parent_rack_groups[0], description='A'),
+            RackGroup(name='Rack Group 2', slug='rack-group-2', site=sites[1], parent=parent_rack_groups[1], description='B'),
+            RackGroup(name='Rack Group 3', slug='rack-group-3', site=sites[2], parent=parent_rack_groups[2], description='C'),
         )
         for rackgroup in rack_groups:
             rackgroup.save()
@@ -214,6 +219,10 @@ class RackGroupTestCase(TestCase):
 
     def test_slug(self):
         params = {'slug': ['rack-group-1', 'rack-group-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -535,9 +544,9 @@ class ManufacturerTestCase(TestCase):
     def setUpTestData(cls):
 
         manufacturers = (
-            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
-            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
-            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1', description='A'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2', description='B'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3', description='C'),
         )
         Manufacturer.objects.bulk_create(manufacturers)
 
@@ -552,6 +561,10 @@ class ManufacturerTestCase(TestCase):
 
     def test_slug(self):
         params = {'slug': ['manufacturer-1', 'manufacturer-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -1081,9 +1094,9 @@ class PlatformTestCase(TestCase):
         Manufacturer.objects.bulk_create(manufacturers)
 
         platforms = (
-            Platform(name='Platform 1', slug='platform-1', manufacturer=manufacturers[0], napalm_driver='driver-1'),
-            Platform(name='Platform 2', slug='platform-2', manufacturer=manufacturers[1], napalm_driver='driver-2'),
-            Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturers[2], napalm_driver='driver-3'),
+            Platform(name='Platform 1', slug='platform-1', manufacturer=manufacturers[0], napalm_driver='driver-1', description='A'),
+            Platform(name='Platform 2', slug='platform-2', manufacturer=manufacturers[1], napalm_driver='driver-2', description='B'),
+            Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturers[2], napalm_driver='driver-3', description='C'),
         )
         Platform.objects.bulk_create(platforms)
 
@@ -1098,6 +1111,10 @@ class PlatformTestCase(TestCase):
 
     def test_slug(self):
         params = {'slug': ['platform-1', 'platform-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_napalm_driver(self):

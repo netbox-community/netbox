@@ -71,6 +71,12 @@ class SecretRoleCSVForm(forms.ModelForm):
 #
 
 class SecretForm(BootstrapMixin, CustomFieldModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        widget=APISelect(
+            api_url="/api/dcim/devices/"
+        )
+    )
     plaintext = forms.CharField(
         max_length=SECRET_PLAINTEXT_MAX_LENGTH,
         required=False,
@@ -100,7 +106,7 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = Secret
         fields = [
-            'role', 'name', 'plaintext', 'plaintext2', 'tags',
+            'device', 'role', 'name', 'plaintext', 'plaintext2', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
