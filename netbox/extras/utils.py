@@ -22,61 +22,55 @@ def is_taggable(obj):
 
 class Registry:
     """
-    The registry is a place to hook into for data storage across components
+    Singleton object used to store important data
     """
+    instance = None
 
-    def add_store(self, store_name, initial_value=None):
-        """
-        Given the name of some new data parameter and an optional initial value, setup the registry store
-        """
-        if not hasattr(Registry, store_name):
-            setattr(Registry, store_name, initial_value)
+    def __new__(cls):
+        if cls.instance is not None:
+            return cls.instance
+        else:
+            cls.instance = super().__new__(cls)
+            cls.model_functionality_store = {f: collections.defaultdict(list) for f in EXTRAS_FUNCTIONALITIES}
+            return cls.instance
 
-registry = Registry()
 
-
-#
-# Dynamic feature registration
-#
-
-class FeatureQuerySet:
+class FunctionalityQueryset:
     """
     Helper class that delays evaluation of the registry contents for the functionaility store
     until it has been populated.
     """
 
-    def __init__(self, feature):
-        self.feature = feature
+    def __init__(self, functionality):
+        self.functionality = functionality
 
     def __call__(self):
         return self.get_queryset()
 
     def get_queryset(self):
         """
-        Given an extras feature, return a Q object for content type lookup
+        Given an extras functionality, return a Q object for content type lookup
         """
         query = Q()
-        #registry = Registry()
-        for app_label, models in registry.model_feature_store[self.feature].items():
+        registry = Registry()
+        for app_label, models in registry.model_functionality_store[self.functionality].items():
             query |= Q(app_label=app_label, model__in=models)
 
         return query
 
 
-registry.add_store('model_feature_store', {f: collections.defaultdict(list) for f in EXTRAS_FUNCTIONALITIES})
-
-
-def extras_features(features):
+def extras_functionality(functionalities):
     """
-    Decorator used to register extras provided features to a model
+    Decorator used to register extras provided functionalities to a model
     """
     def wrapper(model_class):
-        if isinstance(features, list) and features:
-            #registry = Registry()
-            model_class._extras_feature = []
-            for feature in features:
-                if feature in EXTRAS_FUNCTIONALITIES:
+        if isinstance(functionalities, list) and functionalities:
+            registry = Registry()
+            model_class._extras_functionality = []
+            for functionality in functionalities:
+                if functionality in EXTRAS_FUNCTIONALITIES:
+                    model_class._extras_functionality.append(functionality)
                     app_label, model_name = model_class._meta.label_lower.split('.')
-                    registry.model_feature_store[feature][app_label].append(model_name)
+                    registry.model_functionality_store[functionality][app_label].append(model_name)
         return model_class
     return wrapper

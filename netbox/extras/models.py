@@ -22,7 +22,7 @@ from utilities.utils import deepmerge, render_jinja2
 from .choices import *
 from .constants import *
 from .querysets import ConfigContextQuerySet
-from .utils import FeatureQuerySet
+from .utils import FunctionalityQueryset
 
 
 __all__ = (
@@ -59,7 +59,7 @@ class Webhook(models.Model):
         to=ContentType,
         related_name='webhooks',
         verbose_name='Object types',
-        limit_choices_to=FeatureQuerySet('webhooks'),
+        limit_choices_to=FunctionalityQueryset('webhooks'),
         help_text="The object(s) to which this Webhook applies."
     )
     name = models.CharField(
@@ -224,7 +224,7 @@ class CustomField(models.Model):
         to=ContentType,
         related_name='custom_fields',
         verbose_name='Object(s)',
-        limit_choices_to=FeatureQuerySet('custom_fields'),
+        limit_choices_to=FunctionalityQueryset('custom_fields'),
         help_text='The object(s) to which this field applies.'
     )
     type = models.CharField(
@@ -471,7 +471,7 @@ class CustomLink(models.Model):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=FeatureQuerySet('custom_links')
+        limit_choices_to=FunctionalityQueryset('custom_links')
     )
     name = models.CharField(
         max_length=100,
@@ -519,7 +519,7 @@ class Graph(models.Model):
     type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=FeatureQuerySet('graphs')
+        limit_choices_to=FunctionalityQueryset('graphs')
     )
     weight = models.PositiveSmallIntegerField(
         default=1000
@@ -582,7 +582,7 @@ class ExportTemplate(models.Model):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=FeatureQuerySet('export_templates')
+        limit_choices_to=FunctionalityQueryset('export_templates')
     )
     name = models.CharField(
         max_length=100

@@ -8,6 +8,7 @@ from rest_framework import status
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Rack, RackGroup, RackRole, Region, Site
 from extras.api.views import ScriptViewSet
 from extras.choices import *
+from extras.constants import GRAPH_MODELS
 from extras.models import ConfigContext, Graph, ExportTemplate, Tag
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from tenancy.models import Tenant, TenantGroup
@@ -34,7 +35,7 @@ class AppTest(APITestCase):
         self.assertEqual(choices_to_dict(response.data.get('export-template:template_language')), TemplateLanguageChoices.as_dict())
 
         # Graph
-        content_types = ContentType.objects.filter(FeatureQuerySet('graphs').get_queryset())
+        content_types = ContentType.objects.filter(GRAPH_MODELS)
         graph_type_choices = {
             "{}.{}".format(ct.app_label, ct.model): str(ct) for ct in content_types
         }
