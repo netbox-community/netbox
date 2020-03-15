@@ -235,6 +235,7 @@ class ValidatedModelSerializer(ModelSerializer):
             for k, v in attrs.items():
                 setattr(instance, k, v)
         instance.clean()
+        instance.validate_unique()
 
         return data
 

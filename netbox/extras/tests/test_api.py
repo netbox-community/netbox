@@ -9,6 +9,7 @@ from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, 
 from extras.api.views import ScriptViewSet
 from extras.models import ConfigContext, Graph, ExportTemplate, Tag
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
+from extras.utils import FeatureQuerySet
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import APITestCase
 

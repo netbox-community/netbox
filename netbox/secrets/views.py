@@ -8,9 +8,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
 
-from dcim.models import Device
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkDeleteView, BulkEditView, BulkImportView, GetReturnURLMixin, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .decorators import userkey_required
@@ -89,12 +88,9 @@ class SecretView(PermissionRequiredMixin, View):
 
 @permission_required('secrets.add_secret')
 @userkey_required()
-def secret_add(request, pk):
+def secret_add(request):
 
-    # Retrieve device
-    device = get_object_or_404(Device, pk=pk)
-
-    secret = Secret(device=device)
+    secret = Secret()
     session_key = get_session_key(request)
 
     if request.method == 'POST':
@@ -123,17 +119,20 @@ def secret_add(request, pk):
 
                     messages.success(request, "Added new secret: {}.".format(secret))
                     if '_addanother' in request.POST:
-                        return redirect('dcim:device_addsecret', pk=device.pk)
+                        return redirect('secrets:secret_add')
                     else:
                         return redirect('secrets:secret', pk=secret.pk)
 
     else:
-        form = forms.SecretForm(instance=secret)
+        initial_data = {
+            'device': request.GET.get('device'),
+        }
+        form = forms.SecretForm(initial=initial_data)
 
     return render(request, 'secrets/secret_edit.html', {
         'secret': secret,
         'form': form,
-        'return_url': device.get_absolute_url(),
+        'return_url': GetReturnURLMixin().get_return_url(request, secret)
     })
 
 

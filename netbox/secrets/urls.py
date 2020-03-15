@@ -17,6 +17,7 @@ urlpatterns = [
 
     # Secrets
     path('secrets/', views.SecretListView.as_view(), name='secret_list'),
+    path('secrets/add/', views.secret_add, name='secret_add'),
     path('secrets/import/', views.SecretBulkImportView.as_view(), name='secret_import'),
     path('secrets/edit/', views.SecretBulkEditView.as_view(), name='secret_bulk_edit'),
     path('secrets/delete/', views.SecretBulkDeleteView.as_view(), name='secret_bulk_delete'),

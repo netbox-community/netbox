@@ -176,10 +176,6 @@ class RackRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = RackReservation
 
-    # Disable inapplicable tests
-    test_get_object = None
-    test_create_object = None
-
     @classmethod
     def setUpTestData(cls):
 
