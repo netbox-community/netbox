@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0038_webhook_template_support'),
+        ('extras', '0039_update_features_content_types'),
     ]
 
     operations = [
