@@ -606,12 +606,11 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
             }
         )
     )
-    nat_vrf = forms.ModelChoiceField(
+    nat_vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
         label='VRF',
         widget=APISelect(
-            api_url="/api/ipam/vrfs/",
             filter_for={
                 'nat_inside': 'vrf_id'
             }
