@@ -334,6 +334,9 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
 #
 
 class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all()
+    )
 
     class Meta:
         model = CircuitTermination
@@ -347,7 +350,4 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         }
         widgets = {
             'term_side': forms.HiddenInput(),
-            'site': APISelect(
-                api_url="/api/dcim/sites/"
-            )
         }
