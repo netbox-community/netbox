@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
 from django.db.models import Count
 from django.forms import BoundField
+from django.urls import reverse
 
 from .choices import unpack_grouped_choices
 from .constants import *
@@ -269,7 +270,7 @@ class APISelect(SelectWithDisabled):
     """
     def __init__(
         self,
-        api_url,
+        api_url=None,
         display_field=None,
         value_field=None,
         disabled_indicator=None,
@@ -285,7 +286,8 @@ class APISelect(SelectWithDisabled):
         super().__init__(*args, **kwargs)
 
         self.attrs['class'] = 'netbox-select2-api'
-        self.attrs['data-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
+        if api_url:
+            self.attrs['data-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
         if full:
             self.attrs['data-full'] = full
         if display_field:
@@ -566,6 +568,10 @@ class TagFilterField(forms.MultipleChoiceField):
 
 class DynamicModelChoiceMixin:
     filter = django_filters.ModelChoiceFilter
+    widget = APISelect
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def get_bound_field(self, form, field_name):
         bound_field = BoundField(form, self, field_name)
@@ -578,6 +584,14 @@ class DynamicModelChoiceMixin:
             self.queryset = filter.filter(self.queryset, data)
         else:
             self.queryset = self.queryset.none()
+
+        # Set the data URL on the APISelect widget (if not already set)
+        widget = bound_field.field.widget
+        if not widget.attrs.get('data-url'):
+            app_label = self.queryset.model._meta.app_label
+            model_name = self.queryset.model._meta.model_name
+            data_url = reverse('{}-api:{}-list'.format(app_label, model_name))
+            widget.attrs['data-url'] = data_url
 
         return bound_field
 
@@ -595,6 +609,7 @@ class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultip
     A multiple-choice version of DynamicModelChoiceField.
     """
     filter = django_filters.ModelMultipleChoiceFilter
+    widget = APISelectMultiple
 
 
 class LaxURLField(forms.URLField):
