@@ -105,44 +105,24 @@ class PrefixViewSet(CustomFieldModelViewSet):
             if not request.user.has_perm('ipam.add_prefix'):
                 raise PermissionDenied()
 
-            # Normalize to a list of objects
-            requested_prefixes = request.data if isinstance(request.data, list) else [request.data]
+            # Validate Requested Prefixes' length
+            serializer = serializers.PrefixLengthSerializer(
+                data=request.data if isinstance(request.data, list) else [request.data],
+                many=True,
+                context={
+                    'request': request,
+                    'prefix': prefix,
+                }
+            )
+            if not serializer.is_valid():
+                return Response(
+                    serializer.errors,
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
+            requested_prefixes = serializer.validated_data
             # Allocate prefixes to the requested objects based on availability within the parent
             for i, requested_prefix in enumerate(requested_prefixes):
-
-                # Validate requested prefix size
-                prefix_length = requested_prefix.get('prefix_length')
-                if prefix_length is None:
-                    return Response(
-                        {
-                            "detail": "Item {}: prefix_length field missing".format(i)
-                        },
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-                try:
-                    prefix_length = int(prefix_length)
-                except ValueError:
-                    return Response(
-                        {
-                            "detail": "Item {}: Invalid prefix length ({})".format(i, prefix_length),
-                        },
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-                if prefix.family == 4 and prefix_length > 32:
-                    return Response(
-                        {
-                            "detail": "Item {}: Invalid prefix length ({}) for IPv4".format(i, prefix_length),
-                        },
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-                elif prefix.family == 6 and prefix_length > 128:
-                    return Response(
-                        {
-                            "detail": "Item {}: Invalid prefix length ({}) for IPv6".format(i, prefix_length),
-                        },
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
 
                 # Find the first available prefix equal to or larger than the requested size
                 for available_prefix in available_prefixes.iter_cidrs():
