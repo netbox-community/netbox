@@ -5,6 +5,7 @@
 {% load plugins %}
 {% load static %}
 {% load tz %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint">
@@ -214,6 +215,7 @@
                 {% endif %}
             </div>
         </div>
+        {% plugin_left_page site %}
     </div>
     <div class="col-md-5">
         <div class="panel panel-default">
@@ -288,9 +290,15 @@
                 </div>
             {% endif %}
         </div>
+        {% plugin_right_page site %}
 	</div>
 </div>
 {% include 'inc/modal.html' with name='graphs' title='Graphs' %}
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page site %}
+    </div>
+</div>
 {% endblock %}
 
 {% block javascript %}

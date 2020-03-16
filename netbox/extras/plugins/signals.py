@@ -27,8 +27,8 @@ class PluginSignal(django.dispatch.Signal):
 
 
 """
-This signal collects templates which render buttons for object detail pages
+This signal collects templates which render content for object detail pages
 """
-register_detail_page_buttons = PluginSignal(
+register_detail_page_content_classes = PluginSignal(
     providing_args=[]
 )

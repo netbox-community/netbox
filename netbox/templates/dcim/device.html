@@ -333,6 +333,7 @@
                     {% endif %}
                 </div>
             </div>
+            {% plugin_left_page device %}
         </div>
         <div class="col-md-6">
             {% if console_ports or power_ports %}
@@ -499,6 +500,12 @@
                     <div class="panel-body text-muted">None found</div>
                 {% endif %}
             </div>
+            {% plugin_right_page device %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% plugin_full_width_page device %}
         </div>
     </div>
     <div class="row">

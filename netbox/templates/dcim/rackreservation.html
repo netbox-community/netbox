@@ -3,6 +3,7 @@
 {% load custom_links %}
 {% load helpers %}
 {% load static %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint">
@@ -27,6 +28,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons rackreservation %}
         {% if perms.dcim.change_rackreservation %}
             {% edit_button rackreservation %}
         {% endif %}
@@ -119,6 +121,7 @@
                 </tr>
             </table>
         </div>
+        {% plugin_left_page rackreservation %}
 	</div>
     <div class="col-md-6">
         {% with rack=rackreservation.rack %}
@@ -137,6 +140,12 @@
                 </div>
             </div>
         {% endwith %}
+        {% plugin_right_page rackreservation %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page rackreservation %}
     </div>
 </div>
 {% endblock %}

@@ -2,6 +2,7 @@
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint">
@@ -28,6 +29,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons ipaddress %}
         {% if perms.ipam.add_ipaddress %}
             {% clone_button ipaddress %}
         {% endif %}
@@ -152,6 +154,7 @@
         </div>
         {% include 'inc/custom_fields_panel.html' with obj=ipaddress %}
         {% include 'extras/inc/tags_panel.html' with tags=ipaddress.tags.all url='ipam:ipaddress_list' %}
+        {% plugin_left_page ipaddress %}
 	</div>
 	<div class="col-md-8">
         {% include 'panel_table.html' with table=parent_prefixes_table heading='Parent Prefixes' %}
@@ -159,6 +162,12 @@
             {% include 'panel_table.html' with table=duplicate_ips_table heading='Duplicate IP Addresses' panel_class='danger' %}
         {% endif %}
         {% include 'utilities/obj_table.html' with table=related_ips_table table_template='panel_table.html' heading='Related IP Addresses' panel_class='default noprint' %}
+        {% plugin_right_page ipaddress %}
 	</div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page ipaddress %}
+    </div>
 </div>
 {% endblock %}

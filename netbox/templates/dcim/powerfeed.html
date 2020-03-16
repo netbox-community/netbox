@@ -3,6 +3,7 @@
 {% load static %}
 {% load custom_links %}
 {% load helpers %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint">
@@ -31,6 +32,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons powerfeed %}
         {% if perms.dcim.add_powerfeed %}
             {% clone_button powerfeed %}
         {% endif %}
@@ -123,6 +125,7 @@
         </div>
         {% include 'inc/custom_fields_panel.html' with obj=powerfeed %}
         {% include 'extras/inc/tags_panel.html' with tags=powerfeed.tags.all url='dcim:powerfeed_list' %}
+        {% plugin_left_page powerfeed %}
     </div>
     <div class="col-md-6">
         <div class="panel panel-default">
@@ -164,6 +167,12 @@
                 {% endif %}
             </div>
         </div>
+        {% plugin_right_page powerfeed %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page powerfeed %}
     </div>
 </div>
 {% endblock %}

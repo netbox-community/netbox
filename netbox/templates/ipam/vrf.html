@@ -2,6 +2,7 @@
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint">
@@ -25,6 +26,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons vrf %}
         {% if perms.ipam.add_vrf %}
             {% clone_button vrf %}
         {% endif %}
@@ -97,9 +99,16 @@
 		    </table>
         </div>
         {% include 'extras/inc/tags_panel.html' with tags=vrf.tags.all url='ipam:vrf_list' %}
+        {% plugin_left_page vrf %}
 	</div>
 	<div class="col-md-6">
         {% include 'inc/custom_fields_panel.html' with obj=vrf %}
+        {% plugin_right_page vrf %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page vrf %}
     </div>
 </div>
 {% endblock %}

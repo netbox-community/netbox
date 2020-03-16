@@ -2,6 +2,7 @@
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
+{% load plugins %}
 
 {% block content %}
 <div class="row noprint">
@@ -26,6 +27,7 @@
     </div>
 </div>
 <div class="pull-right">
+    {% plugin_buttons service %}
     {% if perms.dcim.change_service %}
         {% edit_button service %}
     {% endif %}
@@ -81,6 +83,15 @@
         </div>
         {% include 'inc/custom_fields_panel.html' with obj=service %}
         {% include 'extras/inc/tags_panel.html' with tags=service.tags.all url='ipam:service_list' %}
-	</div>
+        {% plugin_left_page service %}
+    </div>
+    <div class="col-md-6">
+        {% plugin_right_page service %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page service %}
+    </div>
 </div>
 {% endblock %}

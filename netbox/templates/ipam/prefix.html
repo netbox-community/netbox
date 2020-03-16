@@ -2,6 +2,7 @@
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint">
@@ -28,6 +29,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons prefix %}
         {% if perms.ipam.add_prefix and active_tab == 'prefixes' and first_available_prefix %}
             <a href="{% url 'ipam:prefix_add' %}?prefix={{ first_available_prefix }}&vrf={{ prefix.vrf.pk }}&site={{ prefix.site.pk }}&tenant_group={{ prefix.tenant.group.pk }}&tenant={{ prefix.tenant.pk }}" class="btn btn-success">
                 <i class="fa fa-plus" aria-hidden="true"></i> Add Child Prefix
@@ -187,12 +189,19 @@
             </div>
             {% include 'inc/custom_fields_panel.html' with obj=prefix %}
             {% include 'extras/inc/tags_panel.html' with tags=prefix.tags.all url='ipam:prefix_list' %}
+            {% plugin_left_page prefix %}
         </div>
         <div class="col-md-7">
             {% if duplicate_prefix_table.rows %}
                 {% include 'panel_table.html' with table=duplicate_prefix_table heading='Duplicate Prefixes' panel_class='danger' %}
             {% endif %}
             {% include 'panel_table.html' with table=parent_prefix_table heading='Parent Prefixes' panel_class='default' %}
+            {% plugin_right_page prefix %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% plugin_full_width_page prefix %}
         </div>
     </div>
 {% endblock %}
