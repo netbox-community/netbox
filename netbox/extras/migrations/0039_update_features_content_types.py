@@ -15,26 +15,26 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customfield',
             name='obj_type',
-            field=models.ManyToManyField(limit_choices_to=extras.utils.FeatureQuerySet('custom_fields'), related_name='custom_fields', to='contenttypes.ContentType'),
+            field=models.ManyToManyField(limit_choices_to=extras.utils.FeatureQuery('custom_fields'), related_name='custom_fields', to='contenttypes.ContentType'),
         ),
         migrations.AlterField(
             model_name='customlink',
             name='content_type',
-            field=models.ForeignKey(limit_choices_to=extras.utils.FeatureQuerySet('custom_links'), on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
+            field=models.ForeignKey(limit_choices_to=extras.utils.FeatureQuery('custom_links'), on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
         ),
         migrations.AlterField(
             model_name='exporttemplate',
             name='content_type',
-            field=models.ForeignKey(limit_choices_to=extras.utils.FeatureQuerySet('export_templates'), on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
+            field=models.ForeignKey(limit_choices_to=extras.utils.FeatureQuery('export_templates'), on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
         ),
         migrations.AlterField(
             model_name='graph',
             name='type',
-            field=models.ForeignKey(limit_choices_to=extras.utils.FeatureQuerySet('graphs'), on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
+            field=models.ForeignKey(limit_choices_to=extras.utils.FeatureQuery('graphs'), on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
         ),
         migrations.AlterField(
             model_name='webhook',
             name='obj_type',
-            field=models.ManyToManyField(limit_choices_to=extras.utils.FeatureQuerySet('webhooks'), related_name='webhooks', to='contenttypes.ContentType'),
+            field=models.ManyToManyField(limit_choices_to=extras.utils.FeatureQuery('webhooks'), related_name='webhooks', to='contenttypes.ContentType'),
         ),
     ]

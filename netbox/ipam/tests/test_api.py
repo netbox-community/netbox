@@ -586,9 +586,14 @@ class PrefixTest(APITestCase):
             self.assertEqual(response.data['description'], data['description'])
 
         # Try to create one more prefix
-        response = self.client.post(url, {'prefix_length': 30}, **self.header)
+        response = self.client.post(url, {'prefix_length': 30}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertIn('detail', response.data)
+
+        # Try to create invalid prefix type
+        response = self.client.post(url, {'prefix_length': '30'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('prefix_length', response.data[0])
 
     def test_create_multiple_available_prefixes(self):
 

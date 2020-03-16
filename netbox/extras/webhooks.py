@@ -8,7 +8,7 @@ from extras.models import Webhook
 from utilities.api import get_serializer_for_model
 from .choices import *
 from .constants import *
-from .utils import FeatureQuerySet
+from .utils import FeatureQuery
 
 
 def generate_signature(request_body, secret):
@@ -30,7 +30,7 @@ def enqueue_webhooks(instance, user, request_id, action):
     """
     obj_type = ContentType.objects.get_for_model(instance.__class__)
 
-    webhook_models = ContentType.objects.filter(FeatureQuerySet('webhooks').get_queryset())
+    webhook_models = ContentType.objects.filter(FeatureQuery('webhooks').get_query())
     if obj_type not in webhook_models:
         return
 
