@@ -42,7 +42,7 @@ registry = Registry()
 
 
 @deconstructible
-class FeatureQuerySet:
+class FeatureQuery:
     """
     Helper class that delays evaluation of the registry contents for the functionaility store
     until it has been populated.
@@ -52,9 +52,9 @@ class FeatureQuerySet:
         self.feature = feature
 
     def __call__(self):
-        return self.get_queryset()
+        return self.get_query()
 
-    def get_queryset(self):
+    def get_query(self):
         """
         Given an extras feature, return a Q object for content type lookup
         """
