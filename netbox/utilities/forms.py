@@ -253,7 +253,7 @@ class APISelect(SelectWithDisabled):
     """
     A select widget populated via an API call
 
-    :param api_url: API URL
+    :param api_url: API endpoint URL. Required if not set automatically by the parent field.
     :param display_field: (Optional) Field to display for child in selection list. Defaults to `name`.
     :param value_field: (Optional) Field to use for the option value in selection list. Defaults to `id`.
     :param disabled_indicator: (Optional) Mark option as disabled if this field equates true.

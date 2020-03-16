@@ -9,7 +9,7 @@ from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, S
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
 )
-from ipam.models import IPAddress, VLANGroup, VLAN
+from ipam.models import IPAddress, VLAN
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -77,24 +77,15 @@ class ClusterGroupCSVForm(forms.ModelForm):
 
 class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     type = DynamicModelChoiceField(
-        queryset=ClusterType.objects.all(),
-        widget=APISelect(
-            api_url="/api/virtualization/cluster-types/"
-        )
+        queryset=ClusterType.objects.all()
     )
     group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/virtualization/cluster-groups/"
-        )
+        required=False
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/dcim/sites/"
-        )
+        required=False
     )
     comments = CommentField()
     tags = TagField(
@@ -157,31 +148,19 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
     )
     type = DynamicModelChoiceField(
         queryset=ClusterType.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/virtualization/cluster-types/"
-        )
+        required=False
     )
     group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/virtualization/cluster-groups/"
-        )
+        required=False
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/tenancy/tenants/"
-        )
+        required=False
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/dcim/sites/"
-        )
+        required=False
     )
     comments = CommentField(
         widget=SmallTextarea,
@@ -205,7 +184,6 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url="/api/virtualization/cluster-types/",
             value_field='slug',
         )
     )
@@ -214,7 +192,6 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url="/api/dcim/regions/",
             value_field="slug",
             filter_for={
                 'site': 'region'
@@ -226,7 +203,6 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url="/api/dcim/sites/",
             value_field='slug',
             null_option=True,
         )
@@ -236,7 +212,6 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url="/api/virtualization/cluster-groups/",
             value_field='slug',
             null_option=True,
         )
@@ -249,7 +224,6 @@ class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
         queryset=Region.objects.all(),
         required=False,
         widget=APISelect(
-            api_url="/api/dcim/regions/",
             filter_for={
                 "site": "region_id",
             },
@@ -262,7 +236,6 @@ class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
         queryset=Site.objects.all(),
         required=False,
         widget=APISelect(
-            api_url='/api/dcim/sites/',
             filter_for={
                 "rack": "site_id",
                 "devices": "site_id",
@@ -273,7 +246,6 @@ class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
         queryset=Rack.objects.all(),
         required=False,
         widget=APISelect(
-            api_url='/api/dcim/racks/',
             filter_for={
                 "devices": "rack_id"
             },
@@ -285,7 +257,6 @@ class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
     devices = DynamicModelMultipleChoiceField(
         queryset=Device.objects.filter(cluster__isnull=True),
         widget=APISelectMultiple(
-            api_url='/api/dcim/devices/',
             display_field='display_name',
             disabled_indicator='cluster'
         )
@@ -334,7 +305,6 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=ClusterGroup.objects.all(),
         required=False,
         widget=APISelect(
-            api_url='/api/virtualization/cluster-groups/',
             filter_for={
                 "cluster": "group_id",
             },
@@ -344,16 +314,12 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         )
     )
     cluster = DynamicModelChoiceField(
-        queryset=Cluster.objects.all(),
-        widget=APISelect(
-            api_url='/api/virtualization/clusters/'
-        )
+        queryset=Cluster.objects.all()
     )
     role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.all(),
         required=False,
         widget=APISelect(
-            api_url="/api/dcim/device-roles/",
             additional_query_params={
                 "vm_role": "True"
             }
@@ -361,10 +327,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     )
     platform = DynamicModelChoiceField(
         queryset=Platform.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url='/api/dcim/platforms/'
-        )
+        required=False
     )
     tags = TagField(
         required=False
@@ -499,10 +462,7 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
     )
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url='/api/virtualization/clusters/'
-        )
+        required=False
     )
     role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.filter(
@@ -510,7 +470,6 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
         ),
         required=False,
         widget=APISelect(
-            api_url="/api/dcim/device-roles/",
             additional_query_params={
                 "vm_role": "True"
             }
@@ -518,17 +477,11 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url='/api/tenancy/tenants/'
-        )
+        required=False
     )
     platform = DynamicModelChoiceField(
         queryset=Platform.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url='/api/dcim/platforms/'
-        )
+        required=False
     )
     vcpus = forms.IntegerField(
         required=False,
@@ -568,7 +521,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url='/api/virtualization/cluster-groups/',
             value_field="slug",
             null_option=True,
         )
@@ -578,7 +530,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url='/api/virtualization/cluster-types/',
             value_field="slug",
             null_option=True,
         )
@@ -586,17 +537,13 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
-        label='Cluster',
-        widget=APISelectMultiple(
-            api_url='/api/virtualization/clusters/',
-        )
+        label='Cluster'
     )
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url='/api/dcim/regions/',
             value_field="slug",
             filter_for={
                 'site': 'region'
@@ -608,7 +555,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url='/api/dcim/sites/',
             value_field="slug",
             null_option=True,
         )
@@ -618,7 +564,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url='/api/dcim/device-roles/',
             value_field="slug",
             null_option=True,
             additional_query_params={
@@ -636,7 +581,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url='/api/dcim/platforms/',
             value_field="slug",
             null_option=True,
         )
@@ -657,7 +601,6 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         queryset=VLAN.objects.all(),
         required=False,
         widget=APISelect(
-            api_url="/api/ipam/vlans/",
             display_field='display_name',
             full=True,
             additional_query_params={
@@ -669,7 +612,6 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         queryset=VLAN.objects.all(),
         required=False,
         widget=APISelectMultiple(
-            api_url="/api/ipam/vlans/",
             display_field='display_name',
             full=True,
             additional_query_params={
@@ -766,7 +708,6 @@ class InterfaceCreateForm(BootstrapMixin, forms.Form):
         queryset=VLAN.objects.all(),
         required=False,
         widget=APISelect(
-            api_url="/api/ipam/vlans/",
             display_field='display_name',
             full=True,
             additional_query_params={
@@ -778,7 +719,6 @@ class InterfaceCreateForm(BootstrapMixin, forms.Form):
         queryset=VLAN.objects.all(),
         required=False,
         widget=APISelectMultiple(
-            api_url="/api/ipam/vlans/",
             display_field='display_name',
             full=True,
             additional_query_params={
@@ -836,7 +776,6 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=VLAN.objects.all(),
         required=False,
         widget=APISelect(
-            api_url="/api/ipam/vlans/",
             display_field='display_name',
             full=True,
             additional_query_params={
@@ -848,7 +787,6 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=VLAN.objects.all(),
         required=False,
         widget=APISelectMultiple(
-            api_url="/api/ipam/vlans/",
             display_field='display_name',
             full=True,
             additional_query_params={
