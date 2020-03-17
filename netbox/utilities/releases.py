@@ -2,6 +2,7 @@ import logging
 
 from cacheops import CacheMiss, cache
 from django.conf import settings
+from django_rq import get_queue
 
 from utilities.background_tasks import get_releases
 
@@ -17,9 +18,14 @@ def get_latest_release(pre_releases=False):
                 logger.debug("Found {} cached releases. Latest: {}".format(len(releases), max(releases)))
                 return max(releases)
         except CacheMiss:
-            # Get the releases in the background worker, it will fill the cache
-            logger.debug("Initiating background task to retrieve updated releases list")
-            get_releases.delay(pre_releases=pre_releases)
+            # Check for an existing job. This can happen if the RQ worker process is not running.
+            queue = get_queue('check_releases')
+            if queue.jobs:
+                logger.debug("Job to check for new releases is already queued; skipping")
+            else:
+                # Get the releases in the background worker, it will fill the cache
+                logger.debug("Initiating background task to retrieve updated releases list")
+                get_releases.delay(pre_releases=pre_releases)
 
     else:
         logger.debug("Skipping release check; UPDATE_REPO_URL not defined")
