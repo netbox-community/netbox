@@ -298,6 +298,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'utilities.context_processors.settings',
+                'extras.plugins.context_processors.nav_menu_links',
             ],
         },
     },
@@ -629,6 +630,9 @@ if PLUGINS_ENABLED:
         plugin_middleware = getattr(app_config_meta, 'middleware', [])
         if plugin_middleware and isinstance(plugin_middleware, list):
             MIDDLEWARE.extend(plugin_middleware)
+        plugin_middleware_prepend = getattr(app_config_meta, 'middleware_prepend', [])
+        if plugin_middleware_prepend and isinstance(plugin_middleware_prepend, list):
+            MIDDLEWARE[:0] = plugin_middleware_prepend
 
         # Add installed apps
         plugin_installed_apps = getattr(app_config_meta, 'installed_apps', [])
