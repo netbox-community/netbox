@@ -266,7 +266,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'debug_toolbar',
     'django_filters',
-    'django_rq',
     'django_tables2',
     'django_prometheus',
     'mptt',
@@ -283,6 +282,7 @@ INSTALLED_APPS = [
     'users',
     'utilities',
     'virtualization',
+    'django_rq',  # Must come after extras to allow overriding management commands
     'drf_yasg',
 ]
 
@@ -576,15 +576,17 @@ SWAGGER_SETTINGS = {
 # Django RQ (Webhooks backend)
 #
 
-RQ_QUEUES = {
-    'default': {
+if not TASKS_REDIS_USING_SENTINEL:
+    RQ_PARAMS = {
         'HOST': TASKS_REDIS_HOST,
         'PORT': TASKS_REDIS_PORT,
         'DB': TASKS_REDIS_DATABASE,
         'PASSWORD': TASKS_REDIS_PASSWORD,
         'DEFAULT_TIMEOUT': TASKS_REDIS_DEFAULT_TIMEOUT,
         'SSL': TASKS_REDIS_SSL,
-    } if not TASKS_REDIS_USING_SENTINEL else {
+    }
+else:
+    RQ_PARAMS = {
         'SENTINELS': TASKS_REDIS_SENTINELS,
         'MASTER_NAME': TASKS_REDIS_SENTINEL_SERVICE,
         'DB': TASKS_REDIS_DATABASE,
@@ -594,8 +596,11 @@ RQ_QUEUES = {
             'socket_connect_timeout': TASKS_REDIS_DEFAULT_TIMEOUT
         },
     }
-}
 
+RQ_QUEUES = {
+    'default': RQ_PARAMS,  # Webhooks
+    'check_releases': RQ_PARAMS,
+}
 
 #
 # Django debug toolbar

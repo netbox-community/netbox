@@ -10,7 +10,7 @@ from packaging import version
 logger = logging.getLogger('netbox.releases')
 
 
-@job
+@job('check_releases')
 def get_releases(pre_releases=False):
     url = settings.UPDATE_REPO_URL
     headers = {
