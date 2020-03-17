@@ -178,31 +178,40 @@ if STORAGE_CONFIG and STORAGE_BACKEND is None:
 # Redis
 #
 
-if 'webhooks' not in REDIS:
-    raise ImproperlyConfigured(
-        "REDIS section in configuration.py is missing webhooks subsection."
+# Background task queuing
+if 'tasks' in REDIS:
+    TASKS_REDIS = REDIS['tasks']
+elif 'webhooks' in REDIS:
+    # TODO: Remove support for 'webhooks' name in v2.9
+    warnings.warn(
+        "The 'webhooks' REDIS configuration section has been renamed to 'tasks'. Please update your configuration as "
+        "support for the old name will be removed in a future release."
     )
-if 'caching' not in REDIS:
+    TASKS_REDIS = REDIS['webhooks']
+else:
+    raise ImproperlyConfigured(
+        "REDIS section in configuration.py is missing the 'tasks' subsection."
+    )
+TASKS_REDIS_HOST = TASKS_REDIS.get('HOST', 'localhost')
+TASKS_REDIS_PORT = TASKS_REDIS.get('PORT', 6379)
+TASKS_REDIS_SENTINELS = TASKS_REDIS.get('SENTINELS', [])
+TASKS_REDIS_USING_SENTINEL = all([
+    isinstance(TASKS_REDIS_SENTINELS, (list, tuple)),
+    len(TASKS_REDIS_SENTINELS) > 0
+])
+TASKS_REDIS_SENTINEL_SERVICE = TASKS_REDIS.get('SENTINEL_SERVICE', 'default')
+TASKS_REDIS_PASSWORD = TASKS_REDIS.get('PASSWORD', '')
+TASKS_REDIS_DATABASE = TASKS_REDIS.get('DATABASE', 0)
+TASKS_REDIS_DEFAULT_TIMEOUT = TASKS_REDIS.get('DEFAULT_TIMEOUT', 300)
+TASKS_REDIS_SSL = TASKS_REDIS.get('SSL', False)
+
+# Caching
+if 'caching' in REDIS:
+    CACHING_REDIS = REDIS['caching']
+else:
     raise ImproperlyConfigured(
         "REDIS section in configuration.py is missing caching subsection."
     )
-
-WEBHOOKS_REDIS = REDIS.get('webhooks', {})
-WEBHOOKS_REDIS_HOST = WEBHOOKS_REDIS.get('HOST', 'localhost')
-WEBHOOKS_REDIS_PORT = WEBHOOKS_REDIS.get('PORT', 6379)
-WEBHOOKS_REDIS_SENTINELS = WEBHOOKS_REDIS.get('SENTINELS', [])
-WEBHOOKS_REDIS_USING_SENTINEL = all([
-    isinstance(WEBHOOKS_REDIS_SENTINELS, (list, tuple)),
-    len(WEBHOOKS_REDIS_SENTINELS) > 0
-])
-WEBHOOKS_REDIS_SENTINEL_SERVICE = WEBHOOKS_REDIS.get('SENTINEL_SERVICE', 'default')
-WEBHOOKS_REDIS_PASSWORD = WEBHOOKS_REDIS.get('PASSWORD', '')
-WEBHOOKS_REDIS_DATABASE = WEBHOOKS_REDIS.get('DATABASE', 0)
-WEBHOOKS_REDIS_DEFAULT_TIMEOUT = WEBHOOKS_REDIS.get('DEFAULT_TIMEOUT', 300)
-WEBHOOKS_REDIS_SSL = WEBHOOKS_REDIS.get('SSL', False)
-
-
-CACHING_REDIS = REDIS.get('caching', {})
 CACHING_REDIS_HOST = CACHING_REDIS.get('HOST', 'localhost')
 CACHING_REDIS_PORT = CACHING_REDIS.get('PORT', 6379)
 CACHING_REDIS_SENTINELS = CACHING_REDIS.get('SENTINELS', [])
@@ -569,20 +578,20 @@ SWAGGER_SETTINGS = {
 
 RQ_QUEUES = {
     'default': {
-        'HOST': WEBHOOKS_REDIS_HOST,
-        'PORT': WEBHOOKS_REDIS_PORT,
-        'DB': WEBHOOKS_REDIS_DATABASE,
-        'PASSWORD': WEBHOOKS_REDIS_PASSWORD,
-        'DEFAULT_TIMEOUT': WEBHOOKS_REDIS_DEFAULT_TIMEOUT,
-        'SSL': WEBHOOKS_REDIS_SSL,
-    } if not WEBHOOKS_REDIS_USING_SENTINEL else {
-        'SENTINELS': WEBHOOKS_REDIS_SENTINELS,
-        'MASTER_NAME': WEBHOOKS_REDIS_SENTINEL_SERVICE,
-        'DB': WEBHOOKS_REDIS_DATABASE,
-        'PASSWORD': WEBHOOKS_REDIS_PASSWORD,
+        'HOST': TASKS_REDIS_HOST,
+        'PORT': TASKS_REDIS_PORT,
+        'DB': TASKS_REDIS_DATABASE,
+        'PASSWORD': TASKS_REDIS_PASSWORD,
+        'DEFAULT_TIMEOUT': TASKS_REDIS_DEFAULT_TIMEOUT,
+        'SSL': TASKS_REDIS_SSL,
+    } if not TASKS_REDIS_USING_SENTINEL else {
+        'SENTINELS': TASKS_REDIS_SENTINELS,
+        'MASTER_NAME': TASKS_REDIS_SENTINEL_SERVICE,
+        'DB': TASKS_REDIS_DATABASE,
+        'PASSWORD': TASKS_REDIS_PASSWORD,
         'SOCKET_TIMEOUT': None,
         'CONNECTION_KWARGS': {
-            'socket_connect_timeout': WEBHOOKS_REDIS_DEFAULT_TIMEOUT
+            'socket_connect_timeout': TASKS_REDIS_DEFAULT_TIMEOUT
         },
     }
 }

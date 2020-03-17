@@ -21,11 +21,11 @@ DATABASE = {
     'CONN_MAX_AGE': 300,      # Max database connection age
 }
 
-# Redis database settings. The Redis database is used for caching and background processing such as webhooks
-# Seperate sections for webhooks and caching allow for connecting to seperate Redis instances/datbases if desired.
-# Full connection details are required in both sections, even if they are the same.
+# Redis database settings. Redis is used for caching and for queuing background tasks such as webhook events. A separate
+# configuration exists for each. Full connection details are required in both sections, and it is strongly recommended
+# to use two separate database IDs.
 REDIS = {
-    'webhooks': {
+    'tasks': {
         'HOST': 'localhost',
         'PORT': 6379,
         # Comment out `HOST` and `PORT` lines and uncomment the following if using Redis Sentinel
