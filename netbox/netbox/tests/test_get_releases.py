@@ -83,7 +83,7 @@ class GetReleasesTestCase(SimpleTestCase):
 
         # Check if result is put in cache
         dummy_cache_set.assert_called_once()
-        dummy_cache_set.assert_called_with('netbox_releases', releases, 160876)
+        dummy_cache_set.assert_called_with('latest_release', releases, 160876)
 
     @patch.object(requests, 'get')
     @patch.object(RedisCache, 'set')
@@ -109,7 +109,7 @@ class GetReleasesTestCase(SimpleTestCase):
 
         # Check if result is put in cache
         dummy_cache_set.assert_called_once()
-        dummy_cache_set.assert_called_with('netbox_releases', releases, 160876)
+        dummy_cache_set.assert_called_with('latest_release', releases, 160876)
 
     @patch.object(requests, 'get')
     @patch.object(RedisCache, 'set')
@@ -139,7 +139,7 @@ class GetReleasesTestCase(SimpleTestCase):
 
         # Check if failure is put in cache
         dummy_cache_set.assert_called_once()
-        dummy_cache_set.assert_called_with('netbox_releases_no_retry', 'https://localhost/unittest/releases', 900)
+        dummy_cache_set.assert_called_with('latest_release_no_retry', 'https://localhost/unittest/releases', 900)
 
     @patch.object(requests, 'get')
     @patch.object(RedisCache, 'set')

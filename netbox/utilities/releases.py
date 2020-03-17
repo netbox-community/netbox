@@ -13,10 +13,10 @@ def get_latest_release(pre_releases=False):
     if settings.UPDATE_REPO_URL:
         logger.debug("Checking for most recent release")
         try:
-            releases = cache.get('netbox_releases')
-            if releases:
-                logger.debug("Found {} cached releases. Latest: {}".format(len(releases), max(releases)))
-                return max(releases)
+            latest_release = cache.get('latest_release')
+            if latest_release:
+                logger.debug("Found cached release: {}".format(latest_release))
+                return latest_release
         except CacheMiss:
             # Check for an existing job. This can happen if the RQ worker process is not running.
             queue = get_queue('check_releases')

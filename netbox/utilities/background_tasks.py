@@ -19,7 +19,7 @@ def get_releases(pre_releases=False):
 
     # Check whether this URL has failed and shouldn't be retried yet
     try:
-        failed_url = cache.get('netbox_releases_no_retry')
+        failed_url = cache.get('latest_release_no_retry')
         if url == failed_url:
             return []
     except CacheMiss:
@@ -44,10 +44,10 @@ def get_releases(pre_releases=False):
     except Exception:
         # Don't retry this URL for 15 minutes
         logger.exception("Error while fetching {}".format(url))
-        cache.set('netbox_releases_no_retry', url, 900)
+        cache.set('latest_release_no_retry', url, 900)
         return []
 
-    # Cache the releases list
-    cache.set('netbox_releases', releases, settings.UPDATE_CACHE_TIMEOUT)
+    # Cache the most recent release
+    cache.set('latest_release', max(releases), settings.UPDATE_CACHE_TIMEOUT)
 
     return releases
