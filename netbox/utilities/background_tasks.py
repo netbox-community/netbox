@@ -16,16 +16,15 @@ def get_releases(pre_releases=False):
     headers = {
         'Accept': 'application/vnd.github.v3+json',
     }
+    releases = []
 
-    # Check whether this URL has failed and shouldn't be retried yet
+    # Check whether this URL has failed recently and shouldn't be retried yet
     try:
-        failed_url = cache.get('latest_release_no_retry')
-        if url == failed_url:
+        if url == cache.get('latest_release_no_retry'):
+            logger.debug("Skipping release check; URL failed recently: {}".format(url))
             return []
     except CacheMiss:
         pass
-
-    releases = []
 
     try:
         logger.debug("Fetching new releases from {}".format(url))
@@ -41,9 +40,9 @@ def get_releases(pre_releases=False):
             releases.append((version.parse(release['tag_name']), release.get('html_url')))
         logger.debug("Found {} releases; {} usable".format(total_releases, len(releases)))
 
-    except Exception:
-        # Don't retry this URL for 15 minutes
-        logger.exception("Error while fetching {}".format(url))
+    except requests.exceptions.RequestException:
+        # The request failed. Set a flag in the cache to disable future checks to this URL for 15 minutes.
+        logger.exception("Error while fetching {}. Disabling checks for 15 minutes.".format(url))
         cache.set('latest_release_no_retry', url, 900)
         return []
 
