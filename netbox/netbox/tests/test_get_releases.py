@@ -56,7 +56,7 @@ def unsuccessful_github_response(url, *_args, **_kwargs):
     return r
 
 
-@override_settings(UPDATE_REPO_URL='https://localhost/unittest', UPDATE_CACHE_TIMEOUT=160876)
+@override_settings(UPDATE_REPO_URL='https://localhost/unittest/releases', UPDATE_CACHE_TIMEOUT=160876)
 class GetReleasesTestCase(SimpleTestCase):
     @patch.object(requests, 'get')
     @patch.object(RedisCache, 'set')
@@ -83,7 +83,7 @@ class GetReleasesTestCase(SimpleTestCase):
 
         # Check if result is put in cache
         dummy_cache_set.assert_called_once()
-        dummy_cache_set.assert_called_with('latest_release', releases, 160876)
+        dummy_cache_set.assert_called_with('latest_release', max(releases), 160876)
 
     @patch.object(requests, 'get')
     @patch.object(RedisCache, 'set')
@@ -109,7 +109,7 @@ class GetReleasesTestCase(SimpleTestCase):
 
         # Check if result is put in cache
         dummy_cache_set.assert_called_once()
-        dummy_cache_set.assert_called_with('latest_release', releases, 160876)
+        dummy_cache_set.assert_called_with('latest_release', max(releases), 160876)
 
     @patch.object(requests, 'get')
     @patch.object(RedisCache, 'set')
