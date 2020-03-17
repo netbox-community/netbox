@@ -18,15 +18,20 @@ class PluginTemplateContent:
     """
     model = None
 
-    def __init__(self, obj):
+    def __init__(self, obj, context):
         self.obj = obj
+        self.context = context
 
     def render(self, template, extra_context=None):
         """
         Convenience menthod for rendering the provided template name. The detail page object is automatically
-        passed into the template context as `obj` but an additional context dictionary may be passed as `extra_context`.
+        passed into the template context as `obj` and the origional detail page's context is available as
+        `obj_context`. An additional context dictionary may be passed as `extra_context`.
         """
-        context = {'obj': self.obj}
+        context = {
+            'obj': self.obj,
+            'obj_context': self.context
+        }
         if isinstance(extra_context, dict):
             context.update(extra_context)
 
