@@ -75,11 +75,10 @@ class GetReleasesTestCase(SimpleTestCase):
         ])
 
         # Check if correct request is made
-        dummy_request_get.assert_called_once()
-        dummy_request_get.assert_called_with('https://localhost/unittest/releases',
-                                             headers={
-                                                 'Accept': 'application/vnd.github.v3+json'
-                                             })
+        dummy_request_get.assert_called_once_with(
+            'https://localhost/unittest/releases',
+            headers={'Accept': 'application/vnd.github.v3+json'}
+        )
 
         # Check if result is put in cache
         dummy_cache_set.assert_called_once()
@@ -101,11 +100,10 @@ class GetReleasesTestCase(SimpleTestCase):
         ])
 
         # Check if correct request is made
-        dummy_request_get.assert_called_once()
-        dummy_request_get.assert_called_with('https://localhost/unittest/releases',
-                                             headers={
-                                                 'Accept': 'application/vnd.github.v3+json'
-                                             })
+        dummy_request_get.assert_called_once_with(
+            'https://localhost/unittest/releases',
+            headers={'Accept': 'application/vnd.github.v3+json'}
+        )
 
         # Check if result is put in cache
         dummy_cache_set.assert_called_once()
@@ -131,11 +129,10 @@ class GetReleasesTestCase(SimpleTestCase):
         self.assertListEqual(releases, [])
 
         # Check if correct request is made
-        dummy_request_get.assert_called_once()
-        dummy_request_get.assert_called_with('https://localhost/unittest/releases',
-                                             headers={
-                                                 'Accept': 'application/vnd.github.v3+json'
-                                             })
+        dummy_request_get.assert_called_once_with(
+            'https://localhost/unittest/releases',
+            headers={'Accept': 'application/vnd.github.v3+json'}
+        )
 
         # Check if failure is put in cache
         dummy_cache_set.assert_called_once()
