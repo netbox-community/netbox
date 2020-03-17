@@ -1,12 +1,17 @@
 import collections
+import importlib
 import inspect
 
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import get_template
 
 from extras.utils import registry
-from .signals import register_detail_page_content_classes
+from .signals import register_detail_page_content_classes, register_nav_menu_link_classes
 
+
+#
+# Template content injection
+#
 
 class PluginTemplateContent:
     """
@@ -68,6 +73,9 @@ class PluginTemplateContent:
 
 
 def register_content_classes():
+    """
+    Helper method that populates the registry with all template content classes that have been registered by plugins
+    """
     registry.plugin_template_content_classes = collections.defaultdict(list)
 
     responses = register_detail_page_content_classes.send('registration_event')
@@ -86,7 +94,86 @@ def register_content_classes():
 
 
 def get_content_classes(model):
+    """
+    Given a model string, return the list of all registered template content classes.
+    Populate the registry if it is empty.
+    """
     if not hasattr(registry, 'plugin_template_content_classes'):
         register_content_classes()
 
     return registry.plugin_template_content_classes.get(model, [])
+
+
+#
+# Nav menu links
+#
+
+class PluginNavMenuLink:
+    """
+    This class represents a nav menu item. This constitutes primary link and its text, but also allows for
+    specifying additional link buttons that appear to the right of the item in the van menu.
+
+    Links are specified as Django reverse URL strings.
+    Buttons are each specified as a list of PluginNavMenuButton instances.
+    """
+    link = None
+    link_text = None
+    link_permission = None
+    buttons = []
+
+
+class PluginNavMenuButton:
+    """
+    This class represents a button which is a part of the nav menu link item.
+    Note that button colors should come from ButtonColorChoices
+    """
+    def __init__(self, link, title, icon_class, color, permission=None):
+        self.link = link
+        self.title = title
+        self.icon_class = icon_class
+        self.color = color
+        self.permission = permission
+
+
+def register_nav_menu_links():
+    """
+    Helper method that populates the registry with all nav menu link classes that have been registered by plugins
+    """
+    registry.plugin_nav_menu_link_classes = {}
+
+    responses = register_nav_menu_link_classes.send('registration_event')
+    for receiver, response in responses:
+
+        # Import the app config for the plugin to get the name to be used as the nav menu section text
+        module = importlib.import_module(receiver.__module__.split('.')[0])
+        default_app_config = getattr(module, 'default_app_config')
+        module, app_config = default_app_config.rsplit('.', 1)
+        app_config = getattr(importlib.import_module(module), app_config)
+        section_name = app_config.NetBoxPluginMeta.name
+
+        if not isinstance(response, list):
+            response = [response]
+        for link_class in response:
+            if not inspect.isclass(link_class):
+                raise TypeError('Plugin nav menu link class {} was passes as an instance!'.format(link_class))
+            if not issubclass(link_class, PluginNavMenuLink):
+                raise TypeError('{} is not a subclass of extras.plugins.PluginNavMenuLink!'.format(link_class))
+            if link_class.link is None or link_class.link_text is None:
+                raise TypeError('Plugin nav menu link {} must specify at least link and link_text'.format(link_class))
+
+            for button in link_class.buttons:
+                if not isinstance(button, PluginNavMenuButton):
+                    raise TypeError('{} must be an instance of PluginNavMenuButton!'.format(button))
+
+        registry.plugin_nav_menu_link_classes[section_name] = response
+
+
+def get_nav_menu_link_classes():
+    """
+    Return the list of all registered nav menu link classes.
+    Populate the registry if it is empty.
+    """
+    if not hasattr(registry, 'plugin_nav_menu_link_classes'):
+        register_nav_menu_links()
+
+    return registry.plugin_nav_menu_link_classes

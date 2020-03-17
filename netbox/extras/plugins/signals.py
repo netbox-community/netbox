@@ -27,8 +27,16 @@ class PluginSignal(django.dispatch.Signal):
 
 
 """
-This signal collects templates which render content for object detail pages
+This signal collects template content classes which render content for object detail pages
 """
 register_detail_page_content_classes = PluginSignal(
+    providing_args=[]
+)
+
+
+"""
+This signal collects nav menu link classes
+"""
+register_nav_menu_link_classes = PluginSignal(
     providing_args=[]
 )

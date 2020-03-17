@@ -504,6 +504,9 @@
                         </li>
                     </ul>
                 </li>
+                {% if plugin_nav_menu_links %}
+                    {% include 'inc/plugin_nav_menu_items.html' %}
+                {% endif %}
             </ul>
             {% endif %}
             <ul class="nav navbar-nav navbar-right">
