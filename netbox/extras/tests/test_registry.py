@@ -22,12 +22,12 @@ class RegistryTest(TestCase):
         reg = Registry()
         reg['foo'] = 123
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(KeyError):
             reg['foo'] = 456
 
     def test_delete_store(self):
         reg = Registry()
         reg['foo'] = 123
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(TypeError):
             del(reg['foo'])
