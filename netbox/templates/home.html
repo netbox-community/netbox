@@ -1,6 +1,19 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
+{% block header %}
+    {{ block.super }}
+    {% if new_release %}
+        {# new_release is set only if the current user is a superuser or staff member #}
+        <div class="alert alert-info text-center" role="alert">
+            <i class="fa fa-info-circle"></i>
+            A new release is available: <a href="{{ new_release.url }}">NetBox v{{ new_release.version }}</a> |
+            <a href="https://netbox.readthedocs.io/en/stable/installation/upgrading/">Upgrade instructions</a>
+        </div>
+    {% endif %}
+{% endblock %}
+
+
 {% block content %}
 {% include 'search_form.html' %}
 <div class="row">
