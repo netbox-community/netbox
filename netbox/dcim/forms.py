@@ -378,7 +378,8 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
         queryset=Site.objects.all()
     )
     parent = DynamicModelChoiceField(
-        queryset=RackGroup.objects.all()
+        queryset=RackGroup.objects.all(),
+        required=False
     )
     slug = SlugField()
 
