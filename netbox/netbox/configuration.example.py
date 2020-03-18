@@ -22,7 +22,7 @@ DATABASE = {
 }
 
 # Redis database settings. The Redis database is used for caching and background processing such as webhooks
-# Seperate sections for webhooks and caching allow for connecting to seperate Redis instances/datbases if desired.
+# Seperate sections for webhooks and caching allow for connecting to seperate Redis instances/databases if desired.
 # Full connection details are required in both sections, even if they are the same.
 REDIS = {
     'webhooks': {
