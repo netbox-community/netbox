@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
-from pkg_resources import iter_entry_points
+from pkg_resources import iter_entry_points, parse_version
 
 
 #
@@ -645,6 +645,7 @@ if PLUGINS_ENABLED:
         PLUGINS.append(plugin)
         INSTALLED_APPS.append(plugin)
 
+        # Import the app config and locate the inner meta class
         try:
             module = importlib.import_module(plugin)
             default_app_config = getattr(module, 'default_app_config')
@@ -659,18 +660,22 @@ if PLUGINS_ENABLED:
                 'The app config for plugin {} does not contain an inner meta class'.format(plugin)
             )
 
+        # Check version contraints
+        min_version = getattr(app_config_meta, 'min_version', None)
+        max_version = getattr(app_config_meta, 'max_version', None)
+        parsed_min_version = parse_version(min_version or VERSION)
+        parsed_max_version = parse_version(max_version or VERSION)
+        if min_version and max_version and parsed_min_version > parsed_max_version:
+            raise ImproperlyConfigured('Plugin {} specifies invalid version contraints!'.format(plugin))
+        if min_version and parsed_min_version > parse_version(VERSION):
+            raise ImproperlyConfigured('Plugin {} requires NetBox minimum version {}!'.format(plugin, min_version))
+        if max_version and parsed_max_version < parse_version(VERSION):
+            raise ImproperlyConfigured('Plugin {} requires NetBox maximum version {}!'.format(plugin, max_version))
+
         # Add middleware
         plugin_middleware = getattr(app_config_meta, 'middleware', [])
         if plugin_middleware and isinstance(plugin_middleware, list):
             MIDDLEWARE.extend(plugin_middleware)
-        plugin_middleware_prepend = getattr(app_config_meta, 'middleware_prepend', [])
-        if plugin_middleware_prepend and isinstance(plugin_middleware_prepend, list):
-            MIDDLEWARE[:0] = plugin_middleware_prepend
-
-        # Add installed apps
-        plugin_installed_apps = getattr(app_config_meta, 'installed_apps', [])
-        if plugin_installed_apps and isinstance(plugin_installed_apps, list):
-            INSTALLED_APPS.extend(plugin_installed_apps)
 
         # Verify required configuration settings
         if plugin not in PLUGINS_CONFIG:
@@ -688,3 +693,18 @@ if PLUGINS_ENABLED:
         for setting, value in getattr(app_config_meta, 'default_settings', {}).items():
             if setting not in PLUGINS_CONFIG[plugin]:
                 PLUGINS_CONFIG[plugin][setting] = value
+
+        # Apply cacheops config
+        plugin_cacheops = getattr(app_config_meta, 'caching_config', {})
+        if plugin_cacheops and isinstance(plugin_cacheops, dict):
+            for key in plugin_cacheops.keys():
+                # Validate config is only being set for the given plugin
+                try:
+                    app = key.split('.')[0]
+                except IndexError:
+                    raise ImproperlyConfigured('Plugin {} caching_config is invalid!'.format(plugin))
+                if app != plugin:
+                    raise ImproperlyConfigured(
+                        'Plugin {} may not modify caching config for another app!'.format(plugin)
+                    )
+        CACHEOPS.update(plugin_cacheops)

@@ -5,7 +5,7 @@ import inspect
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import get_template
 
-from extras.utils import registry
+from extras.registry import registry
 from .signals import register_detail_page_content_classes, register_nav_menu_link_classes
 
 
@@ -76,7 +76,7 @@ def register_content_classes():
     """
     Helper method that populates the registry with all template content classes that have been registered by plugins
     """
-    registry.plugin_template_content_classes = collections.defaultdict(list)
+    registry['plugin_template_content_classes'] = collections.defaultdict(list)
 
     responses = register_detail_page_content_classes.send('registration_event')
     for receiver, response in responses:
@@ -90,7 +90,7 @@ def register_content_classes():
             if template_class.model is None:
                 raise TypeError('Plugin content class {} does not define a valid model!'.format(template_class))
 
-            registry.plugin_template_content_classes[template_class.model].append(template_class)
+            registry['plugin_template_content_classes'][template_class.model].append(template_class)
 
 
 def get_content_classes(model):
@@ -98,10 +98,10 @@ def get_content_classes(model):
     Given a model string, return the list of all registered template content classes.
     Populate the registry if it is empty.
     """
-    if not hasattr(registry, 'plugin_template_content_classes'):
+    if 'plugin_template_content_classes' not in registry:
         register_content_classes()
 
-    return registry.plugin_template_content_classes.get(model, [])
+    return registry['plugin_template_content_classes'].get(model, [])
 
 
 #
@@ -139,7 +139,7 @@ def register_nav_menu_links():
     """
     Helper method that populates the registry with all nav menu link classes that have been registered by plugins
     """
-    registry.plugin_nav_menu_link_classes = {}
+    registry['plugin_nav_menu_link_classes'] = {}
 
     responses = register_nav_menu_link_classes.send('registration_event')
     for receiver, response in responses:
@@ -165,7 +165,7 @@ def register_nav_menu_links():
                 if not isinstance(button, PluginNavMenuButton):
                     raise TypeError('{} must be an instance of PluginNavMenuButton!'.format(button))
 
-        registry.plugin_nav_menu_link_classes[section_name] = response
+        registry['plugin_nav_menu_link_classes'][section_name] = response
 
 
 def get_nav_menu_link_classes():
@@ -173,7 +173,7 @@ def get_nav_menu_link_classes():
     Return the list of all registered nav menu link classes.
     Populate the registry if it is empty.
     """
-    if not hasattr(registry, 'plugin_nav_menu_link_classes'):
+    if 'plugin_nav_menu_link_classes' not in registry:
         register_nav_menu_links()
 
-    return registry.plugin_nav_menu_link_classes
+    return registry['plugin_nav_menu_link_classes']
