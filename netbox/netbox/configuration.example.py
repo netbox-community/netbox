@@ -179,6 +179,14 @@ PAGINATE_COUNT = 50
 # prefer IPv4 instead.
 PREFER_IPV4 = False
 
+# This determines how often the GitHub API is called to check the latest release of NetBox. Must be at least 1 hour.
+RELEASE_CHECK_TIMEOUT = 24 * 3600
+
+# This repository is used to check whether there is a new release of NetBox available. Set to None to disable the
+# version check or use the URL below to check for release in the official NetBox repository.
+RELEASE_CHECK_URL = None
+# RELEASE_CHECK_URL = 'https://api.github.com/repos/netbox-community/netbox/releases'
+
 # The file path where custom reports will be stored. A trailing slash is not needed. Note that the default value of
 # this setting is derived from the installed location.
 # REPORTS_ROOT = '/opt/netbox/netbox/reports'
@@ -194,14 +202,6 @@ SESSION_FILE_PATH = None
 
 # Time zone (default: UTC)
 TIME_ZONE = 'UTC'
-
-# This determines how often the GitHub API is called to check the latest release of NetBox. Must be at least 1 hour.
-UPDATE_CACHE_TIMEOUT = 24 * 3600
-
-# This repository is used to check whether there is a new release of NetBox available. Set to None to disable the
-# version check or use the URL below to check for release in the official NetBox repository.
-UPDATE_REPO_URL = None
-# UPDATE_REPO_URL = 'https://api.github.com/repos/netbox-community/netbox/releases'
 
 # Date/time formatting. See the following link for supported formats:
 # https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date

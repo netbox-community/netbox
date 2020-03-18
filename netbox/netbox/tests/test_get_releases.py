@@ -56,7 +56,7 @@ def unsuccessful_github_response(url, *_args, **_kwargs):
     return r
 
 
-@override_settings(UPDATE_REPO_URL='https://localhost/unittest/releases', UPDATE_CACHE_TIMEOUT=160876)
+@override_settings(RELEASE_CHECK_URL='https://localhost/unittest/releases', RELEASE_CHECK_TIMEOUT=160876)
 class GetReleasesTestCase(SimpleTestCase):
     @patch.object(requests, 'get')
     @patch.object(RedisCache, 'set')

@@ -299,6 +299,24 @@ When determining the primary IP address for a device, IPv6 is preferred over IPv
 
 ---
 
+## RELEASE_CHECK_TIMEOUT
+
+Default: 86,400 (24 hours)
+
+The number of seconds to retain the latest version that is fetched from the GitHub API before automatically invalidating it and fetching it from the API again. This must be set to at least one hour (3600 seconds).
+
+---
+
+## RELEASE_CHECK_URL
+
+Default: None
+
+The releases of this repository are checked to detect new releases, which are shown on the home page of the web interface. You can change this to your own fork of the NetBox repository, or set it to `None` to disable the check. The URL provided **must** be compatible with the GitHub API.
+
+Use `'https://api.github.com/repos/netbox-community/netbox/releases'` to check for release in the official NetBox repository.
+
+---
+
 ## REPORTS_ROOT
 
 Default: $BASE_DIR/netbox/reports/
@@ -348,24 +366,6 @@ If `STORAGE_BACKEND` is not defined, this setting will be ignored.
 Default: UTC
 
 The time zone NetBox will use when dealing with dates and times. It is recommended to use UTC time unless you have a specific need to use a local time zone. [List of available time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
-
----
-
-## UPDATE_CACHE_TIMEOUT
-
-Default: 86,400 (24 hours)
-
-The number of seconds to retain the latest version that is fetched from the GitHub API before automatically invalidating it and fetching it from the API again. This must be set to at least one hour (3600 seconds).
-
----
-
-## UPDATE_REPO_URL
-
-Default: None
-
-The releases of this repository are checked to detect new releases, which are shown on the home page of the web interface. You can change this to your own fork of the NetBox repository, or set it to `None` to disable the check. The URL provided **must** be compatible with the GitHub API.
-
-Use `'https://api.github.com/repos/netbox-community/netbox/releases'` to check for release in the official NetBox repository.
 
 ---
 

@@ -12,7 +12,7 @@ logger = logging.getLogger('netbox.releases')
 
 @job('check_releases')
 def get_releases(pre_releases=False):
-    url = settings.UPDATE_REPO_URL
+    url = settings.RELEASE_CHECK_URL
     headers = {
         'Accept': 'application/vnd.github.v3+json',
     }
@@ -21,7 +21,7 @@ def get_releases(pre_releases=False):
     # Check whether this URL has failed recently and shouldn't be retried yet
     try:
         if url == cache.get('latest_release_no_retry'):
-            logger.debug("Skipping release check; URL failed recently: {}".format(url))
+            logger.info("Skipping release check; URL failed recently: {}".format(url))
             return []
     except CacheMiss:
         pass
@@ -47,6 +47,6 @@ def get_releases(pre_releases=False):
         return []
 
     # Cache the most recent release
-    cache.set('latest_release', max(releases), settings.UPDATE_CACHE_TIMEOUT)
+    cache.set('latest_release', max(releases), settings.RELEASE_CHECK_TIMEOUT)
 
     return releases

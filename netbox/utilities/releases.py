@@ -10,7 +10,7 @@ logger = logging.getLogger('netbox.releases')
 
 
 def get_latest_release(pre_releases=False):
-    if settings.UPDATE_REPO_URL:
+    if settings.RELEASE_CHECK_URL:
         logger.debug("Checking for most recent release")
         try:
             latest_release = cache.get('latest_release')
@@ -21,13 +21,13 @@ def get_latest_release(pre_releases=False):
             # Check for an existing job. This can happen if the RQ worker process is not running.
             queue = get_queue('check_releases')
             if queue.jobs:
-                logger.debug("Job to check for new releases is already queued; skipping")
+                logger.warning("Job to check for new releases is already queued; skipping")
             else:
                 # Get the releases in the background worker, it will fill the cache
-                logger.debug("Initiating background task to retrieve updated releases list")
+                logger.info("Initiating background task to retrieve updated releases list")
                 get_releases.delay(pre_releases=pre_releases)
 
     else:
-        logger.debug("Skipping release check; UPDATE_REPO_URL not defined")
+        logger.debug("Skipping release check; RELEASE_CHECK_URL not defined")
 
     return 'unknown', None

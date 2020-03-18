@@ -97,6 +97,8 @@ NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
 NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
 PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
+RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
+RELEASE_CHECK_TIMEOUT = getattr(configuration, 'RELEASE_CHECK_TIMEOUT', 24 * 3600)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
 SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
@@ -105,22 +107,20 @@ SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
-UPDATE_REPO_URL = getattr(configuration, 'UPDATE_REPO_URL', None)
-UPDATE_CACHE_TIMEOUT = getattr(configuration, 'UPDATE_CACHE_TIMEOUT', 24 * 3600)
 
 # Validate update repo URL and timeout
-if UPDATE_REPO_URL:
+if RELEASE_CHECK_URL:
     try:
-        URLValidator(UPDATE_REPO_URL)
+        URLValidator(RELEASE_CHECK_URL)
     except ValidationError:
         raise ImproperlyConfigured(
-            "UPDATE_REPO_URL must be a valid API URL. Example: "
+            "RELEASE_CHECK_URL must be a valid API URL. Example: "
             "https://api.github.com/repos/netbox-community/netbox"
         )
 
 # Enforce a minimum cache timeout for update checks
-if UPDATE_CACHE_TIMEOUT < 3600:
-    raise ImproperlyConfigured("UPDATE_CACHE_TIMEOUT has to be at least 3600 seconds (1 hour)")
+if RELEASE_CHECK_TIMEOUT < 3600:
+    raise ImproperlyConfigured("RELEASE_CHECK_TIMEOUT has to be at least 3600 seconds (1 hour)")
 
 
 #
@@ -576,16 +576,7 @@ SWAGGER_SETTINGS = {
 # Django RQ (Webhooks backend)
 #
 
-if not TASKS_REDIS_USING_SENTINEL:
-    RQ_PARAMS = {
-        'HOST': TASKS_REDIS_HOST,
-        'PORT': TASKS_REDIS_PORT,
-        'DB': TASKS_REDIS_DATABASE,
-        'PASSWORD': TASKS_REDIS_PASSWORD,
-        'DEFAULT_TIMEOUT': TASKS_REDIS_DEFAULT_TIMEOUT,
-        'SSL': TASKS_REDIS_SSL,
-    }
-else:
+if TASKS_REDIS_USING_SENTINEL:
     RQ_PARAMS = {
         'SENTINELS': TASKS_REDIS_SENTINELS,
         'MASTER_NAME': TASKS_REDIS_SENTINEL_SERVICE,
@@ -595,6 +586,15 @@ else:
         'CONNECTION_KWARGS': {
             'socket_connect_timeout': TASKS_REDIS_DEFAULT_TIMEOUT
         },
+    }
+else:
+    RQ_PARAMS = {
+        'HOST': TASKS_REDIS_HOST,
+        'PORT': TASKS_REDIS_PORT,
+        'DB': TASKS_REDIS_DATABASE,
+        'PASSWORD': TASKS_REDIS_PASSWORD,
+        'DEFAULT_TIMEOUT': TASKS_REDIS_DEFAULT_TIMEOUT,
+        'SSL': TASKS_REDIS_SSL,
     }
 
 RQ_QUEUES = {
