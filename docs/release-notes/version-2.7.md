@@ -9,6 +9,7 @@
 * [#4369](https://github.com/netbox-community/netbox/issues/4369) - Add a dedicated view for rack reservations
 * [#4380](https://github.com/netbox-community/netbox/issues/4380) - Enable webhooks for rack reservations
 * [#4381](https://github.com/netbox-community/netbox/issues/4381) - Enable export templates for rack reservations
+* [#4382](https://github.com/netbox-community/netbox/issues/4382) - Enable custom links for rack reservations
 
 ### Bug Fixes
 
