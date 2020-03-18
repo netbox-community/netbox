@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#738](https://github.com/netbox-community/netbox/issues/738) - Add ability to automatically check for new releases (must be enabled by setting `RELEASE_CHECK_URL`)
 * [#4309](https://github.com/netbox-community/netbox/issues/4309) - Add descriptive tooltip to custom fields on object views
 * [#4369](https://github.com/netbox-community/netbox/issues/4369) - Add a dedicated view for rack reservations
 
