@@ -355,6 +355,24 @@ The list of permissions to assign a new user account when created using remote a
 
 ---
 
+## RELEASE_CHECK_TIMEOUT
+
+Default: 86,400 (24 hours)
+
+The number of seconds to retain the latest version that is fetched from the GitHub API before automatically invalidating it and fetching it from the API again. This must be set to at least one hour (3600 seconds).
+
+---
+
+## RELEASE_CHECK_URL
+
+Default: None
+
+The releases of this repository are checked to detect new releases, which are shown on the home page of the web interface. You can change this to your own fork of the NetBox repository, or set it to `None` to disable the check. The URL provided **must** be compatible with the GitHub API.
+
+Use `'https://api.github.com/repos/netbox-community/netbox/releases'` to check for release in the official NetBox repository.
+
+---
+
 ## REPORTS_ROOT
 
 Default: $BASE_DIR/netbox/reports/

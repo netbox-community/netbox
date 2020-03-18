@@ -172,7 +172,7 @@ Redis is a in-memory key-value store required as part of the NetBox installation
 
 ```python
 REDIS = {
-    'webhooks': {
+    'tasks': {
         'HOST': 'redis.example.com',
         'PORT': 1234,
         'PASSWORD': 'foobar',

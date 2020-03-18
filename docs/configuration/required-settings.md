@@ -46,9 +46,9 @@ DATABASE = {
 [Redis](https://redis.io/) is an in-memory data store similar to memcached. While Redis has been an optional component of
 NetBox since the introduction of webhooks in version 2.4, it is required starting in 2.6 to support NetBox's caching
 functionality (as well as other planned features). In 2.7, the connection settings were broken down into two sections for
-webhooks and caching, allowing the user to connect to different Redis instances/databases per feature.
+task queuing and caching, allowing the user to connect to different Redis instances/databases per feature.
 
-Redis is configured using a configuration setting similar to `DATABASE` and these settings are the same for both of the `webhooks` and `caching` subsections:
+Redis is configured using a configuration setting similar to `DATABASE` and these settings are the same for both of the `tasks` and `caching` subsections:
 
 * `HOST` - Name or IP address of the Redis server (use `localhost` if running locally)
 * `PORT` - TCP port of the Redis service; leave blank for default port (6379)
@@ -61,7 +61,7 @@ Example:
 
 ```python
 REDIS = {
-    'webhooks': {
+    'tasks': {
         'HOST': 'redis.example.com',
         'PORT': 1234,
         'PASSWORD': 'foobar',
@@ -84,9 +84,9 @@ REDIS = {
     If you are upgrading from a version prior to v2.7, please note that the Redis connection configuration settings have
     changed. Manual modification to bring the `REDIS` section inline with the above specification is necessary
 
-!!! note
-    It is highly recommended to keep the webhook and cache databases separate. Using the same database number on the
-    same Redis instance for both may result in webhook processing data being lost during cache flushing events.
+!!! warning
+    It is highly recommended to keep the task and cache databases separate. Using the same database number on the
+    same Redis instance for both may result in queued background tasks being lost during cache flushing events.
 
 ### Using Redis Sentinel
 
@@ -102,7 +102,7 @@ Example:
 
 ```python
 REDIS = {
-    'webhooks': {
+    'tasks': {
         'SENTINELS': [('mysentinel.redis.example.com', 6379)],
         'SENTINEL_SERVICE': 'netbox',
         'PASSWORD': '',
@@ -126,7 +126,7 @@ REDIS = {
 
 !!! note
     It is possible to have only one or the other Redis configurations to use Sentinel functionality. It is possible
-    for example to have the webhook use sentinel via `HOST`/`PORT` and for caching to use Sentinel via 
+    for example to have the tasks database use sentinel via `HOST`/`PORT` and for caching to use Sentinel via
     `SENTINELS`/`SENTINEL_SERVICE`.
 
 
