@@ -1,11 +1,14 @@
 import logging
 import os
 import platform
+import re
 import socket
 import warnings
+from urllib.parse import urlsplit
 
 from django.contrib.messages import constants as messages
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.core.validators import URLValidator
 
 
 #
@@ -94,6 +97,8 @@ REMOTE_AUTH_DEFAULT_GROUPS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_GROUPS'
 REMOTE_AUTH_DEFAULT_PERMISSIONS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_PERMISSIONS', [])
 REMOTE_AUTH_ENABLED = getattr(configuration, 'REMOTE_AUTH_ENABLED', False)
 REMOTE_AUTH_HEADER = getattr(configuration, 'REMOTE_AUTH_HEADER', 'HTTP_REMOTE_USER')
+RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
+RELEASE_CHECK_TIMEOUT = getattr(configuration, 'RELEASE_CHECK_TIMEOUT', 24 * 3600)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
 SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
@@ -102,6 +107,20 @@ SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
+
+# Validate update repo URL and timeout
+if RELEASE_CHECK_URL:
+    try:
+        URLValidator(RELEASE_CHECK_URL)
+    except ValidationError:
+        raise ImproperlyConfigured(
+            "RELEASE_CHECK_URL must be a valid API URL. Example: "
+            "https://api.github.com/repos/netbox-community/netbox"
+        )
+
+# Enforce a minimum cache timeout for update checks
+if RELEASE_CHECK_TIMEOUT < 3600:
+    raise ImproperlyConfigured("RELEASE_CHECK_TIMEOUT has to be at least 3600 seconds (1 hour)")
 
 
 #
@@ -159,31 +178,40 @@ if STORAGE_CONFIG and STORAGE_BACKEND is None:
 # Redis
 #
 
-if 'webhooks' not in REDIS:
-    raise ImproperlyConfigured(
-        "REDIS section in configuration.py is missing webhooks subsection."
+# Background task queuing
+if 'tasks' in REDIS:
+    TASKS_REDIS = REDIS['tasks']
+elif 'webhooks' in REDIS:
+    # TODO: Remove support for 'webhooks' name in v2.9
+    warnings.warn(
+        "The 'webhooks' REDIS configuration section has been renamed to 'tasks'. Please update your configuration as "
+        "support for the old name will be removed in a future release."
     )
-if 'caching' not in REDIS:
+    TASKS_REDIS = REDIS['webhooks']
+else:
+    raise ImproperlyConfigured(
+        "REDIS section in configuration.py is missing the 'tasks' subsection."
+    )
+TASKS_REDIS_HOST = TASKS_REDIS.get('HOST', 'localhost')
+TASKS_REDIS_PORT = TASKS_REDIS.get('PORT', 6379)
+TASKS_REDIS_SENTINELS = TASKS_REDIS.get('SENTINELS', [])
+TASKS_REDIS_USING_SENTINEL = all([
+    isinstance(TASKS_REDIS_SENTINELS, (list, tuple)),
+    len(TASKS_REDIS_SENTINELS) > 0
+])
+TASKS_REDIS_SENTINEL_SERVICE = TASKS_REDIS.get('SENTINEL_SERVICE', 'default')
+TASKS_REDIS_PASSWORD = TASKS_REDIS.get('PASSWORD', '')
+TASKS_REDIS_DATABASE = TASKS_REDIS.get('DATABASE', 0)
+TASKS_REDIS_DEFAULT_TIMEOUT = TASKS_REDIS.get('DEFAULT_TIMEOUT', 300)
+TASKS_REDIS_SSL = TASKS_REDIS.get('SSL', False)
+
+# Caching
+if 'caching' in REDIS:
+    CACHING_REDIS = REDIS['caching']
+else:
     raise ImproperlyConfigured(
         "REDIS section in configuration.py is missing caching subsection."
     )
-
-WEBHOOKS_REDIS = REDIS.get('webhooks', {})
-WEBHOOKS_REDIS_HOST = WEBHOOKS_REDIS.get('HOST', 'localhost')
-WEBHOOKS_REDIS_PORT = WEBHOOKS_REDIS.get('PORT', 6379)
-WEBHOOKS_REDIS_SENTINELS = WEBHOOKS_REDIS.get('SENTINELS', [])
-WEBHOOKS_REDIS_USING_SENTINEL = all([
-    isinstance(WEBHOOKS_REDIS_SENTINELS, (list, tuple)),
-    len(WEBHOOKS_REDIS_SENTINELS) > 0
-])
-WEBHOOKS_REDIS_SENTINEL_SERVICE = WEBHOOKS_REDIS.get('SENTINEL_SERVICE', 'default')
-WEBHOOKS_REDIS_PASSWORD = WEBHOOKS_REDIS.get('PASSWORD', '')
-WEBHOOKS_REDIS_DATABASE = WEBHOOKS_REDIS.get('DATABASE', 0)
-WEBHOOKS_REDIS_DEFAULT_TIMEOUT = WEBHOOKS_REDIS.get('DEFAULT_TIMEOUT', 300)
-WEBHOOKS_REDIS_SSL = WEBHOOKS_REDIS.get('SSL', False)
-
-
-CACHING_REDIS = REDIS.get('caching', {})
 CACHING_REDIS_HOST = CACHING_REDIS.get('HOST', 'localhost')
 CACHING_REDIS_PORT = CACHING_REDIS.get('PORT', 6379)
 CACHING_REDIS_SENTINELS = CACHING_REDIS.get('SENTINELS', [])
@@ -238,7 +266,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'debug_toolbar',
     'django_filters',
-    'django_rq',
     'django_tables2',
     'django_prometheus',
     'mptt',
@@ -255,6 +282,7 @@ INSTALLED_APPS = [
     'users',
     'utilities',
     'virtualization',
+    'django_rq',  # Must come after extras to allow overriding management commands
     'drf_yasg',
 ]
 
@@ -549,26 +577,31 @@ SWAGGER_SETTINGS = {
 # Django RQ (Webhooks backend)
 #
 
-RQ_QUEUES = {
-    'default': {
-        'HOST': WEBHOOKS_REDIS_HOST,
-        'PORT': WEBHOOKS_REDIS_PORT,
-        'DB': WEBHOOKS_REDIS_DATABASE,
-        'PASSWORD': WEBHOOKS_REDIS_PASSWORD,
-        'DEFAULT_TIMEOUT': WEBHOOKS_REDIS_DEFAULT_TIMEOUT,
-        'SSL': WEBHOOKS_REDIS_SSL,
-    } if not WEBHOOKS_REDIS_USING_SENTINEL else {
-        'SENTINELS': WEBHOOKS_REDIS_SENTINELS,
-        'MASTER_NAME': WEBHOOKS_REDIS_SENTINEL_SERVICE,
-        'DB': WEBHOOKS_REDIS_DATABASE,
-        'PASSWORD': WEBHOOKS_REDIS_PASSWORD,
+if TASKS_REDIS_USING_SENTINEL:
+    RQ_PARAMS = {
+        'SENTINELS': TASKS_REDIS_SENTINELS,
+        'MASTER_NAME': TASKS_REDIS_SENTINEL_SERVICE,
+        'DB': TASKS_REDIS_DATABASE,
+        'PASSWORD': TASKS_REDIS_PASSWORD,
         'SOCKET_TIMEOUT': None,
         'CONNECTION_KWARGS': {
-            'socket_connect_timeout': WEBHOOKS_REDIS_DEFAULT_TIMEOUT
+            'socket_connect_timeout': TASKS_REDIS_DEFAULT_TIMEOUT
         },
     }
-}
+else:
+    RQ_PARAMS = {
+        'HOST': TASKS_REDIS_HOST,
+        'PORT': TASKS_REDIS_PORT,
+        'DB': TASKS_REDIS_DATABASE,
+        'PASSWORD': TASKS_REDIS_PASSWORD,
+        'DEFAULT_TIMEOUT': TASKS_REDIS_DEFAULT_TIMEOUT,
+        'SSL': TASKS_REDIS_SSL,
+    }
 
+RQ_QUEUES = {
+    'default': RQ_PARAMS,  # Webhooks
+    'check_releases': RQ_PARAMS,
+}
 
 #
 # Django debug toolbar

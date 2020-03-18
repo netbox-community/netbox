@@ -21,11 +21,11 @@ DATABASE = {
     'CONN_MAX_AGE': 300,      # Max database connection age
 }
 
-# Redis database settings. The Redis database is used for caching and background processing such as webhooks
-# Seperate sections for webhooks and caching allow for connecting to seperate Redis instances/datbases if desired.
-# Full connection details are required in both sections, even if they are the same.
+# Redis database settings. Redis is used for caching and for queuing background tasks such as webhook events. A separate
+# configuration exists for each. Full connection details are required in both sections, and it is strongly recommended
+# to use two separate database IDs.
 REDIS = {
-    'webhooks': {
+    'tasks': {
         'HOST': 'localhost',
         'PORT': 6379,
         # Comment out `HOST` and `PORT` lines and uncomment the following if using Redis Sentinel
@@ -186,6 +186,14 @@ REMOTE_AUTH_HEADER = 'HTTP_REMOTE_USER'
 REMOTE_AUTH_AUTO_CREATE_USER = True
 REMOTE_AUTH_DEFAULT_GROUPS = []
 REMOTE_AUTH_DEFAULT_PERMISSIONS = []
+
+# This determines how often the GitHub API is called to check the latest release of NetBox. Must be at least 1 hour.
+RELEASE_CHECK_TIMEOUT = 24 * 3600
+
+# This repository is used to check whether there is a new release of NetBox available. Set to None to disable the
+# version check or use the URL below to check for release in the official NetBox repository.
+RELEASE_CHECK_URL = None
+# RELEASE_CHECK_URL = 'https://api.github.com/repos/netbox-community/netbox/releases'
 
 # The file path where custom reports will be stored. A trailing slash is not needed. Note that the default value of
 # this setting is derived from the installed location.

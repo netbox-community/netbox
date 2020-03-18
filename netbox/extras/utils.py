@@ -6,6 +6,7 @@ from taggit.managers import _TaggableManager
 from utilities.querysets import DummyQuerySet
 
 from extras.constants import EXTRAS_FEATURES
+from extras.registry import registry
 
 
 def is_taggable(obj):
@@ -21,33 +22,12 @@ def is_taggable(obj):
     return False
 
 
-#
-# Dynamic feature registration
-#
-
-class Registry:
-    """
-    The registry is a place to hook into for data storage across components
-    """
-
-    def add_store(self, store_name, initial_value=None):
-        """
-        Given the name of some new data parameter and an optional initial value, setup the registry store
-        """
-        if not hasattr(Registry, store_name):
-            setattr(Registry, store_name, initial_value)
-
-
-registry = Registry()
-
-
 @deconstructible
 class FeatureQuery:
     """
-    Helper class that delays evaluation of the registry contents for the functionaility store
+    Helper class that delays evaluation of the registry contents for the functionality store
     until it has been populated.
     """
-
     def __init__(self, feature):
         self.feature = feature
 
@@ -59,13 +39,10 @@ class FeatureQuery:
         Given an extras feature, return a Q object for content type lookup
         """
         query = Q()
-        for app_label, models in registry.model_feature_store[self.feature].items():
+        for app_label, models in registry['model_features'][self.feature].items():
             query |= Q(app_label=app_label, model__in=models)
 
         return query
-
-
-registry.add_store('model_feature_store', {f: collections.defaultdict(list) for f in EXTRAS_FEATURES})
 
 
 def extras_features(*features):
@@ -73,10 +50,15 @@ def extras_features(*features):
     Decorator used to register extras provided features to a model
     """
     def wrapper(model_class):
+        # Initialize the model_features store if not already defined
+        if 'model_features' not in registry:
+            registry['model_features'] = {
+                f: collections.defaultdict(list) for f in EXTRAS_FEATURES
+            }
         for feature in features:
             if feature in EXTRAS_FEATURES:
                 app_label, model_name = model_class._meta.label_lower.split('.')
-                registry.model_feature_store[feature][app_label].append(model_name)
+                registry['model_features'][feature][app_label].append(model_name)
             else:
                 raise ValueError('{} is not a valid extras feature!'.format(feature))
         return model_class

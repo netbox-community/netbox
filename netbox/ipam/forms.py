@@ -78,10 +78,7 @@ class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/tenancy/tenants/"
-        )
+        required=False
     )
     enforce_unique = forms.NullBooleanField(
         required=False,
@@ -150,10 +147,7 @@ class RIRFilterForm(BootstrapMixin, forms.Form):
 
 class AggregateForm(BootstrapMixin, CustomFieldModelForm):
     rir = DynamicModelChoiceField(
-        queryset=RIR.objects.all(),
-        widget=APISelect(
-            api_url="/api/ipam/rirs/"
-        )
+        queryset=RIR.objects.all()
     )
     tags = TagField(
         required=False
@@ -196,10 +190,7 @@ class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         required=False,
-        label='RIR',
-        widget=APISelect(
-            api_url="/api/ipam/rirs/"
-        )
+        label='RIR'
     )
     date_added = forms.DateField(
         required=False
@@ -236,7 +227,6 @@ class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False,
         label='RIR',
         widget=APISelectMultiple(
-            api_url="/api/ipam/rirs/",
             value_field="slug",
         )
     )
@@ -276,16 +266,12 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
-        widget=APISelect(
-            api_url="/api/ipam/vrfs/",
-        )
+        label='VRF'
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         widget=APISelect(
-            api_url="/api/dcim/sites/",
             filter_for={
                 'vlan_group': 'site_id',
                 'vlan': 'site_id',
@@ -300,7 +286,6 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         required=False,
         label='VLAN group',
         widget=APISelect(
-            api_url='/api/ipam/vlan-groups/',
             filter_for={
                 'vlan': 'group_id'
             },
@@ -314,16 +299,12 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         required=False,
         label='VLAN',
         widget=APISelect(
-            api_url='/api/ipam/vlans/',
             display_field='display_name'
         )
     )
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/ipam/roles/"
-        )
+        required=False
     )
     tags = TagField(required=False)
 
@@ -447,18 +428,12 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/dcim/sites/"
-        )
+        required=False
     )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
-        widget=APISelect(
-            api_url="/api/ipam/vrfs/"
-        )
+        label='VRF'
     )
     prefix_length = forms.IntegerField(
         min_value=PREFIX_LENGTH_MIN,
@@ -467,10 +442,7 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/tenancy/tenants/"
-        )
+        required=False
     )
     status = forms.ChoiceField(
         choices=add_blank_choice(PrefixStatusChoices),
@@ -479,10 +451,7 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
     )
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/ipam/roles/"
-        )
+        required=False
     )
     is_pool = forms.NullBooleanField(
         required=False,
@@ -536,7 +505,6 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         required=False,
         label='VRF',
         widget=APISelectMultiple(
-            api_url="/api/ipam/vrfs/",
             null_option=True,
         )
     )
@@ -550,7 +518,6 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url="/api/dcim/regions/",
             value_field="slug",
             filter_for={
                 'site': 'region'
@@ -562,7 +529,6 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url="/api/dcim/sites/",
             value_field="slug",
             null_option=True,
         )
@@ -572,7 +538,6 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url="/api/ipam/roles/",
             value_field="slug",
             null_option=True,
         )
@@ -603,17 +568,13 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
-        widget=APISelect(
-            api_url="/api/ipam/vrfs/"
-        )
+        label='VRF'
     )
     nat_site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         label='Site',
         widget=APISelect(
-            api_url="/api/dcim/sites/",
             filter_for={
                 'nat_rack': 'site_id',
                 'nat_device': 'site_id'
@@ -625,7 +586,6 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         required=False,
         label='Rack',
         widget=APISelect(
-            api_url='/api/dcim/racks/',
             display_field='display_name',
             filter_for={
                 'nat_device': 'rack_id'
@@ -640,19 +600,17 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         required=False,
         label='Device',
         widget=APISelect(
-            api_url='/api/dcim/devices/',
             display_field='display_name',
             filter_for={
                 'nat_inside': 'device_id'
             }
         )
     )
-    nat_vrf = forms.ModelChoiceField(
+    nat_vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
         label='VRF',
         widget=APISelect(
-            api_url="/api/ipam/vrfs/",
             filter_for={
                 'nat_inside': 'vrf_id'
             }
@@ -663,7 +621,6 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         required=False,
         label='IP Address',
         widget=APISelect(
-            api_url='/api/ipam/ip-addresses/',
             display_field='address'
         )
     )
@@ -761,10 +718,7 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
-        widget=APISelect(
-            api_url="/api/ipam/vrfs/"
-        )
+        label='VRF'
     )
 
     class Meta:
@@ -913,10 +867,7 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
-        widget=APISelect(
-            api_url="/api/ipam/vrfs/"
-        )
+        label='VRF'
     )
     mask_length = forms.IntegerField(
         min_value=IPADDRESS_MASK_LENGTH_MIN,
@@ -925,10 +876,7 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/tenancy/tenants/"
-        )
+        required=False
     )
     status = forms.ChoiceField(
         choices=add_blank_choice(IPAddressStatusChoices),
@@ -960,10 +908,7 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
         queryset=VRF.objects.all(),
         required=False,
         label='VRF',
-        empty_label='Global',
-        widget=APISelect(
-            api_url="/api/ipam/vrfs/"
-        )
+        empty_label='Global'
     )
     q = forms.CharField(
         required=False,
@@ -1007,7 +952,6 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
         required=False,
         label='VRF',
         widget=APISelectMultiple(
-            api_url="/api/ipam/vrfs/",
             null_option=True,
         )
     )
@@ -1038,10 +982,7 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
 class VLANGroupForm(BootstrapMixin, forms.ModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/dcim/sites/"
-        )
+        required=False
     )
     slug = SlugField()
 
@@ -1078,7 +1019,6 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url="/api/dcim/regions/",
             value_field="slug",
             filter_for={
                 'site': 'region',
@@ -1090,7 +1030,6 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url="/api/dcim/sites/",
             value_field="slug",
             null_option=True,
         )
@@ -1106,7 +1045,6 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=Site.objects.all(),
         required=False,
         widget=APISelect(
-            api_url="/api/dcim/sites/",
             filter_for={
                 'group': 'site_id'
             },
@@ -1117,17 +1055,11 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     )
     group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url='/api/ipam/vlan-groups/',
-        )
+        required=False
     )
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/ipam/roles/"
-        )
+        required=False
     )
     tags = TagField(required=False)
 
@@ -1222,24 +1154,15 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/dcim/sites/"
-        )
+        required=False
     )
     group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/ipam/vlan-groups/"
-        )
+        required=False
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/tenancy/tenants/"
-        )
+        required=False
     )
     status = forms.ChoiceField(
         choices=add_blank_choice(VLANStatusChoices),
@@ -1248,10 +1171,7 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
     )
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/ipam/roles/"
-        )
+        required=False
     )
     description = forms.CharField(
         max_length=100,
@@ -1276,7 +1196,6 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url="/api/dcim/regions/",
             value_field="slug",
             filter_for={
                 'site': 'region',
@@ -1289,7 +1208,6 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url="/api/dcim/sites/",
             value_field="slug",
             null_option=True,
         )
@@ -1299,7 +1217,6 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         required=False,
         label='VLAN group',
         widget=APISelectMultiple(
-            api_url="/api/ipam/vlan-groups/",
             null_option=True,
         )
     )
@@ -1313,7 +1230,6 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            api_url="/api/ipam/roles/",
             value_field="slug",
             null_option=True,
         )
