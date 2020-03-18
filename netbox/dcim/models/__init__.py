@@ -739,6 +739,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         return 0
 
 
+@extras_features('webhooks')
 class RackReservation(ChangeLoggedModel):
     """
     One or more reserved units within a Rack.
