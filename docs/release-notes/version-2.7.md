@@ -14,6 +14,7 @@
 ### Bug Fixes
 
 * [#2769](https://github.com/netbox-community/netbox/issues/2769) - Improve `prefix_length` validation on available-prefixes API
+* [#3193](https://github.com/netbox-community/netbox/issues/3193) - Fix cable tracing across multiple rear ports
 * [#4340](https://github.com/netbox-community/netbox/issues/4340) - Enforce unique constraints for device and virtual machine names in the API
 * [#4343](https://github.com/netbox-community/netbox/issues/4343) - Fix Markdown support for tables
 * [#4365](https://github.com/netbox-community/netbox/issues/4365) - Fix exception raised on IP address bulk add view
