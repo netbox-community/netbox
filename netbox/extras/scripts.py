@@ -170,8 +170,8 @@ class ObjectVar(ScriptVariable):
     """
     form_field = DynamicModelChoiceField
 
-    def __init__(self, queryset, widget, *args, **kwargs):
-        super().__init__(widget=widget, *args, **kwargs)
+    def __init__(self, queryset, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         # Queryset for field choices
         self.field_attrs['queryset'] = queryset
@@ -187,8 +187,8 @@ class MultiObjectVar(ScriptVariable):
     """
     form_field = DynamicModelMultipleChoiceField
 
-    def __init__(self, queryset, widget, *args, **kwargs):
-        super().__init__(widget=widget, *args, **kwargs)
+    def __init__(self, queryset, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         # Queryset for field choices
         self.field_attrs['queryset'] = queryset

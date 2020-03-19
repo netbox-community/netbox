@@ -130,8 +130,7 @@ class ScriptVariablesTest(TestCase):
         class TestScript(Script):
 
             var1 = ObjectVar(
-                queryset=DeviceRole.objects.all(),
-                widget=APISelect(api_url='/api/dcim/device-roles/')
+                queryset=DeviceRole.objects.all()
             )
 
         # Populate some objects
@@ -152,8 +151,7 @@ class ScriptVariablesTest(TestCase):
         class TestScript(Script):
 
             var1 = MultiObjectVar(
-                queryset=DeviceRole.objects.all(),
-                widget=APISelectMultiple(api_url='/api/dcim/device-roles/')
+                queryset=DeviceRole.objects.all()
             )
 
         # Populate some objects
