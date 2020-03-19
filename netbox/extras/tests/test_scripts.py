@@ -4,7 +4,6 @@ from netaddr import IPAddress, IPNetwork
 
 from dcim.models import DeviceRole
 from extras.scripts import *
-from utilities.forms import APISelect, APISelectMultiple
 
 
 class ScriptVariablesTest(TestCase):
