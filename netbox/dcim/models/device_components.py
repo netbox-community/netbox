@@ -108,14 +108,19 @@ class CableTermination(models.Model):
             # Map a front port to its corresponding rear port
             if isinstance(termination, FrontPort):
                 position_stack.append(termination.rear_port_position)
-                return termination.rear_port
+                # Retrieve the corresponding RearPort from database to ensure we have an up-to-date instance
+                peer_port = RearPort.objects.get(pk=termination.rear_port.pk)
+                return peer_port
 
             # Map a rear port/position to its corresponding front port
             elif isinstance(termination, RearPort):
 
                 # Can't map to a FrontPort without a position
                 if not position_stack:
-                    return None
+                    # TODO: This behavior is broken. We need a mechanism by which to return all FrontPorts mapped
+                    # to a given RearPort so that we can update end-to-end paths when a cable is created/deleted.
+                    # For now, we're maintaining the current behavior of tracing only to the first FrontPort.
+                    position_stack.append(1)
 
                 position = position_stack.pop()
 
