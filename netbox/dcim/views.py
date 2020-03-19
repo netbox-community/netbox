@@ -1893,6 +1893,14 @@ class DeviceBayBulkImportView(PermissionRequiredMixin, BulkImportView):
     default_return_url = 'dcim:devicebay_list'
 
 
+class DeviceBayBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_devicebay'
+    queryset = DeviceBay.objects.all()
+    filterset = filters.DeviceBayFilterSet
+    table = tables.DeviceBayTable
+    form = forms.DeviceBayBulkEditForm
+
+
 class DeviceBayBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_devicebay'
     queryset = DeviceBay.objects.all()

@@ -284,7 +284,7 @@ urlpatterns = [
     path('device-bays/', views.DeviceBayListView.as_view(), name='devicebay_list'),
     path('device-bays/add/', views.DeviceBayCreateView.as_view(), name='devicebay_add'),
     path('device-bays/import/', views.DeviceBayBulkImportView.as_view(), name='devicebay_import'),
-    # TODO: Bulk edit view for DeviceBays
+    path('device-bays/edit/', views.DeviceBayBulkEditView.as_view(), name='devicebay_bulk_edit'),
     path('device-bays/rename/', views.DeviceBayBulkRenameView.as_view(), name='devicebay_bulk_rename'),
     path('device-bays/delete/', views.DeviceBayBulkDeleteView.as_view(), name='devicebay_bulk_delete'),
     path('device-bays/<int:pk>/edit/', views.DeviceBayEditView.as_view(), name='devicebay_edit'),
