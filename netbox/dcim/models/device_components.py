@@ -89,7 +89,7 @@ class CableTermination(models.Model):
     class Meta:
         abstract = True
 
-    def trace(self, follow_circuits=False):
+    def trace(self):
         """
         Return a list representing a complete cable path, with each individual segment represented as a three-tuple:
             [
@@ -102,7 +102,7 @@ class CableTermination(models.Model):
         path = []
         position_stack = []
 
-        def get_peer_port(termination, follow_circuits=False):
+        def get_peer_port(termination):
             from circuits.models import CircuitTermination
 
             # Map a front port to its corresponding rear port
@@ -135,7 +135,7 @@ class CableTermination(models.Model):
                     return None
 
             # Follow a circuit to its other termination
-            elif isinstance(termination, CircuitTermination) and follow_circuits:
+            elif isinstance(termination, CircuitTermination):
                 peer_termination = termination.get_peer_termination()
                 if peer_termination is None:
                     return None
@@ -169,7 +169,7 @@ class CableTermination(models.Model):
             ))
 
             # Get the peer port of the far end termination
-            endpoint = get_peer_port(far_end, follow_circuits)
+            endpoint = get_peer_port(far_end)
             if endpoint is None:
                 return path
 
