@@ -2019,7 +2019,7 @@ class CableTraceView(PermissionRequiredMixin, View):
     def get(self, request, model, pk):
 
         obj = get_object_or_404(model, pk=pk)
-        trace = obj.trace(follow_circuits=True)
+        trace = obj.trace()
         total_length = sum([entry[1]._abs_length for entry in trace if entry[1] and entry[1]._abs_length])
 
         return render(request, 'dcim/cable_trace.html', {
