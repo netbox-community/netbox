@@ -11,6 +11,7 @@
 * [#4380](https://github.com/netbox-community/netbox/issues/4380) - Enable webhooks for rack reservations
 * [#4381](https://github.com/netbox-community/netbox/issues/4381) - Enable export templates for rack reservations
 * [#4382](https://github.com/netbox-community/netbox/issues/4382) - Enable custom links for rack reservations
+* [#4386](https://github.com/netbox-community/netbox/issues/4386) - Update admin links for Django RQ to reflect multiple queues
 
 ### Bug Fixes
 
