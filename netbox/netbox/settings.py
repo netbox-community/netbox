@@ -640,71 +640,52 @@ if PAGINATE_COUNT not in PER_PAGE_DEFAULTS:
 
 PLUGINS = []
 if PLUGINS_ENABLED:
-    for entry_point in iter_entry_points(group='netbox.plugin', name=None):
+    for entry_point in iter_entry_points(group='netbox_plugins', name=None):
         plugin = entry_point.module_name
+        app_config = entry_point.load()
+
         PLUGINS.append(plugin)
         INSTALLED_APPS.append(plugin)
 
-        # Import the app config and locate the inner meta class
-        try:
-            module = importlib.import_module(plugin)
-            default_app_config = getattr(module, 'default_app_config')
-            module, app_config = default_app_config.rsplit('.', 1)
-            app_config = getattr(importlib.import_module(module), app_config)
-        except ImportError:
-            raise ImproperlyConfigured('Plugin config for {} could not be imported!'.format(plugin))
-
-        app_config_meta = getattr(app_config, 'NetBoxPluginMeta', None)
-        if not app_config_meta:
-            raise ImproperlyConfigured(
-                'The app config for plugin {} does not contain an inner meta class'.format(plugin)
-            )
-
-        # Check version contraints
-        min_version = getattr(app_config_meta, 'min_version', None)
-        max_version = getattr(app_config_meta, 'max_version', None)
-        parsed_min_version = parse_version(min_version or VERSION)
-        parsed_max_version = parse_version(max_version or VERSION)
-        if min_version and max_version and parsed_min_version > parsed_max_version:
-            raise ImproperlyConfigured('Plugin {} specifies invalid version contraints!'.format(plugin))
-        if min_version and parsed_min_version > parse_version(VERSION):
-            raise ImproperlyConfigured('Plugin {} requires NetBox minimum version {}!'.format(plugin, min_version))
-        if max_version and parsed_max_version < parse_version(VERSION):
-            raise ImproperlyConfigured('Plugin {} requires NetBox maximum version {}!'.format(plugin, max_version))
+        # Check version constraints
+        parsed_min_version = parse_version(app_config.min_version or VERSION)
+        parsed_max_version = parse_version(app_config.max_version or VERSION)
+        if app_config.min_version and app_config.max_version and parsed_min_version > parsed_max_version:
+            raise ImproperlyConfigured(f"Plugin {plugin} specifies invalid version constraints!")
+        if app_config.min_version and parsed_min_version > parse_version(VERSION):
+            raise ImproperlyConfigured(f"Plugin {plugin} requires NetBox minimum version {app_config.min_version}!")
+        if app_config.max_version and parsed_max_version < parse_version(VERSION):
+            raise ImproperlyConfigured(f"Plugin {plugin} requires NetBox maximum version {app_config.max_version}!")
 
         # Add middleware
-        plugin_middleware = getattr(app_config_meta, 'middleware', [])
+        plugin_middleware = app_config.middleware
         if plugin_middleware and isinstance(plugin_middleware, list):
             MIDDLEWARE.extend(plugin_middleware)
 
         # Verify required configuration settings
         if plugin not in PLUGINS_CONFIG:
             PLUGINS_CONFIG[plugin] = {}
-        for setting in getattr(app_config_meta, 'required_settings', []):
+        for setting in app_config.required_settings:
             if setting not in PLUGINS_CONFIG[plugin]:
                 raise ImproperlyConfigured(
-                    "Plugin {} requires '{}' to be present in the PLUGINS_CONFIG section of configuration.py.".format(
-                        plugin,
-                        setting
-                    )
+                    f"Plugin {plugin} requires '{setting}' to be present in the PLUGINS_CONFIG section of "
+                    f"configuration.py."
                 )
 
         # Set defined default setting values
-        for setting, value in getattr(app_config_meta, 'default_settings', {}).items():
+        for setting, value in app_config.default_settings.items():
             if setting not in PLUGINS_CONFIG[plugin]:
                 PLUGINS_CONFIG[plugin][setting] = value
 
         # Apply cacheops config
-        plugin_cacheops = getattr(app_config_meta, 'caching_config', {})
+        plugin_cacheops = app_config.caching_config
         if plugin_cacheops and isinstance(plugin_cacheops, dict):
             for key in plugin_cacheops.keys():
                 # Validate config is only being set for the given plugin
                 try:
                     app = key.split('.')[0]
                 except IndexError:
-                    raise ImproperlyConfigured('Plugin {} caching_config is invalid!'.format(plugin))
+                    raise ImproperlyConfigured(f"Plugin {plugin} caching_config is invalid!")
                 if app != plugin:
-                    raise ImproperlyConfigured(
-                        'Plugin {} may not modify caching config for another app!'.format(plugin)
-                    )
+                    raise ImproperlyConfigured(f"Plugin {plugin} may not modify caching config for another app!")
         CACHEOPS.update(plugin_cacheops)
