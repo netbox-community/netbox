@@ -8,6 +8,7 @@ from django.views.static import serve
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
+from extras.plugins import PluginConfig
 from netbox.views import APIRootView, HomeView, StaticMediaFailureView, SearchView
 from users.views import LoginView, LogoutView
 from .admin import admin_site
@@ -76,11 +77,11 @@ plugin_patterns = []
 plugin_api_patterns = []
 for app in apps.get_app_configs():
     # Loop over all apps look for installed plugins
-    if hasattr(app, 'NetBoxPluginMeta'):
+    if isinstance(app, PluginConfig):
         # Check if the plugin specifies any URLs
         if importlib.util.find_spec('{}.urls'.format(app.name)):
             urls = importlib.import_module('{}.urls'.format(app.name))
-            url_slug = getattr(app.NetBoxPluginMeta, 'url_slug', app.label)
+            url_slug = getattr(app, 'url_slug') or app.label
             if hasattr(urls, 'urlpatterns'):
                 # Mount URLs at `<url_slug>/<path>`
                 plugin_patterns.append(
@@ -91,7 +92,7 @@ for app in apps.get_app_configs():
             if importlib.util.find_spec('{}.api.urls'.format(app.name)):
                 urls = importlib.import_module('{}.api.urls'.format(app.name))
                 if hasattr(urls, 'urlpatterns'):
-                    url_slug = getattr(app.NetBoxPluginMeta, 'url_slug', app.label)
+                    url_slug = getattr(app, 'url_slug') or app.label
                     # Mount URLs at `<url_slug>/<path>`
                     plugin_api_patterns.append(
                         path('{}/'.format(url_slug), include((urls.urlpatterns, app.label)))
