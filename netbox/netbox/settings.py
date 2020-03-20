@@ -640,19 +640,12 @@ if PAGINATE_COUNT not in PER_PAGE_DEFAULTS:
 
 PLUGINS = []
 if PLUGINS_ENABLED:
-    for entry_point in iter_entry_points(group='netbox.plugin', name=None):
+    for entry_point in iter_entry_points(group='netbox_plugins', name=None):
         plugin = entry_point.module_name
         PLUGINS.append(plugin)
         INSTALLED_APPS.append(plugin)
 
-        # Import the app config and locate the inner meta class
-        try:
-            module = importlib.import_module(plugin)
-            default_app_config = getattr(module, 'default_app_config')
-            module, app_config = default_app_config.rsplit('.', 1)
-            app_config = getattr(importlib.import_module(module), app_config)
-        except ImportError:
-            raise ImproperlyConfigured('Plugin config for {} could not be imported!'.format(plugin))
+        app_config = entry_point.load()
 
         app_config_meta = getattr(app_config, 'NetBoxPluginMeta', None)
         if not app_config_meta:
