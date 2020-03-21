@@ -638,13 +638,13 @@ if PAGINATE_COUNT not in PER_PAGE_DEFAULTS:
 # Plugins
 #
 
-PLUGINS = []
+PLUGINS = set()
 if PLUGINS_ENABLED:
     for entry_point in iter_entry_points(group='netbox_plugins', name=None):
         plugin = entry_point.module_name
         app_config = entry_point.load()
 
-        PLUGINS.append(plugin)
+        PLUGINS.add(plugin)
         INSTALLED_APPS.append(plugin)
 
         # Check version constraints
@@ -688,4 +688,7 @@ if PLUGINS_ENABLED:
                     raise ImproperlyConfigured(f"Plugin {plugin} caching_config is invalid!")
                 if app != plugin:
                     raise ImproperlyConfigured(f"Plugin {plugin} may not modify caching config for another app!")
+        else:
+            # Apply the default config like all other core apps
+            plugin_cacheops = {f"{plugin}.*": {'ops': 'all'}}
         CACHEOPS.update(plugin_cacheops)

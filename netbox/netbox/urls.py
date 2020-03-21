@@ -8,7 +8,7 @@ from django.views.static import serve
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
-from extras.plugins import PluginConfig
+from extras.plugins.urls import admin_plugin_patterns, plugin_patterns, plugin_api_patterns
 from netbox.views import APIRootView, HomeView, StaticMediaFailureView, SearchView
 from users.views import LoginView, LogoutView
 from .admin import admin_site
@@ -70,42 +70,12 @@ _patterns = [
     # Errors
     path('media-failure/', StaticMediaFailureView.as_view(), name='media_failure'),
 
+    # Plugins
+    path('plugins/', include((plugin_patterns, 'plugins'))),
+    path('api/plugins/', include((plugin_api_patterns, 'plugins-api'))),
+    path('admin/plugins/installed-plugins/', include(admin_plugin_patterns))
 ]
 
-# Plugins
-plugin_patterns = []
-plugin_api_patterns = []
-for app in apps.get_app_configs():
-    # Loop over all apps look for installed plugins
-    if isinstance(app, PluginConfig):
-        # Check if the plugin specifies any URLs
-        if importlib.util.find_spec('{}.urls'.format(app.name)):
-            urls = importlib.import_module('{}.urls'.format(app.name))
-            url_slug = getattr(app, 'url_slug') or app.label
-            if hasattr(urls, 'urlpatterns'):
-                # Mount URLs at `<url_slug>/<path>`
-                plugin_patterns.append(
-                    path('{}/'.format(url_slug), include((urls.urlpatterns, app.label)))
-                )
-        # Check if the plugin specifies any API URLs
-        if importlib.util.find_spec('{}.api'.format(app.name)):
-            if importlib.util.find_spec('{}.api.urls'.format(app.name)):
-                urls = importlib.import_module('{}.api.urls'.format(app.name))
-                if hasattr(urls, 'urlpatterns'):
-                    url_slug = getattr(app, 'url_slug') or app.label
-                    # Mount URLs at `<url_slug>/<path>`
-                    plugin_api_patterns.append(
-                        path('{}/'.format(url_slug), include((urls.urlpatterns, app.label)))
-                    )
-
-# Mount all plugin URLs within the `plugins` namespace
-_patterns.append(
-    path('plugins/', include((plugin_patterns, 'plugins')))
-)
-# Mount all plugin API URLs within the `plugins-api` namespace
-_patterns.append(
-    path('api/plugins/', include((plugin_api_patterns, 'plugins-api')))
-)
 
 if settings.DEBUG:
     import debug_toolbar

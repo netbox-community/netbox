@@ -19,6 +19,7 @@ class PluginConfig(AppConfig):
     """
     # Plugin metadata
     author = ''
+    author_email = ''
     description = ''
     version = ''
 
@@ -182,7 +183,7 @@ def register_nav_menu_links():
         default_app_config = getattr(module, 'default_app_config')
         module, app_config = default_app_config.rsplit('.', 1)
         app_config = getattr(importlib.import_module(module), app_config)
-        section_name = app_config.NetBoxPluginMeta.name
+        section_name = getattr(app_config, 'verbose_name', app_config.name)
 
         if not isinstance(response, list):
             response = [response]

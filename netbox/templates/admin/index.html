@@ -1,0 +1,6 @@
+{% extends "django_rq/index.html" %}
+
+{% block sidebar %}
+    {{ block.super }}
+    {% include 'extras/admin/plugins_index.html' %}
+{% endblock %}
