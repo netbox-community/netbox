@@ -2,11 +2,45 @@ import collections
 import importlib
 import inspect
 
-from django.core.exceptions import ImproperlyConfigured
+from django.apps import AppConfig
 from django.template.loader import get_template
 
 from extras.registry import registry
 from .signals import register_detail_page_content_classes, register_nav_menu_link_classes
+
+
+#
+# Plugin AppConfig class
+#
+
+class PluginConfig(AppConfig):
+    """
+    Subclass of Django's built-in AppConfig class, to be used for NetBox plugins.
+    """
+    # Plugin metadata
+    author = ''
+    author_email = ''
+    description = ''
+    version = ''
+
+    # Root URL path under /plugins. If not set, the plugin's label will be used.
+    url_slug = None
+
+    # Minimum/maximum compatible versions of NetBox
+    min_version = None
+    max_version = None
+
+    # Default configuration parameters
+    default_settings = {}
+
+    # Mandatory configuration parameters
+    required_settings = []
+
+    # Middleware classes provided by the plugin
+    middleware = []
+
+    # Caching configuration
+    caching_config = {}
 
 
 #
@@ -149,7 +183,7 @@ def register_nav_menu_links():
         default_app_config = getattr(module, 'default_app_config')
         module, app_config = default_app_config.rsplit('.', 1)
         app_config = getattr(importlib.import_module(module), app_config)
-        section_name = app_config.NetBoxPluginMeta.name
+        section_name = getattr(app_config, 'verbose_name', app_config.name)
 
         if not isinstance(response, list):
             response = [response]
