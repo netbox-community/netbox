@@ -1,9 +1,6 @@
-import importlib
-
 from django.apps import apps
 from django.conf import settings
 from django.conf.urls import include
-from django.core.exceptions import ImproperlyConfigured
 from django.urls import path
 from django.utils.module_loading import import_string
 
@@ -21,25 +18,21 @@ for plugin in settings.PLUGINS:
     # Check if the plugin specifies any URLs
     try:
         urlpatterns = import_string(f"{plugin}.urls.urlpatterns")
-    except ImportError:
-        # No urls defined
-        urlpatterns = None
-    if urlpatterns:
         plugin_patterns.append(
             path(f"{url_slug}/", include((urlpatterns, app.label)))
         )
+    except ImportError:
+        pass
 
     # Check if the plugin specifies any API URLs
     try:
         urlpatterns = import_string(f"{plugin}.api.urls.urlpatterns")
-        app_name = import_string(f"{plugin}.api.urls.app_name")
-    except ImportError:
-        # No urls defined
-        urlpatterns = None
-    if urlpatterns:
+        app_name = f"{url_slug}-api"
         plugin_api_patterns.append(
             path(f"{url_slug}/", include((urlpatterns, app_name)))
         )
+    except ImportError:
+        pass
 
 # Plugin list admin view
 admin_plugin_patterns = [
