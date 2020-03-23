@@ -641,11 +641,14 @@ if PAGINATE_COUNT not in PER_PAGE_DEFAULTS:
 PLUGINS = set()
 if PLUGINS_ENABLED:
     for entry_point in iter_entry_points(group='netbox_plugins', name=None):
+        # Append plugin name to PLUGINS
         plugin = entry_point.module_name
-        app_config = entry_point.load()
-
         PLUGINS.add(plugin)
-        INSTALLED_APPS.append(plugin)
+
+        # Append plugin to INSTALLED_APPS. Specify the path to the PluginConfig so that we don't
+        # have to define default_app_config.
+        app_config = entry_point.load()
+        INSTALLED_APPS.append('{}.{}'.format(app_config.__module__, app_config.__name__))
 
         # Check version constraints
         parsed_min_version = parse_version(app_config.min_version or VERSION)
