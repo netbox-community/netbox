@@ -90,5 +90,107 @@ class AnimalSoundsConfig(PluginConfig):
 * `url_slug` - Base path to use for plugin URLs (optional). If not specified, the project's `name` will be used.
 * `required_settings`: A list of configuration parameters that **must** be defined by the user
 * `default_settings`: A dictionary of configuration parameter names and their default values
+* `min_version`: Minimum version of NetBox with which the plugin is compatible
+* `max_version`: Maximum version of NetBox with which the plugin is compatible
 * `middleware`: A list of middleware classes to append after NetBox's build-in middleware.
 * `caching_config`: Plugin-specific cache configuration
+
+## Database Models
+
+Plugins can define their own Django models to record user data. A model is a Python representation of a database table. Model instances can be created, manipulated, and deleted using the [Django ORM](https://docs.djangoproject.com/en/stable/topics/db/). Models are typically defined within a plugin's `models.py` file, though this is not a strict requirement.
+
+Below is a simple example `models.py` file showing a model with two character fields:
+
+```python
+from django.db import models
+
+class Animal(models.Model):
+    name = models.CharField(max_length=50)
+    sound = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+```
+
+Once you have defined the model(s) for your plugin, you'll need to create the necessary database schema migrations as well. This can be done using the Django `makemigrations` management command:
+
+```no-highlight
+$ ./manage.py makemigrations netbox_animal_sounds 
+Migrations for 'netbox_animal_sounds':
+  /home/jstretch/animal_sounds/netbox_animal_sounds/migrations/0001_initial.py
+    - Create model Animal
+```
+
+Once the migration has been created, we can apply it locally with the `migrate` command:
+
+```no-highlight
+$ ./manage.py migrate netbox_animal_sounds
+Operations to perform:
+  Apply all migrations: netbox_animal_sounds
+Running migrations:
+  Applying netbox_animal_sounds.0001_initial... OK
+```
+
+For more information on database migrations, see the [Django documentation](https://docs.djangoproject.com/en/stable/topics/migrations/).
+
+### Using the Django Admin Interface
+
+Plugins can optionally expose their models via Django's built-in [administrative interface](https://docs.djangoproject.com/en/stable/ref/contrib/admin/). This can greatly improve troubleshooting ability, particularly during development. An example `admin.py` file for the above model is shown below:
+
+```python
+from django.contrib import admin
+from .models import Animal
+
+@admin.register(Animal)
+class AnimalAdmin(admin.ModelAdmin):
+    list_display = ('name', 'sound')
+``` 
+
+This will display the plugin and its model in the admin UI. Staff users can create, change, and delete model instances via the admin UI without needing to create a custom view.
+
+![NetBox plugin in the admin UI](../media/plugins/plugin_admin_ui.png)
+
+## Views
+
+A view is a particular page tied to a URL within NetBox. Views are typically defined in `views.py`, and URL patterns in `urls.py`. As an example, let's write a view which displays a random animal and the sound it makes. First, we'll create the view in `views.py`:
+
+```python
+from django.shortcuts import render
+from django.views.generic import View
+from .models import Animal
+
+class RandomAnimalSoundView(View):
+
+    def get(self, request):
+        animal = Animal.objects.order_by('?').first()
+
+        return render(request, 'animal_sound.html', {
+            'animal': animal,
+        })
+```
+
+This view retrieves a random animal from the database and and passes it as a context variable when rendering ta template named `animal_sound.html`. To create this template, create a `templates/` directory within the plugin source directory and save the following:
+
+```jinja2
+{% extends '_base.html' %}
+
+{% block content %}
+The {{ animal.name }} says {{ animal.sound }}
+{% endblock %}
+```
+
+!!! note
+    Django renders templates with its own custom [template language](https://docs.djangoproject.com/en/stable/topics/templates/#the-django-template-language). This is very similar to Jinja2, however there are some important differences to be aware of.
+
+Finally, to make the view accessible to users, we need to register a URL for it. We do this in `urls.py`:
+
+```python
+from django.urls import path
+from .views import RandomAnimalSoundView
+
+urlpatterns = [
+    path('random-sound/', RandomAnimalSoundView.as_view())
+]
+```
+
+This makes our view accessible at the URL `/plugins/animal-sounds/random-sound/`. (Remember, our `AnimalSoundsConfig` class sets our plugin's base URL to `animal-sounds`.) Viewing this URL should show the base NetBox template with our custom content inside it.
