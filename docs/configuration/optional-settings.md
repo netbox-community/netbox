@@ -299,6 +299,27 @@ Determine how many objects to display per page within each list of objects.
 
 ---
 
+## PLUGINS_CONFIG
+
+Default: Empty
+
+This parameter holds configuration settings for individual NetBox plugins. It is defined as a dictionary, with each key using the name of an installed plugin. The specific parameters supported are unique to each plugin: Reference the plugin's documentation to determine the supported parameters.
+
+Note that `PLUGINS_ENABLED` must be set to True for this to take effect.
+
+---
+
+## PLUGINS_ENABLED
+
+Default: `False`
+
+Enable [NetBox plugins](../../plugins/).
+
+!!! warning
+    Plugins extend NetBox by allowing external code to run with the same access and privileges as NetBox itself. Only install plugins from trusted sources. The NetBox maintainers make absolutely no guarantees about the integrity or security of your installation with plugins enabled.
+
+---
+
 ## PREFER_IPV4
 
 Default: False

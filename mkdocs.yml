@@ -11,7 +11,6 @@ markdown_extensions:
     - admonition:
     - markdown_include.include:
         headingOffset: 1
-
 nav:
     - Introduction: 'index.md'
     - Installation:
@@ -53,6 +52,9 @@ nav:
         - Reports: 'additional-features/reports.md'
         - Tags: 'additional-features/tags.md'
         - Webhooks: 'additional-features/webhooks.md'
+    - Plugins:
+        - Using Plugins: 'plugins/index.md'
+        - Developing Plugins: 'plugins/development.md'
     - Administration:
         - Replicating NetBox: 'administration/replicating-netbox.md'
         - NetBox Shell: 'administration/netbox-shell.md'
