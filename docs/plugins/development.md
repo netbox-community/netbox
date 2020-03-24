@@ -2,6 +2,15 @@
 
 This documentation covers the development of custom plugins for NetBox. Plugins are essentially self-contained [Django apps](https://docs.djangoproject.com/en/stable/) which integrate with NetBox to provide custom functionality. Since the development of Django apps is already very well-documented, we'll only be covering the aspects that are specific to NetBox.
 
+Plugins can do a lot, including:
+
+* Create Django models to store data in the database
+* Provide their own "pages" (views) in the web user interface
+* Establish their own REST API endpoints
+* Add custom request/response middleware
+
+However, keep in mind that each piece of functionality is entirely optional. For example, if your plugin merely adds a piece of middleware or an API endpoint, there's no need to define a new model.
+
 ## Initial Setup
 
 ## Plugin Structure
@@ -84,6 +93,7 @@ class AnimalSoundsConfig(PluginConfig):
 
 * `name` - Raw plugin name; same as the plugin's source directory
 * `author_name` - Name of plugin's author
+* `author_email` - Author's public email address
 * `verbose_name` - Human-friendly name
 * `version` - Plugin version
 * `description` - Brief description of the plugin's purpose
@@ -95,9 +105,17 @@ class AnimalSoundsConfig(PluginConfig):
 * `middleware`: A list of middleware classes to append after NetBox's build-in middleware.
 * `caching_config`: Plugin-specific cache configuration
 
+### Install the Plugin for Development
+
+To ease development, it is recommended to go ahead and install the plugin at this point using setuptools' "develop" mode. This will create symbolic links within your Python environment to the plugin development directory. Call `setup.py` from the plugin's root directory with the `develop` argument (instead of `install`):
+
+```no-highlight
+$ python setup.py develop
+```
+
 ## Database Models
 
-Plugins can define their own Django models to record user data. A model is a Python representation of a database table. Model instances can be created, manipulated, and deleted using the [Django ORM](https://docs.djangoproject.com/en/stable/topics/db/). Models are typically defined within a plugin's `models.py` file, though this is not a strict requirement.
+If your plugin introduces a new type of object in NetBox, you'll probably want to create a Django model for it. A model is essentially a Python representation of a database table, with attributes that represent individual columns. Model instances can be created, manipulated, and deleted using the [Django ORM](https://docs.djangoproject.com/en/stable/topics/db/). Models are typically defined within a plugin's `models.py` file, though this is not a strict requirement.
 
 Below is a simple example `models.py` file showing a model with two character fields:
 
@@ -112,7 +130,10 @@ class Animal(models.Model):
         return self.name
 ```
 
-Once you have defined the model(s) for your plugin, you'll need to create the necessary database schema migrations as well. This can be done using the Django `makemigrations` management command:
+Once you have defined the model(s) for your plugin, you'll need to create the necessary database schema migrations as well. This can be done using the Django `makemigrations` management command.
+
+!!! note
+    A plugin must be installed before it can be used with Django management commands. If you skipped this step above, run `python setup.py develop` from the plugin's root directory.
 
 ```no-highlight
 $ ./manage.py makemigrations netbox_animal_sounds 
@@ -121,7 +142,7 @@ Migrations for 'netbox_animal_sounds':
     - Create model Animal
 ```
 
-Once the migration has been created, we can apply it locally with the `migrate` command:
+Once you're satisfied the migration is ready and all model changes have been accounted for, we can apply it locally with the `migrate` command:
 
 ```no-highlight
 $ ./manage.py migrate netbox_animal_sounds
@@ -152,7 +173,7 @@ This will display the plugin and its model in the admin UI. Staff users can crea
 
 ## Views
 
-A view is a particular page tied to a URL within NetBox. Views are typically defined in `views.py`, and URL patterns in `urls.py`. As an example, let's write a view which displays a random animal and the sound it makes. First, we'll create the view in `views.py`:
+If your plugin needs its own page or pages in the NetBox web UI, you'll need to define views. A view is a particular page tied to a URL within NetBox. Views are typically defined in `views.py`, and URL patterns in `urls.py`. As an example, let's write a view which displays a random animal and the sound it makes. First, we'll create the view in `views.py`:
 
 ```python
 from django.shortcuts import render
@@ -197,7 +218,7 @@ This makes our view accessible at the URL `/plugins/animal-sounds/random-sound/`
 
 ## REST API Endpoints
 
-Plugins can declare custom endpoints on NetBox's REST API. These behave very similarly to views, except that instead of rendering arbitrary content using a template, data is returned in JSON format using a serializer. NetBox uses the [Django REST Framework](https://www.django-rest-framework.org/), which makes writing API serializers and views very simple.
+Plugins can declare custom endpoints on NetBox's REST API to retrieve or manipulate models or other data. These behave very similarly to views, except that instead of rendering arbitrary content using a template, data is returned in JSON format using a serializer. NetBox uses the [Django REST Framework](https://www.django-rest-framework.org/), which makes writing API serializers and views very simple.
 
 First, we'll create a serializer for our `Animal` model, in `api/serializers.py`:
 
