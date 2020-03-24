@@ -84,7 +84,7 @@ class AnimalSoundsConfig(PluginConfig):
     version = '0.1'
     author = 'Author Name'
     description = 'Show animals and the sounds they make'
-    url_slug = 'animal-sounds'
+    base_url = 'animal-sounds'
     required_settings = []
     default_settings = {
         'loud': False
@@ -99,7 +99,7 @@ class AnimalSoundsConfig(PluginConfig):
 * `verbose_name` - Human-friendly name
 * `version` - Plugin version
 * `description` - Brief description of the plugin's purpose
-* `url_slug` - Base path to use for plugin URLs (optional). If not specified, the project's `name` will be used.
+* `base_url` - Base path to use for plugin URLs (optional). If not specified, the project's `name` will be used.
 * `required_settings`: A list of configuration parameters that **must** be defined by the user
 * `default_settings`: A dictionary of configuration parameter names and their default values
 * `min_version`: Minimum version of NetBox with which the plugin is compatible

@@ -23,7 +23,7 @@ class PluginConfig(AppConfig):
     version = ''
 
     # Root URL path under /plugins. If not set, the plugin's label will be used.
-    url_slug = None
+    base_url = None
 
     # Minimum/maximum compatible versions of NetBox
     min_version = None

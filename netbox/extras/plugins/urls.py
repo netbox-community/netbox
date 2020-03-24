@@ -13,13 +13,13 @@ plugin_api_patterns = []
 for plugin in settings.PLUGINS:
     app = apps.get_app_config(plugin)
 
-    url_slug = getattr(app, 'url_slug') or app.label
+    base_url = getattr(app, 'base_url') or app.label
 
     # Check if the plugin specifies any URLs
     try:
         urlpatterns = import_string(f"{plugin}.urls.urlpatterns")
         plugin_patterns.append(
-            path(f"{url_slug}/", include((urlpatterns, app.label)))
+            path(f"{base_url}/", include((urlpatterns, app.label)))
         )
     except ImportError:
         pass
@@ -27,9 +27,8 @@ for plugin in settings.PLUGINS:
     # Check if the plugin specifies any API URLs
     try:
         urlpatterns = import_string(f"{plugin}.api.urls.urlpatterns")
-        app_name = f"{url_slug}-api"
         plugin_api_patterns.append(
-            path(f"{url_slug}/", include((urlpatterns, app_name)))
+            path(f"{base_url}/", include((urlpatterns, f"{app.label}-api")))
         )
     except ImportError:
         pass

@@ -69,7 +69,7 @@ class PluginsAPIRootView(APIView):
             return None
 
         try:
-            entry = (getattr(app_config, 'url_slug', app_config.label), reverse(
+            entry = (getattr(app_config, 'base_url', app_config.label), reverse(
                 f"plugins-api:{api_app_name}:api-root",
                 request=request,
                 format=format
