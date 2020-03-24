@@ -6,6 +6,7 @@ Plugins can do a lot, including:
 
 * Create Django models to store data in the database
 * Provide their own "pages" (views) in the web user interface
+* Inject template content and navigation links
 * Establish their own REST API endpoints
 * Add custom request/response middleware
 
@@ -215,7 +216,7 @@ from django.urls import path
 from .views import RandomAnimalSoundView
 
 urlpatterns = [
-    path('random-sound/', RandomAnimalSoundView.as_view())
+    path('random-sound/', RandomAnimalSoundView.as_view(), name='random_sound')
 ]
 ```
 
@@ -267,3 +268,27 @@ With these three components in place, we can request `/api/plugins/animal-sounds
 
 !!! note
     This example is provided as a minimal reference implementation only. It does not address authentication, performance, or myriad other concerns that plugin authors should have.
+
+## Navigation Menu Items
+
+To make its views easily accessible to users, a plugin can inject items in NetBox's navigation menu. This is done by instantiating NetBox's `PluginNavMenuLink` class. Each instance of this class appears in the navigation menu under the header for its plugin. We'll create a link in the file `navigation.py`:
+
+```python
+from extras.plugins import PluginNavMenuLink
+
+class RandomSoundLink(PluginNavMenuLink):
+    link = 'plugins:netbox_animal_sounds:random_sound'
+    link_text = 'Random sound'
+```
+
+Once we have our menu item defined, we need to register it in `signals.py`:
+
+```python
+from django.dispatch import receiver
+from extras.plugins.signals import register_nav_menu_link_classes
+from .navigation import RandomSoundLink
+
+@receiver(register_nav_menu_link_classes)
+def nav_menu_link_classes(**kwargs):
+    return [RandomSoundLink]
+```
