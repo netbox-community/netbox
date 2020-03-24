@@ -21,7 +21,8 @@ Although the specific structure of a plugin is largely left to the discretion of
 plugin_name/
   - plugin_name/
     - templates/
-      - *.html
+      - plugin_name/
+        - *.html
     - __init__.py
     - middleware.py
     - navigation.py
@@ -185,18 +186,22 @@ class RandomAnimalSoundView(View):
     def get(self, request):
         animal = Animal.objects.order_by('?').first()
 
-        return render(request, 'animal_sound.html', {
+        return render(request, 'netbox_animal_sounds/animal_sound.html', {
             'animal': animal,
         })
 ```
 
-This view retrieves a random animal from the database and and passes it as a context variable when rendering ta template named `animal_sound.html`. To create this template, create a `templates/` directory within the plugin source directory and save the following:
+This view retrieves a random animal from the database and and passes it as a context variable when rendering a template named `animal_sound.html`. To create this template, first create a directory named `templates/netbox_animal_sounds/` within the plugin root directory. We use the plugin's name as a subdirectory to guard against naming collisions with other plugins. Then, create `animal_sound.html`:
 
 ```jinja2
 {% extends '_base.html' %}
 
 {% block content %}
-The {{ animal.name }} says {{ animal.sound }}
+{% if animal %}
+    The {{ animal.name }} says {{ animal.sound }}
+{% else %}
+    No animals have been created yet!
+{% endif %}
 {% endblock %}
 ```
 
