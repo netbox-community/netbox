@@ -1,8 +1,7 @@
 import collections
-import importlib
 import inspect
 
-from django.apps import AppConfig
+from django.apps import AppConfig, apps
 from django.template.loader import get_template
 
 from extras.registry import registry
@@ -178,11 +177,8 @@ def register_nav_menu_links():
     responses = register_nav_menu_link_classes.send('registration_event')
     for receiver, response in responses:
 
-        # Import the app config for the plugin to get the name to be used as the nav menu section text
-        module = importlib.import_module(receiver.__module__.split('.')[0])
-        default_app_config = getattr(module, 'default_app_config')
-        module, app_config = default_app_config.rsplit('.', 1)
-        app_config = getattr(importlib.import_module(module), app_config)
+        # Derive menu section header from plugin name
+        app_config = apps.get_app_config(receiver.__module__.split('.')[0])
         section_name = getattr(app_config, 'verbose_name', app_config.name)
 
         if not isinstance(response, list):
