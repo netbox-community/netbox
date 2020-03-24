@@ -315,6 +315,9 @@ Default: `False`
 
 Enable [NetBox plugins](../../plugins/).
 
+!!! warning
+    Plugins extend NetBox by allowing external code to run with the same access and privileges as NetBox itself. Only install plugins from trusted sources. The NetBox maintainers make absolutely no guarantees about the integrity or security of your installation with plugins enabled.
+
 ---
 
 ## PREFER_IPV4
