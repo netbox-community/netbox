@@ -46,22 +46,18 @@ class PluginConfig(AppConfig):
     # Caching configuration
     caching_config = {}
 
+    # Default integration paths. Plugin authors can override these to customize the paths to
+    # integrated components.
+    menu_items = 'navigation.menu_items'
+
     def ready(self):
 
         # Register navigation menu items (if defined)
-        register_menu_items(self.verbose_name, self.get_menu_items())
-
-    def get_menu_items(self):
-        """
-        Default method to import navigation menu items for a plugin from the default location (menu_items in a
-        file named navigation.py). This method may be overridden by a plugin author to import menu items from
-        a different location if needed.
-        """
         try:
-            menu_items = import_string(f"{self.__module__}.navigation.menu_items")
-            return menu_items
+            menu_items = import_string(f"{self.__module__}.{self.menu_items}")
+            register_menu_items(self.verbose_name, menu_items)
         except ImportError:
-            return []
+            pass
 
 
 #
