@@ -170,7 +170,7 @@ class PluginNavMenuLink:
     def __init__(self, link, link_text, permission=None, buttons=None):
         self.link = link
         self.link_text = link_text
-        self.link_permission = permission
+        self.permission = permission
         if buttons is None:
             self.buttons = []
         else:
