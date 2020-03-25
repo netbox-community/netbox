@@ -106,6 +106,7 @@ class AnimalSoundsConfig(PluginConfig):
 * `max_version`: Maximum version of NetBox with which the plugin is compatible
 * `middleware`: A list of middleware classes to append after NetBox's build-in middleware.
 * `caching_config`: Plugin-specific cache configuration
+* `template_content`: The dotted path to the list of template content classes (default: `template_content.template_contnet`)
 * `menu_items`: The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`)
 
 ### Install the Plugin for Development
@@ -305,3 +306,40 @@ A `PluginNavMenuButton` has the following attributes:
 * `color` - Button color (one of the choices provided by `ButtonColorChoices`)
 * `icon_class` - Button icon CSS class
 * `permission` - The name of the permission required to display this button (optional)
+
+## Template Content
+
+Plugins can inject custom content into certain areas of the detail views of applicable models. This is accomplished by subclassing `PluginTemplateContent`, designating a particular NetBox model, and defining the desired methods to render custom content. Four methods are available:
+
+* `left_page()` - Inject content on the left side of the page
+* `right_page()` - Inject content on the right side of the page
+* `full_width_page()` - Inject content across the entire bottom of the page
+* `buttons()` - Add buttons to the top of the page
+
+Each of these methods must return HTML content suitable for inclusion in the object template. Two instance attributes are available for context:
+
+* `self.obj` - The object being viewed
+* `self.context` - The current template context
+
+Additionally, a `render()` method is available for convenience. This method accepts the name of a template to render, and any additional context data. Its use is optional, however.
+
+Declared subclasses should be gathered into a list or tuple for integration with NetBox. By default, NetBox looks for an iterable named `template_content` within a `template_content.py` file. (This can be overridden by setting `template_content` to a custom value on the plugin's PluginConfig.) An example is below.
+
+```python
+from extras.plugins import PluginTemplateContent
+
+class AddSiteAnimal(PluginTemplateContent):
+    model = 'dcim.site'
+
+    def full_width_page(self):
+        return self.render('netbox_animal_sounds/site.html')
+
+class AddRackAnimal(PluginTemplateContent):
+    model = 'dcim.rack'
+
+    def left_page(self):
+        extra_data = {'foo': 123}
+        return self.render('netbox_animal_sounds/rack.html', extra_data)
+
+template_content_classes = [AddSiteAnimal, AddRackAnimal]
+```

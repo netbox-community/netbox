@@ -88,8 +88,8 @@ class PluginTemplateContent:
 
     def render(self, template, extra_context=None):
         """
-        Convenience menthod for rendering the provided template name. The detail page object is automatically
-        passed into the template context as `obj` and the origional detail page's context is available as
+        Convenience method for rendering the provided template name. The detail page object is automatically
+        passed into the template context as `obj` and the original detail page's context is available as
         `obj_context`. An additional context dictionary may be passed as `extra_context`.
         """
         context = {
