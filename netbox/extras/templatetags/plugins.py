@@ -1,9 +1,7 @@
 from django import template as template_
-from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 
-from extras.plugins import get_content_classes
-
+from extras.registry import registry
 
 register = template_.Library()
 
@@ -15,7 +13,8 @@ def _get_registered_content(obj, method, context):
     """
     html = ''
 
-    plugin_template_classes = get_content_classes(obj._meta.label_lower)
+    model_name = obj._meta.label_lower
+    plugin_template_classes = registry['plugin_template_content_classes'].get(model_name, [])
     for plugin_template_class in plugin_template_classes:
         plugin_template_renderer = plugin_template_class(obj, context)
         try:
