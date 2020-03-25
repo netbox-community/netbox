@@ -4,8 +4,8 @@
         {% for section_name, link_items in plugin_nav_menu_links.items %}
             <li class="dropdown-header">{{ section_name }}</li>
             {% for link_item in link_items %}
-                {% if link_item.link_permission %}
-                    <li{% if not link_item.link_permission in perms %} class="disabled"{% endif %}>
+                {% if link_item.permission %}
+                    <li{% if not link_item.permission in perms %} class="disabled"{% endif %}>
                 {% else %}
                     <li>
                 {% endif %}

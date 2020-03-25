@@ -1,11 +1,16 @@
 import collections
 import inspect
 
-from django.apps import AppConfig, apps
+from django.apps import AppConfig
 from django.template.loader import get_template
+from django.utils.module_loading import import_string
 
 from extras.registry import registry
-from .signals import register_detail_page_content_classes, register_nav_menu_link_classes
+from .signals import register_detail_page_content_classes
+
+
+# Initialize plugin registry stores
+registry['plugin_nav_menu_links'] = {}
 
 
 #
@@ -40,6 +45,19 @@ class PluginConfig(AppConfig):
 
     # Caching configuration
     caching_config = {}
+
+    # Default integration paths. Plugin authors can override these to customize the paths to
+    # integrated components.
+    menu_items = 'navigation.menu_items'
+
+    def ready(self):
+
+        # Register navigation menu items (if defined)
+        try:
+            menu_items = import_string(f"{self.__module__}.{self.menu_items}")
+            register_menu_items(self.verbose_name, menu_items)
+        except ImportError:
+            pass
 
 
 #
@@ -138,7 +156,7 @@ def get_content_classes(model):
 
 
 #
-# Nav menu links
+# Navigation menu links
 #
 
 class PluginNavMenuLink:
@@ -149,10 +167,14 @@ class PluginNavMenuLink:
     Links are specified as Django reverse URL strings.
     Buttons are each specified as a list of PluginNavMenuButton instances.
     """
-    link = None
-    link_text = None
-    link_permission = None
-    buttons = []
+    def __init__(self, link, link_text, permission=None, buttons=None):
+        self.link = link
+        self.link_text = link_text
+        self.permission = permission
+        if buttons is None:
+            self.buttons = []
+        else:
+            self.buttons = buttons
 
 
 class PluginNavMenuButton:
@@ -168,42 +190,16 @@ class PluginNavMenuButton:
         self.permission = permission
 
 
-def register_nav_menu_links():
+def register_menu_items(section_name, class_list):
     """
-    Helper method that populates the registry with all nav menu link classes that have been registered by plugins
+    Register a list of PluginNavMenuLink instances for a given menu section (e.g. plugin name)
     """
-    registry['plugin_nav_menu_link_classes'] = {}
+    # Validation
+    for menu_link in class_list:
+        if not isinstance(menu_link, PluginNavMenuLink):
+            raise TypeError(f"{menu_link} must be an instance of extras.plugins.PluginNavMenuLink")
+        for button in menu_link.buttons:
+            if not isinstance(button, PluginNavMenuButton):
+                raise TypeError(f"{button} must be an instance of extras.plugins.PluginNavMenuButton")
 
-    responses = register_nav_menu_link_classes.send('registration_event')
-    for receiver, response in responses:
-
-        # Derive menu section header from plugin name
-        app_config = apps.get_app_config(receiver.__module__.split('.')[0])
-        section_name = getattr(app_config, 'verbose_name', app_config.name)
-
-        if not isinstance(response, list):
-            response = [response]
-        for link_class in response:
-            if not inspect.isclass(link_class):
-                raise TypeError('Plugin nav menu link class {} was passes as an instance!'.format(link_class))
-            if not issubclass(link_class, PluginNavMenuLink):
-                raise TypeError('{} is not a subclass of extras.plugins.PluginNavMenuLink!'.format(link_class))
-            if link_class.link is None or link_class.link_text is None:
-                raise TypeError('Plugin nav menu link {} must specify at least link and link_text'.format(link_class))
-
-            for button in link_class.buttons:
-                if not isinstance(button, PluginNavMenuButton):
-                    raise TypeError('{} must be an instance of PluginNavMenuButton!'.format(button))
-
-        registry['plugin_nav_menu_link_classes'][section_name] = response
-
-
-def get_nav_menu_link_classes():
-    """
-    Return the list of all registered nav menu link classes.
-    Populate the registry if it is empty.
-    """
-    if 'plugin_nav_menu_link_classes' not in registry:
-        register_nav_menu_links()
-
-    return registry['plugin_nav_menu_link_classes']
+    registry['plugin_nav_menu_links'][section_name] = class_list

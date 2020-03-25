@@ -106,6 +106,7 @@ class AnimalSoundsConfig(PluginConfig):
 * `max_version`: Maximum version of NetBox with which the plugin is compatible
 * `middleware`: A list of middleware classes to append after NetBox's build-in middleware.
 * `caching_config`: Plugin-specific cache configuration
+* `menu_items`: The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`)
 
 ### Install the Plugin for Development
 
@@ -271,24 +272,36 @@ With these three components in place, we can request `/api/plugins/animal-sounds
 
 ## Navigation Menu Items
 
-To make its views easily accessible to users, a plugin can inject items in NetBox's navigation menu. This is done by instantiating NetBox's `PluginNavMenuLink` class. Each instance of this class appears in the navigation menu under the header for its plugin. We'll create a link in the file `navigation.py`:
+To make its views easily accessible to users, a plugin can inject items in NetBox's navigation menu. Menu items are added by defining a list of PluginNavMenuLink instances. By default, this should be a variable named `menu_items` in the file `navigations.py`. An example is shown below.
 
 ```python
-from extras.plugins import PluginNavMenuLink
+from extras.plugins import PluginNavMenuButton, PluginNavMenuLink
+from utilities.choices import ButtonColorChoices
 
-class RandomSoundLink(PluginNavMenuLink):
-    link = 'plugins:netbox_animal_sounds:random_sound'
-    link_text = 'Random sound'
+menu_items = (
+    PluginNavMenuLink(
+        link='plugins:netbox_animal_sounds:random_sound',
+        link_text='Random sound',
+        buttons=(
+            PluginNavMenuButton('home', 'Button A', 'fa-info', ButtonColorChoices.BLUE),
+            PluginNavMenuButton('home', 'Button B', 'fa-warning', ButtonColorChoices.GREEN),
+        )
+    ),
+)
 ```
 
-Once we have our menu item defined, we need to register it in `signals.py`:
+A `PluginNavMenuLink` has the following attributes:
 
-```python
-from django.dispatch import receiver
-from extras.plugins.signals import register_nav_menu_link_classes
-from .navigation import RandomSoundLink
+* `link` - The name of the URL path to which this menu item links
+* `link_text` - The text presented to the user
+* `permission` - The name of the permission required to display this link (optional)
+* `buttons` - An iterable of PluginNavMenuButton instances to display (optional)
 
-@receiver(register_nav_menu_link_classes)
-def nav_menu_link_classes(**kwargs):
-    return [RandomSoundLink]
-```
+
+A `PluginNavMenuButton` has the following attributes:
+
+* `link` - The name of the URL path to which this menu item links
+* `title` - The tooltip text (displayed when the mouse hovers over the button)
+* `color` - Button color (one of the choices provided by `ButtonColorChoices`)
+* `icon_class` - Button icon CSS class
+* `permission` - The name of the permission required to display this button (optional)
