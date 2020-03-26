@@ -8,13 +8,13 @@ register = template_.Library()
 
 def _get_registered_content(obj, method, context):
     """
-    Given an object and a PluginTemplateContent method name and the template context, return all the
+    Given an object and a PluginTemplateExtension method name and the template context, return all the
     registered content for the object's model.
     """
     html = ''
 
     model_name = obj._meta.label_lower
-    plugin_template_classes = registry['plugin_template_content_classes'].get(model_name, [])
+    plugin_template_classes = registry['plugin_template_extensions'].get(model_name, [])
     for plugin_template_class in plugin_template_classes:
         plugin_template_renderer = plugin_template_class(obj, context)
         try:

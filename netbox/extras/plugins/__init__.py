@@ -10,7 +10,7 @@ from utilities.choices import ButtonColorChoices
 
 
 # Initialize plugin registry stores
-registry['plugin_template_content_classes'] = collections.defaultdict(list)
+registry['plugin_template_extensions'] = collections.defaultdict(list)
 registry['plugin_nav_menu_links'] = {}
 
 
@@ -49,15 +49,15 @@ class PluginConfig(AppConfig):
 
     # Default integration paths. Plugin authors can override these to customize the paths to
     # integrated components.
-    template_content_classes = 'template_content.template_content_classes'
+    template_extensions = 'template_content.template_extensions'
     menu_items = 'navigation.menu_items'
 
     def ready(self):
 
         # Register template content
         try:
-            class_list = import_string(f"{self.__module__}.{self.template_content_classes}")
-            register_template_content_classes(class_list)
+            template_extensions = import_string(f"{self.__module__}.{self.template_extensions}")
+            register_template_extensions(template_extensions)
         except ImportError:
             pass
 
@@ -73,7 +73,7 @@ class PluginConfig(AppConfig):
 # Template content injection
 #
 
-class PluginTemplateContent:
+class PluginTemplateExtension:
     """
     This class is used to register plugin content to be injected into core NetBox templates.
     It contains methods that are overridden by plugin authors to return template content.
@@ -132,20 +132,20 @@ class PluginTemplateContent:
         raise NotImplementedError
 
 
-def register_template_content_classes(class_list):
+def register_template_extensions(class_list):
     """
-    Register a list of PluginTemplateContent classes
+    Register a list of PluginTemplateExtension classes
     """
     # Validation
-    for template_content_class in class_list:
-        if not inspect.isclass(template_content_class):
-            raise TypeError('Plugin content class {} was passes as an instance!'.format(template_content_class))
-        if not issubclass(template_content_class, PluginTemplateContent):
-            raise TypeError('{} is not a subclass of extras.plugins.PluginTemplateContent!'.format(template_content_class))
-        if template_content_class.model is None:
-            raise TypeError('Plugin content class {} does not define a valid model!'.format(template_content_class))
+    for template_extension in class_list:
+        if not inspect.isclass(template_extension):
+            raise TypeError(f"PluginTemplateExtension class {template_extension} was passes as an instance!")
+        if not issubclass(template_extension, PluginTemplateExtension):
+            raise TypeError(f"{template_extension} is not a subclass of extras.plugins.PluginTemplateExtension!")
+        if template_extension.model is None:
+            raise TypeError(f"PluginTemplateExtension class {template_extension} does not define a valid model!")
 
-        registry['plugin_template_content_classes'][template_content_class.model].append(template_content_class)
+        registry['plugin_template_extensions'][template_extension.model].append(template_extension)
 
 
 #
