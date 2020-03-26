@@ -152,7 +152,7 @@ def register_template_content_classes(class_list):
 # Navigation menu links
 #
 
-class PluginNavMenuLink:
+class PluginMenuItem:
     """
     This class represents a nav menu item. This constitutes primary link and its text, but also allows for
     specifying additional link buttons that appear to the right of the item in the van menu.
@@ -189,12 +189,12 @@ class PluginNavMenuButton:
 
 def register_menu_items(section_name, class_list):
     """
-    Register a list of PluginNavMenuLink instances for a given menu section (e.g. plugin name)
+    Register a list of PluginMenuItem instances for a given menu section (e.g. plugin name)
     """
     # Validation
     for menu_link in class_list:
-        if not isinstance(menu_link, PluginNavMenuLink):
-            raise TypeError(f"{menu_link} must be an instance of extras.plugins.PluginNavMenuLink")
+        if not isinstance(menu_link, PluginMenuItem):
+            raise TypeError(f"{menu_link} must be an instance of extras.plugins.PluginMenuItem")
         for button in menu_link.buttons:
             if not isinstance(button, PluginNavMenuButton):
                 raise TypeError(f"{button} must be an instance of extras.plugins.PluginNavMenuButton")
