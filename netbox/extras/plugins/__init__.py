@@ -6,10 +6,10 @@ from django.template.loader import get_template
 from django.utils.module_loading import import_string
 
 from extras.registry import registry
-from .signals import register_detail_page_content_classes
 
 
 # Initialize plugin registry stores
+registry['plugin_template_content_classes'] = collections.defaultdict(list)
 registry['plugin_nav_menu_links'] = {}
 
 
@@ -48,9 +48,17 @@ class PluginConfig(AppConfig):
 
     # Default integration paths. Plugin authors can override these to customize the paths to
     # integrated components.
+    template_content_classes = 'template_content.template_content_classes'
     menu_items = 'navigation.menu_items'
 
     def ready(self):
+
+        # Register template content
+        try:
+            class_list = import_string(f"{self.__module__}.{self.template_content_classes}")
+            register_template_content_classes(class_list)
+        except ImportError:
+            pass
 
         # Register navigation menu items (if defined)
         try:
@@ -67,7 +75,7 @@ class PluginConfig(AppConfig):
 class PluginTemplateContent:
     """
     This class is used to register plugin content to be injected into core NetBox templates.
-    It contains methods that are overriden by plugin authors to return template content.
+    It contains methods that are overridden by plugin authors to return template content.
 
     The `model` attribute on the class defines the which model detail page this class renders
     content for. It should be set as a string in the form '<app_label>.<model_name>'.
@@ -80,8 +88,8 @@ class PluginTemplateContent:
 
     def render(self, template, extra_context=None):
         """
-        Convenience menthod for rendering the provided template name. The detail page object is automatically
-        passed into the template context as `obj` and the origional detail page's context is available as
+        Convenience method for rendering the provided template name. The detail page object is automatically
+        passed into the template context as `obj` and the original detail page's context is available as
         `obj_context`. An additional context dictionary may be passed as `extra_context`.
         """
         context = {
@@ -123,36 +131,20 @@ class PluginTemplateContent:
         raise NotImplementedError
 
 
-def register_content_classes():
+def register_template_content_classes(class_list):
     """
-    Helper method that populates the registry with all template content classes that have been registered by plugins
+    Register a list of PluginTemplateContent classes
     """
-    registry['plugin_template_content_classes'] = collections.defaultdict(list)
+    # Validation
+    for template_content_class in class_list:
+        if not inspect.isclass(template_content_class):
+            raise TypeError('Plugin content class {} was passes as an instance!'.format(template_content_class))
+        if not issubclass(template_content_class, PluginTemplateContent):
+            raise TypeError('{} is not a subclass of extras.plugins.PluginTemplateContent!'.format(template_content_class))
+        if template_content_class.model is None:
+            raise TypeError('Plugin content class {} does not define a valid model!'.format(template_content_class))
 
-    responses = register_detail_page_content_classes.send('registration_event')
-    for receiver, response in responses:
-        if not isinstance(response, list):
-            response = [response]
-        for template_class in response:
-            if not inspect.isclass(template_class):
-                raise TypeError('Plugin content class {} was passes as an instance!'.format(template_class))
-            if not issubclass(template_class, PluginTemplateContent):
-                raise TypeError('{} is not a subclass of extras.plugins.PluginTemplateContent!'.format(template_class))
-            if template_class.model is None:
-                raise TypeError('Plugin content class {} does not define a valid model!'.format(template_class))
-
-            registry['plugin_template_content_classes'][template_class.model].append(template_class)
-
-
-def get_content_classes(model):
-    """
-    Given a model string, return the list of all registered template content classes.
-    Populate the registry if it is empty.
-    """
-    if 'plugin_template_content_classes' not in registry:
-        register_content_classes()
-
-    return registry['plugin_template_content_classes'].get(model, [])
+        registry['plugin_template_content_classes'][template_content_class.model].append(template_content_class)
 
 
 #

@@ -3,7 +3,9 @@ from django.dispatch.dispatcher import NO_RECEIVERS
 
 
 class PluginSignal(django.dispatch.Signal):
-
+    """
+    FUTURE USE
+    """
     def _sorted_receivers(self, sender):
         orig_list = self._live_receivers(sender)
         sorted_list = sorted(
@@ -24,11 +26,3 @@ class PluginSignal(django.dispatch.Signal):
             response = receiver(signal=self, sender=sender, **kwargs)
             responses.append((receiver, response))
         return responses
-
-
-"""
-This signal collects template content classes which render content for object detail pages
-"""
-register_detail_page_content_classes = PluginSignal(
-    providing_args=[]
-)
