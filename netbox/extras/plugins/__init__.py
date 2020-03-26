@@ -83,8 +83,7 @@ class PluginTemplateExtension:
     """
     model = None
 
-    def __init__(self, obj, context):
-        self.obj = obj
+    def __init__(self, context):
         self.context = context
 
     def render(self, template, extra_context=None):
@@ -93,14 +92,12 @@ class PluginTemplateExtension:
         passed into the template context as `obj` and the original detail page's context is available as
         `obj_context`. An additional context dictionary may be passed as `extra_context`.
         """
-        context = {
-            'obj': self.obj,
-            'obj_context': self.context
-        }
-        if isinstance(extra_context, dict):
-            context.update(extra_context)
+        if extra_context is None:
+            extra_context = {}
+        elif not isinstance(extra_context, dict):
+            raise TypeError("extra_context must be a dictionary")
 
-        return get_template(template).render(context)
+        return get_template(template).render({**self.context, **extra_context})
 
     def left_page(self):
         """

@@ -325,12 +325,16 @@ Plugins can inject custom content into certain areas of the detail views of appl
 * `full_width_page()` - Inject content across the entire bottom of the page
 * `buttons()` - Add buttons to the top of the page
 
-Each of these methods must return HTML content suitable for inclusion in the object template. Two instance attributes are available for context:
-
-* `self.obj` - The object being viewed
-* `self.context` - The current template context
-
 Additionally, a `render()` method is available for convenience. This method accepts the name of a template to render, and any additional context data you want to pass. Its use is optional, however.
+
+When a PluginTemplateExtension is instantiated, context data is assigned to `self.context`. Available data include:
+
+* `obj` - The object being viewed
+* `request` - The current request
+* `settings` - Global NetBox settings
+* `config` - Plugin-specific configuration parameters
+
+For example, accessing `{{ request.user }}` within a template will return the current user.
 
 Declared subclasses should be gathered into a list or tuple for integration with NetBox. By default, NetBox looks for an iterable named `template_extensions` within a `template_content.py` file. (This can be overridden by setting `template_extensions` to a custom value on the plugin's PluginConfig.) An example is below.
 
