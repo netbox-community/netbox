@@ -91,21 +91,23 @@ class AnimalSoundsConfig(PluginConfig):
 
 #### PluginConfig Attributes
 
-* `name` - Raw plugin name; same as the plugin's source directory
-* `verbose_name` - Human-friendly name for the plugin
-* `version` - Current release ([semantic versioning](https://semver.org/) is encouraged)
-* `description` - Brief description of the plugin's purpose
-* `author_name` - Name of plugin's author
-* `author_email` - Author's public email address
-* `base_url` - Base path to use for plugin URLs (optional). If not specified, the project's `name` will be used.
-* `required_settings`: A list of any configuration parameters that **must** be defined by the user
-* `default_settings`: A dictionary of configuration parameter names and their default values
-* `min_version`: Minimum version of NetBox with which the plugin is compatible
-* `max_version`: Maximum version of NetBox with which the plugin is compatible
-* `middleware`: A list of middleware classes to append after NetBox's build-in middleware
-* `caching_config`: Plugin-specific cache configuration
-* `template_content`: The dotted path to the list of template content classes (default: `template_content.template_contnet`)
-* `menu_items`: The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`)
+| Name | Description |
+| ---- | ----------- |
+| `name` | Raw plugin name; same as the plugin's source directory |
+| `verbose_name` | Human-friendly name for the plugin |
+| `version` | Current release ([semantic versioning](https://semver.org/) is encouraged) |
+| `description` | Brief description of the plugin's purpose |
+| `author_name` | Name of plugin's author |
+| `author_email` | Author's public email address |
+| `base_url` | Base path to use for plugin URLs (optional). If not specified, the project's `name` will be used. |
+| `required_settings` | A list of any configuration parameters that **must** be defined by the user |
+| `default_settings` | A dictionary of configuration parameters and their default values |
+| `min_version` | Minimum version of NetBox with which the plugin is compatible |
+| `max_version` | Maximum version of NetBox with which the plugin is compatible |
+| `middleware` | A list of middleware classes to append after NetBox's build-in middleware |
+| `caching_config` | Plugin-specific cache configuration
+| `template_content` | The dotted path to the list of template content classes (default: `template_content.template_contnet`) |
+| `menu_items` | The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`) |
 
 ### Install the Plugin for Development
 
