@@ -14,11 +14,10 @@ def _get_registered_content(obj, method, context):
     html = ''
 
     model_name = obj._meta.label_lower
-    plugin_template_classes = registry['plugin_template_extensions'].get(model_name, [])
-    for plugin_template_class in plugin_template_classes:
-        plugin_template_renderer = plugin_template_class(obj, context)
+    for template_extension_class in registry['plugin_template_extensions'].get(model_name, []):
+        template_extension_instance = template_extension_class(obj, context)
         try:
-            content = getattr(plugin_template_renderer, method)()
+            content = getattr(template_extension_instance, method)()
         except NotImplementedError:
             # This content renderer class does not define content for this method
             continue
@@ -30,7 +29,7 @@ def _get_registered_content(obj, method, context):
 @register.simple_tag(takes_context=True)
 def plugin_buttons(context, obj):
     """
-    Fire signal to collect all buttons registered by plugins
+    Render all buttons registered by plugins
     """
     return _get_registered_content(obj, 'buttons', context)
 
@@ -38,7 +37,7 @@ def plugin_buttons(context, obj):
 @register.simple_tag(takes_context=True)
 def plugin_left_page(context, obj):
     """
-    Fire signal to collect all left page content registered by plugins
+    Render all left page content registered by plugins
     """
     return _get_registered_content(obj, 'left_page', context)
 
@@ -46,7 +45,7 @@ def plugin_left_page(context, obj):
 @register.simple_tag(takes_context=True)
 def plugin_right_page(context, obj):
     """
-    Fire signal to collect all right page content registered by plugins
+    Render all right page content registered by plugins
     """
     return _get_registered_content(obj, 'right_page', context)
 
@@ -54,6 +53,6 @@ def plugin_right_page(context, obj):
 @register.simple_tag(takes_context=True)
 def plugin_full_width_page(context, obj):
     """
-    Fire signal to collect all full width page content registered by plugins
+    Render all full width page content registered by plugins
     """
     return _get_registered_content(obj, 'full_width_page', context)
