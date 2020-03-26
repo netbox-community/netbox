@@ -88,7 +88,7 @@ class ButtonColorChoices(ChoiceSet):
     """
     Map standard button color choices to Bootstrap color classes
     """
-
+    DEFAULT = 'default'
     BLUE = 'primary'
     GREY = 'secondary'
     GREEN = 'success'
@@ -97,6 +97,7 @@ class ButtonColorChoices(ChoiceSet):
     BLACK = 'dark'
 
     CHOICES = (
+        (DEFAULT, 'Default'),
         (BLUE, 'Blue'),
         (GREY, 'Grey'),
         (GREEN, 'Green'),

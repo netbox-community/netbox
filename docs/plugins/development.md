@@ -311,8 +311,8 @@ A `PluginNavMenuButton` has the following attributes:
 
 * `link` - The name of the URL path to which this button links
 * `title` - The tooltip text (displayed when the mouse hovers over the button)
-* `color` - Button color (one of the choices provided by `ButtonColorChoices`)
 * `icon_class` - Button icon CSS class
+* `color` - One of the choices provided by `ButtonColorChoices` (optional)
 * `permission` - The name of the permission required to display this button (optional)
 
 ## Template Content

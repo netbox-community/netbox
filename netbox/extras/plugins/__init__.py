@@ -6,6 +6,7 @@ from django.template.loader import get_template
 from django.utils.module_loading import import_string
 
 from extras.registry import registry
+from utilities.choices import ButtonColorChoices
 
 
 # Initialize plugin registry stores
@@ -174,12 +175,16 @@ class PluginNavMenuButton:
     This class represents a button which is a part of the nav menu link item.
     Note that button colors should come from ButtonColorChoices
     """
-    def __init__(self, link, title, icon_class, color, permission=None):
+    color = ButtonColorChoices.DEFAULT
+
+    def __init__(self, link, title, icon_class, color=None, permission=None):
         self.link = link
         self.title = title
         self.icon_class = icon_class
-        self.color = color
         self.permission = permission
+
+        if color is not None:
+            self.color = color
 
 
 def register_menu_items(section_name, class_list):
