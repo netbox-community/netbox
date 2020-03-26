@@ -158,7 +158,7 @@ class PluginMenuItem:
     specifying additional link buttons that appear to the right of the item in the van menu.
 
     Links are specified as Django reverse URL strings.
-    Buttons are each specified as a list of PluginNavMenuButton instances.
+    Buttons are each specified as a list of PluginMenuButton instances.
     """
     def __init__(self, link, link_text, permission=None, buttons=None):
         self.link = link
@@ -170,7 +170,7 @@ class PluginMenuItem:
             self.buttons = buttons
 
 
-class PluginNavMenuButton:
+class PluginMenuButton:
     """
     This class represents a button which is a part of the nav menu link item.
     Note that button colors should come from ButtonColorChoices
@@ -196,7 +196,7 @@ def register_menu_items(section_name, class_list):
         if not isinstance(menu_link, PluginMenuItem):
             raise TypeError(f"{menu_link} must be an instance of extras.plugins.PluginMenuItem")
         for button in menu_link.buttons:
-            if not isinstance(button, PluginNavMenuButton):
-                raise TypeError(f"{button} must be an instance of extras.plugins.PluginNavMenuButton")
+            if not isinstance(button, PluginMenuButton):
+                raise TypeError(f"{button} must be an instance of extras.plugins.PluginMenuButton")
 
     registry['plugin_nav_menu_links'][section_name] = class_list

@@ -284,7 +284,7 @@ With these three components in place, we can request `/api/plugins/animal-sounds
 To make its views easily accessible to users, a plugin can inject items in NetBox's navigation menu under the "Plugins" header. Menu items are added by defining a list of PluginMenuItem instances. By default, this should be a variable named `menu_items` in the file `navigation.py`. An example is shown below.
 
 ```python
-from extras.plugins import PluginNavMenuButton, PluginMenuItem
+from extras.plugins import PluginMenuButton, PluginMenuItem
 from utilities.choices import ButtonColorChoices
 
 menu_items = (
@@ -292,8 +292,8 @@ menu_items = (
         link='plugins:netbox_animal_sounds:random_sound',
         link_text='Random sound',
         buttons=(
-            PluginNavMenuButton('home', 'Button A', 'fa-info', ButtonColorChoices.BLUE),
-            PluginNavMenuButton('home', 'Button B', 'fa-warning', ButtonColorChoices.GREEN),
+            PluginMenuButton('home', 'Button A', 'fa-info', ButtonColorChoices.BLUE),
+            PluginMenuButton('home', 'Button B', 'fa-warning', ButtonColorChoices.GREEN),
         )
     ),
 )
@@ -304,10 +304,10 @@ A `PluginMenuItem` has the following attributes:
 * `link` - The name of the URL path to which this menu item links
 * `link_text` - The text presented to the user
 * `permission` - The name of the permission required to display this link (optional)
-* `buttons` - An iterable of PluginNavMenuButton instances to display (optional)
+* `buttons` - An iterable of PluginMenuButton instances to display (optional)
 
 
-A `PluginNavMenuButton` has the following attributes:
+A `PluginMenuButton` has the following attributes:
 
 * `link` - The name of the URL path to which this button links
 * `title` - The tooltip text (displayed when the mouse hovers over the button)
