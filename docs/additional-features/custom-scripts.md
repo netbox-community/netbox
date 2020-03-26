@@ -237,6 +237,7 @@ class NewBranchScript(Script):
             status=SiteStatusChoices.STATUS_PLANNED
         )
         site.save()
+        site.tags.add("colo", "test") # Unlike other object attributes, any time you want to add tags to an object, you must do so AFTER the object has been saved.
         self.log_success("Created new site: {}".format(site))
 
         # Create access switches
