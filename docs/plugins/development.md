@@ -305,9 +305,8 @@ A `PluginMenuItem` has the following attributes:
 
 * `link` - The name of the URL path to which this menu item links
 * `link_text` - The text presented to the user
-* `permission` - The name of the permission required to display this link (optional)
+* `permissions` - A list of permissions required to display this link (optional)
 * `buttons` - An iterable of PluginMenuButton instances to display (optional)
-
 
 A `PluginMenuButton` has the following attributes:
 
@@ -315,7 +314,7 @@ A `PluginMenuButton` has the following attributes:
 * `title` - The tooltip text (displayed when the mouse hovers over the button)
 * `icon_class` - Button icon CSS class
 * `color` - One of the choices provided by `ButtonColorChoices` (optional)
-* `permission` - The name of the permission required to display this button (optional)
+* `permissions` - A list of permissions required to display this button (optional)
 
 ## Extending Core Templates
 

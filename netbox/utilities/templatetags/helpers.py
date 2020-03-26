@@ -201,6 +201,14 @@ def get_docs(model):
     return mark_safe(content)
 
 
+@register.filter()
+def has_perms(user, permissions_list):
+    """
+    Return True if the user has *all* permissions in the list.
+    """
+    return user.has_perms(permissions_list)
+
+
 #
 # Tags
 #

@@ -160,13 +160,17 @@ class PluginMenuItem:
     Links are specified as Django reverse URL strings.
     Buttons are each specified as a list of PluginMenuButton instances.
     """
-    def __init__(self, link, link_text, permission=None, buttons=None):
+    permissions = []
+    buttons = []
+
+    def __init__(self, link, link_text, permissions=None, buttons=None):
         self.link = link
         self.link_text = link_text
-        self.permission = permission
-        if buttons is None:
-            self.buttons = []
-        else:
+        if permissions is not None:
+            if type(permissions) not in (list, tuple):
+                raise TypeError("Permissions must be passed as a tuple or list.")
+            self.permissions = permissions
+        if buttons is not None:
             self.buttons = buttons
 
 
@@ -176,13 +180,16 @@ class PluginMenuButton:
     ButtonColorChoices.
     """
     color = ButtonColorChoices.DEFAULT
+    permissions = []
 
-    def __init__(self, link, title, icon_class, color=None, permission=None):
+    def __init__(self, link, title, icon_class, color=None, permissions=None):
         self.link = link
         self.title = title
         self.icon_class = icon_class
-        self.permission = permission
-
+        if permissions is not None:
+            if type(permissions) not in (list, tuple):
+                raise TypeError("Permissions must be passed as a tuple or list.")
+            self.permissions = permissions
         if color is not None:
             self.color = color
 
