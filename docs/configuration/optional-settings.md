@@ -303,7 +303,19 @@ Determine how many objects to display per page within each list of objects.
 
 Default: Empty
 
-This parameter holds configuration settings for individual NetBox plugins. It is defined as a dictionary, with each key using the name of an installed plugin. The specific parameters supported are unique to each plugin: Reference the plugin's documentation to determine the supported parameters.
+This parameter holds configuration settings for individual NetBox plugins. It is defined as a dictionary, with each key using the name of an installed plugin. The specific parameters supported are unique to each plugin: Reference the plugin's documentation to determine the supported parameters. An example configuration is shown below:
+
+```python
+PLUGINS_CONFIG = {
+    'plugin1': {
+        'foo': 123,
+        'bar': True
+    },
+    'plugin2': {
+        'foo': 456,
+    },
+}
+```
 
 Note that `PLUGINS_ENABLED` must be set to True for this to take effect.
 
