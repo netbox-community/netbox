@@ -1,10 +1,10 @@
 from extras.registry import registry
 
 
-def nav_menu_links(request):
+def plugin_menu_items(request):
     """
-    Retrieve and expose all plugin registered nav links
+    Retrieve and expose all plugin registered navigation menu items.
     """
     return {
-        'plugin_nav_menu_links': registry['plugin_nav_menu_links']
+        'plugin_menu_items': registry['plugin_menu_items']
     }

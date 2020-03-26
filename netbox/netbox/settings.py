@@ -326,7 +326,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'utilities.context_processors.settings',
-                'extras.plugins.context_processors.nav_menu_links',
+                'extras.plugins.context_processors.plugin_menu_items',
             ],
         },
     },

@@ -11,7 +11,7 @@ from utilities.choices import ButtonColorChoices
 
 # Initialize plugin registry stores
 registry['plugin_template_extensions'] = collections.defaultdict(list)
-registry['plugin_nav_menu_links'] = {}
+registry['plugin_menu_items'] = {}
 
 
 #
@@ -154,7 +154,7 @@ def register_template_extensions(class_list):
 
 class PluginMenuItem:
     """
-    This class represents a nav menu item. This constitutes primary link and its text, but also allows for
+    This class represents a navigation menu item. This constitutes primary link and its text, but also allows for
     specifying additional link buttons that appear to the right of the item in the van menu.
 
     Links are specified as Django reverse URL strings.
@@ -172,8 +172,8 @@ class PluginMenuItem:
 
 class PluginMenuButton:
     """
-    This class represents a button which is a part of the nav menu link item.
-    Note that button colors should come from ButtonColorChoices
+    This class represents a button within a PluginMenuItem. Note that button colors should come from
+    ButtonColorChoices.
     """
     color = ButtonColorChoices.DEFAULT
 
@@ -199,4 +199,4 @@ def register_menu_items(section_name, class_list):
             if not isinstance(button, PluginMenuButton):
                 raise TypeError(f"{button} must be an instance of extras.plugins.PluginMenuButton")
 
-    registry['plugin_nav_menu_links'][section_name] = class_list
+    registry['plugin_menu_items'][section_name] = class_list
