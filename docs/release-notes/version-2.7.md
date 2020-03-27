@@ -13,6 +13,7 @@
 * [#4382](https://github.com/netbox-community/netbox/issues/4382) - Enable custom links for rack reservations
 * [#4386](https://github.com/netbox-community/netbox/issues/4386) - Update admin links for Django RQ to reflect multiple queues
 * [#4389](https://github.com/netbox-community/netbox/issues/4389) - Add a bulk edit view for device bays
+* [#4404](https://github.com/netbox-community/netbox/issues/4404) - Add cable trace button for circuit terminations
 
 ### Bug Fixes
 
