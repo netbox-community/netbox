@@ -504,6 +504,9 @@
                         </li>
                     </ul>
                 </li>
+                {% if registry.plugin_menu_items %}
+                    {% include 'inc/plugin_menu_items.html' %}
+                {% endif %}
             </ul>
             {% endif %}
             <ul class="nav navbar-nav navbar-right">

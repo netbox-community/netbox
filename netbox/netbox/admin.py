@@ -11,6 +11,7 @@ class NetBoxAdminSite(AdminSite):
     site_header = 'NetBox Administration'
     site_title = 'NetBox'
     site_url = '/{}'.format(settings.BASE_PATH)
+    index_template = 'admin/index.html'
 
 
 admin_site = NetBoxAdminSite(name='admin')

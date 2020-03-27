@@ -2,6 +2,7 @@
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint">
@@ -31,6 +32,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons vlan %}
         {% if perms.ipam.add_vlan %}
             {% clone_button vlan %}
         {% endif %}
@@ -139,6 +141,7 @@
             </div>
             {% include 'inc/custom_fields_panel.html' with obj=vlan %}
             {% include 'extras/inc/tags_panel.html' with tags=vlan.tags.all url='ipam:vlan_list' %}
+            {% plugin_left_page vlan %}
         </div>
         <div class="col-md-8">
             <div class="panel panel-default">
@@ -155,6 +158,12 @@
                     </div>
                 {% endif %}
             </div>
+            {% plugin_right_page vlan %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% plugin_full_width_page vlan %}
         </div>
     </div>
 {% endblock %}
