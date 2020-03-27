@@ -7,11 +7,12 @@ python:
 theme:
     name: readthedocs
     navigation_depth: 3
+extra_css:
+    - extra.css
 markdown_extensions:
     - admonition:
     - markdown_include.include:
         headingOffset: 1
-
 nav:
     - Introduction: 'index.md'
     - Installation:

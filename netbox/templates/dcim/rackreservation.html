@@ -36,6 +36,9 @@
     </div>
     <h1>{% block title %}{{ rackreservation }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=rackreservation %}
+    <div class="pull-right noprint">
+        {% custom_links rackreservation %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ rackreservation.get_absolute_url }}">Rack</a>

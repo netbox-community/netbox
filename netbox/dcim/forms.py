@@ -4008,6 +4008,22 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
         ).exclude(pk=device_bay.device.pk)
 
 
+class DeviceBayBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=DeviceBay.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = (
+            'description',
+        )
+
+
 class DeviceBayCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),

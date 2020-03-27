@@ -1899,6 +1899,14 @@ class DeviceBayBulkImportView(PermissionRequiredMixin, BulkImportView):
     default_return_url = 'dcim:devicebay_list'
 
 
+class DeviceBayBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_devicebay'
+    queryset = DeviceBay.objects.all()
+    filterset = filters.DeviceBayFilterSet
+    table = tables.DeviceBayTable
+    form = forms.DeviceBayBulkEditForm
+
+
 class DeviceBayBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_devicebay'
     queryset = DeviceBay.objects.all()
@@ -2025,7 +2033,7 @@ class CableTraceView(PermissionRequiredMixin, View):
     def get(self, request, model, pk):
 
         obj = get_object_or_404(model, pk=pk)
-        trace = obj.trace(follow_circuits=True)
+        trace = obj.trace()
         total_length = sum([entry[1]._abs_length for entry in trace if entry[1] and entry[1]._abs_length])
 
         return render(request, 'dcim/cable_trace.html', {

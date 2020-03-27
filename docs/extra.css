@@ -1,0 +1,12 @@
+/* Custom table styling */
+table {
+    margin-bottom: 24px;
+    width: 100%;
+}
+th {
+    background-color: #f0f0f0;
+    padding: 6px;
+}
+td {
+    padding: 6px;
+}
