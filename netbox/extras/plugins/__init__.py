@@ -75,29 +75,33 @@ class PluginConfig(AppConfig):
 
 class PluginTemplateExtension:
     """
-    This class is used to register plugin content to be injected into core NetBox templates.
-    It contains methods that are overridden by plugin authors to return template content.
+    This class is used to register plugin content to be injected into core NetBox templates. It contains methods
+    that are overridden by plugin authors to return template content.
 
-    The `model` attribute on the class defines the which model detail page this class renders
-    content for. It should be set as a string in the form '<app_label>.<model_name>'.
+    The `model` attribute on the class defines the which model detail page this class renders content for. It
+    should be set as a string in the form '<app_label>.<model_name>'. render() provides the following context data:
+
+    * object - The object being viewed
+    * request - The current request
+    * settings - Global NetBox settings
+    * config - Plugin-specific configuration parameters
     """
     model = None
 
     def __init__(self, context):
         self.context = context
 
-    def render(self, template, extra_context=None):
+    def render(self, template_name, extra_context=None):
         """
-        Convenience method for rendering the provided template name. The detail page object is automatically
-        passed into the template context as `obj` and the original detail page's context is available as
-        `obj_context`. An additional context dictionary may be passed as `extra_context`.
+        Convenience method for rendering the specified Django template using the default context data. An additional
+        context dictionary may be passed as `extra_context`.
         """
         if extra_context is None:
             extra_context = {}
         elif not isinstance(extra_context, dict):
             raise TypeError("extra_context must be a dictionary")
 
-        return get_template(template).render({**self.context, **extra_context})
+        return get_template(template_name).render({**self.context, **extra_context})
 
     def left_page(self):
         """

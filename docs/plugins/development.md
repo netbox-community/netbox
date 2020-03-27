@@ -329,7 +329,7 @@ Additionally, a `render()` method is available for convenience. This method acce
 
 When a PluginTemplateExtension is instantiated, context data is assigned to `self.context`. Available data include:
 
-* `obj` - The object being viewed
+* `object` - The object being viewed
 * `request` - The current request
 * `settings` - Global NetBox settings
 * `config` - Plugin-specific configuration parameters

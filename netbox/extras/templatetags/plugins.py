@@ -15,7 +15,7 @@ def _get_registered_content(obj, method, template_context):
     """
     html = ''
     context = {
-        'obj': obj,
+        'object': obj,
         'request': template_context['request'],
         'settings': template_context['settings'],
     }
