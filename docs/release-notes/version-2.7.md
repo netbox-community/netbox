@@ -21,6 +21,7 @@
 * [#4340](https://github.com/netbox-community/netbox/issues/4340) - Enforce unique constraints for device and virtual machine names in the API
 * [#4343](https://github.com/netbox-community/netbox/issues/4343) - Fix Markdown support for tables
 * [#4365](https://github.com/netbox-community/netbox/issues/4365) - Fix exception raised on IP address bulk add view
+* [#4415](https://github.com/netbox-community/netbox/issues/4415) - Fix duplicate name validation on device model
 
 ---
 

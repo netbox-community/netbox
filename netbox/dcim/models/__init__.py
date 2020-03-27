@@ -1390,7 +1390,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
         # of the uniqueness constraint without manual intervention.
         if self.name and self.tenant is None:
-            if Device.objects.exclude(pk=self.pk).filter(name=self.name, tenant__isnull=True):
+            if Device.objects.exclude(pk=self.pk).filter(name=self.name, site=self.site, tenant__isnull=True):
                 raise ValidationError({
                     'name': 'A device with this name already exists.'
                 })
