@@ -6,16 +6,22 @@ from django.utils.module_loading import import_string
 
 from . import views
 
-# Plugins
+# Initialize URL base, API, and admin URL patterns for plugins
 plugin_patterns = []
-plugin_api_patterns = []
+plugin_api_patterns = [
+    path('', views.PluginsAPIRootView.as_view(), name='api-root'),
+    path('installed-plugins/', views.InstalledPluginsAPIView.as_view(), name='plugins-list')
+]
+plugin_admin_patterns = [
+    path('installed-plugins/', views.installed_plugins_admin_view, name='plugins_list')
+]
 
+# Register base/API URL patterns for each plugin
 for plugin in settings.PLUGINS:
     app = apps.get_app_config(plugin)
-
     base_url = getattr(app, 'base_url') or app.label
 
-    # Check if the plugin specifies any URLs
+    # Check if the plugin specifies any base URLs
     try:
         urlpatterns = import_string(f"{plugin}.urls.urlpatterns")
         plugin_patterns.append(
@@ -32,14 +38,3 @@ for plugin in settings.PLUGINS:
         )
     except ImportError:
         pass
-
-# Plugin list admin view
-admin_plugin_patterns = [
-    path('', views.installed_plugins_admin_view, name='plugins_list')
-]
-
-# Plugin list API view
-plugin_api_patterns += [
-    path('', views.PluginsAPIRootView.as_view(), name='api-root'),
-    path('installed-plugins/', views.InstalledPluginsAPIView.as_view(), name='plugins-list')
-]

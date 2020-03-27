@@ -1,6 +1,3 @@
-import importlib
-
-from django.apps import apps
 from django.conf import settings
 from django.conf.urls import include
 from django.urls import path, re_path, reverse
@@ -9,7 +6,7 @@ from django.views.static import serve
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
-from extras.plugins.urls import admin_plugin_patterns, plugin_patterns, plugin_api_patterns
+from extras.plugins.urls import plugin_admin_patterns, plugin_patterns, plugin_api_patterns
 from netbox.views import APIRootView, HomeView, StaticMediaFailureView, SearchView
 from users.views import LoginView, LogoutView
 from .admin import admin_site
@@ -88,7 +85,7 @@ _patterns = [
     # Plugins
     path('plugins/', include((plugin_patterns, 'plugins'))),
     path('api/plugins/', include((plugin_api_patterns, 'plugins-api'))),
-    path('admin/plugins/installed-plugins/', include(admin_plugin_patterns))
+    path('admin/plugins/', include(plugin_admin_patterns))
 ]
 
 
