@@ -2,27 +2,25 @@ from collections import OrderedDict
 
 from django.apps import apps
 from django.conf import settings
-from django.contrib import admin
-from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import render
 from django.urls.exceptions import NoReverseMatch
 from django.utils.module_loading import import_string
-from django.shortcuts import render
 from django.views.generic import View
-from rest_framework import authentication, permissions, routers
+from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 
-@staff_member_required
-def installed_plugins_admin_view(request):
+class InstalledPluginsAdminView(View):
     """
     Admin view for listing all installed plugins
     """
-    context_data = {
-        'plugins': [apps.get_app_config(plugin) for plugin in settings.PLUGINS]
-    }
-    return render(request, 'extras/admin/plugins_list.html', context_data)
+    def get(self, request):
+        plugins = [apps.get_app_config(plugin) for plugin in settings.PLUGINS]
+        return render(request, 'extras/admin/plugins_list.html', {
+            'plugins': plugins,
+        })
 
 
 class InstalledPluginsAPIView(APIView):
