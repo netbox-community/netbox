@@ -11,7 +11,6 @@ class NetBoxAdminSite(AdminSite):
     site_header = 'NetBox Administration'
     site_title = 'NetBox'
     site_url = '/{}'.format(settings.BASE_PATH)
-    index_template = 'django_rq/index.html'
 
 
 admin_site = NetBoxAdminSite(name='admin')

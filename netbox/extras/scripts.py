@@ -18,6 +18,7 @@ from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
 from utilities.exceptions import AbortTransaction
+from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .forms import ScriptForm
 from .signals import purge_changelog
 
@@ -167,7 +168,7 @@ class ObjectVar(ScriptVariable):
     """
     NetBox object representation. The provided QuerySet will determine the choices available.
     """
-    form_field = forms.ModelChoiceField
+    form_field = DynamicModelChoiceField
 
     def __init__(self, queryset, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -184,7 +185,7 @@ class MultiObjectVar(ScriptVariable):
     """
     Like ObjectVar, but can represent one or more objects.
     """
-    form_field = forms.ModelMultipleChoiceField
+    form_field = DynamicModelMultipleChoiceField
 
     def __init__(self, queryset, *args, **kwargs):
         super().__init__(*args, **kwargs)

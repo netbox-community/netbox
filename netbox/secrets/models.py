@@ -16,6 +16,7 @@ from taggit.managers import TaggableManager
 
 from dcim.models import Device
 from extras.models import CustomFieldModel, TaggedItem
+from extras.utils import extras_features
 from utilities.models import ChangeLoggedModel
 from .exceptions import InvalidKey
 from .hashers import SecretValidationHasher
@@ -295,6 +296,7 @@ class SecretRole(ChangeLoggedModel):
         return user in self.users.all() or user.groups.filter(pk__in=self.groups.all()).exists()
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Secret(ChangeLoggedModel, CustomFieldModel):
     """
     A Secret stores an AES256-encrypted copy of sensitive data, such as passwords or secret keys. An irreversible

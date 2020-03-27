@@ -40,7 +40,7 @@ def render_markdown(value):
     value = strip_tags(value)
 
     # Render Markdown
-    html = markdown(value, extensions=['fenced_code'])
+    html = markdown(value, extensions=['fenced_code', 'tables'])
 
     return mark_safe(html)
 
@@ -196,7 +196,7 @@ def get_docs(model):
         return "Unable to load documentation, error reading file: {}".format(path)
 
     # Render Markdown with the admonition extension
-    content = markdown(content, extensions=['admonition', 'fenced_code'])
+    content = markdown(content, extensions=['admonition', 'fenced_code', 'tables'])
 
     return mark_safe(content)
 

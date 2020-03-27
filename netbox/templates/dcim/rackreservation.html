@@ -1,0 +1,149 @@
+{% extends '_base.html' %}
+{% load buttons %}
+{% load custom_links %}
+{% load helpers %}
+{% load static %}
+
+{% block header %}
+    <div class="row noprint">
+        <div class="col-sm-8 col-md-9">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'dcim:rackreservation_list' %}">Rack Reservations</a></li>
+                <li><a href="{{ rackreservation.rack.get_absolute_url }}">{{ rackreservation.rack }}</a></li>
+                <li>Units {{ rackreservation.unit_list }}</li>
+            </ol>
+        </div>
+        <div class="col-sm-4 col-md-3">
+            <form action="{% url 'dcim:rackreservation_list' %}" method="get">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search racks" />
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="fa fa-search" aria-hidden="true"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="pull-right noprint">
+        {% if perms.dcim.change_rackreservation %}
+            {% edit_button rackreservation %}
+        {% endif %}
+        {% if perms.dcim.delete_rackreservation %}
+            {% delete_button rackreservation %}
+        {% endif %}
+    </div>
+    <h1>{% block title %}{{ rackreservation }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' with obj=rackreservation %}
+    <div class="pull-right noprint">
+        {% custom_links rackreservation %}
+    </div>
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ rackreservation.get_absolute_url }}">Rack</a>
+        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:rackreservation_changelog' pk=rackreservation.pk %}">Change Log</a>
+            </li>
+        {% endif %}
+    </ul>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Rack</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+                {% with rack=rackreservation.rack %}
+                    <tr>
+                        <td>Site</td>
+                        <td>
+                            {% if rack.site.region %}
+                                <a href="{{ rack.site.region.get_absolute_url }}">{{ rack.site.region }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
+                            <a href="{% url 'dcim:site' slug=rack.site.slug %}">{{ rack.site }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Group</td>
+                        <td>
+                            {% if rack.group %}
+                                <a href="{% url 'dcim:rack_list' %}?site={{ rack.site.slug }}&group={{ rack.group.slug }}">{{ rack.group }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Rack</td>
+                        <td>
+                            <a href="{{ rack.get_absolute_url }}">{{ rack }}</a>
+                        </td>
+                    </tr>
+                {% endwith %}
+            </table>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Reservation Details</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+                <tr>
+                    <td>Units</td>
+                    <td>{{ rackreservation.unit_list }}</td>
+                </tr>
+                <tr>
+                    <td>Tenant</td>
+                    <td>
+                        {% if rackreservation.tenant %}
+                            {% if rackreservation.tenant.group %}
+                                <a href="{{ rackreservation.tenant.group.get_absolute_url }}">{{ rackreservation.tenant.group }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
+                            <a href="{{ rackreservation.tenant.get_absolute_url }}">{{ rackreservation.tenant }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>User</td>
+                    <td>{{ rackreservation.user }}</td>
+                </tr>
+                <tr>
+                    <td>Description</td>
+                    <td>{{ rackreservation.description }}</td>
+                </tr>
+            </table>
+        </div>
+	</div>
+    <div class="col-md-6">
+        {% with rack=rackreservation.rack %}
+            <div class="row" style="margin-bottom: 20px">
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="rack_header">
+                        <h4>Front</h4>
+                    </div>
+                    {% include 'dcim/inc/rack_elevation.html' with face='front' %}
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="rack_header">
+                        <h4>Rear</h4>
+                    </div>
+                    {% include 'dcim/inc/rack_elevation.html' with face='rear' %}
+                </div>
+            </div>
+        {% endwith %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'js/rack_elevations.js' %}?v{{ settings.VERSION }}"></script>
+{% endblock %}

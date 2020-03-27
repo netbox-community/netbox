@@ -21,6 +21,7 @@ from dcim.constants import *
 from dcim.fields import ASNField
 from dcim.elevations import RackElevationSVG
 from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
+from extras.utils import extras_features
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object, to_meters
@@ -75,6 +76,7 @@ __all__ = (
 # Regions
 #
 
+@extras_features('export_templates', 'webhooks')
 class Region(MPTTModel, ChangeLoggedModel):
     """
     Sites can be grouped within geographic Regions.
@@ -133,6 +135,7 @@ class Region(MPTTModel, ChangeLoggedModel):
 # Sites
 #
 
+@extras_features('custom_fields', 'custom_links', 'graphs', 'export_templates', 'webhooks')
 class Site(ChangeLoggedModel, CustomFieldModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
@@ -283,6 +286,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
 # Racks
 #
 
+@extras_features('export_templates')
 class RackGroup(ChangeLoggedModel):
     """
     Racks can be grouped as subsets within a Site. The scope of a group will depend on how Sites are defined. For
@@ -359,6 +363,7 @@ class RackRole(ChangeLoggedModel):
         )
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Rack(ChangeLoggedModel, CustomFieldModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
@@ -734,6 +739,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         return 0
 
 
+@extras_features('custom_links', 'export_templates', 'webhooks')
 class RackReservation(ChangeLoggedModel):
     """
     One or more reserved units within a Rack.
@@ -768,6 +774,9 @@ class RackReservation(ChangeLoggedModel):
 
     def __str__(self):
         return "Reservation for rack {}".format(self.rack)
+
+    def get_absolute_url(self):
+        return reverse('dcim:rackreservation', args=[self.pk])
 
     def clean(self):
 
@@ -820,6 +829,7 @@ class RackReservation(ChangeLoggedModel):
 # Device Types
 #
 
+@extras_features('export_templates', 'webhooks')
 class Manufacturer(ChangeLoggedModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
@@ -850,6 +860,7 @@ class Manufacturer(ChangeLoggedModel):
         )
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class DeviceType(ChangeLoggedModel, CustomFieldModel):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
@@ -1193,6 +1204,7 @@ class Platform(ChangeLoggedModel):
         )
 
 
+@extras_features('custom_fields', 'custom_links', 'graphs', 'export_templates', 'webhooks')
 class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
@@ -1378,7 +1390,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
         # of the uniqueness constraint without manual intervention.
         if self.name and self.tenant is None:
-            if Device.objects.exclude(pk=self.pk).filter(name=self.name, tenant__isnull=True):
+            if Device.objects.exclude(pk=self.pk).filter(name=self.name, site=self.site, tenant__isnull=True):
                 raise ValidationError({
                     'name': 'A device with this name already exists.'
                 })
@@ -1628,6 +1640,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 # Virtual chassis
 #
 
+@extras_features('export_templates', 'webhooks')
 class VirtualChassis(ChangeLoggedModel):
     """
     A collection of Devices which operate with a shared control plane (e.g. a switch stack).
@@ -1694,6 +1707,7 @@ class VirtualChassis(ChangeLoggedModel):
 # Power
 #
 
+@extras_features('custom_links', 'export_templates', 'webhooks')
 class PowerPanel(ChangeLoggedModel):
     """
     A distribution point for electrical power; e.g. a data center RPP.
@@ -1740,6 +1754,7 @@ class PowerPanel(ChangeLoggedModel):
             ))
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     """
     An electrical circuit delivered from a PowerPanel.
@@ -1901,6 +1916,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
 # Cables
 #
 
+@extras_features('custom_links', 'export_templates', 'webhooks')
 class Cable(ChangeLoggedModel):
     """
     A physical connection between two endpoints.
@@ -2052,15 +2068,15 @@ class Cable(ChangeLoggedModel):
                 self.termination_a_type, self.termination_b_type
             ))
 
-        # A component with multiple positions must be connected to a component with an equal number of positions
-        term_a_positions = getattr(self.termination_a, 'positions', 1)
-        term_b_positions = getattr(self.termination_b, 'positions', 1)
-        if term_a_positions != term_b_positions:
-            raise ValidationError(
-                "{} has {} positions and {} has {}. Both terminations must have the same number of positions.".format(
-                    self.termination_a, term_a_positions, self.termination_b, term_b_positions
+        # A RearPort with multiple positions must be connected to a component with an equal number of positions
+        if isinstance(self.termination_a, RearPort) and isinstance(self.termination_b, RearPort):
+            if self.termination_a.positions != self.termination_b.positions:
+                raise ValidationError(
+                    "{} has {} positions and {} has {}. Both terminations must have the same number of positions.".format(
+                        self.termination_a, self.termination_a.positions,
+                        self.termination_b, self.termination_b.positions
+                    )
                 )
-            )
 
         # A termination point cannot be connected to itself
         if self.termination_a == self.termination_b:

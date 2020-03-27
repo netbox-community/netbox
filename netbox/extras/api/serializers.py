@@ -13,6 +13,7 @@ from extras.constants import *
 from extras.models import (
     ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, Tag,
 )
+from extras.utils import FeatureQuery
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
 from users.api.nested_serializers import NestedUserSerializer
@@ -31,7 +32,7 @@ from .nested_serializers import *
 
 class GraphSerializer(ValidatedModelSerializer):
     type = ContentTypeField(
-        queryset=ContentType.objects.filter(GRAPH_MODELS),
+        queryset=ContentType.objects.filter(FeatureQuery('graphs').get_query()),
     )
 
     class Meta:
@@ -67,7 +68,7 @@ class RenderedGraphSerializer(serializers.ModelSerializer):
 
 class ExportTemplateSerializer(ValidatedModelSerializer):
     content_type = ContentTypeField(
-        queryset=ContentType.objects.filter(EXPORTTEMPLATE_MODELS),
+        queryset=ContentType.objects.filter(FeatureQuery('export_templates').get_query()),
     )
     template_language = ChoiceField(
         choices=TemplateLanguageChoices,

@@ -1,0 +1,19 @@
+{% extends "admin/index.html" %}
+
+{% block content_title %}{% endblock %}
+
+{% block sidebar %}
+    {{ block.super }}
+    <div class="module">
+        <table style="width: 100%">
+            <caption>Utilities</caption>
+            <tbody>
+                <tr>
+                    <th>
+                        <a href="{% url 'rq_home' %}">Background Tasks</a>
+                    </th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

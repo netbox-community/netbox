@@ -338,21 +338,38 @@ class RackDetailTable(RackTable):
 
 class RackReservationTable(BaseTable):
     pk = ToggleColumn()
+    reservation = tables.LinkColumn(
+        viewname='dcim:rackreservation',
+        args=[Accessor('pk')],
+        accessor='pk'
+    )
     site = tables.LinkColumn(
         viewname='dcim:site',
         accessor=Accessor('rack.site'),
         args=[Accessor('rack.site.slug')],
     )
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
-    rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
-    unit_list = tables.Column(orderable=False, verbose_name='Units')
+    tenant = tables.TemplateColumn(
+        template_code=COL_TENANT
+    )
+    rack = tables.LinkColumn(
+        viewname='dcim:rack',
+        args=[Accessor('rack.pk')]
+    )
+    unit_list = tables.Column(
+        orderable=False,
+        verbose_name='Units'
+    )
     actions = tables.TemplateColumn(
-        template_code=RACKRESERVATION_ACTIONS, attrs={'td': {'class': 'text-right noprint'}}, verbose_name=''
+        template_code=RACKRESERVATION_ACTIONS,
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
     )
 
     class Meta(BaseTable.Meta):
         model = RackReservation
-        fields = ('pk', 'site', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'actions')
+        fields = (
+            'pk', 'reservation', 'site', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'actions',
+        )
 
 
 #
@@ -840,7 +857,7 @@ class DeviceBayTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = DeviceBay
-        fields = ('name',)
+        fields = ('name', 'description')
 
 
 class DeviceBayDetailTable(DeviceComponentDetailTable):
@@ -848,8 +865,8 @@ class DeviceBayDetailTable(DeviceComponentDetailTable):
     installed_device = tables.LinkColumn()
 
     class Meta(DeviceBayTable.Meta):
-        fields = ('pk', 'name', 'device', 'installed_device')
-        sequence = ('pk', 'name', 'device', 'installed_device')
+        fields = ('pk', 'name', 'device', 'installed_device', 'description')
+        sequence = ('pk', 'name', 'device', 'installed_device', 'description')
         exclude = ('cable',)
 
 

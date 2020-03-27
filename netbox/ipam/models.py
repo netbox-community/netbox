@@ -10,6 +10,7 @@ from taggit.managers import TaggableManager
 
 from dcim.models import Device, Interface
 from extras.models import CustomFieldModel, ObjectChange, TaggedItem
+from extras.utils import extras_features
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
 from virtualization.models import VirtualMachine
@@ -34,6 +35,7 @@ __all__ = (
 )
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class VRF(ChangeLoggedModel, CustomFieldModel):
     """
     A virtual routing and forwarding (VRF) table represents a discrete layer three forwarding domain (e.g. a routing
@@ -145,6 +147,7 @@ class RIR(ChangeLoggedModel):
         )
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Aggregate(ChangeLoggedModel, CustomFieldModel):
     """
     An aggregate exists at the root level of the IP address space hierarchy in NetBox. Aggregates are used to organize
@@ -285,6 +288,7 @@ class Role(ChangeLoggedModel):
         )
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Prefix(ChangeLoggedModel, CustomFieldModel):
     """
     A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be assigned to Sites and
@@ -551,6 +555,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
             return int(float(child_count) / prefix_size * 100)
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class IPAddress(ChangeLoggedModel, CustomFieldModel):
     """
     An IPAddress represents an individual IPv4 or IPv6 address and its mask. The mask length should match what is
@@ -854,6 +859,7 @@ class VLANGroup(ChangeLoggedModel):
         return None
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class VLAN(ChangeLoggedModel, CustomFieldModel):
     """
     A VLAN is a distinct layer two forwarding domain identified by a 12-bit integer (1-4094). Each VLAN must be assigned
@@ -978,6 +984,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         ).distinct()
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Service(ChangeLoggedModel, CustomFieldModel):
     """
     A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device or VirtualMachine. A Service may
