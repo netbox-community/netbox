@@ -647,7 +647,7 @@ if PLUGINS_ENABLED:
         # Append plugin to INSTALLED_APPS. Specify the path to the PluginConfig so that we don't
         # have to define default_app_config.
         app_config = entry_point.load()
-        INSTALLED_APPS.append('{}.{}'.format(app_config.__module__, app_config.__name__))
+        INSTALLED_APPS.append(f"{app_config.__module__}.{app_config.__name__}")
 
         # Check version constraints
         parsed_min_version = parse_version(app_config.min_version or VERSION)
@@ -661,7 +661,7 @@ if PLUGINS_ENABLED:
 
         # Add middleware
         plugin_middleware = app_config.middleware
-        if plugin_middleware and isinstance(plugin_middleware, list):
+        if plugin_middleware and type(plugin_middleware) in (list, tuple):
             MIDDLEWARE.extend(plugin_middleware)
 
         # Verify required configuration settings
@@ -674,22 +674,21 @@ if PLUGINS_ENABLED:
                     f"configuration.py."
                 )
 
-        # Set defined default setting values
+        # Apply default configuration values
         for setting, value in app_config.default_settings.items():
             if setting not in PLUGINS_CONFIG[plugin]:
                 PLUGINS_CONFIG[plugin][setting] = value
 
         # Apply cacheops config
         plugin_cacheops = app_config.caching_config
-        if plugin_cacheops and isinstance(plugin_cacheops, dict):
+        if plugin_cacheops:
+            if type(plugin_cacheops) is not dict:
+                raise ImproperlyConfigured(f"Plugin {plugin} caching_config must be a dictionary.")
             for key in plugin_cacheops.keys():
                 # Validate config is only being set for the given plugin
-                try:
-                    app = key.split('.')[0]
-                except IndexError:
-                    raise ImproperlyConfigured(f"Plugin {plugin} caching_config is invalid!")
+                app = key.split('.')[0]
                 if app != plugin:
-                    raise ImproperlyConfigured(f"Plugin {plugin} may not modify caching config for another app!")
+                    raise ImproperlyConfigured(f"Plugin {plugin} may not modify caching config for another app: {app}")
         else:
             # Apply the default config like all other core apps
             plugin_cacheops = {f"{plugin}.*": {'ops': 'all'}}
