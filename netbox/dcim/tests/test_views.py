@@ -1336,35 +1336,35 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = DeviceBay
 
-    # Disable inapplicable views
-    test_bulk_edit_objects = None
-
     @classmethod
     def setUpTestData(cls):
-        device1 = create_test_device('Device 1')
-        device2 = create_test_device('Device 2')
+        device = create_test_device('Device 1')
 
         # Update the DeviceType subdevice role to allow adding DeviceBays
         DeviceType.objects.update(subdevice_role=SubdeviceRoleChoices.ROLE_PARENT)
 
         DeviceBay.objects.bulk_create([
-            DeviceBay(device=device1, name='Device Bay 1'),
-            DeviceBay(device=device1, name='Device Bay 2'),
-            DeviceBay(device=device1, name='Device Bay 3'),
+            DeviceBay(device=device, name='Device Bay 1'),
+            DeviceBay(device=device, name='Device Bay 2'),
+            DeviceBay(device=device, name='Device Bay 3'),
         ])
 
         cls.form_data = {
-            'device': device2.pk,
+            'device': device.pk,
             'name': 'Device Bay X',
             'description': 'A device bay',
             'tags': 'Alpha,Bravo,Charlie',
         }
 
         cls.bulk_create_data = {
-            'device': device2.pk,
+            'device': device.pk,
             'name_pattern': 'Device Bay [4-6]',
             'description': 'A device bay',
             'tags': 'Alpha,Bravo,Charlie',
+        }
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
         }
 
         cls.csv_data = (

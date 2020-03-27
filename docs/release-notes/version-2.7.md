@@ -1,18 +1,28 @@
 # NetBox v2.7 Release Notes
 
-## v2.7.11 (FUTURE)
+## v2.7.11 (2020-03-27)
 
 ### Enhancements
 
+* [#738](https://github.com/netbox-community/netbox/issues/738) - Add ability to automatically check for new releases (must be enabled by setting `RELEASE_CHECK_URL`)
+* [#4255](https://github.com/netbox-community/netbox/issues/4255) - Custom script object variables now utilize dynamic form widgets
 * [#4309](https://github.com/netbox-community/netbox/issues/4309) - Add descriptive tooltip to custom fields on object views
 * [#4369](https://github.com/netbox-community/netbox/issues/4369) - Add a dedicated view for rack reservations
+* [#4380](https://github.com/netbox-community/netbox/issues/4380) - Enable webhooks for rack reservations
+* [#4381](https://github.com/netbox-community/netbox/issues/4381) - Enable export templates for rack reservations
+* [#4382](https://github.com/netbox-community/netbox/issues/4382) - Enable custom links for rack reservations
+* [#4386](https://github.com/netbox-community/netbox/issues/4386) - Update admin links for Django RQ to reflect multiple queues
+* [#4389](https://github.com/netbox-community/netbox/issues/4389) - Add a bulk edit view for device bays
+* [#4404](https://github.com/netbox-community/netbox/issues/4404) - Add cable trace button for circuit terminations
 
 ### Bug Fixes
 
 * [#2769](https://github.com/netbox-community/netbox/issues/2769) - Improve `prefix_length` validation on available-prefixes API
+* [#3193](https://github.com/netbox-community/netbox/issues/3193) - Fix cable tracing across multiple rear ports
 * [#4340](https://github.com/netbox-community/netbox/issues/4340) - Enforce unique constraints for device and virtual machine names in the API
 * [#4343](https://github.com/netbox-community/netbox/issues/4343) - Fix Markdown support for tables
 * [#4365](https://github.com/netbox-community/netbox/issues/4365) - Fix exception raised on IP address bulk add view
+* [#4415](https://github.com/netbox-community/netbox/issues/4415) - Fix duplicate name validation on device model
 
 ---
 

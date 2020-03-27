@@ -776,6 +776,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         return 0
 
 
+@extras_features('custom_links', 'export_templates', 'webhooks')
 class RackReservation(ChangeLoggedModel):
     """
     One or more reserved units within a Rack.
@@ -1436,7 +1437,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
         # of the uniqueness constraint without manual intervention.
         if self.name and self.tenant is None:
-            if Device.objects.exclude(pk=self.pk).filter(name=self.name, tenant__isnull=True):
+            if Device.objects.exclude(pk=self.pk).filter(name=self.name, site=self.site, tenant__isnull=True):
                 raise ValidationError({
                     'name': 'A device with this name already exists.'
                 })
@@ -2114,15 +2115,15 @@ class Cable(ChangeLoggedModel):
                 self.termination_a_type, self.termination_b_type
             ))
 
-        # A component with multiple positions must be connected to a component with an equal number of positions
-        term_a_positions = getattr(self.termination_a, 'positions', 1)
-        term_b_positions = getattr(self.termination_b, 'positions', 1)
-        if term_a_positions != term_b_positions:
-            raise ValidationError(
-                "{} has {} positions and {} has {}. Both terminations must have the same number of positions.".format(
-                    self.termination_a, term_a_positions, self.termination_b, term_b_positions
+        # A RearPort with multiple positions must be connected to a component with an equal number of positions
+        if isinstance(self.termination_a, RearPort) and isinstance(self.termination_b, RearPort):
+            if self.termination_a.positions != self.termination_b.positions:
+                raise ValidationError(
+                    "{} has {} positions and {} has {}. Both terminations must have the same number of positions.".format(
+                        self.termination_a, self.termination_a.positions,
+                        self.termination_b, self.termination_b.positions
+                    )
                 )
-            )
 
         # A termination point cannot be connected to itself
         if self.termination_a == self.termination_b:

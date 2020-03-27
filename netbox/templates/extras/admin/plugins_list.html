@@ -2,7 +2,6 @@
 
 {% block title %}Installed Plugins {{ block.super }}{% endblock %}
 
-
 {% block breadcrumbs %}
     <div class="breadcrumbs">
         <a href="{% url 'admin:index' %}">Home</a> &rsaquo;
@@ -13,24 +12,23 @@
 {% block content_title %}<h1>Installed Plugins{{ queue.name }}</h1>{% endblock %}
 
 {% block content %}
-
 <div id="content-main">
     <div class="module" id="changelist">
         <div class="results">
             <table id="result_list">
                 <thead>
                     <tr>
-                        <th><div class = 'text'><span>Name</span></div></th>
-                        <th><div class = 'text'><span>Package Name</span></div></th>
-                        <th><div class = 'text'><span>Author</span></div></th>
-                        <th><div class = 'text'><span>Author Email</span></div></th>
-                        <th><div class = 'text'><span>Description</span></div></th>
-                        <th><div class = 'text'><span>Version</span></div></th>
+                        <th><div class="text"><span>Name</span></div></th>
+                        <th><div class="text"><span>Package Name</span></div></th>
+                        <th><div class="text"><span>Author</span></div></th>
+                        <th><div class="text"><span>Author Email</span></div></th>
+                        <th><div class="text"><span>Description</span></div></th>
+                        <th><div class="text"><span>Version</span></div></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for plugin in plugins %}
-                        <tr class = "{% cycle 'row1' 'row2' %}">
+                        <tr class="{% cycle 'row1' 'row2' %}">
                             <td>
                                 {{ plugin.verbose_name }}
                             </td>
@@ -56,5 +54,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}

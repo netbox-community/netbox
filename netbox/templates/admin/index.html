@@ -1,6 +1,24 @@
-{% extends "django_rq/index.html" %}
+{% extends "admin/index.html" %}
+
+{% block content_title %}{% endblock %}
 
 {% block sidebar %}
     {{ block.super }}
-    {% include 'extras/admin/plugins_index.html' %}
+    <div class="module">
+        <table style="width: 100%">
+            <caption>System</caption>
+            <tbody>
+                <tr>
+                    <th>
+                        <a href="{% url 'rq_home' %}">Background Tasks</a>
+                    </th>
+                </tr>
+                <tr>
+                    <th>
+                        <a href="{% url 'plugins_list' %}">Installed plugins</a>
+                    </th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

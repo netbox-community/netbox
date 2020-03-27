@@ -864,7 +864,7 @@ class DeviceBayTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = DeviceBay
-        fields = ('name',)
+        fields = ('name', 'description')
 
 
 class DeviceBayDetailTable(DeviceComponentDetailTable):
@@ -872,8 +872,8 @@ class DeviceBayDetailTable(DeviceComponentDetailTable):
     installed_device = tables.LinkColumn()
 
     class Meta(DeviceBayTable.Meta):
-        fields = ('pk', 'name', 'device', 'installed_device')
-        sequence = ('pk', 'name', 'device', 'installed_device')
+        fields = ('pk', 'name', 'device', 'installed_device', 'description')
+        sequence = ('pk', 'name', 'device', 'installed_device', 'description')
         exclude = ('cable',)
 
 

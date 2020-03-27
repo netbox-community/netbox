@@ -3,7 +3,8 @@ import importlib
 from django.apps import apps
 from django.conf import settings
 from django.conf.urls import include
-from django.urls import path, re_path
+from django.urls import path, re_path, reverse
+from django.views.generic.base import RedirectView
 from django.views.static import serve
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
@@ -12,6 +13,18 @@ from extras.plugins.urls import admin_plugin_patterns, plugin_patterns, plugin_a
 from netbox.views import APIRootView, HomeView, StaticMediaFailureView, SearchView
 from users.views import LoginView, LogoutView
 from .admin import admin_site
+
+
+# TODO: Remove in v2.9
+class RQRedirectView(RedirectView):
+    """
+    Temporary 301 redirect from the old URL to the new one.
+    """
+    permanent = True
+
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse('rq_home')
+
 
 openapi_info = openapi.Info(
     title="NetBox API",
@@ -65,7 +78,9 @@ _patterns = [
 
     # Admin
     path('admin/', admin_site.urls),
-    path('admin/webhook-backend-status/', include('django_rq.urls')),
+    path('admin/background-tasks/', include('django_rq.urls')),
+    # TODO: Remove in v2.9
+    path('admin/webhook-backend-status/', RQRedirectView.as_view()),
 
     # Errors
     path('media-failure/', StaticMediaFailureView.as_view(), name='media_failure'),
