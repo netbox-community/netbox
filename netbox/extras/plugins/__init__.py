@@ -172,6 +172,8 @@ class PluginMenuItem:
                 raise TypeError("Permissions must be passed as a tuple or list.")
             self.permissions = permissions
         if buttons is not None:
+            if type(buttons) not in (list, tuple):
+                raise TypeError("Buttons must be passed as a tuple or list.")
             self.buttons = buttons
 
 
@@ -192,6 +194,8 @@ class PluginMenuButton:
                 raise TypeError("Permissions must be passed as a tuple or list.")
             self.permissions = permissions
         if color is not None:
+            if color not in ButtonColorChoices.values():
+                raise ValueError("Button color must be a choice within ButtonColorChoices.")
             self.color = color
 
 
