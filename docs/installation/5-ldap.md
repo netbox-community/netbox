@@ -41,7 +41,7 @@ Create a file in the same directory as `configuration.py` (typically `netbox/net
 ### General Server Configuration
 
 !!! info
-    When using Windows Server 2012 you may need to specify a port on `AUTH_LDAP_SERVER_URI`. Use `3269` for secure, or `3268` for non-secure.
+    When using Windows Server 2012 or newer, you may need to specify a port on `AUTH_LDAP_SERVER_URI`. Use `3269` for secure, or `3268` for non-secure.
 
 ```python
 import ldap
@@ -69,7 +69,7 @@ STARTTLS can be configured by setting `AUTH_LDAP_START_TLS = True` and using the
 ### User Authentication
 
 !!! info
-    When using Windows Server 2012, `AUTH_LDAP_USER_DN_TEMPLATE` should be set to None.
+    When using Windows Server 2012 or newer, `AUTH_LDAP_USER_DN_TEMPLATE` should be set to None.
 
 ```python
 from django_auth_ldap.config import LDAPSearch
