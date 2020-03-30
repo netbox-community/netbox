@@ -16,6 +16,18 @@ Several new configuration parameters provide support for authenticating an incom
 
 If further customization of remote authentication is desired (for instance, if you want to pass group/permission information via HTTP headers as well), NetBox allows you to inject a custom [Django authentication backend](https://docs.djangoproject.com/en/stable/topics/auth/customizing/) to retain full control over the authentication and configuration of remote users.
 
+#### Plugins ([#3351](https://github.com/netbox-community/netbox/issues/3351))
+
+This release introduces support for custom plugins, which can be used to extend NetBox's functionality beyond what the core product provides. For example, plugins can be used to:
+
+* Add new Django models
+* Provide new views with custom templates
+* Inject custom template into object views
+* Introduce new API endpoints
+* Add custom request/response middleware
+
+For NetBox plugins to be recognized, the `PLUGINS_ENABLED` configuration parameter must be set to true. (Plugin support is disabled by default). Plugins can be configured under the `PLUGINS_CONFIG` parameter. More information can be found the in the [plugins documentation](https://netbox.readthedocs.io/en/stable/plugins/).
+
 ### Enhancements
 
 * [#1754](https://github.com/netbox-community/netbox/issues/1754) - Added support for nested rack groups
