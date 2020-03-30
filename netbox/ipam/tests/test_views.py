@@ -180,10 +180,10 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "prefix,status",
-            "10.4.0.0/16,Active",
-            "10.5.0.0/16,Active",
-            "10.6.0.0/16,Active",
+            "vrf,prefix,status",
+            "VRF 1,10.4.0.0/16,Active",
+            "VRF 1,10.5.0.0/16,Active",
+            "VRF 1,10.6.0.0/16,Active",
         )
 
         cls.bulk_edit_data = {
@@ -207,6 +207,7 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             VRF(name='VRF 1', rd='65000:1'),
             VRF(name='VRF 2', rd='65000:2'),
         )
+        VRF.objects.bulk_create(vrfs)
 
         IPAddress.objects.bulk_create([
             IPAddress(family=4, address=IPNetwork('192.0.2.1/24'), vrf=vrfs[0]),
@@ -228,10 +229,10 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "address,status",
-            "192.0.2.4/24,Active",
-            "192.0.2.5/24,Active",
-            "192.0.2.6/24,Active",
+            "vrf,address,status",
+            "VRF 1,192.0.2.4/24,Active",
+            "VRF 1,192.0.2.5/24,Active",
+            "VRF 1,192.0.2.6/24,Active",
         )
 
         cls.bulk_edit_data = {

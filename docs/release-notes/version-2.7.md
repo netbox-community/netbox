@@ -1,5 +1,13 @@
 # NetBox v2.7 Release Notes
 
+## v2.7.12 (FUTURE)
+
+### Enhancements
+
+* [#3676](https://github.com/netbox-community/netbox/issues/3676) - Reference VRF by name rather than RD during IP/prefix import
+
+---
+
 ## v2.7.11 (2020-03-27)
 
 ### Enhancements
