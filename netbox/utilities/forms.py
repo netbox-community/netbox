@@ -698,7 +698,7 @@ class ImportForm(BootstrapMixin, forms.Form):
     """
     data = forms.CharField(
         widget=forms.Textarea,
-        help_text="Enter object data in JSON or YAML format."
+        help_text="Enter object data in JSON or YAML format. Note: Only a single object/document is supported."
     )
     format = forms.ChoiceField(
         choices=(
@@ -717,14 +717,24 @@ class ImportForm(BootstrapMixin, forms.Form):
         if format == 'json':
             try:
                 self.cleaned_data['data'] = json.loads(data)
+                # Check for multiple JSON objects
+                if type(self.cleaned_data['data']) is not dict:
+                    raise forms.ValidationError({
+                        'data': "Import is limited to one object at a time."
+                    })
             except json.decoder.JSONDecodeError as err:
                 raise forms.ValidationError({
                     'data': "Invalid JSON data: {}".format(err)
                 })
         else:
+            # Check for multiple YAML documents
+            if '\n---' in data:
+                raise forms.ValidationError({
+                    'data': "Import is limited to one object at a time."
+                })
             try:
                 self.cleaned_data['data'] = yaml.load(data, Loader=yaml.SafeLoader)
-            except yaml.scanner.ScannerError as err:
+            except yaml.error.YAMLError as err:
                 raise forms.ValidationError({
                     'data': "Invalid YAML data: {}".format(err)
                 })

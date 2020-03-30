@@ -6,6 +6,10 @@
 
 * [#3676](https://github.com/netbox-community/netbox/issues/3676) - Reference VRF by name rather than RD during IP/prefix import
 
+### Bug Fixes
+
+* [#4418](https://github.com/netbox-community/netbox/issues/4418) - Fail cleanly when trying to import multiple device types simultaneously
+
 ---
 
 ## v2.7.11 (2020-03-27)
