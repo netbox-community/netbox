@@ -20,7 +20,10 @@ class CustomFieldDefaultValues:
     """
     Return a dictionary of all CustomFields assigned to the parent model and their default values.
     """
-    def __call__(self):
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        self.model = serializer_field.parent.Meta.model
 
         # Retrieve the CustomFields for the parent model
         content_type = ContentType.objects.get_for_model(self.model)
@@ -48,9 +51,6 @@ class CustomFieldDefaultValues:
                 value[field.name] = None
 
         return value
-
-    def set_context(self, serializer_field):
-        self.model = serializer_field.parent.Meta.model
 
 
 class CustomFieldsSerializer(serializers.BaseSerializer):
