@@ -35,8 +35,7 @@ if [[ $RC != 0 ]]; then
 fi
 
 # Point to the testing configuration file for use in CI
-CONFIG="netbox/netbox/configuration.py"
-ln -s netbox/netbox/configuration.testing.py $CONFIG
+ln -s configuration.testing.py netbox/netbox/configuration.py
 
 # Run NetBox tests
 coverage run --source="netbox/" netbox/manage.py test netbox/
