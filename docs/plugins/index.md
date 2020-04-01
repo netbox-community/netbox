@@ -41,12 +41,14 @@ $ source /opt/netbox/venv/bin/activate
 
 Alternatively, you may wish to install the plugin manually by running `python setup.py install`. If you are developing a plugin and want to install it only temporarily, run `python setup.py develop` instead.
 
-### Enable Plugins
+### Enable the Plugin
 
-In `configuration.py`, ensure the `PLUGINS_ENABLED` parameter is set to True:
+In `configuration.py`, add the plugin's name to the `PLUGINS` list:
 
 ```python
-PLUGINS_ENABLED = True
+PLUGINS = [
+    'plugin_name',
+]
 ```
 
 ### Configure Plugin

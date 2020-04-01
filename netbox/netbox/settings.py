@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
-from pkg_resources import iter_entry_points, parse_version
+from pkg_resources import parse_version
 
 
 #
@@ -92,8 +92,8 @@ NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
 NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
 NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
 PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
+PLUGINS = getattr(configuration, 'PLUGINS', [])
 PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
-PLUGINS_ENABLED = getattr(configuration, 'PLUGINS_ENABLED', False)
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 REMOTE_AUTH_AUTO_CREATE_USER = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_USER', False)
 REMOTE_AUTH_BACKEND = getattr(configuration, 'REMOTE_AUTH_BACKEND', 'utilities.auth_backends.RemoteUserBackend')
@@ -637,59 +637,68 @@ if PAGINATE_COUNT not in PER_PAGE_DEFAULTS:
 # Plugins
 #
 
-PLUGINS = set()
-if PLUGINS_ENABLED:
-    for entry_point in iter_entry_points(group='netbox_plugins', name=None):
-        # Append plugin name to PLUGINS
-        plugin = entry_point.module_name
-        PLUGINS.add(plugin)
+for plugin_name in PLUGINS:
 
-        # Append plugin to INSTALLED_APPS. Specify the path to the PluginConfig so that we don't
-        # have to define default_app_config.
-        app_config = entry_point.load()
-        INSTALLED_APPS.append(f"{app_config.__module__}.{app_config.__name__}")
+    # Import plugin module
+    try:
+        plugin = importlib.import_module(plugin_name)
+    except ImportError:
+        raise ImproperlyConfigured(
+            f"Unable to import plugin {plugin_name}: Module not found. Check that the plugin module has been "
+            f"installed within the correct Python environment."
+        )
 
-        # Check version constraints
-        parsed_min_version = parse_version(app_config.min_version or VERSION)
-        parsed_max_version = parse_version(app_config.max_version or VERSION)
-        if app_config.min_version and app_config.max_version and parsed_min_version > parsed_max_version:
-            raise ImproperlyConfigured(f"Plugin {plugin} specifies invalid version constraints!")
-        if app_config.min_version and parsed_min_version > parse_version(VERSION):
-            raise ImproperlyConfigured(f"Plugin {plugin} requires NetBox minimum version {app_config.min_version}!")
-        if app_config.max_version and parsed_max_version < parse_version(VERSION):
-            raise ImproperlyConfigured(f"Plugin {plugin} requires NetBox maximum version {app_config.max_version}!")
+    # Determine plugin config and add to INSTALLED_APPS.
+    try:
+        plugin_config = plugin.config
+        INSTALLED_APPS.append(f"{plugin_config.__module__}.{plugin_config.__name__}")
+    except AttributeError:
+        raise ImproperlyConfigured(
+            f"Plugin {plugin_name} does not provide a 'config' variable. This should be defined in the plugin's "
+            f"__init__.py file and point to the PluginConfig subclass."
+        )
 
-        # Add middleware
-        plugin_middleware = app_config.middleware
-        if plugin_middleware and type(plugin_middleware) in (list, tuple):
-            MIDDLEWARE.extend(plugin_middleware)
+    # Check version constraints
+    parsed_min_version = parse_version(plugin_config.min_version or VERSION)
+    parsed_max_version = parse_version(plugin_config.max_version or VERSION)
+    if plugin_config.min_version and plugin_config.max_version and parsed_min_version > parsed_max_version:
+        raise ImproperlyConfigured(f"Plugin {plugin_name} specifies invalid version constraints!")
+    if plugin_config.min_version and parsed_min_version > parse_version(VERSION):
+        raise ImproperlyConfigured(f"Plugin {plugin_name} requires NetBox minimum version {plugin_config.min_version}!")
+    if plugin_config.max_version and parsed_max_version < parse_version(VERSION):
+        raise ImproperlyConfigured(f"Plugin {plugin_name} requires NetBox maximum version {plugin_config.max_version}!")
 
-        # Verify required configuration settings
-        if plugin not in PLUGINS_CONFIG:
-            PLUGINS_CONFIG[plugin] = {}
-        for setting in app_config.required_settings:
-            if setting not in PLUGINS_CONFIG[plugin]:
-                raise ImproperlyConfigured(
-                    f"Plugin {plugin} requires '{setting}' to be present in the PLUGINS_CONFIG section of "
-                    f"configuration.py."
-                )
+    # Add middleware
+    plugin_middleware = plugin_config.middleware
+    if plugin_middleware and type(plugin_middleware) in (list, tuple):
+        MIDDLEWARE.extend(plugin_middleware)
 
-        # Apply default configuration values
-        for setting, value in app_config.default_settings.items():
-            if setting not in PLUGINS_CONFIG[plugin]:
-                PLUGINS_CONFIG[plugin][setting] = value
+    # Verify required configuration settings
+    if plugin_name not in PLUGINS_CONFIG:
+        PLUGINS_CONFIG[plugin_name] = {}
+    for setting in plugin_config.required_settings:
+        if setting not in PLUGINS_CONFIG[plugin_name]:
+            raise ImproperlyConfigured(
+                f"Plugin {plugin_name} requires '{setting}' to be present in the PLUGINS_CONFIG section of "
+                f"configuration.py."
+            )
 
-        # Apply cacheops config
-        plugin_cacheops = app_config.caching_config
-        if plugin_cacheops:
-            if type(plugin_cacheops) is not dict:
-                raise ImproperlyConfigured(f"Plugin {plugin} caching_config must be a dictionary.")
-            for key in plugin_cacheops.keys():
-                # Validate config is only being set for the given plugin
-                app = key.split('.')[0]
-                if app != plugin:
-                    raise ImproperlyConfigured(f"Plugin {plugin} may not modify caching config for another app: {app}")
-        else:
-            # Apply the default config like all other core apps
-            plugin_cacheops = {f"{plugin}.*": {'ops': 'all'}}
-        CACHEOPS.update(plugin_cacheops)
+    # Apply default configuration values
+    for setting, value in plugin_config.default_settings.items():
+        if setting not in PLUGINS_CONFIG[plugin_name]:
+            PLUGINS_CONFIG[plugin_name][setting] = value
+
+    # Apply cacheops config
+    plugin_cacheops = plugin_config.caching_config
+    if plugin_cacheops:
+        if type(plugin_cacheops) is not dict:
+            raise ImproperlyConfigured(f"Plugin {plugin_name} caching_config must be a dictionary.")
+        for key in plugin_cacheops.keys():
+            # Validate config is only being set for the given plugin
+            app = key.split('.')[0]
+            if app != plugin_name:
+                raise ImproperlyConfigured(f"Plugin {plugin_name} may not modify caching config for another app: {app}")
+    else:
+        # Apply the default config like all other core apps
+        plugin_cacheops = {f"{plugin_name}.*": {'ops': 'all'}}
+    CACHEOPS.update(plugin_cacheops)

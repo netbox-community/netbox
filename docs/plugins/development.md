@@ -61,13 +61,10 @@ setup(
     install_requires=[],
     packages=find_packages(),
     include_package_data=True,
-    entry_points={
-        'netbox_plugins': 'netbox_animal_sounds=netbox_animal_sounds:AnimalSoundsConfig'
-    }
 )
 ```
 
-Many of these are self-explanatory, but for more information, see the [setuptools documentation](https://setuptools.readthedocs.io/en/latest/setuptools.html). The key requirement for a NetBox plugin is the presence of an entry point for `netbox_plugins` pointing to the `PluginConfig` subclass, which we'll create next.
+Many of these are self-explanatory, but for more information, see the [setuptools documentation](https://setuptools.readthedocs.io/en/latest/setuptools.html).
 
 ### Define a PluginConfig
 
@@ -87,7 +84,11 @@ class AnimalSoundsConfig(PluginConfig):
     default_settings = {
         'loud': False
     }
+
+config = AnimalSoundsConfig
 ```
+
+NetBox looks for the `config` variable within a plugin's `__init__.py` to load its configuration. Typically, this will be set to the PluginConfig subclass, but you may wish to dynamically generate a PluginConfig class based on environment variables or other factors.
 
 #### PluginConfig Attributes
 
