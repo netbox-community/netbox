@@ -689,16 +689,8 @@ for plugin_name in PLUGINS:
             PLUGINS_CONFIG[plugin_name][setting] = value
 
     # Apply cacheops config
-    plugin_cacheops = plugin_config.caching_config
-    if plugin_cacheops:
-        if type(plugin_cacheops) is not dict:
-            raise ImproperlyConfigured(f"Plugin {plugin_name} caching_config must be a dictionary.")
-        for key in plugin_cacheops.keys():
-            # Validate config is only being set for the given plugin
-            app = key.split('.')[0]
-            if app != plugin_name:
-                raise ImproperlyConfigured(f"Plugin {plugin_name} may not modify caching config for another app: {app}")
-    else:
-        # Apply the default config like all other core apps
-        plugin_cacheops = {f"{plugin_name}.*": {'ops': 'all'}}
-    CACHEOPS.update(plugin_cacheops)
+    if type(plugin_config.caching_config) is not dict:
+        raise ImproperlyConfigured(f"Plugin {plugin_name} caching_config must be a dictionary.")
+    CACHEOPS.update({
+        f"{plugin_name}.{key}": value for key, value in plugin_config.caching_config.items()
+    })

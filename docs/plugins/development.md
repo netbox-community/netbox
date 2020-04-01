@@ -360,17 +360,28 @@ template_extensions = [AddSiteAnimal, AddRackAnimal]
 
 ## Caching Configuration
 
-By default, all query operations within a plugin are cached. To change this, define a caching configuration under the PluginConfig class' `caching_config` attribute. An example configuration is below:
+By default, all query operations within a plugin are cached. To change this, define a caching configuration under the PluginConfig class' `caching_config` attribute. All configuration keys will be applied within the context of the plugin; there is no need to include the plugin name. An example configuration is below:
 
 ```python
 class MyPluginConfig(PluginConfig):
     ...
     caching_config = {
-        'my_plugin.foo': {
+        'foo': {
             'ops': 'get',
             'timeout': 60 * 15,
         },
+        '*': {
+            'ops': 'all',
+        }
     }
+```
+
+To disable caching for your plugin entirely, set:
+
+```python
+caching_config = {
+    '*': None
+}
 ```
 
 See the [django-cacheops](https://github.com/Suor/django-cacheops) documentation for more detail on configuring caching.
