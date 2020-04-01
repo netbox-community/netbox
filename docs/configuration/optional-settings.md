@@ -299,6 +299,17 @@ Determine how many objects to display per page within each list of objects.
 
 ---
 
+## PLUGINS
+
+Default: Empty
+
+A list of installed [NetBox plugins](../../plugins/) to enable. Plugins will not take effect unless they are listed here.
+
+!!! warning
+    Plugins extend NetBox by allowing external code to run with the same access and privileges as NetBox itself. Only install plugins from trusted sources. The NetBox maintainers make absolutely no guarantees about the integrity or security of your installation with plugins enabled.
+
+---
+
 ## PLUGINS_CONFIG
 
 Default: Empty
@@ -317,18 +328,7 @@ PLUGINS_CONFIG = {
 }
 ```
 
-Note that `PLUGINS_ENABLED` must be set to True for this to take effect.
-
----
-
-## PLUGINS_ENABLED
-
-Default: `False`
-
-Enable [NetBox plugins](../../plugins/).
-
-!!! warning
-    Plugins extend NetBox by allowing external code to run with the same access and privileges as NetBox itself. Only install plugins from trusted sources. The NetBox maintainers make absolutely no guarantees about the integrity or security of your installation with plugins enabled.
+Note that a plugin must be listed in `PLUGINS` for its configuration to take effect.
 
 ---
 
