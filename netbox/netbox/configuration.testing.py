@@ -14,6 +14,10 @@ DATABASE = {
     'CONN_MAX_AGE': 300,
 }
 
+PLUGINS = [
+    'extras.tests.dummy_plugin'
+]
+
 REDIS = {
     'tasks': {
         'HOST': 'localhost',

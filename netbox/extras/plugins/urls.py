@@ -19,7 +19,8 @@ plugin_admin_patterns = [
 
 # Register base/API URL patterns for each plugin
 for plugin in settings.PLUGINS:
-    app = apps.get_app_config(plugin)
+    plugin_name = plugin.split('.')[-1]
+    app = apps.get_app_config(plugin_name)
     base_url = getattr(app, 'base_url') or app.label
 
     # Check if the plugin specifies any base URLs
