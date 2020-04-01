@@ -1,5 +1,4 @@
 from extras.plugins import PluginMenuButton, PluginMenuItem
-from utilities.choices import ButtonColorChoices
 
 
 menu_items = (
@@ -8,16 +7,14 @@ menu_items = (
         link_text='Item 1',
         buttons=(
             PluginMenuButton(
-                link='plugins:netbox_animal_sounds:random_animal',
-                title='Random animal',
-                icon_class='fa-question'
+                link='admin:dummy_plugin_dummymodel_add',
+                title='Add a new dummy model',
+                icon_class='fa-plus',
             ),
             PluginMenuButton(
-                link='admin:netbox_animal_sounds_animal_add',
-                title='Add a new animal',
+                link='admin:dummy_plugin_dummymodel_add',
+                title='Add a new dummy model',
                 icon_class='fa-plus',
-                color=ButtonColorChoices.GREEN,
-                permissions=['netbox_animal_sounds.add_animal']
             ),
         )
     ),

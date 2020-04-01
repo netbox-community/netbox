@@ -5,5 +5,5 @@ from .models import DummyModel
 
 
 @admin.register(DummyModel, site=admin_site)
-class AnimalAdmin(admin.ModelAdmin):
+class DummyModelAdmin(admin.ModelAdmin):
     list_display = ('name', 'number')
