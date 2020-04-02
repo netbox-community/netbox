@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from extras.registry import registry
@@ -41,6 +41,7 @@ class PluginTest(TestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_api_views(self):
 
         # Test URL resolution

@@ -15,7 +15,7 @@ DATABASE = {
 }
 
 PLUGINS = [
-    'extras.tests.dummy_plugin'
+    'extras.tests.dummy_plugin',
 ]
 
 REDIS = {
