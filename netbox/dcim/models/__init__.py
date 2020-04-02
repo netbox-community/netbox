@@ -1905,6 +1905,10 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
 
         super().save(*args, **kwargs)
 
+    @property
+    def parent(self):
+        return self.power_panel
+
     def get_type_class(self):
         return self.TYPE_CLASS_MAP.get(self.type)
 
