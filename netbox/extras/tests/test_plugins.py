@@ -1,12 +1,13 @@
+from unittest import skipIf
+
 from django.conf import settings
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from extras.registry import registry
-from extras.tests.dummy_plugin.models import DummyModel
-from extras.tests.dummy_plugin.template_content import SiteContent
 
 
+@skipIf('extras.tests.dummy_plugin.DummyPluginConfig' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
 class PluginTest(TestCase):
 
     def test_config(self):
@@ -14,6 +15,7 @@ class PluginTest(TestCase):
         self.assertIn('extras.tests.dummy_plugin.DummyPluginConfig', settings.INSTALLED_APPS)
 
     def test_models(self):
+        from extras.tests.dummy_plugin.models import DummyModel
 
         # Test saving an instance
         instance = DummyModel(name='Instance 1', number=100)
@@ -66,6 +68,8 @@ class PluginTest(TestCase):
         """
         Check that plugin TemplateExtensions are registered.
         """
+        from extras.tests.dummy_plugin.template_content import SiteContent
+
         self.assertIn(SiteContent, registry['plugin_template_extensions']['dcim.site'])
 
     def test_middleware(self):
