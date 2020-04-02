@@ -472,3 +472,9 @@ SHORT_TIME_FORMAT = 'H:i:s'          # 13:23:00
 DATETIME_FORMAT = 'N j, Y g:i a'     # June 26, 2016 1:23 p.m.
 SHORT_DATETIME_FORMAT = 'Y-m-d H:i'  # 2016-06-27 13:23
 ```
+
+## X_FRAME_OPTIONS
+
+Default: SAMEORIGIN
+
+Clickjacking middleware to protect against malicious embedding of elements of this site in another, which needs to be relaxed so that embedded Rack SVGs display.  For more information please see [the Django documentation](https://docs.djangoproject.com/en/3.0/ref/settings/#std:setting-X_FRAME_OPTIONS)

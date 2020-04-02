@@ -231,3 +231,7 @@ TIME_FORMAT = 'g:i a'
 SHORT_TIME_FORMAT = 'H:i:s'
 DATETIME_FORMAT = 'N j, Y g:i a'
 SHORT_DATETIME_FORMAT = 'Y-m-d H:i'
+
+# Embedded objects needed for Rack SVG
+# https://docs.djangoproject.com/en/3.0/ref/settings/#std:setting-X_FRAME_OPTIONS
+X_FRAME_OPTIONS = 'SAMEORIGIN'
