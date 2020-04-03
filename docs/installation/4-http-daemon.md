@@ -52,7 +52,7 @@ Finally, restart the `nginx` service to use the new configuration.
 Begin by installing Apache:
 
 ```no-highlight
-# apt-get install -y apache2 libapache2-mod-wsgi-py3
+# apt-get install -y apache2
 ```
 
 Next, copy the default configuration file to `/etc/apache2/sites-available/`. Be sure to modify the `ServerName` parameter appropriately.
