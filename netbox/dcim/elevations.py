@@ -15,10 +15,15 @@ class RackElevationSVG:
 
     :param rack: A NetBox Rack instance
     :param include_images: If true, the SVG document will embed front/rear device face images, where available
+    :param base_url: Base URL for links within the SVG document. If none, links will be relative.
     """
-    def __init__(self, rack, include_images=True):
+    def __init__(self, rack, include_images=True, base_url=None):
         self.rack = rack
         self.include_images = include_images
+        if base_url is not None:
+            self.base_url = base_url.rstrip('/')
+        else:
+            self.base_url = ''
 
     def _get_device_description(self, device):
         return '{} ({}) — {} ({}U) {} {}'.format(
@@ -69,7 +74,7 @@ class RackElevationSVG:
         color = device.device_role.color
         link = drawing.add(
             drawing.a(
-                href=reverse('dcim:device', kwargs={'pk': device.pk}),
+                href='{}{}'.format(self.base_url, reverse('dcim:device', kwargs={'pk': device.pk})),
                 target='_top',
                 fill='black'
             )
@@ -81,7 +86,7 @@ class RackElevationSVG:
 
         # Embed front device type image if one exists
         if self.include_images and device.device_type.front_image:
-            url = device.device_type.front_image.url
+            url = '{}{}'.format(self.base_url, device.device_type.front_image.url)
             image = drawing.image(href=url, insert=start, size=end, class_='device-image')
             image.fit(scale='slice')
             link.add(image)
