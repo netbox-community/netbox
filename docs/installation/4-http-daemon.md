@@ -5,6 +5,18 @@ We'll set up a simple WSGI front end using [gunicorn](http://gunicorn.org/) for 
 !!! info
     For the sake of brevity, only Ubuntu 18.04 instructions are provided here, but this sort of web server and WSGI configuration is not unique to NetBox. Please consult your distribution's documentation for assistance if needed.
 
+## Obtain an SSL Certificate
+
+To enable HTTPS access to NetBox, you'll need a valid SSL certificate. You can purchase one from a trusted commercial provider, obtain one for free from [Let's Encrypt](https://letsencrypt.org/getting-started/), or generate your own (although self-signed certificates are generally untrusted). Both the public certificate and private key files need to be installed on your NetBox server in a location that is readable by the `netbox` user.
+
+The command below can be used to generate a self-signed certificate for testing purposes, however it is strongly recommended to use a certificate from a trusted authority in production. Two files will be created: the public certificate (`netbox.crt`) and the private key (`netbox.key`). The certificate is published to the world, whereas the private key must be kept secret at all times.
+
+```no-highlight
+# openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+-keyout /etc/ssl/private/netbox.key \
+-out /etc/ssl/certs/netbox.crt
+```
+
 ## HTTP Daemon Installation
 
 ### Option A: nginx
@@ -19,9 +31,12 @@ Once nginx is installed, save the following configuration to `/etc/nginx/sites-a
 
 ```nginx
 server {
-    listen 80;
+    listen 443 ssl;
 
     server_name netbox.example.com;
+
+    ssl_certificate /etc/ssl/certs/netbox.crt;
+    ssl_certificate_key /etc/ssl/private/netbox.key;
 
     client_max_body_size 25m;
 
@@ -36,6 +51,14 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
+
+server {
+    # Redirect HTTP traffic to HTTPS
+    listen 80;
+    server_name _;
+    return 301 https://$host$request_uri;
+}
+
 ```
 
 Then, delete `/etc/nginx/sites-enabled/default` and create a symlink in the `sites-enabled` directory to the configuration file you just created.
@@ -52,8 +75,6 @@ Restart the nginx service to use the new configuration.
 # service nginx restart
 ```
 
-To enable SSL, consider this guide on [securing nginx with Let's Encrypt](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04).
-
 ### Option B: Apache
 
 ```no-highlight
@@ -63,15 +84,16 @@ To enable SSL, consider this guide on [securing nginx with Let's Encrypt](https:
 Once Apache is installed, proceed with the following configuration (Be sure to modify the `ServerName` appropriately):
 
 ```apache
-<VirtualHost *:80>
+<VirtualHost *:443>
     ProxyPreserveHost On
 
     ServerName netbox.example.com
 
-    Alias /static /opt/netbox/netbox/static
+    SSLEngine on
+    SSLCertificateFile /etc/ssl/certs/netbox.crt
+    SSLCertificateKeyFile /etc/ssl/private/netbox.key
 
-    # Needed to allow token-based API authentication
-    WSGIPassAuthorization on
+    Alias /static /opt/netbox/netbox/static
 
     <Directory /opt/netbox/netbox/static>
         Options Indexes FollowSymLinks MultiViews
@@ -89,12 +111,12 @@ Once Apache is installed, proceed with the following configuration (Be sure to m
 </VirtualHost>
 ```
 
-Save the contents of the above example in `/etc/apache2/sites-available/netbox.conf`, enable the `proxy` and `proxy_http` modules, and reload Apache:
+Save the contents of the above example in `/etc/apache2/sites-available/netbox.conf`.
+
+Finally, ensure that the required Apache modules are enabled, enable the `netbox` site and reload Apache:
 
 ```no-highlight
-# a2enmod proxy
-# a2enmod proxy_http
-# a2enmod headers
+# a2enmod ssl proxy proxy_http headers
 # a2ensite netbox
 # service apache2 restart
 ```
