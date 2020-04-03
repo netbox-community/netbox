@@ -11,6 +11,7 @@
 * [#4418](https://github.com/netbox-community/netbox/issues/4418) - Fail cleanly when trying to import multiple device types simultaneously
 * [#4438](https://github.com/netbox-community/netbox/issues/4438) - Fix exception when disconnecting a cable from a power feed
 * [#4439](https://github.com/netbox-community/netbox/issues/4439) - Tweak display of unset custom integer fields
+* [#4449](https://github.com/netbox-community/netbox/issues/4449) - Fix reservation edit/delete button URLs on rack view
 
 ---
 
