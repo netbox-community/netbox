@@ -6,9 +6,9 @@ from dcim.filters import *
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, Platform, PowerFeed, PowerPanel, PowerPort, PowerPortTemplate, PowerOutlet,
-    PowerOutletTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
-    VirtualChassis,
+    InventoryItem, InventoryItemRole, InventoryItemType, Manufacturer, Platform, PowerFeed, PowerPanel, PowerPort,
+    PowerPortTemplate, PowerOutlet, PowerOutletTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort,
+    RearPortTemplate, Region, Site, VirtualChassis,
 )
 from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
@@ -67,7 +67,6 @@ class SiteTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         regions = (
             Region(name='Region 1', slug='region-1'),
             Region(name='Region 2', slug='region-2'),
@@ -91,9 +90,15 @@ class SiteTestCase(TestCase):
         Tenant.objects.bulk_create(tenants)
 
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0], tenant=tenants[0], status=SiteStatusChoices.STATUS_ACTIVE, facility='Facility 1', asn=65001, latitude=10, longitude=10, contact_name='Contact 1', contact_phone='123-555-0001', contact_email='contact1@example.com'),
-            Site(name='Site 2', slug='site-2', region=regions[1], tenant=tenants[1], status=SiteStatusChoices.STATUS_PLANNED, facility='Facility 2', asn=65002, latitude=20, longitude=20, contact_name='Contact 2', contact_phone='123-555-0002', contact_email='contact2@example.com'),
-            Site(name='Site 3', slug='site-3', region=regions[2], tenant=tenants[2], status=SiteStatusChoices.STATUS_RETIRED, facility='Facility 3', asn=65003, latitude=30, longitude=30, contact_name='Contact 3', contact_phone='123-555-0003', contact_email='contact3@example.com'),
+            Site(name='Site 1', slug='site-1', region=regions[0], tenant=tenants[0],
+                 status=SiteStatusChoices.STATUS_ACTIVE, facility='Facility 1', asn=65001, latitude=10, longitude=10,
+                 contact_name='Contact 1', contact_phone='123-555-0001', contact_email='contact1@example.com'),
+            Site(name='Site 2', slug='site-2', region=regions[1], tenant=tenants[1],
+                 status=SiteStatusChoices.STATUS_PLANNED, facility='Facility 2', asn=65002, latitude=20, longitude=20,
+                 contact_name='Contact 2', contact_phone='123-555-0002', contact_email='contact2@example.com'),
+            Site(name='Site 3', slug='site-3', region=regions[2], tenant=tenants[2],
+                 status=SiteStatusChoices.STATUS_RETIRED, facility='Facility 3', asn=65003, latitude=30, longitude=30,
+                 contact_name='Contact 3', contact_phone='123-555-0003', contact_email='contact3@example.com'),
         )
         Site.objects.bulk_create(sites)
 
@@ -175,7 +180,6 @@ class RackGroupTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         regions = (
             Region(name='Region 1', slug='region-1'),
             Region(name='Region 2', slug='region-2'),
@@ -232,7 +236,6 @@ class RackRoleTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         rack_roles = (
             RackRole(name='Rack Role 1', slug='rack-role-1', color='ff0000'),
             RackRole(name='Rack Role 2', slug='rack-role-2', color='00ff00'),
@@ -264,7 +267,6 @@ class RackTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         regions = (
             Region(name='Region 1', slug='region-1'),
             Region(name='Region 2', slug='region-2'),
@@ -309,9 +311,18 @@ class RackTestCase(TestCase):
         Tenant.objects.bulk_create(tenants)
 
         racks = (
-            Rack(name='Rack 1', facility_id='rack-1', site=sites[0], group=rack_groups[0], tenant=tenants[0], status=RackStatusChoices.STATUS_ACTIVE, role=rack_roles[0], serial='ABC', asset_tag='1001', type=RackTypeChoices.TYPE_2POST, width=RackWidthChoices.WIDTH_19IN, u_height=42, desc_units=False, outer_width=100, outer_depth=100, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
-            Rack(name='Rack 2', facility_id='rack-2', site=sites[1], group=rack_groups[1], tenant=tenants[1], status=RackStatusChoices.STATUS_PLANNED, role=rack_roles[1], serial='DEF', asset_tag='1002', type=RackTypeChoices.TYPE_4POST, width=RackWidthChoices.WIDTH_19IN, u_height=43, desc_units=False, outer_width=200, outer_depth=200, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
-            Rack(name='Rack 3', facility_id='rack-3', site=sites[2], group=rack_groups[2], tenant=tenants[2], status=RackStatusChoices.STATUS_RESERVED, role=rack_roles[2], serial='GHI', asset_tag='1003', type=RackTypeChoices.TYPE_CABINET, width=RackWidthChoices.WIDTH_23IN, u_height=44, desc_units=True, outer_width=300, outer_depth=300, outer_unit=RackDimensionUnitChoices.UNIT_INCH),
+            Rack(name='Rack 1', facility_id='rack-1', site=sites[0], group=rack_groups[0], tenant=tenants[0],
+                 status=RackStatusChoices.STATUS_ACTIVE, role=rack_roles[0], serial='ABC', asset_tag='1001',
+                 type=RackTypeChoices.TYPE_2POST, width=RackWidthChoices.WIDTH_19IN, u_height=42, desc_units=False,
+                 outer_width=100, outer_depth=100, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
+            Rack(name='Rack 2', facility_id='rack-2', site=sites[1], group=rack_groups[1], tenant=tenants[1],
+                 status=RackStatusChoices.STATUS_PLANNED, role=rack_roles[1], serial='DEF', asset_tag='1002',
+                 type=RackTypeChoices.TYPE_4POST, width=RackWidthChoices.WIDTH_19IN, u_height=43, desc_units=False,
+                 outer_width=200, outer_depth=200, outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER),
+            Rack(name='Rack 3', facility_id='rack-3', site=sites[2], group=rack_groups[2], tenant=tenants[2],
+                 status=RackStatusChoices.STATUS_RESERVED, role=rack_roles[2], serial='GHI', asset_tag='1003',
+                 type=RackTypeChoices.TYPE_CABINET, width=RackWidthChoices.WIDTH_23IN, u_height=44, desc_units=True,
+                 outer_width=300, outer_depth=300, outer_unit=RackDimensionUnitChoices.UNIT_INCH),
         )
         Rack.objects.bulk_create(racks)
 
@@ -429,7 +440,6 @@ class RackReservationTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         sites = (
             Site(name='Site 1', slug='site-1'),
             Site(name='Site 2', slug='site-2'),
@@ -527,7 +537,6 @@ class ManufacturerTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         manufacturers = (
             Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
             Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
@@ -555,7 +564,6 @@ class DeviceTypeTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         manufacturers = (
             Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
             Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
@@ -564,9 +572,12 @@ class DeviceTypeTestCase(TestCase):
         Manufacturer.objects.bulk_create(manufacturers)
 
         device_types = (
-            DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True),
-            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT),
-            DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3', u_height=3, is_full_depth=False, subdevice_role=SubdeviceRoleChoices.ROLE_CHILD),
+            DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', part_number='Part Number 1',
+                       u_height=1, is_full_depth=True),
+            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2',
+                       u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT),
+            DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3',
+                       u_height=3, is_full_depth=False, subdevice_role=SubdeviceRoleChoices.ROLE_CHILD),
         )
         DeviceType.objects.bulk_create(device_types)
 
@@ -597,8 +608,10 @@ class DeviceTypeTestCase(TestCase):
         )
         RearPortTemplate.objects.bulk_create(rear_ports)
         FrontPortTemplate.objects.bulk_create((
-            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0]),
-            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[1]),
+            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C,
+                              rear_port=rear_ports[0]),
+            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C,
+                              rear_port=rear_ports[1]),
         ))
         DeviceBayTemplate.objects.bulk_create((
             DeviceBayTemplate(device_type=device_types[0], name='Device Bay 1'),
@@ -692,7 +705,6 @@ class ConsolePortTemplateTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
 
         device_types = (
@@ -729,7 +741,6 @@ class ConsoleServerPortTemplateTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
 
         device_types = (
@@ -766,7 +777,6 @@ class PowerPortTemplateTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
 
         device_types = (
@@ -811,7 +821,6 @@ class PowerOutletTemplateTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
 
         device_types = (
@@ -822,9 +831,12 @@ class PowerOutletTemplateTestCase(TestCase):
         DeviceType.objects.bulk_create(device_types)
 
         PowerOutletTemplate.objects.bulk_create((
-            PowerOutletTemplate(device_type=device_types[0], name='Power Outlet 1', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A),
-            PowerOutletTemplate(device_type=device_types[1], name='Power Outlet 2', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B),
-            PowerOutletTemplate(device_type=device_types[2], name='Power Outlet 3', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C),
+            PowerOutletTemplate(device_type=device_types[0], name='Power Outlet 1',
+                                feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A),
+            PowerOutletTemplate(device_type=device_types[1], name='Power Outlet 2',
+                                feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B),
+            PowerOutletTemplate(device_type=device_types[2], name='Power Outlet 3',
+                                feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C),
         ))
 
     def test_id(self):
@@ -853,7 +865,6 @@ class InterfaceTemplateTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
 
         device_types = (
@@ -864,9 +875,12 @@ class InterfaceTemplateTestCase(TestCase):
         DeviceType.objects.bulk_create(device_types)
 
         InterfaceTemplate.objects.bulk_create((
-            InterfaceTemplate(device_type=device_types[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED, mgmt_only=True),
-            InterfaceTemplate(device_type=device_types[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_GBIC, mgmt_only=False),
-            InterfaceTemplate(device_type=device_types[2], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_SFP, mgmt_only=False),
+            InterfaceTemplate(device_type=device_types[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+                              mgmt_only=True),
+            InterfaceTemplate(device_type=device_types[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_GBIC,
+                              mgmt_only=False),
+            InterfaceTemplate(device_type=device_types[2], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_SFP,
+                              mgmt_only=False),
         ))
 
     def test_id(self):
@@ -901,7 +915,6 @@ class FrontPortTemplateTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
 
         device_types = (
@@ -919,9 +932,12 @@ class FrontPortTemplateTestCase(TestCase):
         RearPortTemplate.objects.bulk_create(rear_ports)
 
         FrontPortTemplate.objects.bulk_create((
-            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', rear_port=rear_ports[0], type=PortTypeChoices.TYPE_8P8C),
-            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', rear_port=rear_ports[1], type=PortTypeChoices.TYPE_110_PUNCH),
-            FrontPortTemplate(device_type=device_types[2], name='Front Port 3', rear_port=rear_ports[2], type=PortTypeChoices.TYPE_BNC),
+            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', rear_port=rear_ports[0],
+                              type=PortTypeChoices.TYPE_8P8C),
+            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', rear_port=rear_ports[1],
+                              type=PortTypeChoices.TYPE_110_PUNCH),
+            FrontPortTemplate(device_type=device_types[2], name='Front Port 3', rear_port=rear_ports[2],
+                              type=PortTypeChoices.TYPE_BNC),
         ))
 
     def test_id(self):
@@ -950,7 +966,6 @@ class RearPortTemplateTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
 
         device_types = (
@@ -961,9 +976,12 @@ class RearPortTemplateTestCase(TestCase):
         DeviceType.objects.bulk_create(device_types)
 
         RearPortTemplate.objects.bulk_create((
-            RearPortTemplate(device_type=device_types[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C, positions=1),
-            RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PortTypeChoices.TYPE_110_PUNCH, positions=2),
-            RearPortTemplate(device_type=device_types[2], name='Rear Port 3', type=PortTypeChoices.TYPE_BNC, positions=3),
+            RearPortTemplate(device_type=device_types[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C,
+                             positions=1),
+            RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PortTypeChoices.TYPE_110_PUNCH,
+                             positions=2),
+            RearPortTemplate(device_type=device_types[2], name='Rear Port 3', type=PortTypeChoices.TYPE_BNC,
+                             positions=3),
         ))
 
     def test_id(self):
@@ -996,7 +1014,6 @@ class DeviceBayTemplateTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
 
         device_types = (
@@ -1033,7 +1050,6 @@ class DeviceRoleTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         device_roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1', color='ff0000', vm_role=True),
             DeviceRole(name='Device Role 2', slug='device-role-2', color='00ff00', vm_role=True),
@@ -1071,7 +1087,6 @@ class PlatformTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         manufacturers = (
             Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
             Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
@@ -1117,7 +1132,6 @@ class DeviceTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         manufacturers = (
             Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
             Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
@@ -1198,9 +1212,16 @@ class DeviceTestCase(TestCase):
         Tenant.objects.bulk_create(tenants)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], platform=platforms[0], tenant=tenants[0], serial='ABC', asset_tag='1001', site=sites[0], rack=racks[0], position=1, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_ACTIVE, cluster=clusters[0], local_context_data={"foo": 123}),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], platform=platforms[1], tenant=tenants[1], serial='DEF', asset_tag='1002', site=sites[1], rack=racks[1], position=2, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_STAGED, cluster=clusters[1]),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], platform=platforms[2], tenant=tenants[2], serial='GHI', asset_tag='1003', site=sites[2], rack=racks[2], position=3, face=DeviceFaceChoices.FACE_REAR, status=DeviceStatusChoices.STATUS_FAILED, cluster=clusters[2]),
+            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], platform=platforms[0],
+                   tenant=tenants[0], serial='ABC', asset_tag='1001', site=sites[0], rack=racks[0], position=1,
+                   face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_ACTIVE, cluster=clusters[0],
+                   local_context_data={"foo": 123}),
+            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], platform=platforms[1],
+                   tenant=tenants[1], serial='DEF', asset_tag='1002', site=sites[1], rack=racks[1], position=2,
+                   face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_STAGED, cluster=clusters[1]),
+            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], platform=platforms[2],
+                   tenant=tenants[2], serial='GHI', asset_tag='1003', site=sites[2], rack=racks[2], position=3,
+                   face=DeviceFaceChoices.FACE_REAR, status=DeviceStatusChoices.STATUS_FAILED, cluster=clusters[2]),
         )
         Device.objects.bulk_create(devices)
 
@@ -1452,7 +1473,6 @@ class ConsolePortTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         regions = (
             Region(name='Region 1', slug='region-1'),
             Region(name='Region 2', slug='region-2'),
@@ -1548,7 +1568,6 @@ class ConsoleServerPortTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         regions = (
             Region(name='Region 1', slug='region-1'),
             Region(name='Region 2', slug='region-2'),
@@ -1644,7 +1663,6 @@ class PowerPortTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         regions = (
             Region(name='Region 1', slug='region-1'),
             Region(name='Region 2', slug='region-2'),
@@ -1678,8 +1696,10 @@ class PowerPortTestCase(TestCase):
 
         power_ports = (
             PowerPort(device=devices[0], name='Power Port 1', maximum_draw=100, allocated_draw=50, description='First'),
-            PowerPort(device=devices[1], name='Power Port 2', maximum_draw=200, allocated_draw=100, description='Second'),
-            PowerPort(device=devices[2], name='Power Port 3', maximum_draw=300, allocated_draw=150, description='Third'),
+            PowerPort(device=devices[1], name='Power Port 2', maximum_draw=200, allocated_draw=100,
+                      description='Second'),
+            PowerPort(device=devices[2], name='Power Port 3', maximum_draw=300, allocated_draw=150,
+                      description='Third'),
         )
         PowerPort.objects.bulk_create(power_ports)
 
@@ -1748,7 +1768,6 @@ class PowerOutletTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         regions = (
             Region(name='Region 1', slug='region-1'),
             Region(name='Region 2', slug='region-2'),
@@ -1781,9 +1800,12 @@ class PowerOutletTestCase(TestCase):
         PowerPort.objects.bulk_create(power_ports)
 
         power_outlets = (
-            PowerOutlet(device=devices[0], name='Power Outlet 1', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A, description='First'),
-            PowerOutlet(device=devices[1], name='Power Outlet 2', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B, description='Second'),
-            PowerOutlet(device=devices[2], name='Power Outlet 3', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C, description='Third'),
+            PowerOutlet(device=devices[0], name='Power Outlet 1', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A,
+                        description='First'),
+            PowerOutlet(device=devices[1], name='Power Outlet 2', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B,
+                        description='Second'),
+            PowerOutlet(device=devices[2], name='Power Outlet 3', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C,
+                        description='Third'),
         )
         PowerOutlet.objects.bulk_create(power_outlets)
 
@@ -1849,7 +1871,6 @@ class InterfaceTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         regions = (
             Region(name='Region 1', slug='region-1'),
             Region(name='Region 2', slug='region-2'),
@@ -1876,12 +1897,21 @@ class InterfaceTestCase(TestCase):
         Device.objects.bulk_create(devices)
 
         interfaces = (
-            Interface(device=devices[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_SFP, enabled=True, mgmt_only=True, mtu=100, mode=InterfaceModeChoices.MODE_ACCESS, mac_address='00-00-00-00-00-01', description='First'),
-            Interface(device=devices[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_GBIC, enabled=True, mgmt_only=True, mtu=200, mode=InterfaceModeChoices.MODE_TAGGED, mac_address='00-00-00-00-00-02', description='Second'),
-            Interface(device=devices[2], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED, enabled=False, mgmt_only=False, mtu=300, mode=InterfaceModeChoices.MODE_TAGGED_ALL, mac_address='00-00-00-00-00-03', description='Third'),
-            Interface(device=devices[3], name='Interface 4', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True),
-            Interface(device=devices[3], name='Interface 5', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True, mgmt_only=True),
-            Interface(device=devices[3], name='Interface 6', type=InterfaceTypeChoices.TYPE_OTHER, enabled=False, mgmt_only=False),
+            Interface(device=devices[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_SFP, enabled=True,
+                      mgmt_only=True, mtu=100, mode=InterfaceModeChoices.MODE_ACCESS, mac_address='00-00-00-00-00-01',
+                      description='First'),
+            Interface(device=devices[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_GBIC, enabled=True,
+                      mgmt_only=True, mtu=200, mode=InterfaceModeChoices.MODE_TAGGED, mac_address='00-00-00-00-00-02',
+                      description='Second'),
+            Interface(device=devices[2], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED, enabled=False,
+                      mgmt_only=False, mtu=300, mode=InterfaceModeChoices.MODE_TAGGED_ALL,
+                      mac_address='00-00-00-00-00-03', description='Third'),
+            Interface(device=devices[3], name='Interface 4', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True,
+                      mgmt_only=True),
+            Interface(device=devices[3], name='Interface 5', type=InterfaceTypeChoices.TYPE_OTHER, enabled=True,
+                      mgmt_only=True),
+            Interface(device=devices[3], name='Interface 6', type=InterfaceTypeChoices.TYPE_OTHER, enabled=False,
+                      mgmt_only=False),
         )
         Interface.objects.bulk_create(interfaces)
 
@@ -1976,7 +2006,6 @@ class FrontPortTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         regions = (
             Region(name='Region 1', slug='region-1'),
             Region(name='Region 2', slug='region-2'),
@@ -2013,12 +2042,18 @@ class FrontPortTestCase(TestCase):
         RearPort.objects.bulk_create(rear_ports)
 
         front_ports = (
-            FrontPort(device=devices[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0], rear_port_position=1, description='First'),
-            FrontPort(device=devices[1], name='Front Port 2', type=PortTypeChoices.TYPE_110_PUNCH, rear_port=rear_ports[1], rear_port_position=2, description='Second'),
-            FrontPort(device=devices[2], name='Front Port 3', type=PortTypeChoices.TYPE_BNC, rear_port=rear_ports[2], rear_port_position=3, description='Third'),
-            FrontPort(device=devices[3], name='Front Port 4', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[3], rear_port_position=1),
-            FrontPort(device=devices[3], name='Front Port 5', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[4], rear_port_position=1),
-            FrontPort(device=devices[3], name='Front Port 6', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[5], rear_port_position=1),
+            FrontPort(device=devices[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0],
+                      rear_port_position=1, description='First'),
+            FrontPort(device=devices[1], name='Front Port 2', type=PortTypeChoices.TYPE_110_PUNCH,
+                      rear_port=rear_ports[1], rear_port_position=2, description='Second'),
+            FrontPort(device=devices[2], name='Front Port 3', type=PortTypeChoices.TYPE_BNC, rear_port=rear_ports[2],
+                      rear_port_position=3, description='Third'),
+            FrontPort(device=devices[3], name='Front Port 4', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[3],
+                      rear_port_position=1),
+            FrontPort(device=devices[3], name='Front Port 5', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[4],
+                      rear_port_position=1),
+            FrontPort(device=devices[3], name='Front Port 6', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[5],
+                      rear_port_position=1),
         )
         FrontPort.objects.bulk_create(front_ports)
 
@@ -2079,7 +2114,6 @@ class RearPortTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         regions = (
             Region(name='Region 1', slug='region-1'),
             Region(name='Region 2', slug='region-2'),
@@ -2106,9 +2140,12 @@ class RearPortTestCase(TestCase):
         Device.objects.bulk_create(devices)
 
         rear_ports = (
-            RearPort(device=devices[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C, positions=1, description='First'),
-            RearPort(device=devices[1], name='Rear Port 2', type=PortTypeChoices.TYPE_110_PUNCH, positions=2, description='Second'),
-            RearPort(device=devices[2], name='Rear Port 3', type=PortTypeChoices.TYPE_BNC, positions=3, description='Third'),
+            RearPort(device=devices[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C, positions=1,
+                     description='First'),
+            RearPort(device=devices[1], name='Rear Port 2', type=PortTypeChoices.TYPE_110_PUNCH, positions=2,
+                     description='Second'),
+            RearPort(device=devices[2], name='Rear Port 3', type=PortTypeChoices.TYPE_BNC, positions=3,
+                     description='Third'),
             RearPort(device=devices[3], name='Rear Port 4', type=PortTypeChoices.TYPE_FC, positions=4),
             RearPort(device=devices[3], name='Rear Port 5', type=PortTypeChoices.TYPE_FC, positions=5),
             RearPort(device=devices[3], name='Rear Port 6', type=PortTypeChoices.TYPE_FC, positions=6),
@@ -2176,7 +2213,6 @@ class DeviceBayTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         regions = (
             Region(name='Region 1', slug='region-1'),
             Region(name='Region 2', slug='region-2'),
@@ -2249,13 +2285,35 @@ class InventoryItemTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         manufacturers = (
             Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
             Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
             Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
         )
         Manufacturer.objects.bulk_create(manufacturers)
+
+        roles = (
+            InventoryItemRole(name='Inventory Item Role 1', slug='inventory-item-role-1'),
+            InventoryItemRole(name='Inventory Item Role 2', slug='inventory-item-role-2'),
+            InventoryItemRole(name='Inventory Item Role 3', slug='inventory-item-role-3')
+        )
+        InventoryItemRole.objects.bulk_create(roles)
+
+        types = (
+            InventoryItemType(
+                model='Inventory Item Type 1', manufacturer=manufacturers[0], part_number='101',
+                slug='inventory-item-type=1'
+            ),
+            InventoryItemType(
+                model='Inventory Item Type 2', manufacturer=manufacturers[1], part_number='102',
+                slug='inventory-item-type=2'
+            ),
+            InventoryItemType(
+                model='Inventory Item Type 3', manufacturer=manufacturers[2], part_number='103',
+                slug='inventory-item-type=3'
+            )
+        )
+        InventoryItemType.objects.bulk_create(types)
 
         device_type = DeviceType.objects.create(manufacturer=manufacturers[0], model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
@@ -2283,9 +2341,18 @@ class InventoryItemTestCase(TestCase):
         Device.objects.bulk_create(devices)
 
         inventory_items = (
-            InventoryItem(device=devices[0], manufacturer=manufacturers[0], name='Inventory Item 1', part_id='1001', serial='ABC', asset_tag='1001', discovered=True, description='First'),
-            InventoryItem(device=devices[1], manufacturer=manufacturers[1], name='Inventory Item 2', part_id='1002', serial='DEF', asset_tag='1002', discovered=True, description='Second'),
-            InventoryItem(device=devices[2], manufacturer=manufacturers[2], name='Inventory Item 3', part_id='1003', serial='GHI', asset_tag='1003', discovered=False, description='Third'),
+            InventoryItem(
+                device=devices[0], site=sites[0], type=types[0], role=roles[0], name='Inventory Item 1', part_id='1001',
+                serial='ABC', asset_tag='1001', discovered=True, description='First'
+            ),
+            InventoryItem(
+                device=devices[1], site=sites[1], type=types[1], role=roles[1], name='Inventory Item 2', part_id='1002',
+                serial='DEF', asset_tag='1002', discovered=True, description='Second'
+            ),
+            InventoryItem(
+                device=devices[2], site=sites[2], type=types[2], role=roles[2], name='Inventory Item 3', part_id='1003',
+                serial='GHI', asset_tag='1003', discovered=False, description='Third'
+            ),
         )
         InventoryItem.objects.bulk_create(inventory_items)
 
@@ -2347,11 +2414,18 @@ class InventoryItemTestCase(TestCase):
         params = {'parent_id': [parent_items[0].pk, parent_items[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_manufacturer(self):
-        manufacturers = Manufacturer.objects.all()[:2]
-        params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
+    def test_role(self):
+        roles = InventoryItemRole.objects.all()[:2]
+        params = {'role_id': [roles[0].pk, roles[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        params = {'role': [roles[0].slug, roles[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_type(self):
+        types = InventoryItemType.objects.all()[:2]
+        params = {'type_id': [types[0].pk, types[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'type': [types[0].slug, types[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_serial(self):
@@ -2367,7 +2441,6 @@ class VirtualChassisTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
@@ -2438,7 +2511,6 @@ class CableTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         sites = (
             Site(name='Site 1', slug='site-1'),
             Site(name='Site 2', slug='site-2'),
@@ -2464,12 +2536,18 @@ class CableTestCase(TestCase):
         device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=1, tenant=tenants[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], position=2, tenant=tenants[0]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=1, tenant=tenants[1]),
-            Device(name='Device 4', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], position=2),
-            Device(name='Device 5', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=1),
-            Device(name='Device 6', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], position=2),
+            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0],
+                   position=1, tenant=tenants[0]),
+            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0],
+                   position=2, tenant=tenants[0]),
+            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1],
+                   position=1, tenant=tenants[1]),
+            Device(name='Device 4', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1],
+                   position=2),
+            Device(name='Device 5', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2],
+                   position=1),
+            Device(name='Device 6', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2],
+                   position=2),
         )
         Device.objects.bulk_create(devices)
 
@@ -2490,12 +2568,24 @@ class CableTestCase(TestCase):
         Interface.objects.bulk_create(interfaces)
 
         # Cables
-        Cable(termination_a=interfaces[1], termination_b=interfaces[2], label='Cable 1', type=CableTypeChoices.TYPE_CAT3, status=CableStatusChoices.STATUS_CONNECTED, color='aa1409', length=10, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[3], termination_b=interfaces[4], label='Cable 2', type=CableTypeChoices.TYPE_CAT3, status=CableStatusChoices.STATUS_CONNECTED, color='aa1409', length=20, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[5], termination_b=interfaces[6], label='Cable 3', type=CableTypeChoices.TYPE_CAT5E, status=CableStatusChoices.STATUS_CONNECTED, color='f44336', length=30, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[7], termination_b=interfaces[8], label='Cable 4', type=CableTypeChoices.TYPE_CAT5E, status=CableStatusChoices.STATUS_PLANNED, color='f44336', length=40, length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
-        Cable(termination_a=interfaces[9], termination_b=interfaces[10], label='Cable 5', type=CableTypeChoices.TYPE_CAT6, status=CableStatusChoices.STATUS_PLANNED, color='e91e63', length=10, length_unit=CableLengthUnitChoices.UNIT_METER).save()
-        Cable(termination_a=interfaces[11], termination_b=interfaces[0], label='Cable 6', type=CableTypeChoices.TYPE_CAT6, status=CableStatusChoices.STATUS_PLANNED, color='e91e63', length=20, length_unit=CableLengthUnitChoices.UNIT_METER).save()
+        Cable(termination_a=interfaces[1], termination_b=interfaces[2], label='Cable 1',
+              type=CableTypeChoices.TYPE_CAT3, status=CableStatusChoices.STATUS_CONNECTED, color='aa1409', length=10,
+              length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[3], termination_b=interfaces[4], label='Cable 2',
+              type=CableTypeChoices.TYPE_CAT3, status=CableStatusChoices.STATUS_CONNECTED, color='aa1409', length=20,
+              length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[5], termination_b=interfaces[6], label='Cable 3',
+              type=CableTypeChoices.TYPE_CAT5E, status=CableStatusChoices.STATUS_CONNECTED, color='f44336', length=30,
+              length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[7], termination_b=interfaces[8], label='Cable 4',
+              type=CableTypeChoices.TYPE_CAT5E, status=CableStatusChoices.STATUS_PLANNED, color='f44336', length=40,
+              length_unit=CableLengthUnitChoices.UNIT_FOOT).save()
+        Cable(termination_a=interfaces[9], termination_b=interfaces[10], label='Cable 5',
+              type=CableTypeChoices.TYPE_CAT6, status=CableStatusChoices.STATUS_PLANNED, color='e91e63', length=10,
+              length_unit=CableLengthUnitChoices.UNIT_METER).save()
+        Cable(termination_a=interfaces[11], termination_b=interfaces[0], label='Cable 6',
+              type=CableTypeChoices.TYPE_CAT6, status=CableStatusChoices.STATUS_PLANNED, color='e91e63', length=20,
+              length_unit=CableLengthUnitChoices.UNIT_METER).save()
 
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]
@@ -2563,7 +2653,6 @@ class PowerPanelTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         regions = (
             Region(name='Region 1', slug='region-1'),
             Region(name='Region 2', slug='region-2'),
@@ -2623,7 +2712,6 @@ class PowerFeedTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         regions = (
             Region(name='Region 1', slug='region-1'),
             Region(name='Region 2', slug='region-2'),
@@ -2654,9 +2742,18 @@ class PowerFeedTestCase(TestCase):
         PowerPanel.objects.bulk_create(power_panels)
 
         power_feeds = (
-            PowerFeed(power_panel=power_panels[0], rack=racks[0], name='Power Feed 1', status=PowerFeedStatusChoices.STATUS_ACTIVE, type=PowerFeedTypeChoices.TYPE_PRIMARY, supply=PowerFeedSupplyChoices.SUPPLY_AC, phase=PowerFeedPhaseChoices.PHASE_3PHASE, voltage=100, amperage=100, max_utilization=10),
-            PowerFeed(power_panel=power_panels[1], rack=racks[1], name='Power Feed 2', status=PowerFeedStatusChoices.STATUS_FAILED, type=PowerFeedTypeChoices.TYPE_PRIMARY, supply=PowerFeedSupplyChoices.SUPPLY_AC, phase=PowerFeedPhaseChoices.PHASE_3PHASE, voltage=200, amperage=200, max_utilization=20),
-            PowerFeed(power_panel=power_panels[2], rack=racks[2], name='Power Feed 3', status=PowerFeedStatusChoices.STATUS_OFFLINE, type=PowerFeedTypeChoices.TYPE_REDUNDANT, supply=PowerFeedSupplyChoices.SUPPLY_DC, phase=PowerFeedPhaseChoices.PHASE_SINGLE, voltage=300, amperage=300, max_utilization=30),
+            PowerFeed(power_panel=power_panels[0], rack=racks[0], name='Power Feed 1',
+                      status=PowerFeedStatusChoices.STATUS_ACTIVE, type=PowerFeedTypeChoices.TYPE_PRIMARY,
+                      supply=PowerFeedSupplyChoices.SUPPLY_AC, phase=PowerFeedPhaseChoices.PHASE_3PHASE, voltage=100,
+                      amperage=100, max_utilization=10),
+            PowerFeed(power_panel=power_panels[1], rack=racks[1], name='Power Feed 2',
+                      status=PowerFeedStatusChoices.STATUS_FAILED, type=PowerFeedTypeChoices.TYPE_PRIMARY,
+                      supply=PowerFeedSupplyChoices.SUPPLY_AC, phase=PowerFeedPhaseChoices.PHASE_3PHASE, voltage=200,
+                      amperage=200, max_utilization=20),
+            PowerFeed(power_panel=power_panels[2], rack=racks[2], name='Power Feed 3',
+                      status=PowerFeedStatusChoices.STATUS_OFFLINE, type=PowerFeedTypeChoices.TYPE_REDUNDANT,
+                      supply=PowerFeedSupplyChoices.SUPPLY_DC, phase=PowerFeedPhaseChoices.PHASE_SINGLE, voltage=300,
+                      amperage=300, max_utilization=30),
         )
         PowerFeed.objects.bulk_create(power_feeds)
 
@@ -2717,5 +2814,35 @@ class PowerFeedTestCase(TestCase):
         params = {'rack_id': [racks[0].pk, racks[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+
+class InventoryItemRoleTestCase(TestCase):
+    queryset = InventoryItemRole.objects.all()
+    filterset = InventoryItemRoleFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        inventory_item_roles = (
+            InventoryItemRole(name='Inventory Item Role 1', slug='inventory-item-role-1'),
+            InventoryItemRole(name='Inventory Item Role 2', slug='inventory-item-role-2'),
+            InventoryItemRole(name='Inventory Item Role 3', slug='inventory-item-role-3'),
+        )
+        InventoryItemRole.objects.bulk_create(inventory_item_roles)
+
+    def test_id(self):
+        id_list = self.queryset.values_list('id', flat=True)[:2]
+        params = {'id': [str(id) for id in id_list]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Inventory Item Role 1', 'Inventory Item Role 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['inventory-item-role-1', 'inventory-item-role-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_slug1(self):
+        params = {'slug': ['inventory-item-role-1', 'test-role']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 # TODO: Connection filters

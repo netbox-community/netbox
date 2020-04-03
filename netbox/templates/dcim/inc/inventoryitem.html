@@ -1,7 +1,7 @@
 <tr>
     <td style="padding-left: {{ indent|add:5 }}px">{{ item }}</td>
     <td>{% if not item.discovered %}<i class="fa fa-asterisk" title="Manually created"></i>{% endif %}</td>
-    <td>{{ item.manufacturer|default:"" }}</td>
+    <td>{{ item.type.manufacturer|default:"" }}</td>
     <td>{{ item.part_id }}</td>
     <td>{{ item.serial }}</td>
     <td>{{ item.asset_tag|default:"" }}</td>

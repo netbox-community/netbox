@@ -17,7 +17,7 @@ from dcim import filters
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    Manufacturer, InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
+    Manufacturer, InventoryItem, InventoryItemRole, InventoryItemType, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
@@ -269,7 +269,7 @@ class RackReservationViewSet(ModelViewSet):
 class ManufacturerViewSet(ModelViewSet):
     queryset = Manufacturer.objects.annotate(
         devicetype_count=get_subquery(DeviceType, 'manufacturer'),
-        inventoryitem_count=get_subquery(InventoryItem, 'manufacturer'),
+        inventoryitem_count=get_subquery(InventoryItem, 'type__manufacturer'),
         platform_count=get_subquery(Platform, 'manufacturer')
     )
     serializer_class = serializers.ManufacturerSerializer
@@ -351,6 +351,32 @@ class DeviceRoleViewSet(ModelViewSet):
     )
     serializer_class = serializers.DeviceRoleSerializer
     filterset_class = filters.DeviceRoleFilterSet
+
+#
+# Inventory item roles
+#
+
+
+class InventoryItemRoleViewSet(ModelViewSet):
+
+    queryset = InventoryItemRole.objects.annotate(
+        inventoryitem_count=get_subquery(InventoryItem, 'role'),
+    )
+
+    serializer_class = serializers.InventoryItemRoleSerializer
+    filterset_class = filters.InventoryItemRoleFilterSet
+
+#
+# Inventory Item types
+#
+
+
+class InventoryItemTypeViewSet(ModelViewSet):
+    queryset = InventoryItemType.objects.prefetch_related('manufacturer').prefetch_related('tags').annotate(
+        instance_count=Count('instances')
+    )
+    serializer_class = serializers.InventoryItemTypeSerializer
+    filterset_class = filters.InventoryItemTypeFilterSet
 
 
 #
@@ -576,7 +602,7 @@ class DeviceBayViewSet(ModelViewSet):
 
 
 class InventoryItemViewSet(ModelViewSet):
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer').prefetch_related('tags')
+    queryset = InventoryItem.objects.prefetch_related('device', 'type__manufacturer').prefetch_related('tags')
     serializer_class = serializers.InventoryItemSerializer
     filterset_class = filters.InventoryItemFilterSet
 

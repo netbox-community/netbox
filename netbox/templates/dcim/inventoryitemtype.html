@@ -1,0 +1,89 @@
+{% extends '_base.html' %}
+{% load buttons %}
+{% load custom_links %}
+{% load helpers %}
+
+{% block title %}{{ inventoryitemtype.manufacturer }} {{ inventoryitemtype.model }}{% endblock %}
+
+{% block header %}
+    <div class="row noprint">
+        <div class="col-md-12">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'dcim:inventoryitemtype_list' %}">Inventory Item Types</a></li>
+                <li><a href="{% url 'dcim:inventoryitemtype_list' %}?manufacturer={{ inventoryitemtype.manufacturer.slug }}">{{ inventoryitemtype.manufacturer }}</a></li>
+                <li>{{ inventoryitemtype.model }}</li>
+            </ol>
+        </div>
+    </div>
+    <div class="pull-right noprint">
+        {% if perms.dcim.add_inventoryitemtype %}
+            {% clone_button inventoryitemtype %}
+        {% endif %}
+        {% if perms.dcim.change_inventoryitemtype %}
+            {% edit_button inventoryitemtype use_pk=True %}
+        {% endif %}
+        {% if perms.dcim.delete_inventoryitemtype %}
+            {% delete_button inventoryitemtype use_pk=True %}
+        {% endif %}
+    </div>
+    <h1>{{ inventoryitemtype.manufacturer }} {{ inventoryitemtype.model }}</h1>
+    {% include 'inc/created_updated.html' with obj=inventoryitemtype %}
+    <div class="pull-right noprint">
+        {% custom_links inventoryitemtype %}
+    </div>
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ inventoryitemtype.get_absolute_url }}">Inventory Item Type</a>
+        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:inventoryitemtype_changelog' pk=inventoryitemtype.pk %}">Change Log</a>
+            </li>
+        {% endif %}
+    </ul>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Chassis</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+                <tr>
+                    <td>Manufacturer</td>
+                    <td><a href="{% url 'dcim:inventoryitemtype_list' %}?manufacturer={{ inventoryitemtype.manufacturer.slug }}">{{ inventoryitemtype.manufacturer }}</a></td>
+                </tr>
+                <tr>
+                    <td>Model Name</td>
+                    <td>
+                        {{ inventoryitemtype.model }}<br/>
+                        <small class="text-muted">{{ inventoryitemtype.slug }}</small>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Part Number</td>
+                    <td>{{ inventoryitemtype.part_number|placeholder }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-6">
+        {% include 'inc/custom_fields_panel.html' with obj=inventoryitemtype %}
+        {% include 'extras/inc/tags_panel.html' with tags=inventoryitemtype.tags.all url='dcim:inventoryitemtype_list' %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Comments</strong>
+            </div>
+            <div class="panel-body rendered-markdown">
+                {% if inventoryitemtype.comments %}
+                    {{ inventoryitemtype.comments|gfm }}
+                {% else %}
+                    <span class="text-muted">None</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

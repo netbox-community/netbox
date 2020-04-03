@@ -35,7 +35,7 @@ from .constants import NONCONNECTABLE_IFACE_TYPES
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
+    InventoryItem, InventoryItemRole, InventoryItemType, Manufacturer, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
@@ -552,7 +552,7 @@ class ManufacturerListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_manufacturer'
     queryset = Manufacturer.objects.annotate(
         devicetype_count=Count('device_types', distinct=True),
-        inventoryitem_count=Count('inventory_items', distinct=True),
+        inventoryitem_count=Count('inventory_item_types__instances', distinct=True),
         platform_count=Count('platforms', distinct=True),
     )
     table = tables.ManufacturerTable
@@ -1007,10 +1007,10 @@ class DeviceBayTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     queryset = DeviceBayTemplate.objects.all()
     table = tables.DeviceBayTemplateTable
 
-
 #
 # Device roles
 #
+
 
 class DeviceRoleListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_devicerole'
@@ -1180,7 +1180,7 @@ class DeviceInventoryView(PermissionRequiredMixin, View):
         inventory_items = InventoryItem.objects.filter(
             device=device, parent=None
         ).prefetch_related(
-            'manufacturer', 'child_items'
+            'type__manufacturer', 'child_items'
         )
 
         return render(request, 'dcim/device_inventory.html', {
@@ -2264,14 +2264,50 @@ class InterfaceConnectionsListView(PermissionRequiredMixin, ObjectListView):
 
         return '\n'.join(csv_data)
 
+#
+# Inventory item roles
+#
+
+
+class InventoryItemRoleListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_inventoryitemrole'
+    queryset = InventoryItemRole.objects.all()
+    table = tables.InventoryItemRoleTable
+
+
+class InventoryItemRoleCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.add_inventoryitemrole'
+    model = InventoryItemRole
+    model_form = forms.InventoryItemRoleForm
+    default_return_url = 'dcim:inventoryitemrole_list'
+
+
+class InventoryItemRoleBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_inventoryitemrole'
+    model_form = forms.InventoryItemRoleCSVForm
+    table = tables.InventoryItemRoleTable
+    default_return_url = 'dcim:inventoryitemrole_list'
+
+
+class InventoryItemRoleEditView(InventoryItemRoleCreateView):
+    permission_required = 'dcim.change_inventoryitemrole'
+
+
+class InventoryItemRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_inventoryitemrole'
+    queryset = InventoryItemRole.objects.all()
+    filterset = filters.InventoryItemRoleFilterSet
+    table = tables.InventoryItemRoleTable
+    default_return_url = 'dcim:inventoryitemrole_list'
 
 #
 # Inventory items
 #
 
+
 class InventoryItemListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_inventoryitem'
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
+    queryset = InventoryItem.objects.prefetch_related('device', 'role', 'type__manufacturer')
     filterset = filters.InventoryItemFilterSet
     filterset_form = forms.InventoryItemFilterForm
     table = tables.InventoryItemTable
@@ -2306,7 +2342,7 @@ class InventoryItemBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class InventoryItemBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_inventoryitem'
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
+    queryset = InventoryItem.objects.prefetch_related('device', 'type__manufacturer')
     filterset = filters.InventoryItemFilterSet
     table = tables.InventoryItemTable
     form = forms.InventoryItemBulkEditForm
@@ -2315,10 +2351,77 @@ class InventoryItemBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class InventoryItemBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_inventoryitem'
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
+    queryset = InventoryItem.objects.prefetch_related('device', 'type__manufacturer')
     table = tables.InventoryItemTable
     template_name = 'dcim/inventoryitem_bulk_delete.html'
     default_return_url = 'dcim:inventoryitem_list'
+
+#
+# Inventory Item types
+#
+
+
+class InventoryItemTypeListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_inventoryitemtype'
+    queryset = InventoryItemType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances'))
+    filterset = filters.InventoryItemTypeFilterSet
+    filterset_form = forms.InventoryItemTypeFilterForm
+    table = tables.InventoryItemTypeTable
+
+
+class InventoryItemTypeView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.view_inventoryitemtype'
+
+    def get(self, request, pk):
+
+        inventoryitemtype = get_object_or_404(InventoryItemType, pk=pk)
+        return render(request, 'dcim/inventoryitemtype.html', {
+            'inventoryitemtype': inventoryitemtype,
+        })
+
+
+class InventoryItemTypeCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.add_inventoryitemtype'
+    model = InventoryItemType
+    model_form = forms.InventoryItemTypeForm
+    template_name = 'dcim/inventoryitemtype_edit.html'
+    default_return_url = 'dcim:inventoryitemtype_list'
+
+
+class InventoryItemTypeEditView(InventoryItemTypeCreateView):
+    permission_required = 'dcim.change_inventoryitemtype'
+
+
+class InventoryItemTypeDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_inventoryitemtype'
+    model = InventoryItemType
+    default_return_url = 'dcim:inventoryitemtype_list'
+
+
+class InventoryItemTypeImportView(PermissionRequiredMixin, ObjectImportView):
+    permission_required = [
+        'dcim.add_inventoryitemtype',
+    ]
+    model = InventoryItemType
+    model_form = forms.InventoryItemTypeImportForm
+    default_return_url = 'dcim:inventoryitemtype_import'
+
+
+class InventoryItemTypeBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_inventoryitemtype'
+    queryset = InventoryItemType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances'))
+    filterset = filters.InventoryItemTypeFilterSet
+    table = tables.InventoryItemTypeTable
+    form = forms.InventoryItemTypeBulkEditForm
+    default_return_url = 'dcim:inventoryitemtype_list'
+
+
+class InventoryItemTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_inventoryitemtype'
+    queryset = InventoryItemType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances'))
+    filterset = filters.InventoryItemTypeFilterSet
+    table = tables.InventoryItemTypeTable
+    default_return_url = 'dcim:inventoryitemtype_list'
 
 
 #

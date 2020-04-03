@@ -9,7 +9,7 @@ from dcim.constants import *
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceType, DeviceRole, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    Manufacturer, InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
+    Manufacturer, InventoryItem, InventoryItemRole, InventoryItemType, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
@@ -333,8 +333,39 @@ class DeviceBayTemplateSerializer(ValidatedModelSerializer):
 
 
 #
+# Inventory Item Role
+#
+
+class InventoryItemRoleSerializer(ValidatedModelSerializer):
+    inventoryitem_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = InventoryItemRole
+        fields = [
+            'id', 'name', 'slug', 'inventoryitem_count'
+        ]
+
+#
+# Inventory Item Type
+#
+
+
+class InventoryItemTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
+    manufacturer = NestedManufacturerSerializer()
+    instance_count = serializers.IntegerField(read_only=True)
+    tags = TagListSerializerField(required=False)
+
+    class Meta:
+        model = InventoryItemType
+        fields = [
+            'id', 'manufacturer', 'model', 'slug', 'part_number', 'tags', 'created',
+            'last_updated', 'instance_count',
+        ]
+
+#
 # Devices
 #
+
 
 class DeviceRoleSerializer(ValidatedModelSerializer):
     device_count = serializers.IntegerField(read_only=True)
@@ -612,14 +643,13 @@ class InventoryItemSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     # Provide a default value to satisfy UniqueTogetherValidator
     parent = serializers.PrimaryKeyRelatedField(queryset=InventoryItem.objects.all(), allow_null=True, default=None)
-    manufacturer = NestedManufacturerSerializer(required=False, allow_null=True, default=None)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = InventoryItem
         fields = [
-            'id', 'device', 'parent', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered',
-            'description', 'tags',
+            'id', 'device', 'parent', 'name', 'part_id', 'serial', 'asset_tag', 'discovered',
+            'description', 'tags', 'role', 'type', 'site',
         ]
 
 

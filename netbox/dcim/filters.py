@@ -15,9 +15,9 @@ from .constants import *
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
-    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
-    VirtualChassis,
+    InventoryItem, InventoryItemRole, InventoryItemType, Manufacturer, Platform, PowerFeed, PowerOutlet,
+    PowerOutletTemplate, PowerPanel, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort,
+    RearPortTemplate, Region, Site, VirtualChassis,
 )
 
 
@@ -39,6 +39,8 @@ __all__ = (
     'InterfaceFilterSet',
     'InterfaceTemplateFilterSet',
     'InventoryItemFilterSet',
+    'InventoryItemRoleFilterSet',
+    'InventoryItemTypeFilterSet',
     'ManufacturerFilterSet',
     'PlatformFilterSet',
     'PowerConnectionFilterSet',
@@ -477,6 +479,13 @@ class DeviceRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     class Meta:
         model = DeviceRole
         fields = ['id', 'name', 'slug', 'color', 'vm_role']
+
+
+class InventoryItemRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
+
+    class Meta:
+        model = InventoryItemRole
+        fields = ['id', 'name', 'slug']
 
 
 class PlatformFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
@@ -989,15 +998,25 @@ class InventoryItemFilterSet(BaseFilterSet, DeviceComponentFilterSet):
         queryset=InventoryItem.objects.all(),
         label='Parent inventory item (ID)',
     )
-    manufacturer_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Manufacturer.objects.all(),
-        label='Manufacturer (ID)',
+    role_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=InventoryItemRole.objects.all(),
+        label='Inventory Item Role (ID)'
     )
-    manufacturer = django_filters.ModelMultipleChoiceFilter(
-        field_name='manufacturer__slug',
-        queryset=Manufacturer.objects.all(),
+    role = django_filters.ModelMultipleChoiceFilter(
+        field_name='role__slug',
+        queryset=InventoryItemRole.objects.all(),
+        to_field_name="slug",
+        label="Inventory Item Role (slug)"
+    )
+    type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=InventoryItemType.objects.all(),
+        label='Inventory Item Type (ID)'
+    )
+    type = django_filters.ModelMultipleChoiceFilter(
+        field_name='type__slug',
+        queryset=InventoryItemType.objects.all(),
         to_field_name='slug',
-        label='Manufacturer (slug)',
+        label='Inventory Item Type (slug)'
     )
     serial = django_filters.CharFilter(
         lookup_expr='iexact'
@@ -1018,6 +1037,44 @@ class InventoryItemFilterSet(BaseFilterSet, DeviceComponentFilterSet):
             Q(description__icontains=value)
         )
         return queryset.filter(qs_filter)
+
+
+class InventoryItemTypeFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    manufacturer_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Manufacturer.objects.all(),
+        label='Manufacturer (ID)',
+    )
+    manufacturer = django_filters.ModelMultipleChoiceFilter(
+        field_name='manufacturer__slug',
+        queryset=Manufacturer.objects.all(),
+        to_field_name='slug',
+        label='Manufacturer (slug)',
+    )
+    tag = TagFilter()
+
+    class Meta:
+        model = InventoryItemType
+        fields = [
+            'model', 'slug', 'part_number'
+        ]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(manufacturer__name__icontains=value) |
+            Q(model__icontains=value) |
+            Q(part_number__icontains=value) |
+            Q(slug__icontains=value)
+        )
 
 
 class VirtualChassisFilterSet(BaseFilterSet):

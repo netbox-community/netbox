@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from dcim.constants import CONNECTION_STATUS_CHOICES
 from dcim.models import (
-    Cable, ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceType, DeviceRole, FrontPort, FrontPortTemplate,
+    Cable, ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceType, InventoryItemType, DeviceRole, FrontPort, FrontPortTemplate,
     Interface, Manufacturer, Platform, PowerFeed, PowerOutlet, PowerPanel, PowerPort, PowerPortTemplate, Rack,
     RackGroup, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
 )
@@ -16,6 +16,7 @@ __all__ = [
     'NestedDeviceRoleSerializer',
     'NestedDeviceSerializer',
     'NestedDeviceTypeSerializer',
+    'NestedInventoryItemTypeSerializer',
     'NestedFrontPortSerializer',
     'NestedFrontPortTemplateSerializer',
     'NestedInterfaceSerializer',
@@ -110,6 +111,16 @@ class NestedDeviceTypeSerializer(WritableNestedSerializer):
     class Meta:
         model = DeviceType
         fields = ['id', 'url', 'manufacturer', 'model', 'slug', 'display_name', 'device_count']
+
+
+class NestedInventoryItemTypeSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:inventoryitemtype-detail')
+    manufacturer = NestedManufacturerSerializer(read_only=True)
+    instance_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = InventoryItemType
+        fields = ['id', 'url', 'manufacturer', 'model', 'slug', 'instance_count']
 
 
 class NestedPowerPortTemplateSerializer(WritableNestedSerializer):

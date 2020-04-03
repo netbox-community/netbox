@@ -1384,7 +1384,6 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.form_data = {
             'device': device.pk,
-            'manufacturer': manufacturer.pk,
             'name': 'Inventory Item X',
             'parent': None,
             'discovered': False,
@@ -1398,7 +1397,6 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.bulk_create_data = {
             'device': device.pk,
             'name_pattern': 'Inventory Item [4-6]',
-            'manufacturer': manufacturer.pk,
             'parent': None,
             'discovered': False,
             'part_id': '123456',
@@ -1409,7 +1407,6 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.bulk_edit_data = {
             'device': device.pk,
-            'manufacturer': manufacturer.pk,
             'part_id': '123456',
             'description': 'New description',
         }

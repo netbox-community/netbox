@@ -169,6 +169,25 @@
                             {% endif %}
                             <a href="{% url 'dcim:inventoryitem_list' %}">Inventory Items</a>
                         </li>
+                        <li{% if not perms.dcim.view_inventoryitemrole %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_inventoryitemrole %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:inventoryitemrole_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
+                                    <a href="{% url 'dcim:inventoryitemrole_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:inventoryitemrole_list' %}">Inventory Item Roles</a>
+                        </li>
+                    </li>
+                    <li{% if not perms.dcim.view_inventoryitemtype %} class="disabled"{% endif %}>
+                        {% if perms.dcim.add_inventoryitemtype %}
+                            <div class="buttons pull-right">
+                                <a href="{% url 'dcim:inventoryitemtype_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
+                                <a href="{% url 'dcim:inventoryitemtype_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                            </div>
+                        {% endif %}
+                        <a href="{% url 'dcim:inventoryitemtype_list' %}">Inventory Item Types</a>
+                    </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Connections</li>
                         <li{% if not perms.dcim.view_cable %} class="disabled"{% endif %}>

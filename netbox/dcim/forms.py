@@ -32,8 +32,9 @@ from .constants import *
 from .models import (
     Cable, DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
     Device, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate, Manufacturer,
-    InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort, PowerPortTemplate,
-    Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
+    InventoryItem, InventoryItemRole, InventoryItemType, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate,
+    PowerPanel, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate,
+    Region, Site, VirtualChassis,
 )
 
 DEVICE_BY_PK_RE = r'{\d+\}'
@@ -58,7 +59,6 @@ def get_device_by_name_or_pk(name):
 
 
 class DeviceComponentFilterForm(BootstrapMixin, forms.Form):
-
     field_order = [
         'q', 'region', 'site'
     ]
@@ -923,7 +923,6 @@ class ManufacturerForm(BootstrapMixin, forms.ModelForm):
 
 
 class ManufacturerCSVForm(forms.ModelForm):
-
     class Meta:
         model = Manufacturer
         fields = Manufacturer.csv_headers
@@ -1065,7 +1064,6 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
 #
 
 class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = ConsolePortTemplate
         fields = [
@@ -1105,7 +1103,6 @@ class ConsolePortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
 
 
 class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
@@ -1145,7 +1142,6 @@ class ConsoleServerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
 
 
 class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = PowerPortTemplate
         fields = [
@@ -1205,7 +1201,6 @@ class PowerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
 
 
 class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = PowerOutletTemplate
         fields = [
@@ -1216,7 +1211,6 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
         # Limit power_port choices to current DeviceType
@@ -1280,7 +1274,6 @@ class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
 
 
 class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = InterfaceTemplate
         fields = [
@@ -1330,7 +1323,6 @@ class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
 
 
 class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = FrontPortTemplate
         fields = [
@@ -1342,7 +1334,6 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
         # Limit rear_port choices to current DeviceType
@@ -1431,7 +1422,6 @@ class FrontPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
 
 
 class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = RearPortTemplate
         fields = [
@@ -1478,7 +1468,6 @@ class RearPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
 
 
 class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = DeviceBayTemplate
         fields = [
@@ -1537,7 +1526,6 @@ class ComponentTemplateImportForm(BootstrapMixin, forms.ModelForm):
 
 
 class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
-
     class Meta:
         model = ConsolePortTemplate
         fields = [
@@ -1546,7 +1534,6 @@ class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
 
 
 class ConsoleServerPortTemplateImportForm(ComponentTemplateImportForm):
-
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
@@ -1555,7 +1542,6 @@ class ConsoleServerPortTemplateImportForm(ComponentTemplateImportForm):
 
 
 class PowerPortTemplateImportForm(ComponentTemplateImportForm):
-
     class Meta:
         model = PowerPortTemplate
         fields = [
@@ -1619,7 +1605,6 @@ class RearPortTemplateImportForm(ComponentTemplateImportForm):
 
 
 class DeviceBayTemplateImportForm(ComponentTemplateImportForm):
-
     class Meta:
         model = DeviceBayTemplate
         fields = [
@@ -1814,7 +1799,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
         if 'device_type' in kwargs['initial'] and 'manufacturer' not in kwargs['initial']:
             device_type_id = kwargs['initial']['device_type']
-            manufacturer_id = DeviceType.objects.filter(pk=device_type_id).values_list('manufacturer__pk', flat=True).first()
+            manufacturer_id = DeviceType.objects.filter(pk=device_type_id).values_list('manufacturer__pk',
+                                                                                       flat=True).first()
             kwargs['initial']['manufacturer'] = manufacturer_id
 
         if 'cluster' in kwargs['initial'] and 'cluster_group' not in kwargs['initial']:
@@ -3671,7 +3657,6 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
 
 
 class CableForm(BootstrapMixin, forms.ModelForm):
-
     class Meta:
         model = Cable
         fields = [
@@ -3685,7 +3670,6 @@ class CableForm(BootstrapMixin, forms.ModelForm):
 
 
 class CableCSVForm(forms.ModelForm):
-
     # Termination A
     side_a_device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
@@ -3853,7 +3837,6 @@ class CableBulkEditForm(BootstrapMixin, BulkEditForm):
         ]
 
     def clean(self):
-
         # Validate length/unit
         length = self.cleaned_data.get('length')
         length_unit = self.cleaned_data.get('length_unit')
@@ -3970,7 +3953,6 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
     )
 
     def __init__(self, device_bay, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
         self.fields['installed_device'].queryset = Device.objects.filter(
@@ -4187,6 +4169,30 @@ class InventoryItemCSVForm(forms.ModelForm):
             'invalid_choice': 'Invalid manufacturer.',
         }
     )
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        required=False,
+        error_messages={
+            "invalid_choice": 'Invalid site.',
+        }
+    )
+    role = forms.ModelChoiceField(
+        queryset=InventoryItemRole.objects.all(),
+        to_field_name='name',
+        required=False,
+        error_messages={
+            'invalid_choice': 'Invalid item role.',
+        }
+    )
+    type = forms.ModelChoiceField(
+        queryset=InventoryItemType.objects.all(),
+        to_field_name='model',
+        required=False,
+        error_messages={
+            'invalid_choice': 'Invalie item type.',
+        }
+    )
 
     class Meta:
         model = InventoryItem
@@ -4202,10 +4208,6 @@ class InventoryItemBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=Device.objects.all(),
         required=False
     )
-    manufacturer = DynamicModelChoiceField(
-        queryset=Manufacturer.objects.all(),
-        required=False
-    )
     part_id = forms.CharField(
         max_length=50,
         required=False,
@@ -4215,10 +4217,25 @@ class InventoryItemBulkEditForm(BootstrapMixin, BulkEditForm):
         max_length=100,
         required=False
     )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/sites"
+        )
+    )
+    role = DynamicModelChoiceField(
+        queryset=InventoryItemRole.objects.all(),
+        required=False
+    )
+    type = DynamicModelChoiceField(
+        queryset=InventoryItemType.objects.all(),
+        required=False
+    )
 
     class Meta:
         nullable_fields = [
-            'manufacturer', 'part_id', 'description',
+            'part_id', 'description', 'site', 'role', 'type',
         ]
 
 
@@ -4263,6 +4280,16 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
             value_field="slug",
         )
     )
+
+    role = DynamicModelMultipleChoiceField(
+        queryset=InventoryItemRole.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/inventory-item-roles/",
+            value_field="slug",
+        )
+    )
     discovered = forms.NullBooleanField(
         required=False,
         widget=StaticSelect2(
@@ -4271,10 +4298,108 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
     )
     tag = TagFilterField(model)
 
+#
+# Inventory Item types
+#
+
+
+class InventoryItemTypeForm(BootstrapMixin, CustomFieldModelForm):
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        widget=APISelect(
+            api_url="/api/dcim/manufacturers/",
+        )
+    )
+    slug = SlugField(
+        slug_source='model'
+    )
+    tags = TagField(
+        required=False
+    )
+
+    class Meta:
+        model = InventoryItemType
+        fields = [
+            'manufacturer', 'model', 'slug', 'part_number', 'tags',
+        ]
+
+
+class InventoryItemTypeImportForm(BootstrapMixin, forms.ModelForm):
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        to_field_name='name'
+    )
+
+    class Meta:
+        model = InventoryItemType
+        fields = [
+            'manufacturer', 'model', 'slug', 'part_number',
+        ]
+
+
+class InventoryItemTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=InventoryItemType.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/manufacturers"
+        )
+    )
+
+    class Meta:
+        nullable_fields = []
+
+
+class InventoryItemTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = InventoryItemType
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
+    manufacturer = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/dcim/manufacturers/",
+            value_field="slug",
+        )
+    )
+    tag = TagFilterField(model)
+
+#
+# Inventory Item Role
+#
+
+
+class InventoryItemRoleCSVForm(forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = InventoryItemRole
+        fields = InventoryItemRole.csv_headers
+        help_texts = {
+            'name': 'Name of inventory item role',
+        }
+
+
+class InventoryItemRoleForm(BootstrapMixin, forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = InventoryItemRole
+        fields = [
+            'name', 'slug',
+        ]
 
 #
 # Virtual chassis
 #
+
 
 class DeviceSelectionForm(forms.Form):
     pk = forms.ModelMultipleChoiceField(

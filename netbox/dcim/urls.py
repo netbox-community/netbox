@@ -6,7 +6,7 @@ from . import views
 from .models import (
     Cable, ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, FrontPort, Interface, Manufacturer, Platform,
     PowerFeed, PowerPanel, PowerPort, PowerOutlet, Rack, RackGroup, RackReservation, RackRole, RearPort, Region, Site,
-    VirtualChassis,
+    VirtualChassis, InventoryItemRole, InventoryItemType,
 )
 
 app_name = 'dcim'
@@ -302,6 +302,30 @@ urlpatterns = [
     path('inventory-items/delete/', views.InventoryItemBulkDeleteView.as_view(), name='inventoryitem_bulk_delete'),
     path('inventory-items/<int:pk>/edit/', views.InventoryItemEditView.as_view(), name='inventoryitem_edit'),
     path('inventory-items/<int:pk>/delete/', views.InventoryItemDeleteView.as_view(), name='inventoryitem_delete'),
+
+    # Inventory item roles
+    path('inventory-item-roles/', views.InventoryItemRoleListView.as_view(), name='inventoryitemrole_list'),
+    path('inventory-item-roles/import/', views.InventoryItemRoleBulkImportView.as_view(),
+         name='inventoryitemrole_import'),
+    path('inventory-item-roles/add/', views.InventoryItemRoleCreateView.as_view(), name='inventoryitemrole_add'),
+    path('inventory-item-roles/delete/', views.InventoryItemRoleBulkDeleteView.as_view(),
+         name='inventoryitemrole_bulk_delete'),
+    path('inventory-item-roles/<slug:slug>/edit/', views.InventoryItemRoleEditView.as_view(),
+         name='inventoryitemrole_edit'),
+    path('inventory-item-roles/<slug:slug>/changelog/', ObjectChangeLogView.as_view(),
+         name='inventoryitemrole_changelog',
+         kwargs={'model': InventoryItemRole}),
+
+    # Inventory Item types
+    path('inventory-item-types/', views.InventoryItemTypeListView.as_view(), name='inventoryitemtype_list'),
+    path('inventory-item-types/add/', views.InventoryItemTypeCreateView.as_view(), name='inventoryitemtype_add'),
+    path('inventory-item-types/import/', views.InventoryItemTypeImportView.as_view(), name='inventoryitemtype_import'),
+    path('inventory-item-types/edit/', views.InventoryItemTypeBulkEditView.as_view(), name='inventoryitemtype_bulk_edit'),
+    path('inventory-item-types/delete/', views.InventoryItemTypeBulkDeleteView.as_view(), name='inventoryitemtype_bulk_delete'),
+    path('inventory-item-types/<int:pk>/', views.InventoryItemTypeView.as_view(), name='inventoryitemtype'),
+    path('inventory-item-types/<int:pk>/edit/', views.InventoryItemTypeEditView.as_view(), name='inventoryitemtype_edit'),
+    path('inventory-item-types/<int:pk>/delete/', views.InventoryItemTypeDeleteView.as_view(), name='inventoryitemtype_delete'),
+    path('inventory-item-types/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='inventoryitemtype_changelog', kwargs={'model': InventoryItemType}),
 
     # Cables
     path('cables/', views.CableListView.as_view(), name='cable_list'),

@@ -65,6 +65,12 @@ router.register('interface-connections', views.InterfaceConnectionViewSet, basen
 # Cables
 router.register('cables', views.CableViewSet)
 
+# Inventory Item Roles
+router.register('inventory-item-roles', views.InventoryItemRoleViewSet)
+
+# Inventory Item types
+router.register('inventory-item-types', views.InventoryItemTypeViewSet)
+
 # Virtual chassis
 router.register('virtual-chassis', views.VirtualChassisViewSet)
 

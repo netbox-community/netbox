@@ -27,7 +27,7 @@ fi
 #  - E501: line greater than 80 characters in length
 pycodestyle \
     --ignore=W504,E501 \
-    netbox/
+    netbox
 RC=$?
 if [[ $RC != 0 ]]; then
 	echo -e "\n$(info) one or more PEP 8 errors detected, failing build."

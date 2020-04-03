@@ -1027,8 +1027,28 @@ class InventoryItem(ComponentModel):
     """
     device = models.ForeignKey(
         to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='inventory_items'
+        on_delete=models.SET_NULL,
+        null=True
+    )
+    site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True
+    )
+    role = models.ForeignKey(
+        to='dcim.InventoryItemRole',
+        on_delete=models.PROTECT,
+        related_name='inventoryitems',
+        null=True,
+        blank=True
+    )
+    type = models.ForeignKey(
+        to='dcim.InventoryItemType',
+        on_delete=models.PROTECT,
+        related_name='instances',
+        null=True,
+        blank=True
     )
     parent = models.ForeignKey(
         to='self',
@@ -1045,13 +1065,6 @@ class InventoryItem(ComponentModel):
         target_field='name',
         max_length=100,
         blank=True
-    )
-    manufacturer = models.ForeignKey(
-        to='dcim.Manufacturer',
-        on_delete=models.PROTECT,
-        related_name='inventory_items',
-        blank=True,
-        null=True
     )
     part_id = models.CharField(
         max_length=50,
@@ -1079,7 +1092,7 @@ class InventoryItem(ComponentModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
+        'device', 'name', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
     ]
 
     class Meta:
@@ -1090,13 +1103,15 @@ class InventoryItem(ComponentModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('dcim:device_inventory', kwargs={'pk': self.device.pk})
+        return reverse('dcim:inventoryitem_list')
 
     def to_csv(self):
         return (
             self.device.name or '{{{}}}'.format(self.device.pk),
             self.name,
-            self.manufacturer.name if self.manufacturer else None,
+            self.site,
+            self.role,
+            self.type,
             self.part_id,
             self.serial,
             self.asset_tag,

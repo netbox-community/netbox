@@ -52,6 +52,8 @@ __all__ = (
     'Interface',
     'InterfaceTemplate',
     'InventoryItem',
+    'InventoryItemRole',
+    'InventoryItemType',
     'Manufacturer',
     'Platform',
     'PowerFeed',
@@ -2179,3 +2181,91 @@ class Cable(ChangeLoggedModel):
         b_endpoint = b_path[-1][2]
 
         return a_endpoint, b_endpoint, path_status
+
+#
+# Inventory Item Role
+#
+
+
+class InventoryItemRole(ChangeLoggedModel):
+    """
+    Inventory Item Role
+    """
+    name = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    slug = models.SlugField(
+        unique=True
+    )
+
+    csv_headers = ['name', 'slug']
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+        )
+
+
+class InventoryItemType(ChangeLoggedModel):
+    manufacturer = models.ForeignKey(
+        to='dcim.Manufacturer',
+        on_delete=models.PROTECT,
+        related_name='inventory_item_types'
+    )
+    model = models.CharField(
+        max_length=50
+    )
+    slug = models.SlugField()
+    part_number = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text='Discrete part number (optional)'
+    )
+
+    tags = TaggableManager(through=TaggedItem)
+
+    clone_fields = [
+        'manufacturer'
+    ]
+
+    class Meta:
+        ordering = ['manufacturer', 'model']
+        unique_together = [
+            ['manufacturer', 'model'],
+            ['manufacturer', 'slug'],
+        ]
+
+    def __str__(self):
+        return self.model
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('dcim:inventoryitemtype', args=[self.pk])
+
+    def to_yaml(self):
+        data = OrderedDict((
+            ('manufacturer', self.manufacturer.name),
+            ('model', self.model),
+            ('slug', self.slug),
+            ('part_number', self.part_number),
+        ))
+
+        return yaml.dump(dict(data), sort_keys=False)
+
+    def save(self, *args, **kwargs):
+        ret = super().save(*args, **kwargs)
+
+        return ret
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)

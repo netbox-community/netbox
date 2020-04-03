@@ -6,13 +6,13 @@ from rest_framework import status
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim.api import serializers
 from dcim.choices import *
-from dcim.constants import *
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, Interface, InterfaceTemplate, Manufacturer,
-    InventoryItem, Platform, PowerFeed, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, PowerPanel,
-    Rack, RackGroup, RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
+    InventoryItem, InventoryItemRole, InventoryItemType, Platform, PowerFeed, PowerPort, PowerPortTemplate, PowerOutlet,
+    PowerOutletTemplate, PowerPanel, Rack, RackGroup, RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
 )
+from dcim.constants import *
 from ipam.models import IPAddress, VLAN
 from extras.models import Graph
 from utilities.testing import APITestCase, choices_to_dict
@@ -105,7 +105,6 @@ class AppTest(APITestCase):
 class RegionTest(APITestCase):
 
     def setUp(self):
-
         super().setUp()
 
         self.region1 = Region.objects.create(name='Test Region 1', slug='test-region-1')
@@ -113,7 +112,6 @@ class RegionTest(APITestCase):
         self.region3 = Region.objects.create(name='Test Region 3', slug='test-region-3')
 
     def test_get_region(self):
-
         url = reverse('dcim-api:region-detail', kwargs={'pk': self.region1.pk})
         response = self.client.get(url, **self.header)
 
@@ -3249,7 +3247,7 @@ class InventoryItemTest(APITestCase):
 
         super().setUp()
 
-        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        self.site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         devicetype = DeviceType.objects.create(
             manufacturer=self.manufacturer, model='Test Device Type 1', slug='test-device-type-1'
@@ -3258,8 +3256,16 @@ class InventoryItemTest(APITestCase):
             name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
         )
         self.device = Device.objects.create(
-            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
+            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=self.site
         )
+
+        self.inventoryitemrole = InventoryItemRole.objects.create(
+            name='Inventory Item Role 1', slug='inventory-item-role-1'
+        )
+        self.inventoryitemtype = InventoryItemType.objects.create(
+            model='Inventory Item 1', manufacturer=self.manufacturer, slug='inventory-item-type-1'
+        )
+
         self.inventoryitem1 = InventoryItem.objects.create(device=self.device, name='Test Inventory Item 1')
         self.inventoryitem2 = InventoryItem.objects.create(device=self.device, name='Test Inventory Item 2')
         self.inventoryitem3 = InventoryItem.objects.create(device=self.device, name='Test Inventory Item 3')
@@ -3282,9 +3288,11 @@ class InventoryItemTest(APITestCase):
 
         data = {
             'device': self.device.pk,
+            'site': self.site.pk,
+            'type': self.inventoryitemtype.pk,
+            'role': self.inventoryitemrole.pk,
             'parent': self.inventoryitem1.pk,
             'name': 'Test Inventory Item 4',
-            'manufacturer': self.manufacturer.pk,
         }
 
         url = reverse('dcim-api:inventoryitem-list')
@@ -3296,28 +3304,36 @@ class InventoryItemTest(APITestCase):
         self.assertEqual(inventoryitem4.device_id, data['device'])
         self.assertEqual(inventoryitem4.parent_id, data['parent'])
         self.assertEqual(inventoryitem4.name, data['name'])
-        self.assertEqual(inventoryitem4.manufacturer_id, data['manufacturer'])
+        self.assertEqual(inventoryitem4.site_id, data['site'])
+        self.assertEqual(inventoryitem4.type_id, data['type'])
+        self.assertEqual(inventoryitem4.role_id, data['role'])
 
     def test_create_inventoryitem_bulk(self):
 
         data = [
             {
                 'device': self.device.pk,
+                'site': self.site.pk,
+                'type': self.inventoryitemtype.pk,
+                'role': self.inventoryitemrole.pk,
                 'parent': self.inventoryitem1.pk,
                 'name': 'Test Inventory Item 4',
-                'manufacturer': self.manufacturer.pk,
             },
             {
                 'device': self.device.pk,
+                'site': self.site.pk,
+                'type': self.inventoryitemtype.pk,
+                'role': self.inventoryitemrole.pk,
                 'parent': self.inventoryitem1.pk,
                 'name': 'Test Inventory Item 5',
-                'manufacturer': self.manufacturer.pk,
             },
             {
                 'device': self.device.pk,
+                'site': self.site.pk,
+                'type': self.inventoryitemtype.pk,
+                'role': self.inventoryitemrole.pk,
                 'parent': self.inventoryitem1.pk,
                 'name': 'Test Inventory Item 6',
-                'manufacturer': self.manufacturer.pk,
             },
         ]
 
@@ -3334,9 +3350,11 @@ class InventoryItemTest(APITestCase):
 
         data = {
             'device': self.device.pk,
+            'site': self.site.pk,
+            'type': self.inventoryitemtype.pk,
+            'role': self.inventoryitemrole.pk,
             'parent': self.inventoryitem1.pk,
             'name': 'Test Inventory Item X',
-            'manufacturer': self.manufacturer.pk,
         }
 
         url = reverse('dcim-api:inventoryitem-detail', kwargs={'pk': self.inventoryitem1.pk})
@@ -3348,7 +3366,6 @@ class InventoryItemTest(APITestCase):
         self.assertEqual(inventoryitem1.device_id, data['device'])
         self.assertEqual(inventoryitem1.parent_id, data['parent'])
         self.assertEqual(inventoryitem1.name, data['name'])
-        self.assertEqual(inventoryitem1.manufacturer_id, data['manufacturer'])
 
     def test_delete_inventoryitem(self):
 
@@ -4329,3 +4346,234 @@ class PowerFeedTest(APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(PowerFeed.objects.count(), 5)
+
+
+class InventoryItemRoleTest(APITestCase):
+
+    def setUp(self):
+
+        super().setUp()
+
+        self.inventoryitemrole1 = InventoryItemRole.objects.create(
+            name='Test Inventory Item Role 1', slug='test-inventory-item-role-1'
+        )
+        self.inventoryitem1 = InventoryItem.objects.create(name='Test Inventory Item 1', role=self.inventoryitemrole1)
+
+        self.inventoryitemrole2 = InventoryItemRole.objects.create(
+            name='Test Inventory Item Role 2', slug='test-inventory-item-role-2'
+        )
+        self.inventoryitemrole3 = InventoryItemRole.objects.create(
+            name='Test Inventory Item Role 3', slug='test-inventory-item-role-3'
+        )
+
+    def test_get_inventoryitemrole(self):
+
+        url = reverse('dcim-api:inventoryitemrole-detail', kwargs={'pk': self.inventoryitemrole1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.inventoryitemrole1.name)
+
+    def test_list_inventoryitemroles(self):
+
+        url = reverse('dcim-api:inventoryitemrole-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_list_inventoryitemroles_brief(self):
+
+        url = reverse('dcim-api:inventoryitemrole-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'inventoryitem_count', 'name', 'slug', ]
+        )
+
+    def test_create_inventoryitemrole(self):
+
+        data = {
+            'name': 'Test Inventory Item Role 4',
+            'slug': 'test-inventoryitem-role-4',
+        }
+
+        url = reverse('dcim-api:inventoryitemrole-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(InventoryItemRole.objects.count(), 4)
+        inventoryitemrole4 = InventoryItemRole.objects.get(pk=response.data['id'])
+        self.assertEqual(inventoryitemrole4.name, data['name'])
+        self.assertEqual(inventoryitemrole4.slug, data['slug'])
+
+    def test_create_inventoryitemrole_bulk(self):
+
+        data = [
+            {
+                'name': 'Test Inventory Item Role 4',
+                'slug': 'test-inventoryitem-role-4',
+            },
+            {
+                'name': 'Test Inventory Item Role 5',
+                'slug': 'test-inventoryitem-role-5',
+            },
+            {
+                'name': 'Test Inventory Item Role 6',
+                'slug': 'test-inventoryitem-role-6',
+            },
+        ]
+
+        url = reverse('dcim-api:inventoryitemrole-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(InventoryItemRole.objects.count(), 6)
+        self.assertEqual(response.data[0]['name'], data[0]['name'])
+        self.assertEqual(response.data[1]['name'], data[1]['name'])
+        self.assertEqual(response.data[2]['name'], data[2]['name'])
+
+    def test_update_inventoryitemrole(self):
+
+        data = {
+            'name': 'Test Inventory Item Role X',
+            'slug': 'test-inventoryitem-role-x',
+        }
+
+        url = reverse('dcim-api:inventoryitemrole-detail', kwargs={'pk': self.inventoryitemrole1.pk})
+        response = self.client.put(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(InventoryItemRole.objects.count(), 3)
+        inventoryitemrole1 = InventoryItemRole.objects.get(pk=response.data['id'])
+        self.assertEqual(inventoryitemrole1.name, data['name'])
+        self.assertEqual(inventoryitemrole1.slug, data['slug'])
+
+    def test_delete_inventoryitemrole(self):
+        url = reverse('dcim-api:inventoryitemrole-detail', kwargs={'pk': self.inventoryitemrole2.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(InventoryItemRole.objects.count(), 2)
+
+    def test_delete_inventoryitemrole_with_items(self):
+        url = reverse('dcim-api:inventoryitemrole-detail', kwargs={'pk': self.inventoryitemrole1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
+        self.assertEqual(InventoryItemRole.objects.count(), 3)
+
+
+class InventoryItemTypeTest(APITestCase):
+
+    def setUp(self):
+
+        super().setUp()
+
+        self.manufacturer1 = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        self.manufacturer2 = Manufacturer.objects.create(name='Test Manufacturer 2', slug='test-manufacturer-2')
+        self.inventoryitemtype1 = InventoryItemType.objects.create(
+            manufacturer=self.manufacturer1, model='Test Inventory Item Type 1', slug='test-inventory-item-type-1'
+        )
+        self.inventoryitemtype2 = InventoryItemType.objects.create(
+            manufacturer=self.manufacturer1, model='Test Inventory Item Type 2', slug='test-inventory-item-type-2'
+        )
+        self.inventoryitemtype3 = InventoryItemType.objects.create(
+            manufacturer=self.manufacturer1, model='Test Inventory Item Type 3', slug='test-inventory-item-type-3'
+        )
+
+    def test_get_inventoryitemtype(self):
+
+        url = reverse('dcim-api:inventoryitemtype-detail', kwargs={'pk': self.inventoryitemtype1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['model'], self.inventoryitemtype1.model)
+
+    def test_list_inventoryitemtypes(self):
+
+        url = reverse('dcim-api:inventoryitemtype-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_list_inventoryitemtypes_brief(self):
+
+        url = reverse('dcim-api:inventoryitemtype-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'instance_count', 'manufacturer', 'model', 'slug', 'url']
+        )
+
+    def test_create_inventoryitemtype(self):
+
+        data = {
+            'manufacturer': self.manufacturer1.pk,
+            'model': 'Test Inventory Item Type 4',
+            'slug': 'test-inventory-item-type-4',
+        }
+
+        url = reverse('dcim-api:inventoryitemtype-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(InventoryItemType.objects.count(), 4)
+        inventoryitemtype4 = InventoryItemType.objects.get(pk=response.data['id'])
+        self.assertEqual(inventoryitemtype4.manufacturer_id, data['manufacturer'])
+        self.assertEqual(inventoryitemtype4.model, data['model'])
+        self.assertEqual(inventoryitemtype4.slug, data['slug'])
+
+    def test_create_inventoryitemtype_bulk(self):
+
+        data = [
+            {
+                'manufacturer': self.manufacturer1.pk,
+                'model': 'Test Inventory Item Type 4',
+                'slug': 'test-inventory-item-type-4',
+            },
+            {
+                'manufacturer': self.manufacturer1.pk,
+                'model': 'Test Inventory Item Type 5',
+                'slug': 'test-inventory-item-type-5',
+            },
+            {
+                'manufacturer': self.manufacturer1.pk,
+                'model': 'Test Inventory Item Type 6',
+                'slug': 'test-inventory-item-type-6',
+            },
+        ]
+
+        url = reverse('dcim-api:inventoryitemtype-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(InventoryItemType.objects.count(), 6)
+        self.assertEqual(response.data[0]['model'], data[0]['model'])
+        self.assertEqual(response.data[1]['model'], data[1]['model'])
+        self.assertEqual(response.data[2]['model'], data[2]['model'])
+
+    def test_update_inventoryitemtype(self):
+
+        data = {
+            'manufacturer': self.manufacturer2.pk,
+            'model': 'Test Inventory Item Type X',
+            'slug': 'test-inventory-item-type-x',
+        }
+
+        url = reverse('dcim-api:inventoryitemtype-detail', kwargs={'pk': self.inventoryitemtype1.pk})
+        response = self.client.put(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(InventoryItemType.objects.count(), 3)
+        inventoryitemtype1 = InventoryItemType.objects.get(pk=response.data['id'])
+        self.assertEqual(inventoryitemtype1.manufacturer_id, data['manufacturer'])
+        self.assertEqual(inventoryitemtype1.model, data['model'])
+        self.assertEqual(inventoryitemtype1.slug, data['slug'])
+
+    def test_delete_inventoryitemtype(self):
+
+        url = reverse('dcim-api:inventoryitemtype-detail', kwargs={'pk': self.inventoryitemtype1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(InventoryItemType.objects.count(), 2)

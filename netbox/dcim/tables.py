@@ -6,7 +6,7 @@ from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ToggleColumn
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
+    InventoryItem, InventoryItemRole, InventoryItemType, Manufacturer, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
@@ -112,6 +112,20 @@ DEVICEROLE_ACTIONS = """
 {% endif %}
 """
 
+INVENTORYITEMROLE_ACTIONS = """
+<a href="{% url 'dcim:inventoryitemrole_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
+     <i class="fa fa-history"></i>
+</a>
+
+{% if perms.dcim.change_inventoryitemrole %}
+    <a href="{% url 'dcim:inventoryitemrole_edit' slug=record.slug %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+{% endif %}
+"""
+
+INVENTORYITEMROLE_INVENTORYITEM_COUNT = """
+<a href="{% url 'dcim:inventoryitem_list' %}?role={{ record.slug }}">{{ value }}</a>
+"""
+
 DEVICEROLE_DEVICE_COUNT = """
 <a href="{% url 'dcim:device_list' %}?role={{ record.slug }}">{{ value }}</a>
 """
@@ -158,6 +172,10 @@ DEVICE_PRIMARY_IP = """
 
 DEVICETYPE_INSTANCES_TEMPLATE = """
 <a href="{% url 'dcim:device_list' %}?manufacturer_id={{ record.manufacturer_id }}&device_type_id={{ record.pk }}">{{ record.instance_count }}</a>
+"""
+
+INVENTORYITEMTYPE_INSTANCES_TEMPLATE = """
+<a href="{% url 'dcim:inventoryitem_list' %}?manufacturer_id={{ record.manufacturer_id }}&inventory_item_type_id={{ record.pk }}">{{ record.instance_count }}</a>
 """
 
 UTILIZATION_GRAPH = """
@@ -1031,15 +1049,64 @@ class InventoryItemTable(BaseTable):
     pk = ToggleColumn()
     device = tables.LinkColumn('dcim:device_inventory', args=[Accessor('device.pk')])
     manufacturer = tables.Column(accessor=Accessor('manufacturer.name'), verbose_name='Manufacturer')
+    role = tables.Column(accessor=Accessor('role.name'), verbose_name='Role')
 
     class Meta(BaseTable.Meta):
         model = InventoryItem
         fields = ('pk', 'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description')
 
+#
+# InventoryItemRoles
+#
+
+
+class InventoryItemRoleTable(BaseTable):
+    pk = ToggleColumn()
+    slug = tables.Column(verbose_name='Slug')
+    inventoryitem_count = tables.TemplateColumn(
+        template_code=INVENTORYITEMROLE_INVENTORYITEM_COUNT,
+        accessor=Accessor('inventoryitems.count'),
+        orderable=False,
+        verbose_name='Inventory Items'
+    )
+    actions = tables.TemplateColumn(
+        template_code=INVENTORYITEMROLE_ACTIONS,
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
+
+    class Meta(BaseTable.Meta):
+        model = InventoryItemRole
+        fields = ('pk', 'name', 'slug', 'inventoryitem_count')
+
+#
+# Inventory Item types
+#
+
+
+class InventoryItemTypeTable(BaseTable):
+    pk = ToggleColumn()
+    model = tables.LinkColumn(
+        viewname='dcim:inventoryitemtype',
+        args=[Accessor('pk')],
+        verbose_name='Inventory Item Type'
+    )
+    instance_count = tables.TemplateColumn(
+        template_code=INVENTORYITEMTYPE_INSTANCES_TEMPLATE,
+        verbose_name='Instances'
+    )
+
+    class Meta(BaseTable.Meta):
+        model = InventoryItemType
+        fields = (
+            'pk', 'model', 'manufacturer', 'part_number', 'slug',
+            'instance_count',
+        )
 
 #
 # Virtual chassis
 #
+
 
 class VirtualChassisTable(BaseTable):
     pk = ToggleColumn()
