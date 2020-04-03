@@ -18,13 +18,14 @@ plugin_admin_patterns = [
 ]
 
 # Register base/API URL patterns for each plugin
-for plugin in settings.PLUGINS:
-    app = apps.get_app_config(plugin)
+for plugin_path in settings.PLUGINS:
+    plugin_name = plugin_path.split('.')[-1]
+    app = apps.get_app_config(plugin_name)
     base_url = getattr(app, 'base_url') or app.label
 
     # Check if the plugin specifies any base URLs
     try:
-        urlpatterns = import_string(f"{plugin}.urls.urlpatterns")
+        urlpatterns = import_string(f"{plugin_path}.urls.urlpatterns")
         plugin_patterns.append(
             path(f"{base_url}/", include((urlpatterns, app.label)))
         )
@@ -33,7 +34,7 @@ for plugin in settings.PLUGINS:
 
     # Check if the plugin specifies any API URLs
     try:
-        urlpatterns = import_string(f"{plugin}.api.urls.urlpatterns")
+        urlpatterns = import_string(f"{plugin_path}.api.urls.urlpatterns")
         plugin_api_patterns.append(
             path(f"{base_url}/", include((urlpatterns, f"{app.label}-api")))
         )
