@@ -98,7 +98,7 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `verbose_name` | Human-friendly name for the plugin |
 | `version` | Current release ([semantic versioning](https://semver.org/) is encouraged) |
 | `description` | Brief description of the plugin's purpose |
-| `author_name` | Name of plugin's author |
+| `author` | Name of plugin's author |
 | `author_email` | Author's public email address |
 | `base_url` | Base path to use for plugin URLs (optional). If not specified, the project's `name` will be used. |
 | `required_settings` | A list of any configuration parameters that **must** be defined by the user |
