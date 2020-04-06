@@ -7,6 +7,8 @@ class DummyPluginConfig(PluginConfig):
     version = '0.0'
     description = 'For testing purposes only'
     base_url = 'dummy-plugin'
+    min_version = '1.0'
+    max_version = '9.0'
     middleware = [
         'extras.tests.dummy_plugin.middleware.DummyMiddleware'
     ]

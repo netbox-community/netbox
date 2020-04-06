@@ -18,6 +18,10 @@ PLUGINS = [
     'extras.tests.dummy_plugin',
 ]
 
+PLUGINS_CONFIG = {
+    'foo': True,
+}
+
 REDIS = {
     'tasks': {
         'HOST': 'localhost',

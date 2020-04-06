@@ -10,7 +10,6 @@ from urllib.parse import urlsplit
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
-from pkg_resources import parse_version
 
 
 #
@@ -658,35 +657,15 @@ for plugin_name in PLUGINS:
             f"__init__.py file and point to the PluginConfig subclass."
         )
 
-    # Check version constraints
-    parsed_min_version = parse_version(plugin_config.min_version or VERSION)
-    parsed_max_version = parse_version(plugin_config.max_version or VERSION)
-    if plugin_config.min_version and plugin_config.max_version and parsed_min_version > parsed_max_version:
-        raise ImproperlyConfigured(f"Plugin {plugin_name} specifies invalid version constraints!")
-    if plugin_config.min_version and parsed_min_version > parse_version(VERSION):
-        raise ImproperlyConfigured(f"Plugin {plugin_name} requires NetBox minimum version {plugin_config.min_version}!")
-    if plugin_config.max_version and parsed_max_version < parse_version(VERSION):
-        raise ImproperlyConfigured(f"Plugin {plugin_name} requires NetBox maximum version {plugin_config.max_version}!")
+    # Validate user-provided configuration settings and assign defaults
+    if plugin_name not in PLUGINS_CONFIG:
+        PLUGINS_CONFIG[plugin_name] = {}
+    plugin_config.validate(PLUGINS_CONFIG[plugin_name])
 
     # Add middleware
     plugin_middleware = plugin_config.middleware
     if plugin_middleware and type(plugin_middleware) in (list, tuple):
         MIDDLEWARE.extend(plugin_middleware)
-
-    # Verify required configuration settings
-    if plugin_name not in PLUGINS_CONFIG:
-        PLUGINS_CONFIG[plugin_name] = {}
-    for setting in plugin_config.required_settings:
-        if setting not in PLUGINS_CONFIG[plugin_name]:
-            raise ImproperlyConfigured(
-                f"Plugin {plugin_name} requires '{setting}' to be present in the PLUGINS_CONFIG section of "
-                f"configuration.py."
-            )
-
-    # Apply default configuration values
-    for setting, value in plugin_config.default_settings.items():
-        if setting not in PLUGINS_CONFIG[plugin_name]:
-            PLUGINS_CONFIG[plugin_name][setting] = value
 
     # Apply cacheops config
     if type(plugin_config.caching_config) is not dict:

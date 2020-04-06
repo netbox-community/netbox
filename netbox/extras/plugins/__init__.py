@@ -1,7 +1,10 @@
 import collections
 import inspect
+from pkg_resources import parse_version
 
 from django.apps import AppConfig
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import get_template
 from django.utils.module_loading import import_string
 
@@ -69,6 +72,37 @@ class PluginConfig(AppConfig):
             register_menu_items(self.verbose_name, menu_items)
         except ImportError:
             pass
+
+    @classmethod
+    def validate(cls, user_config):
+
+        # Enforce version constraints
+        current_version = parse_version(settings.VERSION)
+        if cls.min_version is not None:
+            min_version = parse_version(cls.min_version)
+            if current_version < min_version:
+                raise ImproperlyConfigured(
+                    f"Plugin {cls.__module__} requires NetBox minimum version {cls.min_version}."
+                )
+        if cls.max_version is not None:
+            max_version = parse_version(cls.max_version)
+            if current_version > max_version:
+                raise ImproperlyConfigured(
+                    f"Plugin {cls.__module__} requires NetBox maximum version {cls.max_version}."
+                )
+
+        # Verify required configuration settings
+        for setting in cls.required_settings:
+            if setting not in user_config:
+                raise ImproperlyConfigured(
+                    f"Plugin {cls.__module__} requires '{setting}' to be present in the PLUGINS_CONFIG section of "
+                    f"configuration.py."
+                )
+
+        # Apply default configuration values
+        for setting, value in cls.default_settings.items():
+            if setting not in user_config:
+                user_config[setting] = value
 
 
 #

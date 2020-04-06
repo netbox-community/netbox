@@ -1,13 +1,15 @@
 from unittest import skipIf
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from extras.registry import registry
+from extras.tests.dummy_plugin import config as dummy_config
 
 
-@skipIf('extras.tests.dummy_plugin.DummyPluginConfig' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
+@skipIf('extras.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
 class PluginTest(TestCase):
 
     def test_config(self):
@@ -77,3 +79,52 @@ class PluginTest(TestCase):
         Check that plugin middleware is registered.
         """
         self.assertIn('extras.tests.dummy_plugin.middleware.DummyMiddleware', settings.MIDDLEWARE)
+
+    @override_settings(VERSION='0.9')
+    def test_min_version(self):
+        """
+        Check enforcement of minimum NetBox version.
+        """
+        with self.assertRaises(ImproperlyConfigured):
+            dummy_config.validate({})
+
+    @override_settings(VERSION='10.0')
+    def test_max_version(self):
+        """
+        Check enforcement of maximum NetBox version.
+        """
+        with self.assertRaises(ImproperlyConfigured):
+            dummy_config.validate({})
+
+    def test_required_settings(self):
+        """
+        Validate enforcement of required settings.
+        """
+        class DummyConfigWithRequiredSettings(dummy_config):
+            required_settings = ['foo']
+
+        # Validation should pass when all required settings are present
+        DummyConfigWithRequiredSettings.validate({'foo': True})
+
+        # Validation should fail when a required setting is missing
+        with self.assertRaises(ImproperlyConfigured):
+            DummyConfigWithRequiredSettings.validate({})
+
+    def test_default_settings(self):
+        """
+        Validate population of default config settings.
+        """
+        class DummyConfigWithDefaultSettings(dummy_config):
+            default_settings = {
+                'bar': 123,
+            }
+
+        # Populate the default value if setting has not been specified
+        user_config = {}
+        DummyConfigWithDefaultSettings.validate(user_config)
+        self.assertEqual(user_config['bar'], 123)
+
+        # Don't overwrite specified values
+        user_config = {'bar': 456}
+        DummyConfigWithDefaultSettings.validate(user_config)
+        self.assertEqual(user_config['bar'], 456)
