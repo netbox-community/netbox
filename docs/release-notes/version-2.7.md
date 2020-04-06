@@ -1,5 +1,22 @@
 # NetBox v2.7 Release Notes
 
+## v2.7.12 (FUTURE)
+
+### Enhancements
+
+* [#3676](https://github.com/netbox-community/netbox/issues/3676) - Reference VRF by name rather than RD during IP/prefix import
+* [#4147](https://github.com/netbox-community/netbox/issues/4147) - Use absolute URLs in rack elevation SVG renderings
+* [#4448](https://github.com/netbox-community/netbox/issues/4448) - Allow connecting cables between two circuit terminations
+
+### Bug Fixes
+
+* [#4418](https://github.com/netbox-community/netbox/issues/4418) - Fail cleanly when trying to import multiple device types simultaneously
+* [#4438](https://github.com/netbox-community/netbox/issues/4438) - Fix exception when disconnecting a cable from a power feed
+* [#4439](https://github.com/netbox-community/netbox/issues/4439) - Tweak display of unset custom integer fields
+* [#4449](https://github.com/netbox-community/netbox/issues/4449) - Fix reservation edit/delete button URLs on rack view
+
+---
+
 ## v2.7.11 (2020-03-27)
 
 ### Enhancements

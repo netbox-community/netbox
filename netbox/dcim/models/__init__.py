@@ -719,7 +719,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
             unit_width=RACK_ELEVATION_UNIT_WIDTH_DEFAULT,
             unit_height=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT,
             legend_width=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT,
-            include_images=True
+            include_images=True,
+            base_url=None
     ):
         """
         Return an SVG of the rack elevation
@@ -730,8 +731,9 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
             height of the elevation
         :param legend_width: Width of the unit legend, in pixels
         :param include_images: Embed front/rear device images where available
+        :param base_url: Base URL for links and images. If none, URLs will be relative.
         """
-        elevation = RackElevationSVG(self, include_images=include_images)
+        elevation = RackElevationSVG(self, include_images=include_images, base_url=base_url)
 
         return elevation.render(face, unit_width, unit_height, legend_width)
 
@@ -1951,6 +1953,10 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
             self.available_power = round(kva)
 
         super().save(*args, **kwargs)
+
+    @property
+    def parent(self):
+        return self.power_panel
 
     def get_type_class(self):
         return self.TYPE_CLASS_MAP.get(self.type)

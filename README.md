@@ -1,7 +1,5 @@
 ![NetBox](docs/netbox_logo.svg "NetBox logo")
 
-**The [2020 NetBox user survey](https://docs.google.com/forms/d/1OVZuC4kQ-6kJbVf0bDB6vgkL9H96xF6phvYzby23elk/edit) is open!** Your feedback helps guide the project's long-term development.
-
 NetBox is an IP address management (IPAM) and data center infrastructure
 management (DCIM) tool. Initially conceived by the network engineering team at
 [DigitalOcean](https://www.digitalocean.com/), NetBox was developed specifically

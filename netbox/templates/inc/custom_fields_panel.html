@@ -15,7 +15,7 @@
                                 <i class="glyphicon glyphicon-remove text-danger" title="False"></i>
                             {% elif field.type == 'url' and value %}
                                 <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
-                            {% elif field.type == 'integer' or value %}
+                            {% elif value is not None %}
                                 {{ value }}
                             {% elif field.required %}
                                 <span class="text-warning">Not defined</span>
