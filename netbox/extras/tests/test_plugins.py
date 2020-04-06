@@ -80,6 +80,12 @@ class PluginTest(TestCase):
         """
         self.assertIn('extras.tests.dummy_plugin.middleware.DummyMiddleware', settings.MIDDLEWARE)
 
+    def test_caching_config(self):
+        """
+        Check that plugin caching configuration is registered.
+        """
+        self.assertIn('extras.tests.dummy_plugin.*', settings.CACHEOPS)
+
     @override_settings(VERSION='0.9')
     def test_min_version(self):
         """
