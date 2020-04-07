@@ -7,6 +7,7 @@
 * [#3676](https://github.com/netbox-community/netbox/issues/3676) - Reference VRF by name rather than RD during IP/prefix import
 * [#4147](https://github.com/netbox-community/netbox/issues/4147) - Use absolute URLs in rack elevation SVG renderings
 * [#4448](https://github.com/netbox-community/netbox/issues/4448) - Allow connecting cables between two circuit terminations
+* [#4460](https://github.com/netbox-community/netbox/issues/4460) - Add the `webhook_receiver` management command to assist in troubleshooting outgoing webhooks
 
 ### Bug Fixes
 
