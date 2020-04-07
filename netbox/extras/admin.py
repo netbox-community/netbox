@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib import admin
 
-from netbox.admin import admin_site
 from utilities.forms import LaxURLField
 from .models import CustomField, CustomFieldChoice, CustomLink, Graph, ExportTemplate, ReportResult, Webhook
 from .reports import get_report
@@ -35,7 +34,7 @@ class WebhookForm(forms.ModelForm):
             order_content_types(self.fields['obj_type'])
 
 
-@admin.register(Webhook, site=admin_site)
+@admin.register(Webhook)
 class WebhookAdmin(admin.ModelAdmin):
     list_display = [
         'name', 'models', 'payload_url', 'http_content_type', 'enabled', 'type_create', 'type_update', 'type_delete',
@@ -93,7 +92,7 @@ class CustomFieldChoiceAdmin(admin.TabularInline):
     extra = 5
 
 
-@admin.register(CustomField, site=admin_site)
+@admin.register(CustomField)
 class CustomFieldAdmin(admin.ModelAdmin):
     inlines = [CustomFieldChoiceAdmin]
     list_display = [
@@ -135,7 +134,7 @@ class CustomLinkForm(forms.ModelForm):
         self.fields['content_type'].choices.insert(0, ('', '---------'))
 
 
-@admin.register(CustomLink, site=admin_site)
+@admin.register(CustomLink)
 class CustomLinkAdmin(admin.ModelAdmin):
     list_display = [
         'name', 'content_type', 'group_name', 'weight',
@@ -150,7 +149,7 @@ class CustomLinkAdmin(admin.ModelAdmin):
 # Graphs
 #
 
-@admin.register(Graph, site=admin_site)
+@admin.register(Graph)
 class GraphAdmin(admin.ModelAdmin):
     list_display = [
         'name', 'type', 'weight', 'template_language', 'source',
@@ -178,7 +177,7 @@ class ExportTemplateForm(forms.ModelForm):
         self.fields['content_type'].choices.insert(0, ('', '---------'))
 
 
-@admin.register(ExportTemplate, site=admin_site)
+@admin.register(ExportTemplate)
 class ExportTemplateAdmin(admin.ModelAdmin):
     list_display = [
         'name', 'content_type', 'description', 'mime_type', 'file_extension',
@@ -193,7 +192,7 @@ class ExportTemplateAdmin(admin.ModelAdmin):
 # Reports
 #
 
-@admin.register(ReportResult, site=admin_site)
+@admin.register(ReportResult)
 class ReportResultAdmin(admin.ModelAdmin):
     list_display = [
         'report', 'active', 'created', 'user', 'passing',
