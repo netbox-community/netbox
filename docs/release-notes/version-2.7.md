@@ -1,6 +1,6 @@
 # NetBox v2.7 Release Notes
 
-## v2.7.12 (FUTURE)
+## v2.7.12 (2020-04-08)
 
 ### Enhancements
 
