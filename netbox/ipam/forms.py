@@ -335,9 +335,9 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 class PrefixCSVForm(CustomFieldModelCSVForm):
     vrf = FlexibleModelChoiceField(
         queryset=VRF.objects.all(),
-        to_field_name='rd',
+        to_field_name='name',
         required=False,
-        help_text='Route distinguisher of parent VRF (or {ID})',
+        help_text='Name of parent VRF (or {ID})',
         error_messages={
             'invalid_choice': 'VRF not found.',
         }
@@ -739,9 +739,9 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 class IPAddressCSVForm(CustomFieldModelCSVForm):
     vrf = FlexibleModelChoiceField(
         queryset=VRF.objects.all(),
-        to_field_name='rd',
+        to_field_name='name',
         required=False,
-        help_text='Route distinguisher of parent VRF (or {ID})',
+        help_text='Name of parent VRF (or {ID})',
         error_messages={
             'invalid_choice': 'VRF not found.',
         }

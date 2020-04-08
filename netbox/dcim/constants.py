@@ -92,5 +92,5 @@ COMPATIBLE_TERMINATION_TYPES = {
     'interface': ['interface', 'circuittermination', 'frontport', 'rearport'],
     'frontport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport', 'circuittermination'],
     'rearport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport', 'circuittermination'],
-    'circuittermination': ['interface', 'frontport', 'rearport'],
+    'circuittermination': ['interface', 'frontport', 'rearport', 'circuittermination'],
 }

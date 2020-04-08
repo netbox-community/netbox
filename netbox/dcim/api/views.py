@@ -225,7 +225,8 @@ class RackViewSet(CustomFieldModelViewSet):
                 unit_width=data['unit_width'],
                 unit_height=data['unit_height'],
                 legend_width=data['legend_width'],
-                include_images=data['include_images']
+                include_images=data['include_images'],
+                base_url=request.build_absolute_uri('/')
             )
             return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
 

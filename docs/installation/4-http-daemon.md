@@ -5,6 +5,18 @@ We'll set up a simple WSGI front end using [gunicorn](http://gunicorn.org/) for 
 !!! info
     For the sake of brevity, only Ubuntu 18.04 instructions are provided here, but this sort of web server and WSGI configuration is not unique to NetBox. Please consult your distribution's documentation for assistance if needed.
 
+## Obtain an SSL Certificate
+
+To enable HTTPS access to NetBox, you'll need a valid SSL certificate. You can purchase one from a trusted commercial provider, obtain one for free from [Let's Encrypt](https://letsencrypt.org/getting-started/), or generate your own (although self-signed certificates are generally untrusted). Both the public certificate and private key files need to be installed on your NetBox server in a location that is readable by the `netbox` user.
+
+The command below can be used to generate a self-signed certificate for testing purposes, however it is strongly recommended to use a certificate from a trusted authority in production. Two files will be created: the public certificate (`netbox.crt`) and the private key (`netbox.key`). The certificate is published to the world, whereas the private key must be kept secret at all times.
+
+```no-highlight
+# openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+-keyout /etc/ssl/private/netbox.key \
+-out /etc/ssl/certs/netbox.crt
+```
+
 ## HTTP Daemon Installation
 
 ### Option A: nginx
@@ -15,27 +27,10 @@ The following will serve as a minimal nginx configuration. Be sure to modify you
 # apt-get install -y nginx
 ```
 
-Once nginx is installed, save the following configuration to `/etc/nginx/sites-available/netbox`. Be sure to replace `netbox.example.com` with the domain name or IP address of your installation. (This should match the value configured for `ALLOWED_HOSTS` in `configuration.py`.)
+Once nginx is installed, copy the default nginx configuration file to `/etc/nginx/sites-available/netbox`. Be sure to replace `netbox.example.com` with the domain name or IP address of your installation. (This should match the value configured for `ALLOWED_HOSTS` in `configuration.py`.)
 
-```nginx
-server {
-    listen 80;
-
-    server_name netbox.example.com;
-
-    client_max_body_size 25m;
-
-    location /static/ {
-        alias /opt/netbox/netbox/static/;
-    }
-
-    location / {
-        proxy_pass http://127.0.0.1:8001;
-        proxy_set_header X-Forwarded-Host $http_host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
+```no-highlight
+# cp /opt/netbox/contrib/nginx.conf /etc/nginx/sites-available/netbox
 ```
 
 Then, delete `/etc/nginx/sites-enabled/default` and create a symlink in the `sites-enabled` directory to the configuration file you just created.
@@ -46,60 +41,33 @@ Then, delete `/etc/nginx/sites-enabled/default` and create a symlink in the `sit
 # ln -s /etc/nginx/sites-available/netbox
 ```
 
-Restart the nginx service to use the new configuration.
+Finally, restart the `nginx` service to use the new configuration.
 
 ```no-highlight
 # service nginx restart
 ```
 
-To enable SSL, consider this guide on [securing nginx with Let's Encrypt](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04).
-
 ### Option B: Apache
 
-```no-highlight
-# apt-get install -y apache2 libapache2-mod-wsgi-py3
-```
-
-Once Apache is installed, proceed with the following configuration (Be sure to modify the `ServerName` appropriately):
-
-```apache
-<VirtualHost *:80>
-    ProxyPreserveHost On
-
-    ServerName netbox.example.com
-
-    Alias /static /opt/netbox/netbox/static
-
-    # Needed to allow token-based API authentication
-    WSGIPassAuthorization on
-
-    <Directory /opt/netbox/netbox/static>
-        Options Indexes FollowSymLinks MultiViews
-        AllowOverride None
-        Require all granted
-    </Directory>
-
-    <Location /static>
-        ProxyPass !
-    </Location>
-
-    RequestHeader set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
-    ProxyPass / http://127.0.0.1:8001/
-    ProxyPassReverse / http://127.0.0.1:8001/
-</VirtualHost>
-```
-
-Save the contents of the above example in `/etc/apache2/sites-available/netbox.conf`, enable the `proxy` and `proxy_http` modules, and reload Apache:
+Begin by installing Apache:
 
 ```no-highlight
-# a2enmod proxy
-# a2enmod proxy_http
-# a2enmod headers
+# apt-get install -y apache2
+```
+
+Next, copy the default configuration file to `/etc/apache2/sites-available/`. Be sure to modify the `ServerName` parameter appropriately.
+
+```no-highlight
+# cp /opt/netbox/contrib/apache.conf /etc/apache2/sites-available/netbox.conf
+```
+
+Finally, ensure that the required Apache modules are enabled, enable the `netbox` site, and reload Apache:
+
+```no-highlight
+# a2enmod ssl proxy proxy_http headers
 # a2ensite netbox
 # service apache2 restart
 ```
-
-To enable SSL, consider this guide on [securing Apache with Let's Encrypt](https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-16-04).
 
 !!! note
     Certain components of NetBox (such as the display of rack elevation diagrams) rely on the use of embedded objects. Ensure that your HTTP server configuration does not override the `X-Frame-Options` response header set by NetBox.
