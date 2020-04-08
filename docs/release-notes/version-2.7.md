@@ -1,15 +1,17 @@
 # NetBox v2.7 Release Notes
 
-## v2.7.12 (FUTURE)
+## v2.7.12 (2020-04-08)
 
 ### Enhancements
 
 * [#3676](https://github.com/netbox-community/netbox/issues/3676) - Reference VRF by name rather than RD during IP/prefix import
 * [#4147](https://github.com/netbox-community/netbox/issues/4147) - Use absolute URLs in rack elevation SVG renderings
 * [#4448](https://github.com/netbox-community/netbox/issues/4448) - Allow connecting cables between two circuit terminations
+* [#4460](https://github.com/netbox-community/netbox/issues/4460) - Add the `webhook_receiver` management command to assist in troubleshooting outgoing webhooks
 
 ### Bug Fixes
 
+* [#4395](https://github.com/netbox-community/netbox/issues/4395) - Fix typing of count_ipaddresses on interface serializer
 * [#4418](https://github.com/netbox-community/netbox/issues/4418) - Fail cleanly when trying to import multiple device types simultaneously
 * [#4438](https://github.com/netbox-community/netbox/issues/4438) - Fix exception when disconnecting a cable from a power feed
 * [#4439](https://github.com/netbox-community/netbox/issues/4439) - Tweak display of unset custom integer fields

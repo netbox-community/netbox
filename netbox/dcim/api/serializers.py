@@ -533,6 +533,7 @@ class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     )
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
+    count_ipaddresses = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Interface
