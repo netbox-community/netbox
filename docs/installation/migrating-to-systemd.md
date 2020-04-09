@@ -7,7 +7,7 @@ This document contains instructions for migrating from a legacy NetBox deploymen
 ### Uninstall supervisord
 
 ```no-highlight
-# apt-get remove -y supervisord
+# apt-get remove -y supervisor
 ```
 
 ### Configure systemd
