@@ -64,6 +64,15 @@ PLUGINS_CONFIG = {
 }
 ```
 
+### Collect Static Files
+
+Plugins may package static files to be served directly by the HTTP front end. Ensure that these are copied to the static root directory with the `collectstatic` management command:
+
+```no-highlight
+(venv) $ cd /opt/netbox/netbox/
+(venv) $ python3 manage.py collectstatic
+```
+
 ### Restart WSGI Service
 
 Restart the WSGI service to load the new plugin:
