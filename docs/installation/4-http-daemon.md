@@ -72,7 +72,7 @@ Finally, ensure that the required Apache modules are enabled, enable the `netbox
 !!! note
     Certain components of NetBox (such as the display of rack elevation diagrams) rely on the use of embedded objects. Ensure that your HTTP server configuration does not override the `X-Frame-Options` response header set by NetBox.
 
-## gunicorn Configuration
+## Gunicorn Configuration
 
 Copy `/opt/netbox/contrib/gunicorn.py` to `/opt/netbox/gunicorn.py`. (We make a copy of this file to ensure that any changes to it do not get overwritten by a future upgrade.)
 
@@ -81,7 +81,7 @@ Copy `/opt/netbox/contrib/gunicorn.py` to `/opt/netbox/gunicorn.py`. (We make a 
 # cp contrib/gunicorn.py /opt/netbox/gunicorn.py
 ```
 
-You may wish to edit this file to change the bound IP address or port number, or to make performance-related adjustments.
+You may wish to edit this file to change the bound IP address or port number, or to make performance-related adjustments. See [the Gunicorn documentation](https://docs.gunicorn.org/en/stable/configure.html) for the available configuration parameters.
 
 ## systemd Configuration
 
@@ -101,7 +101,7 @@ Then, start the `netbox` and `netbox-rq` services and enable them to initiate at
 
 You can use the command `systemctl status netbox` to verify that the WSGI service is running:
 
-```
+```no-highlight
 # systemctl status netbox.service
 ● netbox.service - NetBox WSGI Service
    Loaded: loaded (/etc/systemd/system/netbox.service; enabled; vendor preset: enabled)

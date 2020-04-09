@@ -1,4 +1,11 @@
-/* Custom table styling */
+/* Images */
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Tables */
 table {
     margin-bottom: 24px;
     width: 100%;

@@ -8,6 +8,10 @@ The following sections detail how to set up a new instance of NetBox:
 4. [HTTP daemon](4-http-daemon.md)
 5. [LDAP authentication](5-ldap.md) (optional)
 
+Below is a simplified overview of the NetBox application stack for reference:
+
+![NetBox UI as seen by a non-authenticated user](../media/installation/netbox_application_stack.png)
+
 ## Upgrading
 
 If you are upgrading from an existing installation, please consult the [upgrading guide](upgrading.md).
