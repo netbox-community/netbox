@@ -2,7 +2,9 @@
 
 ## v2.8.0 (FUTURE)
 
-### New Features
+### New Features (Beta)
+
+This releases introduces two new features in beta status. While they are expected to be functional, their precise implementation is subject to change during the v2.8 release cycle. It is recommended to wait until NetBox v2.9 to deploy them in production.
 
 #### Remote Authentication Support ([#2328](https://github.com/netbox-community/netbox/issues/2328))
 
@@ -26,7 +28,7 @@ This release introduces support for custom plugins, which can be used to extend 
 * Introduce new API endpoints
 * Add custom request/response middleware
 
-For NetBox plugins to be recognized, the `PLUGINS_ENABLED` configuration parameter must be set to true. (Plugin support is disabled by default). Plugins can be configured under the `PLUGINS_CONFIG` parameter. More information can be found the in the [plugins documentation](https://netbox.readthedocs.io/en/stable/plugins/).
+For NetBox plugins to be recognized, they must be installed and added by name to the `PLUGINS` configuration parameter. (Plugin support is disabled by default.) Plugins can be configured under the `PLUGINS_CONFIG` parameter. More information can be found the in the [plugins documentation](https://netbox.readthedocs.io/en/stable/plugins/).
 
 ### Enhancements
 
