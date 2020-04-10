@@ -53,10 +53,9 @@ from setuptools import find_packages, setup
 setup(
     name='netbox-animal-sounds',
     version='0.1',
-    description='Show animals and the sounds they make',
-    url='https://github.com/example-org/animal-sounds',
-    author='Author Name',
-    author_email='author@example.com',
+    description='An example NetBox plugin',
+    url='https://github.com/netbox-community/netbox-animal-sounds',
+    author='Jeremy Stretch',
     license='Apache 2.0',
     install_requires=[],
     packages=find_packages(),
@@ -75,10 +74,11 @@ from extras.plugins import PluginConfig
 
 class AnimalSoundsConfig(PluginConfig):
     name = 'netbox_animal_sounds'
-    verbose_name = 'Animal Sounds Plugin'
+    verbose_name = 'Animal Sounds'
+    description = 'An example plugin for development purposes'
     version = '0.1'
-    author = 'Author Name'
-    description = 'Show animals and the sounds they make'
+    author = 'Jeremy Stretch'
+    author_email = 'author@example.com'
     base_url = 'animal-sounds'
     required_settings = []
     default_settings = {
@@ -161,14 +161,13 @@ For more background on schema migrations, see the [Django documentation](https:/
 
 ### Using the Django Admin Interface
 
-Plugins can optionally expose their models via Django's built-in [administrative interface](https://docs.djangoproject.com/en/stable/ref/contrib/admin/). This can greatly improve troubleshooting ability, particularly during development. To expose a model, simply register it with Netbox's `admin_site` object. An example `admin.py` file for the above model is shown below:
+Plugins can optionally expose their models via Django's built-in [administrative interface](https://docs.djangoproject.com/en/stable/ref/contrib/admin/). This can greatly improve troubleshooting ability, particularly during development. To expose a model, simply register it using Django's `admin.register()` function. An example `admin.py` file for the above model is shown below:
 
 ```python
 from django.contrib import admin
-from netbox.admin import admin_site
 from .models import Animal
 
-@admin.register(Animal, site=admin_site)
+@admin.register(Animal)
 class AnimalAdmin(admin.ModelAdmin):
     list_display = ('name', 'sound')
 ``` 
@@ -186,29 +185,39 @@ from django.shortcuts import render
 from django.views.generic import View
 from .models import Animal
 
-class RandomAnimalSoundView(View):
-
+class RandomAnimalView(View):
+    """
+    Display a randomly-selected animal.
+    """
     def get(self, request):
-        # Retrieve a random animal
         animal = Animal.objects.order_by('?').first()
-
-        return render(request, 'netbox_animal_sounds/animal_sound.html', {
+        return render(request, 'netbox_animal_sounds/animal.html', {
             'animal': animal,
         })
 ```
 
-This view retrieves a random animal from the database and and passes it as a context variable when rendering a template named `animal_sound.html`, which doesn't exist yet. To create this template, first create a directory named `templates/netbox_animal_sounds/` within the plugin source directory. (We use the plugin's name as a subdirectory to guard against naming collisions with other plugins.) Then, create `animal_sound.html`:
+This view retrieves a random animal from the database and and passes it as a context variable when rendering a template named `animal.html`, which doesn't exist yet. To create this template, first create a directory named `templates/netbox_animal_sounds/` within the plugin source directory. (We use the plugin's name as a subdirectory to guard against naming collisions with other plugins.) Then, create `animal.html`:
 
 ```jinja2
-{% extends '_base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
-{% if animal %}
-    The {{ animal.name }} says {{ animal.sound }}
-{% else %}
-    No animals have been created yet!
-{% endif %}
+{% with config=settings.PLUGINS_CONFIG.netbox_animal_sounds %}
+<h2 class="text-center" style="margin-top: 200px">
+    {% if animal %}
+        The {{ animal.name|lower }} says
+        {% if config.loud %}
+            {{ animal.sound|upper }}!
+        {% else %}
+            {{ animal.sound }}
+        {% endif %}
+    {% else %}
+        No animals have been created yet!
+    {% endif %}
+</h2>
+{% endwith %}
 {% endblock %}
+
 ```
 
 The first line of the template instructs Django to extend the NetBox base template and inject our custom content within its `content` block.
@@ -220,10 +229,10 @@ Finally, to make the view accessible to users, we need to register a URL for it.
 
 ```python
 from django.urls import path
-from .views import RandomAnimalSoundView
+from . import views
 
 urlpatterns = [
-    path('random-sound/', RandomAnimalSoundView.as_view(), name='random_sound')
+    path('random/', views.RandomAnimalView.as_view(), name='random_animal'),
 ]
 ```
 
@@ -233,7 +242,7 @@ A URL pattern has three components:
 * `view` - The view itself
 * `name` - A short name used to identify the URL path internally
 
-This makes our view accessible at the URL `/plugins/animal-sounds/random-sound/`. (Remember, our `AnimalSoundsConfig` class sets our plugin's base URL to `animal-sounds`.) Viewing this URL should show the base NetBox template with our custom content inside it.
+This makes our view accessible at the URL `/plugins/animal-sounds/random/`. (Remember, our `AnimalSoundsConfig` class sets our plugin's base URL to `animal-sounds`.) Viewing this URL should show the base NetBox template with our custom content inside it.
 
 ## REST API Endpoints
 
@@ -252,7 +261,7 @@ class AnimalSerializer(ModelSerializer):
         fields = ('id', 'name', 'sound')
 ```
 
-Next, we'll create a generic API viewset that allows basic CRUD (create, read, update, and delete) operations for Animal instances. This is defined in `api/views.py`:
+Next, we'll create a generic API view set that allows basic CRUD (create, read, update, and delete) operations for Animal instances. This is defined in `api/views.py`:
 
 ```python
 from rest_framework.viewsets import ModelViewSet
@@ -279,7 +288,7 @@ With these three components in place, we can request `/api/plugins/animal-sounds
 
 ![NetBox REST API plugin endpoint](../media/plugins/plugin_rest_api_endpoint.png)
 
-!!! note
+!!! warning
     This example is provided as a minimal reference implementation only. It does not address authentication, performance, or myriad other concerns that plugin authors should have.
 
 ## Navigation Menu Items
@@ -292,7 +301,7 @@ from utilities.choices import ButtonColorChoices
 
 menu_items = (
     PluginMenuItem(
-        link='plugins:netbox_animal_sounds:random_sound',
+        link='plugins:netbox_animal_sounds:random_animal',
         link_text='Random sound',
         buttons=(
             PluginMenuButton('home', 'Button A', 'fa-info', ButtonColorChoices.BLUE),
@@ -341,21 +350,17 @@ Declared subclasses should be gathered into a list or tuple for integration with
 
 ```python
 from extras.plugins import PluginTemplateExtension
+from .models import Animal
 
-class AddSiteAnimal(PluginTemplateExtension):
+class SiteAnimalCount(PluginTemplateExtension):
     model = 'dcim.site'
 
-    def full_width_page(self):
-        return self.render('netbox_animal_sounds/site.html')
+    def right_page(self):
+        return self.render('netbox_animal_sounds/inc/animal_count.html', extra_context={
+            'animal_count': Animal.objects.count(),
+        })
 
-class AddRackAnimal(PluginTemplateExtension):
-    model = 'dcim.rack'
-
-    def left_page(self):
-        extra_data = {'foo': 123}
-        return self.render('netbox_animal_sounds/rack.html', extra_data)
-
-template_extensions = [AddSiteAnimal, AddRackAnimal]
+template_extensions = [SiteAnimalCount]
 ```
 
 ## Caching Configuration
