@@ -1,6 +1,6 @@
 import collections
 import inspect
-from pkg_resources import parse_version
+from packaging import version
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -77,15 +77,15 @@ class PluginConfig(AppConfig):
     def validate(cls, user_config):
 
         # Enforce version constraints
-        current_version = parse_version(settings.VERSION)
+        current_version = version.parse(settings.VERSION)
         if cls.min_version is not None:
-            min_version = parse_version(cls.min_version)
+            min_version = version.parse(cls.min_version)
             if current_version < min_version:
                 raise ImproperlyConfigured(
                     f"Plugin {cls.__module__} requires NetBox minimum version {cls.min_version}."
                 )
         if cls.max_version is not None:
-            max_version = parse_version(cls.max_version)
+            max_version = version.parse(cls.max_version)
             if current_version > max_version:
                 raise ImproperlyConfigured(
                     f"Plugin {cls.__module__} requires NetBox maximum version {cls.max_version}."
