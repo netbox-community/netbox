@@ -10,7 +10,7 @@
                         <div class="buttons pull-right">
                             {% for button in menu_item.buttons %}
                                 {% if not button.permissions or request.user|has_perms:button.permissions %}
-                                    <a href="{% url button.link %}" class="btn btn-xs btn-{{ button.color }}" title="{{ button.title }}"><i class="fa {{ button.icon_class }}"></i></a>
+                                    <a href="{% url button.link %}" class="btn btn-xs btn-{{ button.color }}" title="{{ button.title }}"><i class="{{ button.icon_class }}"></i></a>
                                 {% endif %}
                             {% endfor %}
                         </div>

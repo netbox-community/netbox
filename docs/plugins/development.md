@@ -304,8 +304,8 @@ menu_items = (
         link='plugins:netbox_animal_sounds:random_animal',
         link_text='Random sound',
         buttons=(
-            PluginMenuButton('home', 'Button A', 'fa-info', ButtonColorChoices.BLUE),
-            PluginMenuButton('home', 'Button B', 'fa-warning', ButtonColorChoices.GREEN),
+            PluginMenuButton('home', 'Button A', 'fa fa-info', ButtonColorChoices.BLUE),
+            PluginMenuButton('home', 'Button B', 'fa fa-warning', ButtonColorChoices.GREEN),
         )
     ),
 )
@@ -322,7 +322,7 @@ A `PluginMenuButton` has the following attributes:
 
 * `link` - The name of the URL path to which this button links
 * `title` - The tooltip text (displayed when the mouse hovers over the button)
-* `icon_class` - Button icon CSS class
+* `icon_class` - Button icon CSS class (NetBox currently supports [Font Awesome 4.7](https://fontawesome.com/v4.7.0/icons/))
 * `color` - One of the choices provided by `ButtonColorChoices` (optional)
 * `permissions` - A list of permissions required to display this button (optional)
 

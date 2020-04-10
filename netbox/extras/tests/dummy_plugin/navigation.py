@@ -9,12 +9,12 @@ menu_items = (
             PluginMenuButton(
                 link='admin:dummy_plugin_dummymodel_add',
                 title='Add a new dummy model',
-                icon_class='fa-plus',
+                icon_class='fa fa-plus',
             ),
             PluginMenuButton(
                 link='admin:dummy_plugin_dummymodel_add',
                 title='Add a new dummy model',
-                icon_class='fa-plus',
+                icon_class='fa fa-plus',
             ),
         )
     ),
