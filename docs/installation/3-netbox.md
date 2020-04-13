@@ -1,13 +1,15 @@
 # NetBox Installation
 
-This section of the documentation discusses installing and configuring the NetBox application. Begin by installing all system packages required by NetBox and its dependencies:
+This section of the documentation discusses installing and configuring the NetBox application itself.
 
 ## Install System Packages
+
+Begin by installing all system packages required by NetBox and its dependencies. Note that beginning with NetBox v2.8, Python 3.6 or later is required.
 
 ### Ubuntu
 
 ```no-highlight
-# apt-get install -y python3 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
+# apt-get install -y python3.6 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
 ```
 
 ### CentOS
