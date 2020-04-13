@@ -35,7 +35,7 @@ For NetBox plugins to be recognized, they must be installed and added by name to
 * [#1754](https://github.com/netbox-community/netbox/issues/1754) - Added support for nested rack groups
 * [#3939](https://github.com/netbox-community/netbox/issues/3939) - Added support for nested tenant groups
 * [#4078](https://github.com/netbox-community/netbox/issues/4078) - Standardized description fields across all models
-* [#4195](https://github.com/netbox-community/netbox/issues/4195) - Enabled application logging (see [logging configuration](../configuration/optional-settings.md#logging))
+* [#4195](https://github.com/netbox-community/netbox/issues/4195) - Enabled application logging (see [logging configuration](https://netbox.readthedocs.io/en/stable/configuration/optional-settings/#logging))
 
 ### Bug Fixes
 
