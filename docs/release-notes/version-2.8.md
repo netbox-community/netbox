@@ -1,6 +1,6 @@
 # NetBox v2.8
 
-## v2.8.0 (FUTURE)
+## v2.8.0 (2020-04-13)
 
 ### New Features (Beta)
 
@@ -45,7 +45,7 @@ For NetBox plugins to be recognized, they must be installed and added by name to
 ### API Changes
 
 * The `_choices` API endpoints have been removed. Instead, use an `OPTIONS` request to a model's endpoint to view the available values for all fields. ([#3416](https://github.com/netbox-community/netbox/issues/3416))
-* The `id__in` filter has been removed. Use the format `?id=1&id=2` instead. ([#4313](https://github.com/netbox-community/netbox/issues/4313))
+* The `id__in` filter has been removed from all models ([#4313](https://github.com/netbox-community/netbox/issues/4313)). Use the format `?id=1&id=2` instead.
 * dcim.Manufacturer: Added a `description` field
 * dcim.Platform: Added a `description` field
 * dcim.Rack: The `/api/dcim/racks/<pk>/units/` endpoint has been replaced with `/api/dcim/racks/<pk>/elevation/`.
@@ -60,4 +60,4 @@ For NetBox plugins to be recognized, they must be installed and added by name to
 
 ### Other Changes
 
-* [#4081](https://github.com/netbox-community/netbox/issues/4081) - The `family` field has been removed from the Aggregate, Prefix, and IPAddress models
+* [#4081](https://github.com/netbox-community/netbox/issues/4081) - The `family` field has been removed from the Aggregate, Prefix, and IPAddress models. The field remains available in the API representations of these models, however the column has been removed from the database table.
