@@ -221,7 +221,7 @@ $(document).ready(function() {
                 var results = data.results;
 
                 results = results.reduce((results,record,idx) => {
-                    record.text = record[element.getAttribute('display-field')] || record.name;
+                    record.text = record[element.getAttribute('display-field')] || record.name || record.model;
                     record.id = record[element.getAttribute('value-field')] || record.id;
                     if(element.getAttribute('disabled-indicator') && record[element.getAttribute('disabled-indicator')]) {
                         // The disabled-indicator equated to true, so we disable this option
