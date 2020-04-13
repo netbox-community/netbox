@@ -59,13 +59,14 @@ class RIRTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'name': 'RIR X',
             'slug': 'rir-x',
             'is_private': True,
+            'description': 'A new RIR',
         }
 
         cls.csv_data = (
-            "name,slug",
-            "RIR 4,rir-4",
-            "RIR 5,rir-5",
-            "RIR 6,rir-6",
+            "name,slug,description",
+            "RIR 4,rir-4,Fourth RIR",
+            "RIR 5,rir-5,Fifth RIR",
+            "RIR 6,rir-6,Sixth RIR",
         )
 
 
@@ -82,13 +83,12 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         RIR.objects.bulk_create(rirs)
 
         Aggregate.objects.bulk_create([
-            Aggregate(family=4, prefix=IPNetwork('10.1.0.0/16'), rir=rirs[0]),
-            Aggregate(family=4, prefix=IPNetwork('10.2.0.0/16'), rir=rirs[0]),
-            Aggregate(family=4, prefix=IPNetwork('10.3.0.0/16'), rir=rirs[0]),
+            Aggregate(prefix=IPNetwork('10.1.0.0/16'), rir=rirs[0]),
+            Aggregate(prefix=IPNetwork('10.2.0.0/16'), rir=rirs[0]),
+            Aggregate(prefix=IPNetwork('10.3.0.0/16'), rir=rirs[0]),
         ])
 
         cls.form_data = {
-            'family': 4,
             'prefix': IPNetwork('10.99.0.0/16'),
             'rir': rirs[1].pk,
             'date_added': datetime.date(2020, 1, 1),
@@ -161,9 +161,9 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         Prefix.objects.bulk_create([
-            Prefix(family=4, prefix=IPNetwork('10.1.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
-            Prefix(family=4, prefix=IPNetwork('10.2.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
-            Prefix(family=4, prefix=IPNetwork('10.3.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
+            Prefix(prefix=IPNetwork('10.1.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
+            Prefix(prefix=IPNetwork('10.2.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
+            Prefix(prefix=IPNetwork('10.3.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
         ])
 
         cls.form_data = {
@@ -210,9 +210,9 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         VRF.objects.bulk_create(vrfs)
 
         IPAddress.objects.bulk_create([
-            IPAddress(family=4, address=IPNetwork('192.0.2.1/24'), vrf=vrfs[0]),
-            IPAddress(family=4, address=IPNetwork('192.0.2.2/24'), vrf=vrfs[0]),
-            IPAddress(family=4, address=IPNetwork('192.0.2.3/24'), vrf=vrfs[0]),
+            IPAddress(address=IPNetwork('192.0.2.1/24'), vrf=vrfs[0]),
+            IPAddress(address=IPNetwork('192.0.2.2/24'), vrf=vrfs[0]),
+            IPAddress(address=IPNetwork('192.0.2.3/24'), vrf=vrfs[0]),
         ])
 
         cls.form_data = {
@@ -263,13 +263,14 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'name': 'VLAN Group X',
             'slug': 'vlan-group-x',
             'site': site.pk,
+            'description': 'A new VLAN group',
         }
 
         cls.csv_data = (
-            "name,slug",
-            "VLAN Group 4,vlan-group-4",
-            "VLAN Group 5,vlan-group-5",
-            "VLAN Group 6,vlan-group-6",
+            "name,slug,description",
+            "VLAN Group 4,vlan-group-4,Fourth VLAN group",
+            "VLAN Group 5,vlan-group-5,Fifth VLAN group",
+            "VLAN Group 6,vlan-group-6,Sixth VLAN group",
         )
 
 

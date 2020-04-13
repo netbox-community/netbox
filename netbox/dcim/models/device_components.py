@@ -35,7 +35,7 @@ __all__ = (
 
 class ComponentModel(models.Model):
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
 

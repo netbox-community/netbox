@@ -1,5 +1,6 @@
 import importlib
 import inspect
+import logging
 import pkgutil
 from collections import OrderedDict
 
@@ -91,6 +92,8 @@ class Report(object):
         self.active_test = None
         self.failed = False
 
+        self.logger = logging.getLogger(f"netbox.reports.{self.module}.{self.name}")
+
         # Compile test methods and initialize results skeleton
         test_methods = []
         for method in dir(self):
@@ -138,6 +141,7 @@ class Report(object):
         Log a message which is not associated with a particular object.
         """
         self._log(None, message, level=LOG_DEFAULT)
+        self.logger.info(message)
 
     def log_success(self, obj, message=None):
         """
@@ -146,6 +150,7 @@ class Report(object):
         if message:
             self._log(obj, message, level=LOG_SUCCESS)
         self._results[self.active_test]['success'] += 1
+        self.logger.info(f"Success | {obj}: {message}")
 
     def log_info(self, obj, message):
         """
@@ -153,6 +158,7 @@ class Report(object):
         """
         self._log(obj, message, level=LOG_INFO)
         self._results[self.active_test]['info'] += 1
+        self.logger.info(f"Info | {obj}: {message}")
 
     def log_warning(self, obj, message):
         """
@@ -160,6 +166,7 @@ class Report(object):
         """
         self._log(obj, message, level=LOG_WARNING)
         self._results[self.active_test]['warning'] += 1
+        self.logger.info(f"Warning | {obj}: {message}")
 
     def log_failure(self, obj, message):
         """
@@ -167,12 +174,15 @@ class Report(object):
         """
         self._log(obj, message, level=LOG_FAILURE)
         self._results[self.active_test]['failure'] += 1
+        self.logger.info(f"Failure | {obj}: {message}")
         self.failed = True
 
     def run(self):
         """
         Run the report and return its results. Each test method will be executed in order.
         """
+        self.logger.info(f"Running report")
+
         for method_name in self.test_methods:
             self.active_test = method_name
             test_method = getattr(self, method_name)
@@ -183,6 +193,11 @@ class Report(object):
         result = ReportResult(report=self.full_name, failed=self.failed, data=self._results)
         result.save()
         self.result = result
+
+        if self.failed:
+            self.logger.warning("Report failed")
+        else:
+            self.logger.info("Report completed successfully")
 
         # Perform any post-run tasks
         self.post_run()

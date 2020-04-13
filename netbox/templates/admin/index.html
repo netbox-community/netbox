@@ -6,11 +6,16 @@
     {{ block.super }}
     <div class="module">
         <table style="width: 100%">
-            <caption>Utilities</caption>
+            <caption>System</caption>
             <tbody>
                 <tr>
                     <th>
                         <a href="{% url 'rq_home' %}">Background Tasks</a>
+                    </th>
+                </tr>
+                <tr>
+                    <th>
+                        <a href="{% url 'plugins_list' %}">Installed plugins</a>
                     </th>
                 </tr>
             </tbody>

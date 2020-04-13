@@ -6,6 +6,7 @@ from django.views.static import serve
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
+from extras.plugins.urls import plugin_admin_patterns, plugin_patterns, plugin_api_patterns
 from netbox.views import APIRootView, HomeView, StaticMediaFailureView, SearchView
 from users.views import LoginView, LogoutView
 from .admin import admin_site
@@ -81,7 +82,12 @@ _patterns = [
     # Errors
     path('media-failure/', StaticMediaFailureView.as_view(), name='media_failure'),
 
+    # Plugins
+    path('plugins/', include((plugin_patterns, 'plugins'))),
+    path('api/plugins/', include((plugin_api_patterns, 'plugins-api'))),
+    path('admin/plugins/', include(plugin_admin_patterns))
 ]
+
 
 if settings.DEBUG:
     import debug_toolbar

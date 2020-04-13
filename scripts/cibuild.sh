@@ -34,11 +34,8 @@ if [[ $RC != 0 ]]; then
 	EXIT=$RC
 fi
 
-# Prepare configuration file for use in CI
-CONFIG="netbox/netbox/configuration.py"
-cp netbox/netbox/configuration.example.py $CONFIG
-sed -i -e "s/ALLOWED_HOSTS = \[\]/ALLOWED_HOSTS = \['*'\]/g" $CONFIG
-sed -i -e "s/SECRET_KEY = ''/SECRET_KEY = 'netboxci'/g" $CONFIG
+# Point to the testing configuration file for use in CI
+ln -s configuration.testing.py netbox/netbox/configuration.py
 
 # Run NetBox tests
 coverage run --source="netbox/" netbox/manage.py test netbox/

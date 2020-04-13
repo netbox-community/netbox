@@ -45,7 +45,7 @@ class RIRSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = RIR
-        fields = ['id', 'name', 'slug', 'is_private', 'aggregate_count']
+        fields = ['id', 'name', 'slug', 'is_private', 'description', 'aggregate_count']
 
 
 class AggregateSerializer(TaggitSerializer, CustomFieldModelSerializer):
@@ -81,7 +81,7 @@ class VLANGroupSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = VLANGroup
-        fields = ['id', 'name', 'slug', 'site', 'vlan_count']
+        fields = ['id', 'name', 'slug', 'site', 'description', 'vlan_count']
         validators = []
 
     def validate(self, data):

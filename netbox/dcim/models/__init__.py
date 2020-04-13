@@ -96,8 +96,12 @@ class Region(MPTTModel, ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug', 'parent']
+    csv_headers = ['name', 'slug', 'parent', 'description']
 
     class MPTTMeta:
         order_insertion_by = ['name']
@@ -113,6 +117,7 @@ class Region(MPTTModel, ChangeLoggedModel):
             self.name,
             self.slug,
             self.parent.name if self.parent else None,
+            self.description,
         )
 
     def get_site_count(self):
@@ -185,7 +190,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         blank=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     physical_address = models.CharField(
@@ -287,7 +292,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
 #
 
 @extras_features('export_templates')
-class RackGroup(ChangeLoggedModel):
+class RackGroup(MPTTModel, ChangeLoggedModel):
     """
     Racks can be grouped as subsets within a Site. The scope of a group will depend on how Sites are defined. For
     example, if a Site spans a corporate campus, a RackGroup might be defined to represent each building within that
@@ -302,8 +307,20 @@ class RackGroup(ChangeLoggedModel):
         on_delete=models.CASCADE,
         related_name='rack_groups'
     )
+    parent = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        db_index=True
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['site', 'name', 'slug']
+    csv_headers = ['site', 'parent', 'name', 'slug', 'description']
 
     class Meta:
         ordering = ['site', 'name']
@@ -311,6 +328,9 @@ class RackGroup(ChangeLoggedModel):
             ['site', 'name'],
             ['site', 'slug'],
         ]
+
+    class MPTTMeta:
+        order_insertion_by = ['name']
 
     def __str__(self):
         return self.name
@@ -321,9 +341,26 @@ class RackGroup(ChangeLoggedModel):
     def to_csv(self):
         return (
             self.site,
+            self.parent.name if self.parent else '',
             self.name,
             self.slug,
+            self.description,
         )
+
+    def to_objectchange(self, action):
+        # Remove MPTT-internal fields
+        return ObjectChange(
+            changed_object=self,
+            object_repr=str(self),
+            action=action,
+            object_data=serialize_object(self, exclude=['level', 'lft', 'rght', 'tree_id'])
+        )
+
+    def clean(self):
+
+        # Parent RackGroup (if any) must belong to the same Site
+        if self.parent and self.parent.site != self.site:
+            raise ValidationError(f"Parent rack group ({self.parent}) must belong to the same site ({self.site})")
 
 
 class RackRole(ChangeLoggedModel):
@@ -339,7 +376,7 @@ class RackRole(ChangeLoggedModel):
     )
     color = ColorField()
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True,
     )
 
@@ -766,7 +803,7 @@ class RackReservation(ChangeLoggedModel):
         on_delete=models.PROTECT
     )
     description = models.CharField(
-        max_length=100
+        max_length=200
     )
 
     csv_headers = ['site', 'rack_group', 'rack', 'units', 'tenant', 'user', 'description']
@@ -843,8 +880,12 @@ class Manufacturer(ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug']
+    csv_headers = ['name', 'slug', 'description']
 
     class Meta:
         ordering = ['name']
@@ -859,6 +900,7 @@ class Manufacturer(ChangeLoggedModel):
         return (
             self.name,
             self.slug,
+            self.description
         )
 
 
@@ -1128,7 +1170,7 @@ class DeviceRole(ChangeLoggedModel):
         help_text='Virtual machines may be assigned to this role'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True,
     )
 
@@ -1184,8 +1226,12 @@ class Platform(ChangeLoggedModel):
         verbose_name='NAPALM arguments',
         help_text='Additional arguments to pass when initiating the NAPALM driver (JSON format)'
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
 
-    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args']
+    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description']
 
     class Meta:
         ordering = ['name']
@@ -1203,6 +1249,7 @@ class Platform(ChangeLoggedModel):
             self.manufacturer.name if self.manufacturer else None,
             self.napalm_driver,
             self.napalm_args,
+            self.description,
         )
 
 

@@ -63,6 +63,7 @@ IPNetworkField.register_lookup(lookups.NetContained)
 IPNetworkField.register_lookup(lookups.NetContainedOrEqual)
 IPNetworkField.register_lookup(lookups.NetContains)
 IPNetworkField.register_lookup(lookups.NetContainsOrEquals)
+IPNetworkField.register_lookup(lookups.NetFamily)
 IPNetworkField.register_lookup(lookups.NetMaskLength)
 
 
@@ -90,4 +91,5 @@ IPAddressField.register_lookup(lookups.NetContainsOrEquals)
 IPAddressField.register_lookup(lookups.NetHost)
 IPAddressField.register_lookup(lookups.NetIn)
 IPAddressField.register_lookup(lookups.NetHostContained)
+IPAddressField.register_lookup(lookups.NetFamily)
 IPAddressField.register_lookup(lookups.NetMaskLength)

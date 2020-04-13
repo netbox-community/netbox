@@ -1,3 +1,4 @@
+import importlib
 import logging
 import os
 import platform
@@ -15,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.7.13-dev'
+VERSION = '2.8.0-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -24,15 +25,9 @@ HOSTNAME = platform.node()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Validate Python version
-if platform.python_version_tuple() < ('3', '5'):
+if platform.python_version_tuple() < ('3', '6'):
     raise RuntimeError(
-        "NetBox requires Python 3.5 or higher (current: Python {})".format(platform.python_version())
-    )
-elif platform.python_version_tuple() < ('3', '6'):
-    warnings.warn(
-        "Python 3.6 or higher will be required starting with NetBox v2.8 (current: Python {})".format(
-            platform.python_version()
-        )
+        "NetBox requires Python 3.6 or higher (current: Python {})".format(platform.python_version())
     )
 
 
@@ -96,7 +91,15 @@ NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
 NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
 NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
 PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
+PLUGINS = getattr(configuration, 'PLUGINS', [])
+PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
+REMOTE_AUTH_AUTO_CREATE_USER = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_USER', False)
+REMOTE_AUTH_BACKEND = getattr(configuration, 'REMOTE_AUTH_BACKEND', 'utilities.auth_backends.RemoteUserBackend')
+REMOTE_AUTH_DEFAULT_GROUPS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_GROUPS', [])
+REMOTE_AUTH_DEFAULT_PERMISSIONS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_PERMISSIONS', [])
+REMOTE_AUTH_ENABLED = getattr(configuration, 'REMOTE_AUTH_ENABLED', False)
+REMOTE_AUTH_HEADER = getattr(configuration, 'REMOTE_AUTH_HEADER', 'HTTP_REMOTE_USER')
 RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
 RELEASE_CHECK_TIMEOUT = getattr(configuration, 'RELEASE_CHECK_TIMEOUT', 24 * 3600)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
@@ -287,7 +290,7 @@ INSTALLED_APPS = [
 ]
 
 # Middleware
-MIDDLEWARE = (
+MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -299,11 +302,12 @@ MIDDLEWARE = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'utilities.middleware.ExceptionHandlingMiddleware',
+    'utilities.middleware.RemoteUserMiddleware',
     'utilities.middleware.LoginRequiredMiddleware',
     'utilities.middleware.APIVersionMiddleware',
     'extras.middleware.ObjectChangeMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
-)
+]
 
 ROOT_URLCONF = 'netbox.urls'
 
@@ -320,14 +324,15 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'utilities.context_processors.settings',
+                'utilities.context_processors.settings_and_registry',
             ],
         },
     },
 ]
 
-# Authentication
+# Set up authentication backends
 AUTHENTICATION_BACKENDS = [
+    REMOTE_AUTH_BACKEND,
     'utilities.auth_backends.ViewExemptModelBackend',
 ]
 
@@ -340,6 +345,7 @@ USE_TZ = True
 WSGI_APPLICATION = 'netbox.wsgi.application'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Static files (CSS, JavaScript, Images)
 STATIC_ROOT = BASE_DIR + '/static'
@@ -551,7 +557,6 @@ SWAGGER_SETTINGS = {
         'drf_yasg.inspectors.StringDefaultFieldInspector',
     ],
     'DEFAULT_FILTER_INSPECTORS': [
-        'utilities.custom_inspectors.IdInFilterInspector',
         'drf_yasg.inspectors.CoreAPICompatInspector',
     ],
     'DEFAULT_INFO': 'netbox.urls.openapi_info',
@@ -626,3 +631,46 @@ PER_PAGE_DEFAULTS = [
 if PAGINATE_COUNT not in PER_PAGE_DEFAULTS:
     PER_PAGE_DEFAULTS.append(PAGINATE_COUNT)
     PER_PAGE_DEFAULTS = sorted(PER_PAGE_DEFAULTS)
+
+
+#
+# Plugins
+#
+
+for plugin_name in PLUGINS:
+
+    # Import plugin module
+    try:
+        plugin = importlib.import_module(plugin_name)
+    except ImportError:
+        raise ImproperlyConfigured(
+            f"Unable to import plugin {plugin_name}: Module not found. Check that the plugin module has been "
+            f"installed within the correct Python environment."
+        )
+
+    # Determine plugin config and add to INSTALLED_APPS.
+    try:
+        plugin_config = plugin.config
+        INSTALLED_APPS.append(f"{plugin_config.__module__}.{plugin_config.__name__}")
+    except AttributeError:
+        raise ImproperlyConfigured(
+            f"Plugin {plugin_name} does not provide a 'config' variable. This should be defined in the plugin's "
+            f"__init__.py file and point to the PluginConfig subclass."
+        )
+
+    # Validate user-provided configuration settings and assign defaults
+    if plugin_name not in PLUGINS_CONFIG:
+        PLUGINS_CONFIG[plugin_name] = {}
+    plugin_config.validate(PLUGINS_CONFIG[plugin_name])
+
+    # Add middleware
+    plugin_middleware = plugin_config.middleware
+    if plugin_middleware and type(plugin_middleware) in (list, tuple):
+        MIDDLEWARE.extend(plugin_middleware)
+
+    # Apply cacheops config
+    if type(plugin_config.caching_config) is not dict:
+        raise ImproperlyConfigured(f"Plugin {plugin_name} caching_config must be a dictionary.")
+    CACHEOPS.update({
+        f"{plugin_name}.{key}": value for key, value in plugin_config.caching_config.items()
+    })

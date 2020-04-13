@@ -14,9 +14,6 @@ class ExtrasRootView(routers.APIRootView):
 router = routers.DefaultRouter()
 router.APIRootView = ExtrasRootView
 
-# Field choices
-router.register('_choices', views.ExtrasFieldChoicesViewSet, basename='field-choice')
-
 # Custom field choices
 router.register('_custom_field_choices', views.CustomFieldChoicesViewSet, basename='custom-field-choice')
 

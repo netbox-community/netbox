@@ -10,24 +10,10 @@ from rest_framework.response import Response
 from extras.api.views import CustomFieldModelViewSet
 from ipam import filters
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
-from utilities.api import FieldChoicesViewSet, ModelViewSet
+from utilities.api import ModelViewSet
 from utilities.constants import ADVISORY_LOCK_KEYS
 from utilities.utils import get_subquery
 from . import serializers
-
-
-#
-# Field choices
-#
-
-class IPAMFieldChoicesViewSet(FieldChoicesViewSet):
-    fields = (
-        (serializers.AggregateSerializer, ['family']),
-        (serializers.PrefixSerializer, ['family', 'status']),
-        (serializers.IPAddressSerializer, ['family', 'status', 'role']),
-        (serializers.VLANSerializer, ['status']),
-        (serializers.ServiceSerializer, ['protocol']),
-    )
 
 
 #

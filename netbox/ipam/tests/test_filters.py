@@ -20,7 +20,8 @@ class VRFTestCase(TestCase):
             TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
             TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
         )
-        TenantGroup.objects.bulk_create(tenant_groups)
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
 
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
@@ -53,11 +54,6 @@ class VRFTestCase(TestCase):
         params = {'enforce_unique': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:3]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
     def test_tenant(self):
         tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
@@ -81,12 +77,12 @@ class RIRTestCase(TestCase):
     def setUpTestData(cls):
 
         rirs = (
-            RIR(name='RIR 1', slug='rir-1', is_private=False),
-            RIR(name='RIR 2', slug='rir-2', is_private=False),
-            RIR(name='RIR 3', slug='rir-3', is_private=False),
-            RIR(name='RIR 4', slug='rir-4', is_private=True),
-            RIR(name='RIR 5', slug='rir-5', is_private=True),
-            RIR(name='RIR 6', slug='rir-6', is_private=True),
+            RIR(name='RIR 1', slug='rir-1', is_private=False, description='A'),
+            RIR(name='RIR 2', slug='rir-2', is_private=False, description='B'),
+            RIR(name='RIR 3', slug='rir-3', is_private=False, description='C'),
+            RIR(name='RIR 4', slug='rir-4', is_private=True, description='D'),
+            RIR(name='RIR 5', slug='rir-5', is_private=True, description='E'),
+            RIR(name='RIR 6', slug='rir-6', is_private=True, description='F'),
         )
         RIR.objects.bulk_create(rirs)
 
@@ -98,15 +94,14 @@ class RIRTestCase(TestCase):
         params = {'slug': ['rir-1', 'rir-2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_description(self):
+        params = {'description': ['A', 'B']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_is_private(self):
         params = {'is_private': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'is_private': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:3]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
@@ -125,12 +120,12 @@ class AggregateTestCase(TestCase):
         RIR.objects.bulk_create(rirs)
 
         aggregates = (
-            Aggregate(family=4, prefix='10.1.0.0/16', rir=rirs[0], date_added='2020-01-01'),
-            Aggregate(family=4, prefix='10.2.0.0/16', rir=rirs[0], date_added='2020-01-02'),
-            Aggregate(family=4, prefix='10.3.0.0/16', rir=rirs[1], date_added='2020-01-03'),
-            Aggregate(family=6, prefix='2001:db8:1::/48', rir=rirs[1], date_added='2020-01-04'),
-            Aggregate(family=6, prefix='2001:db8:2::/48', rir=rirs[2], date_added='2020-01-05'),
-            Aggregate(family=6, prefix='2001:db8:3::/48', rir=rirs[2], date_added='2020-01-06'),
+            Aggregate(prefix='10.1.0.0/16', rir=rirs[0], date_added='2020-01-01'),
+            Aggregate(prefix='10.2.0.0/16', rir=rirs[0], date_added='2020-01-02'),
+            Aggregate(prefix='10.3.0.0/16', rir=rirs[1], date_added='2020-01-03'),
+            Aggregate(prefix='2001:db8:1::/48', rir=rirs[1], date_added='2020-01-04'),
+            Aggregate(prefix='2001:db8:2::/48', rir=rirs[2], date_added='2020-01-05'),
+            Aggregate(prefix='2001:db8:3::/48', rir=rirs[2], date_added='2020-01-06'),
         )
         Aggregate.objects.bulk_create(aggregates)
 
@@ -232,7 +227,8 @@ class PrefixTestCase(TestCase):
             TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
             TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
         )
-        TenantGroup.objects.bulk_create(tenant_groups)
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
 
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
@@ -242,16 +238,16 @@ class PrefixTestCase(TestCase):
         Tenant.objects.bulk_create(tenants)
 
         prefixes = (
-            Prefix(family=4, prefix='10.0.0.0/24', tenant=None, site=None, vrf=None, vlan=None, role=None, is_pool=True),
-            Prefix(family=4, prefix='10.0.1.0/24', tenant=tenants[0], site=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0]),
-            Prefix(family=4, prefix='10.0.2.0/24', tenant=tenants[1], site=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
-            Prefix(family=4, prefix='10.0.3.0/24', tenant=tenants[2], site=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
-            Prefix(family=6, prefix='2001:db8::/64', tenant=None, site=None, vrf=None, vlan=None, role=None, is_pool=True),
-            Prefix(family=6, prefix='2001:db8:0:1::/64', tenant=tenants[0], site=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0]),
-            Prefix(family=6, prefix='2001:db8:0:2::/64', tenant=tenants[1], site=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
-            Prefix(family=6, prefix='2001:db8:0:3::/64', tenant=tenants[2], site=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
-            Prefix(family=4, prefix='10.0.0.0/16'),
-            Prefix(family=6, prefix='2001:db8::/32'),
+            Prefix(prefix='10.0.0.0/24', tenant=None, site=None, vrf=None, vlan=None, role=None, is_pool=True),
+            Prefix(prefix='10.0.1.0/24', tenant=tenants[0], site=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0]),
+            Prefix(prefix='10.0.2.0/24', tenant=tenants[1], site=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
+            Prefix(prefix='10.0.3.0/24', tenant=tenants[2], site=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
+            Prefix(prefix='2001:db8::/64', tenant=None, site=None, vrf=None, vlan=None, role=None, is_pool=True),
+            Prefix(prefix='2001:db8:0:1::/64', tenant=tenants[0], site=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0]),
+            Prefix(prefix='2001:db8:0:2::/64', tenant=tenants[1], site=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
+            Prefix(prefix='2001:db8:0:3::/64', tenant=tenants[2], site=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
+            Prefix(prefix='10.0.0.0/16'),
+            Prefix(prefix='2001:db8::/32'),
         )
         Prefix.objects.bulk_create(prefixes)
 
@@ -264,11 +260,6 @@ class PrefixTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'is_pool': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
-
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:3]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_within(self):
         params = {'within': '10.0.0.0/16'}
@@ -394,7 +385,8 @@ class IPAddressTestCase(TestCase):
             TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
             TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
         )
-        TenantGroup.objects.bulk_create(tenant_groups)
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
 
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
@@ -404,17 +396,16 @@ class IPAddressTestCase(TestCase):
         Tenant.objects.bulk_create(tenants)
 
         ipaddresses = (
-            IPAddress(family=4, address='10.0.0.1/24', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
-            IPAddress(family=4, address='10.0.0.2/24', tenant=tenants[0], vrf=vrfs[0], interface=interfaces[0], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
-            IPAddress(family=4, address='10.0.0.3/24', tenant=tenants[1], vrf=vrfs[1], interface=interfaces[1], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
-            IPAddress(family=4, address='10.0.0.4/24', tenant=tenants[2], vrf=vrfs[2], interface=interfaces[2], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
-            IPAddress(family=4, address='10.0.0.1/25', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
-            IPAddress(family=6, address='2001:db8::1/64', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
-            IPAddress(family=6, address='2001:db8::2/64', tenant=tenants[0], vrf=vrfs[0], interface=interfaces[3], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
-            IPAddress(family=6, address='2001:db8::3/64', tenant=tenants[1], vrf=vrfs[1], interface=interfaces[4], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
-            IPAddress(family=6, address='2001:db8::4/64', tenant=tenants[2], vrf=vrfs[2], interface=interfaces[5], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
-            IPAddress(family=6, address='2001:db8::1/65', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
-
+            IPAddress(address='10.0.0.1/24', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
+            IPAddress(address='10.0.0.2/24', tenant=tenants[0], vrf=vrfs[0], interface=interfaces[0], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
+            IPAddress(address='10.0.0.3/24', tenant=tenants[1], vrf=vrfs[1], interface=interfaces[1], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
+            IPAddress(address='10.0.0.4/24', tenant=tenants[2], vrf=vrfs[2], interface=interfaces[2], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
+            IPAddress(address='10.0.0.1/25', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
+            IPAddress(address='2001:db8::1/64', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
+            IPAddress(address='2001:db8::2/64', tenant=tenants[0], vrf=vrfs[0], interface=interfaces[3], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
+            IPAddress(address='2001:db8::3/64', tenant=tenants[1], vrf=vrfs[1], interface=interfaces[4], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
+            IPAddress(address='2001:db8::4/64', tenant=tenants[2], vrf=vrfs[2], interface=interfaces[5], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
+            IPAddress(address='2001:db8::1/65', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
         )
         IPAddress.objects.bulk_create(ipaddresses)
 
@@ -425,11 +416,6 @@ class IPAddressTestCase(TestCase):
     def test_dns_name(self):
         params = {'dns_name': ['ipaddress-a', 'ipaddress-b']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:3]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_parent(self):
         params = {'parent': '10.0.0.0/24'}
@@ -537,9 +523,9 @@ class VLANGroupTestCase(TestCase):
         Site.objects.bulk_create(sites)
 
         vlan_groups = (
-            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', site=sites[0]),
-            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', site=sites[1]),
-            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', site=sites[2]),
+            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', site=sites[0], description='A'),
+            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', site=sites[1], description='B'),
+            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', site=sites[2], description='C'),
             VLANGroup(name='VLAN Group 4', slug='vlan-group-4', site=None),
         )
         VLANGroup.objects.bulk_create(vlan_groups)
@@ -555,6 +541,10 @@ class VLANGroupTestCase(TestCase):
 
     def test_slug(self):
         params = {'slug': ['vlan-group-1', 'vlan-group-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -614,7 +604,8 @@ class VLANTestCase(TestCase):
             TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
             TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
         )
-        TenantGroup.objects.bulk_create(tenant_groups)
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
 
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
@@ -639,11 +630,6 @@ class VLANTestCase(TestCase):
 
     def test_rd(self):
         params = {'vid': ['101', '201', '301']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:3]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_region(self):

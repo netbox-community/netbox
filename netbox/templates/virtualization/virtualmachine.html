@@ -1,8 +1,9 @@
-{% extends '_base.html' %}
+{% extends 'base.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load static %}
 {% load helpers %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint">
@@ -28,6 +29,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons virtualmachine %}
         {% if perms.virtualization.add_virtualmachine %}
             {% clone_button virtualmachine %}
         {% endif %}
@@ -158,6 +160,7 @@
                 {% endif %}
             </div>
         </div>
+        {% plugin_left_page virtualmachine %}
     </div>
 	<div class="col-md-6">
         <div class="panel panel-default">
@@ -235,6 +238,12 @@
                 </div>
             {% endif %}
         </div>
+        {% plugin_right_page virtualmachine %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page virtualmachine %}
     </div>
 </div>
 <div class="row">

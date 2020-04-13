@@ -15,22 +15,22 @@ class TestAggregate(TestCase):
 
         # 25% utilization
         Prefix.objects.bulk_create((
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.0.0/12')),
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.16.0.0/12')),
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.32.0.0/12')),
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.48.0.0/12')),
+            Prefix(prefix=netaddr.IPNetwork('10.0.0.0/12')),
+            Prefix(prefix=netaddr.IPNetwork('10.16.0.0/12')),
+            Prefix(prefix=netaddr.IPNetwork('10.32.0.0/12')),
+            Prefix(prefix=netaddr.IPNetwork('10.48.0.0/12')),
         ))
         self.assertEqual(aggregate.get_utilization(), 25)
 
         # 50% utilization
         Prefix.objects.bulk_create((
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.64.0.0/10')),
+            Prefix(prefix=netaddr.IPNetwork('10.64.0.0/10')),
         ))
         self.assertEqual(aggregate.get_utilization(), 50)
 
         # 100% utilization
         Prefix.objects.bulk_create((
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.128.0.0/9')),
+            Prefix(prefix=netaddr.IPNetwork('10.128.0.0/9')),
         ))
         self.assertEqual(aggregate.get_utilization(), 100)
 
@@ -39,9 +39,9 @@ class TestPrefix(TestCase):
 
     def test_get_duplicates(self):
         prefixes = Prefix.objects.bulk_create((
-            Prefix(family=4, prefix=netaddr.IPNetwork('192.0.2.0/24')),
-            Prefix(family=4, prefix=netaddr.IPNetwork('192.0.2.0/24')),
-            Prefix(family=4, prefix=netaddr.IPNetwork('192.0.2.0/24')),
+            Prefix(prefix=netaddr.IPNetwork('192.0.2.0/24')),
+            Prefix(prefix=netaddr.IPNetwork('192.0.2.0/24')),
+            Prefix(prefix=netaddr.IPNetwork('192.0.2.0/24')),
         ))
         duplicate_prefix_pks = [p.pk for p in prefixes[0].get_duplicates()]
 
@@ -54,11 +54,11 @@ class TestPrefix(TestCase):
             VRF(name='VRF 3'),
         ))
         prefixes = Prefix.objects.bulk_create((
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.0.0/16'), status=PrefixStatusChoices.STATUS_CONTAINER),
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.0.0/24'), vrf=None),
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.1.0/24'), vrf=vrfs[0]),
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.2.0/24'), vrf=vrfs[1]),
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.3.0/24'), vrf=vrfs[2]),
+            Prefix(prefix=netaddr.IPNetwork('10.0.0.0/16'), status=PrefixStatusChoices.STATUS_CONTAINER),
+            Prefix(prefix=netaddr.IPNetwork('10.0.0.0/24'), vrf=None),
+            Prefix(prefix=netaddr.IPNetwork('10.0.1.0/24'), vrf=vrfs[0]),
+            Prefix(prefix=netaddr.IPNetwork('10.0.2.0/24'), vrf=vrfs[1]),
+            Prefix(prefix=netaddr.IPNetwork('10.0.3.0/24'), vrf=vrfs[2]),
         ))
         child_prefix_pks = {p.pk for p in prefixes[0].get_child_prefixes()}
 
@@ -79,13 +79,13 @@ class TestPrefix(TestCase):
             VRF(name='VRF 3'),
         ))
         parent_prefix = Prefix.objects.create(
-            family=4, prefix=netaddr.IPNetwork('10.0.0.0/16'), status=PrefixStatusChoices.STATUS_CONTAINER
+            prefix=netaddr.IPNetwork('10.0.0.0/16'), status=PrefixStatusChoices.STATUS_CONTAINER
         )
         ips = IPAddress.objects.bulk_create((
-            IPAddress(family=4, address=netaddr.IPNetwork('10.0.0.1/24'), vrf=None),
-            IPAddress(family=4, address=netaddr.IPNetwork('10.0.1.1/24'), vrf=vrfs[0]),
-            IPAddress(family=4, address=netaddr.IPNetwork('10.0.2.1/24'), vrf=vrfs[1]),
-            IPAddress(family=4, address=netaddr.IPNetwork('10.0.3.1/24'), vrf=vrfs[2]),
+            IPAddress(address=netaddr.IPNetwork('10.0.0.1/24'), vrf=None),
+            IPAddress(address=netaddr.IPNetwork('10.0.1.1/24'), vrf=vrfs[0]),
+            IPAddress(address=netaddr.IPNetwork('10.0.2.1/24'), vrf=vrfs[1]),
+            IPAddress(address=netaddr.IPNetwork('10.0.3.1/24'), vrf=vrfs[2]),
         ))
         child_ip_pks = {p.pk for p in parent_prefix.get_child_ips()}
 
@@ -102,10 +102,10 @@ class TestPrefix(TestCase):
     def test_get_available_prefixes(self):
 
         prefixes = Prefix.objects.bulk_create((
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.0.0/16')),  # Parent prefix
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.0.0/20')),
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.32.0/20')),
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.128.0/18')),
+            Prefix(prefix=netaddr.IPNetwork('10.0.0.0/16')),  # Parent prefix
+            Prefix(prefix=netaddr.IPNetwork('10.0.0.0/20')),
+            Prefix(prefix=netaddr.IPNetwork('10.0.32.0/20')),
+            Prefix(prefix=netaddr.IPNetwork('10.0.128.0/18')),
         ))
         missing_prefixes = netaddr.IPSet([
             netaddr.IPNetwork('10.0.16.0/20'),
@@ -119,15 +119,15 @@ class TestPrefix(TestCase):
 
     def test_get_available_ips(self):
 
-        parent_prefix = Prefix.objects.create(family=4, prefix=netaddr.IPNetwork('10.0.0.0/28'))
+        parent_prefix = Prefix.objects.create(prefix=netaddr.IPNetwork('10.0.0.0/28'))
         IPAddress.objects.bulk_create((
-            IPAddress(family=4, address=netaddr.IPNetwork('10.0.0.1/26')),
-            IPAddress(family=4, address=netaddr.IPNetwork('10.0.0.3/26')),
-            IPAddress(family=4, address=netaddr.IPNetwork('10.0.0.5/26')),
-            IPAddress(family=4, address=netaddr.IPNetwork('10.0.0.7/26')),
-            IPAddress(family=4, address=netaddr.IPNetwork('10.0.0.9/26')),
-            IPAddress(family=4, address=netaddr.IPNetwork('10.0.0.11/26')),
-            IPAddress(family=4, address=netaddr.IPNetwork('10.0.0.13/26')),
+            IPAddress(address=netaddr.IPNetwork('10.0.0.1/26')),
+            IPAddress(address=netaddr.IPNetwork('10.0.0.3/26')),
+            IPAddress(address=netaddr.IPNetwork('10.0.0.5/26')),
+            IPAddress(address=netaddr.IPNetwork('10.0.0.7/26')),
+            IPAddress(address=netaddr.IPNetwork('10.0.0.9/26')),
+            IPAddress(address=netaddr.IPNetwork('10.0.0.11/26')),
+            IPAddress(address=netaddr.IPNetwork('10.0.0.13/26')),
         ))
         missing_ips = netaddr.IPSet([
             '10.0.0.2/32',
@@ -145,40 +145,39 @@ class TestPrefix(TestCase):
     def test_get_first_available_prefix(self):
 
         prefixes = Prefix.objects.bulk_create((
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.0.0/16')),  # Parent prefix
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.0.0/24')),
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.1.0/24')),
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.2.0/24')),
+            Prefix(prefix=netaddr.IPNetwork('10.0.0.0/16')),  # Parent prefix
+            Prefix(prefix=netaddr.IPNetwork('10.0.0.0/24')),
+            Prefix(prefix=netaddr.IPNetwork('10.0.1.0/24')),
+            Prefix(prefix=netaddr.IPNetwork('10.0.2.0/24')),
         ))
         self.assertEqual(prefixes[0].get_first_available_prefix(), netaddr.IPNetwork('10.0.3.0/24'))
 
-        Prefix.objects.create(family=4, prefix=netaddr.IPNetwork('10.0.3.0/24'))
+        Prefix.objects.create(prefix=netaddr.IPNetwork('10.0.3.0/24'))
         self.assertEqual(prefixes[0].get_first_available_prefix(), netaddr.IPNetwork('10.0.4.0/22'))
 
     def test_get_first_available_ip(self):
 
-        parent_prefix = Prefix.objects.create(family=4, prefix=netaddr.IPNetwork('10.0.0.0/24'))
+        parent_prefix = Prefix.objects.create(prefix=netaddr.IPNetwork('10.0.0.0/24'))
         IPAddress.objects.bulk_create((
-            IPAddress(family=4, address=netaddr.IPNetwork('10.0.0.1/24')),
-            IPAddress(family=4, address=netaddr.IPNetwork('10.0.0.2/24')),
-            IPAddress(family=4, address=netaddr.IPNetwork('10.0.0.3/24')),
+            IPAddress(address=netaddr.IPNetwork('10.0.0.1/24')),
+            IPAddress(address=netaddr.IPNetwork('10.0.0.2/24')),
+            IPAddress(address=netaddr.IPNetwork('10.0.0.3/24')),
         ))
         self.assertEqual(parent_prefix.get_first_available_ip(), '10.0.0.4/24')
 
-        IPAddress.objects.create(family=4, address=netaddr.IPNetwork('10.0.0.4/24'))
+        IPAddress.objects.create(address=netaddr.IPNetwork('10.0.0.4/24'))
         self.assertEqual(parent_prefix.get_first_available_ip(), '10.0.0.5/24')
 
     def test_get_utilization(self):
 
         # Container Prefix
         prefix = Prefix.objects.create(
-            family=4,
             prefix=netaddr.IPNetwork('10.0.0.0/24'),
             status=PrefixStatusChoices.STATUS_CONTAINER
         )
         Prefix.objects.bulk_create((
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.0.0/26')),
-            Prefix(family=4, prefix=netaddr.IPNetwork('10.0.0.128/26')),
+            Prefix(prefix=netaddr.IPNetwork('10.0.0.0/26')),
+            Prefix(prefix=netaddr.IPNetwork('10.0.0.128/26')),
         ))
         self.assertEqual(prefix.get_utilization(), 50)
 
@@ -187,7 +186,7 @@ class TestPrefix(TestCase):
         prefix.save()
         IPAddress.objects.bulk_create(
             # Create 32 IPAddresses within the Prefix
-            [IPAddress(family=4, address=netaddr.IPNetwork('10.0.0.{}/24'.format(i))) for i in range(1, 33)]
+            [IPAddress(address=netaddr.IPNetwork('10.0.0.{}/24'.format(i))) for i in range(1, 33)]
         )
         self.assertEqual(prefix.get_utilization(), 12)  # ~= 12%
 
@@ -224,9 +223,9 @@ class TestIPAddress(TestCase):
 
     def test_get_duplicates(self):
         ips = IPAddress.objects.bulk_create((
-            IPAddress(family=4, address=netaddr.IPNetwork('192.0.2.1/24')),
-            IPAddress(family=4, address=netaddr.IPNetwork('192.0.2.1/24')),
-            IPAddress(family=4, address=netaddr.IPNetwork('192.0.2.1/24')),
+            IPAddress(address=netaddr.IPNetwork('192.0.2.1/24')),
+            IPAddress(address=netaddr.IPNetwork('192.0.2.1/24')),
+            IPAddress(address=netaddr.IPNetwork('192.0.2.1/24')),
         ))
         duplicate_ip_pks = [p.pk for p in ips[0].get_duplicates()]
 

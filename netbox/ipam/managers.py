@@ -14,4 +14,4 @@ class IPAddressManager(models.Manager):
         IP address as a /32 or /128.
         """
         qs = super().get_queryset()
-        return qs.order_by('family', Inet(Host('address')))
+        return qs.order_by(Inet(Host('address')))

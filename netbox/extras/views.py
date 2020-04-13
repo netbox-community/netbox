@@ -274,7 +274,7 @@ class ObjectChangeLogView(View):
             template.loader.get_template(base_template)
             object_var = model._meta.model_name
         except template.TemplateDoesNotExist:
-            base_template = '_base.html'
+            base_template = 'base.html'
             object_var = 'obj'
 
         return render(request, 'extras/object_changelog.html', {

@@ -110,7 +110,7 @@ class CircuitType(ChangeLoggedModel):
         unique=True
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True,
     )
 
@@ -176,7 +176,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         null=True,
         verbose_name='Commit rate (Kbps)')
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     comments = models.TextField(
@@ -295,7 +295,7 @@ class CircuitTermination(CableTermination):
         verbose_name='Patch panel/port(s)'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
 

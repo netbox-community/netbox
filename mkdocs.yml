@@ -54,6 +54,9 @@ nav:
         - Reports: 'additional-features/reports.md'
         - Tags: 'additional-features/tags.md'
         - Webhooks: 'additional-features/webhooks.md'
+    - Plugins:
+        - Using Plugins: 'plugins/index.md'
+        - Developing Plugins: 'plugins/development.md'
     - Administration:
         - Replicating NetBox: 'administration/replicating-netbox.md'
         - NetBox Shell: 'administration/netbox-shell.md'
@@ -68,9 +71,11 @@ nav:
         - Style Guide: 'development/style-guide.md'
         - Utility Views: 'development/utility-views.md'
         - Extending Models: 'development/extending-models.md'
+        - Application Registry: 'development/application-registry.md'
         - Release Checklist: 'development/release-checklist.md'
         - Squashing Migrations: 'development/squashing-migrations.md'
     - Release Notes:
+        - Version 2.8: 'release-notes/version-2.8.md'
         - Version 2.7: 'release-notes/version-2.7.md'
         - Version 2.6: 'release-notes/version-2.6.md'
         - Version 2.5: 'release-notes/version-2.5.md'

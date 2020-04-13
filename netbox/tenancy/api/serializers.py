@@ -12,11 +12,12 @@ from .nested_serializers import *
 #
 
 class TenantGroupSerializer(ValidatedModelSerializer):
+    parent = NestedTenantGroupSerializer(required=False, allow_null=True)
     tenant_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = TenantGroup
-        fields = ['id', 'name', 'slug', 'tenant_count']
+        fields = ['id', 'name', 'slug', 'parent', 'description', 'tenant_count']
 
 
 class TenantSerializer(TaggitSerializer, CustomFieldModelSerializer):

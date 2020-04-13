@@ -154,9 +154,14 @@ class NetHostContained(Lookup):
         return 'CAST(HOST(%s) AS INET) << %s' % (lhs, rhs), params
 
 
-#
-# Transforms
-#
+class NetFamily(Transform):
+    lookup_name = 'family'
+    function = 'FAMILY'
+
+    @property
+    def output_field(self):
+        return IntegerField()
+
 
 class NetMaskLength(Transform):
     function = 'MASKLEN'

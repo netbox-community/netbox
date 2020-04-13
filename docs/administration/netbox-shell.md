@@ -10,8 +10,8 @@ This will launch a customized version of [the built-in Django shell](https://doc
 
 ```
 $ ./manage.py nbshell
-### NetBox interactive shell (jstretch-laptop)
-### Python 3.5.2 | Django 2.0.8 | NetBox 2.4.3
+### NetBox interactive shell (localhost)
+### Python 3.6.9 | Django 2.2.11 | NetBox 2.7.10
 ### lsmodels() will show available models. Use help(<model>) for more info.
 ```
 

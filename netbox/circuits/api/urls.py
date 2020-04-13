@@ -14,9 +14,6 @@ class CircuitsRootView(routers.APIRootView):
 router = routers.DefaultRouter()
 router.APIRootView = CircuitsRootView
 
-# Field choices
-router.register('_choices', views.CircuitsFieldChoicesViewSet, basename='field-choice')
-
 # Providers
 router.register('providers', views.ProviderViewSet)
 

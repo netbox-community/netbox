@@ -1,7 +1,8 @@
-{% extends '_base.html' %}
+{% extends 'base.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint">
@@ -26,6 +27,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons aggregate %}
         {% if perms.ipam.add_aggregate %}
             {% clone_button aggregate %}
         {% endif %}
@@ -64,7 +66,7 @@
             <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Family</td>
-                    <td>{{ aggregate.get_family_display }}</td>
+                    <td>IPv{{ aggregate.family }}</td>
                 </tr>
                 <tr>
                     <td>RIR</td>
@@ -88,10 +90,17 @@
                 </tr>
             </table>
         </div>
+        {% plugin_left_page aggregate %}
     </div>
     <div class="col-md-6">
         {% include 'inc/custom_fields_panel.html' with obj=aggregate %}
         {% include 'extras/inc/tags_panel.html' with tags=aggregate.tags.all url='ipam:aggregate_list' %}
+        {% plugin_right_page aggregate %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page aggregate %}
     </div>
 </div>
 <div class="row">

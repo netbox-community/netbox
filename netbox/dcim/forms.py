@@ -187,7 +187,7 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Region
         fields = (
-            'parent', 'name', 'slug',
+            'parent', 'name', 'slug', 'description',
         )
 
 
@@ -377,12 +377,16 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all()
     )
+    parent = DynamicModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False
+    )
     slug = SlugField()
 
     class Meta:
         model = RackGroup
         fields = (
-            'site', 'name', 'slug',
+            'site', 'parent', 'name', 'slug', 'description',
         )
 
 
@@ -393,6 +397,15 @@ class RackGroupCSVForm(forms.ModelForm):
         help_text='Name of parent site',
         error_messages={
             'invalid_choice': 'Site not found.',
+        }
+    )
+    parent = forms.ModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of parent rack group',
+        error_messages={
+            'invalid_choice': 'Rack group not found.',
         }
     )
 
@@ -413,7 +426,8 @@ class RackGroupFilterForm(BootstrapMixin, forms.Form):
         widget=APISelectMultiple(
             value_field="slug",
             filter_for={
-                'site': 'region'
+                'site': 'region',
+                'parent': 'region',
             }
         )
     )
@@ -422,6 +436,18 @@ class RackGroupFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
+            value_field="slug",
+            filter_for={
+                'parent': 'site',
+            }
+        )
+    )
+    parent = DynamicModelMultipleChoiceField(
+        queryset=RackGroup.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            api_url="/api/dcim/rack-groups/",
             value_field="slug",
         )
     )
@@ -918,7 +944,7 @@ class ManufacturerForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Manufacturer
         fields = [
-            'name', 'slug',
+            'name', 'slug', 'description',
         ]
 
 
@@ -1669,7 +1695,7 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Platform
         fields = [
-            'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args',
+            'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description',
         ]
         widgets = {
             'napalm_args': SmallTextarea(),
@@ -1835,14 +1861,14 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
                 # Collect interface IPs
                 interface_ips = IPAddress.objects.prefetch_related('interface').filter(
-                    family=family, interface_id__in=interface_ids
+                    address__family=family, interface_id__in=interface_ids
                 )
                 if interface_ips:
                     ip_list = [(ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips]
                     ip_choices.append(('Interface IPs', ip_list))
                 # Collect NAT IPs
                 nat_ips = IPAddress.objects.prefetch_related('nat_inside').filter(
-                    family=family, nat_inside__interface__in=interface_ids
+                    address__family=family, nat_inside__interface__in=interface_ids
                 )
                 if nat_ips:
                     ip_list = [(ip.id, '{} ({})'.format(ip.address, ip.nat_inside.address)) for ip in nat_ips]

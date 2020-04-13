@@ -7,7 +7,7 @@ from rest_framework import status
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
-from utilities.testing import APITestCase, choices_to_dict, disable_warnings
+from utilities.testing import APITestCase, disable_warnings
 
 
 class AppTest(APITestCase):
@@ -18,31 +18,6 @@ class AppTest(APITestCase):
         response = self.client.get('{}?format=api'.format(url), **self.header)
 
         self.assertEqual(response.status_code, 200)
-
-    def test_choices(self):
-
-        url = reverse('ipam-api:field-choice-list')
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.status_code, 200)
-
-        # Aggregate
-        # self.assertEqual(choices_to_dict(response.data.get('aggregate:family')), )
-
-        # Prefix
-        # self.assertEqual(choices_to_dict(response.data.get('prefix:family')), )
-        self.assertEqual(choices_to_dict(response.data.get('prefix:status')), PrefixStatusChoices.as_dict())
-
-        # IPAddress
-        # self.assertEqual(choices_to_dict(response.data.get('ip-address:family')), )
-        self.assertEqual(choices_to_dict(response.data.get('ip-address:role')), IPAddressRoleChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('ip-address:status')), IPAddressStatusChoices.as_dict())
-
-        # VLAN
-        self.assertEqual(choices_to_dict(response.data.get('vlan:status')), VLANStatusChoices.as_dict())
-
-        # Service
-        self.assertEqual(choices_to_dict(response.data.get('service:protocol')), ServiceProtocolChoices.as_dict())
 
 
 class VRFTest(APITestCase):

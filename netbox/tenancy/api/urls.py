@@ -14,9 +14,6 @@ class TenancyRootView(routers.APIRootView):
 router = routers.DefaultRouter()
 router.APIRootView = TenancyRootView
 
-# Field choices
-router.register('_choices', views.TenancyFieldChoicesViewSet, basename='field-choice')
-
 # Tenants
 router.register('tenant-groups', views.TenantGroupViewSet)
 router.register('tenants', views.TenantViewSet)

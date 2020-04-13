@@ -4,7 +4,6 @@ from netaddr import IPNetwork
 from rest_framework import status
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
-from dcim.api import serializers
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
@@ -15,7 +14,7 @@ from dcim.models import (
 )
 from ipam.models import IPAddress, VLAN
 from extras.models import Graph
-from utilities.testing import APITestCase, choices_to_dict
+from utilities.testing import APITestCase
 from virtualization.models import Cluster, ClusterType
 
 
@@ -27,79 +26,6 @@ class AppTest(APITestCase):
         response = self.client.get('{}?format=api'.format(url), **self.header)
 
         self.assertEqual(response.status_code, 200)
-
-    def test_choices(self):
-
-        url = reverse('dcim-api:field-choice-list')
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.status_code, 200)
-
-        # Cable
-        self.assertEqual(choices_to_dict(response.data.get('cable:length_unit')), CableLengthUnitChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('cable:status')), CableStatusChoices.as_dict())
-        content_types = ContentType.objects.filter(CABLE_TERMINATION_MODELS)
-        cable_termination_choices = {
-            "{}.{}".format(ct.app_label, ct.model): ct.name for ct in content_types
-        }
-        self.assertEqual(choices_to_dict(response.data.get('cable:termination_a_type')), cable_termination_choices)
-        self.assertEqual(choices_to_dict(response.data.get('cable:termination_b_type')), cable_termination_choices)
-        self.assertEqual(choices_to_dict(response.data.get('cable:type')), CableTypeChoices.as_dict())
-
-        # Console ports
-        self.assertEqual(choices_to_dict(response.data.get('console-port:type')), ConsolePortTypeChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('console-port:connection_status')), dict(CONNECTION_STATUS_CHOICES))
-        self.assertEqual(choices_to_dict(response.data.get('console-port-template:type')), ConsolePortTypeChoices.as_dict())
-
-        # Console server ports
-        self.assertEqual(choices_to_dict(response.data.get('console-server-port:type')), ConsolePortTypeChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('console-server-port-template:type')), ConsolePortTypeChoices.as_dict())
-
-        # Device
-        self.assertEqual(choices_to_dict(response.data.get('device:face')), DeviceFaceChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('device:status')), DeviceStatusChoices.as_dict())
-
-        # Device type
-        self.assertEqual(choices_to_dict(response.data.get('device-type:subdevice_role')), SubdeviceRoleChoices.as_dict())
-
-        # Front ports
-        self.assertEqual(choices_to_dict(response.data.get('front-port:type')), PortTypeChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('front-port-template:type')), PortTypeChoices.as_dict())
-
-        # Interfaces
-        self.assertEqual(choices_to_dict(response.data.get('interface:type')), InterfaceTypeChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('interface:mode')), InterfaceModeChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('interface-template:type')), InterfaceTypeChoices.as_dict())
-
-        # Power feed
-        self.assertEqual(choices_to_dict(response.data.get('power-feed:phase')), PowerFeedPhaseChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('power-feed:status')), PowerFeedStatusChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('power-feed:supply')), PowerFeedSupplyChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('power-feed:type')), PowerFeedTypeChoices.as_dict())
-
-        # Power outlets
-        self.assertEqual(choices_to_dict(response.data.get('power-outlet:type')), PowerOutletTypeChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('power-outlet:feed_leg')), PowerOutletFeedLegChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('power-outlet-template:type')), PowerOutletTypeChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('power-outlet-template:feed_leg')), PowerOutletFeedLegChoices.as_dict())
-
-        # Power ports
-        self.assertEqual(choices_to_dict(response.data.get('power-port:type')), PowerPortTypeChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('power-port:connection_status')), dict(CONNECTION_STATUS_CHOICES))
-        self.assertEqual(choices_to_dict(response.data.get('power-port-template:type')), PowerPortTypeChoices.as_dict())
-
-        # Rack
-        self.assertEqual(choices_to_dict(response.data.get('rack:type')), RackTypeChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('rack:width')), RackWidthChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('rack:status')), RackStatusChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('rack:outer_unit')), RackDimensionUnitChoices.as_dict())
-
-        # Rear ports
-        self.assertEqual(choices_to_dict(response.data.get('rear-port:type')), PortTypeChoices.as_dict())
-        self.assertEqual(choices_to_dict(response.data.get('rear-port-template:type')), PortTypeChoices.as_dict())
-
-        # Site
-        self.assertEqual(choices_to_dict(response.data.get('site:status')), SiteStatusChoices.as_dict())
 
 
 class RegionTest(APITestCase):
@@ -350,9 +276,11 @@ class RackGroupTest(APITestCase):
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
-        self.rackgroup1 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 1', slug='test-rack-group-1')
-        self.rackgroup2 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 2', slug='test-rack-group-2')
-        self.rackgroup3 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 3', slug='test-rack-group-3')
+        self.parent_rackgroup1 = RackGroup.objects.create(site=self.site1, name='Parent Rack Group 1', slug='parent-rack-group-1')
+        self.parent_rackgroup2 = RackGroup.objects.create(site=self.site2, name='Parent Rack Group 2', slug='parent-rack-group-2')
+        self.rackgroup1 = RackGroup.objects.create(site=self.site1, name='Rack Group 1', slug='rack-group-1', parent=self.parent_rackgroup1)
+        self.rackgroup2 = RackGroup.objects.create(site=self.site1, name='Rack Group 2', slug='rack-group-2', parent=self.parent_rackgroup1)
+        self.rackgroup3 = RackGroup.objects.create(site=self.site1, name='Rack Group 3', slug='rack-group-3', parent=self.parent_rackgroup1)
 
     def test_get_rackgroup(self):
 
@@ -366,7 +294,7 @@ class RackGroupTest(APITestCase):
         url = reverse('dcim-api:rackgroup-list')
         response = self.client.get(url, **self.header)
 
-        self.assertEqual(response.data['count'], 3)
+        self.assertEqual(response.data['count'], 5)
 
     def test_list_rackgroups_brief(self):
 
@@ -381,20 +309,22 @@ class RackGroupTest(APITestCase):
     def test_create_rackgroup(self):
 
         data = {
-            'name': 'Test Rack Group 4',
-            'slug': 'test-rack-group-4',
+            'name': 'Rack Group 4',
+            'slug': 'rack-group-4',
             'site': self.site1.pk,
+            'parent': self.parent_rackgroup1.pk,
         }
 
         url = reverse('dcim-api:rackgroup-list')
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(RackGroup.objects.count(), 4)
+        self.assertEqual(RackGroup.objects.count(), 6)
         rackgroup4 = RackGroup.objects.get(pk=response.data['id'])
         self.assertEqual(rackgroup4.name, data['name'])
         self.assertEqual(rackgroup4.slug, data['slug'])
         self.assertEqual(rackgroup4.site_id, data['site'])
+        self.assertEqual(rackgroup4.parent_id, data['parent'])
 
     def test_create_rackgroup_bulk(self):
 
@@ -403,16 +333,19 @@ class RackGroupTest(APITestCase):
                 'name': 'Test Rack Group 4',
                 'slug': 'test-rack-group-4',
                 'site': self.site1.pk,
+                'parent': self.parent_rackgroup1.pk,
             },
             {
                 'name': 'Test Rack Group 5',
                 'slug': 'test-rack-group-5',
                 'site': self.site1.pk,
+                'parent': self.parent_rackgroup1.pk,
             },
             {
                 'name': 'Test Rack Group 6',
                 'slug': 'test-rack-group-6',
                 'site': self.site1.pk,
+                'parent': self.parent_rackgroup1.pk,
             },
         ]
 
@@ -420,7 +353,7 @@ class RackGroupTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(RackGroup.objects.count(), 6)
+        self.assertEqual(RackGroup.objects.count(), 8)
         self.assertEqual(response.data[0]['name'], data[0]['name'])
         self.assertEqual(response.data[1]['name'], data[1]['name'])
         self.assertEqual(response.data[2]['name'], data[2]['name'])
@@ -431,17 +364,19 @@ class RackGroupTest(APITestCase):
             'name': 'Test Rack Group X',
             'slug': 'test-rack-group-x',
             'site': self.site2.pk,
+            'parent': self.parent_rackgroup2.pk,
         }
 
         url = reverse('dcim-api:rackgroup-detail', kwargs={'pk': self.rackgroup1.pk})
         response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(RackGroup.objects.count(), 3)
+        self.assertEqual(RackGroup.objects.count(), 5)
         rackgroup1 = RackGroup.objects.get(pk=response.data['id'])
         self.assertEqual(rackgroup1.name, data['name'])
         self.assertEqual(rackgroup1.slug, data['slug'])
         self.assertEqual(rackgroup1.site_id, data['site'])
+        self.assertEqual(rackgroup1.parent_id, data['parent'])
 
     def test_delete_rackgroup(self):
 
@@ -449,7 +384,7 @@ class RackGroupTest(APITestCase):
         response = self.client.delete(url, **self.header)
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(RackGroup.objects.count(), 2)
+        self.assertEqual(RackGroup.objects.count(), 4)
 
 
 class RackRoleTest(APITestCase):
@@ -588,13 +523,6 @@ class RackTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['name'], self.rack1.name)
-
-    def test_get_rack_units(self):
-
-        url = reverse('dcim-api:rack-units', kwargs={'pk': self.rack1.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.data['count'], 42)
 
     def test_get_elevation_rack_units(self):
 

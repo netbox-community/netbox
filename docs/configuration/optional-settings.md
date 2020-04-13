@@ -191,6 +191,14 @@ LOGGING = {
 }
 ```
 
+### Available Loggers
+
+* `netbox.auth.*` - Authentication events
+* `netbox.api.views.*` - Views which handle business logic for the REST API
+* `netbox.reports.*` - Report execution (`module.name`)
+* `netbox.scripts.*` - Custom script execution (`module.name`)
+* `netbox.views.*` - Views which handle business logic for the web UI
+
 ---
 
 ## LOGIN_REQUIRED
@@ -291,11 +299,92 @@ Determine how many objects to display per page within each list of objects.
 
 ---
 
+## PLUGINS
+
+Default: Empty
+
+A list of installed [NetBox plugins](../../plugins/) to enable. Plugins will not take effect unless they are listed here.
+
+!!! warning
+    Plugins extend NetBox by allowing external code to run with the same access and privileges as NetBox itself. Only install plugins from trusted sources. The NetBox maintainers make absolutely no guarantees about the integrity or security of your installation with plugins enabled.
+
+---
+
+## PLUGINS_CONFIG
+
+Default: Empty
+
+This parameter holds configuration settings for individual NetBox plugins. It is defined as a dictionary, with each key using the name of an installed plugin. The specific parameters supported are unique to each plugin: Reference the plugin's documentation to determine the supported parameters. An example configuration is shown below:
+
+```python
+PLUGINS_CONFIG = {
+    'plugin1': {
+        'foo': 123,
+        'bar': True
+    },
+    'plugin2': {
+        'foo': 456,
+    },
+}
+```
+
+Note that a plugin must be listed in `PLUGINS` for its configuration to take effect.
+
+---
+
 ## PREFER_IPV4
 
 Default: False
 
 When determining the primary IP address for a device, IPv6 is preferred over IPv4 by default. Set this to True to prefer IPv4 instead.
+
+---
+
+## REMOTE_AUTH_ENABLED
+
+Default: `False`
+
+NetBox can be configured to support remote user authentication by inferring user authentication from an HTTP header set by the HTTP reverse proxy (e.g. nginx or Apache). Set this to `True` to enable this functionality. (Local authenitcation will still take effect as a fallback.)
+
+---
+
+## REMOTE_AUTH_BACKEND
+
+Default: `'utilities.auth_backends.RemoteUserBackend'`
+
+Python path to the custom [Django authentication backend](https://docs.djangoproject.com/en/stable/topics/auth/customizing/) to use for external user authentication, if not using NetBox's built-in backend. (Requires `REMOTE_AUTH_ENABLED`.)
+
+---
+
+## REMOTE_AUTH_HEADER
+
+Default: `'HTTP_REMOTE_USER'`
+
+When remote user authentication is in use, this is the name of the HTTP header which informs NetBox of the currently authenticated user. (Requires `REMOTE_AUTH_ENABLED`.)
+
+---
+
+## REMOTE_AUTH_AUTO_CREATE_USER
+
+Default: `True`
+
+If true, NetBox will automatically create local accounts for users authenticated via a remote service. (Requires `REMOTE_AUTH_ENABLED`.)
+
+---
+
+## REMOTE_AUTH_DEFAULT_GROUPS
+
+Default: `[]` (Empty list)
+
+The list of groups to assign a new user account when created using remote authentication. (Requires `REMOTE_AUTH_ENABLED`.)
+
+---
+
+## REMOTE_AUTH_DEFAULT_PERMISSIONS
+
+Default: `[]` (Empty list)
+
+The list of permissions to assign a new user account when created using remote authentication. (Requires `REMOTE_AUTH_ENABLED`.)
 
 ---
 

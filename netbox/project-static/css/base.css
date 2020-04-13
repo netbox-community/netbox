@@ -34,6 +34,9 @@ body {
 footer p {
     margin: 20px 0;
 }
+#navbar_search {
+    padding: 0 8px;
+}
 
 /* Hide the username in the navigation menu on displays less than 1400px wide */
 @media (max-width: 1399px) {
@@ -64,7 +67,7 @@ footer p {
 
 /* Scroll the drop-down menus at or above 768px wide to match bootstrap's behavior for hiding dropdown menus */
 @media (min-width: 768px) {
-    .navbar-nav>li>ul {
+    .navbar-nav > li > ul {
         max-height: calc(80vh - 50px);
         overflow-y: auto;
     }
@@ -132,6 +135,9 @@ ul.dropdown-menu div.buttons a {
 }
 ul.dropdown-menu > li > a {
     clear: left;
+}
+.nav > li > a.dropdown-toggle {
+    padding: 15px 12px;
 }
 
 /* Forms */

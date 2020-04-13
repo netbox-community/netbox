@@ -15,9 +15,9 @@ class ClusterTypeTestCase(TestCase):
     def setUpTestData(cls):
 
         cluster_types = (
-            ClusterType(name='Cluster Type 1', slug='cluster-type-1'),
-            ClusterType(name='Cluster Type 2', slug='cluster-type-2'),
-            ClusterType(name='Cluster Type 3', slug='cluster-type-3'),
+            ClusterType(name='Cluster Type 1', slug='cluster-type-1', description='A'),
+            ClusterType(name='Cluster Type 2', slug='cluster-type-2', description='B'),
+            ClusterType(name='Cluster Type 3', slug='cluster-type-3', description='C'),
         )
         ClusterType.objects.bulk_create(cluster_types)
 
@@ -34,6 +34,10 @@ class ClusterTypeTestCase(TestCase):
         params = {'slug': ['cluster-type-1', 'cluster-type-2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_description(self):
+        params = {'description': ['A', 'B']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
 
 class ClusterGroupTestCase(TestCase):
     queryset = ClusterGroup.objects.all()
@@ -43,9 +47,9 @@ class ClusterGroupTestCase(TestCase):
     def setUpTestData(cls):
 
         cluster_groups = (
-            ClusterGroup(name='Cluster Group 1', slug='cluster-group-1'),
-            ClusterGroup(name='Cluster Group 2', slug='cluster-group-2'),
-            ClusterGroup(name='Cluster Group 3', slug='cluster-group-3'),
+            ClusterGroup(name='Cluster Group 1', slug='cluster-group-1', description='A'),
+            ClusterGroup(name='Cluster Group 2', slug='cluster-group-2', description='B'),
+            ClusterGroup(name='Cluster Group 3', slug='cluster-group-3', description='C'),
         )
         ClusterGroup.objects.bulk_create(cluster_groups)
 
@@ -60,6 +64,10 @@ class ClusterGroupTestCase(TestCase):
 
     def test_slug(self):
         params = {'slug': ['cluster-group-1', 'cluster-group-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -105,7 +113,8 @@ class ClusterTestCase(TestCase):
             TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
             TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
         )
-        TenantGroup.objects.bulk_create(tenant_groups)
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
 
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
@@ -123,11 +132,6 @@ class ClusterTestCase(TestCase):
 
     def test_name(self):
         params = {'name': ['Cluster 1', 'Cluster 2']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:2]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -236,7 +240,8 @@ class VirtualMachineTestCase(TestCase):
             TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
             TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
         )
-        TenantGroup.objects.bulk_create(tenant_groups)
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
 
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
@@ -278,11 +283,6 @@ class VirtualMachineTestCase(TestCase):
 
     def test_disk(self):
         params = {'disk': [1, 2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:2]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):

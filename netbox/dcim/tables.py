@@ -11,13 +11,13 @@ from .models import (
     VirtualChassis,
 )
 
-REGION_LINK = """
+MPTT_LINK = """
 {% if record.get_children %}
     <span style="padding-left: {{ record.get_ancestors|length }}0px "><i class="fa fa-caret-right"></i>
 {% else %}
     <span style="padding-left: {{ record.get_ancestors|length }}9px">
 {% endif %}
-    <a href="{% url 'dcim:site_list' %}?region={{ record.slug }}">{{ record.name }}</a>
+    <a href="{{ record.get_absolute_url }}">{{ record.name }}</a>
 </span>
 """
 
@@ -214,7 +214,7 @@ def get_component_template_actions(model_name):
 
 class RegionTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.TemplateColumn(template_code=REGION_LINK, orderable=False)
+    name = tables.TemplateColumn(template_code=MPTT_LINK, orderable=False)
     site_count = tables.Column(verbose_name='Sites')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(
@@ -225,7 +225,7 @@ class RegionTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Region
-        fields = ('pk', 'name', 'site_count', 'slug', 'actions')
+        fields = ('pk', 'name', 'site_count', 'description', 'slug', 'actions')
 
 
 #
@@ -250,7 +250,10 @@ class SiteTable(BaseTable):
 
 class RackGroupTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.TemplateColumn(
+        template_code=MPTT_LINK,
+        orderable=False
+    )
     site = tables.LinkColumn(
         viewname='dcim:site',
         args=[Accessor('site.slug')],
@@ -268,7 +271,7 @@ class RackGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RackGroup
-        fields = ('pk', 'name', 'site', 'rack_count', 'slug', 'actions')
+        fields = ('pk', 'name', 'site', 'rack_count', 'description', 'slug', 'actions')
 
 
 #
@@ -397,7 +400,9 @@ class ManufacturerTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Manufacturer
-        fields = ('pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'slug', 'actions')
+        fields = (
+            'pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'description', 'slug', 'actions',
+        )
 
 
 #
@@ -673,7 +678,9 @@ class PlatformTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Platform
-        fields = ('pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'napalm_driver', 'actions')
+        fields = (
+            'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'napalm_driver', 'description', 'actions',
+        )
 
 
 #
