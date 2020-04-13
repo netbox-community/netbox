@@ -2,6 +2,8 @@
 
 ## v2.8.0 (2020-04-13)
 
+**NOTE:** Beginning with release 2.8.0, NetBox requires Python 3.6 or later.
+
 ### New Features (Beta)
 
 This releases introduces two new features in beta status. While they are expected to be functional, their precise implementation is subject to change during the v2.8 release cycle. It is recommended to wait until NetBox v2.9 to deploy them in production.
