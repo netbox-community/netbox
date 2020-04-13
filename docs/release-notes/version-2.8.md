@@ -40,6 +40,7 @@ For NetBox plugins to be recognized, they must be installed and added by name to
 ### Bug Fixes
 
 * [#4474](https://github.com/netbox-community/netbox/issues/4474) - Fix population of device types when bulk editing devices
+* [#4476](https://github.com/netbox-community/netbox/issues/4476) - Correct typo in slugs for Infiniband interface types
 
 ### API Changes
 
