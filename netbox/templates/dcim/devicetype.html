@@ -1,7 +1,8 @@
-{% extends '_base.html' %}
+{% extends 'base.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
+{% load plugins %}
 
 {% block title %}{{ devicetype.manufacturer }} {{ devicetype.model }}{% endblock %}
 
@@ -16,6 +17,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons devicetype %}
         {% if perms.dcim.change_devicetype %}
             <div class="btn-group">
                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -139,6 +141,7 @@
                 </tr>
             </table>
         </div>
+        {% plugin_left_page devicetype %}
     </div>
     <div class="col-md-6">
         {% include 'inc/custom_fields_panel.html' with obj=devicetype %}
@@ -155,6 +158,7 @@
                 {% endif %}
             </div>
         </div>
+        {% plugin_right_page devicetype %}
     </div>
 </div>
 {% if devicetype.consoleport_templates.exists or devicetype.powerport_templates.exists %}
@@ -167,6 +171,11 @@
         </div>
     </div>
 {% endif %}
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page devicetype %}
+    </div>
+</div>
 {% if devicetype.is_parent_device or devicebay_table.rows %}
     <div class="row">
         <div class="col-md-12">

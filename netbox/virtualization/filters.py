@@ -4,9 +4,8 @@ from django.db.models import Q
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet, LocalConfigContextFilterSet
 from tenancy.filters import TenancyFilterSet
-from tenancy.models import Tenant
 from utilities.filters import (
-    BaseFilterSet, MultiValueMACAddressFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter,
+    BaseFilterSet, MultiValueMACAddressFilter, NameSlugSearchFilterSet, TagFilter,
     TreeNodeMultipleChoiceFilter,
 )
 from .choices import *
@@ -25,21 +24,17 @@ class ClusterTypeFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterType
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class ClusterGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterGroup
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class ClusterFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -109,10 +104,6 @@ class VirtualMachineFilterSet(
     CustomFieldFilterSet,
     CreatedUpdatedFilterSet
 ):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',

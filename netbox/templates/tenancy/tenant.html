@@ -1,7 +1,8 @@
-{% extends '_base.html' %}
+{% extends 'base.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint">
@@ -28,6 +29,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons tenant %}
         {% if perms.tenancy.add_tenant %}
             {% clone_button tenant %}
         {% endif %}
@@ -93,6 +95,7 @@
                 {% endif %}
             </div>
         </div>
+        {% plugin_left_page tenant %}
 	</div>
 	<div class="col-md-5">
         <div class="panel panel-default">
@@ -146,6 +149,12 @@
                 </div>
             </div>
         </div>
+        {% plugin_right_page tenant %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page tenant %}
     </div>
 </div>
 {% endblock %}

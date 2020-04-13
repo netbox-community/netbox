@@ -8,8 +8,8 @@ from dcim.models import Device, Interface, Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
-    BaseFilterSet, MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet,
-    NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
+    BaseFilterSet, MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, TagFilter,
+    TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import VirtualMachine
 from .choices import *
@@ -30,10 +30,6 @@ __all__ = (
 
 
 class VRFFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -55,24 +51,20 @@ class VRFFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Create
 
 
 class RIRFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
 
     class Meta:
         model = RIR
-        fields = ['name', 'slug', 'is_private']
+        fields = ['name', 'slug', 'is_private', 'description']
 
 
 class AggregateFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    family = django_filters.NumberFilter(
+        field_name='prefix',
+        lookup_expr='family'
     )
     prefix = django_filters.CharFilter(
         method='filter_prefix',
@@ -92,7 +84,7 @@ class AggregateFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilt
 
     class Meta:
         model = Aggregate
-        fields = ['family', 'date_added']
+        fields = ('date_added',)
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -127,13 +119,13 @@ class RoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
 
 class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    family = django_filters.NumberFilter(
+        field_name='prefix',
+        lookup_expr='family'
     )
     prefix = django_filters.CharFilter(
         method='filter_prefix',
@@ -214,7 +206,7 @@ class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Cre
 
     class Meta:
         model = Prefix
-        fields = ['family', 'is_pool']
+        fields = ('is_pool',)
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -277,13 +269,13 @@ class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Cre
 
 
 class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    family = django_filters.NumberFilter(
+        field_name='address',
+        lookup_expr='family'
     )
     parent = django_filters.CharFilter(
         method='search_by_parent',
@@ -353,7 +345,7 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
 
     class Meta:
         model = IPAddress
-        fields = ['family', 'dns_name']
+        fields = ('dns_name',)
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -427,14 +419,10 @@ class VLANGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 
     class Meta:
         model = VLANGroup
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class VLANFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',

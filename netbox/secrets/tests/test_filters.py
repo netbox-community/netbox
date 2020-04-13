@@ -72,11 +72,6 @@ class SecretTestCase(TestCase):
         params = {'name': ['Secret 1', 'Secret 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_id__in(self):
-        id_list = self.queryset.values_list('id', flat=True)[:2]
-        params = {'id__in': ','.join([str(id) for id in id_list])}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_role(self):
         roles = SecretRole.objects.all()[:2]
         params = {'role_id': [roles[0].pk, roles[1].pk]}

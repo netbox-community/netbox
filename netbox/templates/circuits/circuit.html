@@ -1,7 +1,8 @@
-{% extends '_base.html' %}
+{% extends 'base.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
+{% load plugins %}
 
 {% block title %}{{ circuit }}{% endblock %}
 
@@ -28,6 +29,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons circuit %}
         {% if perms.circuits.add_circuit %}
             {% clone_button circuit %}
         {% endif %}
@@ -125,10 +127,17 @@
                 {% endif %}
             </div>
         </div>
+        {% plugin_left_page circuit %}
 	</div>
 	<div class="col-md-6">
         {% include 'circuits/inc/circuit_termination.html' with termination=termination_a side='A' %}
         {% include 'circuits/inc/circuit_termination.html' with termination=termination_z side='Z' %}
+        {% plugin_right_page circuit %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page circuit %}
     </div>
 </div>
 {% endblock %}

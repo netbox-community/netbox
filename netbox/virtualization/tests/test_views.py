@@ -23,13 +23,14 @@ class ClusterGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         cls.form_data = {
             'name': 'Cluster Group X',
             'slug': 'cluster-group-x',
+            'description': 'A new cluster group',
         }
 
         cls.csv_data = (
-            "name,slug",
-            "Cluster Group 4,cluster-group-4",
-            "Cluster Group 5,cluster-group-5",
-            "Cluster Group 6,cluster-group-6",
+            "name,slug,description",
+            "Cluster Group 4,cluster-group-4,Fourth cluster group",
+            "Cluster Group 5,cluster-group-5,Fifth cluster group",
+            "Cluster Group 6,cluster-group-6,Sixth cluster group",
         )
 
 
@@ -48,13 +49,14 @@ class ClusterTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         cls.form_data = {
             'name': 'Cluster Type X',
             'slug': 'cluster-type-x',
+            'description': 'A new cluster type',
         }
 
         cls.csv_data = (
-            "name,slug",
-            "Cluster Type 4,cluster-type-4",
-            "Cluster Type 5,cluster-type-5",
-            "Cluster Type 6,cluster-type-6",
+            "name,slug,description",
+            "Cluster Type 4,cluster-type-4,Fourth cluster type",
+            "Cluster Type 5,cluster-type-5,Fifth cluster type",
+            "Cluster Type 6,cluster-type-6,Sixth cluster type",
         )
 
 

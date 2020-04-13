@@ -1,8 +1,9 @@
-{% extends '_base.html' %}
+{% extends 'base.html' %}
 {% load buttons %}
 {% load static %}
 {% load helpers %}
 {% load custom_links %}
+{% load plugins %}
 
 {% block title %}{{ device }}{% endblock %}
 
@@ -36,6 +37,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons device %}
         {% if show_graphs %}
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ device.name }}" data-url="{% url 'dcim-api:device-graphs' pk=device.pk %}" title="Show graphs">
                 <i class="fa fa-signal" aria-hidden="true"></i>
@@ -331,6 +333,7 @@
                     {% endif %}
                 </div>
             </div>
+            {% plugin_left_page device %}
         </div>
         <div class="col-md-6">
             {% if console_ports or power_ports %}
@@ -497,6 +500,12 @@
                     <div class="panel-body text-muted">None found</div>
                 {% endif %}
             </div>
+            {% plugin_right_page device %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% plugin_full_width_page device %}
         </div>
     </div>
     <div class="row">

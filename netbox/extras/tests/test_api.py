@@ -7,12 +7,11 @@ from rest_framework import status
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Rack, RackGroup, RackRole, Region, Site
 from extras.api.views import ScriptViewSet
-from extras.choices import *
 from extras.models import ConfigContext, Graph, ExportTemplate, Tag
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from extras.utils import FeatureQuery
 from tenancy.models import Tenant, TenantGroup
-from utilities.testing import APITestCase, choices_to_dict
+from utilities.testing import APITestCase
 
 
 class AppTest(APITestCase):
@@ -23,27 +22,6 @@ class AppTest(APITestCase):
         response = self.client.get('{}?format=api'.format(url), **self.header)
 
         self.assertEqual(response.status_code, 200)
-
-    def test_choices(self):
-
-        url = reverse('extras-api:field-choice-list')
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.status_code, 200)
-
-        # ExportTemplate
-        self.assertEqual(choices_to_dict(response.data.get('export-template:template_language')), TemplateLanguageChoices.as_dict())
-
-        # Graph
-        content_types = ContentType.objects.filter(FeatureQuery('graphs').get_query())
-        graph_type_choices = {
-            "{}.{}".format(ct.app_label, ct.model): ct.name for ct in content_types
-        }
-        self.assertEqual(choices_to_dict(response.data.get('graph:type')), graph_type_choices)
-        self.assertEqual(choices_to_dict(response.data.get('graph:template_language')), TemplateLanguageChoices.as_dict())
-
-        # ObjectChange
-        self.assertEqual(choices_to_dict(response.data.get('object-change:action')), ObjectChangeActionChoices.as_dict())
 
 
 class GraphTest(APITestCase):
@@ -402,8 +380,10 @@ class ConfigContextTest(APITestCase):
         role2 = DeviceRole.objects.create(name='Test Role 2', slug='test-role-2')
         platform1 = Platform.objects.create(name='Test Platform 1', slug='test-platform-1')
         platform2 = Platform.objects.create(name='Test Platform 2', slug='test-platform-2')
-        tenantgroup1 = TenantGroup.objects.create(name='Test Tenant Group 1', slug='test-tenant-group-1')
-        tenantgroup2 = TenantGroup.objects.create(name='Test Tenant Group 2', slug='test-tenant-group-2')
+        tenantgroup1 = TenantGroup(name='Test Tenant Group 1', slug='test-tenant-group-1')
+        tenantgroup1.save()
+        tenantgroup2 = TenantGroup(name='Test Tenant Group 2', slug='test-tenant-group-2')
+        tenantgroup2.save()
         tenant1 = Tenant.objects.create(name='Test Tenant 1', slug='test-tenant-1')
         tenant2 = Tenant.objects.create(name='Test Tenant 2', slug='test-tenant-2')
         tag1 = Tag.objects.create(name='Test Tag 1', slug='test-tag-1')

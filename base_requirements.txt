@@ -68,8 +68,7 @@ Jinja2
 
 # Simple markup language for rendering HTML
 # https://github.com/Python-Markdown/markdown
-# py-gfm requires Markdown<3.0
-Markdown<3.0
+Markdown
 
 # Library for manipulating IP prefixes and addresses
 # https://github.com/drkjam/netaddr

@@ -1,8 +1,9 @@
-{% extends '_base.html' %}
+{% extends 'base.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
 {% load static %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint">
@@ -27,6 +28,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons rack %}
         <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
             <span class="fa fa-chevron-left" aria-hidden="true"></span> Previous Rack
         </a>
@@ -312,6 +314,7 @@
                 </div>
             {% endif %}
         </div>
+        {% plugin_left_page rack %}
 	</div>
     <div class="col-md-6">
         <div class="row" style="margin-bottom: 20px">
@@ -369,6 +372,12 @@
                 </div>
             {% endif %}
         </div>
+        {% plugin_right_page rack %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page rack %}
     </div>
 </div>
 {% endblock %}

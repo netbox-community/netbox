@@ -1,5 +1,6 @@
 import inspect
 import json
+import logging
 import os
 import pkgutil
 import time
@@ -255,6 +256,7 @@ class BaseScript:
     def __init__(self):
 
         # Initiate the log
+        self.logger = logging.getLogger(f"netbox.scripts.{self.module()}.{self.__class__.__name__}")
         self.log = []
 
         # Declare the placeholder for the current request
@@ -302,18 +304,23 @@ class BaseScript:
     # Logging
 
     def log_debug(self, message):
+        self.logger.log(logging.DEBUG, message)
         self.log.append((LOG_DEFAULT, message))
 
     def log_success(self, message):
+        self.logger.log(logging.INFO, message)  # No syslog equivalent for SUCCESS
         self.log.append((LOG_SUCCESS, message))
 
     def log_info(self, message):
+        self.logger.log(logging.INFO, message)
         self.log.append((LOG_INFO, message))
 
     def log_warning(self, message):
+        self.logger.log(logging.WARNING, message)
         self.log.append((LOG_WARNING, message))
 
     def log_failure(self, message):
+        self.logger.log(logging.ERROR, message)
         self.log.append((LOG_FAILURE, message))
 
     # Convenience functions
@@ -376,6 +383,10 @@ def run_script(script, data, request, commit=True):
     start_time = None
     end_time = None
 
+    script_name = script.__class__.__name__
+    logger = logging.getLogger(f"netbox.scripts.{script.module()}.{script_name}")
+    logger.info(f"Running script (commit={commit})")
+
     # Add files to form data
     files = request.FILES
     for field_name, fileobj in files.items():
@@ -405,6 +416,7 @@ def run_script(script, data, request, commit=True):
         script.log_failure(
             "An exception occurred: `{}: {}`\n```\n{}\n```".format(type(e).__name__, e, stacktrace)
         )
+        logger.error(f"Exception raised during script execution: {e}")
         commit = False
     finally:
         if not commit:
@@ -417,6 +429,7 @@ def run_script(script, data, request, commit=True):
     # Calculate execution time
     if end_time is not None:
         execution_time = end_time - start_time
+        logger.info(f"Script completed in {execution_time:.4f} seconds")
     else:
         execution_time = None
 

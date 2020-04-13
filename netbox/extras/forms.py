@@ -144,12 +144,11 @@ class CustomFieldFilterForm(forms.Form):
 
 class TagForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
-    comments = CommentField()
 
     class Meta:
         model = Tag
         fields = [
-            'name', 'slug', 'color', 'comments'
+            'name', 'slug', 'color', 'description'
         ]
 
 
@@ -181,9 +180,13 @@ class TagBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False,
         widget=ColorSelect()
     )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
 
     class Meta:
-        nullable_fields = []
+        nullable_fields = ['description']
 
 
 #
@@ -432,7 +435,8 @@ class ScriptForm(BootstrapMixin, forms.Form):
             self.fields['_commit'].initial = False
 
         # Move _commit to the end of the form
-        self.fields.move_to_end('_commit', True)
+        commit = self.fields.pop('_commit')
+        self.fields['_commit'] = commit
 
     @property
     def requires_input(self):

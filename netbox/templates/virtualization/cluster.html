@@ -1,7 +1,8 @@
-{% extends '_base.html' %}
+{% extends 'base.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint" xmlns="http://www.w3.org/1999/html">
@@ -28,6 +29,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons cluster %}
         {% if perms.virtualization.add_cluster %}
             {% clone_button cluster %}
         {% endif %}
@@ -121,6 +123,7 @@
                 {% endif %}
             </div>
         </div>
+        {% plugin_left_page cluster %}
     </div>
     <div class="col-md-7">
         <div class="panel panel-default">
@@ -148,6 +151,12 @@
                 </form>
             {% endif %}
         </div>
+        {% plugin_right_page cluster %}
 	</div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page cluster %}
+    </div>
 </div>
 {% endblock %}

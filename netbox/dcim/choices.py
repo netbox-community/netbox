@@ -575,15 +575,15 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_128GFC_QSFP28 = '128gfc-sfp28'
 
     # InfiniBand
-    TYPE_INFINIBAND_SDR = 'inifiband-sdr'
-    TYPE_INFINIBAND_DDR = 'inifiband-ddr'
-    TYPE_INFINIBAND_QDR = 'inifiband-qdr'
-    TYPE_INFINIBAND_FDR10 = 'inifiband-fdr10'
-    TYPE_INFINIBAND_FDR = 'inifiband-fdr'
-    TYPE_INFINIBAND_EDR = 'inifiband-edr'
-    TYPE_INFINIBAND_HDR = 'inifiband-hdr'
-    TYPE_INFINIBAND_NDR = 'inifiband-ndr'
-    TYPE_INFINIBAND_XDR = 'inifiband-xdr'
+    TYPE_INFINIBAND_SDR = 'infiniband-sdr'
+    TYPE_INFINIBAND_DDR = 'infiniband-ddr'
+    TYPE_INFINIBAND_QDR = 'infiniband-qdr'
+    TYPE_INFINIBAND_FDR10 = 'infiniband-fdr10'
+    TYPE_INFINIBAND_FDR = 'infiniband-fdr'
+    TYPE_INFINIBAND_EDR = 'infiniband-edr'
+    TYPE_INFINIBAND_HDR = 'infiniband-hdr'
+    TYPE_INFINIBAND_NDR = 'infiniband-ndr'
+    TYPE_INFINIBAND_XDR = 'infiniband-xdr'
 
     # Serial
     TYPE_T1 = 't1'

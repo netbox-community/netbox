@@ -1,8 +1,9 @@
-{% extends '_base.html' %}
+{% extends 'base.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
 {% load static %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint">
@@ -30,6 +31,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons powerpanel %}
         {% if perms.dcim.change_powerpanel %}
             {% edit_button powerpanel %}
         {% endif %}
@@ -80,9 +82,16 @@
                 </tr>
             </table>
         </div>
+        {% plugin_left_page powerpanel %}
     </div>
 	<div class="col-md-9">
         {% include 'panel_table.html' with table=powerfeed_table heading='Connected Feeds' %}
+        {% plugin_right_page powerpanel %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page powerpanel %}
     </div>
 </div>
 {% endblock %}

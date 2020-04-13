@@ -243,7 +243,7 @@ class CustomField(models.Model):
                   'the field\'s name will be used)'
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     required = models.BooleanField(
@@ -551,7 +551,6 @@ class Graph(models.Model):
     def embed_url(self, obj):
         context = {'obj': obj}
 
-        # TODO: Remove in v2.8
         if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
             template = Template(self.source)
             return template.render(Context(context))
@@ -565,7 +564,6 @@ class Graph(models.Model):
 
         context = {'obj': obj}
 
-        # TODO: Remove in v2.8
         if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
             template = Template(self.link)
             return template.render(Context(context))
@@ -767,7 +765,7 @@ class ConfigContext(models.Model):
         default=1000
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True
     )
     is_active = models.BooleanField(
@@ -1054,9 +1052,9 @@ class Tag(TagBase, ChangeLoggedModel):
     color = ColorField(
         default='9e9e9e'
     )
-    comments = models.TextField(
+    description = models.CharField(
+        max_length=200,
         blank=True,
-        default=''
     )
 
     def get_absolute_url(self):

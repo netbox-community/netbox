@@ -78,3 +78,30 @@ def unpack_grouped_choices(choices):
         else:
             unpacked_choices.append((key, value))
     return unpacked_choices
+
+
+#
+# Button color choices
+#
+
+class ButtonColorChoices(ChoiceSet):
+    """
+    Map standard button color choices to Bootstrap color classes
+    """
+    DEFAULT = 'default'
+    BLUE = 'primary'
+    GREY = 'secondary'
+    GREEN = 'success'
+    RED = 'danger'
+    YELLOW = 'warning'
+    BLACK = 'dark'
+
+    CHOICES = (
+        (DEFAULT, 'Default'),
+        (BLUE, 'Blue'),
+        (GREY, 'Grey'),
+        (GREEN, 'Green'),
+        (RED, 'Red'),
+        (YELLOW, 'Yellow'),
+        (BLACK, 'Black')
+    )

@@ -1,8 +1,9 @@
-{% extends '_base.html' %}
+{% extends 'base.html' %}
 {% load buttons %}
 {% load static %}
 {% load custom_links %}
 {% load helpers %}
+{% load plugins %}
 
 {% block title %}{{ provider }}{% endblock %}
 
@@ -28,6 +29,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons provider %}
         {% if show_graphs %}
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ provider.name }}" data-url="{% url 'circuits-api:provider-graphs' pk=provider.pk %}" title="Show graphs">
                 <i class="fa fa-signal" aria-hidden="true"></i> Graphs
@@ -116,6 +118,7 @@
                 {% endif %}
             </div>
         </div>
+        {% plugin_left_page provider %}
 	</div>
 	<div class="col-md-8">
         <div class="panel panel-default">
@@ -132,9 +135,15 @@
             {% endif %}
         </div>
     {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page %}
+    {% plugin_right_page provider %}
     </div>
 </div>
 {% include 'inc/modal.html' with name='graphs' title='Graphs' %}
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page provider %}
+    </div>
+</div>
 {% endblock %}
 
 {% block javascript %}

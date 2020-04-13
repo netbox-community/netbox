@@ -1,7 +1,8 @@
-{% extends '_base.html' %}
+{% extends 'base.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint">
@@ -13,6 +14,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons cable %}
         {% if perms.dcim.change_cable %}
             {% edit_button cable %}
         {% endif %}
@@ -79,6 +81,7 @@
                     </tr>
                 </table>
             </div>
+            {% plugin_left_page cable %}
         </div>
         <div class="col-md-6">
             <div class="panel panel-default">
@@ -93,6 +96,12 @@
                 </div>
                 {% include 'dcim/inc/cable_termination.html' with termination=cable.termination_b %}
             </div>
+            {% plugin_right_page cable %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% plugin_full_width_page cable %}
         </div>
     </div>
 {% endblock %}

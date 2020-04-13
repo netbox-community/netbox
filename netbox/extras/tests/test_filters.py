@@ -36,7 +36,6 @@ class GraphTestCase(TestCase):
         params = {'type': content_type.pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    # TODO: Remove in v2.8
     def test_template_language(self):
         params = {'template_language': TemplateLanguageChoices.LANGUAGE_JINJA2}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -128,7 +127,8 @@ class ConfigContextTestCase(TestCase):
             TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
             TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
-        TenantGroup.objects.bulk_create(tenant_groups)
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
 
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1'),
