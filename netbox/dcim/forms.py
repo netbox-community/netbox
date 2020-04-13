@@ -2097,7 +2097,10 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
     )
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            display_field="model",
+        )
     )
     device_role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.all(),

@@ -37,6 +37,10 @@ For NetBox plugins to be recognized, they must be installed and added by name to
 * [#4078](https://github.com/netbox-community/netbox/issues/4078) - Standardized description fields across all models
 * [#4195](https://github.com/netbox-community/netbox/issues/4195) - Enabled application logging (see [logging configuration](../configuration/optional-settings.md#logging))
 
+### Bug Fixes
+
+* [#4474](https://github.com/netbox-community/netbox/issues/4474) - Fix population of device types when bulk editing devices
+
 ### API Changes
 
 * The `_choices` API endpoints have been removed. Instead, use an `OPTIONS` request to a model's endpoint to view the available values for all fields. ([#3416](https://github.com/netbox-community/netbox/issues/3416))
