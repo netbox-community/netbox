@@ -6,8 +6,8 @@ django-filter==2.2.0
 django-mptt==0.11.0
 django-pglocks==1.0.4
 django-prometheus==2.0.0
-django-rq==2.3.0
-django-tables2==2.2.1
+django-rq==2.3.1
+django-tables2==2.3.1
 django-taggit==1.2.0
 django-taggit-serializer==0.1.7
 django-timezone-field==4.0
@@ -17,8 +17,8 @@ gunicorn==20.0.4
 Jinja2==2.11.1
 Markdown==3.2.1
 netaddr==0.7.19
-Pillow==7.0.0
-psycopg2-binary==2.8.4
+Pillow==7.1.1
+psycopg2-binary==2.8.5
 pycryptodome==3.9.7
 PyYAML==5.3.1
 redis==3.4.1
