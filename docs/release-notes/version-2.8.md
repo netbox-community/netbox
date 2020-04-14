@@ -1,5 +1,13 @@
 # NetBox v2.8
 
+## v2.8.1 (FUTURE)
+
+### Bug Fixes
+
+* [#4489](https://github.com/netbox-community/netbox/issues/4489) - Fix display of parent/child role on device type view
+
+---
+
 ## v2.8.0 (2020-04-13)
 
 **NOTE:** Beginning with release 2.8.0, NetBox requires Python 3.6 or later.

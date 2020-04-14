@@ -102,13 +102,7 @@
                 <tr>
                     <td>Parent/Child</td>
                     <td>
-                        {% if devicetype.subdevice_role == True %}
-                            <label class="label label-primary">Parent</label>
-                        {% elif devicetype.subdevice_role == False %}
-                            <label class="label label-info">Child</label>
-                        {% else %}
-                            <span class="text-muted">&mdash;</span>
-                        {% endif %}
+                        {{ devicetype.get_subdevice_role_display|placeholder }}
                     </td>
                 </tr>
                 <tr>
