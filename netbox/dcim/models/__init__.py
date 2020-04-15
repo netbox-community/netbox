@@ -2205,26 +2205,3 @@ class Cable(ChangeLoggedModel):
         if self.termination_a is None:
             return
         return COMPATIBLE_TERMINATION_TYPES[self.termination_a._meta.model_name]
-
-    def get_path_endpoints(self):
-        """
-        Traverse both ends of a cable path and return its connected endpoints. Note that one or both endpoints may be
-        None.
-        """
-        a_path = self.termination_b.trace()
-        b_path = self.termination_a.trace()
-
-        # Determine overall path status (connected or planned)
-        if self.status == CableStatusChoices.STATUS_CONNECTED:
-            path_status = True
-            for segment in a_path[1:] + b_path[1:]:
-                if segment[1] is None or segment[1].status != CableStatusChoices.STATUS_CONNECTED:
-                    path_status = False
-                    break
-        else:
-            path_status = False
-
-        a_endpoint = a_path[-1][2]
-        b_endpoint = b_path[-1][2]
-
-        return a_endpoint, b_endpoint, path_status

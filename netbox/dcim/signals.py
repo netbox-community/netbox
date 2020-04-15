@@ -3,6 +3,7 @@ import logging
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 
+from .choices import CableStatusChoices
 from .models import Cable, Device, VirtualChassis
 
 
@@ -48,16 +49,28 @@ def update_connected_endpoints(instance, **kwargs):
         instance.termination_b.cable = instance
         instance.termination_b.save()
 
-    # Check if this Cable has formed a complete path. If so, update both endpoints.
-    endpoint_a, endpoint_b, path_status = instance.get_path_endpoints()
-    if getattr(endpoint_a, 'is_path_endpoint', False) and getattr(endpoint_b, 'is_path_endpoint', False):
-        logger.debug("Updating path endpoints: {} <---> {}".format(endpoint_a, endpoint_b))
-        endpoint_a.connected_endpoint = endpoint_b
-        endpoint_a.connection_status = path_status
-        endpoint_a.save()
-        endpoint_b.connected_endpoint = endpoint_a
-        endpoint_b.connection_status = path_status
-        endpoint_b.save()
+    # Update any endpoints for this Cable.
+    endpoints = instance.termination_a.get_path_endpoints() + instance.termination_b.get_path_endpoints()
+    for endpoint in endpoints:
+        path = endpoint.trace()
+        # Determine overall path status (connected or planned)
+        path_status = True
+        for segment in path:
+            if segment[1] is None or segment[1].status != CableStatusChoices.STATUS_CONNECTED:
+                path_status = False
+                break
+
+        endpoint_a = path[0][0]
+        endpoint_b = path[-1][2]
+
+        if getattr(endpoint_a, 'is_path_endpoint', False) and getattr(endpoint_b, 'is_path_endpoint', False):
+            logger.debug("Updating path endpoints: {} <---> {}".format(endpoint_a, endpoint_b))
+            endpoint_a.connected_endpoint = endpoint_b
+            endpoint_a.connection_status = path_status
+            endpoint_a.save()
+            endpoint_b.connected_endpoint = endpoint_a
+            endpoint_b.connection_status = path_status
+            endpoint_b.save()
 
 
 @receiver(pre_delete, sender=Cable)
@@ -67,7 +80,7 @@ def nullify_connected_endpoints(instance, **kwargs):
     """
     logger = logging.getLogger('netbox.dcim.cable')
 
-    endpoint_a, endpoint_b, _ = instance.get_path_endpoints()
+    endpoints = instance.termination_a.get_path_endpoints() + instance.termination_b.get_path_endpoints()
 
     # Disassociate the Cable from its termination points
     if instance.termination_a is not None:
@@ -79,12 +92,10 @@ def nullify_connected_endpoints(instance, **kwargs):
         instance.termination_b.cable = None
         instance.termination_b.save()
 
-    # If this Cable was part of a complete path, tear it down
-    if hasattr(endpoint_a, 'connected_endpoint') and hasattr(endpoint_b, 'connected_endpoint'):
-        logger.debug("Tearing down path ({} <---> {})".format(endpoint_a, endpoint_b))
-        endpoint_a.connected_endpoint = None
-        endpoint_a.connection_status = None
-        endpoint_a.save()
-        endpoint_b.connected_endpoint = None
-        endpoint_b.connection_status = None
-        endpoint_b.save()
+    # If this Cable was part of any complete end-to-end paths, tear them down.
+    for endpoint in endpoints:
+        logger.debug(f"Removing path information for {endpoint}")
+        if hasattr(endpoint, 'connected_endpoint'):
+            endpoint.connected_endpoint = None
+            endpoint.connection_status = None
+            endpoint.save()

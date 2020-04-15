@@ -10,6 +10,7 @@ from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.exceptions import CableTraceSplit
 from dcim.fields import MACAddressField
 from extras.models import ObjectChange, TaggedItem
 from extras.utils import extras_features
@@ -117,10 +118,7 @@ class CableTermination(models.Model):
 
                 # Can't map to a FrontPort without a position
                 if not position_stack:
-                    # TODO: This behavior is broken. We need a mechanism by which to return all FrontPorts mapped
-                    # to a given RearPort so that we can update end-to-end paths when a cable is created/deleted.
-                    # For now, we're maintaining the current behavior of tracing only to the first FrontPort.
-                    position_stack.append(1)
+                    raise CableTraceSplit(termination)
 
                 position = position_stack.pop()
 
@@ -185,6 +183,25 @@ class CableTermination(models.Model):
             return self.cable.termination_b
         if self._cabled_as_b.exists():
             return self.cable.termination_a
+
+    def get_path_endpoints(self):
+        """
+        Return all endpoints of paths which traverse this object.
+        """
+        endpoints = []
+
+        # Get the far end of the last path segment
+        try:
+            endpoint = self.trace()[-1][2]
+            if endpoint is not None:
+                endpoints.append(endpoint)
+
+        # We've hit a RearPort mapped to multiple FrontPorts. Recurse to trace each of them individually.
+        except CableTraceSplit as e:
+            for frontport in e.termination.frontports.all():
+                endpoints.extend(frontport.get_path_endpoints())
+
+        return endpoints
 
 
 #
