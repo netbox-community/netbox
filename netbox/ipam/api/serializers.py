@@ -90,8 +90,7 @@ class VLANGroupSerializer(ValidatedModelSerializer):
         if data.get('site', None):
             for field in ['name', 'slug']:
                 validator = UniqueTogetherValidator(queryset=VLANGroup.objects.all(), fields=('site', field))
-                validator.set_context(self)
-                validator(data)
+                validator(data, self)
 
         # Enforce model validation
         super().validate(data)
@@ -122,8 +121,7 @@ class VLANSerializer(TaggitSerializer, CustomFieldModelSerializer):
         if data.get('group', None):
             for field in ['vid', 'name']:
                 validator = UniqueTogetherValidator(queryset=VLAN.objects.all(), fields=('group', field))
-                validator.set_context(self)
-                validator(data)
+                validator(data, self)
 
         # Enforce model validation
         super().validate(data)

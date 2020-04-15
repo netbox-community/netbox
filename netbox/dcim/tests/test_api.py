@@ -582,6 +582,7 @@ class RackTest(APITestCase):
 
         data = {
             'name': 'Test Rack 4',
+            'facility_id': '1234',
             'site': self.site1.pk,
             'group': self.rackgroup1.pk,
             'role': self.rackrole1.pk,
@@ -1815,6 +1816,7 @@ class DeviceTest(APITestCase):
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
+        self.rack1 = Rack.objects.create(name='Test Rack 1', site=self.site1, u_height=48)
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype1 = DeviceType.objects.create(
             manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
@@ -1920,6 +1922,9 @@ class DeviceTest(APITestCase):
             'device_role': self.devicerole1.pk,
             'name': 'Test Device 4',
             'site': self.site1.pk,
+            'rack': self.rack1.pk,
+            'face': DeviceFaceChoices.FACE_FRONT,
+            'position': 1,
             'cluster': self.cluster1.pk,
         }
 

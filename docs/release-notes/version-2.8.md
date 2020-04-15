@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#4489](https://github.com/netbox-community/netbox/issues/4489) - Fix display of parent/child role on device type view
+* [#4496](https://github.com/netbox-community/netbox/issues/4496) - Fix exception when validating certain models via REST API
 
 ---
 

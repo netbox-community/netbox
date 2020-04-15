@@ -143,8 +143,7 @@ class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
         # Validate uniqueness of (group, facility_id) since we omitted the automatically-created validator from Meta.
         if data.get('facility_id', None):
             validator = UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('group', 'facility_id'))
-            validator.set_context(self)
-            validator(data)
+            validator(data, self)
 
         # Enforce model validation
         super().validate(data)
@@ -395,8 +394,7 @@ class DeviceSerializer(TaggitSerializer, CustomFieldModelSerializer):
         # Validate uniqueness of (rack, position, face) since we omitted the automatically-created validator from Meta.
         if data.get('rack') and data.get('position') and data.get('face'):
             validator = UniqueTogetherValidator(queryset=Device.objects.all(), fields=('rack', 'position', 'face'))
-            validator.set_context(self)
-            validator(data)
+            validator(data, self)
 
         # Enforce model validation
         super().validate(data)
