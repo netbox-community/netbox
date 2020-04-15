@@ -32,6 +32,7 @@ from virtualization.models import VirtualMachine
 from . import filters, forms, tables
 from .choices import DeviceFaceChoices
 from .constants import NONCONNECTABLE_IFACE_TYPES
+from .exceptions import CableTraceSplit
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
@@ -2033,12 +2034,15 @@ class CableTraceView(PermissionRequiredMixin, View):
     def get(self, request, model, pk):
 
         obj = get_object_or_404(model, pk=pk)
-        trace = obj.trace()
-        total_length = sum([entry[1]._abs_length for entry in trace if entry[1] and entry[1]._abs_length])
+        path, split_ends = obj.trace()
+        total_length = sum(
+            [entry[1]._abs_length for entry in path if entry[1] and entry[1]._abs_length]
+        )
 
         return render(request, 'dcim/cable_trace.html', {
             'obj': obj,
-            'trace': trace,
+            'trace': path,
+            'split_ends': split_ends,
             'total_length': total_length,
         })
 

@@ -50,4 +50,19 @@
         </div>
         {% if not forloop.last %}<hr />{% endif %}
     {% endfor %}
+    <div class="row">
+        <div class="col-md-11 col-md-offset-1">
+            {% if split_ends %}
+                <h3 class="text-danger text-center"><i class="fa fa-warning"></i> Trace Split</h3>
+                <p>Select a termination to continue:</p>
+                <ul>
+                    {% for termination in split_ends %}
+                        <li><a href="{% url 'dcim:frontport_trace' pk=termination.pk %}">{{ termination.parent }} / {{ termination }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <h3 class="text-success text-center">Trace completed!</h3>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
