@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#4361](https://github.com/netbox-community/netbox/issues/4361) - Fix Type of `connection_state` in swagger schema.
 * [#4489](https://github.com/netbox-community/netbox/issues/4489) - Fix display of parent/child role on device type view
 
 ---
