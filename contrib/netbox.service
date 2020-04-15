@@ -1,8 +1,8 @@
 [Unit]
 Description=NetBox WSGI Service
 Documentation=https://netbox.readthedocs.io/en/stable/
-After=network-online.target
-Wants=network-online.target
+After=redis.service
+Wants=redis.service
 
 [Service]
 Type=simple
