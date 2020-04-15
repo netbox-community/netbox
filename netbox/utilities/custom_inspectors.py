@@ -92,7 +92,7 @@ class CustomChoiceFieldInspector(FieldInspector):
                 value_schema = openapi.Schema(type=schema_type, enum=choice_value)
                 value_schema['x-nullable'] = True
 
-            if isinstance(choice_value[0], int):
+            if all(type(x) == int for x in [c for c in choice_value if c is not None]):
                 # Change value_schema for IPAddressFamilyChoices, RackWidthChoices
                 value_schema = openapi.Schema(type=openapi.TYPE_INTEGER, enum=choice_value)
 
