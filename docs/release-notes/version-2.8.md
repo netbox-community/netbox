@@ -2,6 +2,10 @@
 
 ## v2.8.1 (FUTURE)
 
+### Enhancements
+
+* [#4464](https://github.com/netbox-community/netbox/issues/4464) - Add 21-inch rack width (ETSI)
+
 ### Bug Fixes
 
 * [#4361](https://github.com/netbox-community/netbox/issues/4361) - Fix Type of `connection_state` in swagger schema.
