@@ -2,6 +2,10 @@
 
 ## v2.8.1 (FUTURE)
 
+### Enhancements
+
+* [#4463](https://github.com/netbox-community/netbox/issues/4463) - Describe APISelect for Custom script object variables
+
 ### Bug Fixes
 
 * [#4361](https://github.com/netbox-community/netbox/issues/4361) - Fix Type of `connection_state` in swagger schema.

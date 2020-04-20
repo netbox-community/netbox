@@ -156,9 +156,27 @@ direction = ChoiceVar(choices=CHOICES)
 
 ### ObjectVar
 
-A NetBox object. The list of available objects is defined by the queryset parameter. Each instance of this variable is limited to a single object type.
+A NetBox object. The list of available objects is defined by the `APISelect` widget. Each instance of this variable is limited to a single object type.
 
 * `queryset` - A [Django queryset](https://docs.djangoproject.com/en/stable/topics/db/queries/)
+* `widget` - A form widget for APISelect
+
+    APISelect is a select widget populated via an API call
+
+    - `api_url` - API endpoint URL. Required if not set automatically by the parent field.
+    - `display_field` (Optional) - Field to display for child in selection list. Defaults to `name`.
+    - `value_field` (Optional) - Field to use for the option value in selection list. Defaults to `id`.
+    - `disabled_indicator` (Optional) - Mark option as disabled if this field equates true.
+    - `filter_for` (Optional) - A dict of chained form fields for which this field is a filter. The key is the
+        name of the filter-for field (child field) and the value is the name of the query param filter.
+    - `conditional_query_params` (Optional) - A dict of URL query params to append to the URL if the
+        condition is met. The condition is the dict key and is specified in the form `<field_name>__<field_value>`.
+        If the provided field value is selected for the given field, the URL query param will be appended to
+        the rendered URL. The value is the in the from `<param_name>=<param_value>`. This is useful in cases where
+        a particular field value dictates an additional API filter.
+    - `additional_query_params`  (Optional) - A dict of query params to append to the API request. The key is the
+        name of the query param and the value if the query param's value.
+    - `null_option` - If true, include the static null option in the selection list.
 
 ### FileVar
 
@@ -222,11 +240,15 @@ class NewBranchScript(Script):
     )
     switch_model = ObjectVar(
         description="Access switch model",
-        queryset = DeviceType.objects.filter(
-            manufacturer__name='Cisco',
-            model__in=['Catalyst 3560X-48T', 'Catalyst 3750X-48T']
-        )
-    )
+        queryset=DeviceType.objects.all(),
+        widget=APISelect(
+            api_url='/api/dcim/device-types/',
+            display_field='model',
+            additional_query_params={
+                'model': ['Catalyst 3560X-48T', 'Catalyst 3750X-48T'],
+                'manufacturer': 'cisco',
+            }
+        ),
 
     def run(self, data, commit):
 
