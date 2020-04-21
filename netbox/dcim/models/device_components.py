@@ -16,6 +16,7 @@ from extras.models import ObjectChange, TaggedItem
 from extras.utils import extras_features
 from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
+from utilities.query_functions import CollateAsChar
 from utilities.utils import serialize_object
 from virtualization.choices import VMInterfaceTypeChoices
 
@@ -676,7 +677,7 @@ class Interface(CableTermination, ComponentModel):
 
     class Meta:
         # TODO: ordering and unique_together should include virtual_machine
-        ordering = ('device', '_name')
+        ordering = ('device', CollateAsChar('_name'))
         unique_together = ('device', 'name')
 
     def __str__(self):
