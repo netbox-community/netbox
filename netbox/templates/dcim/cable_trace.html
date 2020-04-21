@@ -48,6 +48,50 @@
                 {% endif %}
             </div>
         </div>
-        {% if not forloop.last %}<hr />{% endif %}
+        <hr />
     {% endfor %}
+    <div class="row">
+        {% if split_ends %}
+            <div class="col-md-7 col-md-offset-3">
+                <div class="panel panel-warning">
+                    <div class="panel-heading">
+                        <strong><i class="fa fa-warning"></i> Trace Split</strong>
+                    </div>
+                    <div class="panel-body">
+                        There are multiple possible paths from this point. Select a port to continue.
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <table class="panel-body table">
+                        <thead>
+                            <tr class="table-headings">
+                                <th>Port</th>
+                                <th>Connected</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        {% for termination in split_ends %}
+                            <tr>
+                                <td><a href="{% url 'dcim:frontport_trace' pk=termination.pk %}">{{ termination }}</a></td>
+                                <td>
+                                    {% if termination.cable %}
+                                        <i class="fa fa-check text-success" title="Yes"></i>
+                                    {% else %}
+                                        <i class="fa fa-times text-danger" title="No"></i>
+                                    {% endif %}
+                                </td>
+                                <td>{{ termination.get_type_display }}</td>
+                                <td>{{ termination.description|placeholder }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-md-11 col-md-offset-1">
+                <h3 class="text-success text-center">Trace completed!</h3>
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}
