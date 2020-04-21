@@ -14,6 +14,7 @@
 * [#4388](https://github.com/netbox-community/netbox/issues/4388) - Fix detection of connected endpoints when connecting rear ports
 * [#4489](https://github.com/netbox-community/netbox/issues/4489) - Fix display of parent/child role on device type view
 * [#4496](https://github.com/netbox-community/netbox/issues/4496) - Fix exception when validating certain models via REST API
+* [#4510](https://github.com/netbox-community/netbox/issues/4510) - Enforce address family for device primary IPv4/v6 addresses
 
 ---
 

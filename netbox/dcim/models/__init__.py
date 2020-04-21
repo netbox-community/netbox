@@ -1514,24 +1514,30 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # Validate primary IP addresses
         vc_interfaces = self.vc_interfaces.all()
         if self.primary_ip4:
+            if self.primary_ip4.family != 4:
+                raise ValidationError({
+                    'primary_ip4': f"{self.primary_ip4} is not an IPv4 address."
+                })
             if self.primary_ip4.interface in vc_interfaces:
                 pass
             elif self.primary_ip4.nat_inside is not None and self.primary_ip4.nat_inside.interface in vc_interfaces:
                 pass
             else:
                 raise ValidationError({
-                    'primary_ip4': "The specified IP address ({}) is not assigned to this device.".format(
-                        self.primary_ip4),
+                    'primary_ip4': f"The specified IP address ({self.primary_ip4}) is not assigned to this device."
                 })
         if self.primary_ip6:
+            if self.primary_ip6.family != 6:
+                raise ValidationError({
+                    'primary_ip6': f"{self.primary_ip4} is not an IPv6 address."
+                })
             if self.primary_ip6.interface in vc_interfaces:
                 pass
             elif self.primary_ip6.nat_inside is not None and self.primary_ip6.nat_inside.interface in vc_interfaces:
                 pass
             else:
                 raise ValidationError({
-                    'primary_ip6': "The specified IP address ({}) is not assigned to this device.".format(
-                        self.primary_ip6),
+                    'primary_ip6': f"The specified IP address ({self.primary_ip6}) is not assigned to this device."
                 })
 
         # Validate manufacturer/platform
