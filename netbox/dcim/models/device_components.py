@@ -107,28 +107,31 @@ class CableTermination(models.Model):
 
             # Map a front port to its corresponding rear port
             if isinstance(termination, FrontPort):
-                position_stack.append(termination.rear_port_position)
                 # Retrieve the corresponding RearPort from database to ensure we have an up-to-date instance
                 peer_port = RearPort.objects.get(pk=termination.rear_port.pk)
+                if peer_port.positions > 1:
+                    position_stack.append(termination.rear_port_position)
                 return peer_port
 
             # Map a rear port/position to its corresponding front port
             elif isinstance(termination, RearPort):
+                if termination.positions > 1:
+                    # Can't map to a FrontPort without a position
+                    if not position_stack:
+                        # TODO: This behavior is broken. We need a mechanism by which to return all FrontPorts mapped
+                        # to a given RearPort so that we can update end-to-end paths when a cable is created/deleted.
+                        # For now, we're maintaining the current behavior of tracing only to the first FrontPort.
+                        position_stack.append(1)
 
-                # Can't map to a FrontPort without a position
-                if not position_stack:
-                    # TODO: This behavior is broken. We need a mechanism by which to return all FrontPorts mapped
-                    # to a given RearPort so that we can update end-to-end paths when a cable is created/deleted.
-                    # For now, we're maintaining the current behavior of tracing only to the first FrontPort.
-                    position_stack.append(1)
+                    position = position_stack.pop()
 
-                position = position_stack.pop()
-
-                # Validate the position
-                if position not in range(1, termination.positions + 1):
-                    raise Exception("Invalid position for {} ({} positions): {})".format(
-                        termination, termination.positions, position
-                    ))
+                    # Validate the position
+                    if position not in range(1, termination.positions + 1):
+                        raise Exception("Invalid position for {} ({} positions): {})".format(
+                            termination, termination.positions, position
+                        ))
+                else:
+                    position = 1
 
                 try:
                     peer_port = FrontPort.objects.get(
