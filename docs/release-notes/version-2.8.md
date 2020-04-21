@@ -8,6 +8,7 @@
 
 ### Bug Fixes
 
+* [#2994](https://github.com/netbox-community/netbox/issues/2994) - Prevent modifying termination points of existing cable to ensure end-to-end path integrity
 * [#4361](https://github.com/netbox-community/netbox/issues/4361) - Fix Type of `connection_state` in Swagger schema
 * [#4388](https://github.com/netbox-community/netbox/issues/4388) - Fix detection of connected endpoints when connecting rear ports
 * [#4489](https://github.com/netbox-community/netbox/issues/4489) - Fix display of parent/child role on device type view

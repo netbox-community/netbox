@@ -2070,6 +2070,20 @@ class Cable(ChangeLoggedModel):
         # A copy of the PK to be used by __str__ in case the object is deleted
         self._pk = self.pk
 
+    @classmethod
+    def from_db(cls, db, field_names, values):
+        """
+        Cache the original A and B terminations of existing Cable instances for later reference inside clean().
+        """
+        instance = super().from_db(db, field_names, values)
+
+        instance._orig_termination_a_type = instance.termination_a_type
+        instance._orig_termination_a_id = instance.termination_a_id
+        instance._orig_termination_b_type = instance.termination_b_type
+        instance._orig_termination_b_id = instance.termination_b_id
+
+        return instance
+
     def __str__(self):
         return self.label or '#{}'.format(self._pk)
 
@@ -2097,6 +2111,24 @@ class Cable(ChangeLoggedModel):
             raise ValidationError({
                 'termination_b': 'Invalid ID for type {}'.format(self.termination_b_type)
             })
+
+        # If editing an existing Cable instance, check that neither termination has been modified.
+        if self.pk:
+            err_msg = 'Cable termination points may not be modified. Delete and recreate the cable instead.'
+            if (
+                self.termination_a_type != self._orig_termination_a_type or
+                self.termination_a_id != self._orig_termination_a_id
+            ):
+                raise ValidationError({
+                    'termination_a': err_msg
+                })
+            if (
+                self.termination_b_type != self._orig_termination_b_type or
+                self.termination_b_id != self._orig_termination_b_id
+            ):
+                raise ValidationError({
+                    'termination_b': err_msg
+                })
 
         type_a = self.termination_a_type.model
         type_b = self.termination_b_type.model
