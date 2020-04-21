@@ -8,7 +8,8 @@
 
 ### Bug Fixes
 
-* [#4361](https://github.com/netbox-community/netbox/issues/4361) - Fix Type of `connection_state` in swagger schema.
+* [#4361](https://github.com/netbox-community/netbox/issues/4361) - Fix Type of `connection_state` in Swagger schema
+* [#4388](https://github.com/netbox-community/netbox/issues/4388) - Fix detection of connected endpoints when connecting rear ports
 * [#4489](https://github.com/netbox-community/netbox/issues/4489) - Fix display of parent/child role on device type view
 * [#4496](https://github.com/netbox-community/netbox/issues/4496) - Fix exception when validating certain models via REST API
 
