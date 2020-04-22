@@ -14,9 +14,25 @@
 * [#4336](https://github.com/netbox-community/netbox/issues/4336) - Ensure interfaces without a subinterface ID are ordered before subinterface zero
 * [#4361](https://github.com/netbox-community/netbox/issues/4361) - Fix Type of `connection_state` in Swagger schema
 * [#4388](https://github.com/netbox-community/netbox/issues/4388) - Fix detection of connected endpoints when connecting rear ports
+* [#4459](https://github.com/netbox-community/netbox/issues/4459) - Fix caching issue resulting in erroneous nested data for regions, rack groups, and tenant groups
 * [#4489](https://github.com/netbox-community/netbox/issues/4489) - Fix display of parent/child role on device type view
 * [#4496](https://github.com/netbox-community/netbox/issues/4496) - Fix exception when validating certain models via REST API
 * [#4510](https://github.com/netbox-community/netbox/issues/4510) - Enforce address family for device primary IPv4/v6 addresses
+
+### Notes
+
+In accordance with the fix in [#4459](https://github.com/netbox-community/netbox/issues/4459), users that are experiencing invalid nested data with
+regions, rack groups, or tenant groups can preform a one time operation using the NetBox shell to rebuild the correct nested relationships after upgrading:
+
+```text
+$ python netbox/manage.py nbshell
+### NetBox interactive shell (Mac-Pro.local)
+### Python 3.6.4 | Django 3.0.5 | NetBox 2.8.1-dev
+### lsmodels() will show available models. Use help(<model>) for more info.
+>>> Region.objects.rebuild()
+>>> RackGroup.objects.rebuild()
+>>> TenantGroup.objects.rebuild()
+```
 
 ---
 

@@ -479,11 +479,14 @@ CACHEOPS = {
     'auth.*': {'ops': ('fetch', 'get')},
     'auth.permission': {'ops': 'all'},
     'circuits.*': {'ops': 'all'},
+    'dcim.region': None,  # MPTT models are exempt due to raw sql
+    'dcim.rackgroup': None,  # MPTT models are exempt due to raw sql
     'dcim.*': {'ops': 'all'},
     'ipam.*': {'ops': 'all'},
     'extras.*': {'ops': 'all'},
     'secrets.*': {'ops': 'all'},
     'users.*': {'ops': 'all'},
+    'tenancy.tenantgroup': None,  # MPTT models are exempt due to raw sql
     'tenancy.*': {'ops': 'all'},
     'virtualization.*': {'ops': 'all'},
 }
