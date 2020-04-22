@@ -1930,7 +1930,7 @@ class DeviceBulkAddConsolePortView(PermissionRequiredMixin, BulkComponentCreateV
     permission_required = 'dcim.add_consoleport'
     parent_model = Device
     parent_field = 'device'
-    form = forms.DeviceBulkAddComponentForm
+    form = forms.ConsolePortBulkCreateForm
     model = ConsolePort
     model_form = forms.ConsolePortForm
     filterset = filters.DeviceFilterSet
@@ -1942,7 +1942,7 @@ class DeviceBulkAddConsoleServerPortView(PermissionRequiredMixin, BulkComponentC
     permission_required = 'dcim.add_consoleserverport'
     parent_model = Device
     parent_field = 'device'
-    form = forms.DeviceBulkAddComponentForm
+    form = forms.ConsoleServerPortBulkCreateForm
     model = ConsoleServerPort
     model_form = forms.ConsoleServerPortForm
     filterset = filters.DeviceFilterSet
@@ -1954,7 +1954,7 @@ class DeviceBulkAddPowerPortView(PermissionRequiredMixin, BulkComponentCreateVie
     permission_required = 'dcim.add_powerport'
     parent_model = Device
     parent_field = 'device'
-    form = forms.DeviceBulkAddComponentForm
+    form = forms.PowerPortBulkCreateForm
     model = PowerPort
     model_form = forms.PowerPortForm
     filterset = filters.DeviceFilterSet
@@ -1966,7 +1966,7 @@ class DeviceBulkAddPowerOutletView(PermissionRequiredMixin, BulkComponentCreateV
     permission_required = 'dcim.add_poweroutlet'
     parent_model = Device
     parent_field = 'device'
-    form = forms.DeviceBulkAddComponentForm
+    form = forms.PowerOutletBulkCreateForm
     model = PowerOutlet
     model_form = forms.PowerOutletForm
     filterset = filters.DeviceFilterSet
@@ -1978,9 +1978,33 @@ class DeviceBulkAddInterfaceView(PermissionRequiredMixin, BulkComponentCreateVie
     permission_required = 'dcim.add_interface'
     parent_model = Device
     parent_field = 'device'
-    form = forms.DeviceBulkAddInterfaceForm
+    form = forms.InterfaceBulkCreateForm
     model = Interface
     model_form = forms.InterfaceForm
+    filterset = filters.DeviceFilterSet
+    table = tables.DeviceTable
+    default_return_url = 'dcim:device_list'
+
+
+# class DeviceBulkAddFrontPortView(PermissionRequiredMixin, BulkComponentCreateView):
+#     permission_required = 'dcim.add_frontport'
+#     parent_model = Device
+#     parent_field = 'device'
+#     form = forms.FrontPortBulkCreateForm
+#     model = FrontPort
+#     model_form = forms.FrontPortForm
+#     filterset = filters.DeviceFilterSet
+#     table = tables.DeviceTable
+#     default_return_url = 'dcim:device_list'
+
+
+class DeviceBulkAddRearPortView(PermissionRequiredMixin, BulkComponentCreateView):
+    permission_required = 'dcim.add_rearport'
+    parent_model = Device
+    parent_field = 'device'
+    form = forms.RearPortBulkCreateForm
+    model = RearPort
+    model_form = forms.RearPortForm
     filterset = filters.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
@@ -1990,7 +2014,7 @@ class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, BulkComponentCreateVie
     permission_required = 'dcim.add_devicebay'
     parent_model = Device
     parent_field = 'device'
-    form = forms.DeviceBulkAddComponentForm
+    form = forms.DeviceBayBulkCreateForm
     model = DeviceBay
     model_form = forms.DeviceBayForm
     filterset = filters.DeviceFilterSet
