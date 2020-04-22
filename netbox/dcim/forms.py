@@ -2299,6 +2299,11 @@ class DeviceBulkAddComponentForm(BootstrapMixin, forms.Form):
         label='Name'
     )
 
+    def clean_tags(self):
+        # Because we're feeding TagField data (on the bulk edit form) to another TagField (on the model form), we
+        # must first convert the list of tags to a string.
+        return ','.join(self.cleaned_data.get('tags'))
+
 
 #
 # Console ports
@@ -2355,9 +2360,7 @@ class ConsolePortBulkCreateForm(
     form_from_model(ConsolePort, ['type', 'description', 'tags']),
     DeviceBulkAddComponentForm
 ):
-    tags = TagField(
-        required=False
-    )
+    pass
 
 
 class ConsolePortBulkEditForm(
@@ -2447,9 +2450,7 @@ class ConsoleServerPortBulkCreateForm(
     form_from_model(ConsoleServerPort, ['type', 'description', 'tags']),
     DeviceBulkAddComponentForm
 ):
-    tags = TagField(
-        required=False
-    )
+    pass
 
 
 class ConsoleServerPortBulkEditForm(
@@ -2563,9 +2564,7 @@ class PowerPortBulkCreateForm(
     form_from_model(PowerPort, ['type', 'maximum_draw', 'allocated_draw', 'description', 'tags']),
     DeviceBulkAddComponentForm
 ):
-    tags = TagField(
-        required=False
-    )
+    pass
 
 
 class PowerPortBulkEditForm(
@@ -2685,9 +2684,7 @@ class PowerOutletBulkCreateForm(
     form_from_model(PowerOutlet, ['type', 'feed_leg', 'description', 'tags']),
     DeviceBulkAddComponentForm
 ):
-    tags = TagField(
-        required=False
-    )
+    pass
 
 
 class PowerOutletBulkEditForm(
@@ -2968,9 +2965,7 @@ class InterfaceBulkCreateForm(
     form_from_model(Interface, ['type', 'enabled', 'mtu', 'mgmt_only', 'description', 'tags']),
     DeviceBulkAddComponentForm
 ):
-    tags = TagField(
-        required=False
-    )
+    pass
 
 
 class InterfaceBulkEditForm(
@@ -3241,9 +3236,7 @@ class FrontPortCreateForm(BootstrapMixin, forms.Form):
 #     form_from_model(FrontPort, ['type', 'description', 'tags']),
 #     DeviceBulkAddComponentForm
 # ):
-#     tags = TagField(
-#         required=False
-#     )
+#     pass
 
 
 class FrontPortBulkEditForm(
@@ -3381,9 +3374,7 @@ class RearPortBulkCreateForm(
     form_from_model(RearPort, ['type', 'positions', 'description', 'tags']),
     DeviceBulkAddComponentForm
 ):
-    tags = TagField(
-        required=False
-    )
+    pass
 
 
 class RearPortBulkEditForm(

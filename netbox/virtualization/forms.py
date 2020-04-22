@@ -828,6 +828,11 @@ class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
         label='Name'
     )
 
+    def clean_tags(self):
+        # Because we're feeding TagField data (on the bulk edit form) to another TagField (on the model form), we
+        # must first convert the list of tags to a string.
+        return ','.join(self.cleaned_data.get('tags'))
+
 
 class InterfaceBulkCreateForm(
     form_from_model(Interface, ['enabled', 'mtu', 'description', 'tags']),
@@ -837,7 +842,4 @@ class InterfaceBulkCreateForm(
         choices=VMInterfaceTypeChoices,
         initial=VMInterfaceTypeChoices.TYPE_VIRTUAL,
         widget=forms.HiddenInput()
-    )
-    tags = TagField(
-        required=False
     )

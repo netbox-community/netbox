@@ -972,25 +972,32 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
                 new_components = []
                 data = deepcopy(form.cleaned_data)
 
-                for obj in data['pk']:
+                try:
+                    with transaction.atomic():
 
-                    names = data['name_pattern']
-                    for name in names:
-                        component_data = {
-                            self.parent_field: obj.pk,
-                            'name': name,
-                        }
-                        component_data.update(data)
-                        component_form = self.model_form(component_data)
-                        if component_form.is_valid():
-                            new_components.append(component_form.save(commit=False))
-                        else:
-                            for field, errors in component_form.errors.as_data().items():
-                                for e in errors:
-                                    form.add_error(field, '{} {}: {}'.format(obj, name, ', '.join(e)))
+                        for obj in data['pk']:
+
+                            names = data['name_pattern']
+                            for name in names:
+                                component_data = {
+                                    self.parent_field: obj.pk,
+                                    'name': name,
+                                }
+                                component_data.update(data)
+                                component_form = self.model_form(component_data)
+                                if component_form.is_valid():
+                                    instance = component_form.save()
+                                    logger.debug(f"Created {instance} on {instance.parent}")
+                                    new_components.append(instance)
+                                else:
+                                    for field, errors in component_form.errors.as_data().items():
+                                        for e in errors:
+                                            form.add_error(field, '{} {}: {}'.format(obj, name, ', '.join(e)))
+
+                except IntegrityError:
+                    pass
 
                 if not form.errors:
-                    self.model.objects.bulk_create(new_components)
                     msg = "Added {} {} to {} {}.".format(
                         len(new_components),
                         model_name,
