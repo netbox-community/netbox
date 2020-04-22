@@ -2360,19 +2360,15 @@ class ConsolePortBulkCreateForm(
     )
 
 
-class ConsolePortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class ConsolePortBulkEditForm(
+    form_from_model(ConsolePort, ['type', 'description']),
+    BootstrapMixin,
+    AddRemoveTagsForm,
+    BulkEditForm
+):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsolePort.objects.all(),
         widget=forms.MultipleHiddenInput()
-    )
-    type = forms.ChoiceField(
-        choices=add_blank_choice(ConsolePortTypeChoices),
-        required=False,
-        widget=StaticSelect2()
-    )
-    description = forms.CharField(
-        max_length=100,
-        required=False
     )
 
     class Meta:
@@ -2456,19 +2452,15 @@ class ConsoleServerPortBulkCreateForm(
     )
 
 
-class ConsoleServerPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class ConsoleServerPortBulkEditForm(
+    form_from_model(ConsoleServerPort, ['type', 'description']),
+    BootstrapMixin,
+    AddRemoveTagsForm,
+    BulkEditForm
+):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsoleServerPort.objects.all(),
         widget=forms.MultipleHiddenInput()
-    )
-    type = forms.ChoiceField(
-        choices=add_blank_choice(ConsolePortTypeChoices),
-        required=False,
-        widget=StaticSelect2()
-    )
-    description = forms.CharField(
-        max_length=100,
-        required=False
     )
 
     class Meta:
@@ -2576,29 +2568,15 @@ class PowerPortBulkCreateForm(
     )
 
 
-class PowerPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class PowerPortBulkEditForm(
+    form_from_model(PowerPort, ['type', 'maximum_draw', 'allocated_draw', 'description']),
+    BootstrapMixin,
+    AddRemoveTagsForm,
+    BulkEditForm
+):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerPort.objects.all(),
         widget=forms.MultipleHiddenInput()
-    )
-    type = forms.ChoiceField(
-        choices=add_blank_choice(PowerPortTypeChoices),
-        required=False,
-        widget=StaticSelect2()
-    )
-    maximum_draw = forms.IntegerField(
-        min_value=1,
-        required=False,
-        help_text="Maximum draw in watts"
-    )
-    allocated_draw = forms.IntegerField(
-        min_value=1,
-        required=False,
-        help_text="Allocated draw in watts"
-    )
-    description = forms.CharField(
-        max_length=100,
-        required=False
     )
 
     class Meta:
@@ -2712,6 +2690,54 @@ class PowerOutletBulkCreateForm(
     )
 
 
+class PowerOutletBulkEditForm(
+    form_from_model(PowerOutlet, ['type', 'feed_leg', 'power_port', 'description']),
+    BootstrapMixin,
+    AddRemoveTagsForm,
+    BulkEditForm
+):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=PowerOutlet.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        disabled=True,
+        widget=forms.HiddenInput()
+    )
+
+    class Meta:
+        nullable_fields = [
+            'type', 'feed_leg', 'power_port', 'description',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit power_port queryset to PowerPorts which belong to the parent Device
+        if 'device' in self.initial:
+            device = Device.objects.filter(pk=self.initial['device']).first()
+            self.fields['power_port'].queryset = PowerPort.objects.filter(device=device)
+        else:
+            self.fields['power_port'].choices = ()
+            self.fields['power_port'].widget.attrs['disabled'] = True
+
+
+class PowerOutletBulkRenameForm(BulkRenameForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=PowerOutlet.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+
+
+class PowerOutletBulkDisconnectForm(ConfirmationForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=PowerOutlet.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+
+
 class PowerOutletCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
@@ -2760,65 +2786,6 @@ class PowerOutletCSVForm(forms.ModelForm):
             )
         else:
             self.fields['power_port'].queryset = PowerPort.objects.none()
-
-
-class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=PowerOutlet.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
-    device = forms.ModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        disabled=True,
-        widget=forms.HiddenInput()
-    )
-    type = forms.ChoiceField(
-        choices=add_blank_choice(PowerOutletTypeChoices),
-        required=False
-    )
-    feed_leg = forms.ChoiceField(
-        choices=add_blank_choice(PowerOutletFeedLegChoices),
-        required=False,
-    )
-    power_port = forms.ModelChoiceField(
-        queryset=PowerPort.objects.all(),
-        required=False
-    )
-    description = forms.CharField(
-        max_length=100,
-        required=False
-    )
-
-    class Meta:
-        nullable_fields = [
-            'type', 'feed_leg', 'power_port', 'description',
-        ]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Limit power_port queryset to PowerPorts which belong to the parent Device
-        if 'device' in self.initial:
-            device = Device.objects.filter(pk=self.initial['device']).first()
-            self.fields['power_port'].queryset = PowerPort.objects.filter(device=device)
-        else:
-            self.fields['power_port'].choices = ()
-            self.fields['power_port'].widget.attrs['disabled'] = True
-
-
-class PowerOutletBulkRenameForm(BulkRenameForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=PowerOutlet.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
-
-
-class PowerOutletBulkDisconnectForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=PowerOutlet.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
 
 
 #
@@ -3006,7 +2973,12 @@ class InterfaceBulkCreateForm(
     )
 
 
-class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class InterfaceBulkEditForm(
+    form_from_model(Interface, ['type', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description', 'mode']),
+    BootstrapMixin,
+    AddRemoveTagsForm,
+    BulkEditForm
+):
     pk = forms.ModelMultipleChoiceField(
         queryset=Interface.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -3016,45 +2988,6 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         required=False,
         disabled=True,
         widget=forms.HiddenInput()
-    )
-    type = forms.ChoiceField(
-        choices=add_blank_choice(InterfaceTypeChoices),
-        required=False,
-        widget=StaticSelect2()
-    )
-    enabled = forms.NullBooleanField(
-        required=False,
-        widget=BulkEditNullBooleanSelect()
-    )
-    lag = forms.ModelChoiceField(
-        queryset=Interface.objects.all(),
-        required=False,
-        label='Parent LAG',
-        widget=StaticSelect2()
-    )
-    mac_address = forms.CharField(
-        required=False,
-        label='MAC Address'
-    )
-    mtu = forms.IntegerField(
-        required=False,
-        min_value=INTERFACE_MTU_MIN,
-        max_value=INTERFACE_MTU_MAX,
-        label='MTU'
-    )
-    mgmt_only = forms.NullBooleanField(
-        required=False,
-        widget=BulkEditNullBooleanSelect(),
-        label='Management only'
-    )
-    description = forms.CharField(
-        max_length=100,
-        required=False
-    )
-    mode = forms.ChoiceField(
-        choices=add_blank_choice(InterfaceModeChoices),
-        required=False,
-        widget=StaticSelect2()
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -3313,19 +3246,15 @@ class FrontPortCreateForm(BootstrapMixin, forms.Form):
 #     )
 
 
-class FrontPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class FrontPortBulkEditForm(
+    form_from_model(FrontPort, ['type', 'description']),
+    BootstrapMixin,
+    AddRemoveTagsForm,
+    BulkEditForm
+):
     pk = forms.ModelMultipleChoiceField(
         queryset=FrontPort.objects.all(),
         widget=forms.MultipleHiddenInput()
-    )
-    type = forms.ChoiceField(
-        choices=add_blank_choice(PortTypeChoices),
-        required=False,
-        widget=StaticSelect2()
-    )
-    description = forms.CharField(
-        max_length=100,
-        required=False
     )
 
     class Meta:
@@ -3457,19 +3386,15 @@ class RearPortBulkCreateForm(
     )
 
 
-class RearPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class RearPortBulkEditForm(
+    form_from_model(RearPort, ['type', 'description']),
+    BootstrapMixin,
+    AddRemoveTagsForm,
+    BulkEditForm
+):
     pk = forms.ModelMultipleChoiceField(
         queryset=RearPort.objects.all(),
         widget=forms.MultipleHiddenInput()
-    )
-    type = forms.ChoiceField(
-        choices=add_blank_choice(PortTypeChoices),
-        required=False,
-        widget=StaticSelect2()
-    )
-    description = forms.CharField(
-        max_length=100,
-        required=False
     )
 
     class Meta:
@@ -3508,6 +3433,146 @@ class RearPortCSVForm(forms.ModelForm):
     class Meta:
         model = RearPort
         fields = RearPort.csv_headers
+
+
+#
+# Device bays
+#
+
+class DeviceBayFilterForm(DeviceComponentFilterForm):
+    model = DeviceBay
+    tag = TagFilterField(model)
+
+
+class DeviceBayForm(BootstrapMixin, forms.ModelForm):
+    tags = TagField(
+        required=False
+    )
+
+    class Meta:
+        model = DeviceBay
+        fields = [
+            'device', 'name', 'description', 'tags',
+        ]
+        widgets = {
+            'device': forms.HiddenInput(),
+        }
+
+
+class DeviceBayCreateForm(BootstrapMixin, forms.Form):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.prefetch_related('device_type__manufacturer')
+    )
+    name_pattern = ExpandableNameField(
+        label='Name'
+    )
+    tags = TagField(
+        required=False
+    )
+
+
+class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
+    installed_device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        label='Child Device',
+        help_text="Child devices must first be created and assigned to the site/rack of the parent device.",
+        widget=StaticSelect2(),
+    )
+
+    def __init__(self, device_bay, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        self.fields['installed_device'].queryset = Device.objects.filter(
+            site=device_bay.device.site,
+            rack=device_bay.device.rack,
+            parent_bay__isnull=True,
+            device_type__u_height=0,
+            device_type__subdevice_role=SubdeviceRoleChoices.ROLE_CHILD
+        ).exclude(pk=device_bay.device.pk)
+
+
+class DeviceBayBulkCreateForm(
+    form_from_model(DeviceBay, ['description', 'tags']),
+    DeviceBulkAddComponentForm
+):
+    tags = TagField(
+        required=False
+    )
+
+
+class DeviceBayBulkEditForm(
+    form_from_model(DeviceBay, ['description']),
+    BootstrapMixin,
+    AddRemoveTagsForm,
+    BulkEditForm
+):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=DeviceBay.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+
+    class Meta:
+        nullable_fields = (
+            'description',
+        )
+
+
+class DeviceBayBulkRenameForm(BulkRenameForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=DeviceBay.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+
+
+class DeviceBayCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Name or ID of device',
+        error_messages={
+            'invalid_choice': 'Device not found.',
+        }
+    )
+    installed_device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name or ID of device',
+        error_messages={
+            'invalid_choice': 'Child device not found.',
+        }
+    )
+
+    class Meta:
+        model = DeviceBay
+        fields = DeviceBay.csv_headers
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit installed device choices to devices of the correct type and location
+        if self.is_bound:
+            try:
+                device = self.fields['device'].to_python(self.data['device'])
+            except forms.ValidationError:
+                device = None
+        else:
+            try:
+                device = self.instance.device
+            except Device.DoesNotExist:
+                device = None
+
+        if device:
+            self.fields['installed_device'].queryset = Device.objects.filter(
+                site=device.site,
+                rack=device.rack,
+                parent_bay__isnull=True,
+                device_type__u_height=0,
+                device_type__subdevice_role=SubdeviceRoleChoices.ROLE_CHILD
+            ).exclude(pk=device.pk)
+        else:
+            self.fields['installed_device'].queryset = Interface.objects.none()
 
 
 #
@@ -3990,145 +4055,6 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         queryset=Device.objects.all(),
         required=False,
         label='Device'
-    )
-
-
-#
-# Device bays
-#
-
-class DeviceBayFilterForm(DeviceComponentFilterForm):
-    model = DeviceBay
-    tag = TagFilterField(model)
-
-
-class DeviceBayForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
-        required=False
-    )
-
-    class Meta:
-        model = DeviceBay
-        fields = [
-            'device', 'name', 'description', 'tags',
-        ]
-        widgets = {
-            'device': forms.HiddenInput(),
-        }
-
-
-class DeviceBayCreateForm(BootstrapMixin, forms.Form):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
-    tags = TagField(
-        required=False
-    )
-
-
-class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
-    installed_device = forms.ModelChoiceField(
-        queryset=Device.objects.all(),
-        label='Child Device',
-        help_text="Child devices must first be created and assigned to the site/rack of the parent device.",
-        widget=StaticSelect2(),
-    )
-
-    def __init__(self, device_bay, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-
-        self.fields['installed_device'].queryset = Device.objects.filter(
-            site=device_bay.device.site,
-            rack=device_bay.device.rack,
-            parent_bay__isnull=True,
-            device_type__u_height=0,
-            device_type__subdevice_role=SubdeviceRoleChoices.ROLE_CHILD
-        ).exclude(pk=device_bay.device.pk)
-
-
-class DeviceBayBulkCreateForm(
-    form_from_model(DeviceBay, ['description', 'tags']),
-    DeviceBulkAddComponentForm
-):
-    tags = TagField(
-        required=False
-    )
-
-
-class DeviceBayBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=DeviceBay.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
-    description = forms.CharField(
-        max_length=100,
-        required=False
-    )
-
-    class Meta:
-        nullable_fields = (
-            'description',
-        )
-
-
-class DeviceBayCSVForm(forms.ModelForm):
-    device = FlexibleModelChoiceField(
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        help_text='Name or ID of device',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
-    )
-    installed_device = FlexibleModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        to_field_name='name',
-        help_text='Name or ID of device',
-        error_messages={
-            'invalid_choice': 'Child device not found.',
-        }
-    )
-
-    class Meta:
-        model = DeviceBay
-        fields = DeviceBay.csv_headers
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Limit installed device choices to devices of the correct type and location
-        if self.is_bound:
-            try:
-                device = self.fields['device'].to_python(self.data['device'])
-            except forms.ValidationError:
-                device = None
-        else:
-            try:
-                device = self.instance.device
-            except Device.DoesNotExist:
-                device = None
-
-        if device:
-            self.fields['installed_device'].queryset = Device.objects.filter(
-                site=device.site,
-                rack=device.rack,
-                parent_bay__isnull=True,
-                device_type__u_height=0,
-                device_type__subdevice_role=SubdeviceRoleChoices.ROLE_CHILD
-            ).exclude(pk=device.pk)
-        else:
-            self.fields['installed_device'].queryset = Interface.objects.none()
-
-
-class DeviceBayBulkRenameForm(BulkRenameForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=DeviceBay.objects.all(),
-        widget=forms.MultipleHiddenInput()
     )
 
 
