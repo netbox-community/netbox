@@ -15,7 +15,8 @@ from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     CommentField, ConfirmationForm, CSVChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    ExpandableNameField, JSONField, SlugField, SmallTextarea, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    ExpandableNameField, form_from_model, JSONField, SlugField, SmallTextarea, StaticSelect2, StaticSelect2Multiple,
+    TagFilterField,
 )
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -828,23 +829,15 @@ class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
     )
 
 
-class VirtualMachineBulkAddInterfaceForm(VirtualMachineBulkAddComponentForm):
+class InterfaceBulkCreateForm(
+    form_from_model(Interface, ['enabled', 'mtu', 'description', 'tags']),
+    VirtualMachineBulkAddComponentForm
+):
     type = forms.ChoiceField(
         choices=VMInterfaceTypeChoices,
         initial=VMInterfaceTypeChoices.TYPE_VIRTUAL,
         widget=forms.HiddenInput()
     )
-    enabled = forms.BooleanField(
-        required=False,
-        initial=True
-    )
-    mtu = forms.IntegerField(
-        required=False,
-        min_value=INTERFACE_MTU_MIN,
-        max_value=INTERFACE_MTU_MAX,
-        label='MTU'
-    )
-    description = forms.CharField(
-        max_length=100,
+    tags = TagField(
         required=False
     )
