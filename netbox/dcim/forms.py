@@ -23,8 +23,9 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, ExpandableNameField, FlexibleModelChoiceField, JSONField, SelectWithPK,
-    SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    DynamicModelMultipleChoiceField, ExpandableNameField, FlexibleModelChoiceField, form_from_model, JSONField,
+    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
 from .choices import *
@@ -2299,31 +2300,6 @@ class DeviceBulkAddComponentForm(BootstrapMixin, forms.Form):
     )
 
 
-class DeviceBulkAddInterfaceForm(DeviceBulkAddComponentForm):
-    type = forms.ChoiceField(
-        choices=InterfaceTypeChoices,
-        widget=StaticSelect2()
-    )
-    enabled = forms.BooleanField(
-        required=False,
-        initial=True
-    )
-    mtu = forms.IntegerField(
-        required=False,
-        min_value=INTERFACE_MTU_MIN,
-        max_value=INTERFACE_MTU_MAX,
-        label='MTU'
-    )
-    mgmt_only = forms.BooleanField(
-        required=False,
-        label='Management only'
-    )
-    description = forms.CharField(
-        max_length=100,
-        required=False
-    )
-
-
 #
 # Console ports
 #
@@ -2370,6 +2346,15 @@ class ConsolePortCreateForm(BootstrapMixin, forms.Form):
         max_length=100,
         required=False
     )
+    tags = TagField(
+        required=False
+    )
+
+
+class ConsolePortBulkCreateForm(
+    form_from_model(ConsolePort, ['type', 'description', 'tags']),
+    DeviceBulkAddComponentForm
+):
     tags = TagField(
         required=False
     )
@@ -2457,6 +2442,15 @@ class ConsoleServerPortCreateForm(BootstrapMixin, forms.Form):
         max_length=100,
         required=False
     )
+    tags = TagField(
+        required=False
+    )
+
+
+class ConsoleServerPortBulkCreateForm(
+    form_from_model(ConsoleServerPort, ['type', 'description', 'tags']),
+    DeviceBulkAddComponentForm
+):
     tags = TagField(
         required=False
     )
@@ -2568,6 +2562,15 @@ class PowerPortCreateForm(BootstrapMixin, forms.Form):
         max_length=100,
         required=False
     )
+    tags = TagField(
+        required=False
+    )
+
+
+class PowerPortBulkCreateForm(
+    form_from_model(PowerPort, ['type', 'maximum_draw', 'allocated_draw', 'description', 'tags']),
+    DeviceBulkAddComponentForm
+):
     tags = TagField(
         required=False
     )
@@ -2698,6 +2701,15 @@ class PowerOutletCreateForm(BootstrapMixin, forms.Form):
             pk=self.initial.get('device') or self.data.get('device')
         )
         self.fields['power_port'].queryset = PowerPort.objects.filter(device=device)
+
+
+class PowerOutletBulkCreateForm(
+    form_from_model(PowerOutlet, ['type', 'feed_leg', 'description', 'tags']),
+    DeviceBulkAddComponentForm
+):
+    tags = TagField(
+        required=False
+    )
 
 
 class PowerOutletCSVForm(forms.ModelForm):
@@ -2985,71 +2997,13 @@ class InterfaceCreateForm(BootstrapMixin, InterfaceCommonForm, forms.Form):
         self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', device.site.pk)
 
 
-class InterfaceCSVForm(forms.ModelForm):
-    device = FlexibleModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        to_field_name='name',
-        help_text='Name or ID of device',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
+class InterfaceBulkCreateForm(
+    form_from_model(Interface, ['type', 'enabled', 'mtu', 'mgmt_only', 'description', 'tags']),
+    DeviceBulkAddComponentForm
+):
+    tags = TagField(
+        required=False
     )
-    virtual_machine = FlexibleModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        to_field_name='name',
-        help_text='Name or ID of virtual machine',
-        error_messages={
-            'invalid_choice': 'Virtual machine not found.',
-        }
-    )
-    lag = FlexibleModelChoiceField(
-        queryset=Interface.objects.all(),
-        required=False,
-        to_field_name='name',
-        help_text='Name or ID of LAG interface',
-        error_messages={
-            'invalid_choice': 'LAG interface not found.',
-        }
-    )
-    type = CSVChoiceField(
-        choices=InterfaceTypeChoices,
-    )
-    mode = CSVChoiceField(
-        choices=InterfaceModeChoices,
-        required=False,
-    )
-
-    class Meta:
-        model = Interface
-        fields = Interface.csv_headers
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Limit LAG choices to interfaces belonging to this device (or VC master)
-        if self.is_bound and 'device' in self.data:
-            try:
-                device = self.fields['device'].to_python(self.data['device'])
-            except forms.ValidationError:
-                device = None
-        else:
-            device = self.instance.device
-
-        if device:
-            self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[device, device.get_vc_master()], type=InterfaceTypeChoices.TYPE_LAG
-            )
-        else:
-            self.fields['lag'].queryset = Interface.objects.none()
-
-    def clean_enabled(self):
-        # Make sure enabled is True when it's not included in the uploaded data
-        if 'enabled' not in self.data:
-            return True
-        else:
-            return self.cleaned_data['enabled']
 
 
 class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
@@ -3173,6 +3127,73 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
         queryset=Interface.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+
+
+class InterfaceCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name or ID of device',
+        error_messages={
+            'invalid_choice': 'Device not found.',
+        }
+    )
+    virtual_machine = FlexibleModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name or ID of virtual machine',
+        error_messages={
+            'invalid_choice': 'Virtual machine not found.',
+        }
+    )
+    lag = FlexibleModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name or ID of LAG interface',
+        error_messages={
+            'invalid_choice': 'LAG interface not found.',
+        }
+    )
+    type = CSVChoiceField(
+        choices=InterfaceTypeChoices,
+    )
+    mode = CSVChoiceField(
+        choices=InterfaceModeChoices,
+        required=False,
+    )
+
+    class Meta:
+        model = Interface
+        fields = Interface.csv_headers
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit LAG choices to interfaces belonging to this device (or VC master)
+        if self.is_bound and 'device' in self.data:
+            try:
+                device = self.fields['device'].to_python(self.data['device'])
+            except forms.ValidationError:
+                device = None
+        else:
+            device = self.instance.device
+
+        if device:
+            self.fields['lag'].queryset = Interface.objects.filter(
+                device__in=[device, device.get_vc_master()], type=InterfaceTypeChoices.TYPE_LAG
+            )
+        else:
+            self.fields['lag'].queryset = Interface.objects.none()
+
+    def clean_enabled(self):
+        # Make sure enabled is True when it's not included in the uploaded data
+        if 'enabled' not in self.data:
+            return True
+        else:
+            return self.cleaned_data['enabled']
 
 
 #
@@ -3331,6 +3352,15 @@ class FrontPortCSVForm(forms.ModelForm):
             self.fields['rear_port'].queryset = RearPort.objects.none()
 
 
+# class FrontPortBulkCreateForm(
+#     form_from_model(FrontPort, ['type', 'description', 'tags']),
+#     DeviceBulkAddComponentForm
+# ):
+#     tags = TagField(
+#         required=False
+#     )
+
+
 class FrontPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=FrontPort.objects.all(),
@@ -3434,6 +3464,15 @@ class RearPortCSVForm(forms.ModelForm):
     class Meta:
         model = RearPort
         fields = RearPort.csv_headers
+
+
+# class RearPortBulkCreateForm(
+#     form_from_model(RearPort, ['type', 'positions', 'description', 'tags']),
+#     DeviceBulkAddComponentForm
+# ):
+#     tags = TagField(
+#         required=False
+#     )
 
 
 class RearPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
@@ -4009,6 +4048,15 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
             device_type__u_height=0,
             device_type__subdevice_role=SubdeviceRoleChoices.ROLE_CHILD
         ).exclude(pk=device_bay.device.pk)
+
+
+class DeviceBayBulkCreateForm(
+    form_from_model(DeviceBay, ['description', 'tags']),
+    DeviceBulkAddComponentForm
+):
+    tags = TagField(
+        required=False
+    )
 
 
 class DeviceBayBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
