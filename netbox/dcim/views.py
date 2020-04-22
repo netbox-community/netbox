@@ -1986,6 +1986,30 @@ class DeviceBulkAddInterfaceView(PermissionRequiredMixin, BulkComponentCreateVie
     default_return_url = 'dcim:device_list'
 
 
+# class DeviceBulkAddFrontPortView(PermissionRequiredMixin, BulkComponentCreateView):
+#     permission_required = 'dcim.add_frontport'
+#     parent_model = Device
+#     parent_field = 'device'
+#     form = forms.FrontPortBulkCreateForm
+#     model = FrontPort
+#     model_form = forms.FrontPortForm
+#     filterset = filters.DeviceFilterSet
+#     table = tables.DeviceTable
+#     default_return_url = 'dcim:device_list'
+
+
+class DeviceBulkAddRearPortView(PermissionRequiredMixin, BulkComponentCreateView):
+    permission_required = 'dcim.add_rearport'
+    parent_model = Device
+    parent_field = 'device'
+    form = forms.RearPortBulkCreateForm
+    model = RearPort
+    model_form = forms.RearPortForm
+    filterset = filters.DeviceFilterSet
+    table = tables.DeviceTable
+    default_return_url = 'dcim:device_list'
+
+
 class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, BulkComponentCreateView):
     permission_required = 'dcim.add_devicebay'
     parent_model = Device

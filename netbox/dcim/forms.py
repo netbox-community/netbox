@@ -3304,6 +3304,50 @@ class FrontPortCreateForm(BootstrapMixin, forms.Form):
         }
 
 
+# class FrontPortBulkCreateForm(
+#     form_from_model(FrontPort, ['type', 'description', 'tags']),
+#     DeviceBulkAddComponentForm
+# ):
+#     tags = TagField(
+#         required=False
+#     )
+
+
+class FrontPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=FrontPort.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PortTypeChoices),
+        required=False,
+        widget=StaticSelect2()
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = [
+            'description',
+        ]
+
+
+class FrontPortBulkRenameForm(BulkRenameForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=FrontPort.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+
+
+class FrontPortBulkDisconnectForm(ConfirmationForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=FrontPort.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+
+
 class FrontPortCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
@@ -3350,50 +3394,6 @@ class FrontPortCSVForm(forms.ModelForm):
             )
         else:
             self.fields['rear_port'].queryset = RearPort.objects.none()
-
-
-# class FrontPortBulkCreateForm(
-#     form_from_model(FrontPort, ['type', 'description', 'tags']),
-#     DeviceBulkAddComponentForm
-# ):
-#     tags = TagField(
-#         required=False
-#     )
-
-
-class FrontPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=FrontPort.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
-    type = forms.ChoiceField(
-        choices=add_blank_choice(PortTypeChoices),
-        required=False,
-        widget=StaticSelect2()
-    )
-    description = forms.CharField(
-        max_length=100,
-        required=False
-    )
-
-    class Meta:
-        nullable_fields = [
-            'description',
-        ]
-
-
-class FrontPortBulkRenameForm(BulkRenameForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=FrontPort.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
-
-
-class FrontPortBulkDisconnectForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=FrontPort.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
 
 
 #
@@ -3448,31 +3448,13 @@ class RearPortCreateForm(BootstrapMixin, forms.Form):
     )
 
 
-class RearPortCSVForm(forms.ModelForm):
-    device = FlexibleModelChoiceField(
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        help_text='Name or ID of device',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
+class RearPortBulkCreateForm(
+    form_from_model(RearPort, ['type', 'positions', 'description', 'tags']),
+    DeviceBulkAddComponentForm
+):
+    tags = TagField(
+        required=False
     )
-    type = CSVChoiceField(
-        choices=PortTypeChoices,
-    )
-
-    class Meta:
-        model = RearPort
-        fields = RearPort.csv_headers
-
-
-# class RearPortBulkCreateForm(
-#     form_from_model(RearPort, ['type', 'positions', 'description', 'tags']),
-#     DeviceBulkAddComponentForm
-# ):
-#     tags = TagField(
-#         required=False
-#     )
 
 
 class RearPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
@@ -3508,6 +3490,24 @@ class RearPortBulkDisconnectForm(ConfirmationForm):
         queryset=RearPort.objects.all(),
         widget=forms.MultipleHiddenInput
     )
+
+
+class RearPortCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Name or ID of device',
+        error_messages={
+            'invalid_choice': 'Device not found.',
+        }
+    )
+    type = CSVChoiceField(
+        choices=PortTypeChoices,
+    )
+
+    class Meta:
+        model = RearPort
+        fields = RearPort.csv_headers
 
 
 #
