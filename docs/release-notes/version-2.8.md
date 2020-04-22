@@ -10,6 +10,7 @@
 
 * [#2994](https://github.com/netbox-community/netbox/issues/2994) - Prevent modifying termination points of existing cable to ensure end-to-end path integrity
 * [#3356](https://github.com/netbox-community/netbox/issues/3356) - Correct Swagger schema specification for the available prefixes/IPs API endpoints
+* [#4139](https://github.com/netbox-community/netbox/issues/4139) - Enable assigning all relevant attributes during bulk device/VM component creation
 * [#4336](https://github.com/netbox-community/netbox/issues/4336) - Ensure interfaces without a subinterface ID are ordered before subinterface zero
 * [#4361](https://github.com/netbox-community/netbox/issues/4361) - Fix Type of `connection_state` in Swagger schema
 * [#4388](https://github.com/netbox-community/netbox/issues/4388) - Fix detection of connected endpoints when connecting rear ports
