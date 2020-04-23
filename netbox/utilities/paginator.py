@@ -37,3 +37,22 @@ class EnhancedPage(Page):
             page_list.insert(page_list.index(i), False)
 
         return page_list
+
+
+def get_paginate_count(request):
+    """
+    Determine the length of a page, using the following in order:
+
+        1. per_page URL query parameter
+        2. Saved user preference
+        3. PAGINATE_COUNT global setting.
+    """
+    if 'per_page' in request.GET:
+        try:
+            per_page = int(request.GET.get('per_page'))
+            request.user.config.set('paginate_count', per_page, commit=True)
+            return per_page
+        except ValueError:
+            pass
+
+    return request.user.config.get('paginate_count', settings.PAGINATE_COUNT)
