@@ -22,7 +22,7 @@
 ### Notes
 
 In accordance with the fix in [#4459](https://github.com/netbox-community/netbox/issues/4459), users that are experiencing invalid nested data with
-regions, rack groups, or tenant groups can preform a one time operation using the NetBox shell to rebuild the correct nested relationships after upgrading:
+regions, rack groups, or tenant groups can perform a one time operation using the NetBox shell to rebuild the correct nested relationships after upgrading:
 
 ```text
 $ python netbox/manage.py nbshell
