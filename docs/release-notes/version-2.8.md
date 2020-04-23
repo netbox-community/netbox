@@ -2,6 +2,21 @@
 
 ## v2.8.1 (FUTURE)
 
+### Notes
+
+In accordance with the fix in [#4459](https://github.com/netbox-community/netbox/issues/4459), users that are experiencing invalid nested data with
+regions, rack groups, or tenant groups can perform a one-time operation using the NetBox shell to rebuild the correct nested relationships after upgrading:
+
+```text
+$ python netbox/manage.py nbshell
+### NetBox interactive shell (localhost)
+### Python 3.6.4 | Django 3.0.5 | NetBox 2.8.1
+### lsmodels() will show available models. Use help(<model>) for more info.
+>>> Region.objects.rebuild()
+>>> RackGroup.objects.rebuild()
+>>> TenantGroup.objects.rebuild()
+```
+
 ### Enhancements
 
 * [#4464](https://github.com/netbox-community/netbox/issues/4464) - Add 21-inch rack width (ETSI)
@@ -18,21 +33,6 @@
 * [#4489](https://github.com/netbox-community/netbox/issues/4489) - Fix display of parent/child role on device type view
 * [#4496](https://github.com/netbox-community/netbox/issues/4496) - Fix exception when validating certain models via REST API
 * [#4510](https://github.com/netbox-community/netbox/issues/4510) - Enforce address family for device primary IPv4/v6 addresses
-
-### Notes
-
-In accordance with the fix in [#4459](https://github.com/netbox-community/netbox/issues/4459), users that are experiencing invalid nested data with
-regions, rack groups, or tenant groups can perform a one time operation using the NetBox shell to rebuild the correct nested relationships after upgrading:
-
-```text
-$ python netbox/manage.py nbshell
-### NetBox interactive shell (Mac-Pro.local)
-### Python 3.6.4 | Django 3.0.5 | NetBox 2.8.1-dev
-### lsmodels() will show available models. Use help(<model>) for more info.
->>> Region.objects.rebuild()
->>> RackGroup.objects.rebuild()
->>> TenantGroup.objects.rebuild()
-```
 
 ---
 
