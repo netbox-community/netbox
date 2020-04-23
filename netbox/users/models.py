@@ -29,6 +29,7 @@ class UserConfig(models.Model):
 
     class Meta:
         ordering = ['user']
+        verbose_name = verbose_name_plural = 'User Preferences'
 
     def get(self, path):
         """
