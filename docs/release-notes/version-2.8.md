@@ -1,6 +1,44 @@
 # NetBox v2.8
 
+## v2.8.1 (2020-04-23)
+
+### Notes
+
+In accordance with the fix in [#4459](https://github.com/netbox-community/netbox/issues/4459), users that are experiencing invalid nested data with
+regions, rack groups, or tenant groups can perform a one-time operation using the NetBox shell to rebuild the correct nested relationships after upgrading:
+
+```text
+$ python netbox/manage.py nbshell
+### NetBox interactive shell (localhost)
+### Python 3.6.4 | Django 3.0.5 | NetBox 2.8.1
+### lsmodels() will show available models. Use help(<model>) for more info.
+>>> Region.objects.rebuild()
+>>> RackGroup.objects.rebuild()
+>>> TenantGroup.objects.rebuild()
+```
+
+### Enhancements
+
+* [#4464](https://github.com/netbox-community/netbox/issues/4464) - Add 21-inch rack width (ETSI)
+
+### Bug Fixes
+
+* [#2994](https://github.com/netbox-community/netbox/issues/2994) - Prevent modifying termination points of existing cable to ensure end-to-end path integrity
+* [#3356](https://github.com/netbox-community/netbox/issues/3356) - Correct Swagger schema specification for the available prefixes/IPs API endpoints
+* [#4139](https://github.com/netbox-community/netbox/issues/4139) - Enable assigning all relevant attributes during bulk device/VM component creation
+* [#4336](https://github.com/netbox-community/netbox/issues/4336) - Ensure interfaces without a subinterface ID are ordered before subinterface zero
+* [#4361](https://github.com/netbox-community/netbox/issues/4361) - Fix Type of `connection_state` in Swagger schema
+* [#4388](https://github.com/netbox-community/netbox/issues/4388) - Fix detection of connected endpoints when connecting rear ports
+* [#4459](https://github.com/netbox-community/netbox/issues/4459) - Fix caching issue resulting in erroneous nested data for regions, rack groups, and tenant groups
+* [#4489](https://github.com/netbox-community/netbox/issues/4489) - Fix display of parent/child role on device type view
+* [#4496](https://github.com/netbox-community/netbox/issues/4496) - Fix exception when validating certain models via REST API
+* [#4510](https://github.com/netbox-community/netbox/issues/4510) - Enforce address family for device primary IPv4/v6 addresses
+
+---
+
 ## v2.8.0 (2020-04-13)
+
+**NOTE:** Beginning with release 2.8.0, NetBox requires Python 3.6 or later.
 
 ### New Features (Beta)
 
@@ -35,7 +73,7 @@ For NetBox plugins to be recognized, they must be installed and added by name to
 * [#1754](https://github.com/netbox-community/netbox/issues/1754) - Added support for nested rack groups
 * [#3939](https://github.com/netbox-community/netbox/issues/3939) - Added support for nested tenant groups
 * [#4078](https://github.com/netbox-community/netbox/issues/4078) - Standardized description fields across all models
-* [#4195](https://github.com/netbox-community/netbox/issues/4195) - Enabled application logging (see [logging configuration](../configuration/optional-settings.md#logging))
+* [#4195](https://github.com/netbox-community/netbox/issues/4195) - Enabled application logging (see [logging configuration](https://netbox.readthedocs.io/en/stable/configuration/optional-settings/#logging))
 
 ### Bug Fixes
 

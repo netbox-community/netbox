@@ -10,11 +10,13 @@ from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.exceptions import CableTraceSplit
 from dcim.fields import MACAddressField
 from extras.models import ObjectChange, TaggedItem
 from extras.utils import extras_features
 from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
+from utilities.query_functions import CollateAsChar
 from utilities.utils import serialize_object
 from virtualization.choices import VMInterfaceTypeChoices
 
@@ -91,7 +93,13 @@ class CableTermination(models.Model):
 
     def trace(self):
         """
-        Return a list representing a complete cable path, with each individual segment represented as a three-tuple:
+        Return two items: the traceable portion of a cable path, and the termination points where it splits (if any).
+        This occurs when the trace is initiated from a midpoint along a path which traverses a RearPort. In cases where
+        the originating endpoint is unknown, it is not possible to know which corresponding FrontPort to follow.
+
+        The path is a list representing a complete cable path, with each individual segment represented as a
+        three-tuple:
+
             [
                 (termination A, cable, termination B),
                 (termination C, cable, termination D),
@@ -117,10 +125,7 @@ class CableTermination(models.Model):
 
                 # Can't map to a FrontPort without a position
                 if not position_stack:
-                    # TODO: This behavior is broken. We need a mechanism by which to return all FrontPorts mapped
-                    # to a given RearPort so that we can update end-to-end paths when a cable is created/deleted.
-                    # For now, we're maintaining the current behavior of tracing only to the first FrontPort.
-                    position_stack.append(1)
+                    raise CableTraceSplit(termination)
 
                 position = position_stack.pop()
 
@@ -159,12 +164,12 @@ class CableTermination(models.Model):
             if not endpoint.cable:
                 path.append((endpoint, None, None))
                 logger.debug("No cable connected")
-                return path
+                return path, None
 
             # Check for loops
             if endpoint.cable in [segment[1] for segment in path]:
                 logger.debug("Loop detected!")
-                return path
+                return path, None
 
             # Record the current segment in the path
             far_end = endpoint.get_cable_peer()
@@ -174,9 +179,13 @@ class CableTermination(models.Model):
             ))
 
             # Get the peer port of the far end termination
-            endpoint = get_peer_port(far_end)
+            try:
+                endpoint = get_peer_port(far_end)
+            except CableTraceSplit as e:
+                return path, e.termination.frontports.all()
+
             if endpoint is None:
-                return path
+                return path, None
 
     def get_cable_peer(self):
         if self.cable is None:
@@ -185,6 +194,23 @@ class CableTermination(models.Model):
             return self.cable.termination_b
         if self._cabled_as_b.exists():
             return self.cable.termination_a
+
+    def get_path_endpoints(self):
+        """
+        Return all endpoints of paths which traverse this object.
+        """
+        endpoints = []
+
+        # Get the far end of the last path segment
+        path, split_ends = self.trace()
+        endpoint = path[-1][2]
+        if split_ends is not None:
+            for termination in split_ends:
+                endpoints.extend(termination.get_path_endpoints())
+        elif endpoint is not None:
+            endpoints.append(endpoint)
+
+        return endpoints
 
 
 #
@@ -651,7 +677,7 @@ class Interface(CableTermination, ComponentModel):
 
     class Meta:
         # TODO: ordering and unique_together should include virtual_machine
-        ordering = ('device', '_name')
+        ordering = ('device', CollateAsChar('_name'))
         unique_together = ('device', 'name')
 
     def __str__(self):

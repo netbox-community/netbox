@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
 from django.db.models import Count
 from django.forms import BoundField
+from django.forms.models import fields_for_model
 from django.urls import reverse
 
 from .choices import unpack_grouped_choices
@@ -121,6 +122,19 @@ def add_blank_choice(choices):
     Add a blank choice to the beginning of a choices list.
     """
     return ((None, '---------'),) + tuple(choices)
+
+
+def form_from_model(model, fields):
+    """
+    Return a Form class with the specified fields derived from a model. This is useful when we need a form to be used
+    for creating objects, but want to avoid the model's validation (e.g. for bulk create/edit functions). All fields
+    are marked as not required.
+    """
+    form_fields = fields_for_model(model, fields=fields)
+    for field in form_fields.values():
+        field.required = False
+
+    return type('FormFromModel', (forms.Form,), form_fields)
 
 
 #

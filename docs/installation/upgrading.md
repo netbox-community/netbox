@@ -4,6 +4,9 @@
 
 Prior to upgrading your NetBox instance, be sure to carefully review all [release notes](../../release-notes/) that have been published since your current version was released. Although the upgrade process typically does not involve additional work, certain releases may introduce breaking or backward-incompatible changes. These are called out in the release notes under the version in which the change went into effect.
 
+!!! note
+    Beginning with version 2.8, NetBox requires Python 3.6 or later.
+
 ## Install the Latest Code
 
 As with the initial installation, you can upgrade NetBox by either downloading the latest release package or by cloning the `master` branch of the git repository. 

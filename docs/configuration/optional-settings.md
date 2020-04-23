@@ -344,7 +344,7 @@ When determining the primary IP address for a device, IPv6 is preferred over IPv
 
 Default: `False`
 
-NetBox can be configured to support remote user authentication by inferring user authentication from an HTTP header set by the HTTP reverse proxy (e.g. nginx or Apache). Set this to `True` to enable this functionality. (Local authenitcation will still take effect as a fallback.)
+NetBox can be configured to support remote user authentication by inferring user authentication from an HTTP header set by the HTTP reverse proxy (e.g. nginx or Apache). Set this to `True` to enable this functionality. (Local authentication will still take effect as a fallback.)
 
 ---
 

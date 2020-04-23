@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django_pglocks import advisory_lock
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -73,6 +74,12 @@ class PrefixViewSet(CustomFieldModelViewSet):
     serializer_class = serializers.PrefixSerializer
     filterset_class = filters.PrefixFilterSet
 
+    @swagger_auto_schema(
+        methods=['get', 'post'],
+        responses={
+            200: serializers.AvailablePrefixSerializer(many=True),
+        }
+    )
     @action(detail=True, url_path='available-prefixes', methods=['get', 'post'])
     @advisory_lock(ADVISORY_LOCK_KEYS['available-prefixes'])
     def available_prefixes(self, request, pk=None):
@@ -151,6 +158,12 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
             return Response(serializer.data)
 
+    @swagger_auto_schema(
+        methods=['get', 'post'],
+        responses={
+            200: serializers.AvailableIPSerializer(many=True),
+        }
+    )
     @action(detail=True, url_path='available-ips', methods=['get', 'post'])
     @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
     def available_ips(self, request, pk=None):

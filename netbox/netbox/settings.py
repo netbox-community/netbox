@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.8.0'
+VERSION = '2.8.1'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -479,11 +479,14 @@ CACHEOPS = {
     'auth.*': {'ops': ('fetch', 'get')},
     'auth.permission': {'ops': 'all'},
     'circuits.*': {'ops': 'all'},
+    'dcim.region': None,  # MPTT models are exempt due to raw sql
+    'dcim.rackgroup': None,  # MPTT models are exempt due to raw sql
     'dcim.*': {'ops': 'all'},
     'ipam.*': {'ops': 'all'},
     'extras.*': {'ops': 'all'},
     'secrets.*': {'ops': 'all'},
     'users.*': {'ops': 'all'},
+    'tenancy.tenantgroup': None,  # MPTT models are exempt due to raw sql
     'tenancy.*': {'ops': 'all'},
     'virtualization.*': {'ops': 'all'},
 }
@@ -644,18 +647,18 @@ for plugin_name in PLUGINS:
         plugin = importlib.import_module(plugin_name)
     except ImportError:
         raise ImproperlyConfigured(
-            f"Unable to import plugin {plugin_name}: Module not found. Check that the plugin module has been "
-            f"installed within the correct Python environment."
+            "Unable to import plugin {}: Module not found. Check that the plugin module has been installed within the "
+            "correct Python environment.".format(plugin_name)
         )
 
     # Determine plugin config and add to INSTALLED_APPS.
     try:
         plugin_config = plugin.config
-        INSTALLED_APPS.append(f"{plugin_config.__module__}.{plugin_config.__name__}")
+        INSTALLED_APPS.append("{}.{}".format(plugin_config.__module__, plugin_config.__name__))
     except AttributeError:
         raise ImproperlyConfigured(
-            f"Plugin {plugin_name} does not provide a 'config' variable. This should be defined in the plugin's "
-            f"__init__.py file and point to the PluginConfig subclass."
+            "Plugin {} does not provide a 'config' variable. This should be defined in the plugin's __init__.py file "
+            "and point to the PluginConfig subclass.".format(plugin_name)
         )
 
     # Validate user-provided configuration settings and assign defaults
@@ -670,7 +673,9 @@ for plugin_name in PLUGINS:
 
     # Apply cacheops config
     if type(plugin_config.caching_config) is not dict:
-        raise ImproperlyConfigured(f"Plugin {plugin_name} caching_config must be a dictionary.")
+        raise ImproperlyConfigured(
+            "Plugin {} caching_config must be a dictionary.".format(plugin_name)
+        )
     CACHEOPS.update({
-        f"{plugin_name}.{key}": value for key, value in plugin_config.caching_config.items()
+        "{}.{}".format(plugin_name, key): value for key, value in plugin_config.caching_config.items()
     })

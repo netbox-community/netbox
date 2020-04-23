@@ -90,8 +90,7 @@ class VLANGroupSerializer(ValidatedModelSerializer):
         if data.get('site', None):
             for field in ['name', 'slug']:
                 validator = UniqueTogetherValidator(queryset=VLANGroup.objects.all(), fields=('site', field))
-                validator.set_context(self)
-                validator(data)
+                validator(data, self)
 
         # Enforce model validation
         super().validate(data)
@@ -122,8 +121,7 @@ class VLANSerializer(TaggitSerializer, CustomFieldModelSerializer):
         if data.get('group', None):
             for field in ['vid', 'name']:
                 validator = UniqueTogetherValidator(queryset=VLAN.objects.all(), fields=('group', field))
-                validator.set_context(self)
-                validator(data)
+                validator(data, self)
 
         # Enforce model validation
         super().validate(data)
@@ -185,6 +183,10 @@ class AvailablePrefixSerializer(serializers.Serializer):
     """
     Representation of a prefix which does not exist in the database.
     """
+    family = serializers.IntegerField(read_only=True)
+    prefix = serializers.CharField(read_only=True)
+    vrf = NestedVRFSerializer(read_only=True)
+
     def to_representation(self, instance):
         if self.context.get('vrf'):
             vrf = NestedVRFSerializer(self.context['vrf'], context={'request': self.context['request']}).data
@@ -248,6 +250,10 @@ class AvailableIPSerializer(serializers.Serializer):
     """
     Representation of an IP address which does not exist in the database.
     """
+    family = serializers.IntegerField(read_only=True)
+    address = serializers.CharField(read_only=True)
+    vrf = NestedVRFSerializer(read_only=True)
+
     def to_representation(self, instance):
         if self.context.get('vrf'):
             vrf = NestedVRFSerializer(self.context['vrf'], context={'request': self.context['request']}).data

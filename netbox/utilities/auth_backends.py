@@ -48,7 +48,7 @@ class RemoteUserBackend(ViewExemptModelBackend, RemoteUserBackend_):
             try:
                 group_list.append(Group.objects.get(name=name))
             except Group.DoesNotExist:
-                logging.error("Could not assign group {name} to remotely-authenticated user {user}: Group not found")
+                logging.error(f"Could not assign group {name} to remotely-authenticated user {user}: Group not found")
         if group_list:
             user.groups.add(*group_list)
             logger.debug(f"Assigned groups to remotely-authenticated user {user}: {group_list}")
