@@ -9,7 +9,7 @@ class UserConfigTest(TestCase):
     def setUp(self):
 
         user = User.objects.create_user(username='testuser')
-        initial_data = {
+        user.config.data = {
             'a': True,
             'b': {
                 'foo': 101,
@@ -27,8 +27,9 @@ class UserConfigTest(TestCase):
                 }
             }
         }
+        user.config.save()
 
-        self.userconfig = UserConfig(user=user, data=initial_data)
+        self.userconfig = user.config
 
     def test_get(self):
         userconfig = self.userconfig
@@ -58,12 +59,12 @@ class UserConfigTest(TestCase):
         userconfig.set('b.baz', 'abc')
         self.assertEqual(userconfig.data['d'], 'abc')
         self.assertEqual(userconfig.data['b']['baz'], 'abc')
-        self.assertIsNone(userconfig.pk)
 
         # Set a value and commit to the database
         userconfig.set('a', 'def', commit=True)
+
+        userconfig.refresh_from_db()
         self.assertEqual(userconfig.data['a'], 'def')
-        self.assertIsNotNone(userconfig.pk)
 
         # Attempt to change a branch node to a leaf node
         with self.assertRaises(TypeError):

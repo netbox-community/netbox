@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import MinLengthValidator
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils import timezone
 
 
@@ -31,23 +33,24 @@ class UserConfig(models.Model):
         ordering = ['user']
         verbose_name = verbose_name_plural = 'User Preferences'
 
-    def get(self, path):
+    def get(self, path, default=None):
         """
         Retrieve a configuration parameter specified by its dotted path. Example:
 
             userconfig.get('foo.bar.baz')
 
         :param path: Dotted path to the configuration key. For example, 'foo.bar' returns self.data['foo']['bar'].
+        :param default: Default value to return for a nonexistent key (default: None).
         """
         d = self.data
         keys = path.split('.')
 
-        # Iterate down the hierarchy, returning None for any invalid keys
+        # Iterate down the hierarchy, returning the default value if any invalid key is encountered
         for key in keys:
             if type(d) is dict:
                 d = d.get(key)
             else:
-                return None
+                return default
 
         return d
 
@@ -114,6 +117,15 @@ class UserConfig(models.Model):
 
         if commit:
             self.save()
+
+
+@receiver(post_save, sender=User)
+def create_userconfig(instance, created, **kwargs):
+    """
+    Automatically create a new UserConfig when a new User is created.
+    """
+    if created:
+        UserConfig(user=instance).save()
 
 
 class Token(models.Model):
