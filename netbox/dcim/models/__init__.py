@@ -1529,7 +1529,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         if self.primary_ip6:
             if self.primary_ip6.family != 6:
                 raise ValidationError({
-                    'primary_ip6': f"{self.primary_ip4} is not an IPv6 address."
+                    'primary_ip6': f"{self.primary_ip6} is not an IPv6 address."
                 })
             if self.primary_ip6.interface in vc_interfaces:
                 pass
