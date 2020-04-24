@@ -1695,7 +1695,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 # Virtual chassis
 #
 
-@extras_features('export_templates', 'webhooks')
+@extras_features('custom_links', 'export_templates', 'webhooks')
 class VirtualChassis(ChangeLoggedModel):
     """
     A collection of Devices which operate with a shared control plane (e.g. a switch stack).
