@@ -50,9 +50,9 @@ def get_paginate_count(request):
     if 'per_page' in request.GET:
         try:
             per_page = int(request.GET.get('per_page'))
-            request.user.config.set('paginate_count', per_page, commit=True)
+            request.user.config.set('pagination.per_page', per_page, commit=True)
             return per_page
         except ValueError:
             pass
 
-    return request.user.config.get('paginate_count', settings.PAGINATE_COUNT)
+    return request.user.config.get('pagination.per_page', settings.PAGINATE_COUNT)
