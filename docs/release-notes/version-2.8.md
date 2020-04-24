@@ -7,6 +7,10 @@
 * [#3294](https://github.com/netbox-community/netbox/issues/3294) - Implement mechanism for storing user preferences
 * [#4531](https://github.com/netbox-community/netbox/issues/4531) - Retain user's pagination preference
 
+### Bug Fixes
+
+* [#4527](https://github.com/netbox-community/netbox/issues/4527) - Fix assignment of certain tags to config contexts
+
 ---
 
 ## v2.8.1 (2020-04-23)

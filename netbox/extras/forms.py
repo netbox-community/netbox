@@ -229,7 +229,6 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
-        to_field_name='slug',
         required=False
     )
     data = JSONField(
