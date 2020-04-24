@@ -45,6 +45,20 @@ class UserConfigTest(TestCase):
         self.assertIsNone(userconfig.get('b.foo.invalid'))
         self.assertIsNone(userconfig.get('b.foo.x.invalid'))
 
+    def test_all(self):
+        userconfig = self.userconfig
+        flattened_data = {
+            'a': True,
+            'b.foo': 101,
+            'b.bar': 102,
+            'c.foo.x': 201,
+            'c.bar.y': 202,
+            'c.baz.z': 203,
+        }
+
+        # Retrieve a flattened dictionary containing all config data
+        self.assertEqual(userconfig.all(), flattened_data)
+
     def test_set(self):
         userconfig = self.userconfig
 

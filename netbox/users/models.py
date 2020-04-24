@@ -9,6 +9,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from utilities.utils import flatten_dict
+
 
 __all__ = (
     'Token',
@@ -53,6 +55,12 @@ class UserConfig(models.Model):
                 return default
 
         return d
+
+    def all(self):
+        """
+        Return a dictionary of all defined keys and their values.
+        """
+        return flatten_dict(self.data)
 
     def set(self, path, value, commit=False):
         """
