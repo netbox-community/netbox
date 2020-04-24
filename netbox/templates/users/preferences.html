@@ -4,15 +4,32 @@
 {% block title %}User Preferences{% endblock %}
 
 {% block usercontent %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Preference</th>
-                <th>Value</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for %}
-        </tbody>
-    </table>
+    {% if preferences %}
+        <form method="post" action="">
+            {% csrf_token %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" class="toggle" title="Toggle all"></th>
+                        <th>Preference</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for key, value in preferences.items %}
+                        <tr>
+                            <td class="min-width"><input type="checkbox" name="pk" value="{{ key }}"></td>
+                            <td>{{ key }}</td>
+                            <td>{{ value }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-danger">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Clear Selected
+            </button>
+        </form>
+    {% else %}
+        <h3 class="text-muted text-center">No preferences found</h3>
+    {% endif %}
 {% endblock %}

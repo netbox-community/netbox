@@ -12,6 +12,9 @@
             <li{% ifequal active_tab "profile" %} class="active"{% endifequal %}>
                 <a href="{% url 'user:profile' %}">Profile</a>
             </li>
+            <li{% ifequal active_tab "preferences" %} class="active"{% endifequal %}>
+                <a href="{% url 'user:preferences' %}">Preferences</a>
+            </li>
             {% if not request.user.ldap_username %}
                 <li{% ifequal active_tab "change_password" %} class="active"{% endifequal %}>
                     <a href="{% url 'user:change_password' %}">Change Password</a>
