@@ -4388,6 +4388,20 @@ class VCMemberSelectForm(BootstrapMixin, forms.Form):
         return device
 
 
+class VirtualChassisBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=VirtualChassis.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    domain = forms.CharField(
+        max_length=30,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ['domain']
+
+
 class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = VirtualChassis
     q = forms.CharField(

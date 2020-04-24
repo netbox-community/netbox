@@ -1507,10 +1507,7 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VirtualChassis
 
     # Disable inapplicable tests
-    test_get_object = None
     test_import_objects = None
-    test_bulk_edit_objects = None
-    test_bulk_delete_objects = None
 
     # TODO: Requires special form handling
     test_create_object = None

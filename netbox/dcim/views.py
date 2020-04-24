@@ -2605,6 +2605,23 @@ class VirtualChassisRemoveMemberView(PermissionRequiredMixin, GetReturnURLMixin,
         })
 
 
+class VirtualChassisBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_virtualchassis'
+    queryset = VirtualChassis.objects.all()
+    filterset = filters.VirtualChassisFilterSet
+    table = tables.VirtualChassisTable
+    form = forms.VirtualChassisBulkEditForm
+    default_return_url = 'dcim:virtualchassis_list'
+
+
+class VirtualChassisBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_virtualchassis'
+    queryset = VirtualChassis.objects.all()
+    filterset = filters.VirtualChassisFilterSet
+    table = tables.VirtualChassisTable
+    default_return_url = 'dcim:virtualchassis_list'
+
+
 #
 # Power panels
 #
