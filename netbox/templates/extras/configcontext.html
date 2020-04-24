@@ -215,13 +215,9 @@
                     {% include 'extras/inc/configcontext_format.html' %}
                 </div>
                 <div class="panel-body">
-                    {% include 'extras/inc/configcontext_data.html' with data=configcontext.data %}
+                    {% include 'extras/inc/configcontext_data.html' with data=configcontext.data format=format %}
                 </div>
             </div>
         </div>
     </div>
-{% endblock %}
-
-{% block javascript %}
-<script src="{% static 'js/configcontext.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

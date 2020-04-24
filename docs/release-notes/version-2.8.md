@@ -5,7 +5,8 @@
 ### Enhancements
 
 * [#3294](https://github.com/netbox-community/netbox/issues/3294) - Implement mechanism for storing user preferences
-* [#4531](https://github.com/netbox-community/netbox/issues/4531) - Retain user's pagination preference
+* [#4421](https://github.com/netbox-community/netbox/issues/4421) - Retain user's preference for config context format
+* [#4531](https://github.com/netbox-community/netbox/issues/4531) - Retain user's preference for page length
 
 ### Bug Fixes
 

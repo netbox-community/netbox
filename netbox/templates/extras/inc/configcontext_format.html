@@ -1,6 +1,6 @@
 <div class="pull-right">
     <div class="btn-group btn-group-xs" role="group">
-        <span class="btn btn-default rendered-context-format active" data-format="json">JSON</span>
-        <span class="btn btn-default rendered-context-format" data-format="yaml">YAML</span>
+        <a href="?format=json" class="btn btn-default{% if format == 'json' %} active{% endif %}">JSON</a>
+        <a href="?format=yaml" class="btn btn-default{% if format == 'yaml' %} active{% endif %}">YAML</a>
     </div>
 </div>
