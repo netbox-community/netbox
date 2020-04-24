@@ -45,6 +45,12 @@ class UserConfigTest(TestCase):
         self.assertIsNone(userconfig.get('b.foo.invalid'))
         self.assertIsNone(userconfig.get('b.foo.x.invalid'))
 
+        # Invalid values with a provided default should return the default
+        self.assertEqual(userconfig.get('invalid', 'DEFAULT'), 'DEFAULT')
+        self.assertEqual(userconfig.get('a.invalid', 'DEFAULT'), 'DEFAULT')
+        self.assertEqual(userconfig.get('b.foo.invalid', 'DEFAULT'), 'DEFAULT')
+        self.assertEqual(userconfig.get('b.foo.x.invalid', 'DEFAULT'), 'DEFAULT')
+
     def test_all(self):
         userconfig = self.userconfig
         flattened_data = {

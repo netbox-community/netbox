@@ -49,7 +49,7 @@ class UserConfig(models.Model):
 
         # Iterate down the hierarchy, returning the default value if any invalid key is encountered
         for key in keys:
-            if type(d) is dict:
+            if type(d) is dict and key in d:
                 d = d.get(key)
             else:
                 return default
