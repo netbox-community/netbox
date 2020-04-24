@@ -1722,7 +1722,7 @@ class VirtualChassis(ChangeLoggedModel):
         return str(self.master) if hasattr(self, 'master') else 'New Virtual Chassis'
 
     def get_absolute_url(self):
-        return self.master.get_absolute_url()
+        return reverse('dcim:virtualchassis', kwargs={'pk': self.pk})
 
     def clean(self):
 

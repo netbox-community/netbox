@@ -165,15 +165,6 @@ UTILIZATION_GRAPH = """
 {% utilization_graph value %}
 """
 
-VIRTUALCHASSIS_ACTIONS = """
-<a href="{% url 'dcim:virtualchassis_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
-{% if perms.dcim.change_virtualchassis %}
-    <a href="{% url 'dcim:virtualchassis_edit' pk=record.pk %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
-"""
-
 CABLE_TERMINATION_PARENT = """
 {% if value.device %}
     <a href="{{ value.device.get_absolute_url }}">{{ value.device }}</a>
@@ -1050,17 +1041,17 @@ class InventoryItemTable(BaseTable):
 
 class VirtualChassisTable(BaseTable):
     pk = ToggleColumn()
-    master = tables.LinkColumn()
-    member_count = tables.Column(verbose_name='Members')
-    actions = tables.TemplateColumn(
-        template_code=VIRTUALCHASSIS_ACTIONS,
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
+    name = tables.Column(
+        accessor=Accessor('master__name'),
+        linkify=True
+    )
+    member_count = tables.Column(
+        verbose_name='Members'
     )
 
     class Meta(BaseTable.Meta):
         model = VirtualChassis
-        fields = ('pk', 'master', 'domain', 'member_count', 'actions')
+        fields = ('pk', 'name', 'domain', 'member_count')
 
 
 #

@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load buttons %}
+{% load custom_links %}
+{% load helpers %}
+{% load plugins %}
+
+{% block header %}
+    <div class="row noprint">
+        <div class="col-sm-8 col-md-9">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'dcim:virtualchassis_list' %}">Virtual Chassis</a></li>
+                <li><a href="{% url 'dcim:virtualchassis_list' %}?site={{ virtualchassis.master.site.slug }}">{{ virtualchassis.master.site }}</a></li>
+                <li>{{ virtualchassis }}</li>
+            </ol>
+        </div>
+        <div class="col-sm-4 col-md-3">
+            <form action="{% url 'dcim:virtualchassis_list' %}" method="get">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search virtual chassis" />
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="fa fa-search" aria-hidden="true"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="pull-right noprint">
+        {% plugin_buttons virtualchassis %}
+        {% if perms.dcim.change_virtualchassis %}
+            {% edit_button virtualchassis %}
+        {% endif %}
+        {% if perms.dcim.delete_virtualchassis %}
+            {% delete_button virtualchassis %}
+        {% endif %}
+    </div>
+    <h1>{% block title %}{{ virtualchassis }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' with obj=virtualchassis %}
+    <div class="pull-right noprint">
+        {% custom_links virtualchassis %}
+    </div>
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ virtualchassis.get_absolute_url }}">Virtual Chassis</a>
+        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:virtualchassis_changelog' pk=virtualchassis.pk %}">Change Log</a>
+            </li>
+        {% endif %}
+    </ul>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Virtual Chassis</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+                <tr>
+                    <td>Domain</td>
+                    <td>{{ virtualchassis.domain|placeholder }}</td>
+
+            </table>
+        </div>
+        {% include 'extras/inc/tags_panel.html' with tags=virtualchassis.tags.all url='dcim:virtualchassis_list' %}
+        {% plugin_left_page virtualchassis %}
+    </div>
+    <div class="col-md-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Members</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+                <tr>
+                    <th>Device</th>
+                    <th>Position</th>
+                    <th>Master</th>
+                    <th>Priority</th>
+                </tr>
+                {% for vc_member in virtualchassis.members.all %}
+                    <tr{% if vc_member == device %} class="info"{% endif %}>
+                        <td>
+                            <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
+                        </td>
+                        <td><span class="badge badge-default">{{ vc_member.vc_position }}</span></td>
+                        <td>{% if virtualchassis.master == vc_member %}<i class="fa fa-check text-success"></i>{% endif %}</td>
+                        <td>{{ vc_member.vc_priority|placeholder }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            {% if perms.dcim.change_virtualchassis %}
+                <div class="panel-footer text-right noprint">
+                    <a href="{% url 'dcim:virtualchassis_add_member' pk=virtualchassis.pk %}?site={{ virtualchassis.master.site.pk }}&rack={{ virtualchassis.master.rack.pk }}" class="btn btn-primary btn-xs">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Member
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        {% plugin_right_page virtualchassis %}
+	</div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% plugin_full_width_page virtualchassis %}
+    </div>
+</div>
+{% endblock %}

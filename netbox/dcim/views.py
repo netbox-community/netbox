@@ -32,7 +32,6 @@ from virtualization.models import VirtualMachine
 from . import filters, forms, tables
 from .choices import DeviceFaceChoices
 from .constants import NONCONNECTABLE_IFACE_TYPES
-from .exceptions import CableTraceSplit
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
@@ -2366,6 +2365,17 @@ class VirtualChassisListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.VirtualChassisFilterSet
     filterset_form = forms.VirtualChassisFilterForm
     action_buttons = ('export',)
+
+
+class VirtualChassisView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.view_virtualchassis'
+
+    def get(self, request, pk):
+        virtualchassis = get_object_or_404(VirtualChassis.objects.prefetch_related('members'), pk=pk)
+
+        return render(request, 'dcim/virtualchassis.html', {
+            'virtualchassis': virtualchassis,
+        })
 
 
 class VirtualChassisCreateView(PermissionRequiredMixin, View):
