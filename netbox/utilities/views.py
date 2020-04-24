@@ -2,7 +2,6 @@ import logging
 import sys
 from copy import deepcopy
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
@@ -29,7 +28,7 @@ from utilities.forms import BootstrapMixin, CSVDataField
 from utilities.utils import csv_format, prepare_cloned_fields
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm, ImportForm
-from .paginator import EnhancedPaginator
+from .paginator import EnhancedPaginator, get_paginate_count
 
 
 class GetReturnURLMixin(object):
@@ -172,7 +171,7 @@ class ObjectListView(View):
         # Apply the request context
         paginate = {
             'paginator_class': EnhancedPaginator,
-            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+            'per_page': get_paginate_count(request)
         }
         RequestConfig(request, paginate).configure(table)
 
