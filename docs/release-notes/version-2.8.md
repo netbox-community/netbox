@@ -1,5 +1,14 @@
 # NetBox v2.8
 
+## v2.8.2 (FUTURE)
+
+### Enhancements
+
+* [#3294](https://github.com/netbox-community/netbox/issues/3294) - Implement mechanism for storing user preferences
+* [#4531](https://github.com/netbox-community/netbox/issues/4531) - Retain user's pagination preference
+
+---
+
 ## v2.8.1 (2020-04-23)
 
 ### Notes
