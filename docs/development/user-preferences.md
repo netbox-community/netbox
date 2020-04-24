@@ -6,4 +6,5 @@ The `users.UserConfig` model holds individual preferences for each user in the f
 
 | Name | Description |
 | ---- | ----------- |
+| extras.configcontext.format | Preferred format when rendering config context data (JSON or YAML) |
 | pagination.per_page | The number of items to display per page of a paginated table |
