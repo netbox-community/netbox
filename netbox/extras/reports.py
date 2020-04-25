@@ -183,6 +183,9 @@ class Report(object):
         """
         self.logger.info(f"Running report")
 
+        # Perform any pre-run tasks
+        self.pre_run()
+        
         for method_name in self.test_methods:
             self.active_test = method_name
             test_method = getattr(self, method_name)
@@ -202,6 +205,12 @@ class Report(object):
         # Perform any post-run tasks
         self.post_run()
 
+    def pre_run(self):
+        """
+        Extend this method to include any tasks which should execute before the report has been run.
+        """
+        pass
+      
     def post_run(self):
         """
         Extend this method to include any tasks which should execute after the report has been run.
