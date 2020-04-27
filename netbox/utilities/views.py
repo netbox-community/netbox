@@ -164,7 +164,8 @@ class ObjectListView(View):
             permissions[action] = request.user.has_perm(perm_name)
 
         # Construct the table based on the user's permissions
-        table = self.table(self.queryset)
+        columns = request.user.config.get(f"tables.{self.table.__name__}.columns")
+        table = self.table(self.queryset, columns=columns)
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
 

@@ -76,7 +76,16 @@ class CircuitTable(BaseTable):
     z_side = tables.Column(
         verbose_name='Z Side'
     )
+    install_date = tables.Column(
+        visible=False
+    )
+    commit_rate = tables.Column(
+        visible=False
+    )
 
     class Meta(BaseTable.Meta):
         model = Circuit
-        fields = ('pk', 'cid', 'status', 'type', 'provider', 'tenant', 'a_side', 'z_side', 'description')
+        fields = (
+            'pk', 'cid', 'status', 'type', 'provider', 'tenant', 'a_side', 'z_side', 'install_date', 'commit_rate',
+            'description',
+        )

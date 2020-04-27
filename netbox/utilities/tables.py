@@ -6,12 +6,28 @@ class BaseTable(tables.Table):
     """
     Default table for object lists
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, columns=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Set default empty_text if none was provided
         if self.empty_text is None:
             self.empty_text = 'No {} found'.format(self._meta.model._meta.verbose_name_plural)
+
+        # Apply custom column ordering
+        if columns is not None:
+            pk = self.base_columns.pop('pk', None)
+
+            for name, column in self.base_columns.items():
+                if name in columns:
+                    self.columns.show(name)
+                else:
+                    self.columns.hide(name)
+            self.sequence = columns
+
+            # Always include PK column, if defined on the table
+            if pk:
+                self.base_columns['pk'] = pk
+                self.sequence.insert(0, 'pk')
 
     class Meta:
         attrs = {
