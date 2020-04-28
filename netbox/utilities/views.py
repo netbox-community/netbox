@@ -176,21 +176,33 @@ class ObjectListView(View):
         }
         RequestConfig(request, paginate).configure(table)
 
-        table_config_form = TableConfigForm(
-            table=table
-        )
-
         context = {
             'content_type': content_type,
             'table': table,
             'permissions': permissions,
             'action_buttons': self.action_buttons,
-            'table_config_form': table_config_form,
+            'table_config_form': TableConfigForm(table=table),
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
         }
         context.update(self.extra_context())
 
         return render(request, self.template_name, context)
+
+    def post(self, request):
+
+        # Update the user's table configuration
+        table = self.table(self.queryset)
+        form = TableConfigForm(table=table, data=request.POST)
+        preference_name = f"tables.{self.table.__name__}.columns"
+
+        if form.is_valid():
+            if 'set' in request.POST:
+                request.user.config.set(preference_name, form.cleaned_data['columns'], commit=True)
+            elif 'clear' in request.POST:
+                request.user.config.clear(preference_name, commit=True)
+            messages.success(request, "Your preferences have been updated.")
+
+        return redirect(request.path)
 
     def alter_queryset(self, request):
         # .all() is necessary to avoid caching queries

@@ -9,7 +9,7 @@
                 <h4 class="modal-title">Table Configuration</h4>
             </div>
             <div class="modal-body">
-                <form action="?return_url={{ request.path }}" method="post" class="form-horizontal">
+                <form action="" method="post" class="form-horizontal">
                     {% csrf_token %}
                     {% render_form table_config_form %}
                     <div class="text-right">
