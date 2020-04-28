@@ -28,7 +28,7 @@ class ProviderListView(PermissionRequiredMixin, ObjectListView):
     queryset = Provider.objects.annotate(count_circuits=Count('circuits'))
     filterset = filters.ProviderFilterSet
     filterset_form = forms.ProviderFilterForm
-    table = tables.ProviderDetailTable
+    table = tables.ProviderTable
 
 
 class ProviderView(PermissionRequiredMixin, View):
@@ -87,7 +87,7 @@ class ProviderBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class ProviderBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'circuits.change_provider'
-    queryset = Provider.objects.all()
+    queryset = Provider.objects.annotate(count_circuits=Count('circuits'))
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
     form = forms.ProviderBulkEditForm
@@ -96,7 +96,7 @@ class ProviderBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class ProviderBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_provider'
-    queryset = Provider.objects.all()
+    queryset = Provider.objects.annotate(count_circuits=Count('circuits'))
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
     default_return_url = 'circuits:provider_list'

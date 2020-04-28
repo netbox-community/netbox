@@ -37,10 +37,10 @@ class BaseTable(tables.Table):
     @property
     def configurable_columns(self):
         selected_columns = [
-            (name, self.columns[name].verbose_name) for name in self.sequence if name != 'pk'
+            (name, self.columns[name].verbose_name) for name in self.sequence if name not in ['pk', 'actions']
         ]
         available_columns = [
-            (name, column.verbose_name) for name, column in self.columns.items() if name not in self.sequence and name != 'pk'
+            (name, column.verbose_name) for name, column in self.columns.items() if name not in self.sequence and name not in ['pk', 'actions']
         ]
         return selected_columns + available_columns
 

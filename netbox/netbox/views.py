@@ -44,7 +44,7 @@ SEARCH_TYPES = OrderedDict((
     # Circuits
     ('provider', {
         'permission': 'circuits.view_provider',
-        'queryset': Provider.objects.all(),
+        'queryset': Provider.objects.annotate(count_circuits=Count('circuits')),
         'filterset': ProviderFilterSet,
         'table': ProviderTable,
         'url': 'circuits:provider_list',

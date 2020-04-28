@@ -27,18 +27,23 @@ STATUS_LABEL = """
 class ProviderTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
+    portal_url = tables.URLColumn(
+        visible=False
+    )
+    noc_contact = tables.Column(
+        visible=False
+    )
+    admin_contact = tables.Column(
+        visible=False
+    )
+    circuit_count = tables.Column(
+        accessor=Accessor('count_circuits'),
+        verbose_name='Circuits'
+    )
 
     class Meta(BaseTable.Meta):
         model = Provider
-        fields = ('pk', 'name', 'asn', 'account',)
-
-
-class ProviderDetailTable(ProviderTable):
-    circuit_count = tables.Column(accessor=Accessor('count_circuits'), verbose_name='Circuits')
-
-    class Meta(ProviderTable.Meta):
-        model = Provider
-        fields = ('pk', 'name', 'asn', 'account', 'circuit_count')
+        fields = ('pk', 'name', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'circuit_count')
 
 
 #
@@ -86,6 +91,6 @@ class CircuitTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Circuit
         fields = (
-            'pk', 'cid', 'status', 'type', 'provider', 'tenant', 'a_side', 'z_side', 'install_date', 'commit_rate',
+            'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'a_side', 'z_side', 'install_date', 'commit_rate',
             'description',
         )
