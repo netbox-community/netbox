@@ -205,9 +205,13 @@ def get_component_template_actions(model_name):
 
 class RegionTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.TemplateColumn(template_code=MPTT_LINK, orderable=False)
-    site_count = tables.Column(verbose_name='Sites')
-    slug = tables.Column(verbose_name='Slug')
+    name = tables.TemplateColumn(
+        template_code=MPTT_LINK,
+        orderable=False
+    )
+    site_count = tables.Column(
+        verbose_name='Sites'
+    )
     actions = tables.TemplateColumn(
         template_code=REGION_ACTIONS,
         attrs={'td': {'class': 'text-right noprint'}},
@@ -216,7 +220,8 @@ class RegionTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Region
-        fields = ('pk', 'name', 'site_count', 'description', 'slug', 'actions')
+        fields = ('pk', 'name', 'slug', 'site_count', 'description', 'actions')
+        default_columns = ('pk', 'name', 'site_count', 'description', 'actions')
 
 
 #
@@ -225,14 +230,27 @@ class RegionTable(BaseTable):
 
 class SiteTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(order_by=('_name',))
-    status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
-    region = tables.TemplateColumn(template_code=SITE_REGION_LINK)
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
+    name = tables.LinkColumn(
+        order_by=('_name',)
+    )
+    status = tables.TemplateColumn(
+        template_code=STATUS_LABEL
+    )
+    region = tables.TemplateColumn(
+        template_code=SITE_REGION_LINK
+    )
+    tenant = tables.TemplateColumn(
+        template_code=COL_TENANT
+    )
 
     class Meta(BaseTable.Meta):
         model = Site
-        fields = ('pk', 'name', 'status', 'facility', 'region', 'tenant', 'asn', 'description')
+        fields = (
+            'pk', 'name', 'slug', 'status', 'facility', 'region', 'tenant', 'asn', 'time_zone', 'description',
+            'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
+            'contact_email',
+        )
+        default_columns = ('pk', 'name', 'status', 'facility', 'region', 'tenant', 'asn', 'description')
 
 
 #
@@ -253,7 +271,6 @@ class RackGroupTable(BaseTable):
     rack_count = tables.Column(
         verbose_name='Racks'
     )
-    slug = tables.Column()
     actions = tables.TemplateColumn(
         template_code=RACKGROUP_ACTIONS,
         attrs={'td': {'class': 'text-right noprint'}},
@@ -263,6 +280,7 @@ class RackGroupTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = RackGroup
         fields = ('pk', 'name', 'site', 'rack_count', 'description', 'slug', 'actions')
+        default_columns = ('pk', 'name', 'site', 'rack_count', 'description', 'actions')
 
 
 #
@@ -282,6 +300,7 @@ class RackRoleTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = RackRole
         fields = ('pk', 'name', 'rack_count', 'color', 'description', 'slug', 'actions')
+        default_columns = ('pk', 'name', 'rack_count', 'color', 'description', 'actions')
 
 
 #
@@ -290,17 +309,37 @@ class RackRoleTable(BaseTable):
 
 class RackTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(order_by=('_name',))
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
-    group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
-    status = tables.TemplateColumn(STATUS_LABEL)
-    role = tables.TemplateColumn(RACK_ROLE)
-    u_height = tables.TemplateColumn("{{ record.u_height }}U", verbose_name='Height')
+    name = tables.LinkColumn(
+        order_by=('_name',)
+    )
+    site = tables.LinkColumn(
+        viewname='dcim:site',
+        args=[Accessor('site.slug')]
+    )
+    group = tables.Column(
+        accessor=Accessor('group.name')
+    )
+    tenant = tables.TemplateColumn(
+        template_code=COL_TENANT
+    )
+    status = tables.TemplateColumn(
+        template_code=STATUS_LABEL
+    )
+    role = tables.TemplateColumn(
+        template_code=RACK_ROLE
+    )
+    u_height = tables.TemplateColumn(
+        template_code="{{ record.u_height }}U",
+        verbose_name='Height'
+    )
 
     class Meta(BaseTable.Meta):
         model = Rack
-        fields = ('pk', 'name', 'site', 'group', 'status', 'facility_id', 'tenant', 'role', 'u_height')
+        fields = (
+            'pk', 'name', 'site', 'group', 'status', 'facility_id', 'tenant', 'role', 'serial', 'asset_tag', 'type',
+            'width', 'u_height',
+        )
+        default_columns = ('pk', 'name', 'site', 'group', 'status', 'facility_id', 'tenant', 'role', 'u_height')
 
 
 class RackDetailTable(RackTable):
@@ -321,6 +360,10 @@ class RackDetailTable(RackTable):
 
     class Meta(RackTable.Meta):
         fields = (
+            'pk', 'name', 'site', 'group', 'status', 'facility_id', 'tenant', 'role', 'serial', 'asset_tag', 'type',
+            'width', 'u_height', 'device_count', 'get_utilization', 'get_power_utilization',
+        )
+        default_columns = (
             'pk', 'name', 'site', 'group', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',
             'get_utilization', 'get_power_utilization',
         )
@@ -363,6 +406,9 @@ class RackReservationTable(BaseTable):
         model = RackReservation
         fields = (
             'pk', 'reservation', 'site', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'actions',
+        )
+        default_columns = (
+            'pk', 'reservation', 'site', 'rack', 'unit_list', 'user', 'description', 'actions',
         )
 
 
@@ -416,8 +462,11 @@ class DeviceTypeTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = DeviceType
         fields = (
-            'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'pk', 'model', 'manufacturer', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
             'instance_count',
+        )
+        default_columns = (
+            'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'instance_count',
         )
 
 
@@ -427,7 +476,9 @@ class DeviceTypeTable(BaseTable):
 
 class ConsolePortTemplateTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.Column(order_by=('_name',))
+    name = tables.Column(
+        order_by=('_name',)
+    )
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('consoleporttemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -441,7 +492,10 @@ class ConsolePortTemplateTable(BaseTable):
 
 
 class ConsolePortImportTable(BaseTable):
-    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+    device = tables.LinkColumn(
+        viewname='dcim:device',
+        args=[Accessor('device.pk')]
+    )
 
     class Meta(BaseTable.Meta):
         model = ConsolePort
@@ -451,7 +505,9 @@ class ConsolePortImportTable(BaseTable):
 
 class ConsoleServerPortTemplateTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.Column(order_by=('_name',))
+    name = tables.Column(
+        order_by=('_name',)
+    )
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('consoleserverporttemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -465,7 +521,10 @@ class ConsoleServerPortTemplateTable(BaseTable):
 
 
 class ConsoleServerPortImportTable(BaseTable):
-    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+    device = tables.LinkColumn(
+        viewname='dcim:device',
+        args=[Accessor('device.pk')]
+    )
 
     class Meta(BaseTable.Meta):
         model = ConsoleServerPort
@@ -475,7 +534,9 @@ class ConsoleServerPortImportTable(BaseTable):
 
 class PowerPortTemplateTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.Column(order_by=('_name',))
+    name = tables.Column(
+        order_by=('_name',)
+    )
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('powerporttemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -489,7 +550,10 @@ class PowerPortTemplateTable(BaseTable):
 
 
 class PowerPortImportTable(BaseTable):
-    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+    device = tables.LinkColumn(
+        viewname='dcim:device',
+        args=[Accessor('device.pk')]
+    )
 
     class Meta(BaseTable.Meta):
         model = PowerPort
@@ -499,7 +563,9 @@ class PowerPortImportTable(BaseTable):
 
 class PowerOutletTemplateTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.Column(order_by=('_name',))
+    name = tables.Column(
+        order_by=('_name',)
+    )
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('poweroutlettemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -513,7 +579,10 @@ class PowerOutletTemplateTable(BaseTable):
 
 
 class PowerOutletImportTable(BaseTable):
-    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+    device = tables.LinkColumn(
+        viewname='dcim:device',
+        args=[Accessor('device.pk')]
+    )
 
     class Meta(BaseTable.Meta):
         model = PowerOutlet
@@ -523,7 +592,9 @@ class PowerOutletImportTable(BaseTable):
 
 class InterfaceTemplateTable(BaseTable):
     pk = ToggleColumn()
-    mgmt_only = tables.TemplateColumn("{% if value %}OOB Management{% endif %}")
+    mgmt_only = tables.TemplateColumn(
+        template_code="{% if value %}OOB Management{% endif %}"
+    )
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('interfacetemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -537,18 +608,30 @@ class InterfaceTemplateTable(BaseTable):
 
 
 class InterfaceImportTable(BaseTable):
-    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
-    virtual_machine = tables.LinkColumn('virtualization:virtualmachine', args=[Accessor('virtual_machine.pk')], verbose_name='Virtual Machine')
+    device = tables.LinkColumn(
+        viewname='dcim:device',
+        args=[Accessor('device.pk')]
+    )
+    virtual_machine = tables.LinkColumn(
+        viewname='virtualization:virtualmachine',
+        args=[Accessor('virtual_machine.pk')],
+        verbose_name='Virtual Machine'
+    )
 
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = ('device', 'virtual_machine', 'name', 'description', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only', 'mode')
+        fields = (
+            'device', 'virtual_machine', 'name', 'description', 'lag', 'type', 'enabled', 'mac_address', 'mtu',
+            'mgmt_only', 'mode',
+        )
         empty_text = False
 
 
 class FrontPortTemplateTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.Column(order_by=('_name',))
+    name = tables.Column(
+        order_by=('_name',)
+    )
     rear_port_position = tables.Column(
         verbose_name='Position'
     )
@@ -565,7 +648,10 @@ class FrontPortTemplateTable(BaseTable):
 
 
 class FrontPortImportTable(BaseTable):
-    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+    device = tables.LinkColumn(
+        viewname='dcim:device',
+        args=[Accessor('device.pk')]
+    )
 
     class Meta(BaseTable.Meta):
         model = FrontPort
@@ -575,7 +661,9 @@ class FrontPortImportTable(BaseTable):
 
 class RearPortTemplateTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.Column(order_by=('_name',))
+    name = tables.Column(
+        order_by=('_name',)
+    )
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('rearporttemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -589,7 +677,10 @@ class RearPortTemplateTable(BaseTable):
 
 
 class RearPortImportTable(BaseTable):
-    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
+    device = tables.LinkColumn(
+        viewname='dcim:device',
+        args=[Accessor('device.pk')]
+    )
 
     class Meta(BaseTable.Meta):
         model = RearPort
@@ -599,7 +690,9 @@ class RearPortImportTable(BaseTable):
 
 class DeviceBayTemplateTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.Column(order_by=('_name',))
+    name = tables.Column(
+        order_by=('_name',)
+    )
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('devicebaytemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
