@@ -6,6 +6,11 @@ class BaseTable(tables.Table):
     """
     Default table for object lists
     """
+    class Meta:
+        attrs = {
+            'class': 'table table-hover table-headings',
+        }
+
     def __init__(self, *args, columns=None, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -29,10 +34,19 @@ class BaseTable(tables.Table):
                 self.base_columns['pk'] = pk
                 self.sequence.insert(0, 'pk')
 
-    class Meta:
-        attrs = {
-            'class': 'table table-hover table-headings',
-        }
+    @property
+    def configurable_columns(self):
+        selected_columns = [
+            (name, self.columns[name].verbose_name) for name in self.sequence if name != 'pk'
+        ]
+        available_columns = [
+            (name, column.verbose_name) for name, column in self.columns.items() if name not in self.sequence and name != 'pk'
+        ]
+        return selected_columns + available_columns
+
+    @property
+    def visible_columns(self):
+        return [name for name in self.sequence if self.columns[name].visible]
 
 
 class ToggleColumn(tables.CheckBoxColumn):

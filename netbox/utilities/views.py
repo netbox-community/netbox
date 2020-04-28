@@ -24,7 +24,7 @@ from django_tables2 import RequestConfig
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
 from utilities.exceptions import AbortTransaction
-from utilities.forms import BootstrapMixin, CSVDataField
+from utilities.forms import BootstrapMixin, CSVDataField, TableConfigForm
 from utilities.utils import csv_format, prepare_cloned_fields
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm, ImportForm
@@ -176,11 +176,16 @@ class ObjectListView(View):
         }
         RequestConfig(request, paginate).configure(table)
 
+        table_config_form = TableConfigForm(
+            table=table
+        )
+
         context = {
             'content_type': content_type,
             'table': table,
             'permissions': permissions,
             'action_buttons': self.action_buttons,
+            'table_config_form': table_config_form,
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
         }
         context.update(self.extra_context())

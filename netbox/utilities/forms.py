@@ -137,6 +137,27 @@ def form_from_model(model, fields):
     return type('FormFromModel', (forms.Form,), form_fields)
 
 
+def apply_bootstrap_classes(form):
+    """
+    Apply Bootstrap CSS classes to form elements.
+    """
+    exempt_widgets = [
+        forms.CheckboxInput,
+        forms.ClearableFileInput,
+        forms.FileInput,
+        forms.RadioSelect
+    ]
+
+    for field_name, field in form.fields.items():
+        if field.widget.__class__ not in exempt_widgets:
+            css = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = ' '.join([css, 'form-control']).strip()
+        if field.required and not isinstance(field.widget, forms.FileInput):
+            field.widget.attrs['required'] = 'required'
+        if 'placeholder' not in field.widget.attrs:
+            field.widget.attrs['placeholder'] = field.label
+
+
 #
 # Widgets
 #
@@ -663,19 +684,7 @@ class BootstrapMixin(forms.BaseForm):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        exempt_widgets = [
-            forms.CheckboxInput, forms.ClearableFileInput, forms.FileInput, forms.RadioSelect
-        ]
-
-        for field_name, field in self.fields.items():
-            if field.widget.__class__ not in exempt_widgets:
-                css = field.widget.attrs.get('class', '')
-                field.widget.attrs['class'] = ' '.join([css, 'form-control']).strip()
-            if field.required and not isinstance(field.widget, forms.FileInput):
-                field.widget.attrs['required'] = 'required'
-            if 'placeholder' not in field.widget.attrs:
-                field.widget.attrs['placeholder'] = field.label
+        apply_bootstrap_classes(self)
 
 
 class ReturnURLForm(forms.Form):
@@ -752,3 +761,23 @@ class ImportForm(BootstrapMixin, forms.Form):
                 raise forms.ValidationError({
                     'data': "Invalid YAML data: {}".format(err)
                 })
+
+
+class TableConfigForm(forms.Form):
+    """
+    Form for configuring user's table preferences.
+    """
+    def __init__(self, table, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        field_name = f"tables.{table.__class__.__name__}.columns"
+        self.fields[field_name] = forms.MultipleChoiceField(
+            choices=table.configurable_columns,
+            initial=table.visible_columns,
+            label='Columns',
+            widget=forms.SelectMultiple(
+                attrs={'size': 10}
+            )
+        )
+
+        apply_bootstrap_classes(self)
