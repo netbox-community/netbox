@@ -202,7 +202,7 @@ class ObjectListView(View):
                 request.user.config.clear(preference_name, commit=True)
             messages.success(request, "Your preferences have been updated.")
 
-        return redirect(request.path)
+        return redirect(request.get_full_path())
 
     def alter_queryset(self, request):
         # .all() is necessary to avoid caching queries

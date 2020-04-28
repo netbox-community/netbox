@@ -765,7 +765,8 @@ class TableConfigForm(BootstrapMixin, forms.Form):
         choices=[],
         widget=forms.SelectMultiple(
             attrs={'size': 10}
-        )
+        ),
+        help_text="Use the buttons below to arrange columns in the desired order, then select all columns to display."
     )
 
     def __init__(self, table, *args, **kwargs):

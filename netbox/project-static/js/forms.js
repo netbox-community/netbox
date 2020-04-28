@@ -448,4 +448,29 @@ $(document).ready(function() {
     $('a.image-preview').on('mouseout', function() {
         $('#image-preview-window').fadeOut('fast');
     });
+
+    // Rearrange options within a <select> list
+    $('#move-option-up').bind('click', function() {
+        var select_id = '#' + $(this).attr('data-target');
+        $(select_id + ' option:selected').each(function () {
+            var newPos = $(select_id + ' option').index(this) - 1;
+            if (newPos > -1) {
+                $(select_id + ' option').eq(newPos).before("<option value='" + $(this).val() + "' selected='selected'>" + $(this).text() + "</option>");
+                $(this).remove();
+            }
+        });
+    });
+    $('#move-option-down').bind('click', function() {
+        var select_id = '#' + $(this).attr('data-target');
+        var countOptions = $(select_id + ' option').length;
+        var countSelectedOptions = $(select_id + ' option:selected').length;
+        $(select_id + ' option:selected').each(function () {
+            var newPos = $(select_id + ' option').index(this) + countSelectedOptions;
+            if (newPos < countOptions) {
+                $(select_id + ' option').eq(newPos).after("<option value='" + $(this).val() + "' selected='selected'>" + $(this).text() + "</option>");
+                $(this).remove();
+            }
+        });
+    });
+
 });
