@@ -27,15 +27,6 @@ STATUS_LABEL = """
 class ProviderTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    portal_url = tables.URLColumn(
-        visible=False
-    )
-    noc_contact = tables.Column(
-        visible=False
-    )
-    admin_contact = tables.Column(
-        visible=False
-    )
     circuit_count = tables.Column(
         accessor=Accessor('count_circuits'),
         verbose_name='Circuits'
@@ -44,6 +35,7 @@ class ProviderTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Provider
         fields = ('pk', 'name', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'circuit_count')
+        default_columns = ('pk', 'name', 'asn', 'account', 'circuit_count')
 
 
 #
@@ -63,6 +55,7 @@ class CircuitTypeTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = CircuitType
         fields = ('pk', 'name', 'circuit_count', 'description', 'slug', 'actions')
+        default_columns = ('pk', 'name', 'circuit_count', 'description', 'slug', 'actions')
 
 
 #
@@ -81,12 +74,6 @@ class CircuitTable(BaseTable):
     z_side = tables.Column(
         verbose_name='Z Side'
     )
-    install_date = tables.Column(
-        visible=False
-    )
-    commit_rate = tables.Column(
-        visible=False
-    )
 
     class Meta(BaseTable.Meta):
         model = Circuit
@@ -94,3 +81,4 @@ class CircuitTable(BaseTable):
             'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'a_side', 'z_side', 'install_date', 'commit_rate',
             'description',
         )
+        default_columns = ('pk', 'cid', 'provider', 'type', 'status', 'tenant', 'a_side', 'z_side', 'description')

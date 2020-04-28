@@ -18,6 +18,13 @@ class BaseTable(tables.Table):
         if self.empty_text is None:
             self.empty_text = 'No {} found'.format(self._meta.model._meta.verbose_name_plural)
 
+        # Hide non-default columns
+        default_columns = getattr(self.Meta, 'default_columns', list())
+        if default_columns:
+            for column in self.columns:
+                if column.name not in default_columns:
+                    self.columns.hide(column.name)
+
         # Apply custom column ordering
         if columns is not None:
             pk = self.base_columns.pop('pk', None)
