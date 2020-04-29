@@ -11,6 +11,7 @@
 ### Bug Fixes
 
 * [#4527](https://github.com/netbox-community/netbox/issues/4527) - Fix assignment of certain tags to config contexts
+* [#4549](https://github.com/netbox-community/netbox/issues/4549) - Fix encoding unicode webhook body data
 
 ---
 

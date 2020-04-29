@@ -46,7 +46,7 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
         'method': webhook.http_method,
         'url': webhook.payload_url,
         'headers': headers,
-        'data': body,
+        'data': body.encode('utf8'),
     }
     logger.info(
         "Sending {} request to {} ({} {})".format(
