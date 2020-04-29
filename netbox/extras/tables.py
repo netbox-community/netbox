@@ -104,7 +104,11 @@ class ConfigContextTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConfigContext
-        fields = ('pk', 'name', 'weight', 'is_active', 'description')
+        fields = (
+            'pk', 'name', 'weight', 'is_active', 'description', 'regions', 'sites', 'roles', 'platforms',
+            'cluster_groups', 'clusters', 'tenant_groups', 'tenants',
+        )
+        default_columns = ('pk', 'name', 'weight', 'is_active', 'description')
 
 
 class ObjectChangeTable(BaseTable):
