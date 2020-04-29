@@ -27,8 +27,8 @@ When deploying NetBox in a multiprocess mannor--such as using Gunicorn as recome
 to collect metrics from all the worker processes. This can be any arbitrary directory to which the processes have read/write access. This directory is then made available by use of the
 `prometheus_multiproc_dir` environment variable.
 
-This can be setup by first creating a shared directory and then adding this line (with the appropriate directory) to the `[program:netbox]` section of the supervisor config file.
+This can be setup by first creating a shared directory and then adding this line (with the appropriate directory) to the `[Service]` section of the systemd unit file.
 
 ```
-environment=prometheus_multiproc_dir=/tmp/prometheus_metrics
+Environment=prometheus_multiproc_dir=/tmp/prometheus_metrics
 ```
