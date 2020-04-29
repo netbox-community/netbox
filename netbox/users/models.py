@@ -108,7 +108,7 @@ class UserConfig(models.Model):
 
             userconfig.clear('foo.bar.baz')
 
-        A KeyError is raised in the event any key along the path does not exist.
+        Invalid keys will be ignored silently.
 
         :param path: Dotted path to the configuration key. For example, 'foo.bar' deletes self.data['foo']['bar'].
         :param commit: If true, the UserConfig instance will be saved once the new value has been applied.
@@ -117,11 +117,13 @@ class UserConfig(models.Model):
         keys = path.split('.')
 
         for key in keys[:-1]:
-            if key in d and type(d[key]) is dict:
+            if key not in d:
+                break
+            if type(d[key]) is dict:
                 d = d[key]
 
         key = keys[-1]
-        del(d[key])
+        d.pop(key, None)  # Avoid a KeyError on invalid keys
 
         if commit:
             self.save()

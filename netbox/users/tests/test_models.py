@@ -104,6 +104,5 @@ class UserConfigTest(TestCase):
         self.assertTrue('foo' not in userconfig.data['b'])
         self.assertEqual(userconfig.data['b']['bar'], 102)
 
-        # Clear an invalid value
-        with self.assertRaises(KeyError):
-            userconfig.clear('invalid')
+        # Clear a non-existing value; should fail silently
+        userconfig.clear('invalid')
