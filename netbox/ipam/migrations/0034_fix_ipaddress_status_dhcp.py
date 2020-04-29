@@ -13,8 +13,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Fixes a missed integer substitution from #3569; see bug #4027. The original migration has also been fixed,
-        # so this can be omitted when squashing in the future.
+        # Fixes a missed integer substitution from #3569; see bug #4027. The original migration has also been fixed.
         migrations.RunPython(
             code=ipaddress_status_dhcp_to_slug
         ),
