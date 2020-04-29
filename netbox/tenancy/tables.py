@@ -44,7 +44,6 @@ class TenantGroupTable(BaseTable):
     tenant_count = tables.Column(
         verbose_name='Tenants'
     )
-    slug = tables.Column()
     actions = tables.TemplateColumn(
         template_code=TENANTGROUP_ACTIONS,
         attrs={'td': {'class': 'text-right noprint'}},
@@ -54,6 +53,7 @@ class TenantGroupTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = TenantGroup
         fields = ('pk', 'name', 'tenant_count', 'description', 'slug', 'actions')
+        default_columns = ('pk', 'name', 'tenant_count', 'description', 'actions')
 
 
 #
@@ -66,4 +66,5 @@ class TenantTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Tenant
-        fields = ('pk', 'name', 'group', 'description')
+        fields = ('pk', 'name', 'slug', 'group', 'description')
+        default_columns = ('pk', 'name', 'group', 'description')
