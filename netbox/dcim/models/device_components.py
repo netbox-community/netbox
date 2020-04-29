@@ -123,11 +123,12 @@ class CableTermination(models.Model):
             # Map a rear port/position to its corresponding front port
             elif isinstance(termination, RearPort):
 
-                # Can't map to a FrontPort without a position
-                if not position_stack:
+                # Can't map to a FrontPort without a position if there are multiple options
+                if termination.positions > 1 and not position_stack:
                     raise CableTraceSplit(termination)
 
-                position = position_stack.pop()
+                # We can assume position 1 if the RearPort has only one position
+                position = position_stack.pop() if position_stack else 1
 
                 # Validate the position
                 if position not in range(1, termination.positions + 1):
