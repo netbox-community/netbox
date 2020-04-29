@@ -723,8 +723,10 @@ class DeviceRoleTable(BaseTable):
         orderable=False,
         verbose_name='VMs'
     )
-    color = tables.TemplateColumn(COLOR_LABEL, verbose_name='Label')
-    slug = tables.Column(verbose_name='Slug')
+    color = tables.TemplateColumn(
+        template_code=COLOR_LABEL,
+        verbose_name='Label'
+    )
     actions = tables.TemplateColumn(
         template_code=DEVICEROLE_ACTIONS,
         attrs={'td': {'class': 'text-right noprint'}},
@@ -734,6 +736,7 @@ class DeviceRoleTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = DeviceRole
         fields = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description', 'slug', 'actions')
+        default_columns = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description', 'actions')
 
 
 #
@@ -763,7 +766,11 @@ class PlatformTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Platform
         fields = (
-            'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'napalm_driver', 'description', 'actions',
+            'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'napalm_driver', 'napalm_args',
+            'description', 'actions',
+        )
+        default_columns = (
+            'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'napalm_driver', 'description', 'actions',
         )
 
 
@@ -777,40 +784,96 @@ class DeviceTable(BaseTable):
         order_by=('_name',),
         template_code=DEVICE_LINK
     )
-    status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
-    rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
-    device_role = tables.TemplateColumn(DEVICE_ROLE, verbose_name='Role')
+    status = tables.TemplateColumn(
+        template_code=STATUS_LABEL
+    )
+    tenant = tables.TemplateColumn(
+        template_code=COL_TENANT
+    )
+    site = tables.LinkColumn(
+        viewname='dcim:site',
+        args=[Accessor('site.slug')]
+    )
+    rack = tables.LinkColumn(
+        viewname='dcim:rack',
+        args=[Accessor('rack.pk')]
+    )
+    device_role = tables.TemplateColumn(
+        template_code=DEVICE_ROLE,
+        verbose_name='Role'
+    )
     device_type = tables.LinkColumn(
-        'dcim:devicetype', args=[Accessor('device_type.pk')], verbose_name='Type',
+        viewname='dcim:devicetype',
+        args=[Accessor('device_type.pk')],
+        verbose_name='Type',
         text=lambda record: record.device_type.display_name
+    )
+    primary_ip = tables.TemplateColumn(
+        template_code=DEVICE_PRIMARY_IP,
+        orderable=False,
+        verbose_name='IP Address'
+    )
+    primary_ip4 = tables.LinkColumn(
+        viewname='ipam:ipaddress',
+        args=[Accessor('primary_ip4.pk')],
+        verbose_name='IPv4 Address'
+    )
+    primary_ip6 = tables.LinkColumn(
+        viewname='ipam:ipaddress',
+        args=[Accessor('primary_ip6.pk')],
+        verbose_name='IPv6 Address'
+    )
+    cluster = tables.LinkColumn(
+        viewname='virtualization:cluster',
+        args=[Accessor('cluster.pk')]
+    )
+    virtual_chassis = tables.LinkColumn(
+        viewname='dcim:virtualchassis',
+        args=[Accessor('virtual_chassis.pk')]
+    )
+    vc_position = tables.Column(
+        verbose_name='VC Position'
+    )
+    vc_priority = tables.Column(
+        verbose_name='VC Priority'
     )
 
     class Meta(BaseTable.Meta):
         model = Device
-        fields = ('pk', 'name', 'status', 'tenant', 'site', 'rack', 'device_role', 'device_type')
-
-
-class DeviceDetailTable(DeviceTable):
-    primary_ip = tables.TemplateColumn(
-        orderable=False, verbose_name='IP Address', template_code=DEVICE_PRIMARY_IP
-    )
-
-    class Meta(DeviceTable.Meta):
-        model = Device
-        fields = ('pk', 'name', 'status', 'tenant', 'site', 'rack', 'device_role', 'device_type', 'primary_ip')
+        fields = (
+            'pk', 'name', 'status', 'tenant', 'device_role', 'device_type', 'platform', 'serial', 'asset_tag', 'site',
+            'rack', 'position', 'face', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis',
+            'vc_position', 'vc_priority',
+        )
+        default_columns = (
+            'pk', 'name', 'status', 'tenant', 'site', 'rack', 'device_role', 'device_type', 'primary_ip',
+        )
 
 
 class DeviceImportTable(BaseTable):
-    name = tables.TemplateColumn(template_code=DEVICE_LINK, verbose_name='Name')
-    status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
-    rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')], verbose_name='Rack')
-    position = tables.Column(verbose_name='Position')
-    device_role = tables.Column(verbose_name='Role')
-    device_type = tables.Column(verbose_name='Type')
+    name = tables.TemplateColumn(
+        template_code=DEVICE_LINK
+    )
+    status = tables.TemplateColumn(
+        template_code=STATUS_LABEL
+    )
+    tenant = tables.TemplateColumn(
+        template_code=COL_TENANT
+    )
+    site = tables.LinkColumn(
+        viewname='dcim:site',
+        args=[Accessor('site.slug')]
+    )
+    rack = tables.LinkColumn(
+        viewname='dcim:rack',
+        args=[Accessor('rack.pk')]
+    )
+    device_role = tables.Column(
+        verbose_name='Role'
+    )
+    device_type = tables.Column(
+        verbose_name='Type'
+    )
 
     class Meta(BaseTable.Meta):
         model = Device
@@ -986,23 +1049,23 @@ class CableTable(BaseTable):
         template_code=CABLE_TERMINATION_PARENT,
         accessor=Accessor('termination_a'),
         orderable=False,
-        verbose_name='Termination A'
+        verbose_name='Side A'
     )
     termination_a = tables.LinkColumn(
         accessor=Accessor('termination_a'),
         orderable=False,
-        verbose_name=''
+        verbose_name='Termination A'
     )
     termination_b_parent = tables.TemplateColumn(
         template_code=CABLE_TERMINATION_PARENT,
         accessor=Accessor('termination_b'),
         orderable=False,
-        verbose_name='Termination B'
+        verbose_name='Side B'
     )
     termination_b = tables.LinkColumn(
         accessor=Accessor('termination_b'),
         orderable=False,
-        verbose_name=''
+        verbose_name='Termination B'
     )
     status = tables.TemplateColumn(
         template_code=STATUS_LABEL
@@ -1018,6 +1081,10 @@ class CableTable(BaseTable):
         fields = (
             'pk', 'id', 'label', 'termination_a_parent', 'termination_a', 'termination_b_parent', 'termination_b',
             'status', 'type', 'color', 'length',
+        )
+        default_columns = (
+            'pk', 'id', 'label', 'termination_a_parent', 'termination_a', 'termination_b_parent', 'termination_b',
+            'status', 'type',
         )
 
 
@@ -1120,12 +1187,21 @@ class InterfaceConnectionTable(BaseTable):
 
 class InventoryItemTable(BaseTable):
     pk = ToggleColumn()
-    device = tables.LinkColumn('dcim:device_inventory', args=[Accessor('device.pk')])
-    manufacturer = tables.Column(accessor=Accessor('manufacturer.name'), verbose_name='Manufacturer')
+    device = tables.LinkColumn(
+        viewname='dcim:device_inventory',
+        args=[Accessor('device.pk')]
+    )
+    manufacturer = tables.Column(
+        accessor=Accessor('manufacturer.name')
+    )
+    discovered = BooleanColumn()
 
     class Meta(BaseTable.Meta):
         model = InventoryItem
-        fields = ('pk', 'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description')
+        fields = (
+            'pk', 'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'discovered'
+        )
+        default_columns = ('pk', 'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag')
 
 
 #
@@ -1145,6 +1221,7 @@ class VirtualChassisTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = VirtualChassis
         fields = ('pk', 'name', 'domain', 'member_count')
+        default_columns = ('pk', 'name', 'domain', 'member_count')
 
 
 #
@@ -1166,6 +1243,7 @@ class PowerPanelTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = PowerPanel
         fields = ('pk', 'name', 'site', 'rack_group', 'powerfeed_count')
+        default_columns = ('pk', 'name', 'site', 'rack_group', 'powerfeed_count')
 
 
 #
@@ -1189,7 +1267,19 @@ class PowerFeedTable(BaseTable):
     type = tables.TemplateColumn(
         template_code=TYPE_LABEL
     )
+    max_utilization = tables.TemplateColumn(
+        template_code="{{ value }}%"
+    )
+    available_power = tables.Column(
+        verbose_name='Available power (VA)'
+    )
 
     class Meta(BaseTable.Meta):
         model = PowerFeed
-        fields = ('pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase')
+        fields = (
+            'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',
+            'max_utilization', 'available_power',
+        )
+        default_columns = (
+            'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',
+        )

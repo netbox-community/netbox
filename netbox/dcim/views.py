@@ -1095,7 +1095,7 @@ class DeviceListView(PermissionRequiredMixin, ObjectListView):
     )
     filterset = filters.DeviceFilterSet
     filterset_form = forms.DeviceFilterForm
-    table = tables.DeviceDetailTable
+    table = tables.DeviceTable
     template_name = 'dcim/device_list.html'
 
 
