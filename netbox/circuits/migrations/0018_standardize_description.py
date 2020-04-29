@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('circuits', '0007_circuit_add_description_squashed_0017_circuittype_description'),
+        ('circuits', '0017_circuittype_description'),
     ]
 
     operations = [
