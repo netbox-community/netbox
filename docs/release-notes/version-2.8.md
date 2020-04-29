@@ -13,6 +13,7 @@
 * [#4527](https://github.com/netbox-community/netbox/issues/4527) - Fix assignment of certain tags to config contexts
 * [#4545](https://github.com/netbox-community/netbox/issues/4545) - Removed all squashed schema migrations to allow direct upgrades from very old releases
 * [#4549](https://github.com/netbox-community/netbox/issues/4549) - Fix encoding unicode webhook body data
+* [#4556](https://github.com/netbox-community/netbox/issues/4556) - Update form for adding devices to clusters
 
 ---
 
