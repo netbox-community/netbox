@@ -472,5 +472,9 @@ $(document).ready(function() {
             }
         });
     });
+    $('#select-all-options').bind('click', function() {
+        var select_id = '#' + $(this).attr('data-target');
+        $(select_id + ' option').prop('selected',true);
+    });
 
 });
