@@ -28,6 +28,7 @@ class BaseTable(tables.Table):
         # Apply custom column ordering
         if columns is not None:
             pk = self.base_columns.pop('pk', None)
+            actions = self.base_columns.pop('actions', None)
 
             for name, column in self.base_columns.items():
                 if name in columns:
@@ -36,10 +37,13 @@ class BaseTable(tables.Table):
                     self.columns.hide(name)
             self.sequence = columns
 
-            # Always include PK column, if defined on the table
+            # Always include PK and actions column, if defined on the table
             if pk:
                 self.base_columns['pk'] = pk
                 self.sequence.insert(0, 'pk')
+            if actions:
+                self.base_columns['actions'] = actions
+                self.sequence.append('actions')
 
     @property
     def configurable_columns(self):
