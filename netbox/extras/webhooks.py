@@ -17,7 +17,7 @@ def generate_signature(request_body, secret):
     """
     hmac_prep = hmac.new(
         key=secret.encode('utf8'),
-        msg=request_body.encode('utf8'),
+        msg=request_body,
         digestmod=hashlib.sha512
     )
     return hmac_prep.hexdigest()
