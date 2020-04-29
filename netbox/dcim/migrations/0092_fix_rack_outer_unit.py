@@ -19,8 +19,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Fixes a missed field migration from #3569; see bug #4056. The original migration has also been fixed,
-        # so this can be omitted when squashing in the future.
+        # Fixes a missed field migration from #3569; see bug #4056. The original migration has also been fixed.
         migrations.RunPython(
             code=rack_outer_unit_to_slug
         ),

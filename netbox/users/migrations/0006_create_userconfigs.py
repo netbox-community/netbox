@@ -16,7 +16,7 @@ def create_userconfigs(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0004_userconfig'),
+        ('users', '0005_userconfig'),
     ]
 
     operations = [
