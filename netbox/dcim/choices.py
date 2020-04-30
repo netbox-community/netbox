@@ -424,6 +424,8 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_ITA_M = 'ita-m'
     TYPE_ITA_N = 'ita-n'
     TYPE_ITA_O = 'ita-o'
+    # Proprietary
+    TYPE_HDOT_CX = 'hdot-cx'
 
     CHOICES = (
         ('IEC 60320', (
@@ -486,6 +488,9 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_ITA_M, 'ITA Type M (BS 546)'),
             (TYPE_ITA_N, 'ITA Type N'),
             (TYPE_ITA_O, 'ITA Type O'),
+        )),
+        ('Proprietary', (
+            (TYPE_HDOT_CX, 'HDOT Cx'),
         )),
     )
 
