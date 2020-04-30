@@ -102,7 +102,7 @@ class WebhookTest(APITestCase):
 
         request_id = uuid.uuid4()
 
-        def dummy_send(_, request):
+        def dummy_send(_, request, **kwargs):
             """
             A dummy implementation of Session.send() to be used for testing.
             Always returns a 200 HTTP response.
