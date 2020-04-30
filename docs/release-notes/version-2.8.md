@@ -6,6 +6,7 @@
 
 * [#3294](https://github.com/netbox-community/netbox/issues/3294) - Implement mechanism for storing user preferences
 * [#4421](https://github.com/netbox-community/netbox/issues/4421) - Retain user's preference for config context format
+* [#4502](https://github.com/netbox-community/netbox/issues/4502) - Enable configuration of proxies for outbound HTTP requests
 * [#4531](https://github.com/netbox-community/netbox/issues/4531) - Retain user's preference for page length
 * [#4554](https://github.com/netbox-community/netbox/issues/4554) - Add ServerTech's HDOT Cx power outlet type
 

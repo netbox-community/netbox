@@ -165,6 +165,21 @@ Enforcement of unique IP space can be toggled on a per-VRF basis. To enforce uni
 
 ---
 
+## HTTP_PROXIES
+
+Default: None
+
+A dictionary of HTTP proxies to use for outbound requests originating from NetBox (e.g. when sending webhooks). Proxies should be specified by schema as per the [Python requests library documentation](https://2.python-requests.org/en/master/user/advanced/). For example:
+
+```python
+HTTP_PROXIES = {
+    'http': 'http://10.10.1.10:3128',
+    'https': 'http://10.10.1.10:1080',
+}
+```
+
+---
+
 ## LOGGING
 
 By default, all messages of INFO severity or higher will be logged to the console. Additionally, if `DEBUG` is False and email access has been configured, ERROR and CRITICAL messages will be emailed to the users defined in `ADMINS`.

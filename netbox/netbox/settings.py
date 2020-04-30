@@ -77,6 +77,7 @@ DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BAS
 EMAIL = getattr(configuration, 'EMAIL', {})
 ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
+HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)

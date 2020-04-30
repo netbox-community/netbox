@@ -124,6 +124,12 @@ EXEMPT_VIEW_PERMISSIONS = [
     # 'ipam.prefix',
 ]
 
+# HTTP proxies NetBox should use when sending outbound HTTP requests (e.g. for webhooks).
+# HTTP_PROXIES = {
+#     'http': 'http://10.10.1.10:3128',
+#     'https': 'http://10.10.1.10:1080',
+# }
+
 # Enable custom logging. Please see the Django documentation for detailed guidance on configuring custom logs:
 #   https://docs.djangoproject.com/en/stable/topics/logging/
 LOGGING = {}

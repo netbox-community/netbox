@@ -1,6 +1,7 @@
 import logging
 
 import requests
+from django.conf import settings
 from django_rq import job
 from jinja2.exceptions import TemplateError
 
@@ -69,7 +70,7 @@ def process_webhook(webhook, data, model_name, event, timestamp, username, reque
         session.verify = webhook.ssl_verification
         if webhook.ca_file_path:
             session.verify = webhook.ca_file_path
-        response = session.send(prepared_request)
+        response = session.send(prepared_request, proxies=settings.HTTP_PROXIES)
 
     if 200 <= response.status_code <= 299:
         logger.info("Request succeeded; response status {}".format(response.status_code))
