@@ -400,8 +400,11 @@ class TimePicker(forms.TextInput):
 
 class CSVDataField(forms.CharField):
     """
-    A CharField (rendered as a Textarea) which accepts CSV-formatted data. It returns a list of dictionaries mapping
-    column headers to values. Each dictionary represents an individual record.
+    A CharField (rendered as a Textarea) which accepts CSV-formatted data. It returns data as a two-tuple: The first
+    item is a dictionary of column headers, mapping field names to the attribute by which they match a related object
+    (where applicable). The second item is a list of dictionaries, each representing a discrete row of CSV data.
+
+    :param from_form: The form from which the field derives its validation rules.
     """
     widget = forms.Textarea
 
@@ -442,10 +445,12 @@ class CSVDataField(forms.CharField):
             else:
                 headers[header] = None
 
-        # Parse CSV data
+        # Parse CSV rows into a list of dictionaries mapped from the column headers.
         for i, row in enumerate(reader, start=1):
             if len(row) != len(headers):
-                raise forms.ValidationError(f"Row {i}: Expected {len(headers)} columns but found {len(row)}")
+                raise forms.ValidationError(
+                    f"Row {i}: Expected {len(headers)} columns but found {len(row)}"
+                )
             row = [col.strip() for col in row]
             record = dict(zip(headers.keys(), row))
             records.append(record)
