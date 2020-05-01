@@ -557,16 +557,9 @@ class BulkImportView(GetReturnURLMixin, View):
 
     def _import_form(self, *args, **kwargs):
 
-        fields = self.model_form().fields
-        required_fields = [
-            name for name, field in self.model_form().fields.items() if field.required
-        ]
-
         class ImportForm(BootstrapMixin, Form):
             csv = CSVDataField(
-                model=self.model_form.Meta.model,
-                fields=fields,
-                required_fields=required_fields,
+                from_form=self.model_form,
                 widget=Textarea(attrs=self.widget_attrs)
             )
 

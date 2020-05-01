@@ -405,11 +405,14 @@ class CSVDataField(forms.CharField):
     """
     widget = forms.Textarea
 
-    def __init__(self, model, fields, required_fields=None, *args, **kwargs):
+    def __init__(self, from_form, *args, **kwargs):
 
-        self.model = model
-        self.fields = fields
-        self.required_fields = required_fields or list()
+        form = from_form()
+        self.model = form.Meta.model
+        self.fields = form.fields
+        self.required_fields = [
+            name for name, field in form.fields.items() if field.required
+        ]
 
         super().__init__(*args, **kwargs)
 
@@ -417,15 +420,16 @@ class CSVDataField(forms.CharField):
         if not self.label:
             self.label = ''
         if not self.initial:
-            self.initial = ','.join(required_fields) + '\n'
+            self.initial = ','.join(self.required_fields) + '\n'
         if not self.help_text:
             self.help_text = 'Enter the list of column headers followed by one line per record to be imported, using ' \
                              'commas to separate values. Multi-line data and values containing commas may be wrapped ' \
                              'in double quotes.'
 
     def to_python(self, value):
+
         records = []
-        reader = csv.reader(StringIO(value))
+        reader = csv.reader(StringIO(value.strip()))
 
         # Consume the first line of CSV data as column headers. Create a dictionary mapping each header to an optional
         # "to" field specifying how the related object is being referenced. For example, importing a Device might use a
@@ -440,12 +444,11 @@ class CSVDataField(forms.CharField):
 
         # Parse CSV data
         for i, row in enumerate(reader, start=1):
-            if row:
-                if len(row) != len(headers):
-                    raise forms.ValidationError(f"Row {i}: Expected {len(headers)} columns but found {len(row)}")
-                row = [col.strip() for col in row]
-                record = dict(zip(headers.keys(), row))
-                records.append(record)
+            if len(row) != len(headers):
+                raise forms.ValidationError(f"Row {i}: Expected {len(headers)} columns but found {len(row)}")
+            row = [col.strip() for col in row]
+            record = dict(zip(headers.keys(), row))
+            records.append(record)
 
         return headers, records
 
