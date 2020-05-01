@@ -61,9 +61,6 @@ class SecretRoleCSVForm(forms.ModelForm):
     class Meta:
         model = SecretRole
         fields = SecretRole.csv_headers
-        help_texts = {
-            'name': 'Name of secret role',
-        }
 
 
 #
@@ -123,6 +120,7 @@ class SecretCSVForm(CustomFieldModelCSVForm):
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
+        help_text='Assigned device',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
@@ -130,7 +128,7 @@ class SecretCSVForm(CustomFieldModelCSVForm):
     role = forms.ModelChoiceField(
         queryset=SecretRole.objects.all(),
         to_field_name='name',
-        help_text='Name of assigned role',
+        help_text='Assigned role',
         error_messages={
             'invalid_choice': 'Invalid secret role.',
         }

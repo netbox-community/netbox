@@ -55,7 +55,7 @@ class VRFCSVForm(CustomFieldModelCSVForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned tenant',
+        help_text='Assigned tenant',
         error_messages={
             'invalid_choice': 'Tenant not found.',
         }
@@ -64,9 +64,6 @@ class VRFCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = VRF
         fields = VRF.csv_headers
-        help_texts = {
-            'name': 'VRF name',
-        }
 
 
 class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -169,7 +166,7 @@ class AggregateCSVForm(CustomFieldModelCSVForm):
     rir = forms.ModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
-        help_text='Name of parent RIR',
+        help_text='Assigned RIR',
         error_messages={
             'invalid_choice': 'RIR not found.',
         }
@@ -251,9 +248,6 @@ class RoleCSVForm(forms.ModelForm):
     class Meta:
         model = Role
         fields = Role.csv_headers
-        help_texts = {
-            'name': 'Role name',
-        }
 
 
 #
@@ -335,6 +329,7 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
+        help_text='Assigned VRF',
         error_messages={
             'invalid_choice': 'VRF not found.',
         }
@@ -343,7 +338,7 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned tenant',
+        help_text='Assigned tenant',
         error_messages={
             'invalid_choice': 'Tenant not found.',
         }
@@ -352,7 +347,7 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of parent site',
+        help_text='Assigned site',
         error_messages={
             'invalid_choice': 'Site not found.',
         }
@@ -738,6 +733,7 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
+        help_text='Assigned VRF',
         error_messages={
             'invalid_choice': 'VRF not found.',
         }
@@ -746,7 +742,7 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
         queryset=Tenant.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Name of the assigned tenant',
+        help_text='Assigned tenant',
         error_messages={
             'invalid_choice': 'Tenant not found.',
         }
@@ -994,7 +990,7 @@ class VLANGroupCSVForm(forms.ModelForm):
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of parent site',
+        help_text='Assigned site',
         error_messages={
             'invalid_choice': 'Site not found.',
         }
@@ -1004,9 +1000,6 @@ class VLANGroupCSVForm(forms.ModelForm):
     class Meta:
         model = VLANGroup
         fields = VLANGroup.csv_headers
-        help_texts = {
-            'name': 'Name of VLAN group',
-        }
 
 
 class VLANGroupFilterForm(BootstrapMixin, forms.Form):
@@ -1082,7 +1075,7 @@ class VLANCSVForm(CustomFieldModelCSVForm):
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of parent site',
+        help_text='Assigned site',
         error_messages={
             'invalid_choice': 'Site not found.',
         }
@@ -1095,7 +1088,7 @@ class VLANCSVForm(CustomFieldModelCSVForm):
         queryset=Tenant.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Name of assigned tenant',
+        help_text='Assigned tenant',
         error_messages={
             'invalid_choice': 'Tenant not found.',
         }
@@ -1299,6 +1292,7 @@ class ServiceCSVForm(CustomFieldModelCSVForm):
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
+        help_text='Required if not assigned to a VM',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
@@ -1307,6 +1301,7 @@ class ServiceCSVForm(CustomFieldModelCSVForm):
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
+        help_text='Required if not assigned to a device',
         error_messages={
             'invalid_choice': 'Virtual machine not found.',
         }
@@ -1319,8 +1314,6 @@ class ServiceCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Service
         fields = Service.csv_headers
-        help_texts = {
-        }
 
 
 class ServiceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):

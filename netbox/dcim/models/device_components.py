@@ -239,7 +239,8 @@ class ConsolePort(CableTermination, ComponentModel):
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
-        blank=True
+        blank=True,
+        help_text='Physical port type'
     )
     connected_endpoint = models.OneToOneField(
         to='dcim.ConsoleServerPort',
@@ -300,7 +301,8 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
-        blank=True
+        blank=True,
+        help_text='Physical port type'
     )
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,
@@ -354,7 +356,8 @@ class PowerPort(CableTermination, ComponentModel):
     type = models.CharField(
         max_length=50,
         choices=PowerPortTypeChoices,
-        blank=True
+        blank=True,
+        help_text='Physical port type'
     )
     maximum_draw = models.PositiveSmallIntegerField(
         blank=True,
@@ -516,7 +519,8 @@ class PowerOutlet(CableTermination, ComponentModel):
     type = models.CharField(
         max_length=50,
         choices=PowerOutletTypeChoices,
-        blank=True
+        blank=True,
+        help_text='Physical port type'
     )
     power_port = models.ForeignKey(
         to='dcim.PowerPort',
@@ -653,7 +657,7 @@ class Interface(CableTermination, ComponentModel):
     mode = models.CharField(
         max_length=50,
         choices=InterfaceModeChoices,
-        blank=True,
+        blank=True
     )
     untagged_vlan = models.ForeignKey(
         to='ipam.VLAN',
@@ -1083,7 +1087,8 @@ class InventoryItem(ComponentModel):
     part_id = models.CharField(
         max_length=50,
         verbose_name='Part ID',
-        blank=True
+        blank=True,
+        help_text='Manufacturer-assigned part identifier'
     )
     serial = models.CharField(
         max_length=50,
@@ -1100,7 +1105,7 @@ class InventoryItem(ComponentModel):
     )
     discovered = models.BooleanField(
         default=False,
-        verbose_name='Discovered'
+        help_text='This item was automatically discovered'
     )
 
     tags = TaggableManager(through=TaggedItem)

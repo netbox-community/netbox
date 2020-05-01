@@ -50,7 +50,8 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
         unique=True,
         blank=True,
         null=True,
-        verbose_name='Route distinguisher'
+        verbose_name='Route distinguisher',
+        help_text='Unique route distinguisher (as defined in RFC 4364)'
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -1017,7 +1018,10 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         choices=ServiceProtocolChoices
     )
     port = models.PositiveIntegerField(
-        validators=[MinValueValidator(SERVICE_PORT_MIN), MaxValueValidator(SERVICE_PORT_MAX)],
+        validators=[
+            MinValueValidator(SERVICE_PORT_MIN),
+            MaxValueValidator(SERVICE_PORT_MAX)
+        ],
         verbose_name='Port number'
     )
     ipaddresses = models.ManyToManyField(

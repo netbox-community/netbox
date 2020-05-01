@@ -55,12 +55,6 @@ class ProviderCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Provider
         fields = Provider.csv_headers
-        help_texts = {
-            'name': 'Provider name',
-            'asn': '32-bit autonomous system number',
-            'portal_url': 'Portal URL',
-            'comments': 'Free-form comments',
-        }
 
 
 class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -195,7 +189,7 @@ class CircuitCSVForm(CustomFieldModelCSVForm):
     provider = forms.ModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',
-        help_text='Name of parent provider',
+        help_text='Assigned provider',
         error_messages={
             'invalid_choice': 'Provider not found.'
         }
@@ -217,7 +211,7 @@ class CircuitCSVForm(CustomFieldModelCSVForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned tenant',
+        help_text='Assigned tenant',
         error_messages={
             'invalid_choice': 'Tenant not found.'
         }

@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.safestring import mark_safe
 from mptt.forms import TreeNodeChoiceField
 from netaddr import EUI
 from netaddr.core import AddrFormatError
@@ -206,10 +207,6 @@ class RegionCSVForm(forms.ModelForm):
     class Meta:
         model = Region
         fields = Region.csv_headers
-        help_texts = {
-            'name': 'Region name',
-            'slug': 'URL-friendly slug',
-        }
 
 
 class RegionFilterForm(BootstrapMixin, forms.Form):
@@ -280,7 +277,7 @@ class SiteCSVForm(CustomFieldModelCSVForm):
         queryset=Region.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned region',
+        help_text='Assigned region',
         error_messages={
             'invalid_choice': 'Region not found.',
         }
@@ -289,7 +286,7 @@ class SiteCSVForm(CustomFieldModelCSVForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned tenant',
+        help_text='Assigned tenant',
         error_messages={
             'invalid_choice': 'Tenant not found.',
         }
@@ -299,9 +296,9 @@ class SiteCSVForm(CustomFieldModelCSVForm):
         model = Site
         fields = Site.csv_headers
         help_texts = {
-            'name': 'Site name',
-            'slug': 'URL-friendly slug',
-            'asn': '32-bit autonomous system number',
+            'time_zone': mark_safe(
+                'Time zone (<a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">available options</a>)'
+            )
         }
 
 
@@ -395,7 +392,7 @@ class RackGroupCSVForm(forms.ModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Name of parent site',
+        help_text='Assigned site',
         error_messages={
             'invalid_choice': 'Site not found.',
         }
@@ -404,7 +401,7 @@ class RackGroupCSVForm(forms.ModelForm):
         queryset=RackGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of parent rack group',
+        help_text='Parent rack group',
         error_messages={
             'invalid_choice': 'Rack group not found.',
         }
@@ -413,10 +410,6 @@ class RackGroupCSVForm(forms.ModelForm):
     class Meta:
         model = RackGroup
         fields = RackGroup.csv_headers
-        help_texts = {
-            'name': 'Name of rack group',
-            'slug': 'URL-friendly slug',
-        }
 
 
 class RackGroupFilterForm(BootstrapMixin, forms.Form):
@@ -475,8 +468,7 @@ class RackRoleCSVForm(forms.ModelForm):
         model = RackRole
         fields = RackRole.csv_headers
         help_texts = {
-            'name': 'Name of rack role',
-            'color': 'RGB color in hexadecimal (e.g. 00ff00)'
+            'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
         }
 
 
@@ -530,13 +522,11 @@ class RackCSVForm(CustomFieldModelCSVForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Name of parent site',
         error_messages={
             'invalid_choice': 'Site not found.',
         }
     )
     group_name = forms.CharField(
-        help_text='Name of rack group',
         required=False
     )
     tenant = forms.ModelChoiceField(
@@ -580,10 +570,6 @@ class RackCSVForm(CustomFieldModelCSVForm):
     class Meta:
         model = Rack
         fields = Rack.csv_headers
-        help_texts = {
-            'name': 'Rack name',
-            'u_height': 'Height in rack units',
-        }
 
     def clean(self):
 
@@ -832,7 +818,7 @@ class RackReservationCSVForm(forms.ModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Name of parent site',
+        help_text='Parent site',
         error_messages={
             'invalid_choice': 'Invalid site name.',
         }
@@ -853,7 +839,7 @@ class RackReservationCSVForm(forms.ModelForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned tenant',
+        help_text='Assigned tenant',
         error_messages={
             'invalid_choice': 'Tenant not found.',
         }
@@ -862,8 +848,6 @@ class RackReservationCSVForm(forms.ModelForm):
     class Meta:
         model = RackReservation
         fields = ('site', 'rack_group', 'rack_name', 'units', 'tenant', 'description')
-        help_texts = {
-        }
 
     def clean(self):
 
@@ -954,10 +938,6 @@ class ManufacturerCSVForm(forms.ModelForm):
     class Meta:
         model = Manufacturer
         fields = Manufacturer.csv_headers
-        help_texts = {
-            'name': 'Manufacturer name',
-            'slug': 'URL-friendly slug',
-        }
 
 
 #
@@ -1675,8 +1655,7 @@ class DeviceRoleCSVForm(forms.ModelForm):
         model = DeviceRole
         fields = DeviceRole.csv_headers
         help_texts = {
-            'name': 'Name of device role',
-            'color': 'RGB color in hexadecimal (e.g. 00ff00)'
+            'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
         }
 
 
@@ -1709,7 +1688,7 @@ class PlatformCSVForm(forms.ModelForm):
         queryset=Manufacturer.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Manufacturer name',
+        help_text='Limit platform assignments to this manufacturer',
         error_messages={
             'invalid_choice': 'Manufacturer not found.',
         }
@@ -1718,9 +1697,6 @@ class PlatformCSVForm(forms.ModelForm):
     class Meta:
         model = Platform
         fields = Platform.csv_headers
-        help_texts = {
-            'name': 'Platform name',
-        }
 
 
 #
@@ -1925,7 +1901,7 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
     device_role = forms.ModelChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
-        help_text='Name of assigned role',
+        help_text='Assigned role',
         error_messages={
             'invalid_choice': 'Invalid device role.',
         }
@@ -1934,7 +1910,7 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned tenant',
+        help_text='Assigned tenant',
         error_messages={
             'invalid_choice': 'Tenant not found.',
         }
@@ -1954,7 +1930,7 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
         queryset=Platform.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned platform',
+        help_text='Assigned platform',
         error_messages={
             'invalid_choice': 'Invalid platform.',
         }
@@ -1963,13 +1939,19 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
         choices=DeviceStatusChoices,
         help_text='Operational status'
     )
+    cluster = forms.ModelChoiceField(
+        queryset=Cluster.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Virtualization cluster',
+        error_messages={
+            'invalid_choice': 'Invalid cluster name.',
+        }
+    )
 
     class Meta:
         fields = []
         model = Device
-        help_texts = {
-            'name': 'Device name',
-        }
 
     def clean(self):
 
@@ -1990,14 +1972,14 @@ class DeviceCSVForm(BaseDeviceCSVForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Name of parent site',
+        help_text='Assigned site',
         error_messages={
             'invalid_choice': 'Invalid site name.',
         }
     )
     rack_group = forms.CharField(
         required=False,
-        help_text='Parent rack\'s group (if any)'
+        help_text='Assigned rack\'s group (if any)'
     )
     rack_name = forms.CharField(
         required=False,
@@ -2007,15 +1989,6 @@ class DeviceCSVForm(BaseDeviceCSVForm):
         choices=DeviceFaceChoices,
         required=False,
         help_text='Mounted rack face'
-    )
-    cluster = forms.ModelChoiceField(
-        queryset=Cluster.objects.all(),
-        to_field_name='name',
-        required=False,
-        help_text='Virtualization cluster',
-        error_messages={
-            'invalid_choice': 'Invalid cluster name.',
-        }
     )
 
     class Meta(BaseDeviceCSVForm.Meta):
@@ -2056,15 +2029,6 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
     )
     device_bay_name = forms.CharField(
         help_text='Name of device bay',
-    )
-    cluster = forms.ModelChoiceField(
-        queryset=Cluster.objects.all(),
-        to_field_name='name',
-        required=False,
-        help_text='Virtualization cluster',
-        error_messages={
-            'invalid_choice': 'Invalid cluster name.',
-        }
     )
 
     class Meta(BaseDeviceCSVForm.Meta):
@@ -2744,6 +2708,7 @@ class PowerOutletCSVForm(forms.ModelForm):
         queryset=PowerPort.objects.all(),
         required=False,
         to_field_name='name',
+        help_text='Local power port which feeds this outlet',
         error_messages={
             'invalid_choice': 'Power port not found.',
         }
@@ -2751,6 +2716,7 @@ class PowerOutletCSVForm(forms.ModelForm):
     feed_leg = CSVChoiceField(
         choices=PowerOutletFeedLegChoices,
         required=False,
+        help_text='Electrical phase (for three-phase circuits)'
     )
 
     class Meta:
@@ -3073,17 +3039,19 @@ class InterfaceCSVForm(forms.ModelForm):
         queryset=Interface.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='LAG interface',
+        help_text='Parent LAG interface',
         error_messages={
             'invalid_choice': 'LAG interface not found.',
         }
     )
     type = CSVChoiceField(
         choices=InterfaceTypeChoices,
+        help_text='Physical medium'
     )
     mode = CSVChoiceField(
         choices=InterfaceModeChoices,
         required=False,
+        help_text='IEEE 802.1Q operational mode (for L2 interfaces)'
     )
 
     class Meta:
@@ -3274,17 +3242,22 @@ class FrontPortCSVForm(forms.ModelForm):
     rear_port = forms.ModelChoiceField(
         queryset=RearPort.objects.all(),
         to_field_name='name',
+        help_text='Corresponding rear port',
         error_messages={
             'invalid_choice': 'Rear Port not found.',
         }
     )
     type = CSVChoiceField(
         choices=PortTypeChoices,
+        help_text='Physical medium classification'
     )
 
     class Meta:
         model = FrontPort
         fields = FrontPort.csv_headers
+        help_texts = {
+            'rear_port_position': 'Mapped position on corresponding rear port',
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -3408,12 +3381,16 @@ class RearPortCSVForm(forms.ModelForm):
         }
     )
     type = CSVChoiceField(
+        help_text='Physical medium classification',
         choices=PortTypeChoices,
     )
 
     class Meta:
         model = RearPort
         fields = RearPort.csv_headers
+        help_texts = {
+            'positions': 'Number of front ports which may be mapped'
+        }
 
 
 #
@@ -3518,6 +3495,7 @@ class DeviceBayCSVForm(forms.ModelForm):
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
+        help_text='Child device installed within this bay',
         error_messages={
             'invalid_choice': 'Child device not found.',
         }
@@ -3797,7 +3775,6 @@ class CableForm(BootstrapMixin, forms.ModelForm):
 
 
 class CableCSVForm(forms.ModelForm):
-
     # Termination A
     side_a_device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
@@ -3814,7 +3791,7 @@ class CableCSVForm(forms.ModelForm):
         help_text='Side A type'
     )
     side_a_name = forms.CharField(
-        help_text='Side A component'
+        help_text='Side A component name'
     )
 
     # Termination B
@@ -3833,7 +3810,7 @@ class CableCSVForm(forms.ModelForm):
         help_text='Side B type'
     )
     side_b_name = forms.CharField(
-        help_text='Side B component'
+        help_text='Side B component name'
     )
 
     # Cable attributes
@@ -3845,7 +3822,7 @@ class CableCSVForm(forms.ModelForm):
     type = CSVChoiceField(
         choices=CableTypeChoices,
         required=False,
-        help_text='Cable type'
+        help_text='Physical medium classification'
     )
     length_unit = CSVChoiceField(
         choices=CableLengthUnitChoices,
@@ -3860,7 +3837,7 @@ class CableCSVForm(forms.ModelForm):
             'status', 'label', 'color', 'length', 'length_unit',
         ]
         help_texts = {
-            'color': 'RGB color in hexadecimal (e.g. 00ff00)'
+            'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
         }
 
     # TODO: Merge the clean() methods for either end
@@ -4163,7 +4140,6 @@ class InventoryItemCSVForm(forms.ModelForm):
         queryset=Manufacturer.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Manufacturer name',
         error_messages={
             'invalid_choice': 'Invalid manufacturer.',
         }
@@ -4614,7 +4590,7 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Name of parent site',
+        help_text='Assigned site',
         error_messages={
             'invalid_choice': 'Site not found.',
         }
@@ -4622,18 +4598,18 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
     panel_name = forms.ModelChoiceField(
         queryset=PowerPanel.objects.all(),
         to_field_name='name',
-        help_text='Name of upstream power panel',
+        help_text='Upstream power panel',
         error_messages={
             'invalid_choice': 'Power panel not found.',
         }
     )
     rack_group = forms.CharField(
         required=False,
-        help_text="Rack group name (optional)"
+        help_text="Assigned rack's group name"
     )
     rack_name = forms.CharField(
         required=False,
-        help_text="Rack name (optional)"
+        help_text="Assigned rack name"
     )
     status = CSVChoiceField(
         choices=PowerFeedStatusChoices,
@@ -4648,7 +4624,7 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
     supply = CSVChoiceField(
         choices=PowerFeedSupplyChoices,
         required=False,
-        help_text='AC/DC'
+        help_text='Supply type (AC/DC)'
     )
     phase = CSVChoiceField(
         choices=PowerFeedPhaseChoices,

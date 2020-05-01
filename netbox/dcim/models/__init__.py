@@ -179,12 +179,14 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     )
     facility = models.CharField(
         max_length=50,
-        blank=True
+        blank=True,
+        help_text='Local facility ID or description'
     )
     asn = ASNField(
         blank=True,
         null=True,
-        verbose_name='ASN'
+        verbose_name='ASN',
+        help_text='32-bit autonomous system number'
     )
     time_zone = TimeZoneField(
         blank=True
@@ -205,13 +207,15 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         max_digits=8,
         decimal_places=6,
         blank=True,
-        null=True
+        null=True,
+        help_text='GPS coordinate (latitude)'
     )
     longitude = models.DecimalField(
         max_digits=9,
         decimal_places=6,
         blank=True,
-        null=True
+        null=True,
+        help_text='GPS coordinate (longitude)'
     )
     contact_name = models.CharField(
         max_length=50,
@@ -418,7 +422,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         max_length=50,
         blank=True,
         null=True,
-        verbose_name='Facility ID'
+        verbose_name='Facility ID',
+        help_text='Locally-assigned identifier'
     )
     site = models.ForeignKey(
         to='dcim.Site',
@@ -430,7 +435,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         on_delete=models.SET_NULL,
         related_name='racks',
         blank=True,
-        null=True
+        null=True,
+        help_text='Assigned group'
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -449,7 +455,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         on_delete=models.PROTECT,
         related_name='racks',
         blank=True,
-        null=True
+        null=True,
+        help_text='Functional role'
     )
     serial = models.CharField(
         max_length=50,
@@ -479,7 +486,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     u_height = models.PositiveSmallIntegerField(
         default=RACK_U_HEIGHT_DEFAULT,
         verbose_name='Height (U)',
-        validators=[MinValueValidator(1), MaxValueValidator(100)]
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        help_text='Height in rack units'
     )
     desc_units = models.BooleanField(
         default=False,
@@ -488,11 +496,13 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     )
     outer_width = models.PositiveSmallIntegerField(
         blank=True,
-        null=True
+        null=True,
+        help_text='Outer dimension of rack (width)'
     )
     outer_depth = models.PositiveSmallIntegerField(
         blank=True,
-        null=True
+        null=True,
+        help_text='Outer dimension of rack (depth)'
     )
     outer_unit = models.CharField(
         max_length=50,

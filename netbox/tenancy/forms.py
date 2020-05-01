@@ -37,7 +37,7 @@ class TenantGroupCSVForm(forms.ModelForm):
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of parent tenant group',
+        help_text='Parent group',
         error_messages={
             'invalid_choice': 'Tenant group not found.',
         }
@@ -47,9 +47,6 @@ class TenantGroupCSVForm(forms.ModelForm):
     class Meta:
         model = TenantGroup
         fields = TenantGroup.csv_headers
-        help_texts = {
-            'name': 'Group name',
-        }
 
 
 #
@@ -80,7 +77,7 @@ class TenantCSVForm(CustomFieldModelForm):
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of parent group',
+        help_text='Assigned group',
         error_messages={
             'invalid_choice': 'Group not found.'
         }
@@ -89,10 +86,6 @@ class TenantCSVForm(CustomFieldModelForm):
     class Meta:
         model = Tenant
         fields = Tenant.csv_headers
-        help_texts = {
-            'name': 'Tenant name',
-            'comments': 'Free-form comments'
-        }
 
 
 class TenantBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):

@@ -42,9 +42,6 @@ class ClusterTypeCSVForm(forms.ModelForm):
     class Meta:
         model = ClusterType
         fields = ClusterType.csv_headers
-        help_texts = {
-            'name': 'Name of cluster type',
-        }
 
 
 #
@@ -67,9 +64,6 @@ class ClusterGroupCSVForm(forms.ModelForm):
     class Meta:
         model = ClusterGroup
         fields = ClusterGroup.csv_headers
-        help_texts = {
-            'name': 'Name of cluster group',
-        }
 
 
 #
@@ -104,7 +98,7 @@ class ClusterCSVForm(CustomFieldModelCSVForm):
     type = forms.ModelChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='name',
-        help_text='Name of cluster type',
+        help_text='Type of cluster',
         error_messages={
             'invalid_choice': 'Invalid cluster type name.',
         }
@@ -113,7 +107,7 @@ class ClusterCSVForm(CustomFieldModelCSVForm):
         queryset=ClusterGroup.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Name of cluster group',
+        help_text='Assigned cluster group',
         error_messages={
             'invalid_choice': 'Invalid cluster group name.',
         }
@@ -122,7 +116,7 @@ class ClusterCSVForm(CustomFieldModelCSVForm):
         queryset=Site.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Name of assigned site',
+        help_text='Assigned site',
         error_messages={
             'invalid_choice': 'Invalid site name.',
         }
@@ -131,7 +125,7 @@ class ClusterCSVForm(CustomFieldModelCSVForm):
         queryset=Tenant.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Name of assigned tenant',
+        help_text='Assigned tenant',
         error_messages={
             'invalid_choice': 'Invalid tenant name'
         }
@@ -410,7 +404,7 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
     cluster = forms.ModelChoiceField(
         queryset=Cluster.objects.all(),
         to_field_name='name',
-        help_text='Name of parent cluster',
+        help_text='Assigned cluster',
         error_messages={
             'invalid_choice': 'Invalid cluster name.',
         }
@@ -421,7 +415,7 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
         ),
         required=False,
         to_field_name='name',
-        help_text='Name of functional role',
+        help_text='Functional role',
         error_messages={
             'invalid_choice': 'Invalid role name.'
         }
@@ -430,7 +424,7 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned tenant',
+        help_text='Assigned tenant',
         error_messages={
             'invalid_choice': 'Tenant not found.'
         }
@@ -439,7 +433,7 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
         queryset=Platform.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned platform',
+        help_text='Assigned platform',
         error_messages={
             'invalid_choice': 'Invalid platform.',
         }
