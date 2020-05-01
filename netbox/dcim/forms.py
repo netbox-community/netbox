@@ -23,8 +23,8 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, ExpandableNameField, FlexibleModelChoiceField, form_from_model, JSONField,
-    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField, SelectWithPK, SmallTextarea,
+    SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
@@ -2046,10 +2046,10 @@ class DeviceCSVForm(BaseDeviceCSVForm):
 
 
 class ChildDeviceCSVForm(BaseDeviceCSVForm):
-    parent = FlexibleModelChoiceField(
+    parent = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Name or ID of parent device',
+        help_text='Parent device',
         error_messages={
             'invalid_choice': 'Parent device not found.',
         }
@@ -2381,10 +2381,9 @@ class ConsolePortBulkEditForm(
 
 
 class ConsolePortCSVForm(forms.ModelForm):
-    device = FlexibleModelChoiceField(
+    device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Name or ID of device',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
@@ -2485,10 +2484,9 @@ class ConsoleServerPortBulkDisconnectForm(ConfirmationForm):
 
 
 class ConsoleServerPortCSVForm(forms.ModelForm):
-    device = FlexibleModelChoiceField(
+    device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Name or ID of device',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
@@ -2585,10 +2583,9 @@ class PowerPortBulkEditForm(
 
 
 class PowerPortCSVForm(forms.ModelForm):
-    device = FlexibleModelChoiceField(
+    device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Name or ID of device',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
@@ -2736,21 +2733,19 @@ class PowerOutletBulkDisconnectForm(ConfirmationForm):
 
 
 class PowerOutletCSVForm(forms.ModelForm):
-    device = FlexibleModelChoiceField(
+    device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Name or ID of device',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
     )
-    power_port = FlexibleModelChoiceField(
+    power_port = forms.ModelChoiceField(
         queryset=PowerPort.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name or ID of Power Port',
         error_messages={
-            'invalid_choice': 'Power Port not found.',
+            'invalid_choice': 'Power port not found.',
         }
     )
     feed_leg = CSVChoiceField(
@@ -3058,29 +3053,27 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
 
 
 class InterfaceCSVForm(forms.ModelForm):
-    device = FlexibleModelChoiceField(
+    device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name or ID of device',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
     )
-    virtual_machine = FlexibleModelChoiceField(
+    virtual_machine = forms.ModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name or ID of virtual machine',
         error_messages={
             'invalid_choice': 'Virtual machine not found.',
         }
     )
-    lag = FlexibleModelChoiceField(
+    lag = forms.ModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name or ID of LAG interface',
+        help_text='LAG interface',
         error_messages={
             'invalid_choice': 'LAG interface not found.',
         }
@@ -3271,18 +3264,16 @@ class FrontPortBulkDisconnectForm(ConfirmationForm):
 
 
 class FrontPortCSVForm(forms.ModelForm):
-    device = FlexibleModelChoiceField(
+    device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Name or ID of device',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
     )
-    rear_port = FlexibleModelChoiceField(
+    rear_port = forms.ModelChoiceField(
         queryset=RearPort.objects.all(),
         to_field_name='name',
-        help_text='Name or ID of Rear Port',
         error_messages={
             'invalid_choice': 'Rear Port not found.',
         }
@@ -3409,10 +3400,9 @@ class RearPortBulkDisconnectForm(ConfirmationForm):
 
 
 class RearPortCSVForm(forms.ModelForm):
-    device = FlexibleModelChoiceField(
+    device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Name or ID of device',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
@@ -3517,19 +3507,17 @@ class DeviceBayBulkRenameForm(BulkRenameForm):
 
 
 class DeviceBayCSVForm(forms.ModelForm):
-    device = FlexibleModelChoiceField(
+    device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Name or ID of device',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
     )
-    installed_device = FlexibleModelChoiceField(
+    installed_device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name or ID of device',
         error_messages={
             'invalid_choice': 'Child device not found.',
         }
@@ -3811,10 +3799,10 @@ class CableForm(BootstrapMixin, forms.ModelForm):
 class CableCSVForm(forms.ModelForm):
 
     # Termination A
-    side_a_device = FlexibleModelChoiceField(
+    side_a_device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Side A device name or ID',
+        help_text='Side A device',
         error_messages={
             'invalid_choice': 'Side A device not found',
         }
@@ -3830,10 +3818,10 @@ class CableCSVForm(forms.ModelForm):
     )
 
     # Termination B
-    side_b_device = FlexibleModelChoiceField(
+    side_b_device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Side B device name or ID',
+        help_text='Side B device',
         error_messages={
             'invalid_choice': 'Side B device not found',
         }
@@ -4164,10 +4152,9 @@ class InventoryItemCreateForm(BootstrapMixin, forms.Form):
 
 
 class InventoryItemCSVForm(forms.ModelForm):
-    device = FlexibleModelChoiceField(
+    device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Device name or ID',
         error_messages={
             'invalid_choice': 'Device not found.',
         }

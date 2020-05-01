@@ -11,15 +11,13 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditNullBooleanSelect, CSVChoiceField,
-    DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField,
-    FlexibleModelChoiceField, ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
-    BOOLEAN_WITH_BLANK_CHOICES,
+    DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField, ReturnURLForm,
+    SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import VirtualMachine
-from .constants import *
 from .choices import *
+from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
-
 
 PREFIX_MASK_LENGTH_CHOICES = add_blank_choice([
     (i, i) for i in range(PREFIX_LENGTH_MIN, PREFIX_LENGTH_MAX + 1)
@@ -333,11 +331,10 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 
 class PrefixCSVForm(CustomFieldModelCSVForm):
-    vrf = FlexibleModelChoiceField(
+    vrf = forms.ModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Name of parent VRF (or {ID})',
         error_messages={
             'invalid_choice': 'VRF not found.',
         }
@@ -737,11 +734,10 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 
 class IPAddressCSVForm(CustomFieldModelCSVForm):
-    vrf = FlexibleModelChoiceField(
+    vrf = forms.ModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Name of parent VRF (or {ID})',
         error_messages={
             'invalid_choice': 'VRF not found.',
         }
@@ -764,11 +760,11 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
         required=False,
         help_text='Functional role'
     )
-    device = FlexibleModelChoiceField(
+    device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name or ID of assigned device',
+        help_text='Assigned device',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
@@ -777,7 +773,7 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned virtual machine',
+        help_text='Assigned virtual machine',
         error_messages={
             'invalid_choice': 'Virtual machine not found.',
         }
@@ -1299,20 +1295,18 @@ class ServiceFilterForm(BootstrapMixin, CustomFieldFilterForm):
 
 
 class ServiceCSVForm(CustomFieldModelCSVForm):
-    device = FlexibleModelChoiceField(
+    device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name or ID of device',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
     )
-    virtual_machine = FlexibleModelChoiceField(
+    virtual_machine = forms.ModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name or ID of virtual machine',
         error_messages={
             'invalid_choice': 'Virtual machine not found.',
         }

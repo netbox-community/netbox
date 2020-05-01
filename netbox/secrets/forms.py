@@ -8,8 +8,8 @@ from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
 )
 from utilities.forms import (
-    APISelect, APISelectMultiple, BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    FlexibleModelChoiceField, SlugField, StaticSelect2Multiple, TagFilterField,
+    APISelectMultiple, BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField,
+    StaticSelect2Multiple, TagFilterField,
 )
 from .constants import *
 from .models import Secret, SecretRole, UserKey
@@ -120,10 +120,9 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class SecretCSVForm(CustomFieldModelCSVForm):
-    device = FlexibleModelChoiceField(
+    device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Device name or ID',
         error_messages={
             'invalid_choice': 'Device not found.',
         }

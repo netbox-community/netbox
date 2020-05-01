@@ -552,27 +552,6 @@ class CommentField(forms.CharField):
         super().__init__(required=required, label=label, help_text=help_text, *args, **kwargs)
 
 
-class FlexibleModelChoiceField(forms.ModelChoiceField):
-    """
-    Allow a model to be reference by either '{ID}' or the field specified by `to_field_name`.
-    """
-    def to_python(self, value):
-        if value in self.empty_values:
-            return None
-        try:
-            if not self.to_field_name:
-                key = 'pk'
-            elif re.match(r'^\{\d+\}$', value):
-                key = 'pk'
-                value = value.strip('{}')
-            else:
-                key = self.to_field_name
-            value = self.queryset.get(**{key: value})
-        except (ValueError, TypeError, self.queryset.model.DoesNotExist):
-            raise forms.ValidationError(self.error_messages['invalid_choice'], code='invalid_choice')
-        return value
-
-
 class SlugField(forms.SlugField):
     """
     Extend the built-in SlugField to automatically populate from a field called `name` unless otherwise specified.
