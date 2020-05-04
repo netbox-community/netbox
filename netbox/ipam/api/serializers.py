@@ -261,7 +261,7 @@ class AvailableIPSerializer(serializers.Serializer):
             vrf = None
         return OrderedDict([
             ('family', self.context['prefix'].version),
-            ('address', '{}/{}'.format(instance, self.context['prefix'].prefixlen)),
+            ('address', str(instance)),
             ('vrf', vrf),
         ])
 
