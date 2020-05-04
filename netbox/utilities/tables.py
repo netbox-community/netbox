@@ -1,4 +1,7 @@
 import django_tables2 as tables
+from django.core.exceptions import FieldDoesNotExist
+from django.db.models import ForeignKey
+from django_tables2.data import TableQuerysetData
 from django.utils.safestring import mark_safe
 
 
@@ -44,6 +47,21 @@ class BaseTable(tables.Table):
             if actions:
                 self.base_columns['actions'] = actions
                 self.sequence.append('actions')
+
+        # Dynamically update the table's QuerySet to ensure related fields are pre-fetched
+        if isinstance(self.data, TableQuerysetData):
+            model = getattr(self.Meta, 'model')
+            prefetch_fields = []
+            for column in self.columns:
+                if column.visible:
+                    field_path = column.accessor.split('.')
+                    try:
+                        model_field = model._meta.get_field(field_path[0])
+                        if isinstance(model_field, ForeignKey):
+                            prefetch_fields.append('__'.join(field_path))
+                    except FieldDoesNotExist:
+                        pass
+            self.data.data = self.data.data.prefetch_related(None).prefetch_related(*prefetch_fields)
 
     @property
     def configurable_columns(self):
