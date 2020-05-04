@@ -316,9 +316,6 @@ class RackTable(BaseTable):
         viewname='dcim:site',
         args=[Accessor('site.slug')]
     )
-    group = tables.Column(
-        accessor=Accessor('group.name')
-    )
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )
