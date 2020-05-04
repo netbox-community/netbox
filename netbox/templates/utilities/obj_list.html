@@ -5,6 +5,9 @@
 {% block content %}
 <div class="pull-right noprint">
     {% block buttons %}{% endblock %}
+    {% if table_config_form %}
+        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#tableconfig" title="Configure table"><i class="fa fa-cog"></i> Configure</button>
+    {% endif %}
     {% if permissions.add and 'add' in action_buttons %}
         {% add_button content_type.model_class|url_name:"add" %}
     {% endif %}
@@ -68,6 +71,9 @@
         {% endwith %}
         {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
         <div class="clearfix"></div>
+        {% if table_config_form %}
+            {% include 'inc/table_config_form.html' %}
+        {% endif %}
     </div>
     {% if filter_form %}
         <div class="col-md-3 noprint">

@@ -20,14 +20,19 @@ SECRETROLE_ACTIONS = """
 class SecretRoleTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    secret_count = tables.Column(verbose_name='Secrets')
+    secret_count = tables.Column(
+        verbose_name='Secrets'
+    )
     actions = tables.TemplateColumn(
-        template_code=SECRETROLE_ACTIONS, attrs={'td': {'class': 'text-right noprint'}}, verbose_name=''
+        template_code=SECRETROLE_ACTIONS,
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
     )
 
     class Meta(BaseTable.Meta):
         model = SecretRole
-        fields = ('pk', 'name', 'secret_count', 'description', 'slug', 'actions')
+        fields = ('pk', 'name', 'secret_count', 'description', 'slug', 'users', 'groups', 'actions')
+        default_columns = ('pk', 'name', 'secret_count', 'description', 'actions')
 
 
 #
@@ -40,4 +45,5 @@ class SecretTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Secret
-        fields = ('pk', 'device', 'role', 'name', 'last_updated')
+        fields = ('pk', 'device', 'role', 'name', 'last_updated', 'hash')
+        default_columns = ('pk', 'device', 'role', 'name', 'last_updated')

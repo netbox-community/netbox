@@ -46,7 +46,9 @@ VIRTUALMACHINE_PRIMARY_IP = """
 class ClusterTypeTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    cluster_count = tables.Column(verbose_name='Clusters')
+    cluster_count = tables.Column(
+        verbose_name='Clusters'
+    )
     actions = tables.TemplateColumn(
         template_code=CLUSTERTYPE_ACTIONS,
         attrs={'td': {'class': 'text-right noprint'}},
@@ -55,7 +57,8 @@ class ClusterTypeTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ClusterType
-        fields = ('pk', 'name', 'cluster_count', 'description', 'actions')
+        fields = ('pk', 'name', 'slug', 'cluster_count', 'description', 'actions')
+        default_columns = ('pk', 'name', 'cluster_count', 'description', 'actions')
 
 
 #
@@ -65,7 +68,9 @@ class ClusterTypeTable(BaseTable):
 class ClusterGroupTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    cluster_count = tables.Column(verbose_name='Clusters')
+    cluster_count = tables.Column(
+        verbose_name='Clusters'
+    )
     actions = tables.TemplateColumn(
         template_code=CLUSTERGROUP_ACTIONS,
         attrs={'td': {'class': 'text-right noprint'}},
@@ -74,7 +79,8 @@ class ClusterGroupTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ClusterGroup
-        fields = ('pk', 'name', 'cluster_count', 'description', 'actions')
+        fields = ('pk', 'name', 'slug', 'cluster_count', 'description', 'actions')
+        default_columns = ('pk', 'name', 'cluster_count', 'description', 'actions')
 
 
 #
@@ -84,10 +90,24 @@ class ClusterGroupTable(BaseTable):
 class ClusterTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
-    device_count = tables.Column(accessor=Accessor('devices.count'), orderable=False, verbose_name='Devices')
-    vm_count = tables.Column(accessor=Accessor('virtual_machines.count'), orderable=False, verbose_name='VMs')
+    tenant = tables.LinkColumn(
+        viewname='tenancy:tenant',
+        args=[Accessor('tenant.slug')]
+    )
+    site = tables.LinkColumn(
+        viewname='dcim:site',
+        args=[Accessor('site.slug')]
+    )
+    device_count = tables.Column(
+        accessor=Accessor('devices.count'),
+        orderable=False,
+        verbose_name='Devices'
+    )
+    vm_count = tables.Column(
+        accessor=Accessor('virtual_machines.count'),
+        orderable=False,
+        verbose_name='VMs'
+    )
 
     class Meta(BaseTable.Meta):
         model = Cluster
@@ -101,10 +121,19 @@ class ClusterTable(BaseTable):
 class VirtualMachineTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    status = tables.TemplateColumn(template_code=VIRTUALMACHINE_STATUS)
-    cluster = tables.LinkColumn('virtualization:cluster', args=[Accessor('cluster.pk')])
-    role = tables.TemplateColumn(VIRTUALMACHINE_ROLE)
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
+    status = tables.TemplateColumn(
+        template_code=VIRTUALMACHINE_STATUS
+    )
+    cluster = tables.LinkColumn(
+        viewname='virtualization:cluster',
+        args=[Accessor('cluster.pk')]
+    )
+    role = tables.TemplateColumn(
+        template_code=VIRTUALMACHINE_ROLE
+    )
+    tenant = tables.TemplateColumn(
+        template_code=COL_TENANT
+    )
 
     class Meta(BaseTable.Meta):
         model = VirtualMachine
@@ -112,13 +141,31 @@ class VirtualMachineTable(BaseTable):
 
 
 class VirtualMachineDetailTable(VirtualMachineTable):
+    primary_ip4 = tables.LinkColumn(
+        viewname='ipam:ipaddress',
+        args=[Accessor('primary_ip4.pk')],
+        verbose_name='IPv4 Address'
+    )
+    primary_ip6 = tables.LinkColumn(
+        viewname='ipam:ipaddress',
+        args=[Accessor('primary_ip6.pk')],
+        verbose_name='IPv6 Address'
+    )
     primary_ip = tables.TemplateColumn(
-        orderable=False, verbose_name='IP Address', template_code=VIRTUALMACHINE_PRIMARY_IP
+        orderable=False,
+        verbose_name='IP Address',
+        template_code=VIRTUALMACHINE_PRIMARY_IP
     )
 
     class Meta(BaseTable.Meta):
         model = VirtualMachine
-        fields = ('pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip')
+        fields = (
+            'pk', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'primary_ip4',
+            'primary_ip6', 'primary_ip',
+        )
+        default_columns = (
+            'pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
+        )
 
 
 #

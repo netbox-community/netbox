@@ -24,7 +24,7 @@ from django_tables2 import RequestConfig
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
 from utilities.exceptions import AbortTransaction
-from utilities.forms import BootstrapMixin, CSVDataField
+from utilities.forms import BootstrapMixin, CSVDataField, TableConfigForm
 from utilities.utils import csv_format, prepare_cloned_fields
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm, ImportForm
@@ -164,7 +164,8 @@ class ObjectListView(View):
             permissions[action] = request.user.has_perm(perm_name)
 
         # Construct the table based on the user's permissions
-        table = self.table(self.queryset)
+        columns = request.user.config.get(f"tables.{self.table.__name__}.columns")
+        table = self.table(self.queryset, columns=columns)
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
 
@@ -180,11 +181,28 @@ class ObjectListView(View):
             'table': table,
             'permissions': permissions,
             'action_buttons': self.action_buttons,
+            'table_config_form': TableConfigForm(table=table),
             'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
         }
         context.update(self.extra_context())
 
         return render(request, self.template_name, context)
+
+    def post(self, request):
+
+        # Update the user's table configuration
+        table = self.table(self.queryset)
+        form = TableConfigForm(table=table, data=request.POST)
+        preference_name = f"tables.{self.table.__name__}.columns"
+
+        if form.is_valid():
+            if 'set' in request.POST:
+                request.user.config.set(preference_name, form.cleaned_data['columns'], commit=True)
+            elif 'clear' in request.POST:
+                request.user.config.clear(preference_name, commit=True)
+            messages.success(request, "Your preferences have been updated.")
+
+        return redirect(request.get_full_path())
 
     def alter_queryset(self, request):
         # .all() is necessary to avoid caching queries

@@ -665,7 +665,10 @@ class BootstrapMixin(forms.BaseForm):
         super().__init__(*args, **kwargs)
 
         exempt_widgets = [
-            forms.CheckboxInput, forms.ClearableFileInput, forms.FileInput, forms.RadioSelect
+            forms.CheckboxInput,
+            forms.ClearableFileInput,
+            forms.FileInput,
+            forms.RadioSelect
         ]
 
         for field_name, field in self.fields.items():
@@ -752,3 +755,23 @@ class ImportForm(BootstrapMixin, forms.Form):
                 raise forms.ValidationError({
                     'data': "Invalid YAML data: {}".format(err)
                 })
+
+
+class TableConfigForm(BootstrapMixin, forms.Form):
+    """
+    Form for configuring user's table preferences.
+    """
+    columns = forms.MultipleChoiceField(
+        choices=[],
+        widget=forms.SelectMultiple(
+            attrs={'size': 10}
+        ),
+        help_text="Use the buttons below to arrange columns in the desired order, then select all columns to display."
+    )
+
+    def __init__(self, table, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Initialize columns field based on table attributes
+        self.fields['columns'].choices = table.configurable_columns
+        self.fields['columns'].initial = table.visible_columns

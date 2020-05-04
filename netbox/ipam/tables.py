@@ -190,12 +190,20 @@ TENANT_LINK = """
 class VRFTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    rd = tables.Column(verbose_name='RD')
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
+    rd = tables.Column(
+        verbose_name='RD'
+    )
+    tenant = tables.TemplateColumn(
+        template_code=COL_TENANT
+    )
+    enforce_unique = BooleanColumn(
+        verbose_name='Unique'
+    )
 
     class Meta(BaseTable.Meta):
         model = VRF
-        fields = ('pk', 'name', 'rd', 'tenant', 'description')
+        fields = ('pk', 'name', 'rd', 'tenant', 'enforce_unique', 'description')
+        default_columns = ('pk', 'name', 'rd', 'tenant', 'description')
 
 
 #
@@ -204,14 +212,23 @@ class VRFTable(BaseTable):
 
 class RIRTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(verbose_name='Name')
-    is_private = BooleanColumn(verbose_name='Private')
-    aggregate_count = tables.Column(verbose_name='Aggregates')
-    actions = tables.TemplateColumn(template_code=RIR_ACTIONS, attrs={'td': {'class': 'text-right noprint'}}, verbose_name='')
+    name = tables.LinkColumn()
+    is_private = BooleanColumn(
+        verbose_name='Private'
+    )
+    aggregate_count = tables.Column(
+        verbose_name='Aggregates'
+    )
+    actions = tables.TemplateColumn(
+        template_code=RIR_ACTIONS,
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = RIR
-        fields = ('pk', 'name', 'is_private', 'aggregate_count', 'description', 'actions')
+        fields = ('pk', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'actions')
+        default_columns = ('pk', 'name', 'is_private', 'aggregate_count', 'description', 'actions')
 
 
 class RIRDetailTable(RIRTable):
@@ -247,6 +264,10 @@ class RIRDetailTable(RIRTable):
 
     class Meta(RIRTable.Meta):
         fields = (
+            'pk', 'name', 'slug', 'is_private', 'aggregate_count', 'stats_total', 'stats_active', 'stats_reserved',
+            'stats_deprecated', 'stats_available', 'utilization', 'actions',
+        )
+        default_columns = (
             'pk', 'name', 'is_private', 'aggregate_count', 'stats_total', 'stats_active', 'stats_reserved',
             'stats_deprecated', 'stats_available', 'utilization', 'actions',
         )
@@ -258,8 +279,13 @@ class RIRDetailTable(RIRTable):
 
 class AggregateTable(BaseTable):
     pk = ToggleColumn()
-    prefix = tables.LinkColumn(verbose_name='Aggregate')
-    date_added = tables.DateColumn(format="Y-m-d", verbose_name='Added')
+    prefix = tables.LinkColumn(
+        verbose_name='Aggregate'
+    )
+    date_added = tables.DateColumn(
+        format="Y-m-d",
+        verbose_name='Added'
+    )
 
     class Meta(BaseTable.Meta):
         model = Aggregate
@@ -267,8 +293,13 @@ class AggregateTable(BaseTable):
 
 
 class AggregateDetailTable(AggregateTable):
-    child_count = tables.Column(verbose_name='Prefixes')
-    utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
+    child_count = tables.Column(
+        verbose_name='Prefixes'
+    )
+    utilization = tables.TemplateColumn(
+        template_code=UTILIZATION_GRAPH,
+        orderable=False
+    )
 
     class Meta(AggregateTable.Meta):
         fields = ('pk', 'prefix', 'rir', 'child_count', 'utilization', 'date_added', 'description')
@@ -300,7 +331,8 @@ class RoleTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Role
-        fields = ('pk', 'name', 'prefix_count', 'vlan_count', 'description', 'slug', 'weight', 'actions')
+        fields = ('pk', 'name', 'slug', 'prefix_count', 'vlan_count', 'description', 'weight', 'actions')
+        default_columns = ('pk', 'name', 'prefix_count', 'vlan_count', 'description', 'actions')
 
 
 #
@@ -309,28 +341,61 @@ class RoleTable(BaseTable):
 
 class PrefixTable(BaseTable):
     pk = ToggleColumn()
-    prefix = tables.TemplateColumn(PREFIX_LINK, attrs={'th': {'style': 'padding-left: 17px'}})
-    status = tables.TemplateColumn(STATUS_LABEL)
-    vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
-    tenant = tables.TemplateColumn(template_code=TENANT_LINK)
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
-    vlan = tables.LinkColumn('ipam:vlan', args=[Accessor('vlan.pk')], verbose_name='VLAN')
-    role = tables.TemplateColumn(PREFIX_ROLE_LINK)
+    prefix = tables.TemplateColumn(
+        template_code=PREFIX_LINK,
+        attrs={'th': {'style': 'padding-left: 17px'}}
+    )
+    status = tables.TemplateColumn(
+        template_code=STATUS_LABEL
+    )
+    vrf = tables.TemplateColumn(
+        template_code=VRF_LINK,
+        verbose_name='VRF'
+    )
+    tenant = tables.TemplateColumn(
+        template_code=TENANT_LINK
+    )
+    site = tables.LinkColumn(
+        viewname='dcim:site',
+        args=[Accessor('site.slug')]
+    )
+    vlan = tables.LinkColumn(
+        viewname='ipam:vlan',
+        args=[Accessor('vlan.pk')],
+        verbose_name='VLAN'
+    )
+    role = tables.TemplateColumn(
+        template_code=PREFIX_ROLE_LINK
+    )
+    is_pool = BooleanColumn(
+        verbose_name='Pool'
+    )
 
     class Meta(BaseTable.Meta):
         model = Prefix
-        fields = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'description')
+        fields = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'is_pool', 'description')
+        default_columns = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'description')
         row_attrs = {
             'class': lambda record: 'success' if not record.pk else '',
         }
 
 
 class PrefixDetailTable(PrefixTable):
-    utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False)
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
+    utilization = tables.TemplateColumn(
+        template_code=UTILIZATION_GRAPH,
+        orderable=False
+    )
+    tenant = tables.TemplateColumn(
+        template_code=COL_TENANT
+    )
 
     class Meta(PrefixTable.Meta):
-        fields = ('pk', 'prefix', 'status', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description')
+        fields = (
+            'pk', 'prefix', 'status', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'is_pool', 'description',
+        )
+        default_columns = (
+            'pk', 'prefix', 'status', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description',
+        )
 
 
 #
@@ -339,12 +404,27 @@ class PrefixDetailTable(PrefixTable):
 
 class IPAddressTable(BaseTable):
     pk = ToggleColumn()
-    address = tables.TemplateColumn(IPADDRESS_LINK, verbose_name='IP Address')
-    vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
-    status = tables.TemplateColumn(STATUS_LABEL)
-    tenant = tables.TemplateColumn(template_code=TENANT_LINK)
-    parent = tables.TemplateColumn(IPADDRESS_PARENT, orderable=False)
-    interface = tables.Column(orderable=False)
+    address = tables.TemplateColumn(
+        template_code=IPADDRESS_LINK,
+        verbose_name='IP Address'
+    )
+    vrf = tables.TemplateColumn(
+        template_code=VRF_LINK,
+        verbose_name='VRF'
+    )
+    status = tables.TemplateColumn(
+        template_code=STATUS_LABEL
+    )
+    tenant = tables.TemplateColumn(
+        template_code=TENANT_LINK
+    )
+    parent = tables.TemplateColumn(
+        template_code=IPADDRESS_PARENT,
+        orderable=False
+    )
+    interface = tables.Column(
+        orderable=False
+    )
 
     class Meta(BaseTable.Meta):
         model = IPAddress
@@ -358,22 +438,40 @@ class IPAddressTable(BaseTable):
 
 class IPAddressDetailTable(IPAddressTable):
     nat_inside = tables.LinkColumn(
-        'ipam:ipaddress', args=[Accessor('nat_inside.pk')], orderable=False, verbose_name='NAT (Inside)'
+        viewname='ipam:ipaddress',
+        args=[Accessor('nat_inside.pk')],
+        orderable=False,
+        verbose_name='NAT (Inside)'
     )
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
+    tenant = tables.TemplateColumn(
+        template_code=COL_TENANT
+    )
 
     class Meta(IPAddressTable.Meta):
         fields = (
             'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'parent', 'interface', 'dns_name',
             'description',
         )
+        default_columns = (
+            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface', 'dns_name', 'description',
+        )
 
 
 class IPAddressAssignTable(BaseTable):
-    address = tables.TemplateColumn(IPADDRESS_ASSIGN_LINK, verbose_name='IP Address')
-    status = tables.TemplateColumn(STATUS_LABEL)
-    parent = tables.TemplateColumn(IPADDRESS_PARENT, orderable=False)
-    interface = tables.Column(orderable=False)
+    address = tables.TemplateColumn(
+        template_code=IPADDRESS_ASSIGN_LINK,
+        verbose_name='IP Address'
+    )
+    status = tables.TemplateColumn(
+        template_code=STATUS_LABEL
+    )
+    parent = tables.TemplateColumn(
+        template_code=IPADDRESS_PARENT,
+        orderable=False
+    )
+    interface = tables.Column(
+        orderable=False
+    )
 
     class Meta(BaseTable.Meta):
         model = IPAddress
@@ -385,10 +483,19 @@ class InterfaceIPAddressTable(BaseTable):
     """
     List IP addresses assigned to a specific Interface.
     """
-    address = tables.LinkColumn(verbose_name='IP Address')
-    vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
-    status = tables.TemplateColumn(STATUS_LABEL)
-    tenant = tables.TemplateColumn(template_code=TENANT_LINK)
+    address = tables.LinkColumn(
+        verbose_name='IP Address'
+    )
+    vrf = tables.TemplateColumn(
+        template_code=VRF_LINK,
+        verbose_name='VRF'
+    )
+    status = tables.TemplateColumn(
+        template_code=STATUS_LABEL
+    )
+    tenant = tables.TemplateColumn(
+        template_code=TENANT_LINK
+    )
 
     class Meta(BaseTable.Meta):
         model = IPAddress
@@ -401,16 +508,24 @@ class InterfaceIPAddressTable(BaseTable):
 
 class VLANGroupTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(verbose_name='Name')
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
-    vlan_count = tables.Column(verbose_name='VLANs')
-    slug = tables.Column(verbose_name='Slug')
-    actions = tables.TemplateColumn(template_code=VLANGROUP_ACTIONS, attrs={'td': {'class': 'text-right noprint'}},
-                                    verbose_name='')
+    name = tables.LinkColumn()
+    site = tables.LinkColumn(
+        viewname='dcim:site',
+        args=[Accessor('site.slug')]
+    )
+    vlan_count = tables.Column(
+        verbose_name='VLANs'
+    )
+    actions = tables.TemplateColumn(
+        template_code=VLANGROUP_ACTIONS,
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = VLANGroup
         fields = ('pk', 'name', 'site', 'vlan_count', 'slug', 'description', 'actions')
+        default_columns = ('pk', 'name', 'site', 'vlan_count', 'description', 'actions')
 
 
 #
@@ -419,12 +534,27 @@ class VLANGroupTable(BaseTable):
 
 class VLANTable(BaseTable):
     pk = ToggleColumn()
-    vid = tables.TemplateColumn(VLAN_LINK, verbose_name='ID')
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
-    group = tables.LinkColumn('ipam:vlangroup_vlans', args=[Accessor('group.pk')], verbose_name='Group')
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
-    status = tables.TemplateColumn(STATUS_LABEL)
-    role = tables.TemplateColumn(VLAN_ROLE_LINK)
+    vid = tables.TemplateColumn(
+        template_code=VLAN_LINK,
+        verbose_name='ID'
+    )
+    site = tables.LinkColumn(
+        viewname='dcim:site',
+        args=[Accessor('site.slug')]
+    )
+    group = tables.LinkColumn(
+        viewname='ipam:vlangroup_vlans',
+        args=[Accessor('group.pk')]
+    )
+    tenant = tables.TemplateColumn(
+        template_code=COL_TENANT
+    )
+    status = tables.TemplateColumn(
+        template_code=STATUS_LABEL
+    )
+    role = tables.TemplateColumn(
+        template_code=VLAN_ROLE_LINK
+    )
 
     class Meta(BaseTable.Meta):
         model = VLAN
@@ -435,16 +565,26 @@ class VLANTable(BaseTable):
 
 
 class VLANDetailTable(VLANTable):
-    prefixes = tables.TemplateColumn(VLAN_PREFIXES, orderable=False, verbose_name='Prefixes')
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
+    prefixes = tables.TemplateColumn(
+        template_code=VLAN_PREFIXES,
+        orderable=False,
+        verbose_name='Prefixes'
+    )
+    tenant = tables.TemplateColumn(
+        template_code=COL_TENANT
+    )
 
     class Meta(VLANTable.Meta):
         fields = ('pk', 'vid', 'site', 'group', 'name', 'prefixes', 'tenant', 'status', 'role', 'description')
 
 
 class VLANMemberTable(BaseTable):
-    parent = tables.LinkColumn(order_by=['device', 'virtual_machine'])
-    name = tables.LinkColumn(verbose_name='Interface')
+    parent = tables.LinkColumn(
+        order_by=['device', 'virtual_machine']
+    )
+    name = tables.LinkColumn(
+        verbose_name='Interface'
+    )
     untagged = tables.TemplateColumn(
         template_code=VLAN_MEMBER_UNTAGGED,
         orderable=False
@@ -464,13 +604,29 @@ class InterfaceVLANTable(BaseTable):
     """
     List VLANs assigned to a specific Interface.
     """
-    vid = tables.LinkColumn('ipam:vlan', args=[Accessor('pk')], verbose_name='ID')
+    vid = tables.LinkColumn(
+        viewname='ipam:vlan',
+        args=[Accessor('pk')],
+        verbose_name='ID'
+    )
     tagged = BooleanColumn()
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
-    group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
-    status = tables.TemplateColumn(STATUS_LABEL)
-    role = tables.TemplateColumn(VLAN_ROLE_LINK)
+    site = tables.LinkColumn(
+        viewname='dcim:site',
+        args=[Accessor('site.slug')]
+    )
+    group = tables.Column(
+        accessor=Accessor('group.name'),
+        verbose_name='Group'
+    )
+    tenant = tables.TemplateColumn(
+        template_code=COL_TENANT
+    )
+    status = tables.TemplateColumn(
+        template_code=STATUS_LABEL
+    )
+    role = tables.TemplateColumn(
+        template_code=VLAN_ROLE_LINK
+    )
 
     class Meta(BaseTable.Meta):
         model = VLAN
@@ -494,4 +650,5 @@ class ServiceTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Service
-        fields = ('pk', 'name', 'parent', 'protocol', 'port', 'description')
+        fields = ('pk', 'name', 'parent', 'protocol', 'port', 'ipaddresses', 'description')
+        default_columns = ('pk', 'name', 'parent', 'protocol', 'port', 'description')
