@@ -135,7 +135,7 @@ AUTH_LDAP_CACHE_TIMEOUT = 3600
 
 ## Troubleshooting LDAP
 
-`supervisorctl restart netbox` restarts the Netbox service, and initiates any changes made to `ldap_config.py`. If there are syntax errors present, the NetBox process will not spawn an instance, and errors should be logged to `/var/log/supervisor/`.
+`systemctl restart netbox` restarts the Netbox service, and initiates any changes made to `ldap_config.py`. If there are syntax errors present, the NetBox process will not spawn an instance, and errors should be logged to `/var/log/messages`.
 
 For troubleshooting LDAP user/group queries, add the following lines to the start of `ldap_config.py` after `import ldap`.
 
