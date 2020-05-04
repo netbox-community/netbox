@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#492](https://github.com/netbox-community/netbox/issues/492) - Enable toggling and rearranging table columns
 * [#3294](https://github.com/netbox-community/netbox/issues/3294) - Implement mechanism for storing user preferences
 * [#4421](https://github.com/netbox-community/netbox/issues/4421) - Retain user's preference for config context format
 * [#4502](https://github.com/netbox-community/netbox/issues/4502) - Enable configuration of proxies for outbound HTTP requests
