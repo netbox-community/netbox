@@ -71,9 +71,7 @@
                                             {% elif field.label %}
                                                 {{ field.label }}<br />
                                             {% endif %}
-                                            {% if field.choices %}
-                                                <small class="text-muted">Choices: {{ field|example_choices }}</small>
-                                            {% elif field|widget_type == 'dateinput' %}
+                                            {% if field|widget_type == 'dateinput' %}
                                                 <small class="text-muted">Format: YYYY-MM-DD</small>
                                             {% elif field|widget_type == 'checkboxinput' %}
                                                 <small class="text-muted">Specify "true" or "false"</small>
