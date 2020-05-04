@@ -1153,10 +1153,6 @@ class InterfaceConnectionTable(BaseTable):
         args=[Accessor('pk')],
         verbose_name='Interface A'
     )
-    description_a = tables.Column(
-        accessor=Accessor('description'),
-        verbose_name='Description'
-    )
     device_b = tables.LinkColumn(
         viewname='dcim:device',
         accessor=Accessor('_connected_interface.device'),
@@ -1169,15 +1165,11 @@ class InterfaceConnectionTable(BaseTable):
         args=[Accessor('_connected_interface.pk')],
         verbose_name='Interface B'
     )
-    description_b = tables.Column(
-        accessor=Accessor('_connected_interface.description'),
-        verbose_name='Description'
-    )
 
     class Meta(BaseTable.Meta):
         model = Interface
         fields = (
-            'device_a', 'interface_a', 'description_a', 'device_b', 'interface_b', 'description_b', 'connection_status',
+            'device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status',
         )
 
 
