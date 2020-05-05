@@ -523,7 +523,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'site', 'group_name', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
+        'site', 'group', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
         'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
     ]
     clone_fields = [
@@ -829,7 +829,7 @@ class RackReservation(ChangeLoggedModel):
 
     def clean(self):
 
-        if self.units:
+        if hasattr(self, 'rack') and self.units:
 
             # Validate that all specified units exist in the Rack.
             invalid_units = [u for u in self.units if u not in self.rack.units]
@@ -1408,7 +1408,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
+        'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
         'site', 'rack_group', 'rack_name', 'position', 'face', 'comments',
     ]
     clone_fields = [
@@ -1791,7 +1791,7 @@ class PowerPanel(ChangeLoggedModel):
         max_length=50
     )
 
-    csv_headers = ['site', 'rack_group_name', 'name']
+    csv_headers = ['site', 'rack_group', 'name']
 
     class Meta:
         ordering = ['site', 'name']
@@ -1898,7 +1898,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'site', 'panel_name', 'rack_group', 'rack_name', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
+        'site', 'power_panel', 'rack_group', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
         'amperage', 'max_utilization', 'comments',
     ]
     clone_fields = [

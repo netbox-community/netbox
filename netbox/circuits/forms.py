@@ -8,7 +8,7 @@ from extras.forms import (
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, DatePicker,
+    APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, CSVModelForm, DatePicker,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, SmallTextarea, SlugField, StaticSelect2,
     StaticSelect2Multiple, TagFilterField,
 )
@@ -142,7 +142,7 @@ class CircuitTypeForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class CircuitTypeCSVForm(forms.ModelForm):
+class CircuitTypeCSVForm(CSVModelForm):
     slug = SlugField()
 
     class Meta:

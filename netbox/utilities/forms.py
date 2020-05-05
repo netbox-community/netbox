@@ -712,6 +712,20 @@ class BulkEditForm(forms.Form):
             self.nullable_fields = self.Meta.nullable_fields
 
 
+class CSVModelForm(forms.ModelForm):
+    """
+    ModelForm used for the import of objects in CSV format.
+    """
+    def __init__(self, *args, headers=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Modify the model form to accommodate any customized to_field_name properties
+        if headers:
+            for field, to_field in headers.items():
+                if to_field is not None:
+                    self.fields[field].to_field_name = to_field
+
+
 class ImportForm(BootstrapMixin, forms.Form):
     """
     Generic form for creating an object from JSON/YAML data

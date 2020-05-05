@@ -593,12 +593,7 @@ class BulkImportView(GetReturnURLMixin, View):
                 with transaction.atomic():
                     headers, records = form.cleaned_data['csv']
                     for row, data in enumerate(records, start=1):
-                        obj_form = self.model_form(data)
-
-                        # Modify the model form to accommodate any customized to_field_name properties
-                        for field, to_field in headers.items():
-                            if to_field is not None:
-                                obj_form.fields[field].to_field_name = to_field
+                        obj_form = self.model_form(data, headers=headers)
 
                         if obj_form.is_valid():
                             obj = self._save_obj(obj_form, request)

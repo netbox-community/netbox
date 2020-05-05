@@ -2,10 +2,10 @@ from django import forms
 from taggit.forms import TagField
 
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm,
+    AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelCSVForm,
 )
 from utilities.forms import (
-    APISelect, APISelectMultiple, BootstrapMixin, CommentField, DynamicModelChoiceField,
+    APISelect, APISelectMultiple, BootstrapMixin, CommentField, CSVModelForm, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, SlugField, TagFilterField,
 )
 from .models import Tenant, TenantGroup
@@ -32,7 +32,7 @@ class TenantGroupForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class TenantGroupCSVForm(forms.ModelForm):
+class TenantGroupCSVForm(CSVModelForm):
     parent = forms.ModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
@@ -71,7 +71,7 @@ class TenantForm(BootstrapMixin, CustomFieldModelForm):
         )
 
 
-class TenantCSVForm(CustomFieldModelForm):
+class TenantCSVForm(CustomFieldModelCSVForm):
     slug = SlugField()
     group = forms.ModelChoiceField(
         queryset=TenantGroup.objects.all(),

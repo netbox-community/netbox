@@ -1,5 +1,4 @@
 from django import forms
-from django.core.exceptions import MultipleObjectsReturned
 from django.core.validators import MaxValueValidator, MinValueValidator
 from taggit.forms import TagField
 
@@ -11,8 +10,8 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditNullBooleanSelect, CSVChoiceField,
-    DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField, ReturnURLForm,
-    SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    CSVModelForm, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField,
+    ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import VirtualMachine
 from .choices import *
@@ -115,7 +114,7 @@ class RIRForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class RIRCSVForm(forms.ModelForm):
+class RIRCSVForm(CSVModelForm):
     slug = SlugField()
 
     class Meta:
@@ -242,7 +241,7 @@ class RoleForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class RoleCSVForm(forms.ModelForm):
+class RoleCSVForm(CSVModelForm):
     slug = SlugField()
 
     class Meta:
@@ -352,13 +351,23 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    vlan_group = forms.CharField(
-        help_text='Group name of assigned VLAN',
-        required=False
+    vlan_group = forms.ModelChoiceField(
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text="VLAN's group (if any)",
+        error_messages={
+            'invalid_choice': 'VLAN group not found.',
+        }
     )
-    vlan_vid = forms.IntegerField(
-        help_text='Numeric ID of assigned VLAN',
-        required=False
+    vlan = forms.ModelChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        to_field_name='vid',
+        help_text="Assigned VLAN",
+        error_messages={
+            'invalid_choice': 'VLAN not found.',
+        }
     )
     status = CSVChoiceField(
         choices=PrefixStatusChoices,
@@ -378,39 +387,17 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
         model = Prefix
         fields = Prefix.csv_headers
 
-    def clean(self):
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
 
-        super().clean()
+        if data:
 
-        site = self.cleaned_data.get('site')
-        vlan_group = self.cleaned_data.get('vlan_group')
-        vlan_vid = self.cleaned_data.get('vlan_vid')
-
-        # Validate VLAN
-        if vlan_group and vlan_vid:
-            try:
-                self.instance.vlan = VLAN.objects.get(site=site, group__name=vlan_group, vid=vlan_vid)
-            except VLAN.DoesNotExist:
-                if site:
-                    raise forms.ValidationError("VLAN {} not found in site {} group {}".format(
-                        vlan_vid, site, vlan_group
-                    ))
-                else:
-                    raise forms.ValidationError("Global VLAN {} not found in group {}".format(vlan_vid, vlan_group))
-            except MultipleObjectsReturned:
-                raise forms.ValidationError(
-                    "Multiple VLANs with VID {} found in group {}".format(vlan_vid, vlan_group)
-                )
-        elif vlan_vid:
-            try:
-                self.instance.vlan = VLAN.objects.get(site=site, group__isnull=True, vid=vlan_vid)
-            except VLAN.DoesNotExist:
-                if site:
-                    raise forms.ValidationError("VLAN {} not found in site {}".format(vlan_vid, site))
-                else:
-                    raise forms.ValidationError("Global VLAN {} not found".format(vlan_vid))
-            except MultipleObjectsReturned:
-                raise forms.ValidationError("Multiple VLANs with VID {} found".format(vlan_vid))
+            # Limit vlan queryset by assigned site and group
+            params = {
+                f"site__{self.fields['site'].to_field_name}": data.get('site'),
+                f"group__{self.fields['vlan_group'].to_field_name}": data.get('vlan_group'),
+            }
+            self.fields['vlan'].queryset = self.fields['vlan'].queryset.filter(**params)
 
 
 class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -760,7 +747,7 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned device',
+        help_text='Parent device of assigned interface (if any)',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
@@ -769,14 +756,19 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned virtual machine',
+        help_text='Parent VM of assigned interface (if any)',
         error_messages={
             'invalid_choice': 'Virtual machine not found.',
         }
     )
-    interface_name = forms.CharField(
-        help_text='Name of assigned interface',
-        required=False
+    interface = forms.ModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned interface',
+        error_messages={
+            'invalid_choice': 'Interface not found.',
+        }
     )
     is_primary = forms.BooleanField(
         help_text='Make this the primary IP for the assigned device',
@@ -787,37 +779,33 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
         model = IPAddress
         fields = IPAddress.csv_headers
 
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+
+            # Limit interface queryset by assigned device or virtual machine
+            if data.get('device'):
+                params = {
+                    f"device__{self.fields['device'].to_field_name}": data.get('device')
+                }
+            elif data.get('virtual_machine'):
+                params = {
+                    f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data.get('virtual_machine')
+                }
+            else:
+                params = {
+                    'device': None,
+                    'virtual_machine': None,
+                }
+            self.fields['interface'].queryset = self.fields['interface'].queryset.filter(**params)
+
     def clean(self):
         super().clean()
 
         device = self.cleaned_data.get('device')
         virtual_machine = self.cleaned_data.get('virtual_machine')
-        interface_name = self.cleaned_data.get('interface_name')
         is_primary = self.cleaned_data.get('is_primary')
-
-        # Validate interface
-        if interface_name and device:
-            try:
-                self.instance.interface = Interface.objects.get(device=device, name=interface_name)
-            except Interface.DoesNotExist:
-                raise forms.ValidationError("Invalid interface {} for device {}".format(
-                    interface_name, device
-                ))
-        elif interface_name and virtual_machine:
-            try:
-                self.instance.interface = Interface.objects.get(virtual_machine=virtual_machine, name=interface_name)
-            except Interface.DoesNotExist:
-                raise forms.ValidationError("Invalid interface {} for virtual machine {}".format(
-                    interface_name, virtual_machine
-                ))
-        elif interface_name:
-            raise forms.ValidationError("Interface given ({}) but parent device/virtual machine not specified".format(
-                interface_name
-            ))
-        elif device:
-            raise forms.ValidationError("Device specified ({}) but interface missing".format(device))
-        elif virtual_machine:
-            raise forms.ValidationError("Virtual machine specified ({}) but interface missing".format(virtual_machine))
 
         # Validate is_primary
         if is_primary and not device and not virtual_machine:
@@ -985,7 +973,7 @@ class VLANGroupForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class VLANGroupCSVForm(forms.ModelForm):
+class VLANGroupCSVForm(CSVModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -1080,9 +1068,14 @@ class VLANCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    group_name = forms.CharField(
-        help_text='Name of VLAN group',
-        required=False
+    group = forms.ModelChoiceField(
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned VLAN group',
+        error_messages={
+            'invalid_choice': 'VLAN group not found.',
+        }
     )
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -1115,25 +1108,14 @@ class VLANCSVForm(CustomFieldModelCSVForm):
             'name': 'VLAN name',
         }
 
-    def clean(self):
-        super().clean()
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
 
-        site = self.cleaned_data.get('site')
-        group_name = self.cleaned_data.get('group_name')
+        if data:
 
-        # Validate VLAN group
-        if group_name:
-            try:
-                self.instance.group = VLANGroup.objects.get(site=site, name=group_name)
-            except VLANGroup.DoesNotExist:
-                if site:
-                    raise forms.ValidationError(
-                        "VLAN group {} not found for site {}".format(group_name, site)
-                    )
-                else:
-                    raise forms.ValidationError(
-                        "Global VLAN group {} not found".format(group_name)
-                    )
+            # Limit vlan queryset by assigned group
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['group'].queryset = self.fields['group'].queryset.filter(**params)
 
 
 class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):

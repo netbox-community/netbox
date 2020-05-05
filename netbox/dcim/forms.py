@@ -23,9 +23,9 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
-    BulkEditNullBooleanSelect, ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField, SelectWithPK, SmallTextarea,
-    SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    BulkEditNullBooleanSelect, ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, CSVModelForm,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
+    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
@@ -193,7 +193,7 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
         )
 
 
-class RegionCSVForm(forms.ModelForm):
+class RegionCSVForm(CSVModelForm):
     parent = forms.ModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -388,7 +388,7 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
         )
 
 
-class RackGroupCSVForm(forms.ModelForm):
+class RackGroupCSVForm(CSVModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -461,7 +461,7 @@ class RackRoleForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class RackRoleCSVForm(forms.ModelForm):
+class RackRoleCSVForm(CSVModelForm):
     slug = SlugField()
 
     class Meta:
@@ -526,8 +526,13 @@ class RackCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    group_name = forms.CharField(
-        required=False
+    group = forms.ModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        error_messages={
+            'invalid_choice': 'Rack group not found.',
+        }
     )
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -571,33 +576,14 @@ class RackCSVForm(CustomFieldModelCSVForm):
         model = Rack
         fields = Rack.csv_headers
 
-    def clean(self):
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
 
-        super().clean()
+        if data:
 
-        site = self.cleaned_data.get('site')
-        group_name = self.cleaned_data.get('group_name')
-        name = self.cleaned_data.get('name')
-        facility_id = self.cleaned_data.get('facility_id')
-
-        # Validate rack group
-        if group_name:
-            try:
-                self.instance.group = RackGroup.objects.get(site=site, name=group_name)
-            except RackGroup.DoesNotExist:
-                raise forms.ValidationError("Rack group {} not found for site {}".format(group_name, site))
-
-            # Validate uniqueness of rack name within group
-            if Rack.objects.filter(group=self.instance.group, name=name).exists():
-                raise forms.ValidationError(
-                    "A rack named {} already exists within group {}".format(name, group_name)
-                )
-
-            # Validate uniqueness of facility ID within group
-            if facility_id and Rack.objects.filter(group=self.instance.group, facility_id=facility_id).exists():
-                raise forms.ValidationError(
-                    "A rack with the facility ID {} already exists within group {}".format(facility_id, group_name)
-                )
+            # Limit group queryset by assigned site
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['group'].queryset = self.fields['group'].queryset.filter(**params)
 
 
 class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -814,21 +800,31 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
         return unit_choices
 
 
-class RackReservationCSVForm(forms.ModelForm):
+class RackReservationCSVForm(CSVModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
         help_text='Parent site',
         error_messages={
-            'invalid_choice': 'Invalid site name.',
+            'invalid_choice': 'Site not found.',
         }
     )
-    rack_group = forms.CharField(
+    rack_group = forms.ModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        to_field_name='name',
         required=False,
-        help_text="Rack's group (if any)"
+        help_text="Rack's group (if any)",
+        error_messages={
+            'invalid_choice': 'Rack group not found.',
+        }
     )
-    rack_name = forms.CharField(
-        help_text="Rack name"
+    rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(),
+        to_field_name='name',
+        help_text='Rack',
+        error_messages={
+            'invalid_choice': 'Rack not found.',
+        }
     )
     units = SimpleArrayField(
         base_field=forms.IntegerField(),
@@ -847,27 +843,23 @@ class RackReservationCSVForm(forms.ModelForm):
 
     class Meta:
         model = RackReservation
-        fields = ('site', 'rack_group', 'rack_name', 'units', 'tenant', 'description')
+        fields = ('site', 'rack_group', 'rack', 'units', 'tenant', 'description')
 
-    def clean(self):
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
 
-        super().clean()
+        if data:
 
-        site = self.cleaned_data.get('site')
-        rack_group = self.cleaned_data.get('rack_group')
-        rack_name = self.cleaned_data.get('rack_name')
+            # Limit rack_group queryset by assigned site
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['rack_group'].queryset = self.fields['rack_group'].queryset.filter(**params)
 
-        # Validate rack
-        if site and rack_group and rack_name:
-            try:
-                self.instance.rack = Rack.objects.get(site=site, group__name=rack_group, name=rack_name)
-            except Rack.DoesNotExist:
-                raise forms.ValidationError("Rack {} not found in site {} group {}".format(rack_name, site, rack_group))
-        elif site and rack_name:
-            try:
-                self.instance.rack = Rack.objects.get(site=site, group__isnull=True, name=rack_name)
-            except Rack.DoesNotExist:
-                raise forms.ValidationError("Rack {} not found in site {} (no group)".format(rack_name, site))
+            # Limit rack queryset by assigned site and group
+            params = {
+                f"site__{self.fields['site'].to_field_name}": data.get('site'),
+                f"group__{self.fields['rack_group'].to_field_name}": data.get('rack_group'),
+            }
+            self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
 
 class RackReservationBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -933,7 +925,7 @@ class ManufacturerForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class ManufacturerCSVForm(forms.ModelForm):
+class ManufacturerCSVForm(CSVModelForm):
 
     class Meta:
         model = Manufacturer
@@ -1648,7 +1640,7 @@ class DeviceRoleForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class DeviceRoleCSVForm(forms.ModelForm):
+class DeviceRoleCSVForm(CSVModelForm):
     slug = SlugField()
 
     class Meta:
@@ -1682,7 +1674,7 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PlatformCSVForm(forms.ModelForm):
+class PlatformCSVForm(CSVModelForm):
     slug = SlugField()
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
@@ -1920,11 +1912,16 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
         to_field_name='name',
         help_text='Device type manufacturer',
         error_messages={
-            'invalid_choice': 'Invalid manufacturer.',
+            'invalid_choice': 'Manufacturer not found.',
         }
     )
-    model_name = forms.CharField(
-        help_text='Device type model name'
+    device_type = forms.ModelChoiceField(
+        queryset=DeviceType.objects.all(),
+        to_field_name='model',
+        help_text='Device type model',
+        error_messages={
+            'invalid_choice': 'Device type not found.',
+        }
     )
     platform = forms.ModelChoiceField(
         queryset=Platform.objects.all(),
@@ -1953,19 +1950,14 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
         fields = []
         model = Device
 
-    def clean(self):
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
 
-        super().clean()
+        if data:
 
-        manufacturer = self.cleaned_data.get('manufacturer')
-        model_name = self.cleaned_data.get('model_name')
-
-        # Validate device type
-        if manufacturer and model_name:
-            try:
-                self.instance.device_type = DeviceType.objects.get(manufacturer=manufacturer, model=model_name)
-            except DeviceType.DoesNotExist:
-                raise forms.ValidationError("Device type {} {} not found".format(manufacturer, model_name))
+            # Limit device type queryset by manufacturer
+            params = {f"manufacturer__{self.fields['manufacturer'].to_field_name}": data.get('manufacturer')}
+            self.fields['device_type'].queryset = self.fields['device_type'].queryset.filter(**params)
 
 
 class DeviceCSVForm(BaseDeviceCSVForm):
@@ -1974,16 +1966,26 @@ class DeviceCSVForm(BaseDeviceCSVForm):
         to_field_name='name',
         help_text='Assigned site',
         error_messages={
-            'invalid_choice': 'Invalid site name.',
+            'invalid_choice': 'Site not found.',
         }
     )
-    rack_group = forms.CharField(
+    rack_group = forms.ModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        to_field_name='name',
         required=False,
-        help_text='Assigned rack\'s group (if any)'
+        help_text="Rack's group (if any)",
+        error_messages={
+            'invalid_choice': 'Rack group not found.',
+        }
     )
-    rack_name = forms.CharField(
+    rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(),
+        to_field_name='name',
         required=False,
-        help_text='Name of parent rack'
+        help_text="Assigned rack",
+        error_messages={
+            'invalid_choice': 'Rack not found.',
+        }
     )
     face = CSVChoiceField(
         choices=DeviceFaceChoices,
@@ -1993,29 +1995,25 @@ class DeviceCSVForm(BaseDeviceCSVForm):
 
     class Meta(BaseDeviceCSVForm.Meta):
         fields = [
-            'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
-            'site', 'rack_group', 'rack_name', 'position', 'face', 'cluster', 'comments',
+            'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
+            'site', 'rack_group', 'rack', 'position', 'face', 'cluster', 'comments',
         ]
 
-    def clean(self):
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
 
-        super().clean()
+        if data:
 
-        site = self.cleaned_data.get('site')
-        rack_group = self.cleaned_data.get('rack_group')
-        rack_name = self.cleaned_data.get('rack_name')
+            # Limit rack_group queryset by assigned site
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['rack_group'].queryset = self.fields['rack_group'].queryset.filter(**params)
 
-        # Validate rack
-        if site and rack_group and rack_name:
-            try:
-                self.instance.rack = Rack.objects.get(site=site, group__name=rack_group, name=rack_name)
-            except Rack.DoesNotExist:
-                raise forms.ValidationError("Rack {} not found in site {} group {}".format(rack_name, site, rack_group))
-        elif site and rack_name:
-            try:
-                self.instance.rack = Rack.objects.get(site=site, group__isnull=True, name=rack_name)
-            except Rack.DoesNotExist:
-                raise forms.ValidationError("Rack {} not found in site {} (no group)".format(rack_name, site))
+            # Limit rack queryset by assigned site and group
+            params = {
+                f"site__{self.fields['site'].to_field_name}": data.get('site'),
+                f"group__{self.fields['rack_group'].to_field_name}": data.get('rack_group'),
+            }
+            self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
 
 class ChildDeviceCSVForm(BaseDeviceCSVForm):
@@ -2027,32 +2025,29 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
             'invalid_choice': 'Parent device not found.',
         }
     )
-    device_bay_name = forms.CharField(
-        help_text='Name of device bay',
+    device_bay = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Device bay in which this device is installed',
+        error_messages={
+            'invalid_choice': 'Devie bay not found.',
+        }
     )
 
     class Meta(BaseDeviceCSVForm.Meta):
         fields = [
-            'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
-            'parent', 'device_bay_name', 'cluster', 'comments',
+            'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
+            'parent', 'device_bay', 'cluster', 'comments',
         ]
 
-    def clean(self):
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
 
-        super().clean()
+        if data:
 
-        parent = self.cleaned_data.get('parent')
-        device_bay_name = self.cleaned_data.get('device_bay_name')
-
-        # Validate device bay
-        if parent and device_bay_name:
-            try:
-                self.instance.parent_bay = DeviceBay.objects.get(device=parent, name=device_bay_name)
-                # Inherit site and rack from parent device
-                self.instance.site = parent.site
-                self.instance.rack = parent.rack
-            except DeviceBay.DoesNotExist:
-                raise forms.ValidationError("Parent device/bay ({} {}) not found".format(parent, device_bay_name))
+            # Limit device bay queryset by parent device
+            params = {f"device__{self.fields['parent'].to_field_name}": data.get('parent')}
+            self.fields['device_bay'].queryset = self.fields['device_bay'].queryset.filter(**params)
 
 
 class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -2344,7 +2339,7 @@ class ConsolePortBulkEditForm(
         )
 
 
-class ConsolePortCSVForm(forms.ModelForm):
+class ConsolePortCSVForm(CSVModelForm):
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -2447,7 +2442,7 @@ class ConsoleServerPortBulkDisconnectForm(ConfirmationForm):
     )
 
 
-class ConsoleServerPortCSVForm(forms.ModelForm):
+class ConsoleServerPortCSVForm(CSVModelForm):
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -2546,7 +2541,7 @@ class PowerPortBulkEditForm(
         )
 
 
-class PowerPortCSVForm(forms.ModelForm):
+class PowerPortCSVForm(CSVModelForm):
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -2696,7 +2691,7 @@ class PowerOutletBulkDisconnectForm(ConfirmationForm):
     )
 
 
-class PowerOutletCSVForm(forms.ModelForm):
+class PowerOutletCSVForm(CSVModelForm):
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -3018,7 +3013,7 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
     )
 
 
-class InterfaceCSVForm(forms.ModelForm):
+class InterfaceCSVForm(CSVModelForm):
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
@@ -3231,7 +3226,7 @@ class FrontPortBulkDisconnectForm(ConfirmationForm):
     )
 
 
-class FrontPortCSVForm(forms.ModelForm):
+class FrontPortCSVForm(CSVModelForm):
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -3372,7 +3367,7 @@ class RearPortBulkDisconnectForm(ConfirmationForm):
     )
 
 
-class RearPortCSVForm(forms.ModelForm):
+class RearPortCSVForm(CSVModelForm):
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -3483,7 +3478,7 @@ class DeviceBayBulkRenameForm(BulkRenameForm):
     )
 
 
-class DeviceBayCSVForm(forms.ModelForm):
+class DeviceBayCSVForm(CSVModelForm):
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -3774,7 +3769,7 @@ class CableForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class CableCSVForm(forms.ModelForm):
+class CableCSVForm(CSVModelForm):
     # Termination A
     side_a_device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
@@ -4128,7 +4123,7 @@ class InventoryItemCreateForm(BootstrapMixin, forms.Form):
     )
 
 
-class InventoryItemCSVForm(forms.ModelForm):
+class InventoryItemCSVForm(CSVModelForm):
     device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -4439,7 +4434,7 @@ class PowerPanelForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class PowerPanelCSVForm(forms.ModelForm):
+class PowerPanelCSVForm(CSVModelForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -4448,30 +4443,27 @@ class PowerPanelCSVForm(forms.ModelForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    rack_group_name = forms.CharField(
+    rack_group = forms.ModelChoiceField(
+        queryset=RackGroup.objects.all(),
         required=False,
-        help_text="Rack group name (optional)"
+        to_field_name='name',
+        error_messages={
+            'invalid_choice': 'Rack group not found.',
+        }
     )
 
     class Meta:
         model = PowerPanel
         fields = PowerPanel.csv_headers
 
-    def clean(self):
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
 
-        super().clean()
+        if data:
 
-        site = self.cleaned_data.get('site')
-        rack_group_name = self.cleaned_data.get('rack_group_name')
-
-        # Validate rack group
-        if rack_group_name:
-            try:
-                self.instance.rack_group = RackGroup.objects.get(site=site, name=rack_group_name)
-            except RackGroup.DoesNotExist:
-                raise forms.ValidationError(
-                    "Rack group {} not found in site {}".format(rack_group_name, site)
-                )
+            # Limit group queryset by assigned site
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['rack_group'].queryset = self.fields['rack_group'].queryset.filter(**params)
 
 
 class PowerPanelBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -4595,7 +4587,7 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    panel_name = forms.ModelChoiceField(
+    power_panel = forms.ModelChoiceField(
         queryset=PowerPanel.objects.all(),
         to_field_name='name',
         help_text='Upstream power panel',
@@ -4603,13 +4595,23 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Power panel not found.',
         }
     )
-    rack_group = forms.CharField(
+    rack_group = forms.ModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        to_field_name='name',
         required=False,
-        help_text="Assigned rack's group name"
+        help_text="Rack's group (if any)",
+        error_messages={
+            'invalid_choice': 'Rack group not found.',
+        }
     )
-    rack_name = forms.CharField(
+    rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(),
+        to_field_name='name',
         required=False,
-        help_text="Assigned rack name"
+        help_text='Rack',
+        error_messages={
+            'invalid_choice': 'Rack not found.',
+        }
     )
     status = CSVChoiceField(
         choices=PowerFeedStatusChoices,
@@ -4636,32 +4638,25 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
         model = PowerFeed
         fields = PowerFeed.csv_headers
 
-    def clean(self):
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
 
-        super().clean()
+        if data:
 
-        site = self.cleaned_data.get('site')
-        panel_name = self.cleaned_data.get('panel_name')
-        rack_group = self.cleaned_data.get('rack_group')
-        rack_name = self.cleaned_data.get('rack_name')
+            # Limit power_panel queryset by site
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['power_panel'].queryset = self.fields['power_panel'].queryset.filter(**params)
 
-        # Validate power panel
-        if panel_name:
-            try:
-                self.instance.power_panel = PowerPanel.objects.get(site=site, name=panel_name)
-            except Rack.DoesNotExist:
-                raise forms.ValidationError(
-                    "Power panel {} not found in site {}".format(panel_name, site)
-                )
+            # Limit rack_group queryset by site
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['rack_group'].queryset = self.fields['rack_group'].queryset.filter(**params)
 
-        # Validate rack
-        if rack_name:
-            try:
-                self.instance.rack = Rack.objects.get(site=site, group__name=rack_group, name=rack_name)
-            except Rack.DoesNotExist:
-                raise forms.ValidationError(
-                    "Rack {} not found in site {}, group {}".format(rack_name, site, rack_group)
-                )
+            # Limit rack queryset by site and group
+            params = {
+                f"site__{self.fields['site'].to_field_name}": data.get('site'),
+                f"group__{self.fields['rack_group'].to_field_name}": data.get('rack_group'),
+            }
+            self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
 
 class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):

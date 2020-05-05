@@ -202,7 +202,7 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            'site,rack_name,units,description',
+            'site,rack,units,description',
             'Site 1,Rack 1,"10,11,12",Reservation 1',
             'Site 1,Rack 1,"13,14,15",Reservation 2',
             'Site 1,Rack 1,"16,17,18",Reservation 3',
@@ -947,7 +947,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "device_role,manufacturer,model_name,status,site,name",
+            "device_role,manufacturer,device_type,status,site,name",
             "Device Role 1,Manufacturer 1,Device Type 1,Active,Site 1,Device 4",
             "Device Role 1,Manufacturer 1,Device Type 1,Active,Site 1,Device 5",
             "Device Role 1,Manufacturer 1,Device Type 1,Active,Site 1,Device 6",
@@ -1586,7 +1586,7 @@ class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "site,rack_group_name,name",
+            "site,rack_group,name",
             "Site 1,Rack Group 1,Power Panel 4",
             "Site 1,Rack Group 1,Power Panel 5",
             "Site 1,Rack Group 1,Power Panel 6",
@@ -1645,7 +1645,7 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "site,panel_name,name,voltage,amperage,max_utilization",
+            "site,power_panel,name,voltage,amperage,max_utilization",
             "Site 1,Power Panel 1,Power Feed 4,120,20,80",
             "Site 1,Power Panel 1,Power Feed 5,120,20,80",
             "Site 1,Power Panel 1,Power Feed 6,120,20,80",

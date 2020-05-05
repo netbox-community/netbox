@@ -8,8 +8,8 @@ from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
 )
 from utilities.forms import (
-    APISelectMultiple, BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField,
-    StaticSelect2Multiple, TagFilterField,
+    APISelectMultiple, BootstrapMixin, CSVModelForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    SlugField, StaticSelect2Multiple, TagFilterField,
 )
 from .constants import *
 from .models import Secret, SecretRole, UserKey
@@ -55,7 +55,7 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class SecretRoleCSVForm(forms.ModelForm):
+class SecretRoleCSVForm(CSVModelForm):
     slug = SlugField()
 
     class Meta:

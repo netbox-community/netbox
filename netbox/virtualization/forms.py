@@ -14,9 +14,9 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    CommentField, ConfirmationForm, CSVChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    ExpandableNameField, form_from_model, JSONField, SlugField, SmallTextarea, StaticSelect2, StaticSelect2Multiple,
-    TagFilterField,
+    CommentField, ConfirmationForm, CSVChoiceField, CSVModelForm, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField, SlugField, SmallTextarea,
+    StaticSelect2, StaticSelect2Multiple, TagFilterField,
 )
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -36,7 +36,7 @@ class ClusterTypeForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class ClusterTypeCSVForm(forms.ModelForm):
+class ClusterTypeCSVForm(CSVModelForm):
     slug = SlugField()
 
     class Meta:
@@ -58,7 +58,7 @@ class ClusterGroupForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class ClusterGroupCSVForm(forms.ModelForm):
+class ClusterGroupCSVForm(CSVModelForm):
     slug = SlugField()
 
     class Meta:
