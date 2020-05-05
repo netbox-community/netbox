@@ -18,6 +18,7 @@
 * [#4548](https://github.com/netbox-community/netbox/issues/4548) - Fix tracing cables through a single RearPort
 * [#4549](https://github.com/netbox-community/netbox/issues/4549) - Fix encoding unicode webhook body data
 * [#4556](https://github.com/netbox-community/netbox/issues/4556) - Update form for adding devices to clusters
+* [#4578](https://github.com/netbox-community/netbox/issues/4578) - Prevent setting 0U height on device type with racked instances
 
 ---
 

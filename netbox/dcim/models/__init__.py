@@ -12,6 +12,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, F, ProtectedError, Sum
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
@@ -652,7 +653,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
                 pk=exclude
             ).filter(
                 rack=self,
-                position__gt=0
+                position__gt=0,
+                device_type__u_height__gt=0
             ).filter(
                 Q(face=face) | Q(device_type__is_full_depth=True)
             )
@@ -1089,16 +1091,31 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         # If editing an existing DeviceType to have a larger u_height, first validate that *all* instances of it have
         # room to expand within their racks. This validation will impose a very high performance penalty when there are
         # many instances to check, but increasing the u_height of a DeviceType should be a very rare occurrence.
-        if self.pk is not None and self.u_height > self._original_u_height:
+        if self.pk and self.u_height > self._original_u_height:
             for d in Device.objects.filter(device_type=self, position__isnull=False):
                 face_required = None if self.is_full_depth else d.face
-                u_available = d.rack.get_available_units(u_height=self.u_height, rack_face=face_required,
-                                                         exclude=[d.pk])
+                u_available = d.rack.get_available_units(
+                    u_height=self.u_height,
+                    rack_face=face_required,
+                    exclude=[d.pk]
+                )
                 if d.position not in u_available:
                     raise ValidationError({
                         'u_height': "Device {} in rack {} does not have sufficient space to accommodate a height of "
                                     "{}U".format(d, d.rack, self.u_height)
                     })
+
+        # If modifying the height of an existing DeviceType to 0U, check for any instances assigned to a rack position.
+        elif self.pk and self._original_u_height > 0 and self.u_height == 0:
+            racked_instance_count = Device.objects.filter(device_type=self, position__isnull=False).count()
+            if racked_instance_count:
+                url = f"{reverse('dcim:device_list')}?manufactuer_id={self.manufacturer_id}&device_type_id={self.pk}"
+                raise ValidationError({
+                    'u_height': mark_safe(
+                        f'Unable to set 0U height: Found <a href="{url}">{racked_instance_count} instances</a> already '
+                        f'mounted within racks.'
+                    )
+                })
 
         if (
                 self.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT
