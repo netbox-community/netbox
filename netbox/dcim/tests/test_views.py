@@ -184,7 +184,10 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         site = Site.objects.create(name='Site 1', slug='site-1')
 
-        rack = Rack(name='Rack 1', site=site)
+        rack_group = RackGroup(name='Rack Group 1', slug='rack-group-1', site=site)
+        rack_group.save()
+
+        rack = Rack(name='Rack 1', site=site, group=rack_group)
         rack.save()
 
         RackReservation.objects.bulk_create([
@@ -202,10 +205,10 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            'site,rack,units,description',
-            'Site 1,Rack 1,"10,11,12",Reservation 1',
-            'Site 1,Rack 1,"13,14,15",Reservation 2',
-            'Site 1,Rack 1,"16,17,18",Reservation 3',
+            'site,rack_group,rack,units,description',
+            'Site 1,Rack Group 1,Rack 1,"10,11,12",Reservation 1',
+            'Site 1,Rack Group 1,Rack 1,"13,14,15",Reservation 2',
+            'Site 1,Rack Group 1,Rack 1,"16,17,18",Reservation 3',
         )
 
         cls.bulk_edit_data = {
@@ -268,10 +271,10 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "site,name,width,u_height",
-            "Site 1,Rack 4,19,42",
-            "Site 1,Rack 5,19,42",
-            "Site 1,Rack 6,19,42",
+            "site,group,name,width,u_height",
+            "Site 1,,Rack 4,19,42",
+            "Site 1,Rack Group 1,Rack 5,19,42",
+            "Site 2,Rack Group 2,Rack 6,19,42",
         )
 
         cls.bulk_edit_data = {
@@ -890,8 +893,11 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Site.objects.bulk_create(sites)
 
+        rack_group = RackGroup(site=sites[0], name='Rack Group 1', slug='rack-group-1')
+        rack_group.save()
+
         racks = (
-            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 1', site=sites[0], group=rack_group),
             Rack(name='Rack 2', site=sites[1]),
         )
         Rack.objects.bulk_create(racks)
@@ -947,10 +953,10 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "device_role,manufacturer,device_type,status,site,name",
-            "Device Role 1,Manufacturer 1,Device Type 1,Active,Site 1,Device 4",
-            "Device Role 1,Manufacturer 1,Device Type 1,Active,Site 1,Device 5",
-            "Device Role 1,Manufacturer 1,Device Type 1,Active,Site 1,Device 6",
+            "device_role,manufacturer,device_type,status,name,site,rack_group,rack,position,face",
+            "Device Role 1,Manufacturer 1,Device Type 1,Active,Device 4,Site 1,Rack Group 1,Rack 1,10,Front",
+            "Device Role 1,Manufacturer 1,Device Type 1,Active,Device 5,Site 1,Rack Group 1,Rack 1,20,Front",
+            "Device Role 1,Manufacturer 1,Device Type 1,Active,Device 6,Site 1,Rack Group 1,Rack 1,30,Front",
         )
 
         cls.bulk_edit_data = {
