@@ -1,8 +1,9 @@
 import django_tables2 as tables
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models import ForeignKey
-from django_tables2.data import TableQuerysetData
+from django.db.models.fields.related import RelatedField
 from django.utils.safestring import mark_safe
+from django_tables2.data import TableQuerysetData
 
 
 class BaseTable(tables.Table):
@@ -57,7 +58,7 @@ class BaseTable(tables.Table):
                     field_path = column.accessor.split('.')
                     try:
                         model_field = model._meta.get_field(field_path[0])
-                        if isinstance(model_field, ForeignKey):
+                        if isinstance(model_field, RelatedField):
                             prefetch_fields.append('__'.join(field_path))
                     except FieldDoesNotExist:
                         pass
@@ -120,4 +121,23 @@ class ColorColumn(tables.Column):
     def render(self, value):
         return mark_safe(
             '<span class="label color-block" style="background-color: #{}">&nbsp;</span>'.format(value)
+        )
+
+
+class TagColumn(tables.TemplateColumn):
+    """
+    Display a list of tags assigned to the object.
+    """
+    template_code = """
+    {% for tag in value.all %}
+        {% include 'utilities/templatetags/tag.html' %}
+    {% empty %}
+        <span class="text-muted">&mdash;</span>
+    {% endfor %}
+    """
+
+    def __init__(self, url_name=None):
+        super().__init__(
+            template_code=self.template_code,
+            extra_context={'url_name': url_name}
         )

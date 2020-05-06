@@ -3,7 +3,7 @@ from django_tables2.utils import Accessor
 
 from dcim.models import Interface
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import BaseTable, TagColumn, ToggleColumn
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 CLUSTERTYPE_ACTIONS = """
@@ -108,10 +108,14 @@ class ClusterTable(BaseTable):
         orderable=False,
         verbose_name='VMs'
     )
+    tags = TagColumn(
+        url_name='virtualization:cluster_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = Cluster
-        fields = ('pk', 'name', 'type', 'group', 'tenant', 'site', 'device_count', 'vm_count')
+        fields = ('pk', 'name', 'type', 'group', 'tenant', 'site', 'device_count', 'vm_count', 'tags')
+        default_columns = ('pk', 'name', 'type', 'group', 'tenant', 'site', 'device_count', 'vm_count')
 
 
 #
@@ -156,12 +160,15 @@ class VirtualMachineDetailTable(VirtualMachineTable):
         verbose_name='IP Address',
         template_code=VIRTUALMACHINE_PRIMARY_IP
     )
+    tags = TagColumn(
+        url_name='virtualization:virtualmachine_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = VirtualMachine
         fields = (
             'pk', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'primary_ip4',
-            'primary_ip6', 'primary_ip',
+            'primary_ip6', 'primary_ip', 'tags',
         )
         default_columns = (
             'pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',

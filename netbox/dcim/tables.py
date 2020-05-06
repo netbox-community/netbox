@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ToggleColumn
+from utilities.tables import BaseTable, BooleanColumn, ColorColumn, TagColumn, ToggleColumn
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
@@ -242,13 +242,16 @@ class SiteTable(BaseTable):
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )
+    tags = TagColumn(
+        url_name='dcim:site_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = Site
         fields = (
             'pk', 'name', 'slug', 'status', 'facility', 'region', 'tenant', 'asn', 'time_zone', 'description',
             'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
-            'contact_email',
+            'contact_email', 'tags',
         )
         default_columns = ('pk', 'name', 'status', 'facility', 'region', 'tenant', 'asn', 'description')
 
@@ -354,11 +357,14 @@ class RackDetailTable(RackTable):
         orderable=False,
         verbose_name='Power'
     )
+    tags = TagColumn(
+        url_name='dcim:rack_list'
+    )
 
     class Meta(RackTable.Meta):
         fields = (
             'pk', 'name', 'site', 'group', 'status', 'facility_id', 'tenant', 'role', 'serial', 'asset_tag', 'type',
-            'width', 'u_height', 'device_count', 'get_utilization', 'get_power_utilization',
+            'width', 'u_height', 'device_count', 'get_utilization', 'get_power_utilization', 'tags',
         )
         default_columns = (
             'pk', 'name', 'site', 'group', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',
@@ -450,17 +456,22 @@ class DeviceTypeTable(BaseTable):
         args=[Accessor('pk')],
         verbose_name='Device Type'
     )
-    is_full_depth = BooleanColumn(verbose_name='Full Depth')
+    is_full_depth = BooleanColumn(
+        verbose_name='Full Depth'
+    )
     instance_count = tables.TemplateColumn(
         template_code=DEVICETYPE_INSTANCES_TEMPLATE,
         verbose_name='Instances'
+    )
+    tags = TagColumn(
+        url_name='dcim:devicetype_list'
     )
 
     class Meta(BaseTable.Meta):
         model = DeviceType
         fields = (
             'pk', 'model', 'manufacturer', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
-            'instance_count',
+            'instance_count', 'tags',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'instance_count',
@@ -834,13 +845,16 @@ class DeviceTable(BaseTable):
     vc_priority = tables.Column(
         verbose_name='VC Priority'
     )
+    tags = TagColumn(
+        url_name='dcim:device_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = Device
         fields = (
             'pk', 'name', 'status', 'tenant', 'device_role', 'device_type', 'platform', 'serial', 'asset_tag', 'site',
             'rack', 'position', 'face', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis',
-            'vc_position', 'vc_priority',
+            'vc_position', 'vc_priority', 'tags',
         )
         default_columns = (
             'pk', 'name', 'status', 'tenant', 'site', 'rack', 'device_role', 'device_type', 'primary_ip',
@@ -1206,10 +1220,13 @@ class VirtualChassisTable(BaseTable):
     member_count = tables.Column(
         verbose_name='Members'
     )
+    tags = TagColumn(
+        url_name='dcim:virtualchassis_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = VirtualChassis
-        fields = ('pk', 'name', 'domain', 'member_count')
+        fields = ('pk', 'name', 'domain', 'member_count', 'tags')
         default_columns = ('pk', 'name', 'domain', 'member_count')
 
 
@@ -1262,12 +1279,15 @@ class PowerFeedTable(BaseTable):
     available_power = tables.Column(
         verbose_name='Available power (VA)'
     )
+    tags = TagColumn(
+        url_name='dcim:powerfeed_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = PowerFeed
         fields = (
             'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',
-            'max_utilization', 'available_power',
+            'max_utilization', 'available_power', 'tags',
         )
         default_columns = (
             'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',

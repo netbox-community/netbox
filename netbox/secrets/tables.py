@@ -1,6 +1,6 @@
 import django_tables2 as tables
 
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import BaseTable, TagColumn, ToggleColumn
 from .models import SecretRole, Secret
 
 SECRETROLE_ACTIONS = """
@@ -42,8 +42,11 @@ class SecretRoleTable(BaseTable):
 class SecretTable(BaseTable):
     pk = ToggleColumn()
     device = tables.LinkColumn()
+    tags = TagColumn(
+        url_name='secrets:secret_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = Secret
-        fields = ('pk', 'device', 'role', 'name', 'last_updated', 'hash')
+        fields = ('pk', 'device', 'role', 'name', 'last_updated', 'hash', 'tags')
         default_columns = ('pk', 'device', 'role', 'name', 'last_updated')

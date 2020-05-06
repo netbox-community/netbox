@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import BaseTable, TagColumn, ToggleColumn
 from .models import Circuit, CircuitType, Provider
 
 CIRCUITTYPE_ACTIONS = """
@@ -31,10 +31,15 @@ class ProviderTable(BaseTable):
         accessor=Accessor('count_circuits'),
         verbose_name='Circuits'
     )
+    tags = TagColumn(
+        url_name='circuits:provider_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = Provider
-        fields = ('pk', 'name', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'circuit_count')
+        fields = (
+            'pk', 'name', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'circuit_count', 'tags',
+        )
         default_columns = ('pk', 'name', 'asn', 'account', 'circuit_count')
 
 
@@ -45,7 +50,9 @@ class ProviderTable(BaseTable):
 class CircuitTypeTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    circuit_count = tables.Column(verbose_name='Circuits')
+    circuit_count = tables.Column(
+        verbose_name='Circuits'
+    )
     actions = tables.TemplateColumn(
         template_code=CIRCUITTYPE_ACTIONS,
         attrs={'td': {'class': 'text-right noprint'}},
@@ -64,21 +71,33 @@ class CircuitTypeTable(BaseTable):
 
 class CircuitTable(BaseTable):
     pk = ToggleColumn()
-    cid = tables.LinkColumn(verbose_name='ID')
-    provider = tables.LinkColumn('circuits:provider', args=[Accessor('provider.slug')])
-    status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
+    cid = tables.LinkColumn(
+        verbose_name='ID'
+    )
+    provider = tables.LinkColumn(
+        viewname='circuits:provider',
+        args=[Accessor('provider.slug')]
+    )
+    status = tables.TemplateColumn(
+        template_code=STATUS_LABEL
+    )
+    tenant = tables.TemplateColumn(
+        template_code=COL_TENANT
+    )
     a_side = tables.Column(
         verbose_name='A Side'
     )
     z_side = tables.Column(
         verbose_name='Z Side'
     )
+    tags = TagColumn(
+        url_name='circuits:circuit_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = Circuit
         fields = (
             'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'a_side', 'z_side', 'install_date', 'commit_rate',
-            'description',
+            'description', 'tags',
         )
         default_columns = ('pk', 'cid', 'provider', 'type', 'status', 'tenant', 'a_side', 'z_side', 'description')

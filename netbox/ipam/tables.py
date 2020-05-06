@@ -3,7 +3,7 @@ from django_tables2.utils import Accessor
 
 from dcim.models import Interface
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, BooleanColumn, ToggleColumn
+from utilities.tables import BaseTable, BooleanColumn, TagColumn, ToggleColumn
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 RIR_UTILIZATION = """
@@ -199,10 +199,13 @@ class VRFTable(BaseTable):
     enforce_unique = BooleanColumn(
         verbose_name='Unique'
     )
+    tags = TagColumn(
+        url_name='ipam:vrf_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = VRF
-        fields = ('pk', 'name', 'rd', 'tenant', 'enforce_unique', 'description')
+        fields = ('pk', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'tags')
         default_columns = ('pk', 'name', 'rd', 'tenant', 'description')
 
 
@@ -300,9 +303,13 @@ class AggregateDetailTable(AggregateTable):
         template_code=UTILIZATION_GRAPH,
         orderable=False
     )
+    tags = TagColumn(
+        url_name='ipam:aggregate_list'
+    )
 
     class Meta(AggregateTable.Meta):
-        fields = ('pk', 'prefix', 'rir', 'child_count', 'utilization', 'date_added', 'description')
+        fields = ('pk', 'prefix', 'rir', 'child_count', 'utilization', 'date_added', 'description', 'tags')
+        default_columns = ('pk', 'prefix', 'rir', 'child_count', 'utilization', 'date_added', 'description')
 
 
 #
@@ -388,10 +395,14 @@ class PrefixDetailTable(PrefixTable):
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )
+    tags = TagColumn(
+        url_name='ipam:prefix_list'
+    )
 
     class Meta(PrefixTable.Meta):
         fields = (
             'pk', 'prefix', 'status', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'is_pool', 'description',
+            'tags',
         )
         default_columns = (
             'pk', 'prefix', 'status', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description',
@@ -446,11 +457,14 @@ class IPAddressDetailTable(IPAddressTable):
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )
+    tags = TagColumn(
+        url_name='ipam:ipaddress_list'
+    )
 
     class Meta(IPAddressTable.Meta):
         fields = (
             'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'parent', 'interface', 'dns_name',
-            'description',
+            'description', 'tags',
         )
         default_columns = (
             'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface', 'dns_name', 'description',
@@ -573,9 +587,13 @@ class VLANDetailTable(VLANTable):
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )
+    tags = TagColumn(
+        url_name='ipam:vlan_list'
+    )
 
     class Meta(VLANTable.Meta):
-        fields = ('pk', 'vid', 'site', 'group', 'name', 'prefixes', 'tenant', 'status', 'role', 'description')
+        fields = ('pk', 'vid', 'site', 'group', 'name', 'prefixes', 'tenant', 'status', 'role', 'description', 'tags')
+        default_columns = ('pk', 'vid', 'site', 'group', 'name', 'prefixes', 'tenant', 'status', 'role', 'description')
 
 
 class VLANMemberTable(BaseTable):
@@ -647,8 +665,11 @@ class ServiceTable(BaseTable):
         viewname='ipam:service',
         args=[Accessor('pk')]
     )
+    tags = TagColumn(
+        url_name='ipam:service_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = Service
-        fields = ('pk', 'name', 'parent', 'protocol', 'port', 'ipaddresses', 'description')
+        fields = ('pk', 'name', 'parent', 'protocol', 'port', 'ipaddresses', 'description', 'tags')
         default_columns = ('pk', 'name', 'parent', 'protocol', 'port', 'description')
