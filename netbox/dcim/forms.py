@@ -4226,7 +4226,7 @@ class VCMemberSelectForm(BootstrapMixin, forms.Form):
         return device
 
 
-class VirtualChassisBulkEditForm(BootstrapMixin, BulkEditForm):
+class VirtualChassisBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VirtualChassis.objects.all(),
         widget=forms.MultipleHiddenInput()

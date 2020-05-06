@@ -1239,7 +1239,7 @@ class ServiceCSVForm(CustomFieldModelCSVForm):
         fields = Service.csv_headers
 
 
-class ServiceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class ServiceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Service.objects.all(),
         widget=forms.MultipleHiddenInput()

@@ -22,6 +22,7 @@
 * [#4556](https://github.com/netbox-community/netbox/issues/4556) - Update form for adding devices to clusters
 * [#4578](https://github.com/netbox-community/netbox/issues/4578) - Prevent setting 0U height on device type with racked instances
 * [#4584](https://github.com/netbox-community/netbox/issues/4584) - Ensure consistent support for filtering objects by `id` across all REST API endpoints
+* [#4588](https://github.com/netbox-community/netbox/issues/4588) - Restore ability to add/remove tags on services, virtual chassis in bulk
 
 ---
 
