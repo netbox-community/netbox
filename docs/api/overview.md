@@ -243,16 +243,17 @@ The maximum number of objects that can be returned is limited by the [`MAX_PAGE_
 
 ## Filtering
 
-A list of objects retrieved via the API can be filtered by passing one or more query parameters. The same parameters used by the web UI work for the API as well. For example, to return only prefixes with a status of "Active" (`1`):
+A list of objects retrieved via the API can be filtered by passing one or more query parameters. The same parameters used by the web UI work for the API as well. For example, to return only prefixes with a status of "Active" (identified by the slug `active`):
 
 ```
-GET /api/ipam/prefixes/?status=1
+GET /api/ipam/prefixes/?status=active
 ```
 
 The choices available for fixed choice fields such as `status` can be retrieved by sending an `OPTIONS` API request for the desired endpoint:
 
 ```no-highlight
 $ curl -s -X OPTIONS \
+-H "Authorization: Token $TOKEN" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json; indent=4" \
 http://localhost:8000/api/ipam/prefixes/ | jq ".actions.POST.status.choices"
@@ -274,7 +275,6 @@ http://localhost:8000/api/ipam/prefixes/ | jq ".actions.POST.status.choices"
     "display_name": "Deprecated"
   }
 ]
-
 ```
 
 For most fields, when a filter is passed multiple times, objects matching _any_ of the provided values will be returned. For example, `GET /api/dcim/sites/?name=Foo&name=Bar` will return all sites named "Foo" _or_ "Bar". The exception to this rule is ManyToManyFields which may have multiple values assigned. Tags are the most common example of a ManyToManyField. For example, `GET /api/dcim/sites/?tag=foo&tag=bar` will return only sites tagged with both "foo" _and_ "bar".
