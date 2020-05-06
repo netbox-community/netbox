@@ -28,7 +28,7 @@ def get_releases(pre_releases=False):
 
     try:
         logger.debug("Fetching new releases from {}".format(url))
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, proxies=settings.HTTP_PROXIES)
         response.raise_for_status()
         total_releases = len(response.json())
 

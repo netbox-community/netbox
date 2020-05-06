@@ -86,7 +86,7 @@ class ClusterFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Cr
 
     class Meta:
         model = Cluster
-        fields = ['name']
+        fields = ['id', 'name']
 
     def search(self, queryset, name, value):
         if not value.strip():

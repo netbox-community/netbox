@@ -4,6 +4,7 @@ from unittest.mock import Mock, patch
 
 import requests
 from cacheops import CacheMiss, RedisCache
+from django.conf import settings
 from django.test import SimpleTestCase, override_settings
 from packaging.version import Version
 from requests import Response
@@ -77,7 +78,8 @@ class GetReleasesTestCase(SimpleTestCase):
         # Check if correct request is made
         dummy_request_get.assert_called_once_with(
             'https://localhost/unittest/releases',
-            headers={'Accept': 'application/vnd.github.v3+json'}
+            headers={'Accept': 'application/vnd.github.v3+json'},
+            proxies=settings.HTTP_PROXIES
         )
 
         # Check if result is put in cache
@@ -105,7 +107,8 @@ class GetReleasesTestCase(SimpleTestCase):
         # Check if correct request is made
         dummy_request_get.assert_called_once_with(
             'https://localhost/unittest/releases',
-            headers={'Accept': 'application/vnd.github.v3+json'}
+            headers={'Accept': 'application/vnd.github.v3+json'},
+            proxies=settings.HTTP_PROXIES
         )
 
         # Check if result is put in cache
@@ -137,7 +140,8 @@ class GetReleasesTestCase(SimpleTestCase):
         # Check if correct request is made
         dummy_request_get.assert_called_once_with(
             'https://localhost/unittest/releases',
-            headers={'Accept': 'application/vnd.github.v3+json'}
+            headers={'Accept': 'application/vnd.github.v3+json'},
+            proxies=settings.HTTP_PROXIES
         )
 
         # Check if failure is put in cache

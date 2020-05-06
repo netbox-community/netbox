@@ -49,7 +49,7 @@ class SecretFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterS
 
     class Meta:
         model = Secret
-        fields = ['name']
+        fields = ['id', 'name']
 
     def search(self, queryset, name, value):
         if not value.strip():

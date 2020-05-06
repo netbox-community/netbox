@@ -239,3 +239,21 @@ def shallow_compare_dict(source_dict, destination_dict, exclude=None):
             difference[key] = destination_dict[key]
 
     return difference
+
+
+def flatten_dict(d, prefix='', separator='.'):
+    """
+    Flatten netsted dictionaries into a single level by joining key names with a separator.
+
+    :param d: The dictionary to be flattened
+    :param prefix: Initial prefix (if any)
+    :param separator: The character to use when concatenating key names
+    """
+    ret = {}
+    for k, v in d.items():
+        key = separator.join([prefix, k]) if prefix else k
+        if type(v) is dict:
+            ret.update(flatten_dict(v, prefix=key))
+        else:
+            ret[key] = v
+    return ret

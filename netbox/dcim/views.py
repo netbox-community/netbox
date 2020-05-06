@@ -32,7 +32,6 @@ from virtualization.models import VirtualMachine
 from . import filters, forms, tables
 from .choices import DeviceFaceChoices
 from .constants import NONCONNECTABLE_IFACE_TYPES
-from .exceptions import CableTraceSplit
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
@@ -1096,7 +1095,7 @@ class DeviceListView(PermissionRequiredMixin, ObjectListView):
     )
     filterset = filters.DeviceFilterSet
     filterset_form = forms.DeviceFilterForm
-    table = tables.DeviceDetailTable
+    table = tables.DeviceTable
     template_name = 'dcim/device_list.html'
 
 
@@ -2279,19 +2278,15 @@ class InterfaceConnectionsListView(PermissionRequiredMixin, ObjectListView):
         csv_data = [
             # Headers
             ','.join([
-                'device_a', 'interface_a', 'interface_a_description',
-                'device_b', 'interface_b', 'interface_b_description',
-                'connection_status'
+                'device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status'
             ])
         ]
         for obj in self.queryset:
             csv = csv_format([
                 obj.connected_endpoint.device.identifier if obj.connected_endpoint else None,
                 obj.connected_endpoint.name if obj.connected_endpoint else None,
-                obj.connected_endpoint.description if obj.connected_endpoint else None,
                 obj.device.identifier,
                 obj.name,
-                obj.description,
                 obj.get_connection_status_display(),
             ])
             csv_data.append(csv)
@@ -2366,6 +2361,17 @@ class VirtualChassisListView(PermissionRequiredMixin, ObjectListView):
     filterset = filters.VirtualChassisFilterSet
     filterset_form = forms.VirtualChassisFilterForm
     action_buttons = ('export',)
+
+
+class VirtualChassisView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.view_virtualchassis'
+
+    def get(self, request, pk):
+        virtualchassis = get_object_or_404(VirtualChassis.objects.prefetch_related('members'), pk=pk)
+
+        return render(request, 'dcim/virtualchassis.html', {
+            'virtualchassis': virtualchassis,
+        })
 
 
 class VirtualChassisCreateView(PermissionRequiredMixin, View):
@@ -2593,6 +2599,23 @@ class VirtualChassisRemoveMemberView(PermissionRequiredMixin, GetReturnURLMixin,
             'form': form,
             'return_url': self.get_return_url(request, device),
         })
+
+
+class VirtualChassisBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_virtualchassis'
+    queryset = VirtualChassis.objects.all()
+    filterset = filters.VirtualChassisFilterSet
+    table = tables.VirtualChassisTable
+    form = forms.VirtualChassisBulkEditForm
+    default_return_url = 'dcim:virtualchassis_list'
+
+
+class VirtualChassisBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_virtualchassis'
+    queryset = VirtualChassis.objects.all()
+    filterset = filters.VirtualChassisFilterSet
+    table = tables.VirtualChassisTable
+    default_return_url = 'dcim:virtualchassis_list'
 
 
 #

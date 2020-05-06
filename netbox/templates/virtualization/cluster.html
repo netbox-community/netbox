@@ -138,7 +138,7 @@
             {% if perms.virtualization.change_cluster %}
                 <div class="panel-footer noprint">
                     <div class="pull-right">
-                        <a href="{% url 'virtualization:cluster_add_devices' pk=cluster.pk %}" class="btn btn-primary btn-xs">
+                        <a href="{% url 'virtualization:cluster_add_devices' pk=cluster.pk %}?site={{ cluster.site.pk }}" class="btn btn-primary btn-xs">
                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                             Add devices
                         </a>

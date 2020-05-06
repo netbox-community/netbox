@@ -35,13 +35,9 @@ Update the following static libraries to their most recent stable release:
 * jQuery
 * jQuery UI
 
-### Squash Schema Migrations
-
-Database schema migrations should be squashed for each new minor release. See the [squashing guide](squashing-migrations.md) for the detailed process.
-
 ### Create a new Release Notes Page
 
-Create a file at `/docs/release-notes/X.Y.md` to establish the release notes for the new release. Add the file to the table of contents within `mkdocs.yml`.
+Create a file at `/docs/release-notes/X.Y.md` to establish the release notes for the new release. Add the file to the table of contents within `mkdocs.yml`, and point `index.md` to the new file.
 
 ### Manually Perform a New Install
 

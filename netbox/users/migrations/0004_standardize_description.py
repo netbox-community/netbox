@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0001_api_tokens_squashed_0003_token_permissions'),
+        ('users', '0003_token_permissions'),
     ]
 
     operations = [

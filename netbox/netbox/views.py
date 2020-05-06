@@ -20,7 +20,7 @@ from dcim.models import (
     Cable, ConsolePort, Device, DeviceType, Interface, PowerPanel, PowerFeed, PowerPort, Rack, RackGroup, Site, VirtualChassis
 )
 from dcim.tables import (
-    CableTable, DeviceDetailTable, DeviceTypeTable, PowerFeedTable, RackTable, RackGroupTable, SiteTable,
+    CableTable, DeviceTable, DeviceTypeTable, PowerFeedTable, RackTable, RackGroupTable, SiteTable,
     VirtualChassisTable,
 )
 from extras.models import ObjectChange, ReportResult
@@ -44,7 +44,7 @@ SEARCH_TYPES = OrderedDict((
     # Circuits
     ('provider', {
         'permission': 'circuits.view_provider',
-        'queryset': Provider.objects.all(),
+        'queryset': Provider.objects.annotate(count_circuits=Count('circuits')),
         'filterset': ProviderFilterSet,
         'table': ProviderTable,
         'url': 'circuits:provider_list',
@@ -93,7 +93,7 @@ SEARCH_TYPES = OrderedDict((
             'device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack', 'primary_ip4', 'primary_ip6',
         ),
         'filterset': DeviceFilterSet,
-        'table': DeviceDetailTable,
+        'table': DeviceTable,
         'url': 'dcim:device_list',
     }),
     ('virtualchassis', {

@@ -8,6 +8,7 @@ import yaml
 from django import forms
 from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
+from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Count
 from django.forms import BoundField
 from django.forms.models import fields_for_model
@@ -400,15 +401,22 @@ class TimePicker(forms.TextInput):
 
 class CSVDataField(forms.CharField):
     """
-    A CharField (rendered as a Textarea) which accepts CSV-formatted data. It returns a list of dictionaries mapping
-    column headers to values. Each dictionary represents an individual record.
+    A CharField (rendered as a Textarea) which accepts CSV-formatted data. It returns data as a two-tuple: The first
+    item is a dictionary of column headers, mapping field names to the attribute by which they match a related object
+    (where applicable). The second item is a list of dictionaries, each representing a discrete row of CSV data.
+
+    :param from_form: The form from which the field derives its validation rules.
     """
     widget = forms.Textarea
 
-    def __init__(self, fields, required_fields=[], *args, **kwargs):
+    def __init__(self, from_form, *args, **kwargs):
 
-        self.fields = fields
-        self.required_fields = required_fields
+        form = from_form()
+        self.model = form.Meta.model
+        self.fields = form.fields
+        self.required_fields = [
+            name for name, field in form.fields.items() if field.required
+        ]
 
         super().__init__(*args, **kwargs)
 
@@ -416,7 +424,7 @@ class CSVDataField(forms.CharField):
         if not self.label:
             self.label = ''
         if not self.initial:
-            self.initial = ','.join(required_fields) + '\n'
+            self.initial = ','.join(self.required_fields) + '\n'
         if not self.help_text:
             self.help_text = 'Enter the list of column headers followed by one line per record to be imported, using ' \
                              'commas to separate values. Multi-line data and values containing commas may be wrapped ' \
@@ -425,36 +433,55 @@ class CSVDataField(forms.CharField):
     def to_python(self, value):
 
         records = []
-        reader = csv.reader(StringIO(value))
+        reader = csv.reader(StringIO(value.strip()))
 
-        # Consume and validate the first line of CSV data as column headers
-        headers = next(reader)
+        # Consume the first line of CSV data as column headers. Create a dictionary mapping each header to an optional
+        # "to" field specifying how the related object is being referenced. For example, importing a Device might use a
+        # `site.slug` header, to indicate the related site is being referenced by its slug.
+        headers = {}
+        for header in next(reader):
+            if '.' in header:
+                field, to_field = header.split('.', 1)
+                headers[field] = to_field
+            else:
+                headers[header] = None
+
+        # Parse CSV rows into a list of dictionaries mapped from the column headers.
+        for i, row in enumerate(reader, start=1):
+            if len(row) != len(headers):
+                raise forms.ValidationError(
+                    f"Row {i}: Expected {len(headers)} columns but found {len(row)}"
+                )
+            row = [col.strip() for col in row]
+            record = dict(zip(headers.keys(), row))
+            records.append(record)
+
+        return headers, records
+
+    def validate(self, value):
+        headers, records = value
+
+        # Validate provided column headers
+        for field, to_field in headers.items():
+            if field not in self.fields:
+                raise forms.ValidationError(f'Unexpected column header "{field}" found.')
+            if to_field and not hasattr(self.fields[field], 'to_field_name'):
+                raise forms.ValidationError(f'Column "{field}" is not a related object; cannot use dots')
+            if to_field and not hasattr(self.fields[field].queryset.model, to_field):
+                raise forms.ValidationError(f'Invalid related object attribute for column "{field}": {to_field}')
+
+        # Validate required fields
         for f in self.required_fields:
             if f not in headers:
-                raise forms.ValidationError('Required column header "{}" not found.'.format(f))
-        for f in headers:
-            if f not in self.fields:
-                raise forms.ValidationError('Unexpected column header "{}" found.'.format(f))
+                raise forms.ValidationError(f'Required column header "{f}" not found.')
 
-        # Parse CSV data
-        for i, row in enumerate(reader, start=1):
-            if row:
-                if len(row) != len(headers):
-                    raise forms.ValidationError(
-                        "Row {}: Expected {} columns but found {}".format(i, len(headers), len(row))
-                    )
-                row = [col.strip() for col in row]
-                record = dict(zip(headers, row))
-                records.append(record)
-
-        return records
+        return value
 
 
 class CSVChoiceField(forms.ChoiceField):
     """
     Invert the provided set of choices to take the human-friendly label as input, and return the database value.
     """
-
     def __init__(self, choices, *args, **kwargs):
         super().__init__(choices=choices, *args, **kwargs)
         self.choices = [(label, label) for value, label in unpack_grouped_choices(choices)]
@@ -467,6 +494,23 @@ class CSVChoiceField(forms.ChoiceField):
         if value not in self.choice_values:
             raise forms.ValidationError("Invalid choice: {}".format(value))
         return self.choice_values[value]
+
+
+class CSVModelChoiceField(forms.ModelChoiceField):
+    """
+    Provides additional validation for model choices entered as CSV data.
+    """
+    default_error_messages = {
+        'invalid_choice': 'Object not found.',
+    }
+
+    def to_python(self, value):
+        try:
+            return super().to_python(value)
+        except MultipleObjectsReturned as e:
+            raise forms.ValidationError(
+                f'"{value}" is not a unique value for this field; multiple objects were found'
+            )
 
 
 class ExpandableNameField(forms.CharField):
@@ -528,27 +572,6 @@ class CommentField(forms.CharField):
         label = kwargs.pop('label', self.default_label)
         help_text = kwargs.pop('help_text', self.default_helptext)
         super().__init__(required=required, label=label, help_text=help_text, *args, **kwargs)
-
-
-class FlexibleModelChoiceField(forms.ModelChoiceField):
-    """
-    Allow a model to be reference by either '{ID}' or the field specified by `to_field_name`.
-    """
-    def to_python(self, value):
-        if value in self.empty_values:
-            return None
-        try:
-            if not self.to_field_name:
-                key = 'pk'
-            elif re.match(r'^\{\d+\}$', value):
-                key = 'pk'
-                value = value.strip('{}')
-            else:
-                key = self.to_field_name
-            value = self.queryset.get(**{key: value})
-        except (ValueError, TypeError, self.queryset.model.DoesNotExist):
-            raise forms.ValidationError(self.error_messages['invalid_choice'], code='invalid_choice')
-        return value
 
 
 class SlugField(forms.SlugField):
@@ -665,7 +688,10 @@ class BootstrapMixin(forms.BaseForm):
         super().__init__(*args, **kwargs)
 
         exempt_widgets = [
-            forms.CheckboxInput, forms.ClearableFileInput, forms.FileInput, forms.RadioSelect
+            forms.CheckboxInput,
+            forms.ClearableFileInput,
+            forms.FileInput,
+            forms.RadioSelect
         ]
 
         for field_name, field in self.fields.items():
@@ -704,6 +730,20 @@ class BulkEditForm(forms.Form):
         # Copy any nullable fields defined in Meta
         if hasattr(self.Meta, 'nullable_fields'):
             self.nullable_fields = self.Meta.nullable_fields
+
+
+class CSVModelForm(forms.ModelForm):
+    """
+    ModelForm used for the import of objects in CSV format.
+    """
+    def __init__(self, *args, headers=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Modify the model form to accommodate any customized to_field_name properties
+        if headers:
+            for field, to_field in headers.items():
+                if to_field is not None:
+                    self.fields[field].to_field_name = to_field
 
 
 class ImportForm(BootstrapMixin, forms.Form):
@@ -752,3 +792,23 @@ class ImportForm(BootstrapMixin, forms.Form):
                 raise forms.ValidationError({
                     'data': "Invalid YAML data: {}".format(err)
                 })
+
+
+class TableConfigForm(BootstrapMixin, forms.Form):
+    """
+    Form for configuring user's table preferences.
+    """
+    columns = forms.MultipleChoiceField(
+        choices=[],
+        widget=forms.SelectMultiple(
+            attrs={'size': 10}
+        ),
+        help_text="Use the buttons below to arrange columns in the desired order, then select all columns to display."
+    )
+
+    def __init__(self, table, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Initialize columns field based on table attributes
+        self.fields['columns'].choices = table.configurable_columns
+        self.fields['columns'].initial = table.visible_columns

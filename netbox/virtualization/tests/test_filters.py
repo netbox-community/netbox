@@ -22,8 +22,7 @@ class ClusterTypeTestCase(TestCase):
         ClusterType.objects.bulk_create(cluster_types)
 
     def test_id(self):
-        id_list = self.queryset.values_list('id', flat=True)[:2]
-        params = {'id': [str(id) for id in id_list]}
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
@@ -54,8 +53,7 @@ class ClusterGroupTestCase(TestCase):
         ClusterGroup.objects.bulk_create(cluster_groups)
 
     def test_id(self):
-        id_list = self.queryset.values_list('id', flat=True)[:2]
-        params = {'id': [str(id) for id in id_list]}
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
@@ -129,6 +127,10 @@ class ClusterTestCase(TestCase):
             Cluster(name='Cluster 3', type=cluster_types[2], group=cluster_groups[2], site=sites[2], tenant=tenants[2]),
         )
         Cluster.objects.bulk_create(clusters)
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Cluster 1', 'Cluster 2']}
@@ -265,8 +267,7 @@ class VirtualMachineTestCase(TestCase):
         Interface.objects.bulk_create(interfaces)
 
     def test_id(self):
-        id_list = self.queryset.values_list('id', flat=True)[:2]
-        params = {'id': [str(id) for id in id_list]}
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):

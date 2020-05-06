@@ -119,11 +119,18 @@ class ConfigContextView(PermissionRequiredMixin, View):
     permission_required = 'extras.view_configcontext'
 
     def get(self, request, pk):
-
         configcontext = get_object_or_404(ConfigContext, pk=pk)
+
+        # Determine user's preferred output format
+        if request.GET.get('format') in ['json', 'yaml']:
+            format = request.GET.get('format')
+            request.user.config.set('extras.configcontext.format', format, commit=True)
+        else:
+            format = request.user.config.get('extras.configcontext.format', 'json')
 
         return render(request, 'extras/configcontext.html', {
             'configcontext': configcontext,
+            'format': format,
         })
 
 
@@ -171,11 +178,19 @@ class ObjectConfigContextView(View):
         source_contexts = ConfigContext.objects.get_for_object(obj)
         model_name = self.object_class._meta.model_name
 
+        # Determine user's preferred output format
+        if request.GET.get('format') in ['json', 'yaml']:
+            format = request.GET.get('format')
+            request.user.config.set('extras.configcontext.format', format, commit=True)
+        else:
+            format = request.user.config.get('extras.configcontext.format', 'json')
+
         return render(request, 'extras/object_configcontext.html', {
             model_name: obj,
             'obj': obj,
             'rendered_context': obj.get_config_context(),
             'source_contexts': source_contexts,
+            'format': format,
             'base_template': self.base_template,
             'active_tab': 'config-context',
         })

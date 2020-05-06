@@ -22,26 +22,7 @@
                 <div class="panel panel-default">
                     <div class="panel-heading"><strong>Device Selection</strong></div>
                     <div class="panel-body">
-                        <ul class="nav nav-tabs" role="tablist">
-                            <li role="presentation" class="active"><a href="#search" aria-controls="search" role="tab" data-toggle="tab">Search</a></li>
-                            <li role="presentation"><a href="#select" aria-controls="home" role="tab" data-toggle="tab">Select</a></li>
-                        </ul>
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="search">
-                                <div class="form-group">
-                                    <label class="col-md-3 control-label" for="id_search">Search</label>
-                                    <div class="col-md-9">
-                                        <input type="text" class="form-control" name="search" id="id_search" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="tab-pane" id="select">
-                                {% render_field form.region %}
-                                {% render_field form.site %}
-                                {% render_field form.rack %}
-                            </div>
-                        </div>
-                        {% render_field form.devices %}
+                        {% render_form form %}
                     </div>
                 </div>
             </div>

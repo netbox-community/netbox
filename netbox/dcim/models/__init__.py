@@ -12,6 +12,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, F, ProtectedError, Sum
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
@@ -179,12 +180,14 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     )
     facility = models.CharField(
         max_length=50,
-        blank=True
+        blank=True,
+        help_text='Local facility ID or description'
     )
     asn = ASNField(
         blank=True,
         null=True,
-        verbose_name='ASN'
+        verbose_name='ASN',
+        help_text='32-bit autonomous system number'
     )
     time_zone = TimeZoneField(
         blank=True
@@ -205,13 +208,15 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         max_digits=8,
         decimal_places=6,
         blank=True,
-        null=True
+        null=True,
+        help_text='GPS coordinate (latitude)'
     )
     longitude = models.DecimalField(
         max_digits=9,
         decimal_places=6,
         blank=True,
-        null=True
+        null=True,
+        help_text='GPS coordinate (longitude)'
     )
     contact_name = models.CharField(
         max_length=50,
@@ -418,7 +423,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         max_length=50,
         blank=True,
         null=True,
-        verbose_name='Facility ID'
+        verbose_name='Facility ID',
+        help_text='Locally-assigned identifier'
     )
     site = models.ForeignKey(
         to='dcim.Site',
@@ -430,7 +436,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         on_delete=models.SET_NULL,
         related_name='racks',
         blank=True,
-        null=True
+        null=True,
+        help_text='Assigned group'
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -449,7 +456,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         on_delete=models.PROTECT,
         related_name='racks',
         blank=True,
-        null=True
+        null=True,
+        help_text='Functional role'
     )
     serial = models.CharField(
         max_length=50,
@@ -479,7 +487,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     u_height = models.PositiveSmallIntegerField(
         default=RACK_U_HEIGHT_DEFAULT,
         verbose_name='Height (U)',
-        validators=[MinValueValidator(1), MaxValueValidator(100)]
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        help_text='Height in rack units'
     )
     desc_units = models.BooleanField(
         default=False,
@@ -488,11 +497,13 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     )
     outer_width = models.PositiveSmallIntegerField(
         blank=True,
-        null=True
+        null=True,
+        help_text='Outer dimension of rack (width)'
     )
     outer_depth = models.PositiveSmallIntegerField(
         blank=True,
-        null=True
+        null=True,
+        help_text='Outer dimension of rack (depth)'
     )
     outer_unit = models.CharField(
         max_length=50,
@@ -513,7 +524,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'site', 'group_name', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
+        'site', 'group', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
         'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
     ]
     clone_fields = [
@@ -652,7 +663,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
                 pk=exclude
             ).filter(
                 rack=self,
-                position__gt=0
+                position__gt=0,
+                device_type__u_height__gt=0
             ).filter(
                 Q(face=face) | Q(device_type__is_full_depth=True)
             )
@@ -819,7 +831,7 @@ class RackReservation(ChangeLoggedModel):
 
     def clean(self):
 
-        if self.units:
+        if hasattr(self, 'rack') and self.units:
 
             # Validate that all specified units exist in the Rack.
             invalid_units = [u for u in self.units if u not in self.rack.units]
@@ -1089,16 +1101,31 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         # If editing an existing DeviceType to have a larger u_height, first validate that *all* instances of it have
         # room to expand within their racks. This validation will impose a very high performance penalty when there are
         # many instances to check, but increasing the u_height of a DeviceType should be a very rare occurrence.
-        if self.pk is not None and self.u_height > self._original_u_height:
+        if self.pk and self.u_height > self._original_u_height:
             for d in Device.objects.filter(device_type=self, position__isnull=False):
                 face_required = None if self.is_full_depth else d.face
-                u_available = d.rack.get_available_units(u_height=self.u_height, rack_face=face_required,
-                                                         exclude=[d.pk])
+                u_available = d.rack.get_available_units(
+                    u_height=self.u_height,
+                    rack_face=face_required,
+                    exclude=[d.pk]
+                )
                 if d.position not in u_available:
                     raise ValidationError({
                         'u_height': "Device {} in rack {} does not have sufficient space to accommodate a height of "
                                     "{}U".format(d, d.rack, self.u_height)
                     })
+
+        # If modifying the height of an existing DeviceType to 0U, check for any instances assigned to a rack position.
+        elif self.pk and self._original_u_height > 0 and self.u_height == 0:
+            racked_instance_count = Device.objects.filter(device_type=self, position__isnull=False).count()
+            if racked_instance_count:
+                url = f"{reverse('dcim:device_list')}?manufactuer_id={self.manufacturer_id}&device_type_id={self.pk}"
+                raise ValidationError({
+                    'u_height': mark_safe(
+                        f'Unable to set 0U height: Found <a href="{url}">{racked_instance_count} instances</a> already '
+                        f'mounted within racks.'
+                    )
+                })
 
         if (
                 self.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT
@@ -1398,7 +1425,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
+        'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
         'site', 'rack_group', 'rack_name', 'position', 'face', 'comments',
     ]
     clone_fields = [
@@ -1695,7 +1722,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 # Virtual chassis
 #
 
-@extras_features('export_templates', 'webhooks')
+@extras_features('custom_links', 'export_templates', 'webhooks')
 class VirtualChassis(ChangeLoggedModel):
     """
     A collection of Devices which operate with a shared control plane (e.g. a switch stack).
@@ -1722,7 +1749,7 @@ class VirtualChassis(ChangeLoggedModel):
         return str(self.master) if hasattr(self, 'master') else 'New Virtual Chassis'
 
     def get_absolute_url(self):
-        return self.master.get_absolute_url()
+        return reverse('dcim:virtualchassis', kwargs={'pk': self.pk})
 
     def clean(self):
 
@@ -1781,7 +1808,7 @@ class PowerPanel(ChangeLoggedModel):
         max_length=50
     )
 
-    csv_headers = ['site', 'rack_group_name', 'name']
+    csv_headers = ['site', 'rack_group', 'name']
 
     class Meta:
         ordering = ['site', 'name']
@@ -1888,7 +1915,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'site', 'panel_name', 'rack_group', 'rack_name', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
+        'site', 'power_panel', 'rack_group', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
         'amperage', 'max_utilization', 'comments',
     ]
     clone_fields = [

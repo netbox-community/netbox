@@ -3,10 +3,17 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as UserAdmin_
 from django.contrib.auth.models import User
 
-from .models import Token
+from .models import Token, UserConfig
 
 # Unregister the built-in UserAdmin so that we can use our custom admin view below
 admin.site.unregister(User)
+
+
+class UserConfigInline(admin.TabularInline):
+    model = UserConfig
+    readonly_fields = ('data',)
+    can_delete = False
+    verbose_name = 'Preferences'
 
 
 @admin.register(User)
@@ -14,6 +21,7 @@ class UserAdmin(UserAdmin_):
     list_display = [
         'username', 'email', 'first_name', 'last_name', 'is_superuser', 'is_staff', 'is_active'
     ]
+    inlines = (UserConfigInline,)
 
 
 class TokenAdminForm(forms.ModelForm):

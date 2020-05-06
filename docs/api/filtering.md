@@ -17,7 +17,7 @@ E.g. filtering based on a device's name:
 
 While you are able to filter based on an arbitrary number of fields, you are also able to
 pass multiple values for the same field. In most cases filtering on multiple values is
-implemented as a logical OR operation. A notible exception is the `tag` filter which
+implemented as a logical OR operation. A notable exception is the `tag` filter which
 is a logical AND. Passing multiple values for one field, can be combined with other fields.
 
 For example, filtering for devices with either the name of DC-SPINE-1 _or_ DC-LEAF-4:
@@ -33,11 +33,11 @@ _both_ of those tags applied:
 
 ## Lookup Expressions
 
-Certain model fields also support filtering using additonal lookup expressions. This allows
+Certain model fields also support filtering using additional lookup expressions. This allows
 for negation and other context specific filtering.
 
 These lookup expressions can be applied by adding a suffix to the desired field's name.
-E.g. `mac_address__n`. In this case, the filter expression is for negation and it is seperated
+E.g. `mac_address__n`. In this case, the filter expression is for negation and it is separated
 by two underscores. Below are the lookup expressions that are supported across different field
 types.
 

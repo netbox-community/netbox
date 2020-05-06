@@ -210,9 +210,7 @@ class BaseFilterSet(django_filters.FilterSet):
         For specific filter types, new filters are created based on defined lookup expressions in
         the form `<field_name>__<lookup_expr>`
         """
-        # TODO: once 3.6 is the minimum required version of python, change this to a bare super() call
-        # We have to do it this way in py3.5 becuase of django_filters.FilterSet's use of a metaclass
-        filters = super(django_filters.FilterSet, cls).get_filters()
+        filters = super().get_filters()
 
         new_filters = {}
         for existing_filter_name, existing_filter in filters.items():

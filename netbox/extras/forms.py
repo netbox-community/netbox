@@ -8,7 +8,7 @@ from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
-    CommentField, ContentTypeSelect, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField,
+    ContentTypeSelect, CSVModelForm, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField,
     StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
@@ -89,7 +89,7 @@ class CustomFieldModelForm(forms.ModelForm):
         return obj
 
 
-class CustomFieldModelCSVForm(CustomFieldModelForm):
+class CustomFieldModelCSVForm(CSVModelForm, CustomFieldModelForm):
 
     def _append_customfield_fields(self):
 
@@ -229,7 +229,6 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
-        to_field_name='slug',
         required=False
     )
     data = JSONField(

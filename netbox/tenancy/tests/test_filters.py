@@ -28,8 +28,7 @@ class TenantGroupTestCase(TestCase):
             tenantgroup.save()
 
     def test_id(self):
-        id_list = self.queryset.values_list('id', flat=True)[:2]
-        params = {'id': [str(id) for id in id_list]}
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
@@ -73,6 +72,10 @@ class TenantTestCase(TestCase):
             Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[2]),
         )
         Tenant.objects.bulk_create(tenants)
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Tenant 1', 'Tenant 2']}

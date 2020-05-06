@@ -1,6 +1,6 @@
 import django_tables2 as tables
 
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import BaseTable, TagColumn, ToggleColumn
 from .models import Tenant, TenantGroup
 
 MPTT_LINK = """
@@ -44,7 +44,6 @@ class TenantGroupTable(BaseTable):
     tenant_count = tables.Column(
         verbose_name='Tenants'
     )
-    slug = tables.Column()
     actions = tables.TemplateColumn(
         template_code=TENANTGROUP_ACTIONS,
         attrs={'td': {'class': 'text-right noprint'}},
@@ -54,6 +53,7 @@ class TenantGroupTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = TenantGroup
         fields = ('pk', 'name', 'tenant_count', 'description', 'slug', 'actions')
+        default_columns = ('pk', 'name', 'tenant_count', 'description', 'actions')
 
 
 #
@@ -63,7 +63,11 @@ class TenantGroupTable(BaseTable):
 class TenantTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
+    tags = TagColumn(
+        url_name='tenancy:tenant_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = Tenant
-        fields = ('pk', 'name', 'group', 'description')
+        fields = ('pk', 'name', 'slug', 'group', 'description', 'tags')
+        default_columns = ('pk', 'name', 'group', 'description')

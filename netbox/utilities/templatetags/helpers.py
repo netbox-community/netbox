@@ -117,28 +117,6 @@ def humanize_speed(speed):
 
 
 @register.filter()
-def example_choices(field, arg=3):
-    """
-    Returns a number (default: 3) of example choices for a ChoiceFiled (useful for CSV import forms).
-    """
-    examples = []
-    if hasattr(field, 'queryset'):
-        choices = [
-            (obj.pk, getattr(obj, field.to_field_name)) for obj in field.queryset[:arg + 1]
-        ]
-    else:
-        choices = field.choices
-    for value, label in unpack_grouped_choices(choices):
-        if len(examples) == arg:
-            examples.append('etc.')
-            break
-        if not value or not label:
-            continue
-        examples.append(label)
-    return ', '.join(examples) or 'None'
-
-
-@register.filter()
 def tzoffset(value):
     """
     Returns the hour offset of a given time zone using the current time.
