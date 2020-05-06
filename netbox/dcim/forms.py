@@ -23,9 +23,9 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
-    BulkEditNullBooleanSelect, ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, CSVModelForm,
-    DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
-    SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    BulkEditNullBooleanSelect, ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField,
+    CSVModelForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model,
+    JSONField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
@@ -194,7 +194,7 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
 
 
 class RegionCSVForm(CSVModelForm):
-    parent = forms.ModelChoiceField(
+    parent = CSVModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
         to_field_name='name',
@@ -273,7 +273,7 @@ class SiteCSVForm(CustomFieldModelCSVForm):
         required=False,
         help_text='Operational status'
     )
-    region = forms.ModelChoiceField(
+    region = CSVModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
         to_field_name='name',
@@ -282,7 +282,7 @@ class SiteCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Region not found.',
         }
     )
-    tenant = forms.ModelChoiceField(
+    tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
@@ -389,7 +389,7 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
 
 
 class RackGroupCSVForm(CSVModelForm):
-    site = forms.ModelChoiceField(
+    site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
         help_text='Assigned site',
@@ -397,7 +397,7 @@ class RackGroupCSVForm(CSVModelForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    parent = forms.ModelChoiceField(
+    parent = CSVModelChoiceField(
         queryset=RackGroup.objects.all(),
         required=False,
         to_field_name='name',
@@ -519,14 +519,14 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 
 class RackCSVForm(CustomFieldModelCSVForm):
-    site = forms.ModelChoiceField(
+    site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
         error_messages={
             'invalid_choice': 'Site not found.',
         }
     )
-    group = forms.ModelChoiceField(
+    group = CSVModelChoiceField(
         queryset=RackGroup.objects.all(),
         required=False,
         to_field_name='name',
@@ -534,7 +534,7 @@ class RackCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Rack group not found.',
         }
     )
-    tenant = forms.ModelChoiceField(
+    tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
@@ -548,7 +548,7 @@ class RackCSVForm(CustomFieldModelCSVForm):
         required=False,
         help_text='Operational status'
     )
-    role = forms.ModelChoiceField(
+    role = CSVModelChoiceField(
         queryset=RackRole.objects.all(),
         required=False,
         to_field_name='name',
@@ -801,7 +801,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
 
 
 class RackReservationCSVForm(CSVModelForm):
-    site = forms.ModelChoiceField(
+    site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
         help_text='Parent site',
@@ -809,7 +809,7 @@ class RackReservationCSVForm(CSVModelForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    rack_group = forms.ModelChoiceField(
+    rack_group = CSVModelChoiceField(
         queryset=RackGroup.objects.all(),
         to_field_name='name',
         required=False,
@@ -818,7 +818,7 @@ class RackReservationCSVForm(CSVModelForm):
             'invalid_choice': 'Rack group not found.',
         }
     )
-    rack = forms.ModelChoiceField(
+    rack = CSVModelChoiceField(
         queryset=Rack.objects.all(),
         to_field_name='name',
         help_text='Rack',
@@ -831,7 +831,7 @@ class RackReservationCSVForm(CSVModelForm):
         required=True,
         help_text='Comma-separated list of individual unit numbers'
     )
-    tenant = forms.ModelChoiceField(
+    tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
@@ -1676,7 +1676,7 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
 
 class PlatformCSVForm(CSVModelForm):
     slug = SlugField()
-    manufacturer = forms.ModelChoiceField(
+    manufacturer = CSVModelChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,
         to_field_name='name',
@@ -1890,7 +1890,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 
 class BaseDeviceCSVForm(CustomFieldModelCSVForm):
-    device_role = forms.ModelChoiceField(
+    device_role = CSVModelChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
         help_text='Assigned role',
@@ -1898,7 +1898,7 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Invalid device role.',
         }
     )
-    tenant = forms.ModelChoiceField(
+    tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
@@ -1907,7 +1907,7 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Tenant not found.',
         }
     )
-    manufacturer = forms.ModelChoiceField(
+    manufacturer = CSVModelChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='name',
         help_text='Device type manufacturer',
@@ -1915,7 +1915,7 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Manufacturer not found.',
         }
     )
-    device_type = forms.ModelChoiceField(
+    device_type = CSVModelChoiceField(
         queryset=DeviceType.objects.all(),
         to_field_name='model',
         help_text='Device type model',
@@ -1923,7 +1923,7 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Device type not found.',
         }
     )
-    platform = forms.ModelChoiceField(
+    platform = CSVModelChoiceField(
         queryset=Platform.objects.all(),
         required=False,
         to_field_name='name',
@@ -1936,7 +1936,7 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
         choices=DeviceStatusChoices,
         help_text='Operational status'
     )
-    cluster = forms.ModelChoiceField(
+    cluster = CSVModelChoiceField(
         queryset=Cluster.objects.all(),
         to_field_name='name',
         required=False,
@@ -1961,7 +1961,7 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
 
 
 class DeviceCSVForm(BaseDeviceCSVForm):
-    site = forms.ModelChoiceField(
+    site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
         help_text='Assigned site',
@@ -1969,7 +1969,7 @@ class DeviceCSVForm(BaseDeviceCSVForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    rack_group = forms.ModelChoiceField(
+    rack_group = CSVModelChoiceField(
         queryset=RackGroup.objects.all(),
         to_field_name='name',
         required=False,
@@ -1978,7 +1978,7 @@ class DeviceCSVForm(BaseDeviceCSVForm):
             'invalid_choice': 'Rack group not found.',
         }
     )
-    rack = forms.ModelChoiceField(
+    rack = CSVModelChoiceField(
         queryset=Rack.objects.all(),
         to_field_name='name',
         required=False,
@@ -2017,7 +2017,7 @@ class DeviceCSVForm(BaseDeviceCSVForm):
 
 
 class ChildDeviceCSVForm(BaseDeviceCSVForm):
-    parent = forms.ModelChoiceField(
+    parent = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
         help_text='Parent device',
@@ -2025,7 +2025,7 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
             'invalid_choice': 'Parent device not found.',
         }
     )
-    device_bay = forms.ModelChoiceField(
+    device_bay = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
         help_text='Device bay in which this device is installed',
@@ -2340,7 +2340,7 @@ class ConsolePortBulkEditForm(
 
 
 class ConsolePortCSVForm(CSVModelForm):
-    device = forms.ModelChoiceField(
+    device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
         error_messages={
@@ -2443,7 +2443,7 @@ class ConsoleServerPortBulkDisconnectForm(ConfirmationForm):
 
 
 class ConsoleServerPortCSVForm(CSVModelForm):
-    device = forms.ModelChoiceField(
+    device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
         error_messages={
@@ -2542,7 +2542,7 @@ class PowerPortBulkEditForm(
 
 
 class PowerPortCSVForm(CSVModelForm):
-    device = forms.ModelChoiceField(
+    device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
         error_messages={
@@ -2692,14 +2692,14 @@ class PowerOutletBulkDisconnectForm(ConfirmationForm):
 
 
 class PowerOutletCSVForm(CSVModelForm):
-    device = forms.ModelChoiceField(
+    device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
     )
-    power_port = forms.ModelChoiceField(
+    power_port = CSVModelChoiceField(
         queryset=PowerPort.objects.all(),
         required=False,
         to_field_name='name',
@@ -3014,7 +3014,7 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
 
 
 class InterfaceCSVForm(CSVModelForm):
-    device = forms.ModelChoiceField(
+    device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
@@ -3022,7 +3022,7 @@ class InterfaceCSVForm(CSVModelForm):
             'invalid_choice': 'Device not found.',
         }
     )
-    virtual_machine = forms.ModelChoiceField(
+    virtual_machine = CSVModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
@@ -3030,7 +3030,7 @@ class InterfaceCSVForm(CSVModelForm):
             'invalid_choice': 'Virtual machine not found.',
         }
     )
-    lag = forms.ModelChoiceField(
+    lag = CSVModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
         to_field_name='name',
@@ -3227,14 +3227,14 @@ class FrontPortBulkDisconnectForm(ConfirmationForm):
 
 
 class FrontPortCSVForm(CSVModelForm):
-    device = forms.ModelChoiceField(
+    device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
     )
-    rear_port = forms.ModelChoiceField(
+    rear_port = CSVModelChoiceField(
         queryset=RearPort.objects.all(),
         to_field_name='name',
         help_text='Corresponding rear port',
@@ -3368,7 +3368,7 @@ class RearPortBulkDisconnectForm(ConfirmationForm):
 
 
 class RearPortCSVForm(CSVModelForm):
-    device = forms.ModelChoiceField(
+    device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
         error_messages={
@@ -3479,14 +3479,14 @@ class DeviceBayBulkRenameForm(BulkRenameForm):
 
 
 class DeviceBayCSVForm(CSVModelForm):
-    device = forms.ModelChoiceField(
+    device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
     )
-    installed_device = forms.ModelChoiceField(
+    installed_device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
@@ -3771,7 +3771,7 @@ class CableForm(BootstrapMixin, forms.ModelForm):
 
 class CableCSVForm(CSVModelForm):
     # Termination A
-    side_a_device = forms.ModelChoiceField(
+    side_a_device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
         help_text='Side A device',
@@ -3779,7 +3779,7 @@ class CableCSVForm(CSVModelForm):
             'invalid_choice': 'Side A device not found',
         }
     )
-    side_a_type = forms.ModelChoiceField(
+    side_a_type = CSVModelChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=CABLE_TERMINATION_MODELS,
         to_field_name='model',
@@ -3790,7 +3790,7 @@ class CableCSVForm(CSVModelForm):
     )
 
     # Termination B
-    side_b_device = forms.ModelChoiceField(
+    side_b_device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
         help_text='Side B device',
@@ -3798,7 +3798,7 @@ class CableCSVForm(CSVModelForm):
             'invalid_choice': 'Side B device not found',
         }
     )
-    side_b_type = forms.ModelChoiceField(
+    side_b_type = CSVModelChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=CABLE_TERMINATION_MODELS,
         to_field_name='model',
@@ -4124,14 +4124,14 @@ class InventoryItemCreateForm(BootstrapMixin, forms.Form):
 
 
 class InventoryItemCSVForm(CSVModelForm):
-    device = forms.ModelChoiceField(
+    device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
     )
-    manufacturer = forms.ModelChoiceField(
+    manufacturer = CSVModelChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='name',
         required=False,
@@ -4435,7 +4435,7 @@ class PowerPanelForm(BootstrapMixin, forms.ModelForm):
 
 
 class PowerPanelCSVForm(CSVModelForm):
-    site = forms.ModelChoiceField(
+    site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
         help_text='Name of parent site',
@@ -4443,7 +4443,7 @@ class PowerPanelCSVForm(CSVModelForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    rack_group = forms.ModelChoiceField(
+    rack_group = CSVModelChoiceField(
         queryset=RackGroup.objects.all(),
         required=False,
         to_field_name='name',
@@ -4579,7 +4579,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class PowerFeedCSVForm(CustomFieldModelCSVForm):
-    site = forms.ModelChoiceField(
+    site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
         help_text='Assigned site',
@@ -4587,7 +4587,7 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    power_panel = forms.ModelChoiceField(
+    power_panel = CSVModelChoiceField(
         queryset=PowerPanel.objects.all(),
         to_field_name='name',
         help_text='Upstream power panel',
@@ -4595,7 +4595,7 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Power panel not found.',
         }
     )
-    rack_group = forms.ModelChoiceField(
+    rack_group = CSVModelChoiceField(
         queryset=RackGroup.objects.all(),
         to_field_name='name',
         required=False,
@@ -4604,7 +4604,7 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Rack group not found.',
         }
     )
-    rack = forms.ModelChoiceField(
+    rack = CSVModelChoiceField(
         queryset=Rack.objects.all(),
         to_field_name='name',
         required=False,

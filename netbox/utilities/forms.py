@@ -8,6 +8,7 @@ import yaml
 from django import forms
 from django.conf import settings
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
+from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Count
 from django.forms import BoundField
 from django.forms.models import fields_for_model
@@ -481,7 +482,6 @@ class CSVChoiceField(forms.ChoiceField):
     """
     Invert the provided set of choices to take the human-friendly label as input, and return the database value.
     """
-
     def __init__(self, choices, *args, **kwargs):
         super().__init__(choices=choices, *args, **kwargs)
         self.choices = [(label, label) for value, label in unpack_grouped_choices(choices)]
@@ -494,6 +494,19 @@ class CSVChoiceField(forms.ChoiceField):
         if value not in self.choice_values:
             raise forms.ValidationError("Invalid choice: {}".format(value))
         return self.choice_values[value]
+
+
+class CSVModelChoiceField(forms.ModelChoiceField):
+    """
+    Provides additional validation for model choices entered as CSV data.
+    """
+    def to_python(self, value):
+        try:
+            return super().to_python(value)
+        except MultipleObjectsReturned as e:
+            raise forms.ValidationError(
+                f'"{value}" is not a unique value for this field; multiple objects were found'
+            )
 
 
 class ExpandableNameField(forms.CharField):

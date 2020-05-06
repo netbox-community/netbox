@@ -8,9 +8,9 @@ from extras.forms import (
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, CSVModelForm, DatePicker,
-    DynamicModelChoiceField, DynamicModelMultipleChoiceField, SmallTextarea, SlugField, StaticSelect2,
-    StaticSelect2Multiple, TagFilterField,
+    APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, CSVModelChoiceField,
+    CSVModelForm, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SmallTextarea, SlugField,
+    StaticSelect2, StaticSelect2Multiple, TagFilterField,
 )
 from .choices import CircuitStatusChoices
 from .models import Circuit, CircuitTermination, CircuitType, Provider
@@ -186,7 +186,7 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 
 class CircuitCSVForm(CustomFieldModelCSVForm):
-    provider = forms.ModelChoiceField(
+    provider = CSVModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',
         help_text='Assigned provider',
@@ -194,7 +194,7 @@ class CircuitCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Provider not found.'
         }
     )
-    type = forms.ModelChoiceField(
+    type = CSVModelChoiceField(
         queryset=CircuitType.objects.all(),
         to_field_name='name',
         help_text='Type of circuit',
@@ -207,7 +207,7 @@ class CircuitCSVForm(CustomFieldModelCSVForm):
         required=False,
         help_text='Operational status'
     )
-    tenant = forms.ModelChoiceField(
+    tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',

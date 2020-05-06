@@ -10,8 +10,9 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditNullBooleanSelect, CSVChoiceField,
-    CSVModelForm, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField,
-    ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    CSVModelChoiceField, CSVModelForm, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    ExpandableIPAddressField, ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import VirtualMachine
 from .choices import *
@@ -50,7 +51,7 @@ class VRFForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 
 class VRFCSVForm(CustomFieldModelCSVForm):
-    tenant = forms.ModelChoiceField(
+    tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
@@ -162,7 +163,7 @@ class AggregateForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class AggregateCSVForm(CustomFieldModelCSVForm):
-    rir = forms.ModelChoiceField(
+    rir = CSVModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
         help_text='Assigned RIR',
@@ -324,7 +325,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 
 class PrefixCSVForm(CustomFieldModelCSVForm):
-    vrf = forms.ModelChoiceField(
+    vrf = CSVModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
@@ -333,7 +334,7 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'VRF not found.',
         }
     )
-    tenant = forms.ModelChoiceField(
+    tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
@@ -342,7 +343,7 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Tenant not found.',
         }
     )
-    site = forms.ModelChoiceField(
+    site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
@@ -351,7 +352,7 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    vlan_group = forms.ModelChoiceField(
+    vlan_group = CSVModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
         to_field_name='name',
@@ -360,7 +361,7 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'VLAN group not found.',
         }
     )
-    vlan = forms.ModelChoiceField(
+    vlan = CSVModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         to_field_name='vid',
@@ -373,7 +374,7 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
         choices=PrefixStatusChoices,
         help_text='Operational status'
     )
-    role = forms.ModelChoiceField(
+    role = CSVModelChoiceField(
         queryset=Role.objects.all(),
         required=False,
         to_field_name='name',
@@ -716,7 +717,7 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 
 class IPAddressCSVForm(CustomFieldModelCSVForm):
-    vrf = forms.ModelChoiceField(
+    vrf = CSVModelChoiceField(
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
@@ -725,7 +726,7 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'VRF not found.',
         }
     )
-    tenant = forms.ModelChoiceField(
+    tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='name',
         required=False,
@@ -743,7 +744,7 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
         required=False,
         help_text='Functional role'
     )
-    device = forms.ModelChoiceField(
+    device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
@@ -752,7 +753,7 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Device not found.',
         }
     )
-    virtual_machine = forms.ModelChoiceField(
+    virtual_machine = CSVModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
@@ -761,7 +762,7 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Virtual machine not found.',
         }
     )
-    interface = forms.ModelChoiceField(
+    interface = CSVModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
         to_field_name='name',
@@ -974,7 +975,7 @@ class VLANGroupForm(BootstrapMixin, forms.ModelForm):
 
 
 class VLANGroupCSVForm(CSVModelForm):
-    site = forms.ModelChoiceField(
+    site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
@@ -1059,7 +1060,7 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 
 class VLANCSVForm(CustomFieldModelCSVForm):
-    site = forms.ModelChoiceField(
+    site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
@@ -1068,7 +1069,7 @@ class VLANCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    group = forms.ModelChoiceField(
+    group = CSVModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
         to_field_name='name',
@@ -1077,7 +1078,7 @@ class VLANCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'VLAN group not found.',
         }
     )
-    tenant = forms.ModelChoiceField(
+    tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='name',
         required=False,
@@ -1090,7 +1091,7 @@ class VLANCSVForm(CustomFieldModelCSVForm):
         choices=VLANStatusChoices,
         help_text='Operational status'
     )
-    role = forms.ModelChoiceField(
+    role = CSVModelChoiceField(
         queryset=Role.objects.all(),
         required=False,
         to_field_name='name',
@@ -1270,7 +1271,7 @@ class ServiceFilterForm(BootstrapMixin, CustomFieldFilterForm):
 
 
 class ServiceCSVForm(CustomFieldModelCSVForm):
-    device = forms.ModelChoiceField(
+    device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
@@ -1279,7 +1280,7 @@ class ServiceCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Device not found.',
         }
     )
-    virtual_machine = forms.ModelChoiceField(
+    virtual_machine = CSVModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',

@@ -14,7 +14,7 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    CommentField, ConfirmationForm, CSVChoiceField, CSVModelForm, DynamicModelChoiceField,
+    CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField, SlugField, SmallTextarea,
     StaticSelect2, StaticSelect2Multiple, TagFilterField,
 )
@@ -95,7 +95,7 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
 
 class ClusterCSVForm(CustomFieldModelCSVForm):
-    type = forms.ModelChoiceField(
+    type = CSVModelChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='name',
         help_text='Type of cluster',
@@ -103,7 +103,7 @@ class ClusterCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Invalid cluster type name.',
         }
     )
-    group = forms.ModelChoiceField(
+    group = CSVModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='name',
         required=False,
@@ -112,7 +112,7 @@ class ClusterCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Invalid cluster group name.',
         }
     )
-    site = forms.ModelChoiceField(
+    site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
         required=False,
@@ -121,7 +121,7 @@ class ClusterCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Invalid site name.',
         }
     )
-    tenant = forms.ModelChoiceField(
+    tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='name',
         required=False,
@@ -401,7 +401,7 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
         required=False,
         help_text='Operational status of device'
     )
-    cluster = forms.ModelChoiceField(
+    cluster = CSVModelChoiceField(
         queryset=Cluster.objects.all(),
         to_field_name='name',
         help_text='Assigned cluster',
@@ -409,7 +409,7 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Invalid cluster name.',
         }
     )
-    role = forms.ModelChoiceField(
+    role = CSVModelChoiceField(
         queryset=DeviceRole.objects.filter(
             vm_role=True
         ),
@@ -420,7 +420,7 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Invalid role name.'
         }
     )
-    tenant = forms.ModelChoiceField(
+    tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
@@ -429,7 +429,7 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
             'invalid_choice': 'Tenant not found.'
         }
     )
-    platform = forms.ModelChoiceField(
+    platform = CSVModelChoiceField(
         queryset=Platform.objects.all(),
         required=False,
         to_field_name='name',

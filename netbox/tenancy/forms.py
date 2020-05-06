@@ -5,8 +5,8 @@ from extras.forms import (
     AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelCSVForm,
 )
 from utilities.forms import (
-    APISelect, APISelectMultiple, BootstrapMixin, CommentField, CSVModelForm, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, SlugField, TagFilterField,
+    APISelect, APISelectMultiple, BootstrapMixin, CommentField, CSVModelChoiceField, CSVModelForm,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField, TagFilterField,
 )
 from .models import Tenant, TenantGroup
 
@@ -33,7 +33,7 @@ class TenantGroupForm(BootstrapMixin, forms.ModelForm):
 
 
 class TenantGroupCSVForm(CSVModelForm):
-    parent = forms.ModelChoiceField(
+    parent = CSVModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
@@ -73,7 +73,7 @@ class TenantForm(BootstrapMixin, CustomFieldModelForm):
 
 class TenantCSVForm(CustomFieldModelCSVForm):
     slug = SlugField()
-    group = forms.ModelChoiceField(
+    group = CSVModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
