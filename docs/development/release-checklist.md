@@ -37,7 +37,7 @@ Update the following static libraries to their most recent stable release:
 
 ### Create a new Release Notes Page
 
-Create a file at `/docs/release-notes/X.Y.md` to establish the release notes for the new release. Add the file to the table of contents within `mkdocs.yml`.
+Create a file at `/docs/release-notes/X.Y.md` to establish the release notes for the new release. Add the file to the table of contents within `mkdocs.yml`, and point `index.md` to the new file.
 
 ### Manually Perform a New Install
 
