@@ -52,7 +52,7 @@ class TenantFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterS
 
     class Meta:
         model = Tenant
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
     def search(self, queryset, name, value):
         if not value.strip():

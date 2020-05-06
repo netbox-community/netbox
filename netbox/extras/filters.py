@@ -94,14 +94,14 @@ class GraphFilterSet(BaseFilterSet):
 
     class Meta:
         model = Graph
-        fields = ['type', 'name', 'template_language']
+        fields = ['id', 'type', 'name', 'template_language']
 
 
 class ExportTemplateFilterSet(BaseFilterSet):
 
     class Meta:
         model = ExportTemplate
-        fields = ['content_type', 'name', 'template_language']
+        fields = ['id', 'content_type', 'name', 'template_language']
 
 
 class TagFilterSet(BaseFilterSet):
@@ -112,7 +112,7 @@ class TagFilterSet(BaseFilterSet):
 
     class Meta:
         model = Tag
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug', 'color']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -219,7 +219,7 @@ class ConfigContextFilterSet(BaseFilterSet):
 
     class Meta:
         model = ConfigContext
-        fields = ['name', 'is_active']
+        fields = ['id', 'name', 'is_active']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -255,7 +255,8 @@ class ObjectChangeFilterSet(BaseFilterSet):
     class Meta:
         model = ObjectChange
         fields = [
-            'user', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object_id', 'object_repr',
+            'id', 'user', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object_id',
+            'object_repr',
         ]
 
     def search(self, queryset, name, value):
