@@ -1,4 +1,4 @@
-{% extends 'users/_user.html' %}
+{% extends 'users/base.html' %}
 {% load helpers %}
 
 {% block title %}User Preferences{% endblock %}
@@ -19,8 +19,8 @@
                     {% for key, value in preferences.items %}
                         <tr>
                             <td class="min-width"><input type="checkbox" name="pk" value="{{ key }}"></td>
-                            <td>{{ key }}</td>
-                            <td>{{ value }}</td>
+                            <td><samp>{{ key }}</samp></td>
+                            <td><samp>{{ value }}</samp></td>
                         </tr>
                     {% endfor %}
                 </tbody>
