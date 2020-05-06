@@ -206,7 +206,7 @@ class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Cre
 
     class Meta:
         model = Prefix
-        fields = ('is_pool',)
+        fields = ('id', 'is_pool',)
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -345,7 +345,7 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
 
     class Meta:
         model = IPAddress
-        fields = ('dns_name',)
+        fields = ('id', 'dns_name',)
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -478,7 +478,7 @@ class VLANFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Creat
 
     class Meta:
         model = VLAN
-        fields = ['vid', 'name']
+        fields = ['id', 'vid', 'name']
 
     def search(self, queryset, name, value):
         if not value.strip():
