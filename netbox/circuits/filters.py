@@ -51,7 +51,7 @@ class ProviderFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilte
 
     class Meta:
         model = Provider
-        fields = ['name', 'slug', 'asn', 'account']
+        fields = ['id', 'name', 'slug', 'asn', 'account']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -129,7 +129,7 @@ class CircuitFilterSet(BaseFilterSet, CustomFieldFilterSet, TenancyFilterSet, Cr
 
     class Meta:
         model = Circuit
-        fields = ['cid', 'install_date', 'commit_rate']
+        fields = ['id', 'cid', 'install_date', 'commit_rate']
 
     def search(self, queryset, name, value):
         if not value.strip():

@@ -54,6 +54,10 @@ class ProviderTestCase(TestCase):
             CircuitTermination(circuit=circuits[1], site=sites[0], term_side='A', port_speed=1000),
         ))
 
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_name(self):
         params = {'name': ['Provider 1', 'Provider 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -177,6 +181,10 @@ class CircuitTestCase(TestCase):
             CircuitTermination(circuit=circuits[2], site=sites[2], term_side='A', port_speed=1000),
         ))
         CircuitTermination.objects.bulk_create(circuit_terminations)
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cid(self):
         params = {'cid': ['Test Circuit 1', 'Test Circuit 2']}
