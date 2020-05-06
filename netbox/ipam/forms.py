@@ -55,10 +55,7 @@ class VRFCSVForm(CustomFieldModelCSVForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant',
-        error_messages={
-            'invalid_choice': 'Tenant not found.',
-        }
+        help_text='Assigned tenant'
     )
 
     class Meta:
@@ -166,10 +163,7 @@ class AggregateCSVForm(CustomFieldModelCSVForm):
     rir = CSVModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
-        help_text='Assigned RIR',
-        error_messages={
-            'invalid_choice': 'RIR not found.',
-        }
+        help_text='Assigned RIR'
     )
 
     class Meta:
@@ -329,46 +323,31 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned VRF',
-        error_messages={
-            'invalid_choice': 'VRF not found.',
-        }
+        help_text='Assigned VRF'
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant',
-        error_messages={
-            'invalid_choice': 'Tenant not found.',
-        }
+        help_text='Assigned tenant'
     )
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned site',
-        error_messages={
-            'invalid_choice': 'Site not found.',
-        }
+        help_text='Assigned site'
     )
     vlan_group = CSVModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text="VLAN's group (if any)",
-        error_messages={
-            'invalid_choice': 'VLAN group not found.',
-        }
+        help_text="VLAN's group (if any)"
     )
     vlan = CSVModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         to_field_name='vid',
-        help_text="Assigned VLAN",
-        error_messages={
-            'invalid_choice': 'VLAN not found.',
-        }
+        help_text="Assigned VLAN"
     )
     status = CSVChoiceField(
         choices=PrefixStatusChoices,
@@ -378,10 +357,7 @@ class PrefixCSVForm(CustomFieldModelCSVForm):
         queryset=Role.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Functional role',
-        error_messages={
-            'invalid_choice': 'Invalid role.',
-        }
+        help_text='Functional role'
     )
 
     class Meta:
@@ -721,19 +697,13 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned VRF',
-        error_messages={
-            'invalid_choice': 'VRF not found.',
-        }
+        help_text='Assigned VRF'
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned tenant',
-        error_messages={
-            'invalid_choice': 'Tenant not found.',
-        }
+        help_text='Assigned tenant'
     )
     status = CSVChoiceField(
         choices=IPAddressStatusChoices,
@@ -748,28 +718,19 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent device of assigned interface (if any)',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
+        help_text='Parent device of assigned interface (if any)'
     )
     virtual_machine = CSVModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent VM of assigned interface (if any)',
-        error_messages={
-            'invalid_choice': 'Virtual machine not found.',
-        }
+        help_text='Parent VM of assigned interface (if any)'
     )
     interface = CSVModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned interface',
-        error_messages={
-            'invalid_choice': 'Interface not found.',
-        }
+        help_text='Assigned interface'
     )
     is_primary = forms.BooleanField(
         help_text='Make this the primary IP for the assigned device',
@@ -979,10 +940,7 @@ class VLANGroupCSVForm(CSVModelForm):
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned site',
-        error_messages={
-            'invalid_choice': 'Site not found.',
-        }
+        help_text='Assigned site'
     )
     slug = SlugField()
 
@@ -1064,28 +1022,19 @@ class VLANCSVForm(CustomFieldModelCSVForm):
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned site',
-        error_messages={
-            'invalid_choice': 'Site not found.',
-        }
+        help_text='Assigned site'
     )
     group = CSVModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned VLAN group',
-        error_messages={
-            'invalid_choice': 'VLAN group not found.',
-        }
+        help_text='Assigned VLAN group'
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned tenant',
-        error_messages={
-            'invalid_choice': 'Tenant not found.',
-        }
+        help_text='Assigned tenant'
     )
     status = CSVChoiceField(
         choices=VLANStatusChoices,
@@ -1095,10 +1044,7 @@ class VLANCSVForm(CustomFieldModelCSVForm):
         queryset=Role.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Functional role',
-        error_messages={
-            'invalid_choice': 'Invalid role.',
-        }
+        help_text='Functional role'
     )
 
     class Meta:
@@ -1275,19 +1221,13 @@ class ServiceCSVForm(CustomFieldModelCSVForm):
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Required if not assigned to a VM',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
+        help_text='Required if not assigned to a VM'
     )
     virtual_machine = CSVModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Required if not assigned to a device',
-        error_messages={
-            'invalid_choice': 'Virtual machine not found.',
-        }
+        help_text='Required if not assigned to a device'
     )
     protocol = CSVChoiceField(
         choices=ServiceProtocolChoices,

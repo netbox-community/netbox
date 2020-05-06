@@ -500,6 +500,10 @@ class CSVModelChoiceField(forms.ModelChoiceField):
     """
     Provides additional validation for model choices entered as CSV data.
     """
+    default_error_messages = {
+        'invalid_choice': 'Object not found.',
+    }
+
     def to_python(self, value):
         try:
             return super().to_python(value)

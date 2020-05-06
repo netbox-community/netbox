@@ -37,10 +37,7 @@ class TenantGroupCSVForm(CSVModelForm):
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent group',
-        error_messages={
-            'invalid_choice': 'Tenant group not found.',
-        }
+        help_text='Parent group'
     )
     slug = SlugField()
 
@@ -77,10 +74,7 @@ class TenantCSVForm(CustomFieldModelCSVForm):
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned group',
-        error_messages={
-            'invalid_choice': 'Group not found.'
-        }
+        help_text='Assigned group'
     )
 
     class Meta:

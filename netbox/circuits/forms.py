@@ -189,18 +189,12 @@ class CircuitCSVForm(CustomFieldModelCSVForm):
     provider = CSVModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',
-        help_text='Assigned provider',
-        error_messages={
-            'invalid_choice': 'Provider not found.'
-        }
+        help_text='Assigned provider'
     )
     type = CSVModelChoiceField(
         queryset=CircuitType.objects.all(),
         to_field_name='name',
-        help_text='Type of circuit',
-        error_messages={
-            'invalid_choice': 'Invalid circuit type.'
-        }
+        help_text='Type of circuit'
     )
     status = CSVChoiceField(
         choices=CircuitStatusChoices,
@@ -211,10 +205,7 @@ class CircuitCSVForm(CustomFieldModelCSVForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant',
-        error_messages={
-            'invalid_choice': 'Tenant not found.'
-        }
+        help_text='Assigned tenant'
     )
 
     class Meta:

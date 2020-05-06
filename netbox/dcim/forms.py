@@ -198,10 +198,7 @@ class RegionCSVForm(CSVModelForm):
         queryset=Region.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of parent region',
-        error_messages={
-            'invalid_choice': 'Region not found.',
-        }
+        help_text='Name of parent region'
     )
 
     class Meta:
@@ -277,19 +274,13 @@ class SiteCSVForm(CustomFieldModelCSVForm):
         queryset=Region.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned region',
-        error_messages={
-            'invalid_choice': 'Region not found.',
-        }
+        help_text='Assigned region'
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant',
-        error_messages={
-            'invalid_choice': 'Tenant not found.',
-        }
+        help_text='Assigned tenant'
     )
 
     class Meta:
@@ -392,10 +383,7 @@ class RackGroupCSVForm(CSVModelForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Assigned site',
-        error_messages={
-            'invalid_choice': 'Site not found.',
-        }
+        help_text='Assigned site'
     )
     parent = CSVModelChoiceField(
         queryset=RackGroup.objects.all(),
@@ -521,27 +509,18 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 class RackCSVForm(CustomFieldModelCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
-        to_field_name='name',
-        error_messages={
-            'invalid_choice': 'Site not found.',
-        }
+        to_field_name='name'
     )
     group = CSVModelChoiceField(
         queryset=RackGroup.objects.all(),
         required=False,
-        to_field_name='name',
-        error_messages={
-            'invalid_choice': 'Rack group not found.',
-        }
+        to_field_name='name'
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned tenant',
-        error_messages={
-            'invalid_choice': 'Tenant not found.',
-        }
+        help_text='Name of assigned tenant'
     )
     status = CSVChoiceField(
         choices=RackStatusChoices,
@@ -552,10 +531,7 @@ class RackCSVForm(CustomFieldModelCSVForm):
         queryset=RackRole.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned role',
-        error_messages={
-            'invalid_choice': 'Role not found.',
-        }
+        help_text='Name of assigned role'
     )
     type = CSVChoiceField(
         choices=RackTypeChoices,
@@ -804,27 +780,18 @@ class RackReservationCSVForm(CSVModelForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Parent site',
-        error_messages={
-            'invalid_choice': 'Site not found.',
-        }
+        help_text='Parent site'
     )
     rack_group = CSVModelChoiceField(
         queryset=RackGroup.objects.all(),
         to_field_name='name',
         required=False,
-        help_text="Rack's group (if any)",
-        error_messages={
-            'invalid_choice': 'Rack group not found.',
-        }
+        help_text="Rack's group (if any)"
     )
     rack = CSVModelChoiceField(
         queryset=Rack.objects.all(),
         to_field_name='name',
-        help_text='Rack',
-        error_messages={
-            'invalid_choice': 'Rack not found.',
-        }
+        help_text='Rack'
     )
     units = SimpleArrayField(
         base_field=forms.IntegerField(),
@@ -835,10 +802,7 @@ class RackReservationCSVForm(CSVModelForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant',
-        error_messages={
-            'invalid_choice': 'Tenant not found.',
-        }
+        help_text='Assigned tenant'
     )
 
     class Meta:
@@ -1680,10 +1644,7 @@ class PlatformCSVForm(CSVModelForm):
         queryset=Manufacturer.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Limit platform assignments to this manufacturer',
-        error_messages={
-            'invalid_choice': 'Manufacturer not found.',
-        }
+        help_text='Limit platform assignments to this manufacturer'
     )
 
     class Meta:
@@ -1893,44 +1854,29 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
     device_role = CSVModelChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
-        help_text='Assigned role',
-        error_messages={
-            'invalid_choice': 'Invalid device role.',
-        }
+        help_text='Assigned role'
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant',
-        error_messages={
-            'invalid_choice': 'Tenant not found.',
-        }
+        help_text='Assigned tenant'
     )
     manufacturer = CSVModelChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='name',
-        help_text='Device type manufacturer',
-        error_messages={
-            'invalid_choice': 'Manufacturer not found.',
-        }
+        help_text='Device type manufacturer'
     )
     device_type = CSVModelChoiceField(
         queryset=DeviceType.objects.all(),
         to_field_name='model',
-        help_text='Device type model',
-        error_messages={
-            'invalid_choice': 'Device type not found.',
-        }
+        help_text='Device type model'
     )
     platform = CSVModelChoiceField(
         queryset=Platform.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned platform',
-        error_messages={
-            'invalid_choice': 'Invalid platform.',
-        }
+        help_text='Assigned platform'
     )
     status = CSVChoiceField(
         choices=DeviceStatusChoices,
@@ -1940,10 +1886,7 @@ class BaseDeviceCSVForm(CustomFieldModelCSVForm):
         queryset=Cluster.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Virtualization cluster',
-        error_messages={
-            'invalid_choice': 'Invalid cluster name.',
-        }
+        help_text='Virtualization cluster'
     )
 
     class Meta:
@@ -1964,28 +1907,19 @@ class DeviceCSVForm(BaseDeviceCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Assigned site',
-        error_messages={
-            'invalid_choice': 'Site not found.',
-        }
+        help_text='Assigned site'
     )
     rack_group = CSVModelChoiceField(
         queryset=RackGroup.objects.all(),
         to_field_name='name',
         required=False,
-        help_text="Rack's group (if any)",
-        error_messages={
-            'invalid_choice': 'Rack group not found.',
-        }
+        help_text="Rack's group (if any)"
     )
     rack = CSVModelChoiceField(
         queryset=Rack.objects.all(),
         to_field_name='name',
         required=False,
-        help_text="Assigned rack",
-        error_messages={
-            'invalid_choice': 'Rack not found.',
-        }
+        help_text="Assigned rack"
     )
     face = CSVChoiceField(
         choices=DeviceFaceChoices,
@@ -2020,18 +1954,12 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
     parent = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Parent device',
-        error_messages={
-            'invalid_choice': 'Parent device not found.',
-        }
+        help_text='Parent device'
     )
     device_bay = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Device bay in which this device is installed',
-        error_messages={
-            'invalid_choice': 'Devie bay not found.',
-        }
+        help_text='Device bay in which this device is installed'
     )
 
     class Meta(BaseDeviceCSVForm.Meta):
@@ -2342,10 +2270,7 @@ class ConsolePortBulkEditForm(
 class ConsolePortCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
-        to_field_name='name',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
+        to_field_name='name'
     )
 
     class Meta:
@@ -2445,10 +2370,7 @@ class ConsoleServerPortBulkDisconnectForm(ConfirmationForm):
 class ConsoleServerPortCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
-        to_field_name='name',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
+        to_field_name='name'
     )
 
     class Meta:
@@ -2544,10 +2466,7 @@ class PowerPortBulkEditForm(
 class PowerPortCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
-        to_field_name='name',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
+        to_field_name='name'
     )
 
     class Meta:
@@ -2694,19 +2613,13 @@ class PowerOutletBulkDisconnectForm(ConfirmationForm):
 class PowerOutletCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
-        to_field_name='name',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
+        to_field_name='name'
     )
     power_port = CSVModelChoiceField(
         queryset=PowerPort.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Local power port which feeds this outlet',
-        error_messages={
-            'invalid_choice': 'Power port not found.',
-        }
+        help_text='Local power port which feeds this outlet'
     )
     feed_leg = CSVChoiceField(
         choices=PowerOutletFeedLegChoices,
@@ -3017,27 +2930,18 @@ class InterfaceCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
-        to_field_name='name',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
+        to_field_name='name'
     )
     virtual_machine = CSVModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
-        to_field_name='name',
-        error_messages={
-            'invalid_choice': 'Virtual machine not found.',
-        }
+        to_field_name='name'
     )
     lag = CSVModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Parent LAG interface',
-        error_messages={
-            'invalid_choice': 'LAG interface not found.',
-        }
+        help_text='Parent LAG interface'
     )
     type = CSVChoiceField(
         choices=InterfaceTypeChoices,
@@ -3229,18 +3133,12 @@ class FrontPortBulkDisconnectForm(ConfirmationForm):
 class FrontPortCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
-        to_field_name='name',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
+        to_field_name='name'
     )
     rear_port = CSVModelChoiceField(
         queryset=RearPort.objects.all(),
         to_field_name='name',
-        help_text='Corresponding rear port',
-        error_messages={
-            'invalid_choice': 'Rear Port not found.',
-        }
+        help_text='Corresponding rear port'
     )
     type = CSVChoiceField(
         choices=PortTypeChoices,
@@ -3370,10 +3268,7 @@ class RearPortBulkDisconnectForm(ConfirmationForm):
 class RearPortCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
-        to_field_name='name',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
+        to_field_name='name'
     )
     type = CSVChoiceField(
         help_text='Physical medium classification',
@@ -3481,10 +3376,7 @@ class DeviceBayBulkRenameForm(BulkRenameForm):
 class DeviceBayCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
-        to_field_name='name',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
+        to_field_name='name'
     )
     installed_device = CSVModelChoiceField(
         queryset=Device.objects.all(),
@@ -3774,10 +3666,7 @@ class CableCSVForm(CSVModelForm):
     side_a_device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Side A device',
-        error_messages={
-            'invalid_choice': 'Side A device not found',
-        }
+        help_text='Side A device'
     )
     side_a_type = CSVModelChoiceField(
         queryset=ContentType.objects.all(),
@@ -3793,10 +3682,7 @@ class CableCSVForm(CSVModelForm):
     side_b_device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Side B device',
-        error_messages={
-            'invalid_choice': 'Side B device not found',
-        }
+        help_text='Side B device'
     )
     side_b_type = CSVModelChoiceField(
         queryset=ContentType.objects.all(),
@@ -4126,18 +4012,12 @@ class InventoryItemCreateForm(BootstrapMixin, forms.Form):
 class InventoryItemCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
-        to_field_name='name',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
+        to_field_name='name'
     )
     manufacturer = CSVModelChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='name',
-        required=False,
-        error_messages={
-            'invalid_choice': 'Invalid manufacturer.',
-        }
+        required=False
     )
 
     class Meta:
@@ -4438,18 +4318,12 @@ class PowerPanelCSVForm(CSVModelForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Name of parent site',
-        error_messages={
-            'invalid_choice': 'Site not found.',
-        }
+        help_text='Name of parent site'
     )
     rack_group = CSVModelChoiceField(
         queryset=RackGroup.objects.all(),
         required=False,
-        to_field_name='name',
-        error_messages={
-            'invalid_choice': 'Rack group not found.',
-        }
+        to_field_name='name'
     )
 
     class Meta:
@@ -4582,36 +4456,24 @@ class PowerFeedCSVForm(CustomFieldModelCSVForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Assigned site',
-        error_messages={
-            'invalid_choice': 'Site not found.',
-        }
+        help_text='Assigned site'
     )
     power_panel = CSVModelChoiceField(
         queryset=PowerPanel.objects.all(),
         to_field_name='name',
-        help_text='Upstream power panel',
-        error_messages={
-            'invalid_choice': 'Power panel not found.',
-        }
+        help_text='Upstream power panel'
     )
     rack_group = CSVModelChoiceField(
         queryset=RackGroup.objects.all(),
         to_field_name='name',
         required=False,
-        help_text="Rack's group (if any)",
-        error_messages={
-            'invalid_choice': 'Rack group not found.',
-        }
+        help_text="Rack's group (if any)"
     )
     rack = CSVModelChoiceField(
         queryset=Rack.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Rack',
-        error_messages={
-            'invalid_choice': 'Rack not found.',
-        }
+        help_text='Rack'
     )
     status = CSVChoiceField(
         choices=PowerFeedStatusChoices,

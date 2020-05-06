@@ -98,37 +98,25 @@ class ClusterCSVForm(CustomFieldModelCSVForm):
     type = CSVModelChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='name',
-        help_text='Type of cluster',
-        error_messages={
-            'invalid_choice': 'Invalid cluster type name.',
-        }
+        help_text='Type of cluster'
     )
     group = CSVModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned cluster group',
-        error_messages={
-            'invalid_choice': 'Invalid cluster group name.',
-        }
+        help_text='Assigned cluster group'
     )
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned site',
-        error_messages={
-            'invalid_choice': 'Invalid site name.',
-        }
+        help_text='Assigned site'
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned tenant',
-        error_messages={
-            'invalid_choice': 'Invalid tenant name'
-        }
+        help_text='Assigned tenant'
     )
 
     class Meta:
@@ -404,10 +392,7 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
     cluster = CSVModelChoiceField(
         queryset=Cluster.objects.all(),
         to_field_name='name',
-        help_text='Assigned cluster',
-        error_messages={
-            'invalid_choice': 'Invalid cluster name.',
-        }
+        help_text='Assigned cluster'
     )
     role = CSVModelChoiceField(
         queryset=DeviceRole.objects.filter(
@@ -415,28 +400,19 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
         ),
         required=False,
         to_field_name='name',
-        help_text='Functional role',
-        error_messages={
-            'invalid_choice': 'Invalid role name.'
-        }
+        help_text='Functional role'
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant',
-        error_messages={
-            'invalid_choice': 'Tenant not found.'
-        }
+        help_text='Assigned tenant'
     )
     platform = CSVModelChoiceField(
         queryset=Platform.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned platform',
-        error_messages={
-            'invalid_choice': 'Invalid platform.',
-        }
+        help_text='Assigned platform'
     )
 
     class Meta:

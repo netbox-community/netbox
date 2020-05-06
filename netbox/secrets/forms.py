@@ -120,18 +120,12 @@ class SecretCSVForm(CustomFieldModelCSVForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Assigned device',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
+        help_text='Assigned device'
     )
     role = CSVModelChoiceField(
         queryset=SecretRole.objects.all(),
         to_field_name='name',
-        help_text='Assigned role',
-        error_messages={
-            'invalid_choice': 'Invalid secret role.',
-        }
+        help_text='Assigned role'
     )
     plaintext = forms.CharField(
         help_text='Plaintext secret data'
