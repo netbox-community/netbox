@@ -243,10 +243,10 @@ The maximum number of objects that can be returned is limited by the [`MAX_PAGE_
 
 ## Filtering
 
-A list of objects retrieved via the API can be filtered by passing one or more query parameters. The same parameters used by the web UI work for the API as well. For example, to return only prefixes with a status of "Active" (`1`):
+A list of objects retrieved via the API can be filtered by passing one or more query parameters. The same parameters used by the web UI work for the API as well. For example, to return only prefixes with a status of "Active":
 
 ```
-GET /api/ipam/prefixes/?status=1
+GET /api/ipam/prefixes/?status=active
 ```
 
 The choices available for fixed choice fields such as `status` can be retrieved by sending an `OPTIONS` API request for the desired endpoint:
