@@ -38,7 +38,8 @@ class Provider(ChangeLoggedModel, CustomFieldModel):
     asn = ASNField(
         blank=True,
         null=True,
-        verbose_name='ASN'
+        verbose_name='ASN',
+        help_text='32-bit autonomous system number'
     )
     account = models.CharField(
         max_length=30,
@@ -47,7 +48,7 @@ class Provider(ChangeLoggedModel, CustomFieldModel):
     )
     portal_url = models.URLField(
         blank=True,
-        verbose_name='Portal'
+        verbose_name='Portal URL'
     )
     noc_contact = models.TextField(
         blank=True,

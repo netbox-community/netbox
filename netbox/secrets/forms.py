@@ -8,8 +8,8 @@ from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
 )
 from utilities.forms import (
-    APISelect, APISelectMultiple, BootstrapMixin, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    FlexibleModelChoiceField, SlugField, StaticSelect2Multiple, TagFilterField,
+    APISelectMultiple, BootstrapMixin, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, SlugField, StaticSelect2Multiple, TagFilterField,
 )
 from .constants import *
 from .models import Secret, SecretRole, UserKey
@@ -55,15 +55,12 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class SecretRoleCSVForm(forms.ModelForm):
+class SecretRoleCSVForm(CSVModelForm):
     slug = SlugField()
 
     class Meta:
         model = SecretRole
         fields = SecretRole.csv_headers
-        help_texts = {
-            'name': 'Name of secret role',
-        }
 
 
 #
@@ -120,21 +117,15 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class SecretCSVForm(CustomFieldModelCSVForm):
-    device = FlexibleModelChoiceField(
+    device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Device name or ID',
-        error_messages={
-            'invalid_choice': 'Device not found.',
-        }
+        help_text='Assigned device'
     )
-    role = forms.ModelChoiceField(
+    role = CSVModelChoiceField(
         queryset=SecretRole.objects.all(),
         to_field_name='name',
-        help_text='Name of assigned role',
-        error_messages={
-            'invalid_choice': 'Invalid secret role.',
-        }
+        help_text='Assigned role'
     )
     plaintext = forms.CharField(
         help_text='Plaintext secret data'

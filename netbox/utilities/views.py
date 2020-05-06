@@ -575,11 +575,11 @@ class BulkImportView(GetReturnURLMixin, View):
 
     def _import_form(self, *args, **kwargs):
 
-        fields = self.model_form().fields.keys()
-        required_fields = [name for name, field in self.model_form().fields.items() if field.required]
-
         class ImportForm(BootstrapMixin, Form):
-            csv = CSVDataField(fields=fields, required_fields=required_fields, widget=Textarea(attrs=self.widget_attrs))
+            csv = CSVDataField(
+                from_form=self.model_form,
+                widget=Textarea(attrs=self.widget_attrs)
+            )
 
         return ImportForm(*args, **kwargs)
 
@@ -609,8 +609,10 @@ class BulkImportView(GetReturnURLMixin, View):
             try:
                 # Iterate through CSV data and bind each row to a new model form instance.
                 with transaction.atomic():
-                    for row, data in enumerate(form.cleaned_data['csv'], start=1):
-                        obj_form = self.model_form(data)
+                    headers, records = form.cleaned_data['csv']
+                    for row, data in enumerate(records, start=1):
+                        obj_form = self.model_form(data, headers=headers)
+
                         if obj_form.is_valid():
                             obj = self._save_obj(obj_form, request)
                             new_objs.append(obj)

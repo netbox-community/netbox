@@ -50,7 +50,8 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
         unique=True,
         blank=True,
         null=True,
-        verbose_name='Route distinguisher'
+        verbose_name='Route distinguisher',
+        help_text='Unique route distinguisher (as defined in RFC 4364)'
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -364,7 +365,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
+        'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan', 'status', 'role', 'is_pool', 'description',
     ]
     clone_fields = [
         'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
@@ -635,7 +636,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface_name', 'is_primary',
+        'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface', 'is_primary',
         'dns_name', 'description',
     ]
     clone_fields = [
@@ -925,7 +926,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
+    csv_headers = ['site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description']
     clone_fields = [
         'site', 'group', 'tenant', 'status', 'role', 'description',
     ]
@@ -1017,7 +1018,10 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         choices=ServiceProtocolChoices
     )
     port = models.PositiveIntegerField(
-        validators=[MinValueValidator(SERVICE_PORT_MIN), MaxValueValidator(SERVICE_PORT_MAX)],
+        validators=[
+            MinValueValidator(SERVICE_PORT_MIN),
+            MaxValueValidator(SERVICE_PORT_MAX)
+        ],
         verbose_name='Port number'
     )
     ipaddresses = models.ManyToManyField(

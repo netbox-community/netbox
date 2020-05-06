@@ -2,11 +2,11 @@ from django import forms
 from taggit.forms import TagField
 
 from extras.forms import (
-    AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm,
+    AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelCSVForm,
 )
 from utilities.forms import (
-    APISelect, APISelectMultiple, BootstrapMixin, CommentField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, SlugField, TagFilterField,
+    APISelect, APISelectMultiple, BootstrapMixin, CommentField, CSVModelChoiceField, CSVModelForm,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField, TagFilterField,
 )
 from .models import Tenant, TenantGroup
 
@@ -32,24 +32,18 @@ class TenantGroupForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class TenantGroupCSVForm(forms.ModelForm):
-    parent = forms.ModelChoiceField(
+class TenantGroupCSVForm(CSVModelForm):
+    parent = CSVModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of parent tenant group',
-        error_messages={
-            'invalid_choice': 'Tenant group not found.',
-        }
+        help_text='Parent group'
     )
     slug = SlugField()
 
     class Meta:
         model = TenantGroup
         fields = TenantGroup.csv_headers
-        help_texts = {
-            'name': 'Group name',
-        }
 
 
 #
@@ -74,25 +68,18 @@ class TenantForm(BootstrapMixin, CustomFieldModelForm):
         )
 
 
-class TenantCSVForm(CustomFieldModelForm):
+class TenantCSVForm(CustomFieldModelCSVForm):
     slug = SlugField()
-    group = forms.ModelChoiceField(
+    group = CSVModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of parent group',
-        error_messages={
-            'invalid_choice': 'Group not found.'
-        }
+        help_text='Assigned group'
     )
 
     class Meta:
         model = Tenant
         fields = Tenant.csv_headers
-        help_texts = {
-            'name': 'Tenant name',
-            'comments': 'Free-form comments'
-        }
 
 
 class TenantBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
