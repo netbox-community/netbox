@@ -3659,6 +3659,11 @@ class CableForm(BootstrapMixin, forms.ModelForm):
             'type': StaticSelect2,
             'length_unit': StaticSelect2,
         }
+        error_messages = {
+            'length': {
+                'max_value': 'Maximum length is 32767 (any unit)'
+            }
+        }
 
 
 class CableCSVForm(CSVModelForm):
