@@ -5,6 +5,7 @@ v2.8.4 (FUTURE)
 ### Bug Fixes
 
 * [#4598](https://github.com/netbox-community/netbox/issues/4598) - Display error message when invalid cable length is specified
+* [#4604](https://github.com/netbox-community/netbox/issues/4604) - Multi-position rear ports may only be connected to other rear ports
 
 ---
 
