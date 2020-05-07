@@ -501,9 +501,12 @@ class CablePathTestCase(TestCase):
             Device(device_type=devicetype, device_role=devicerole, name='Panel 2', site=site),
             Device(device_type=devicetype, device_role=devicerole, name='Panel 3', site=site),
             Device(device_type=devicetype, device_role=devicerole, name='Panel 4', site=site),
+            Device(device_type=devicetype, device_role=devicerole, name='Panel 5', site=site),
         )
         Device.objects.bulk_create(patch_panels)
-        for patch_panel in patch_panels:
+
+        # Create patch panels with 4 positions
+        for patch_panel in patch_panels[:4]:
             rearport = RearPort.objects.create(device=patch_panel, name='Rear Port 1', positions=4, type=PortTypeChoices.TYPE_8P8C)
             FrontPort.objects.bulk_create((
                 FrontPort(device=patch_panel, name='Front Port 1', rear_port=rearport, rear_port_position=1, type=PortTypeChoices.TYPE_8P8C),
@@ -513,9 +516,9 @@ class CablePathTestCase(TestCase):
             ))
 
         # Create a 1-on-1 patch panel
-        patch_panel = Device.objects.create(device_type=devicetype, device_role=devicerole, name='Panel 5', site=site)
-        rearport = RearPort.objects.create(device=patch_panel, name='Rear Port 1', positions=1, type=PortTypeChoices.TYPE_8P8C)
-        FrontPort.objects.create(device=patch_panel, name='Front Port 1', rear_port=rearport, rear_port_position=1, type=PortTypeChoices.TYPE_8P8C)
+        for patch_panel in patch_panels[4:]:
+            rearport = RearPort.objects.create(device=patch_panel, name='Rear Port 1', positions=1, type=PortTypeChoices.TYPE_8P8C)
+            FrontPort.objects.create(device=patch_panel, name='Front Port 1', rear_port=rearport, rear_port_position=1, type=PortTypeChoices.TYPE_8P8C)
 
     def test_direct_connection(self):
         """
