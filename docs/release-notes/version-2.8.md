@@ -1,5 +1,13 @@
 # NetBox v2.8
 
+## v2.8.3 (2020-05-06)
+
+### Bug Fixes
+
+* [#4593](https://github.com/netbox-community/netbox/issues/4593) - Fix AttributeError exception when viewing object lists as a non-authenticated user
+
+---
+
 ## v2.8.2 (2020-05-06)
 
 ### Enhancements
