@@ -562,6 +562,51 @@ class CablePathTestCase(TestCase):
         Test a connection which passes through a single front/rear port pair.
 
                      1               2
+        [Device 1] ----- [Panel 1] ----- [Device 2]
+             Iface1     FP1     RP1     Iface1
+
+        TODO: Panel 1's rear port has multiple front ports. Should this even work?
+        """
+        # Create cables (FP first, RP second)
+        cable1 = Cable(
+            termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
+            termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
+        )
+        cable1.save()
+        cable2 = Cable(
+            termination_b=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
+            termination_a=Interface.objects.get(device__name='Device 2', name='Interface 1')
+        )
+        cable2.save()
+
+        # Retrieve endpoints
+        endpoint_a = Interface.objects.get(device__name='Device 1', name='Interface 1')
+        endpoint_b = Interface.objects.get(device__name='Device 2', name='Interface 1')
+
+        # Validate connections
+        self.assertEqual(endpoint_a.connected_endpoint, endpoint_b)
+        self.assertEqual(endpoint_b.connected_endpoint, endpoint_a)
+        self.assertTrue(endpoint_a.connection_status)
+        self.assertTrue(endpoint_b.connection_status)
+
+        # Delete cable 1
+        cable1.delete()
+
+        # Refresh endpoints
+        endpoint_a.refresh_from_db()
+        endpoint_b.refresh_from_db()
+
+        # Check that connections have been nullified
+        self.assertIsNone(endpoint_a.connected_endpoint)
+        self.assertIsNone(endpoint_b.connected_endpoint)
+        self.assertIsNone(endpoint_a.connection_status)
+        self.assertIsNone(endpoint_b.connection_status)
+
+    def test_connection_via_one_on_one_port(self):
+        """
+        Test a connection which passes through a rear port with exactly one front port.
+
+                     1               2
         [Device 1] ----- [Panel 5] ----- [Device 2]
              Iface1     FP1     RP1     Iface1
         """
@@ -630,7 +675,7 @@ class CablePathTestCase(TestCase):
         self.assertIsNone(endpoint_a.connection_status)
         self.assertIsNone(endpoint_b.connection_status)
 
-    def test_connection_via_nested_single_rear_port(self):
+    def test_connection_via_nested_one_on_one_port(self):
         """
         Test a connection which passes through a single front/rear port pair between two multi-port MUXes.
 
