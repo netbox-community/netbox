@@ -43,10 +43,7 @@ class CustomFieldModel(models.Model):
         """
         Return a dictionary of custom fields for a single object in the form {<field>: value}.
         """
-
-        # Find all custom fields applicable to this type of object
-        content_type = ContentType.objects.get_for_model(self)
-        fields = CustomField.objects.filter(obj_type=content_type)
+        fields = CustomField.objects.get_for_model(self)
 
         # If the object exists, populate its custom fields with values
         if hasattr(self, 'pk'):
@@ -55,6 +52,37 @@ class CustomFieldModel(models.Model):
             return OrderedDict([(field, values_dict.get(field.pk)) for field in fields])
         else:
             return OrderedDict([(field, None) for field in fields])
+
+
+class CustomFieldManager(models.Manager):
+    use_in_migrations = True
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Initialize a cache for fetched CustomFields
+        self._cache = {}
+
+    def get_for_model(self, model):
+        """
+        Return all CustomFields assigned to the given model.
+        """
+        model = model._meta.concrete_model
+
+        # First try to return from cache
+        try:
+            return self._cache[model]
+        except KeyError:
+            pass
+
+        # Fetch from the database if the model's CustomFields have not been cached
+        content_type = ContentType.objects.get_for_model(model)
+        customfields = CustomField.objects.filter(obj_type=content_type)
+
+        # Cache the retrieved CustomFields
+        self._cache[model] = customfields
+
+        return customfields
 
 
 class CustomField(models.Model):
@@ -105,6 +133,8 @@ class CustomField(models.Model):
         default=100,
         help_text='Fields with higher weights appear lower in a form.'
     )
+
+    objects = CustomFieldManager()
 
     class Meta:
         ordering = ['weight', 'name']
