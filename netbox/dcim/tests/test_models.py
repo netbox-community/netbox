@@ -601,6 +601,10 @@ class CablePathTestCase(TestCase):
         self.assertIsNone(endpoint_b.connection_status)
 
         # Recreate cable 1 to test creating the cables in reverse order (RP first, FP second)
+        cable1 = Cable(
+            termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
+            termination_b=FrontPort.objects.get(device__name='Panel 5', name='Front Port 1')
+        )
         cable1.save()
 
         # Refresh endpoints
@@ -712,6 +716,10 @@ class CablePathTestCase(TestCase):
         self.assertIsNone(endpoint_d.connection_status)
 
         # Recreate cable 3 to test reverse order (Panel 5 FP first, RP second)
+        cable3 = Cable(
+            termination_b=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
+            termination_a=RearPort.objects.get(device__name='Panel 5', name='Rear Port 1')
+        )
         cable3.save()
 
         # Refresh endpoints
