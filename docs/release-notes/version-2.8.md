@@ -1,6 +1,6 @@
 # NetBox v2.8
 
-## v2.8.3 (FUTURE)
+## v2.8.3 (2020-05-06)
 
 ### Bug Fixes
 
