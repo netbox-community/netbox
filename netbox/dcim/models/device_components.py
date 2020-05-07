@@ -115,26 +115,32 @@ class CableTermination(models.Model):
 
             # Map a front port to its corresponding rear port
             if isinstance(termination, FrontPort):
-                position_stack.append(termination.rear_port_position)
                 # Retrieve the corresponding RearPort from database to ensure we have an up-to-date instance
                 peer_port = RearPort.objects.get(pk=termination.rear_port.pk)
+
+                # Don't use the stack for 1-on-1 ports, they don't have to come in pairs
+                if peer_port.positions > 1:
+                    position_stack.append(termination.rear_port_position)
+
                 return peer_port
 
             # Map a rear port/position to its corresponding front port
             elif isinstance(termination, RearPort):
+                if termination.positions > 1:
+                    # Can't map to a FrontPort without a position if there are multiple options
+                    if not position_stack:
+                        raise CableTraceSplit(termination)
 
-                # Can't map to a FrontPort without a position if there are multiple options
-                if termination.positions > 1 and not position_stack:
-                    raise CableTraceSplit(termination)
+                    position = position_stack.pop()
 
-                # We can assume position 1 if the RearPort has only one position
-                position = position_stack.pop() if position_stack else 1
-
-                # Validate the position
-                if position not in range(1, termination.positions + 1):
-                    raise Exception("Invalid position for {} ({} positions): {})".format(
-                        termination, termination.positions, position
-                    ))
+                    # Validate the position
+                    if position not in range(1, termination.positions + 1):
+                        raise Exception("Invalid position for {} ({} positions): {})".format(
+                            termination, termination.positions, position
+                        ))
+                else:
+                    # Don't use the stack for 1-on-1 ports, they don't have to come in pairs
+                    position = 1
 
                 try:
                     peer_port = FrontPort.objects.get(
