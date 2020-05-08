@@ -1,3 +1,4 @@
+import logging
 from collections import OrderedDict
 from datetime import date
 
@@ -57,30 +58,15 @@ class CustomFieldModel(models.Model):
 class CustomFieldManager(models.Manager):
     use_in_migrations = True
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Initialize a cache for fetched CustomFields
-        self._cache = {}
-
     def get_for_model(self, model):
         """
         Return all CustomFields assigned to the given model.
         """
         model = model._meta.concrete_model
 
-        # First try to return from cache
-        try:
-            return self._cache[model]
-        except KeyError:
-            pass
-
         # Fetch from the database if the model's CustomFields have not been cached
         content_type = ContentType.objects.get_for_model(model)
         customfields = CustomField.objects.filter(obj_type=content_type)
-
-        # Cache the retrieved CustomFields
-        self._cache[model] = customfields
 
         return customfields
 
