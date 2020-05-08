@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as UserAdmin_
 from django.contrib.auth.models import User
 
-from .models import Token, UserConfig
+from .models import ObjectPermission, Token, UserConfig
 
 # Unregister the built-in UserAdmin so that we can use our custom admin view below
 admin.site.unregister(User)
@@ -42,4 +42,11 @@ class TokenAdmin(admin.ModelAdmin):
     form = TokenAdminForm
     list_display = [
         'key', 'user', 'created', 'expires', 'write_enabled', 'description'
+    ]
+
+
+@admin.register(ObjectPermission)
+class ObjectPermissionAdmin(admin.ModelAdmin):
+    list_display = [
+        'model', 'can_view', 'can_add', 'can_change', 'can_delete'
     ]

@@ -1,8 +1,10 @@
 import binascii
 import os
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
+from django.core.exceptions import FieldError, ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.db.models.signals import post_save
@@ -190,3 +192,54 @@ class Token(models.Model):
         if self.expires is None or timezone.now() < self.expires:
             return False
         return True
+
+
+class ObjectPermission(models.Model):
+    """
+    A mapping of view, add, change, and/or delete permission for users and/or groups to an arbitrary set of objects
+    identified by ORM query parameters.
+    """
+    users = models.ManyToManyField(
+        to=User,
+        blank=True,
+        related_name='object_permissions'
+    )
+    groups = models.ManyToManyField(
+        to=Group,
+        blank=True,
+        related_name='object_permissions'
+    )
+    model = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE
+    )
+    attrs = JSONField(
+        verbose_name='Attributes'
+    )
+    can_view = models.BooleanField(
+        default=False
+    )
+    can_add = models.BooleanField(
+        default=False
+    )
+    can_change = models.BooleanField(
+        default=False
+    )
+    can_delete = models.BooleanField(
+        default=False
+    )
+
+    class Meta:
+        unique_together = ('model', 'attrs')
+
+    def clean(self):
+
+        # Validate the specified model attributes by attempting to execute a query. We don't care whether the query
+        # returns anything; we just want to make sure the specified attributes are valid.
+        model = self.model.model_class()
+        try:
+            model.objects.filter(**self.attrs).exists()
+        except FieldError as e:
+            raise ValidationError({
+                'attrs': f'Invalid attributes for {model}: {e}'
+            })

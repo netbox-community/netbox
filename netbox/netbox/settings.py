@@ -335,6 +335,7 @@ TEMPLATES = [
 AUTHENTICATION_BACKENDS = [
     REMOTE_AUTH_BACKEND,
     'utilities.auth_backends.ViewExemptModelBackend',
+    'utilities.auth_backends.ObjectPermissionBackend',
 ]
 
 # Internationalization
