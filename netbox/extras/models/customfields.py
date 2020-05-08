@@ -62,13 +62,8 @@ class CustomFieldManager(models.Manager):
         """
         Return all CustomFields assigned to the given model.
         """
-        model = model._meta.concrete_model
-
-        # Fetch from the database if the model's CustomFields have not been cached
-        content_type = ContentType.objects.get_for_model(model)
-        customfields = CustomField.objects.filter(obj_type=content_type)
-
-        return customfields
+        content_type = ContentType.objects.get_for_model(model._meta.concrete_model)
+        return self.get_queryset().filter(obj_type=content_type)
 
 
 class CustomField(models.Model):

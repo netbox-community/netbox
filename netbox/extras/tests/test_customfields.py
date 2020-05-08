@@ -99,6 +99,19 @@ class CustomFieldTest(TestCase):
         cf.delete()
 
 
+class CustomFieldManagerTest(TestCase):
+
+    def setUp(self):
+        content_type = ContentType.objects.get_for_model(Site)
+        custom_field = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='text_field', default='foo')
+        custom_field.save()
+        custom_field.obj_type.set([content_type])
+
+    def test_get_for_model(self):
+        self.assertEqual(CustomField.objects.get_for_model(Site).count(), 1)
+        self.assertEqual(CustomField.objects.get_for_model(VirtualMachine).count(), 0)
+
+
 class CustomFieldAPITest(APITestCase):
 
     @classmethod
