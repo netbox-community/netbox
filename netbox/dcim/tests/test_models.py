@@ -572,11 +572,13 @@ class CablePathTestCase(TestCase):
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
         )
+        cable1.full_clean()
         cable1.save()
         cable2 = Cable(
             termination_b=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
             termination_a=Interface.objects.get(device__name='Device 2', name='Interface 1')
         )
+        cable2.full_clean()
         cable2.save()
 
         # Retrieve endpoints
@@ -615,11 +617,13 @@ class CablePathTestCase(TestCase):
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 5', name='Front Port 1')
         )
+        cable1.full_clean()
         cable1.save()
         cable2 = Cable(
             termination_b=RearPort.objects.get(device__name='Panel 5', name='Rear Port 1'),
             termination_a=Interface.objects.get(device__name='Device 2', name='Interface 1')
         )
+        cable2.full_clean()
         cable2.save()
 
         # Retrieve endpoints
@@ -650,6 +654,7 @@ class CablePathTestCase(TestCase):
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 5', name='Front Port 1')
         )
+        cable1.full_clean()
         cable1.save()
 
         # Refresh endpoints
@@ -698,31 +703,37 @@ class CablePathTestCase(TestCase):
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
         )
+        cable1.full_clean()
         cable1.save()
         cable2 = Cable(
             termination_b=FrontPort.objects.get(device__name='Panel 2', name='Front Port 1'),
             termination_a=Interface.objects.get(device__name='Device 2', name='Interface 1')
         )
+        cable2.full_clean()
         cable2.save()
         cable3 = Cable(
             termination_b=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
             termination_a=RearPort.objects.get(device__name='Panel 5', name='Rear Port 1')
         )
+        cable3.full_clean()
         cable3.save()
         cable4 = Cable(
             termination_b=FrontPort.objects.get(device__name='Panel 5', name='Front Port 1'),
             termination_a=RearPort.objects.get(device__name='Panel 2', name='Rear Port 1')
         )
+        cable4.full_clean()
         cable4.save()
         cable5 = Cable(
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 2'),
             termination_a=Interface.objects.get(device__name='Device 3', name='Interface 1')
         )
+        cable5.full_clean()
         cable5.save()
         cable6 = Cable(
             termination_b=FrontPort.objects.get(device__name='Panel 2', name='Front Port 2'),
             termination_a=Interface.objects.get(device__name='Device 4', name='Interface 1')
         )
+        cable6.full_clean()
         cable6.save()
 
         # Retrieve endpoints
@@ -765,6 +776,7 @@ class CablePathTestCase(TestCase):
             termination_b=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
             termination_a=RearPort.objects.get(device__name='Panel 5', name='Rear Port 1')
         )
+        cable3.full_clean()
         cable3.save()
 
         # Refresh endpoints
@@ -823,28 +835,33 @@ class CablePathTestCase(TestCase):
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
         )
+        cable1.full_clean()
         cable1.save()
         cable2 = Cable(
             termination_a=Interface.objects.get(device__name='Device 2', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 2', name='Front Port 1')
         )
+        cable2.full_clean()
         cable2.save()
 
         cable3 = Cable(
             termination_a=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
             termination_b=RearPort.objects.get(device__name='Panel 2', name='Rear Port 1')
         )
+        cable3.full_clean()
         cable3.save()
 
         cable4 = Cable(
             termination_a=Interface.objects.get(device__name='Device 3', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 2')
         )
+        cable4.full_clean()
         cable4.save()
         cable5 = Cable(
             termination_a=Interface.objects.get(device__name='Device 4', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 2', name='Front Port 2')
         )
+        cable5.full_clean()
         cable5.save()
 
         # Retrieve endpoints
@@ -903,43 +920,51 @@ class CablePathTestCase(TestCase):
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
         )
+        cable1.full_clean()
         cable1.save()
         cable2 = Cable(
             termination_a=FrontPort.objects.get(device__name='Panel 2', name='Front Port 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 3', name='Front Port 1')
         )
+        cable2.full_clean()
         cable2.save()
         cable3 = Cable(
             termination_a=FrontPort.objects.get(device__name='Panel 4', name='Front Port 1'),
             termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
         )
+        cable3.full_clean()
         cable3.save()
 
         cable4 = Cable(
             termination_a=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
             termination_b=RearPort.objects.get(device__name='Panel 2', name='Rear Port 1')
         )
+        cable4.full_clean()
         cable4.save()
         cable5 = Cable(
             termination_a=RearPort.objects.get(device__name='Panel 3', name='Rear Port 1'),
             termination_b=RearPort.objects.get(device__name='Panel 4', name='Rear Port 1')
         )
+        cable5.full_clean()
         cable5.save()
 
         cable6 = Cable(
             termination_a=Interface.objects.get(device__name='Device 3', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 2')
         )
+        cable6.full_clean()
         cable6.save()
         cable7 = Cable(
             termination_a=FrontPort.objects.get(device__name='Panel 2', name='Front Port 2'),
             termination_b=FrontPort.objects.get(device__name='Panel 3', name='Front Port 2')
         )
+        cable7.full_clean()
         cable7.save()
         cable8 = Cable(
             termination_a=FrontPort.objects.get(device__name='Panel 4', name='Front Port 2'),
             termination_b=Interface.objects.get(device__name='Device 4', name='Interface 1')
         )
+        cable8.full_clean()
         cable8.save()
 
         # Retrieve endpoints
@@ -999,38 +1024,45 @@ class CablePathTestCase(TestCase):
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
         )
+        cable1.full_clean()
         cable1.save()
         cable2 = Cable(
             termination_a=FrontPort.objects.get(device__name='Panel 4', name='Front Port 1'),
             termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
         )
+        cable2.full_clean()
         cable2.save()
 
         cable3 = Cable(
             termination_a=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 2', name='Front Port 1')
         )
+        cable3.full_clean()
         cable3.save()
         cable4 = Cable(
             termination_a=RearPort.objects.get(device__name='Panel 2', name='Rear Port 1'),
             termination_b=RearPort.objects.get(device__name='Panel 3', name='Rear Port 1')
         )
+        cable4.full_clean()
         cable4.save()
         cable5 = Cable(
             termination_a=FrontPort.objects.get(device__name='Panel 3', name='Front Port 1'),
             termination_b=RearPort.objects.get(device__name='Panel 4', name='Rear Port 1')
         )
+        cable5.full_clean()
         cable5.save()
 
         cable6 = Cable(
             termination_a=Interface.objects.get(device__name='Device 3', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 2')
         )
+        cable6.full_clean()
         cable6.save()
         cable7 = Cable(
             termination_a=FrontPort.objects.get(device__name='Panel 4', name='Front Port 2'),
             termination_b=Interface.objects.get(device__name='Device 4', name='Interface 1')
         )
+        cable7.full_clean()
         cable7.save()
 
         # Retrieve endpoints
@@ -1080,11 +1112,13 @@ class CablePathTestCase(TestCase):
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
             termination_b=CircuitTermination.objects.get(term_side='A')
         )
+        cable1.full_clean()
         cable1.save()
         cable2 = Cable(
             termination_a=CircuitTermination.objects.get(term_side='Z'),
             termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
         )
+        cable2.full_clean()
         cable2.save()
 
         # Retrieve endpoints
@@ -1122,21 +1156,25 @@ class CablePathTestCase(TestCase):
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
         )
+        cable1.full_clean()
         cable1.save()
         cable2 = Cable(
             termination_a=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
             termination_b=CircuitTermination.objects.get(term_side='A')
         )
+        cable2.full_clean()
         cable2.save()
         cable3 = Cable(
             termination_a=CircuitTermination.objects.get(term_side='Z'),
             termination_b=RearPort.objects.get(device__name='Panel 2', name='Rear Port 1')
         )
+        cable3.full_clean()
         cable3.save()
         cable4 = Cable(
             termination_a=FrontPort.objects.get(device__name='Panel 2', name='Front Port 1'),
             termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
         )
+        cable4.full_clean()
         cable4.save()
 
         # Retrieve endpoints
