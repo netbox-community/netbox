@@ -148,7 +148,7 @@ class VRFEditView(VRFCreateView):
 
 class VRFDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_vrf'
-    model = VRF
+    queryset = VRF.objects.all()
     default_return_url = 'ipam:vrf_list'
 
 
@@ -373,7 +373,7 @@ class AggregateEditView(AggregateCreateView):
 
 class AggregateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_aggregate'
-    model = Aggregate
+    queryset = Aggregate.objects.all()
     default_return_url = 'ipam:aggregate_list'
 
 
@@ -600,7 +600,7 @@ class PrefixEditView(PrefixCreateView):
 
 class PrefixDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_prefix'
-    model = Prefix
+    queryset = Prefix.objects.all()
     template_name = 'ipam/prefix_delete.html'
     default_return_url = 'ipam:prefix_list'
 
@@ -766,7 +766,7 @@ class IPAddressAssignView(PermissionRequiredMixin, View):
 
 class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_ipaddress'
-    model = IPAddress
+    queryset = IPAddress.objects.all()
     default_return_url = 'ipam:ipaddress_list'
 
 
@@ -945,7 +945,7 @@ class VLANEditView(VLANCreateView):
 
 class VLANDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_vlan'
-    model = VLAN
+    queryset = VLAN.objects.all()
     default_return_url = 'ipam:vlan_list'
 
 
@@ -1028,7 +1028,7 @@ class ServiceEditView(ServiceCreateView):
 
 class ServiceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_service'
-    model = Service
+    queryset = Service.objects.all()
 
 
 class ServiceBulkEditView(PermissionRequiredMixin, BulkEditView):

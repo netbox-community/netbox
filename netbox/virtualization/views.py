@@ -132,7 +132,7 @@ class ClusterEditView(ClusterCreateView):
 
 class ClusterDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'virtualization.delete_cluster'
-    model = Cluster
+    queryset = Cluster.objects.all()
     default_return_url = 'virtualization:cluster_list'
 
 
@@ -293,7 +293,7 @@ class VirtualMachineEditView(VirtualMachineCreateView):
 
 class VirtualMachineDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'virtualization.delete_virtualmachine'
-    model = VirtualMachine
+    queryset = VirtualMachine.objects.all()
     default_return_url = 'virtualization:virtualmachine_list'
 
 
@@ -342,7 +342,7 @@ class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
 
 class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_interface'
-    model = Interface
+    queryset = Interface.objects.all()
 
 
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):

@@ -74,7 +74,7 @@ class ProviderEditView(ProviderCreateView):
 
 class ProviderDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'circuits.delete_provider'
-    model = Provider
+    queryset = Provider.objects.all()
     default_return_url = 'circuits:provider_list'
 
 
@@ -190,7 +190,7 @@ class CircuitEditView(CircuitCreateView):
 
 class CircuitDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'circuits.delete_circuit'
-    model = Circuit
+    queryset = Circuit.objects.all()
     default_return_url = 'circuits:circuit_list'
 
 
@@ -292,4 +292,4 @@ class CircuitTerminationEditView(CircuitTerminationCreateView):
 
 class CircuitTerminationDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'circuits.delete_circuittermination'
-    model = CircuitTermination
+    queryset = CircuitTermination.objects.all()

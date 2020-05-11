@@ -191,7 +191,7 @@ def secret_edit(request, pk):
 
 class SecretDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'secrets.delete_secret'
-    model = Secret
+    queryset = Secret.objects.all()
     default_return_url = 'secrets:secret_list'
 
 
