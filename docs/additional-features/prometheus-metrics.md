@@ -32,3 +32,7 @@ This can be setup by first creating a shared directory and then adding this line
 ```
 environment=prometheus_multiproc_dir=/tmp/prometheus_metrics
 ```
+
+#### Accuracy
+
+If having long-term-accurate metrics in a multiprocess environment is important to you then it's recommended you use the `uwsgi` library instead of `gunicorn`. The issue lies in the way `gunicorn` tracks worker processes (vs `uwsgi`) which helps manage the metrics files created by the above configurations. If you're using Netbox w/ `gunicorn` in a containerized enviroment following the 1-process-per-container methodology, then you will likely not need to change to `uwsgi`. More details can be found in [this issue](https://github.com/netbox-community/netbox/issues/3779#issuecomment-590547562).
