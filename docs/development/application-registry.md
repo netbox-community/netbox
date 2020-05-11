@@ -53,3 +53,27 @@ Plugin content that gets embedded into core NetBox templates. The store comprise
     ],
 }
 ```
+
+### `plugin_reports`
+
+[Reports](../additional-features/reports.md) provided by plugins. Each plugin report module is registered as a key with the list of reports it provides as its value. An example:
+
+```python
+{
+    'plugin_a.reports.first': [<Report>, <Report>],
+    'plugin_a.reports.second': [<Report>],
+    'plugin_b.reports': [<Report>, <Report>, <Report>],
+}
+```
+
+### `plugin_scripts`
+
+[Custom scripts](../additional-features/custom-scripts.md) provided by plugins. Each plugin script module is registered as a key with the list of scripts it provides. An example:
+
+```python
+{
+    "plugin_a.scripts": [<Script>, <Script>, <Script>],
+    "plugin_b.scripts.script_1": [<Script>],
+    "plugin_b.scripts.script_2": [<Script>, <Script>],
+}
+```

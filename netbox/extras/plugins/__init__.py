@@ -15,6 +15,8 @@ from utilities.choices import ButtonColorChoices
 # Initialize plugin registry stores
 registry['plugin_template_extensions'] = collections.defaultdict(list)
 registry['plugin_menu_items'] = {}
+registry['plugin_reports'] = collections.defaultdict(list)
+registry['plugin_scripts'] = collections.defaultdict(list)
 
 
 #
@@ -56,6 +58,8 @@ class PluginConfig(AppConfig):
     # integrated components.
     template_extensions = 'template_content.template_extensions'
     menu_items = 'navigation.menu_items'
+    reports = 'reports.reports'
+    scripts = 'scripts.scripts'
 
     def ready(self):
 
@@ -70,6 +74,20 @@ class PluginConfig(AppConfig):
         try:
             menu_items = import_string(f"{self.__module__}.{self.menu_items}")
             register_menu_items(self.verbose_name, menu_items)
+        except ImportError:
+            pass
+
+        # Register reports (if any)
+        try:
+            reports = import_string(f"{self.__module__}.{self.reports}")
+            register_reports(reports)
+        except ImportError:
+            pass
+
+        # Register scripts (if any)
+        try:
+            scripts = import_string(f"{self.__module__}.{self.scripts}")
+            register_scripts(scripts)
         except ImportError:
             pass
 
@@ -248,3 +266,29 @@ def register_menu_items(section_name, class_list):
                 raise TypeError(f"{button} must be an instance of extras.plugins.PluginMenuButton")
 
     registry['plugin_menu_items'][section_name] = class_list
+
+
+def register_reports(report_list):
+    """
+    Register a list of Report classes for a given plugin.
+    """
+    from extras.reports import Report
+
+    for report in report_list:
+        if not issubclass(report, Report):
+            raise TypeError(f"{report} must be a subclass of extras.reports.Report")
+
+        registry['plugin_reports'][report.__module__].append(report)
+
+
+def register_scripts(script_list):
+    """
+    Register a list of Script classes for a given plugin.
+    """
+    from extras.scripts import Script
+
+    for script in script_list:
+        if not issubclass(script, Script):
+            raise TypeError(f"{script} must be a subclass of extras.scripts.Script")
+
+        registry['plugin_scripts'][script.__module__].append(script)

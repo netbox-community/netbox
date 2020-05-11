@@ -74,6 +74,22 @@ class PluginTest(TestCase):
 
         self.assertIn(SiteContent, registry['plugin_template_extensions']['dcim.site'])
 
+    def test_reports(self):
+        """
+        Check that plugin Reports are registered.
+        """
+        from extras.tests.dummy_plugin.reports import PluginReport
+
+        self.assertIn(PluginReport, registry['plugin_reports']['extras.tests.dummy_plugin.reports'])
+
+    def test_scripts(self):
+        """
+        Check that plugin Scripts are registered.
+        """
+        from extras.tests.dummy_plugin.scripts import PluginScript
+
+        self.assertIn(PluginScript, registry['plugin_scripts']['extras.tests.dummy_plugin.scripts'])
+
     def test_middleware(self):
         """
         Check that plugin middleware is registered.

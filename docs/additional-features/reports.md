@@ -37,6 +37,8 @@ from dcim.constants import CONNECTION_STATUS_PLANNED
 from dcim.models import ConsolePort, Device, PowerPort
 from extras.reports import Report
 
+name = "Device Connections Report"
+
 
 class DeviceConnectionsReport(Report):
     description = "Validate the minimum physical connections for each device"

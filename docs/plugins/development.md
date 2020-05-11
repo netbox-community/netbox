@@ -9,6 +9,8 @@ Plugins can do a lot, including:
 * Inject template content and navigation links
 * Establish their own REST API endpoints
 * Add custom request/response middleware
+* Provide [reports](../additional-features/reports.md)
+* Provide [custom scripts](../additional-features/custom-scripts.md)
 
 However, keep in mind that each piece of functionality is entirely optional. For example, if your plugin merely adds a piece of middleware or an API endpoint for existing data, there's no need to define any new models.
 
@@ -27,6 +29,8 @@ plugin_name/
     - __init__.py
     - middleware.py
     - navigation.py
+    - reports.py
+    - scripts.py
     - signals.py
     - template_content.py
     - urls.py
@@ -109,6 +113,8 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `caching_config` | Plugin-specific cache configuration
 | `template_extensions` | The dotted path to the list of template extension classes (default: `template_content.template_extensions`) |
 | `menu_items` | The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`) |
+| `reports` | The dotted path to the list of reports provided by the plugin (default: `reports.reports`) |
+| `scripts` | The dotted path to the list of scripts provided by the plugin (default: `scripts.scripts`) |
 
 ### Install the Plugin for Development
 
@@ -361,6 +367,59 @@ class SiteAnimalCount(PluginTemplateExtension):
         })
 
 template_extensions = [SiteAnimalCount]
+```
+
+## Reports
+
+Plugins can package [reports](../additional-features/reports.md).
+
+All reports (i.e., subclasses of `extras.reports.Report`) should be gathered into a list or tuple for integration with NetBox. By default, NetBox looks for an iterable named `reports` within a `reports.py` file or `reports` Python module. (This can be overridden by setting `reports` to a custom value on the plugin's PluginConfig.) An example is below.
+
+```python
+from extras.reports import *
+from .models import Animal
+
+name = "Animal-related reports"
+
+class AnimalReport(Report):
+    description = "Validate that every animal has a sound"
+
+    def test_sound(self):
+        for animal in Animal.objects.all():
+            if animal.sound:
+                self.log_success(animal, f"The {animal.name} says {animal.sound}")
+            else:
+                self.log_failure(animal, f"The {animal.name} makes no sound!")
+
+reports = [AnimalReport]
+```
+
+## Scripts
+
+Plugins can package [custom scripts](../additional-features/custom-scripts.md) as well.
+
+All script objects (i.e., subclasses of `extras.scripts.Script`) should be gathered into a list or tuple for integration with NetBox. By default, NetBox looks for an iterable named `scripts` within a `scripts.py` file or `scripts` Python module. (This can be overridden by setting `scripts` to a custom value on the plugin's PluginConfig). An example of a self-contained `scripts.py` file is below.
+
+```python
+from extras.scripts import *
+from .models import Animal
+
+name = "Animal-related scripts"
+
+class AnimalScript(Script):
+    class Meta:
+        description = "What does the animal say?"
+
+    animal = StringVar()
+
+    def run(self, data, commit):
+        try:
+            animal = Animal.objects.get(name=data['animal'])
+            self.log_success(f'The {animal.name} says "{animal.sound}"!')
+        except Animal.DoesNotExist:
+            self.log_failure(f'No such animal "{data["animal"]}"')
+
+scripts = [AnimalScript]
 ```
 
 ## Caching Configuration

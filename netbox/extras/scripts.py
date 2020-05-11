@@ -22,6 +22,7 @@ from utilities.exceptions import AbortTransaction
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .forms import ScriptForm
 from .signals import purge_changelog
+from .registry import registry
 
 __all__ = [
     'BaseScript',
@@ -440,8 +441,25 @@ def get_scripts(use_names=False):
     """
     Return a dict of dicts mapping all scripts to their modules. Set use_names to True to use each module's human-
     defined name in place of the actual module name.
+
+    {
+      module_name: {script_name: <Script class>, script_name: <Script class>},
+      module_name: {script_name: <Script class>}
+    }
     """
     scripts = OrderedDict()
+
+    # Iterate through scripts provided by plugins
+    for module_name, script_list in registry['plugin_scripts'].items():
+        if use_names and script_list:
+            module = inspect.getmodule(script_list[0])
+            if hasattr(module, "name"):
+                module_name = module.name
+        module_scripts = OrderedDict()
+        for script in script_list:
+            module_scripts[script.__name__] = script
+        if module_scripts:
+            scripts[module_name] = module_scripts
 
     # Iterate through all modules within the reports path. These are the user-created files in which reports are
     # defined.

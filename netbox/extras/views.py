@@ -340,7 +340,7 @@ class ReportListView(PermissionRequiredMixin, View):
 
     def get(self, request):
 
-        reports = get_reports()
+        reports = get_reports(use_names=True)
         results = {r.report: r for r in ReportResult.objects.all()}
 
         ret = []
@@ -365,7 +365,7 @@ class ReportView(PermissionRequiredMixin, View):
     def get(self, request, name):
 
         # Retrieve the Report by "<module>.<report>"
-        module_name, report_name = name.split('.')
+        module_name, report_name = name.rsplit('.', 1)
         report = get_report(module_name, report_name)
         if report is None:
             raise Http404
@@ -388,7 +388,7 @@ class ReportRunView(PermissionRequiredMixin, View):
     def post(self, request, name):
 
         # Retrieve the Report by "<module>.<report>"
-        module_name, report_name = name.split('.')
+        module_name, report_name = name.rsplit('.', 1)
         report = get_report(module_name, report_name)
         if report is None:
             raise Http404

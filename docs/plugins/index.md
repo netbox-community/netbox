@@ -13,6 +13,8 @@ The NetBox plugin architecture allows for the following:
 * **Add content to existing model templates.** A template content class can be used to inject custom HTML content within the view of a core NetBox model. This content can appear in the left side, right side, or bottom of the page.
 * **Add navigation menu items.** Each plugin can register new links in the navigation menu. Each link may have a set of buttons for specific actions, similar to the built-in navigation items.
 * **Add custom middleware.** Custom Django middleware can be registered by each plugin.
+* **Add custom reports.** Plugins can provide [reports](../additional-features/reports.md).
+* **Add custom scripts.** Plugins can provide [custom scripts](../additional-features/custom-scripts.md).
 * **Declare configuration parameters.** Each plugin can define required, optional, and default configuration parameters within its unique namespace. Plug configuration parameter are defined by the user under `PLUGINS_CONFIG` in `configuration.py`.
 * **Limit installation by NetBox version.** A plugin can specify a minimum and/or maximum NetBox version with which it is compatible.
 

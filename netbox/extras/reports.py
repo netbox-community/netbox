@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from .constants import *
 from .models import ReportResult
+from .registry import registry
 
 
 def is_report(obj):
@@ -22,23 +23,18 @@ def get_report(module_name, report_name):
     """
     Return a specific report from within a module.
     """
-    file_path = '{}/{}.py'.format(settings.REPORTS_ROOT, module_name)
+    reports = get_reports()
+    for grouping, report_list in reports:
+        if grouping != module_name:
+            continue
+        for report in report_list:
+            if report.name == report_name:
+                return report
 
-    spec = importlib.util.spec_from_file_location(module_name, file_path)
-    module = importlib.util.module_from_spec(spec)
-    try:
-        spec.loader.exec_module(module)
-    except FileNotFoundError:
-        return None
-
-    report = getattr(module, report_name, None)
-    if report is None:
-        return None
-
-    return report()
+    return None
 
 
-def get_reports():
+def get_reports(use_names=False):
     """
     Compile a list of all reports available across all modules in the reports path. Returns a list of tuples:
 
@@ -47,14 +43,26 @@ def get_reports():
         (module_name, (report, report, report, ...)),
         ...
     ]
+
+    Set use_names to True to use each module's human-defined name in place of the actual module name.
     """
     module_list = []
+
+    # Iterate through reports provided by plugins
+    for module_name, report_classes in registry['plugin_reports'].items():
+        if use_names and report_classes:
+            module = inspect.getmodule(report_classes[0])
+            if hasattr(module, "name"):
+                module_name = module.name
+        module_list.append((module_name, [report() for report in report_classes]))
 
     # Iterate through all modules within the reports path. These are the user-created files in which reports are
     # defined.
     for importer, module_name, _ in pkgutil.iter_modules([settings.REPORTS_ROOT]):
         module = importer.find_module(module_name).load_module(module_name)
         report_list = [cls() for _, cls in inspect.getmembers(module, is_report)]
+        if use_names and hasattr(module, "name"):
+            module_name = module.name
         module_list.append((module_name, report_list))
 
     return module_list
