@@ -21,6 +21,7 @@ from extras.models import Graph
 from extras.views import ObjectConfigContextView
 from ipam.models import Prefix, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
+from netbox.authentication import ObjectPermissionRequiredMixin
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.utils import csv_format
@@ -185,7 +186,7 @@ class RegionBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Sites
 #
 
-class SiteListView(PermissionRequiredMixin, ObjectListView):
+class SiteListView(ObjectPermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_site'
     queryset = Site.objects.prefetch_related('region', 'tenant')
     filterset = filters.SiteFilterSet
