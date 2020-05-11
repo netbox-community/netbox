@@ -32,7 +32,7 @@ class TenantGroupListView(PermissionRequiredMixin, ObjectListView):
 
 class TenantGroupCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'tenancy.add_tenantgroup'
-    model = TenantGroup
+    queryset = TenantGroup.objects.all()
     model_form = forms.TenantGroupForm
     default_return_url = 'tenancy:tenantgroup_list'
 
@@ -95,7 +95,7 @@ class TenantView(PermissionRequiredMixin, View):
 
 class TenantCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'tenancy.add_tenant'
-    model = Tenant
+    queryset = Tenant.objects.all()
     model_form = forms.TenantForm
     template_name = 'tenancy/tenant_edit.html'
     default_return_url = 'tenancy:tenant_list'
@@ -107,7 +107,7 @@ class TenantEditView(TenantCreateView):
 
 class TenantDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'tenancy.delete_tenant'
-    model = Tenant
+    queryset = Tenant.objects.all()
     default_return_url = 'tenancy:tenant_list'
 
 

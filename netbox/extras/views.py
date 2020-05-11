@@ -67,7 +67,7 @@ class TagView(PermissionRequiredMixin, View):
 
 class TagEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'extras.change_tag'
-    model = Tag
+    queryset = Tag.objects.all()
     model_form = forms.TagForm
     default_return_url = 'extras:tag_list'
     template_name = 'extras/tag_edit.html'
@@ -75,7 +75,7 @@ class TagEditView(PermissionRequiredMixin, ObjectEditView):
 
 class TagDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'extras.delete_tag'
-    model = Tag
+    queryset = Tag.objects.all()
     default_return_url = 'extras:tag_list'
 
 
@@ -136,7 +136,7 @@ class ConfigContextView(PermissionRequiredMixin, View):
 
 class ConfigContextCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'extras.add_configcontext'
-    model = ConfigContext
+    queryset = ConfigContext.objects.all()
     model_form = forms.ConfigContextForm
     default_return_url = 'extras:configcontext_list'
     template_name = 'extras/configcontext_edit.html'
@@ -157,7 +157,7 @@ class ConfigContextBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class ConfigContextDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'extras.delete_configcontext'
-    model = ConfigContext
+    queryset = ConfigContext.objects.all()
     default_return_url = 'extras:configcontext_list'
 
 
@@ -306,7 +306,7 @@ class ObjectChangeLogView(View):
 
 class ImageAttachmentEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'extras.change_imageattachment'
-    model = ImageAttachment
+    queryset = ImageAttachment.objects.all()
     model_form = forms.ImageAttachmentForm
 
     def alter_obj(self, imageattachment, request, args, kwargs):
@@ -322,7 +322,7 @@ class ImageAttachmentEditView(PermissionRequiredMixin, ObjectEditView):
 
 class ImageAttachmentDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'extras.delete_imageattachment'
-    model = ImageAttachment
+    queryset = ImageAttachment.objects.all()
 
     def get_return_url(self, request, imageattachment):
         return imageattachment.parent.get_absolute_url()

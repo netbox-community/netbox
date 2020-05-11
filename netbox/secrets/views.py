@@ -38,7 +38,7 @@ class SecretRoleListView(PermissionRequiredMixin, ObjectListView):
 
 class SecretRoleCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'secrets.add_secretrole'
-    model = SecretRole
+    queryset = SecretRole.objects.all()
     model_form = forms.SecretRoleForm
     default_return_url = 'secrets:secretrole_list'
 
@@ -191,7 +191,7 @@ def secret_edit(request, pk):
 
 class SecretDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'secrets.delete_secret'
-    model = Secret
+    queryset = Secret.objects.all()
     default_return_url = 'secrets:secret_list'
 
 

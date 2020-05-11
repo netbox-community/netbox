@@ -216,21 +216,22 @@ class ObjectEditView(GetReturnURLMixin, View):
     """
     Create or edit a single object.
 
-    model: The model of the object being edited
+    queryset: The base queryset for the object being modified
     model_form: The form used to create or edit the object
     template_name: The name of the template
     """
-    model = None
+    queryset = None
     model_form = None
     template_name = 'utilities/obj_edit.html'
 
     def get_object(self, kwargs):
-        # Look up object by slug or PK. Return None if neither was provided.
+        # Look up an existing object by slug or PK, if provided.
         if 'slug' in kwargs:
-            return get_object_or_404(self.model, slug=kwargs['slug'])
+            return get_object_or_404(self.queryset, slug=kwargs['slug'])
         elif 'pk' in kwargs:
-            return get_object_or_404(self.model, pk=kwargs['pk'])
-        return self.model()
+            return get_object_or_404(self.queryset, pk=kwargs['pk'])
+        # Otherwise, return a new instance.
+        return self.queryset.model()
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
         # Allow views to add extra info to an object before it is processed. For example, a parent object can be defined
@@ -249,7 +250,7 @@ class ObjectEditView(GetReturnURLMixin, View):
 
         return render(request, self.template_name, {
             'obj': self.obj,
-            'obj_type': self.model._meta.verbose_name,
+            'obj_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request, self.obj),
         })
@@ -264,7 +265,7 @@ class ObjectEditView(GetReturnURLMixin, View):
             obj = form.save()
             msg = '{} {}'.format(
                 'Created' if not form.instance.pk else 'Modified',
-                self.model._meta.verbose_name
+                self.queryset.model._meta.verbose_name
             )
             logger.info(f"{msg} {obj} (PK: {obj.pk})")
             if hasattr(obj, 'get_absolute_url'):
@@ -293,7 +294,7 @@ class ObjectEditView(GetReturnURLMixin, View):
 
         return render(request, self.template_name, {
             'obj': self.obj,
-            'obj_type': self.model._meta.verbose_name,
+            'obj_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request, self.obj),
         })
@@ -303,18 +304,18 @@ class ObjectDeleteView(GetReturnURLMixin, View):
     """
     Delete a single object.
 
-    model: The model of the object being deleted
+    queryset: The base queryset for the object being deleted
     template_name: The name of the template
     """
-    model = None
+    queryset = None
     template_name = 'utilities/obj_delete.html'
 
     def get_object(self, kwargs):
         # Look up object by slug if one has been provided. Otherwise, use PK.
         if 'slug' in kwargs:
-            return get_object_or_404(self.model, slug=kwargs['slug'])
+            return get_object_or_404(self.queryset, slug=kwargs['slug'])
         else:
-            return get_object_or_404(self.model, pk=kwargs['pk'])
+            return get_object_or_404(self.queryset, pk=kwargs['pk'])
 
     def get(self, request, **kwargs):
         obj = self.get_object(kwargs)
@@ -323,7 +324,7 @@ class ObjectDeleteView(GetReturnURLMixin, View):
         return render(request, self.template_name, {
             'obj': obj,
             'form': form,
-            'obj_type': self.model._meta.verbose_name,
+            'obj_type': self.queryset.model._meta.verbose_name,
             'return_url': self.get_return_url(request, obj),
         })
 
@@ -342,7 +343,7 @@ class ObjectDeleteView(GetReturnURLMixin, View):
                 handle_protectederror(obj, request, e)
                 return redirect(obj.get_absolute_url())
 
-            msg = 'Deleted {} {}'.format(self.model._meta.verbose_name, obj)
+            msg = 'Deleted {} {}'.format(self.queryset.model._meta.verbose_name, obj)
             logger.info(msg)
             messages.success(request, msg)
 
@@ -358,7 +359,7 @@ class ObjectDeleteView(GetReturnURLMixin, View):
         return render(request, self.template_name, {
             'obj': obj,
             'form': form,
-            'obj_type': self.model._meta.verbose_name,
+            'obj_type': self.queryset.model._meta.verbose_name,
             'return_url': self.get_return_url(request, obj),
         })
 

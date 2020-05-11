@@ -30,7 +30,7 @@ class ClusterTypeListView(PermissionRequiredMixin, ObjectListView):
 
 class ClusterTypeCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'virtualization.add_clustertype'
-    model = ClusterType
+    queryset = ClusterType.objects.all()
     model_form = forms.ClusterTypeForm
     default_return_url = 'virtualization:clustertype_list'
 
@@ -65,7 +65,7 @@ class ClusterGroupListView(PermissionRequiredMixin, ObjectListView):
 
 class ClusterGroupCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'virtualization.add_clustergroup'
-    model = ClusterGroup
+    queryset = ClusterGroup.objects.all()
     model_form = forms.ClusterGroupForm
     default_return_url = 'virtualization:clustergroup_list'
 
@@ -122,7 +122,7 @@ class ClusterView(PermissionRequiredMixin, View):
 class ClusterCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'virtualization.add_cluster'
     template_name = 'virtualization/cluster_edit.html'
-    model = Cluster
+    queryset = Cluster.objects.all()
     model_form = forms.ClusterForm
 
 
@@ -132,7 +132,7 @@ class ClusterEditView(ClusterCreateView):
 
 class ClusterDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'virtualization.delete_cluster'
-    model = Cluster
+    queryset = Cluster.objects.all()
     default_return_url = 'virtualization:cluster_list'
 
 
@@ -281,7 +281,7 @@ class VirtualMachineConfigContextView(PermissionRequiredMixin, ObjectConfigConte
 
 class VirtualMachineCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'virtualization.add_virtualmachine'
-    model = VirtualMachine
+    queryset = VirtualMachine.objects.all()
     model_form = forms.VirtualMachineForm
     template_name = 'virtualization/virtualmachine_edit.html'
     default_return_url = 'virtualization:virtualmachine_list'
@@ -293,7 +293,7 @@ class VirtualMachineEditView(VirtualMachineCreateView):
 
 class VirtualMachineDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'virtualization.delete_virtualmachine'
-    model = VirtualMachine
+    queryset = VirtualMachine.objects.all()
     default_return_url = 'virtualization:virtualmachine_list'
 
 
@@ -335,14 +335,14 @@ class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
 
 class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_interface'
-    model = Interface
+    queryset = Interface.objects.all()
     model_form = forms.InterfaceForm
     template_name = 'virtualization/interface_edit.html'
 
 
 class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_interface'
-    model = Interface
+    queryset = Interface.objects.all()
 
 
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
