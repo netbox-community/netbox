@@ -6,6 +6,7 @@ v2.8.4 (FUTURE)
 
 * [#4598](https://github.com/netbox-community/netbox/issues/4598) - Display error message when invalid cable length is specified
 * [#4604](https://github.com/netbox-community/netbox/issues/4604) - Multi-position rear ports may only be connected to other rear ports
+* [#4607](https://github.com/netbox-community/netbox/issues/4607) - Missing Contextual help for API Tokens
 
 ---
 
