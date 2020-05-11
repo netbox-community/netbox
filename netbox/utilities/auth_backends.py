@@ -56,21 +56,12 @@ class ObjectPermissionBackend(ModelBackend):
         if model._meta.model_name != model_name:
             raise ValueError(f"Invalid permission {perm} for model {model}")
 
-        # Retrieve user's permissions for this model
-        # This can probably be cached
-        obj_permissions = ObjectPermission.objects.filter(
-            Q(users=user_obj) | Q(groups__user=user_obj),
-            model=ContentType.objects.get_for_model(obj),
-            **{f'can_{action}': True}
-        )
-
-        for perm in obj_permissions:
-
-            # Attempt to retrieve the model from the database using the
-            # attributes defined in the ObjectPermission. If we have a
-            # match, assert that the user has permission.
-            if model.objects.filter(pk=obj.pk, **perm.attrs).exists():
-                return True
+        # Attempt to retrieve the model from the database using the
+        # attributes defined in the ObjectPermission. If we have a
+        # match, assert that the user has permission.
+        attrs = ObjectPermission.objects.get_attr_constraints(user_obj, obj, action)
+        if model.objects.filter(pk=obj.pk, **attrs).exists():
+            return True
 
 
 class RemoteUserBackend(ViewExemptModelBackend, RemoteUserBackend_):

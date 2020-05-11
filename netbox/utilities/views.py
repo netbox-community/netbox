@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
 from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
@@ -23,6 +23,7 @@ from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
+from users.models import ObjectPermission
 from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField, TableConfigForm
 from utilities.utils import csv_format, prepare_cloned_fields
@@ -262,32 +263,43 @@ class ObjectEditView(GetReturnURLMixin, View):
         if form.is_valid():
             logger.debug("Form validation was successful")
 
-            obj = form.save()
-            msg = '{} {}'.format(
-                'Created' if not form.instance.pk else 'Modified',
-                self.queryset.model._meta.verbose_name
-            )
-            logger.info(f"{msg} {obj} (PK: {obj.pk})")
-            if hasattr(obj, 'get_absolute_url'):
-                msg = '{} <a href="{}">{}</a>'.format(msg, obj.get_absolute_url(), escape(obj))
-            else:
-                msg = '{} {}'.format(msg, escape(obj))
-            messages.success(request, mark_safe(msg))
+            try:
+                with transaction.atomic():
+                    obj = form.save()
 
-            if '_addanother' in request.POST:
+                    # Check that the new object conforms with any assigned object-level permissions
+                    self.queryset.get(pk=obj.pk)
 
-                # If the object has clone_fields, pre-populate a new instance of the form
-                if hasattr(obj, 'clone_fields'):
-                    url = '{}?{}'.format(request.path, prepare_cloned_fields(obj))
-                    return redirect(url)
+                msg = '{} {}'.format(
+                    'Created' if not form.instance.pk else 'Modified',
+                    self.queryset.model._meta.verbose_name
+                )
+                logger.info(f"{msg} {obj} (PK: {obj.pk})")
+                if hasattr(obj, 'get_absolute_url'):
+                    msg = '{} <a href="{}">{}</a>'.format(msg, obj.get_absolute_url(), escape(obj))
+                else:
+                    msg = '{} {}'.format(msg, escape(obj))
+                messages.success(request, mark_safe(msg))
 
-                return redirect(request.get_full_path())
+                if '_addanother' in request.POST:
 
-            return_url = form.cleaned_data.get('return_url')
-            if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
-                return redirect(return_url)
-            else:
-                return redirect(self.get_return_url(request, obj))
+                    # If the object has clone_fields, pre-populate a new instance of the form
+                    if hasattr(obj, 'clone_fields'):
+                        url = '{}?{}'.format(request.path, prepare_cloned_fields(obj))
+                        return redirect(url)
+
+                    return redirect(request.get_full_path())
+
+                return_url = form.cleaned_data.get('return_url')
+                if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
+                    return redirect(return_url)
+                else:
+                    return redirect(self.get_return_url(request, obj))
+
+            except ObjectDoesNotExist:
+                logger.debug("Object save failed due to object-level permissions violation")
+                # TODO: Link user to personal permissions view
+                form.add_error(None, "Object save failed due to object-level permissions violation")
 
         else:
             logger.debug("Form validation failed")

@@ -14,22 +14,14 @@ class ObjectPermissionRequiredMixin(AccessMixin):
         if self.request.user.has_perm(self.permission_required):
             return True
 
-        # If not, check for an object-level permission
+        # If not, check for object-level permissions
         app, codename = self.permission_required.split('.')
         action, model_name = codename.split('_')
         model = self.queryset.model
-        obj_permissions = ObjectPermission.objects.filter(
-            Q(users=self.request.user) | Q(groups__user=self.request.user),
-            model=ContentType.objects.get_for_model(model),
-            **{f'can_{action}': True}
-        )
-        if obj_permissions:
-
+        attrs = ObjectPermission.objects.get_attr_constraints(self.request.user, model, action)
+        if attrs:
             # Update the view's QuerySet to filter only the permitted objects
-            # TODO: Do this more efficiently
-            for perm in obj_permissions:
-                self.queryset = self.queryset.filter(**perm.attrs)
-
+            self.queryset = self.queryset.filter(**attrs)
             return True
 
         return False

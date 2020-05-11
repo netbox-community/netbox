@@ -7,6 +7,7 @@ from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import FieldError, ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -194,6 +195,38 @@ class Token(models.Model):
         return True
 
 
+class ObjectPermissionManager(models.Manager):
+
+    def get_attr_constraints(self, user, model, action):
+        """
+        Compile all ObjectPermission attributes applicable to a specific combination of user, model, and action. Returns
+        a dictionary that can be passed directly to .filter() on a QuerySet.
+        """
+        assert action in ['view', 'add', 'change', 'delete'], f"Invalid action: {action}"
+
+        qs = self.get_queryset().filter(
+            Q(users=user) | Q(groups__user=user),
+            model=ContentType.objects.get_for_model(model),
+            **{f'can_{action}': True}
+        )
+
+        attrs = {}
+        for perm in qs:
+            attrs.update(perm.attrs)
+
+        return attrs
+
+    def validate_queryset(self, queryset, user, action):
+        """
+        Check that the specified user has permission to perform the specified action on all objects in the QuerySet.
+        """
+        assert action in ['view', 'add', 'change', 'delete'], f"Invalid action: {action}"
+
+        model = queryset.model
+        attrs = self.get_attr_constraints(user, model, action)
+        return queryset.count() == model.objects.filter(**attrs).count()
+
+
 class ObjectPermission(models.Model):
     """
     A mapping of view, add, change, and/or delete permission for users and/or groups to an arbitrary set of objects
@@ -228,6 +261,8 @@ class ObjectPermission(models.Model):
     can_delete = models.BooleanField(
         default=False
     )
+
+    objects = ObjectPermissionManager()
 
     class Meta:
         unique_together = ('model', 'attrs')

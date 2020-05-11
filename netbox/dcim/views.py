@@ -194,12 +194,13 @@ class SiteListView(ObjectPermissionRequiredMixin, ObjectListView):
     table = tables.SiteTable
 
 
-class SiteView(PermissionRequiredMixin, View):
+class SiteView(ObjectPermissionRequiredMixin, View):
     permission_required = 'dcim.view_site'
+    queryset = Site.objects.prefetch_related('region', 'tenant__group')
 
     def get(self, request, slug):
 
-        site = get_object_or_404(Site.objects.prefetch_related('region', 'tenant__group'), slug=slug)
+        site = get_object_or_404(self.queryset, slug=slug)
         stats = {
             'rack_count': Rack.objects.filter(site=site).count(),
             'device_count': Device.objects.filter(site=site).count(),
@@ -219,7 +220,7 @@ class SiteView(PermissionRequiredMixin, View):
         })
 
 
-class SiteCreateView(PermissionRequiredMixin, ObjectEditView):
+class SiteCreateView(ObjectPermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_site'
     queryset = Site.objects.all()
     model_form = forms.SiteForm
@@ -231,7 +232,7 @@ class SiteEditView(SiteCreateView):
     permission_required = 'dcim.change_site'
 
 
-class SiteDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class SiteDeleteView(ObjectPermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_site'
     queryset = Site.objects.all()
     default_return_url = 'dcim:site_list'
