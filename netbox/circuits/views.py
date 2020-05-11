@@ -62,7 +62,7 @@ class ProviderView(PermissionRequiredMixin, View):
 
 class ProviderCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.add_provider'
-    model = Provider
+    queryset = Provider.objects.all()
     model_form = forms.ProviderForm
     template_name = 'circuits/provider_edit.html'
     default_return_url = 'circuits:provider_list'
@@ -114,7 +114,7 @@ class CircuitTypeListView(PermissionRequiredMixin, ObjectListView):
 
 class CircuitTypeCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.add_circuittype'
-    model = CircuitType
+    queryset = CircuitType.objects.all()
     model_form = forms.CircuitTypeForm
     default_return_url = 'circuits:circuittype_list'
 
@@ -178,7 +178,7 @@ class CircuitView(PermissionRequiredMixin, View):
 
 class CircuitCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.add_circuit'
-    model = Circuit
+    queryset = Circuit.objects.all()
     model_form = forms.CircuitForm
     template_name = 'circuits/circuit_edit.html'
     default_return_url = 'circuits:circuit_list'
@@ -273,7 +273,7 @@ def circuit_terminations_swap(request, pk):
 
 class CircuitTerminationCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.add_circuittermination'
-    model = CircuitTermination
+    queryset = CircuitTermination.objects.all()
     model_form = forms.CircuitTerminationForm
     template_name = 'circuits/circuittermination_edit.html'
 

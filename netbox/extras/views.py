@@ -67,7 +67,7 @@ class TagView(PermissionRequiredMixin, View):
 
 class TagEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'extras.change_tag'
-    model = Tag
+    queryset = Tag.objects.all()
     model_form = forms.TagForm
     default_return_url = 'extras:tag_list'
     template_name = 'extras/tag_edit.html'
@@ -136,7 +136,7 @@ class ConfigContextView(PermissionRequiredMixin, View):
 
 class ConfigContextCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'extras.add_configcontext'
-    model = ConfigContext
+    queryset = ConfigContext.objects.all()
     model_form = forms.ConfigContextForm
     default_return_url = 'extras:configcontext_list'
     template_name = 'extras/configcontext_edit.html'
@@ -306,7 +306,7 @@ class ObjectChangeLogView(View):
 
 class ImageAttachmentEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'extras.change_imageattachment'
-    model = ImageAttachment
+    queryset = ImageAttachment.objects.all()
     model_form = forms.ImageAttachmentForm
 
     def alter_obj(self, imageattachment, request, args, kwargs):
