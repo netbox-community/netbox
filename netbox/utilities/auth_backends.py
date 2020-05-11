@@ -3,8 +3,6 @@ import logging
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend, RemoteUserBackend as RemoteUserBackend_
 from django.contrib.auth.models import Group, Permission
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
 
 from users.models import ObjectPermission
 
@@ -26,13 +24,16 @@ class ViewExemptModelBackend(ModelBackend):
                     '*' in settings.EXEMPT_VIEW_PERMISSIONS
                 ) or (
                     # This specific model is exempt from view permission enforcement
-                    '{}.{}'.format(app, model) in settings.EXEMPT_VIEW_PERMISSIONS
+                    '.'.join((app, model)) in settings.EXEMPT_VIEW_PERMISSIONS
                 ):
                     return True
         except ValueError:
             pass
 
-        return super().has_perm(user_obj, perm, obj)
+        # Fall back to ModelBackend's default behavior, with one exception: Set obj to None. Model-level permissions
+        # override object-level permissions, so if a user has the model-level permission we can ignore any specified
+        # object. (By default, ModelBackend will return False if an object is specified.)
+        return super().has_perm(user_obj, perm, None)
 
 
 class ObjectPermissionBackend(ModelBackend):
@@ -56,9 +57,8 @@ class ObjectPermissionBackend(ModelBackend):
         if model._meta.model_name != model_name:
             raise ValueError(f"Invalid permission {perm} for model {model}")
 
-        # Attempt to retrieve the model from the database using the
-        # attributes defined in the ObjectPermission. If we have a
-        # match, assert that the user has permission.
+        # Attempt to retrieve the model from the database using the attributes defined in the
+        # ObjectPermission. If we have a match, assert that the user has permission.
         attrs = ObjectPermission.objects.get_attr_constraints(user_obj, obj, action)
         if model.objects.filter(pk=obj.pk, **attrs).exists():
             return True
