@@ -197,16 +197,19 @@ class Token(models.Model):
 
 class ObjectPermissionManager(models.Manager):
 
-    def get_attr_constraints(self, user, model, action):
+    def get_attr_constraints(self, user, perm):
         """
         Compile all ObjectPermission attributes applicable to a specific combination of user, model, and action. Returns
         a dictionary that can be passed directly to .filter() on a QuerySet.
         """
+        app_label, codename = perm.split('.')
+        action, model_name = codename.split('_')
         assert action in ['view', 'add', 'change', 'delete'], f"Invalid action: {action}"
 
+        content_type = ContentType.objects.get(app_label=app_label, model=model_name)
         qs = self.get_queryset().filter(
             Q(users=user) | Q(groups__user=user),
-            model=ContentType.objects.get_for_model(model),
+            model=content_type,
             **{f'can_{action}': True}
         )
 
@@ -215,16 +218,6 @@ class ObjectPermissionManager(models.Manager):
             attrs.update(perm.attrs)
 
         return attrs
-
-    def validate_queryset(self, queryset, user, action):
-        """
-        Check that the specified user has permission to perform the specified action on all objects in the QuerySet.
-        """
-        assert action in ['view', 'add', 'change', 'delete'], f"Invalid action: {action}"
-
-        model = queryset.model
-        attrs = self.get_attr_constraints(user, model, action)
-        return queryset.count() == model.objects.filter(**attrs).count()
 
 
 class ObjectPermission(models.Model):

@@ -3,6 +3,8 @@ import logging
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend, RemoteUserBackend as RemoteUserBackend_
 from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 
 from users.models import ObjectPermission
 
@@ -43,23 +45,54 @@ class ObjectPermissionBackend(ModelBackend):
     check: For example, if a user has the dcim.view_site model-level permission assigned, the ViewExemptModelBackend
     will grant permission before this backend is evaluated for permission to view a specific site.
     """
+    def _get_all_permissions(self, user_obj):
+        """
+        Retrieve all ObjectPermissions assigned to this User (either directly or through a Group) and return the model-
+        level equivalent codenames.
+        """
+        perm_names = set()
+        for obj_perm in ObjectPermission.objects.filter(
+            Q(users=user_obj) | Q(groups__user=user_obj)
+        ).prefetch_related('model'):
+            for action in ['view', 'add', 'change', 'delete']:
+                if getattr(obj_perm, f"can_{action}"):
+                    perm_names.add(f"{obj_perm.model.app_label}.{action}_{obj_perm.model.model}")
+        return perm_names
+
+    def get_all_permissions(self, user_obj, obj=None):
+        """
+        Get all model-level permissions assigned by this backend. Permissions are cached on the User instance.
+        """
+        if not user_obj.is_active or user_obj.is_anonymous:
+            return set()
+        if not hasattr(user_obj, '_obj_perm_cache'):
+            user_obj._obj_perm_cache = self._get_all_permissions(user_obj)
+        return user_obj._obj_perm_cache
+
     def has_perm(self, user_obj, perm, obj=None):
 
-        # This backend only checks for permissions on specific objects
+        # If no object is specified, look for any matching ObjectPermissions. If one or more are found, this indicates
+        # that the user has permission to perform the requested action on at least *some* objects, but not necessarily
+        # on all of them.
         if obj is None:
+            return perm in self.get_all_permissions(user_obj)
+
+        attrs = ObjectPermission.objects.get_attr_constraints(user_obj, perm)
+
+        # No ObjectPermissions found for this combination of user, model, and action
+        if not attrs:
             return
 
-        app, codename = perm.split('.')
-        action, model_name = codename.split('_')
         model = obj._meta.model
 
         # Check that the requested permission applies to the specified object
-        if model._meta.model_name != model_name:
+        app_label, codename = perm.split('.')
+        action, model_name = codename.split('_')
+        if model._meta.label_lower != '.'.join((app_label, model_name)):
             raise ValueError(f"Invalid permission {perm} for model {model}")
 
         # Attempt to retrieve the model from the database using the attributes defined in the
         # ObjectPermission. If we have a match, assert that the user has permission.
-        attrs = ObjectPermission.objects.get_attr_constraints(user_obj, obj, action)
         if model.objects.filter(pk=obj.pk, **attrs).exists():
             return True
 
