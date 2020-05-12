@@ -19,7 +19,7 @@ class ObjectPermissionRequiredMixin(AccessMixin):
 
         # Next, determine whether the permission is model-level or object-level. Model-level permissions grant the
         # specified action to *all* objects, so no further action is needed.
-        if self.permission_required in self.request.user._perm_cache:
+        if self.request.user.is_superuser or self.permission_required in self.request.user._perm_cache:
             return True
 
         # If the permission is granted only at the object level, filter the view's queryset to return only objects
