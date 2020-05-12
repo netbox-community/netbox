@@ -3,7 +3,6 @@ import logging
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend, RemoteUserBackend as RemoteUserBackend_
 from django.contrib.auth.models import Group, Permission
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
 from users.models import ObjectPermission
@@ -14,28 +13,26 @@ class ViewExemptModelBackend(ModelBackend):
     Custom implementation of Django's stock ModelBackend which allows for the exemption of arbitrary models from view
     permission enforcement.
     """
-    def has_perm(self, user_obj, perm, obj=None):
+    def _get_user_permissions(self, user_obj):
 
-        # If this is a view permission, check whether the model has been exempted from enforcement
-        try:
-            app, codename = perm.split('.')
-            action, model = codename.split('_')
-            if action == 'view':
-                if (
-                    # All models are exempt from view permission enforcement
-                    '*' in settings.EXEMPT_VIEW_PERMISSIONS
-                ) or (
-                    # This specific model is exempt from view permission enforcement
-                    '.'.join((app, model)) in settings.EXEMPT_VIEW_PERMISSIONS
-                ):
-                    return True
-        except ValueError:
-            pass
+        if not settings.EXEMPT_VIEW_PERMISSIONS:
+            # No view permissions have been exempted from enforcement, so fall back to the built-in logic.
+            return super()._get_user_permissions(user_obj)
 
-        # Fall back to ModelBackend's default behavior, with one exception: Set obj to None. Model-level permissions
-        # override object-level permissions, so if a user has the model-level permission we can ignore any specified
-        # object. (By default, ModelBackend will return False if an object is specified.)
-        return super().has_perm(user_obj, perm, None)
+        if '*' in settings.EXEMPT_VIEW_PERMISSIONS:
+            # All view permissions have been exempted from enforcement, so include all view permissions when fetching
+            # User permissions.
+            return Permission.objects.filter(
+                Q(user=user_obj) | Q(codename__startswith='view_')
+            )
+
+        # Return all Permissions that are either assigned to the user or that are view permissions listed in
+        # EXEMPT_VIEW_PERMISSIONS.
+        qs_filter = Q(user=user_obj)
+        for model in settings.EXEMPT_VIEW_PERMISSIONS:
+            app, name = model.split('.')
+            qs_filter |= Q(content_type__app_label=app, codename=f'view_{name}')
+        return Permission.objects.filter(qs_filter)
 
 
 class ObjectPermissionBackend(ModelBackend):
