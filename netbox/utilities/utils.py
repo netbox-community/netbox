@@ -195,12 +195,12 @@ def render_jinja2(template_code, context):
     return Environment().from_string(source=template_code).render(**context)
 
 
-def prepare_cloned_fields(instance):
+def get_cloned_fields(instance):
     """
-    Compile an object's `clone_fields` list into a string of URL query parameters. Tags are automatically cloned where
+    Compile an object's `clone_fields` list into a QueryDict. Tags are automatically cloned where
     applicable.
     """
-    params = {}
+    params = QueryDict(mutable=True)
     for field_name in getattr(instance, 'clone_fields', []):
         field = instance._meta.get_field(field_name)
         field_value = field.value_from_object(instance)
@@ -217,12 +217,17 @@ def prepare_cloned_fields(instance):
         if is_taggable(instance):
             params['tags'] = ','.join([t.name for t in instance.tags.all()])
 
-    # Concatenate parameters into a URL query string
-    param_string = '&'.join(
-        ['{}={}'.format(k, v) for k, v in params.items()]
-    )
+    return params
 
-    return param_string
+
+def prepare_cloned_fields(instance):
+    """
+    Compile an object's `clone_fields` list into a string of URL query parameters. Tags are automatically cloned where
+    applicable.
+    """
+    params = get_cloned_fields(instance)
+
+    return params.urlencode()
 
 
 def shallow_compare_dict(source_dict, destination_dict, exclude=None):

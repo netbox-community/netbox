@@ -283,7 +283,11 @@ class ObjectEditView(GetReturnURLMixin, View):
 
                 # If the object has clone_fields, pre-populate a new instance of the form
                 if hasattr(obj, 'clone_fields'):
-                    url = '{}?{}'.format(request.path, prepare_cloned_fields(obj))
+                    params = get_cloned_fields(obj)
+                    for field, value in request.GET.items():
+                        if field not in params:
+                            params[field] = value
+                    url = '{}?{}'.format(request.path, params.urlencode())
                     return redirect(url)
 
                 return redirect(request.get_full_path())
