@@ -213,9 +213,9 @@ class ObjectPermissionManager(models.Manager):
             **{f'can_{action}': True}
         )
 
-        attrs = {}
+        attrs = Q()
         for perm in qs:
-            attrs.update(perm.attrs)
+            attrs |= Q(**perm.attrs)
 
         return attrs
 

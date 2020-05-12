@@ -28,7 +28,7 @@ class ObjectPermissionRequiredMixin(AccessMixin):
             attrs = ObjectPermission.objects.get_attr_constraints(self.request.user, self.permission_required)
             if attrs:
                 # Update the view's QuerySet to filter only the permitted objects
-                self.queryset = self.queryset.filter(**attrs)
+                self.queryset = self.queryset.filter(attrs)
                 return True
 
     def dispatch(self, request, *args, **kwargs):

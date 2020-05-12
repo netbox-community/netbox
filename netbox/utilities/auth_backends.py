@@ -90,7 +90,7 @@ class ObjectPermissionBackend(ModelBackend):
 
         # Attempt to retrieve the model from the database using the attributes defined in the
         # ObjectPermission. If we have a match, assert that the user has permission.
-        if model.objects.filter(pk=obj.pk, **attrs).exists():
+        if model.objects.filter(attrs, pk=obj.pk).exists():
             return True
 
 

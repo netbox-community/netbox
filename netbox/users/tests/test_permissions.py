@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 
 from dcim.models import Site
@@ -7,7 +7,7 @@ from tenancy.models import Tenant
 from users.models import ObjectPermission
 
 
-class UserConfigTest(TestCase):
+class ObjectPermissionTest(TestCase):
 
     def setUp(self):
 
@@ -41,7 +41,7 @@ class UserConfigTest(TestCase):
             can_view=True
         )
         object_perm.save()
-        self.user.object_permissions.add(object_perm)
+        object_perm.users.add(self.user)
 
         # The test user should have permission to view only the first site.
         self.assertTrue(self.user.has_perm('dcim.view_site', sites[0]))
@@ -54,7 +54,7 @@ class UserConfigTest(TestCase):
             can_view=True
         )
         object_perm.save()
-        self.user.object_permissions.add(object_perm)
+        object_perm.users.add(self.user)
 
         # The user should now able to view the first two sites, but not the third.
         self.assertTrue(self.user.has_perm('dcim.view_site', sites[0]))
