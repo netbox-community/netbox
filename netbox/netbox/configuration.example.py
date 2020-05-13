@@ -112,6 +112,8 @@ EMAIL = {
     'FROM_EMAIL': '',
     'EMAIL_USE_SSL': False,
     'EMAIL_USE_TLS': False,
+    'EMAIL_SSL_CERTFILE': False,
+    'EMAIL_SSL_KEYFILE': False,
 }
 
 # Enforcement of unique IP space can be toggled on a per-VRF basis. To enforce unique IP space within the global table

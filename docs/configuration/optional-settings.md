@@ -118,6 +118,8 @@ In order to send email, NetBox needs an email server configured. The following i
 * FROM_EMAIL - Sender address for emails sent by NetBox
 * EMAIL_USE_SSL - Server requires SSL connection (default: False)
 * EMAIL_USE_TLS - Server requires TLS connection (default: False)
+* EMAIL_SSL_CERTFILE - If EMAIL_USE_SSL or EMAIL_USE_TLS is True, you can optionally specify the path to a PEM-formatted certificate chain file to use for the SSL connection
+* EMAIL_SSL_KEYFILE - If EMAIL_USE_SSL or EMAIL_USE_TLS is True, you can optionally specify the path to a PEM-formatted private key file to use for the SSL connection
 
 Email is sent from NetBox only for critical events. If you would like to test the email server configuration please use the django function [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail):
 
