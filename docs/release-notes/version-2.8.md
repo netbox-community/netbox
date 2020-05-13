@@ -13,6 +13,7 @@ v2.8.4 (FUTURE)
 * [#4607](https://github.com/netbox-community/netbox/issues/4607) - Missing Contextual help for API Tokens
 * [#4613](https://github.com/netbox-community/netbox/issues/4613) - Fix tag assignment on config contexts (regression from #4527)
 * [#4633](https://github.com/netbox-community/netbox/issues/4633) - Bump django-rq to v2.3.2 to fix ImportError with rq 1.4.0
+* [#4634](https://github.com/netbox-community/netbox/issues/4634) - Inventory Item List view exception caused by incorrect accessor definition 
 
 ---
 
