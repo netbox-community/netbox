@@ -116,6 +116,8 @@ In order to send email, NetBox needs an email server configured. The following i
 * PASSSWORD - Password with which to authenticate
 * TIMEOUT - Amount of time to wait for a connection (seconds)
 * FROM_EMAIL - Sender address for emails sent by NetBox
+* EMAIL_USE_SSL - Server requires SSL connection (default: False)
+* EMAIL_USE_TLS - Server requires TLS connection (default: False)
 
 Email is sent from NetBox only for critical events. If you would like to test the email server configuration please use the django function [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail):
 

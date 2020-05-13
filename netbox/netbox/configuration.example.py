@@ -110,6 +110,8 @@ EMAIL = {
     'PASSWORD': '',
     'TIMEOUT': 10,  # seconds
     'FROM_EMAIL': '',
+    'EMAIL_USE_SSL': False,
+    'EMAIL_USE_TLS': False,
 }
 
 # Enforcement of unique IP space can be toggled on a per-VRF basis. To enforce unique IP space within the global table
