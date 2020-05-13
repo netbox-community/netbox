@@ -378,6 +378,8 @@ class PrefixTable(BaseTable):
         verbose_name='Pool'
     )
 
+    add_prefetch = False
+
     class Meta(BaseTable.Meta):
         model = Prefix
         fields = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'is_pool', 'description')
