@@ -108,16 +108,20 @@ The file path to NetBox's documentation. This is used when presenting context-se
 
 ## EMAIL
 
-In order to send email, NetBox needs an email server configured. The following items can be defined within the `EMAIL` setting:
+In order to send email, NetBox needs an email server configured. The following items can be defined within the `EMAIL` configuration parameter:
 
-* SERVER - Host name or IP address of the email server (use `localhost` if running locally)
-* PORT - TCP port to use for the connection (default: 25)
-* USERNAME - Username with which to authenticate
-* PASSSWORD - Password with which to authenticate
-* TIMEOUT - Amount of time to wait for a connection (seconds)
-* FROM_EMAIL - Sender address for emails sent by NetBox
+* `SERVER` - Host name or IP address of the email server (use `localhost` if running locally)
+* `PORT` - TCP port to use for the connection (default: `25`)
+* `USERNAME` - Username with which to authenticate
+* `PASSSWORD` - Password with which to authenticate
+* `USE_SSL` - Use SSL when connecting to the server (default: `False`). Mutually exclusive with `USE_TLS`.
+* `USE_TLS` - Use TLS when connecting to the server (default: `False`). Mutually exclusive with `USE_SSL`.
+* `SSL_CERTFILE` - Path to the PEM-formatted SSL certificate file (optional)
+* `SSL_KEYFILE` - Path to the PEM-formatted SSL private key file (optional)
+* `TIMEOUT` - Amount of time to wait for a connection, in seconds (default: `10`)
+* `FROM_EMAIL` - Sender address for emails sent by NetBox (default: `root@localhost`)
 
-Email is sent from NetBox only for critical events. If you would like to test the email server configuration please use the django function [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail):
+Email is sent from NetBox only for critical events or if configured for [logging](#logging). If you would like to test the email server configuration please use the django function [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail):
 
 ```
 # python ./manage.py nbshell

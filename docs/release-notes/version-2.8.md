@@ -2,6 +2,10 @@
 
 v2.8.4 (FUTURE)
 
+### Enhancements
+
+* [#4632](https://github.com/netbox-community/netbox/issues/4632) - Extend email configuration parameters to support SSL/TLS
+
 ### Bug Fixes
 
 * [#4598](https://github.com/netbox-community/netbox/issues/4598) - Display error message when invalid cable length is specified
