@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.8.3'
+VERSION = '2.8.4'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -246,12 +246,16 @@ if SESSION_FILE_PATH is not None:
 #
 
 EMAIL_HOST = EMAIL.get('SERVER')
-EMAIL_PORT = EMAIL.get('PORT', 25)
 EMAIL_HOST_USER = EMAIL.get('USERNAME')
 EMAIL_HOST_PASSWORD = EMAIL.get('PASSWORD')
+EMAIL_PORT = EMAIL.get('PORT', 25)
+EMAIL_SSL_CERTFILE = EMAIL.get('SSL_CERTFILE')
+EMAIL_SSL_KEYFILE = EMAIL.get('SSL_KEYFILE')
+EMAIL_SUBJECT_PREFIX = '[NetBox] '
+EMAIL_USE_SSL = EMAIL.get('USE_SSL', False)
+EMAIL_USE_TLS = EMAIL.get('USE_TLS', False)
 EMAIL_TIMEOUT = EMAIL.get('TIMEOUT', 10)
 SERVER_EMAIL = EMAIL.get('FROM_EMAIL')
-EMAIL_SUBJECT_PREFIX = '[NetBox] '
 
 
 #

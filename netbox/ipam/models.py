@@ -640,7 +640,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         'dns_name', 'description',
     ]
     clone_fields = [
-        'vrf', 'tenant', 'status', 'role', 'description',
+        'vrf', 'tenant', 'status', 'role', 'description', 'interface',
     ]
 
     STATUS_CLASS_MAP = {
