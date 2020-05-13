@@ -1,10 +1,10 @@
 from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
-from taggit.forms import TagField
 
 from dcim.models import Device, Interface, Rack, Region, Site
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
+    TagField,
 )
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
