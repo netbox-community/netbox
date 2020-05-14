@@ -34,6 +34,28 @@ class ViewExemptModelBackend(ModelBackend):
             qs_filter |= Q(content_type__app_label=app, codename=f'view_{name}')
         return Permission.objects.filter(qs_filter)
 
+    def has_perm(self, user_obj, perm, obj=None):
+
+        # Authenticated users need to have the view permissions cached for assessment
+        if user_obj.is_authenticated:
+            return super().has_perm(user_obj, perm, obj)
+
+        # If this is a view permission, check whether the model has been exempted from enforcement
+        try:
+            app, codename = perm.split('.')
+            action, model = codename.split('_')
+            if action == 'view':
+                if (
+                    # All models are exempt from view permission enforcement
+                    '*' in settings.EXEMPT_VIEW_PERMISSIONS
+                ) or (
+                    # This specific model is exempt from view permission enforcement
+                    '{}.{}'.format(app, model) in settings.EXEMPT_VIEW_PERMISSIONS
+                ):
+                    return True
+        except ValueError:
+            pass
+
 
 class ObjectPermissionBackend(ModelBackend):
     """
