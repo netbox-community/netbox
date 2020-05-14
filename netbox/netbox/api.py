@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db.models import QuerySet
 from rest_framework import authentication, exceptions
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import DjangoModelPermissions, SAFE_METHODS
+from rest_framework.permissions import DjangoObjectPermissions, SAFE_METHODS
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.utils import formatting
 
@@ -51,7 +51,7 @@ class TokenAuthentication(authentication.TokenAuthentication):
         return token.user, token
 
 
-class TokenPermissions(DjangoModelPermissions):
+class TokenPermissions(DjangoObjectPermissions):
     """
     Custom permissions handler which extends the built-in DjangoModelPermissions to validate a Token's write ability
     for unsafe requests (POST/PUT/PATCH/DELETE).
@@ -74,14 +74,28 @@ class TokenPermissions(DjangoModelPermissions):
 
         super().__init__()
 
+    def _verify_write_permission(self, request):
+        # If token authentication is in use, verify that the token allows write operations (for unsafe methods).
+        if request.method in SAFE_METHODS:
+            return True
+        if isinstance(request.auth, Token) and request.auth.write_enabled:
+            return True
+
     def has_permission(self, request, view):
 
-        # If token authentication is in use, verify that the token allows write operations (for unsafe methods).
-        if request.method not in SAFE_METHODS and isinstance(request.auth, Token):
-            if not request.auth.write_enabled:
-                return False
+        # Enforce Token write ability
+        if not self._verify_write_permission(request):
+            return False
 
         return super().has_permission(request, view)
+
+    def has_object_permission(self, request, view, obj):
+
+        # Enforce Token write ability
+        if not self._verify_write_permission(request):
+            return False
+
+        return super().has_object_permission(request, view, obj)
 
 
 #
