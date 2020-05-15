@@ -1,6 +1,5 @@
 import django_tables2 as tables
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models import ForeignKey
 from django.db.models.fields.related import RelatedField
 from django.utils.safestring import mark_safe
 from django_tables2.data import TableQuerysetData
@@ -9,7 +8,13 @@ from django_tables2.data import TableQuerysetData
 class BaseTable(tables.Table):
     """
     Default table for object lists
+
+    :param add_prefetch: By default, modify the queryset passed to the table upon initialization to automatically
+      prefetch related data. Set this to False if it's necessary to avoid modifying the queryset (e.g. to
+      accommodate PrefixQuerySet.annotate_depth()).
     """
+    add_prefetch = True
+
     class Meta:
         attrs = {
             'class': 'table table-hover table-headings',
@@ -50,7 +55,7 @@ class BaseTable(tables.Table):
                 self.sequence.append('actions')
 
         # Dynamically update the table's QuerySet to ensure related fields are pre-fetched
-        if isinstance(self.data, TableQuerysetData):
+        if self.add_prefetch and isinstance(self.data, TableQuerysetData):
             model = getattr(self.Meta, 'model')
             prefetch_fields = []
             for column in self.columns:

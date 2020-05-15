@@ -1,5 +1,47 @@
 # NetBox v2.8
 
+v2.8.5 (FUTURE)
+
+**Note:** The minimum required version of PostgreSQL is now 9.6.
+
+### Bug Fixes
+
+* [#3304](https://github.com/netbox-community/netbox/issues/3304) - Fix caching invalidation issue related to device/virtual machine primary IP addresses
+* [#4644](https://github.com/netbox-community/netbox/issues/4644) - Fix ordering of services table by parent
+* [#4646](https://github.com/netbox-community/netbox/issues/4646) - Correct UI link for reports with custom name
+* [#4647](https://github.com/netbox-community/netbox/issues/4647) - Fix caching invalidation issue related to assigning new IP addresses to interfaces
+* [#4648](https://github.com/netbox-community/netbox/issues/4648) - Fix bulk CSV import of child devices
+* [#4649](https://github.com/netbox-community/netbox/issues/4649) - Fix interface assignment for bulk-imported IP addresses
+
+---
+
+v2.8.4 (2020-05-13)
+
+### Enhancements
+
+* [#4632](https://github.com/netbox-community/netbox/issues/4632) - Extend email configuration parameters to support SSL/TLS
+
+### Bug Fixes
+
+* [#4598](https://github.com/netbox-community/netbox/issues/4598) - Display error message when invalid cable length is specified
+* [#4604](https://github.com/netbox-community/netbox/issues/4604) - Multi-position rear ports may only be connected to other rear ports
+* [#4607](https://github.com/netbox-community/netbox/issues/4607) - Missing Contextual help for API Tokens
+* [#4613](https://github.com/netbox-community/netbox/issues/4613) - Fix tag assignment on config contexts (regression from #4527)
+* [#4617](https://github.com/netbox-community/netbox/issues/4617) - Restore IP prefix depth notation in list view
+* [#4629](https://github.com/netbox-community/netbox/issues/4629) - Replicate assigned interface when cloning IP addresses
+* [#4633](https://github.com/netbox-community/netbox/issues/4633) - Bump django-rq to v2.3.2 to fix ImportError with rq 1.4.0
+* [#4634](https://github.com/netbox-community/netbox/issues/4634) - Inventory Item List view exception caused by incorrect accessor definition 
+
+---
+
+## v2.8.3 (2020-05-06)
+
+### Bug Fixes
+
+* [#4593](https://github.com/netbox-community/netbox/issues/4593) - Fix AttributeError exception when viewing object lists as a non-authenticated user
+
+---
+
 ## v2.8.2 (2020-05-06)
 
 ### Enhancements

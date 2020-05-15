@@ -292,9 +292,9 @@ $(document).ready(function() {
     });
 
     // API backed tags
-    var tags = $('#id_tags');
+    var tags = $('#id_tags.tagfield');
     if (tags.length > 0 && tags.val().length > 0){
-        tags = $('#id_tags').val().split(/,\s*/);
+        tags = $('#id_tags.tagfield').val().split(/,\s*/);
     } else {
         tags = [];
     }
@@ -306,8 +306,8 @@ $(document).ready(function() {
         }
     });
     // Replace the django issued text input with a select element
-    $('#id_tags').replaceWith('<select name="tags" id="id_tags" class="form-control"></select>');
-    $('#id_tags').select2({
+    $('#id_tags.tagfield').replaceWith('<select name="tags" id="id_tags" class="form-control tagfield"></select>');
+    $('#id_tags.tagfield').select2({
         tags: true,
         data: tag_objs,
         multiple: true,
@@ -354,14 +354,14 @@ $(document).ready(function() {
             }
         }
     });
-    $('#id_tags').closest('form').submit(function(event){
+    $('#id_tags.tagfield').closest('form').submit(function(event){
         // django-taggit can only accept a single comma seperated string value
-        var value = $('#id_tags').val();
+        var value = $('#id_tags.tagfield').val();
         if (value.length > 0){
             var final_tags = value.join(', ');
-            $('#id_tags').val(null).trigger('change');
+            $('#id_tags.tagfield').val(null).trigger('change');
             var option = new Option(final_tags, final_tags, true, true);
-            $('#id_tags').append(option).trigger('change');
+            $('#id_tags.tagfield').append(option).trigger('change');
         }
     });
 

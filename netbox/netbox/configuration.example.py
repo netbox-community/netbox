@@ -108,6 +108,8 @@ EMAIL = {
     'PORT': 25,
     'USERNAME': '',
     'PASSWORD': '',
+    'USE_SSL': False,
+    'USE_TLS': False,
     'TIMEOUT': 10,  # seconds
     'FROM_EMAIL': '',
 }

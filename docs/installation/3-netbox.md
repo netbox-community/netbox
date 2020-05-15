@@ -78,7 +78,8 @@ Create a system user account named `netbox`. We'll configure the WSGI and HTTP s
     CentOS users may need to create the `netbox` group first.
 
 ```
-# adduser --system --group netbox
+# groupadd --system netbox
+# adduser --system --gid netbox netbox
 # chown --recursive netbox /opt/netbox/netbox/media/
 ```
 

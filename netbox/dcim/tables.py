@@ -1195,7 +1195,7 @@ class InventoryItemTable(BaseTable):
         args=[Accessor('device.pk')]
     )
     manufacturer = tables.Column(
-        accessor=Accessor('manufacturer.name')
+        accessor=Accessor('manufacturer')
     )
     discovered = BooleanColumn()
 
