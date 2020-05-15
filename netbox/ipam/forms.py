@@ -618,7 +618,12 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         if self.instance and self.instance.interface:
             self.fields['interface'].queryset = Interface.objects.filter(
                 device=self.instance.interface.device, virtual_machine=self.instance.interface.virtual_machine
-            )
+            ).prefetch_related(
+                'device__primary_ip4',
+                'device__primary_ip6',
+                'virtual_machine__primary_ip4',
+                'virtual_machine__primary_ip6',
+            )  # We prefetch the primary address fields to ensure cache invalidation does not balk on the save()
         else:
             self.fields['interface'].choices = []
 
