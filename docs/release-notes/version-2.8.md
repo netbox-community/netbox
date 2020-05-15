@@ -5,8 +5,8 @@ v2.8.5 (FUTURE)
 ### Bug Fixes
 
 * [#3304](https://github.com/netbox-community/netbox/issues/3304) - Fix caching invalidation issue related to device/virtual machine primary IP addresses
-* [#4647](https://github.com/netbox-community/netbox/issues/4647) - Fix caching invalidation issue related to assinging new IP addresses to interfaces
-
+* [#4644](https://github.com/netbox-community/netbox/issues/4644) - Fix ordering of services table by parent
+* [#4647](https://github.com/netbox-community/netbox/issues/4647) - Fix caching invalidation issue related to assigning new IP addresses to interfaces
 
 ---
 

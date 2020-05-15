@@ -667,6 +667,9 @@ class ServiceTable(BaseTable):
         viewname='ipam:service',
         args=[Accessor('pk')]
     )
+    parent = tables.LinkColumn(
+        order_by=('device', 'virtual_machine')
+    )
     tags = TagColumn(
         url_name='ipam:service_list'
     )
