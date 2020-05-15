@@ -92,7 +92,7 @@ class Report(object):
         self.active_test = None
         self.failed = False
 
-        self.logger = logging.getLogger(f"netbox.reports.{self.module}.{self.name}")
+        self.logger = logging.getLogger(f"netbox.reports.{self.full_name}")
 
         # Compile test methods and initialize results skeleton
         test_methods = []
@@ -120,7 +120,7 @@ class Report(object):
 
     @property
     def full_name(self):
-        return '.'.join([self.module, self.name])
+        return '.'.join([self.__module__, self.__class__.__name__])
 
     def _log(self, obj, message, level=LOG_DEFAULT):
         """
