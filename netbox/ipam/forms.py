@@ -780,18 +780,6 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
 
     def save(self, *args, **kwargs):
 
-        # Set interface
-        if self.cleaned_data['device'] and self.cleaned_data['interface_name']:
-            self.instance.interface = Interface.objects.get(
-                device=self.cleaned_data['device'],
-                name=self.cleaned_data['interface_name']
-            )
-        elif self.cleaned_data['virtual_machine'] and self.cleaned_data['interface_name']:
-            self.instance.interface = Interface.objects.get(
-                virtual_machine=self.cleaned_data['virtual_machine'],
-                name=self.cleaned_data['interface_name']
-            )
-
         ipaddress = super().save(*args, **kwargs)
 
         # Set as primary for device/VM

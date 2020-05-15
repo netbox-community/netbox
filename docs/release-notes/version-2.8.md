@@ -9,6 +9,7 @@ v2.8.5 (FUTURE)
 * [#4646](https://github.com/netbox-community/netbox/issues/4646) - Correct UI link for reports with custom name
 * [#4647](https://github.com/netbox-community/netbox/issues/4647) - Fix caching invalidation issue related to assigning new IP addresses to interfaces
 * [#4648](https://github.com/netbox-community/netbox/issues/4648) - Fix bulk CSV import of child devices
+* [#4649](https://github.com/netbox-community/netbox/issues/4649) - Fix interface assignment for bulk-imported IP addresses
 
 ---
 
