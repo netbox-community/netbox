@@ -1,5 +1,13 @@
 # NetBox v2.8
 
+v2.8.5 (FUTURE)
+
+### Bug Fixes
+
+* [#3304](https://github.com/netbox-community/netbox/issues/3304) - Fix caching invalidation issue related to device/virtual machine primary IP addresses
+
+---
+
 v2.8.4 (2020-05-13)
 
 ### Enhancements
