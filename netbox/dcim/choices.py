@@ -276,6 +276,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_NEMA_L620P = 'nema-l6-20p'
     TYPE_NEMA_L630P = 'nema-l6-30p'
     TYPE_NEMA_L650P = 'nema-l6-50p'
+    TYPE_NEMA_L2130P = 'nema-l21-30p'
     # California style
     TYPE_CS6361C = 'cs6361c'
     TYPE_CS6365C = 'cs6365c'
@@ -337,6 +338,7 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_NEMA_L620P, 'NEMA L6-20P'),
             (TYPE_NEMA_L630P, 'NEMA L6-30P'),
             (TYPE_NEMA_L650P, 'NEMA L6-50P'),
+            (TYPE_NEMA_L2130P, 'NEMA L21-30P'),
         )),
         ('California Style', (
             (TYPE_CS6361C, 'CS6361C'),
