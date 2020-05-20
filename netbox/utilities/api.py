@@ -329,11 +329,15 @@ class ModelViewSet(_ModelViewSet):
         if not request.user.is_authenticated or request.user.is_superuser:
             return
 
-        permission_required = 'dcim.view_site'
+        # Determine the required permission
+        permission_required = "{}.view_{}".format(
+            self.queryset.model._meta.app_label,
+            self.queryset.model._meta.model_name
+        )
 
         # Enforce object-level permissions
-        if permission_required not in self.request.user._perm_cache:
-            attrs = ObjectPermission.objects.get_attr_constraints(self.request.user, permission_required)
+        if permission_required not in {*request.user._user_perm_cache, *request.user._group_perm_cache}:
+            attrs = ObjectPermission.objects.get_attr_constraints(request.user, permission_required)
             if attrs:
                 # Update the view's QuerySet to filter only the permitted objects
                 self.queryset = self.queryset.filter(attrs)
