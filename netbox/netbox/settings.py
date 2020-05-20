@@ -333,8 +333,7 @@ TEMPLATES = [
 
 # Set up authentication backends
 AUTHENTICATION_BACKENDS = [
-    REMOTE_AUTH_BACKEND,
-    'utilities.auth_backends.ViewExemptModelBackend',
+    # REMOTE_AUTH_BACKEND,
     'utilities.auth_backends.ObjectPermissionBackend',
 ]
 

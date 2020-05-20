@@ -13,23 +13,28 @@ class ObjectPermissionRequiredMixin(AccessMixin):
     permission_required = None
 
     def has_permission(self):
-        # First, check whether the user is granted the requested permissions from any backend.
-        if not self.request.user.has_perm(self.permission_required):
+        user = self.request.user
+
+        # First, check that the user is granted the required permission at either the model or object level.
+        if not user.has_perm(self.permission_required):
             return False
 
-        # Next, determine whether the permission is model-level or object-level. Model-level permissions grant the
+        # Superusers implicitly have all permissions
+        if user.is_superuser:
+            return True
+
+        # Determine whether the permission is model-level or object-level. Model-level permissions grant the
         # specified action to *all* objects, so no further action is needed.
-        if self.request.user.is_superuser or self.permission_required in self.request.user._perm_cache:
+        if self.permission_required in {*user._user_perm_cache, *user._group_perm_cache}:
             return True
 
         # If the permission is granted only at the object level, filter the view's queryset to return only objects
         # on which the user is permitted to perform the specified action.
-        if self.permission_required in self.request.user._obj_perm_cache:
-            attrs = ObjectPermission.objects.get_attr_constraints(self.request.user, self.permission_required)
-            if attrs:
-                # Update the view's QuerySet to filter only the permitted objects
-                self.queryset = self.queryset.filter(attrs)
-                return True
+        attrs = ObjectPermission.objects.get_attr_constraints(user, self.permission_required)
+        if attrs:
+            # Update the view's QuerySet to filter only the permitted objects
+            self.queryset = self.queryset.filter(attrs)
+            return True
 
     def dispatch(self, request, *args, **kwargs):
         if self.permission_required is None:

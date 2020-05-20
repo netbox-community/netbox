@@ -5,11 +5,12 @@ from django.test import Client
 from django.test.utils import override_settings
 from django.urls import reverse
 from netaddr import IPNetwork
+from rest_framework.test import APIClient
 
 from dcim.models import Site
 from ipam.choices import PrefixStatusChoices
 from ipam.models import Prefix
-from users.models import ObjectPermission
+from users.models import ObjectPermission, Token
 from utilities.testing.testcases import TestCase
 
 
@@ -167,7 +168,7 @@ class ExternalAuthenticationTestCase(TestCase):
         self.assertTrue(new_user.has_perms(['dcim.add_site', 'dcim.change_site']))
 
 
-class ObjectPermissionTestCase(TestCase):
+class ObjectPermissionViewTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -193,14 +194,16 @@ class ObjectPermissionTestCase(TestCase):
         Prefix.objects.bulk_create(cls.prefixes)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-    def test_ui_get_object(self):
+    def test_get_object(self):
+
+        # Attempt to retrieve object without permission
+        response = self.client.get(self.prefixes[0].get_absolute_url())
+        self.assertHttpStatus(response, 403)
 
         # Assign object permission
         obj_perm = ObjectPermission(
             model=ContentType.objects.get_for_model(Prefix),
-            attrs={
-                'site__name': 'Site 1',
-            },
+            attrs={'site__name': 'Site 1'},
             can_view=True
         )
         obj_perm.save()
@@ -215,7 +218,7 @@ class ObjectPermissionTestCase(TestCase):
         self.assertHttpStatus(response, 404)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-    def test_ui_list_objects(self):
+    def test_list_objects(self):
 
         # Attempt to list objects without permission
         response = self.client.get(reverse('ipam:prefix_list'))
@@ -224,9 +227,7 @@ class ObjectPermissionTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             model=ContentType.objects.get_for_model(Prefix),
-            attrs={
-                'site__name': 'Site 1',
-            },
+            attrs={'site__name': 'Site 1'},
             can_view=True
         )
         obj_perm.save()
@@ -239,7 +240,7 @@ class ObjectPermissionTestCase(TestCase):
         self.assertNotIn(str(self.prefixes[3].prefix), str(response.content))
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-    def test_ui_create_object(self):
+    def test_create_object(self):
         initial_count = Prefix.objects.count()
         form_data = {
             'prefix': '10.0.9.0/24',
@@ -260,9 +261,7 @@ class ObjectPermissionTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             model=ContentType.objects.get_for_model(Prefix),
-            attrs={
-                'site__name': 'Site 1',
-            },
+            attrs={'site__name': 'Site 1'},
             can_view=True,
             can_add=True
         )
@@ -277,7 +276,7 @@ class ObjectPermissionTestCase(TestCase):
         }
         response = self.client.post(**request)
         self.assertHttpStatus(response, 200)
-        self.assertEqual(initial_count, Prefix.objects.count())
+        self.assertEqual(Prefix.objects.count(), initial_count)
 
         # Create a permitted object
         form_data['site'] = self.sites[0].pk
@@ -288,10 +287,10 @@ class ObjectPermissionTestCase(TestCase):
         }
         response = self.client.post(**request)
         self.assertHttpStatus(response, 200)
-        self.assertEqual(initial_count + 1, Prefix.objects.count())
+        self.assertEqual(Prefix.objects.count(), initial_count + 1)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-    def test_ui_edit_object(self):
+    def test_edit_object(self):
         form_data = {
             'prefix': '10.0.9.0/24',
             'site': self.sites[0].pk,
@@ -310,9 +309,7 @@ class ObjectPermissionTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             model=ContentType.objects.get_for_model(Prefix),
-            attrs={
-                'site__name': 'Site 1',
-            },
+            attrs={'site__name': 'Site 1'},
             can_view=True,
             can_change=True
         )
@@ -340,7 +337,7 @@ class ObjectPermissionTestCase(TestCase):
         self.assertEqual(prefix.status, PrefixStatusChoices.STATUS_RESERVED)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-    def test_ui_delete_object(self):
+    def test_delete_object(self):
         form_data = {
             'confirm': True
         }
@@ -348,9 +345,7 @@ class ObjectPermissionTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             model=ContentType.objects.get_for_model(Prefix),
-            attrs={
-                'site__name': 'Site 1',
-            },
+            attrs={'site__name': 'Site 1'},
             can_view=True,
             can_delete=True
         )
