@@ -8,6 +8,7 @@ from django.views.generic import View
 from django_tables2 import RequestConfig
 
 from dcim.models import Device, Interface
+from netbox.authentication import ObjectPermissionRequiredMixin
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -440,7 +441,7 @@ class RoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Prefixes
 #
 
-class PrefixListView(PermissionRequiredMixin, ObjectListView):
+class PrefixListView(ObjectPermissionRequiredMixin, ObjectListView):
     permission_required = 'ipam.view_prefix'
     queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     filterset = filters.PrefixFilterSet
@@ -454,14 +455,13 @@ class PrefixListView(PermissionRequiredMixin, ObjectListView):
         return self.queryset.annotate_depth(limit=limit)
 
 
-class PrefixView(PermissionRequiredMixin, View):
+class PrefixView(ObjectPermissionRequiredMixin, View):
     permission_required = 'ipam.view_prefix'
+    queryset = Prefix.objects.prefetch_related('vrf', 'site__region', 'tenant__group', 'vlan__group', 'role')
 
     def get(self, request, pk):
 
-        prefix = get_object_or_404(Prefix.objects.prefetch_related(
-            'vrf', 'site__region', 'tenant__group', 'vlan__group', 'role'
-        ), pk=pk)
+        prefix = get_object_or_404(self.queryset, pk=pk)
 
         try:
             aggregate = Aggregate.objects.get(prefix__net_contains_or_equals=str(prefix.prefix))
@@ -586,7 +586,7 @@ class PrefixIPAddressesView(PermissionRequiredMixin, View):
         })
 
 
-class PrefixCreateView(PermissionRequiredMixin, ObjectEditView):
+class PrefixCreateView(ObjectPermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_prefix'
     queryset = Prefix.objects.all()
     model_form = forms.PrefixForm
@@ -598,7 +598,7 @@ class PrefixEditView(PrefixCreateView):
     permission_required = 'ipam.change_prefix'
 
 
-class PrefixDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class PrefixDeleteView(ObjectPermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_prefix'
     queryset = Prefix.objects.all()
     template_name = 'ipam/prefix_delete.html'
