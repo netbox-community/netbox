@@ -4,6 +4,10 @@ v2.8.5 (FUTURE)
 
 **Note:** The minimum required version of PostgreSQL is now 9.6.
 
+### Enhancements
+
+* [#4665](https://github.com/netbox-community/netbox/issues/4665) - Add NEMA L14 and L21 power port/outlet types
+
 ### Bug Fixes
 
 * [#3304](https://github.com/netbox-community/netbox/issues/3304) - Fix caching invalidation issue related to device/virtual machine primary IP addresses
