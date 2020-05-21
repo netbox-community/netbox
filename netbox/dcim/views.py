@@ -671,9 +671,8 @@ class DeviceTypeBulkDeleteView(BulkDeleteView):
 # Console port templates
 #
 
-class ConsolePortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_consoleporttemplate'
-    model = ConsolePortTemplate
+class ConsolePortTemplateCreateView(ComponentCreateView):
+    queryset = ConsolePortTemplate.objects.all()
     form = forms.ConsolePortTemplateCreateForm
     model_form = forms.ConsolePortTemplateForm
     template_name = 'dcim/device_component_add.html'
@@ -703,9 +702,8 @@ class ConsolePortTemplateBulkDeleteView(BulkDeleteView):
 # Console server port templates
 #
 
-class ConsoleServerPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_consoleserverporttemplate'
-    model = ConsoleServerPortTemplate
+class ConsoleServerPortTemplateCreateView(ComponentCreateView):
+    queryset = ConsoleServerPortTemplate.objects.all()
     form = forms.ConsoleServerPortTemplateCreateForm
     model_form = forms.ConsoleServerPortTemplateForm
     template_name = 'dcim/device_component_add.html'
@@ -735,9 +733,8 @@ class ConsoleServerPortTemplateBulkDeleteView(BulkDeleteView):
 # Power port templates
 #
 
-class PowerPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_powerporttemplate'
-    model = PowerPortTemplate
+class PowerPortTemplateCreateView(ComponentCreateView):
+    queryset = PowerPortTemplate.objects.all()
     form = forms.PowerPortTemplateCreateForm
     model_form = forms.PowerPortTemplateForm
     template_name = 'dcim/device_component_add.html'
@@ -767,9 +764,8 @@ class PowerPortTemplateBulkDeleteView(BulkDeleteView):
 # Power outlet templates
 #
 
-class PowerOutletTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_poweroutlettemplate'
-    model = PowerOutletTemplate
+class PowerOutletTemplateCreateView(ComponentCreateView):
+    queryset = PowerOutletTemplate.objects.all()
     form = forms.PowerOutletTemplateCreateForm
     model_form = forms.PowerOutletTemplateForm
     template_name = 'dcim/device_component_add.html'
@@ -799,9 +795,8 @@ class PowerOutletTemplateBulkDeleteView(BulkDeleteView):
 # Interface templates
 #
 
-class InterfaceTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_interfacetemplate'
-    model = InterfaceTemplate
+class InterfaceTemplateCreateView(ComponentCreateView):
+    queryset = InterfaceTemplate.objects.all()
     form = forms.InterfaceTemplateCreateForm
     model_form = forms.InterfaceTemplateForm
     template_name = 'dcim/device_component_add.html'
@@ -831,9 +826,8 @@ class InterfaceTemplateBulkDeleteView(BulkDeleteView):
 # Front port templates
 #
 
-class FrontPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_frontporttemplate'
-    model = FrontPortTemplate
+class FrontPortTemplateCreateView(ComponentCreateView):
+    queryset = FrontPortTemplate.objects.all()
     form = forms.FrontPortTemplateCreateForm
     model_form = forms.FrontPortTemplateForm
     template_name = 'dcim/device_component_add.html'
@@ -863,9 +857,8 @@ class FrontPortTemplateBulkDeleteView(BulkDeleteView):
 # Rear port templates
 #
 
-class RearPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_rearporttemplate'
-    model = RearPortTemplate
+class RearPortTemplateCreateView(ComponentCreateView):
+    queryset = RearPortTemplate.objects.all()
     form = forms.RearPortTemplateCreateForm
     model_form = forms.RearPortTemplateForm
     template_name = 'dcim/device_component_add.html'
@@ -895,9 +888,8 @@ class RearPortTemplateBulkDeleteView(BulkDeleteView):
 # Device bay templates
 #
 
-class DeviceBayTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_devicebaytemplate'
-    model = DeviceBayTemplate
+class DeviceBayTemplateCreateView(ComponentCreateView):
+    queryset = DeviceBayTemplate.objects.all()
     form = forms.DeviceBayTemplateCreateForm
     model_form = forms.DeviceBayTemplateForm
     template_name = 'dcim/device_component_add.html'
@@ -913,7 +905,6 @@ class DeviceBayTemplateDeleteView(ObjectDeleteView):
 
 
 # class DeviceBayTemplateBulkEditView(BulkEditView):
-#     permission_required = 'dcim.change_devicebaytemplate'
 #     queryset = DeviceBayTemplate.objects.all()
 #     table = tables.DeviceBayTemplateTable
 #     form = forms.DeviceBayTemplateBulkEditForm
@@ -1105,7 +1096,7 @@ class DeviceStatusView(ObjectView):
         })
 
 
-class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
+class DeviceLLDPNeighborsView(ObjectView):
     permission_required = ('dcim.view_device', 'dcim.napalm_read')
     queryset = Device.objects.all()
 
@@ -1123,7 +1114,7 @@ class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
         })
 
 
-class DeviceConfigView(PermissionRequiredMixin, View):
+class DeviceConfigView(ObjectView):
     permission_required = ('dcim.view_device', 'dcim.napalm_read')
     queryset = Device.objects.all()
 
@@ -1209,9 +1200,8 @@ class ConsolePortListView(ObjectListView):
     action_buttons = ('import', 'export')
 
 
-class ConsolePortCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_consoleport'
-    model = ConsolePort
+class ConsolePortCreateView(ComponentCreateView):
+    queryset = ConsolePort.objects.all()
     form = forms.ConsolePortCreateForm
     model_form = forms.ConsolePortForm
     template_name = 'dcim/device_component_add.html'
@@ -1259,9 +1249,8 @@ class ConsoleServerPortListView(ObjectListView):
     action_buttons = ('import', 'export')
 
 
-class ConsoleServerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_consoleserverport'
-    model = ConsoleServerPort
+class ConsoleServerPortCreateView(ComponentCreateView):
+    queryset = ConsoleServerPort.objects.all()
     form = forms.ConsoleServerPortCreateForm
     model_form = forms.ConsoleServerPortForm
     template_name = 'dcim/device_component_add.html'
@@ -1319,9 +1308,8 @@ class PowerPortListView(ObjectListView):
     action_buttons = ('import', 'export')
 
 
-class PowerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_powerport'
-    model = PowerPort
+class PowerPortCreateView(ComponentCreateView):
+    queryset = PowerPort.objects.all()
     form = forms.PowerPortCreateForm
     model_form = forms.PowerPortForm
     template_name = 'dcim/device_component_add.html'
@@ -1369,9 +1357,8 @@ class PowerOutletListView(ObjectListView):
     action_buttons = ('import', 'export')
 
 
-class PowerOutletCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_poweroutlet'
-    model = PowerOutlet
+class PowerOutletCreateView(ComponentCreateView):
+    queryset = PowerOutlet.objects.all()
     form = forms.PowerOutletCreateForm
     model_form = forms.PowerOutletForm
     template_name = 'dcim/device_component_add.html'
@@ -1465,9 +1452,8 @@ class InterfaceView(ObjectView):
         })
 
 
-class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_interface'
-    model = Interface
+class InterfaceCreateView(ComponentCreateView):
+    queryset = Interface.objects.all()
     form = forms.InterfaceCreateForm
     model_form = forms.InterfaceForm
     template_name = 'dcim/device_component_add.html'
@@ -1526,9 +1512,8 @@ class FrontPortListView(ObjectListView):
     action_buttons = ('import', 'export')
 
 
-class FrontPortCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_frontport'
-    model = FrontPort
+class FrontPortCreateView(ComponentCreateView):
+    queryset = FrontPort.objects.all()
     form = forms.FrontPortCreateForm
     model_form = forms.FrontPortForm
     template_name = 'dcim/device_component_add.html'
@@ -1586,9 +1571,8 @@ class RearPortListView(ObjectListView):
     action_buttons = ('import', 'export')
 
 
-class RearPortCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_rearport'
-    model = RearPort
+class RearPortCreateView(ComponentCreateView):
+    queryset = RearPort.objects.all()
     form = forms.RearPortCreateForm
     model_form = forms.RearPortForm
     template_name = 'dcim/device_component_add.html'
@@ -1648,9 +1632,8 @@ class DeviceBayListView(ObjectListView):
     action_buttons = ('import', 'export')
 
 
-class DeviceBayCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_devicebay'
-    model = DeviceBay
+class DeviceBayCreateView(ComponentCreateView):
+    queryset = DeviceBay.objects.all()
     form = forms.DeviceBayCreateForm
     model_form = forms.DeviceBayForm
     template_name = 'dcim/device_component_add.html'
@@ -2144,9 +2127,8 @@ class InventoryItemEditView(ObjectEditView):
     model_form = forms.InventoryItemForm
 
 
-class InventoryItemCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_inventoryitem'
-    model = InventoryItem
+class InventoryItemCreateView(ComponentCreateView):
+    queryset = InventoryItem.objects.all()
     form = forms.InventoryItemCreateForm
     model_form = forms.InventoryItemForm
     template_name = 'dcim/device_component_add.html'

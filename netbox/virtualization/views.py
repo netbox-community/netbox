@@ -293,9 +293,8 @@ class VirtualMachineBulkDeleteView(BulkDeleteView):
 # VM interfaces
 #
 
-class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'dcim.add_interface'
-    model = Interface
+class InterfaceCreateView(ComponentCreateView):
+    queryset = Interface.objects.all()
     form = forms.InterfaceCreateForm
     model_form = forms.InterfaceForm
     template_name = 'virtualization/virtualmachine_component_add.html'

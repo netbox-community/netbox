@@ -1033,28 +1033,32 @@ class BulkDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 #
 
 # TODO: Replace with BulkCreateView
-class ComponentCreateView(GetReturnURLMixin, View):
+class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a Device or VirtualMachine.
     """
-    model = None
+    queryset = None
     form = None
     model_form = None
     template_name = None
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'add')
 
     def get(self, request):
 
         form = self.form(initial=request.GET)
 
         return render(request, self.template_name, {
-            'component_type': self.model._meta.verbose_name,
+            'component_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request),
         })
 
     def post(self, request):
-
+        logger = logging.getLogger('netbox.views.ComponentCreateView')
         form = self.form(request.POST, initial=request.GET)
+
         if form.is_valid():
 
             new_components = []
@@ -1080,20 +1084,35 @@ class ComponentCreateView(GetReturnURLMixin, View):
 
             if not form.errors:
 
-                # Create the new components
-                for component_form in new_components:
-                    component_form.save()
+                try:
 
-                messages.success(request, "Added {} {}".format(
-                    len(new_components), self.model._meta.verbose_name_plural
-                ))
-                if '_addanother' in request.POST:
-                    return redirect(request.get_full_path())
-                else:
-                    return redirect(self.get_return_url(request))
+                    with transaction.atomic():
+
+                        # Create the new components
+                        new_objs = []
+                        for component_form in new_components:
+                            obj = component_form.save()
+                            new_objs.append(obj)
+
+                        # Enforce object-level permissions
+                        if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
+                            raise ObjectDoesNotExist
+
+                    messages.success(request, "Added {} {}".format(
+                        len(new_components), self.queryset.model._meta.verbose_name_plural
+                    ))
+                    if '_addanother' in request.POST:
+                        return redirect(request.get_full_path())
+                    else:
+                        return redirect(self.get_return_url(request))
+
+                except ObjectDoesNotExist:
+                    msg = "Component creation failed due to object-level permissions violation"
+                    logger.debug(msg)
+                    form.add_error(None, msg)
 
         return render(request, self.template_name, {
-            'component_type': self.model._meta.verbose_name,
+            'component_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request),
         })
