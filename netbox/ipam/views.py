@@ -8,10 +8,10 @@ from django.views.generic import View
 from django_tables2 import RequestConfig
 
 from dcim.models import Device, Interface
-from netbox.authentication import ObjectPermissionRequiredMixin
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    ObjectPermissionRequiredMixin,
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables

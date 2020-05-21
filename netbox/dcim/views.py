@@ -21,13 +21,12 @@ from extras.models import Graph
 from extras.views import ObjectConfigContextView
 from ipam.models import Prefix, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
-from netbox.authentication import ObjectPermissionRequiredMixin
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.utils import csv_format
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, GetReturnURLMixin,
-    ObjectImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    ObjectImportView, ObjectDeleteView, ObjectEditView, ObjectListView, ObjectPermissionRequiredMixin,
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
