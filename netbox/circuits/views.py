@@ -86,8 +86,7 @@ class ProviderBulkEditView(BulkEditView):
     default_return_url = 'circuits:provider_list'
 
 
-class ProviderBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'circuits.delete_provider'
+class ProviderBulkDeleteView(BulkDeleteView):
     queryset = Provider.objects.annotate(count_circuits=Count('circuits'))
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
@@ -116,8 +115,7 @@ class CircuitTypeBulkImportView(BulkImportView):
     default_return_url = 'circuits:circuittype_list'
 
 
-class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'circuits.delete_circuittype'
+class CircuitTypeBulkDeleteView(BulkDeleteView):
     queryset = CircuitType.objects.annotate(circuit_count=Count('circuits'))
     table = tables.CircuitTypeTable
     default_return_url = 'circuits:circuittype_list'
@@ -188,8 +186,7 @@ class CircuitBulkEditView(BulkEditView):
     default_return_url = 'circuits:circuit_list'
 
 
-class CircuitBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'circuits.delete_circuit'
+class CircuitBulkDeleteView(BulkDeleteView):
     queryset = Circuit.objects.prefetch_related('provider', 'type', 'tenant').prefetch_related('terminations__site')
     filterset = filters.CircuitFilterSet
     table = tables.CircuitTable

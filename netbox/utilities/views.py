@@ -911,7 +911,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         })
 
 
-class BulkDeleteView(GetReturnURLMixin, View):
+class BulkDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Delete objects in bulk.
 
@@ -926,6 +926,9 @@ class BulkDeleteView(GetReturnURLMixin, View):
     table = None
     form = None
     template_name = 'utilities/obj_bulk_delete.html'
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'delete')
 
     def get(self, request):
         return redirect(self.get_return_url(request))

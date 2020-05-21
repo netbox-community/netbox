@@ -48,8 +48,7 @@ class SecretRoleBulkImportView(BulkImportView):
     default_return_url = 'secrets:secretrole_list'
 
 
-class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'secrets.delete_secretrole'
+class SecretRoleBulkDeleteView(BulkDeleteView):
     queryset = SecretRole.objects.annotate(secret_count=Count('secrets'))
     table = tables.SecretRoleTable
     default_return_url = 'secrets:secretrole_list'
@@ -243,8 +242,7 @@ class SecretBulkEditView(BulkEditView):
     default_return_url = 'secrets:secret_list'
 
 
-class SecretBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'secrets.delete_secret'
+class SecretBulkDeleteView(BulkDeleteView):
     queryset = Secret.objects.prefetch_related('role', 'device')
     filterset = filters.SecretFilterSet
     table = tables.SecretTable

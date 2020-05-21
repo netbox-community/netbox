@@ -87,8 +87,7 @@ class TagBulkEditView(BulkEditView):
     default_return_url = 'extras:tag_list'
 
 
-class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'extras.delete_tag'
+class TagBulkDeleteView(BulkDeleteView):
     queryset = Tag.objects.annotate(
         items=Count('extras_taggeditem_items')
     ).order_by(
@@ -149,8 +148,7 @@ class ConfigContextDeleteView(ObjectDeleteView):
     default_return_url = 'extras:configcontext_list'
 
 
-class ConfigContextBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'extras.delete_configcontext'
+class ConfigContextBulkDeleteView(BulkDeleteView):
     queryset = ConfigContext.objects.all()
     table = ConfigContextTable
     default_return_url = 'extras:configcontext_list'
