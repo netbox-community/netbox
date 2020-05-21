@@ -141,8 +141,7 @@ class VRFEditView(ObjectEditView):
     default_return_url = 'ipam:vrf_list'
 
 
-class VRFDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'ipam.delete_vrf'
+class VRFDeleteView(ObjectDeleteView):
     queryset = VRF.objects.all()
     default_return_url = 'ipam:vrf_list'
 
@@ -356,8 +355,7 @@ class AggregateEditView(ObjectEditView):
     default_return_url = 'ipam:aggregate_list'
 
 
-class AggregateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'ipam.delete_aggregate'
+class AggregateDeleteView(ObjectDeleteView):
     queryset = Aggregate.objects.all()
     default_return_url = 'ipam:aggregate_list'
 
@@ -572,8 +570,7 @@ class PrefixEditView(ObjectEditView):
     default_return_url = 'ipam:prefix_list'
 
 
-class PrefixDeleteView(ObjectPermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'ipam.delete_prefix'
+class PrefixDeleteView(ObjectDeleteView):
     queryset = Prefix.objects.all()
     template_name = 'ipam/prefix_delete.html'
     default_return_url = 'ipam:prefix_list'
@@ -733,8 +730,7 @@ class IPAddressAssignView(PermissionRequiredMixin, View):
         })
 
 
-class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'ipam.delete_ipaddress'
+class IPAddressDeleteView(ObjectDeleteView):
     queryset = IPAddress.objects.all()
     default_return_url = 'ipam:ipaddress_list'
 
@@ -903,8 +899,7 @@ class VLANEditView(ObjectEditView):
     default_return_url = 'ipam:vlan_list'
 
 
-class VLANDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'ipam.delete_vlan'
+class VLANDeleteView(ObjectDeleteView):
     queryset = VLAN.objects.all()
     default_return_url = 'ipam:vlan_list'
 
@@ -982,8 +977,7 @@ class ServiceBulkImportView(PermissionRequiredMixin, BulkImportView):
     default_return_url = 'ipam:service_list'
 
 
-class ServiceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'ipam.delete_service'
+class ServiceDeleteView(ObjectDeleteView):
     queryset = Service.objects.all()
 
 

@@ -114,8 +114,7 @@ class ClusterEditView(ObjectEditView):
     model_form = forms.ClusterForm
 
 
-class ClusterDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'virtualization.delete_cluster'
+class ClusterDeleteView(ObjectDeleteView):
     queryset = Cluster.objects.all()
     default_return_url = 'virtualization:cluster_list'
 
@@ -270,8 +269,7 @@ class VirtualMachineEditView(ObjectEditView):
     default_return_url = 'virtualization:virtualmachine_list'
 
 
-class VirtualMachineDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'virtualization.delete_virtualmachine'
+class VirtualMachineDeleteView(ObjectDeleteView):
     queryset = VirtualMachine.objects.all()
     default_return_url = 'virtualization:virtualmachine_list'
 
@@ -319,8 +317,7 @@ class InterfaceEditView(ObjectEditView):
     template_name = 'virtualization/interface_edit.html'
 
 
-class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_interface'
+class InterfaceDeleteView(ObjectDeleteView):
     queryset = Interface.objects.all()
 
 

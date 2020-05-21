@@ -282,9 +282,9 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Create or edit a single object.
 
-    queryset: The base queryset for the object being modified
-    model_form: The form used to create or edit the object
-    template_name: The name of the template
+    :param queryset: The base queryset for the object being modified
+    :param model_form: The form used to create or edit the object
+    :param template_name: The name of the template
     """
     queryset = None
     model_form = None
@@ -389,15 +389,18 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         })
 
 
-class ObjectDeleteView(GetReturnURLMixin, View):
+class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Delete a single object.
 
-    queryset: The base queryset for the object being deleted
-    template_name: The name of the template
+    :param queryset: The base queryset for the object being deleted
+    :param template_name: The name of the template
     """
     queryset = None
     template_name = 'utilities/obj_delete.html'
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'delete')
 
     def get_object(self, kwargs):
         # Look up object by slug if one has been provided. Otherwise, use PK.

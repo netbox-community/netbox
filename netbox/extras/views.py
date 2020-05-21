@@ -71,8 +71,7 @@ class TagEditView(ObjectEditView):
     template_name = 'extras/tag_edit.html'
 
 
-class TagDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'extras.delete_tag'
+class TagDeleteView(ObjectDeleteView):
     queryset = Tag.objects.all()
     default_return_url = 'extras:tag_list'
 
@@ -147,8 +146,7 @@ class ConfigContextBulkEditView(PermissionRequiredMixin, BulkEditView):
     default_return_url = 'extras:configcontext_list'
 
 
-class ConfigContextDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'extras.delete_configcontext'
+class ConfigContextDeleteView(ObjectDeleteView):
     queryset = ConfigContext.objects.all()
     default_return_url = 'extras:configcontext_list'
 
@@ -310,8 +308,7 @@ class ImageAttachmentEditView(ObjectEditView):
         return imageattachment.parent.get_absolute_url()
 
 
-class ImageAttachmentDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'extras.delete_imageattachment'
+class ImageAttachmentDeleteView(ObjectDeleteView):
     queryset = ImageAttachment.objects.all()
 
     def get_return_url(self, request, imageattachment):

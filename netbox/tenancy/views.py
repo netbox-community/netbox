@@ -94,8 +94,7 @@ class TenantEditView(ObjectEditView):
     default_return_url = 'tenancy:tenant_list'
 
 
-class TenantDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'tenancy.delete_tenant'
+class TenantDeleteView(ObjectDeleteView):
     queryset = Tenant.objects.all()
     default_return_url = 'tenancy:tenant_list'
 

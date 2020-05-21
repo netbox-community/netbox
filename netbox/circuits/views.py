@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import transaction
-from django.db.models import Count, OuterRef, Subquery
+from django.db.models import Count, OuterRef
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
 from django_tables2 import RequestConfig
@@ -66,8 +66,7 @@ class ProviderEditView(ObjectEditView):
     default_return_url = 'circuits:provider_list'
 
 
-class ProviderDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'circuits.delete_provider'
+class ProviderDeleteView(ObjectDeleteView):
     queryset = Provider.objects.all()
     default_return_url = 'circuits:provider_list'
 
@@ -172,8 +171,7 @@ class CircuitEditView(ObjectEditView):
     default_return_url = 'circuits:circuit_list'
 
 
-class CircuitDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'circuits.delete_circuit'
+class CircuitDeleteView(ObjectDeleteView):
     queryset = Circuit.objects.all()
     default_return_url = 'circuits:circuit_list'
 
@@ -270,6 +268,5 @@ class CircuitTerminationEditView(ObjectEditView):
         return obj.circuit.get_absolute_url()
 
 
-class CircuitTerminationDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'circuits.delete_circuittermination'
+class CircuitTerminationDeleteView(ObjectDeleteView):
     queryset = CircuitTermination.objects.all()

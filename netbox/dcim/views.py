@@ -220,8 +220,7 @@ class SiteEditView(ObjectEditView):
     default_return_url = 'dcim:site_list'
 
 
-class SiteDeleteView(ObjectPermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_site'
+class SiteDeleteView(ObjectDeleteView):
     queryset = Site.objects.all()
     default_return_url = 'dcim:site_list'
 
@@ -411,8 +410,7 @@ class RackEditView(ObjectEditView):
     default_return_url = 'dcim:rack_list'
 
 
-class RackDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_rack'
+class RackDeleteView(ObjectDeleteView):
     queryset = Rack.objects.all()
     default_return_url = 'dcim:rack_list'
 
@@ -480,8 +478,7 @@ class RackReservationEditView(ObjectEditView):
         return obj
 
 
-class RackReservationDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_rackreservation'
+class RackReservationDeleteView(ObjectDeleteView):
     queryset = RackReservation.objects.all()
     default_return_url = 'dcim:rackreservation_list'
 
@@ -636,8 +633,7 @@ class DeviceTypeEditView(ObjectEditView):
     default_return_url = 'dcim:devicetype_list'
 
 
-class DeviceTypeDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_devicetype'
+class DeviceTypeDeleteView(ObjectDeleteView):
     queryset = DeviceType.objects.all()
     default_return_url = 'dcim:devicetype_list'
 
@@ -703,8 +699,7 @@ class ConsolePortTemplateEditView(ObjectEditView):
     model_form = forms.ConsolePortTemplateForm
 
 
-class ConsolePortTemplateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_consoleporttemplate'
+class ConsolePortTemplateDeleteView(ObjectDeleteView):
     queryset = ConsolePortTemplate.objects.all()
 
 
@@ -738,8 +733,7 @@ class ConsoleServerPortTemplateEditView(ObjectEditView):
     model_form = forms.ConsoleServerPortTemplateForm
 
 
-class ConsoleServerPortTemplateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_consoleserverporttemplate'
+class ConsoleServerPortTemplateDeleteView(ObjectDeleteView):
     queryset = ConsoleServerPortTemplate.objects.all()
 
 
@@ -773,8 +767,7 @@ class PowerPortTemplateEditView(ObjectEditView):
     model_form = forms.PowerPortTemplateForm
 
 
-class PowerPortTemplateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_powerporttemplate'
+class PowerPortTemplateDeleteView(ObjectDeleteView):
     queryset = PowerPortTemplate.objects.all()
 
 
@@ -808,8 +801,7 @@ class PowerOutletTemplateEditView(ObjectEditView):
     model_form = forms.PowerOutletTemplateForm
 
 
-class PowerOutletTemplateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_poweroutlettemplate'
+class PowerOutletTemplateDeleteView(ObjectDeleteView):
     queryset = PowerOutletTemplate.objects.all()
 
 
@@ -843,8 +835,7 @@ class InterfaceTemplateEditView(ObjectEditView):
     model_form = forms.InterfaceTemplateForm
 
 
-class InterfaceTemplateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_interfacetemplate'
+class InterfaceTemplateDeleteView(ObjectDeleteView):
     queryset = InterfaceTemplate.objects.all()
 
 
@@ -878,8 +869,7 @@ class FrontPortTemplateEditView(ObjectEditView):
     model_form = forms.FrontPortTemplateForm
 
 
-class FrontPortTemplateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_frontporttemplate'
+class FrontPortTemplateDeleteView(ObjectDeleteView):
     queryset = FrontPortTemplate.objects.all()
 
 
@@ -913,8 +903,7 @@ class RearPortTemplateEditView(ObjectEditView):
     model_form = forms.RearPortTemplateForm
 
 
-class RearPortTemplateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_rearporttemplate'
+class RearPortTemplateDeleteView(ObjectDeleteView):
     queryset = RearPortTemplate.objects.all()
 
 
@@ -948,8 +937,7 @@ class DeviceBayTemplateEditView(ObjectEditView):
     model_form = forms.DeviceBayTemplateForm
 
 
-class DeviceBayTemplateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_devicebaytemplate'
+class DeviceBayTemplateDeleteView(ObjectDeleteView):
     queryset = DeviceBayTemplate.objects.all()
 
 
@@ -1193,8 +1181,7 @@ class DeviceEditView(ObjectEditView):
     default_return_url = 'dcim:device_list'
 
 
-class DeviceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_device'
+class DeviceDeleteView(ObjectDeleteView):
     queryset = Device.objects.all()
     default_return_url = 'dcim:device_list'
 
@@ -1270,8 +1257,7 @@ class ConsolePortEditView(ObjectEditView):
     model_form = forms.ConsolePortForm
 
 
-class ConsolePortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_consoleport'
+class ConsolePortDeleteView(ObjectDeleteView):
     queryset = ConsolePort.objects.all()
 
 
@@ -1324,8 +1310,7 @@ class ConsoleServerPortEditView(ObjectEditView):
     model_form = forms.ConsoleServerPortForm
 
 
-class ConsoleServerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_consoleserverport'
+class ConsoleServerPortDeleteView(ObjectDeleteView):
     queryset = ConsoleServerPort.objects.all()
 
 
@@ -1390,8 +1375,7 @@ class PowerPortEditView(ObjectEditView):
     model_form = forms.PowerPortForm
 
 
-class PowerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_powerport'
+class PowerPortDeleteView(ObjectDeleteView):
     queryset = PowerPort.objects.all()
 
 
@@ -1444,8 +1428,7 @@ class PowerOutletEditView(ObjectEditView):
     model_form = forms.PowerOutletForm
 
 
-class PowerOutletDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_poweroutlet'
+class PowerOutletDeleteView(ObjectDeleteView):
     queryset = PowerOutlet.objects.all()
 
 
@@ -1547,8 +1530,7 @@ class InterfaceEditView(ObjectEditView):
     template_name = 'dcim/interface_edit.html'
 
 
-class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_interface'
+class InterfaceDeleteView(ObjectDeleteView):
     queryset = Interface.objects.all()
 
 
@@ -1613,8 +1595,7 @@ class FrontPortEditView(ObjectEditView):
     model_form = forms.FrontPortForm
 
 
-class FrontPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_frontport'
+class FrontPortDeleteView(ObjectDeleteView):
     queryset = FrontPort.objects.all()
 
 
@@ -1679,8 +1660,7 @@ class RearPortEditView(ObjectEditView):
     model_form = forms.RearPortForm
 
 
-class RearPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_rearport'
+class RearPortDeleteView(ObjectDeleteView):
     queryset = RearPort.objects.all()
 
 
@@ -1747,8 +1727,7 @@ class DeviceBayEditView(ObjectEditView):
     model_form = forms.DeviceBayForm
 
 
-class DeviceBayDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_devicebay'
+class DeviceBayDeleteView(ObjectDeleteView):
     queryset = DeviceBay.objects.all()
 
 
@@ -2088,8 +2067,7 @@ class CableEditView(ObjectEditView):
     default_return_url = 'dcim:cable_list'
 
 
-class CableDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_cable'
+class CableDeleteView(ObjectDeleteView):
     queryset = Cable.objects.all()
     default_return_url = 'dcim:cable_list'
 
@@ -2247,8 +2225,7 @@ class InventoryItemCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class InventoryItemDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_inventoryitem'
+class InventoryItemDeleteView(ObjectDeleteView):
     queryset = InventoryItem.objects.all()
 
 
@@ -2420,8 +2397,7 @@ class VirtualChassisEditView(PermissionRequiredMixin, GetReturnURLMixin, View):
         })
 
 
-class VirtualChassisDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_virtualchassis'
+class VirtualChassisDeleteView(ObjectDeleteView):
     queryset = VirtualChassis.objects.all()
     default_return_url = 'dcim:device_list'
 
@@ -2583,8 +2559,7 @@ class PowerPanelEditView(ObjectEditView):
     default_return_url = 'dcim:powerpanel_list'
 
 
-class PowerPanelDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_powerpanel'
+class PowerPanelDeleteView(ObjectDeleteView):
     queryset = PowerPanel.objects.all()
     default_return_url = 'dcim:powerpanel_list'
 
@@ -2650,8 +2625,7 @@ class PowerFeedEditView(ObjectEditView):
     default_return_url = 'dcim:powerfeed_list'
 
 
-class PowerFeedDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_powerfeed'
+class PowerFeedDeleteView(ObjectDeleteView):
     queryset = PowerFeed.objects.all()
     default_return_url = 'dcim:powerfeed_list'
 
