@@ -76,8 +76,7 @@ class TagDeleteView(ObjectDeleteView):
     default_return_url = 'extras:tag_list'
 
 
-class TagBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'extras.change_tag'
+class TagBulkEditView(BulkEditView):
     queryset = Tag.objects.annotate(
         items=Count('extras_taggeditem_items', distinct=True)
     ).order_by(
@@ -137,8 +136,7 @@ class ConfigContextEditView(ObjectEditView):
     template_name = 'extras/configcontext_edit.html'
 
 
-class ConfigContextBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'extras.change_configcontext'
+class ConfigContextBulkEditView(BulkEditView):
     queryset = ConfigContext.objects.all()
     filterset = filters.ConfigContextFilterSet
     table = ConfigContextTable

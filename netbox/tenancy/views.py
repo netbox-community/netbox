@@ -105,8 +105,7 @@ class TenantBulkImportView(BulkImportView):
     default_return_url = 'tenancy:tenant_list'
 
 
-class TenantBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'tenancy.change_tenant'
+class TenantBulkEditView(BulkEditView):
     queryset = Tenant.objects.prefetch_related('group')
     filterset = filters.TenantFilterSet
     table = tables.TenantTable

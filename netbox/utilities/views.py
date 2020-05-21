@@ -755,7 +755,7 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         })
 
 
-class BulkEditView(GetReturnURLMixin, View):
+class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Edit objects in bulk.
 
@@ -771,6 +771,9 @@ class BulkEditView(GetReturnURLMixin, View):
     form = None
     template_name = 'utilities/obj_bulk_edit.html'
 
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'change')
+
     def get(self, request):
         return redirect(self.get_return_url(request))
 
@@ -781,7 +784,7 @@ class BulkEditView(GetReturnURLMixin, View):
         # If we are editing *all* objects in the queryset, replace the PK list with all matched objects.
         if request.POST.get('_all') and self.filterset is not None:
             pk_list = [
-                obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs
+                obj.pk for obj in self.filterset(request.GET, self.queryset.only('pk')).qs
             ]
         else:
             pk_list = request.POST.getlist('pk')
@@ -802,7 +805,7 @@ class BulkEditView(GetReturnURLMixin, View):
                     with transaction.atomic():
 
                         updated_objects = []
-                        for obj in model.objects.filter(pk__in=form.cleaned_data['pk']):
+                        for obj in self.queryset.filter(pk__in=form.cleaned_data['pk']):
 
                             # Update standard fields. If a field is listed in _nullify, delete its value.
                             for name in standard_fields:

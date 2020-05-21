@@ -124,8 +124,7 @@ class ClusterBulkImportView(BulkImportView):
     default_return_url = 'virtualization:cluster_list'
 
 
-class ClusterBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'virtualization.change_cluster'
+class ClusterBulkEditView(BulkEditView):
     queryset = Cluster.objects.prefetch_related('type', 'group', 'site')
     filterset = filters.ClusterFilterSet
     table = tables.ClusterTable
@@ -278,8 +277,7 @@ class VirtualMachineBulkImportView(BulkImportView):
     default_return_url = 'virtualization:virtualmachine_list'
 
 
-class VirtualMachineBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'virtualization.change_virtualmachine'
+class VirtualMachineBulkEditView(BulkEditView):
     queryset = VirtualMachine.objects.prefetch_related('cluster', 'tenant', 'role')
     filterset = filters.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
@@ -317,8 +315,7 @@ class InterfaceDeleteView(ObjectDeleteView):
     queryset = Interface.objects.all()
 
 
-class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'dcim.change_interface'
+class InterfaceBulkEditView(BulkEditView):
     queryset = Interface.objects.all()
     table = tables.InterfaceTable
     form = forms.InterfaceBulkEditForm

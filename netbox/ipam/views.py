@@ -153,8 +153,7 @@ class VRFBulkImportView(BulkImportView):
     default_return_url = 'ipam:vrf_list'
 
 
-class VRFBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'ipam.change_vrf'
+class VRFBulkEditView(BulkEditView):
     queryset = VRF.objects.prefetch_related('tenant')
     filterset = filters.VRFFilterSet
     table = tables.VRFTable
@@ -365,8 +364,7 @@ class AggregateBulkImportView(BulkImportView):
     default_return_url = 'ipam:aggregate_list'
 
 
-class AggregateBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'ipam.change_aggregate'
+class AggregateBulkEditView(BulkEditView):
     queryset = Aggregate.objects.prefetch_related('rir')
     filterset = filters.AggregateFilterSet
     table = tables.AggregateTable
@@ -579,8 +577,7 @@ class PrefixBulkImportView(BulkImportView):
     default_return_url = 'ipam:prefix_list'
 
 
-class PrefixBulkEditView(ObjectPermissionRequiredMixin, BulkEditView):
-    permission_required = 'ipam.change_prefix'
+class PrefixBulkEditView(BulkEditView):
     queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     filterset = filters.PrefixFilterSet
     table = tables.PrefixTable
@@ -746,8 +743,7 @@ class IPAddressBulkImportView(BulkImportView):
     default_return_url = 'ipam:ipaddress_list'
 
 
-class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'ipam.change_ipaddress'
+class IPAddressBulkEditView(BulkEditView):
     queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant').prefetch_related('interface__device')
     filterset = filters.IPAddressFilterSet
     table = tables.IPAddressTable
@@ -904,8 +900,7 @@ class VLANBulkImportView(BulkImportView):
     default_return_url = 'ipam:vlan_list'
 
 
-class VLANBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'ipam.change_vlan'
+class VLANBulkEditView(BulkEditView):
     queryset = VLAN.objects.prefetch_related('site', 'group', 'tenant', 'role')
     filterset = filters.VLANFilterSet
     table = tables.VLANTable
@@ -972,8 +967,7 @@ class ServiceDeleteView(ObjectDeleteView):
     queryset = Service.objects.all()
 
 
-class ServiceBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'ipam.change_service'
+class ServiceBulkEditView(BulkEditView):
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
     filterset = filters.ServiceFilterSet
     table = tables.ServiceTable

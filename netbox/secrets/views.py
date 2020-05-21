@@ -235,8 +235,7 @@ class SecretBulkImportView(BulkImportView):
         })
 
 
-class SecretBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'secrets.change_secret'
+class SecretBulkEditView(BulkEditView):
     queryset = Secret.objects.prefetch_related('role', 'device')
     filterset = filters.SecretFilterSet
     table = tables.SecretTable

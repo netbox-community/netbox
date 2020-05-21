@@ -78,8 +78,7 @@ class ProviderBulkImportView(BulkImportView):
     default_return_url = 'circuits:provider_list'
 
 
-class ProviderBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'circuits.change_provider'
+class ProviderBulkEditView(BulkEditView):
     queryset = Provider.objects.annotate(count_circuits=Count('circuits'))
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
@@ -181,8 +180,7 @@ class CircuitBulkImportView(BulkImportView):
     default_return_url = 'circuits:circuit_list'
 
 
-class CircuitBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'circuits.change_circuit'
+class CircuitBulkEditView(BulkEditView):
     queryset = Circuit.objects.prefetch_related('provider', 'type', 'tenant').prefetch_related('terminations__site')
     filterset = filters.CircuitFilterSet
     table = tables.CircuitTable

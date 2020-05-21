@@ -463,7 +463,7 @@ class ObjectPermissionViewTestCase(TestCase):
             'data': form_data,
         }
         response = self.client.post(**request)
-        self.assertHttpStatus(response, 200)
+        self.assertHttpStatus(response, 302)
         self.assertEqual(Prefix.objects.get(pk=self.prefixes[3].pk).status, 'active')
 
         # Edit permitted objects
