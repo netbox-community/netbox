@@ -676,11 +676,11 @@ class BulkEditView(GetReturnURLMixin, View):
     """
     Edit objects in bulk.
 
-    queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
-    filter: FilterSet to apply when deleting by QuerySet
-    table: The table used to display devices being edited
-    form: The form class used to edit objects in bulk
-    template_name: The name of the template
+    :param queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
+    :param filter: FilterSet to apply when deleting by QuerySet
+    :param table: The table used to display devices being edited
+    :param form: The form class used to edit objects in bulk
+    :param template_name: The name of the template
     """
     queryset = None
     filterset = None
@@ -829,11 +829,11 @@ class BulkDeleteView(GetReturnURLMixin, View):
     """
     Delete objects in bulk.
 
-    queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
-    filter: FilterSet to apply when deleting by QuerySet
-    table: The table used to display devices being deleted
-    form: The form class used to delete objects in bulk
-    template_name: The name of the template
+    :param queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
+    :param filter: FilterSet to apply when deleting by QuerySet
+    :param table: The table used to display devices being deleted
+    :param form: The form class used to delete objects in bulk
+    :param template_name: The name of the template
     """
     queryset = None
     filterset = None

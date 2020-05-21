@@ -155,6 +155,7 @@ class VRFDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class VRFBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'ipam.add_vrf'
+    queryset = VRF.objects.all()
     model_form = forms.VRFCSVForm
     table = tables.VRFTable
     default_return_url = 'ipam:vrf_list'
@@ -271,6 +272,7 @@ class RIREditView(RIRCreateView):
 
 class RIRBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'ipam.add_rir'
+    queryset = RIR.objects.all()
     model_form = forms.RIRCSVForm
     table = tables.RIRTable
     default_return_url = 'ipam:rir_list'
@@ -380,6 +382,7 @@ class AggregateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class AggregateBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'ipam.add_aggregate'
+    queryset = Aggregate.objects.all()
     model_form = forms.AggregateCSVForm
     table = tables.AggregateTable
     default_return_url = 'ipam:aggregate_list'
@@ -425,6 +428,7 @@ class RoleEditView(RoleCreateView):
 
 class RoleBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'ipam.add_role'
+    queryset = Role.objects.all()
     model_form = forms.RoleCSVForm
     table = tables.RoleTable
     default_return_url = 'ipam:role_list'
@@ -782,6 +786,7 @@ class IPAddressBulkCreateView(PermissionRequiredMixin, BulkCreateView):
 
 class IPAddressBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'ipam.add_ipaddress'
+    queryset = IPAddress.objects.all()
     model_form = forms.IPAddressCSVForm
     table = tables.IPAddressTable
     default_return_url = 'ipam:ipaddress_list'
@@ -829,6 +834,7 @@ class VLANGroupEditView(VLANGroupCreateView):
 
 class VLANGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'ipam.add_vlangroup'
+    queryset = VLANGroup.objects.all()
     model_form = forms.VLANGroupCSVForm
     table = tables.VLANGroupTable
     default_return_url = 'ipam:vlangroup_list'
@@ -952,6 +958,7 @@ class VLANDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class VLANBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'ipam.add_vlan'
+    queryset = VLAN.objects.all()
     model_form = forms.VLANCSVForm
     table = tables.VLANTable
     default_return_url = 'ipam:vlan_list'
@@ -1018,6 +1025,7 @@ class ServiceCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class ServiceBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'ipam.add_service'
+    queryset = Service.objects.all()
     model_form = forms.ServiceCSVForm
     table = tables.ServiceTable
     default_return_url = 'ipam:service_list'

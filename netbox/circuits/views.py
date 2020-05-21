@@ -80,6 +80,7 @@ class ProviderDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class ProviderBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'circuits.add_provider'
+    queryset = Provider.objects.all()
     model_form = forms.ProviderCSVForm
     table = tables.ProviderTable
     default_return_url = 'circuits:provider_list'
@@ -125,6 +126,7 @@ class CircuitTypeEditView(CircuitTypeCreateView):
 
 class CircuitTypeBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'circuits.add_circuittype'
+    queryset = CircuitType.objects.all()
     model_form = forms.CircuitTypeCSVForm
     table = tables.CircuitTypeTable
     default_return_url = 'circuits:circuittype_list'
@@ -196,6 +198,7 @@ class CircuitDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class CircuitBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'circuits.add_circuit'
+    queryset = Circuit.objects.all()
     model_form = forms.CircuitCSVForm
     table = tables.CircuitTable
     default_return_url = 'circuits:circuit_list'

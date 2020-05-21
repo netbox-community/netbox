@@ -41,6 +41,7 @@ class ClusterTypeEditView(ClusterTypeCreateView):
 
 class ClusterTypeBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'virtualization.add_clustertype'
+    queryset = ClusterType.objects.all()
     model_form = forms.ClusterTypeCSVForm
     table = tables.ClusterTypeTable
     default_return_url = 'virtualization:clustertype_list'
@@ -76,6 +77,7 @@ class ClusterGroupEditView(ClusterGroupCreateView):
 
 class ClusterGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'virtualization.add_clustergroup'
+    queryset = ClusterGroup.objects.all()
     model_form = forms.ClusterGroupCSVForm
     table = tables.ClusterGroupTable
     default_return_url = 'virtualization:clustergroup_list'
@@ -138,6 +140,7 @@ class ClusterDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class ClusterBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'virtualization.add_cluster'
+    queryset = Cluster.objects.all()
     model_form = forms.ClusterCSVForm
     table = tables.ClusterTable
     default_return_url = 'virtualization:cluster_list'
@@ -299,6 +302,7 @@ class VirtualMachineDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class VirtualMachineBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'virtualization.add_virtualmachine'
+    queryset = VirtualMachine.objects.all()
     model_form = forms.VirtualMachineCSVForm
     table = tables.VirtualMachineTable
     default_return_url = 'virtualization:virtualmachine_list'
