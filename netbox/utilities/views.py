@@ -291,10 +291,9 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     template_name = 'utilities/obj_edit.html'
 
     def get_required_permission(self):
-        # Determine required permission based on whether we are editing an existing object
-        if self.obj.pk is None:
-            return get_permission_for_model(self.queryset.model, 'add')
-        return get_permission_for_model(self.queryset.model, 'change')
+        # self._permission_action is set by dispatch() to either "add" or "change" depending on whether
+        # we are modifying an existing object or creating a new one.
+        return get_permission_for_model(self.queryset.model, self._permission_action)
 
     def get_object(self, kwargs):
         # Look up an existing object by slug or PK, if provided.
@@ -311,25 +310,32 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         return obj
 
     def dispatch(self, request, *args, **kwargs):
-        self.obj = self.alter_obj(self.get_object(kwargs), request, args, kwargs)
+        # Determine required permission based on whether we are editing an existing object
+        self._permission_action = 'change' if kwargs else 'add'
 
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
+        obj = self.alter_obj(self.get_object(kwargs), request, args, kwargs)
+
         # Parse initial data manually to avoid setting field values as lists
         initial_data = {k: request.GET[k] for k in request.GET}
-        form = self.model_form(instance=self.obj, initial=initial_data)
+        form = self.model_form(instance=obj, initial=initial_data)
 
         return render(request, self.template_name, {
-            'obj': self.obj,
+            'obj': obj,
             'obj_type': self.queryset.model._meta.verbose_name,
             'form': form,
-            'return_url': self.get_return_url(request, self.obj),
+            'return_url': self.get_return_url(request, obj),
         })
 
     def post(self, request, *args, **kwargs):
         logger = logging.getLogger('netbox.views.ObjectEditView')
-        form = self.model_form(request.POST, request.FILES, instance=self.obj)
+        form = self.model_form(
+            data=request.POST,
+            files=request.FILES,
+            instance=self.alter_obj(self.get_object(kwargs), request, args, kwargs)
+        )
 
         if form.is_valid():
             logger.debug("Form validation was successful")
@@ -376,10 +382,10 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             logger.debug("Form validation failed")
 
         return render(request, self.template_name, {
-            'obj': self.obj,
+            'obj': obj,
             'obj_type': self.queryset.model._meta.verbose_name,
             'form': form,
-            'return_url': self.get_return_url(request, self.obj),
+            'return_url': self.get_return_url(request, obj),
         })
 
 
