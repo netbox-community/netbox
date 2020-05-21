@@ -10,8 +10,8 @@ from django_tables2 import RequestConfig
 from dcim.models import Device, Interface
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
-    ObjectPermissionRequiredMixin,
+    BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView,
+    ObjectListView,
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
@@ -120,12 +120,12 @@ class VRFListView(ObjectListView):
     table = tables.VRFTable
 
 
-class VRFView(PermissionRequiredMixin, View):
-    permission_required = 'ipam.view_vrf'
+class VRFView(ObjectView):
+    queryset = VRF.objects.all()
 
     def get(self, request, pk):
 
-        vrf = get_object_or_404(VRF.objects.all(), pk=pk)
+        vrf = get_object_or_404(self.queryset, pk=pk)
         prefix_count = Prefix.objects.filter(vrf=vrf).count()
 
         return render(request, 'ipam/vrf.html', {
@@ -298,12 +298,12 @@ class AggregateListView(ObjectListView):
         }
 
 
-class AggregateView(PermissionRequiredMixin, View):
-    permission_required = 'ipam.view_aggregate'
+class AggregateView(ObjectView):
+    queryset = Aggregate.objects.all()
 
     def get(self, request, pk):
 
-        aggregate = get_object_or_404(Aggregate, pk=pk)
+        aggregate = get_object_or_404(self.queryset, pk=pk)
 
         # Find all child prefixes contained by this aggregate
         child_prefixes = Prefix.objects.filter(
@@ -422,8 +422,7 @@ class PrefixListView(ObjectListView):
         return self.queryset.annotate_depth(limit=limit)
 
 
-class PrefixView(ObjectPermissionRequiredMixin, View):
-    permission_required = 'ipam.view_prefix'
+class PrefixView(ObjectView):
     queryset = Prefix.objects.prefetch_related('vrf', 'site__region', 'tenant__group', 'vlan__group', 'role')
 
     def get(self, request, pk):
@@ -465,12 +464,12 @@ class PrefixView(ObjectPermissionRequiredMixin, View):
         })
 
 
-class PrefixPrefixesView(PermissionRequiredMixin, View):
-    permission_required = 'ipam.view_prefix'
+class PrefixPrefixesView(ObjectView):
+    queryset = Prefix.objects.all()
 
     def get(self, request, pk):
 
-        prefix = get_object_or_404(Prefix.objects.all(), pk=pk)
+        prefix = get_object_or_404(self.queryset, pk=pk)
 
         # Child prefixes table
         child_prefixes = prefix.get_child_prefixes().prefetch_related(
@@ -509,12 +508,12 @@ class PrefixPrefixesView(PermissionRequiredMixin, View):
         })
 
 
-class PrefixIPAddressesView(PermissionRequiredMixin, View):
-    permission_required = 'ipam.view_prefix'
+class PrefixIPAddressesView(ObjectView):
+    queryset = Prefix.objects.all()
 
     def get(self, request, pk):
 
-        prefix = get_object_or_404(Prefix.objects.all(), pk=pk)
+        prefix = get_object_or_404(self.queryset, pk=pk)
 
         # Find all IPAddresses belonging to this Prefix
         ipaddresses = prefix.get_child_ips().prefetch_related(
@@ -601,12 +600,12 @@ class IPAddressListView(ObjectListView):
     table = tables.IPAddressDetailTable
 
 
-class IPAddressView(PermissionRequiredMixin, View):
-    permission_required = 'ipam.view_ipaddress'
+class IPAddressView(ObjectView):
+    queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant')
 
     def get(self, request, pk):
 
-        ipaddress = get_object_or_404(IPAddress.objects.prefetch_related('vrf__tenant', 'tenant'), pk=pk)
+        ipaddress = get_object_or_404(self.queryset, pk=pk)
 
         # Parent prefixes table
         parent_prefixes = Prefix.objects.filter(
@@ -833,14 +832,12 @@ class VLANListView(ObjectListView):
     table = tables.VLANDetailTable
 
 
-class VLANView(PermissionRequiredMixin, View):
-    permission_required = 'ipam.view_vlan'
+class VLANView(ObjectView):
+    queryset = VLAN.objects.prefetch_related('site__region', 'tenant__group', 'role')
 
     def get(self, request, pk):
 
-        vlan = get_object_or_404(VLAN.objects.prefetch_related(
-            'site__region', 'tenant__group', 'role'
-        ), pk=pk)
+        vlan = get_object_or_404(self.queryset, pk=pk)
         prefixes = Prefix.objects.filter(vlan=vlan).prefetch_related('vrf', 'site', 'role')
         prefix_table = tables.PrefixTable(list(prefixes), orderable=False)
         prefix_table.exclude = ('vlan',)
@@ -851,12 +848,12 @@ class VLANView(PermissionRequiredMixin, View):
         })
 
 
-class VLANMembersView(PermissionRequiredMixin, View):
-    permission_required = 'ipam.view_vlan'
+class VLANMembersView(ObjectView):
+    queryset = VLAN.objects.all()
 
     def get(self, request, pk):
 
-        vlan = get_object_or_404(VLAN.objects.all(), pk=pk)
+        vlan = get_object_or_404(self.queryset, pk=pk)
         members = vlan.get_members().prefetch_related('device', 'virtual_machine')
 
         members_table = tables.VLANMemberTable(members)
@@ -920,12 +917,12 @@ class ServiceListView(ObjectListView):
     action_buttons = ('export',)
 
 
-class ServiceView(PermissionRequiredMixin, View):
-    permission_required = 'ipam.view_service'
+class ServiceView(ObjectView):
+    queryset = Service.objects.all()
 
     def get(self, request, pk):
 
-        service = get_object_or_404(Service, pk=pk)
+        service = get_object_or_404(self.queryset, pk=pk)
 
         return render(request, 'ipam/service.html', {
             'service': service,

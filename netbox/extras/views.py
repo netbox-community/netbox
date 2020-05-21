@@ -13,7 +13,7 @@ from django_tables2 import RequestConfig
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.utils import shallow_compare_dict
-from utilities.views import BulkDeleteView, BulkEditView, ObjectDeleteView, ObjectEditView, ObjectListView
+from utilities.views import BulkDeleteView, BulkEditView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView
 from . import filters, forms
 from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult, Tag, TaggedItem
 from .reports import get_report, get_reports
@@ -37,12 +37,12 @@ class TagListView(ObjectListView):
     action_buttons = ()
 
 
-class TagView(PermissionRequiredMixin, View):
-    permission_required = 'extras.view_tag'
+class TagView(ObjectView):
+    queryset = Tag.objects.all()
 
     def get(self, request, slug):
 
-        tag = get_object_or_404(Tag, slug=slug)
+        tag = get_object_or_404(self.queryset, slug=slug)
         tagged_items = TaggedItem.objects.filter(
             tag=tag
         ).prefetch_related(
@@ -109,11 +109,11 @@ class ConfigContextListView(ObjectListView):
     action_buttons = ('add',)
 
 
-class ConfigContextView(PermissionRequiredMixin, View):
-    permission_required = 'extras.view_configcontext'
+class ConfigContextView(ObjectView):
+    queryset = ConfigContext.objects.all()
 
     def get(self, request, pk):
-        configcontext = get_object_or_404(ConfigContext, pk=pk)
+        configcontext = get_object_or_404(self.queryset, pk=pk)
 
         # Determine user's preferred output format
         if request.GET.get('format') in ['json', 'yaml']:
@@ -195,12 +195,12 @@ class ObjectChangeListView(ObjectListView):
     action_buttons = ('export',)
 
 
-class ObjectChangeView(PermissionRequiredMixin, View):
-    permission_required = 'extras.view_objectchange'
+class ObjectChangeView(ObjectView):
+    queryset = ObjectChange.objects.all()
 
     def get(self, request, pk):
 
-        objectchange = get_object_or_404(ObjectChange, pk=pk)
+        objectchange = get_object_or_404(self.queryset, pk=pk)
 
         related_changes = ObjectChange.objects.filter(request_id=objectchange.request_id).exclude(pk=objectchange.pk)
         related_changes_table = ObjectChangeTable(

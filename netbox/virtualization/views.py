@@ -11,8 +11,8 @@ from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
 from ipam.models import Service
 from utilities.views import (
-    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ObjectDeleteView,
-    ObjectEditView, ObjectListView,
+    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ObjectView,
+    ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -85,12 +85,12 @@ class ClusterListView(ObjectListView):
     filterset_form = forms.ClusterFilterForm
 
 
-class ClusterView(PermissionRequiredMixin, View):
-    permission_required = 'virtualization.view_cluster'
+class ClusterView(ObjectView):
+    queryset = Cluster.objects.all()
 
     def get(self, request, pk):
 
-        cluster = get_object_or_404(Cluster, pk=pk)
+        cluster = get_object_or_404(self.queryset, pk=pk)
         devices = Device.objects.filter(cluster=cluster).prefetch_related(
             'site', 'rack', 'tenant', 'device_type__manufacturer'
         )
@@ -233,12 +233,12 @@ class VirtualMachineListView(ObjectListView):
     template_name = 'virtualization/virtualmachine_list.html'
 
 
-class VirtualMachineView(PermissionRequiredMixin, View):
-    permission_required = 'virtualization.view_virtualmachine'
+class VirtualMachineView(ObjectView):
+    queryset = VirtualMachine.objects.prefetch_related('tenant__group')
 
     def get(self, request, pk):
 
-        virtualmachine = get_object_or_404(VirtualMachine.objects.prefetch_related('tenant__group'), pk=pk)
+        virtualmachine = get_object_or_404(self.queryset, pk=pk)
         interfaces = Interface.objects.filter(virtual_machine=virtualmachine)
         services = Service.objects.filter(virtual_machine=virtualmachine)
 

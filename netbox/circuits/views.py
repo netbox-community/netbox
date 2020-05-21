@@ -1,18 +1,16 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import transaction
 from django.db.models import Count, OuterRef
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import View
 from django_tables2 import RequestConfig
 
 from extras.models import Graph
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .choices import CircuitTerminationSideChoices
@@ -30,12 +28,12 @@ class ProviderListView(ObjectListView):
     table = tables.ProviderTable
 
 
-class ProviderView(PermissionRequiredMixin, View):
-    permission_required = 'circuits.view_provider'
+class ProviderView(ObjectView):
+    queryset = Provider.objects.all()
 
     def get(self, request, slug):
 
-        provider = get_object_or_404(Provider, slug=slug)
+        provider = get_object_or_404(self.queryset, slug=slug)
         circuits = Circuit.objects.filter(
             provider=provider
         ).prefetch_related(
@@ -135,12 +133,12 @@ class CircuitListView(ObjectListView):
     table = tables.CircuitTable
 
 
-class CircuitView(PermissionRequiredMixin, View):
-    permission_required = 'circuits.view_circuit'
+class CircuitView(ObjectView):
+    queryset = Circuit.objects.prefetch_related('provider', 'type', 'tenant__group')
 
     def get(self, request, pk):
 
-        circuit = get_object_or_404(Circuit.objects.prefetch_related('provider', 'type', 'tenant__group'), pk=pk)
+        circuit = get_object_or_404(self.queryset, pk=pk)
         termination_a = CircuitTermination.objects.prefetch_related(
             'site__region', 'connected_endpoint__device'
         ).filter(

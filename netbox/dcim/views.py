@@ -26,7 +26,7 @@ from utilities.paginator import EnhancedPaginator
 from utilities.utils import csv_format
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, GetReturnURLMixin,
-    ObjectImportView, ObjectDeleteView, ObjectEditView, ObjectListView, ObjectPermissionRequiredMixin,
+    ObjectView, ObjectImportView, ObjectDeleteView, ObjectEditView, ObjectListView, ObjectPermissionRequiredMixin,
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
@@ -185,8 +185,7 @@ class SiteListView(ObjectListView):
     table = tables.SiteTable
 
 
-class SiteView(ObjectPermissionRequiredMixin, View):
-    permission_required = 'dcim.view_site'
+class SiteView(ObjectView):
     queryset = Site.objects.prefetch_related('region', 'tenant__group')
 
     def get(self, request, slug):
@@ -362,12 +361,12 @@ class RackElevationListView(PermissionRequiredMixin, View):
         })
 
 
-class RackView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.view_rack'
+class RackView(ObjectView):
+    queryset = Rack.objects.prefetch_related('site__region', 'tenant__group', 'group', 'role')
 
     def get(self, request, pk):
 
-        rack = get_object_or_404(Rack.objects.prefetch_related('site__region', 'tenant__group', 'group', 'role'), pk=pk)
+        rack = get_object_or_404(self.queryset, pk=pk)
 
         nonracked_devices = Device.objects.filter(
             rack=rack,
@@ -440,12 +439,12 @@ class RackReservationListView(ObjectListView):
     action_buttons = ('export',)
 
 
-class RackReservationView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.view_rackreservation'
+class RackReservationView(ObjectView):
+    queryset = RackReservation.objects.prefetch_related('rack')
 
     def get(self, request, pk):
 
-        rackreservation = get_object_or_404(RackReservation.objects.prefetch_related('rack'), pk=pk)
+        rackreservation = get_object_or_404(self.queryset, pk=pk)
 
         return render(request, 'dcim/rackreservation.html', {
             'rackreservation': rackreservation,
@@ -546,12 +545,12 @@ class DeviceTypeListView(ObjectListView):
     table = tables.DeviceTypeTable
 
 
-class DeviceTypeView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.view_devicetype'
+class DeviceTypeView(ObjectView):
+    queryset = DeviceType.objects.prefetch_related('manufacturer')
 
     def get(self, request, pk):
 
-        devicetype = get_object_or_404(DeviceType, pk=pk)
+        devicetype = get_object_or_404(self.queryset, pk=pk)
 
         # Component tables
         consoleport_table = tables.ConsolePortTemplateTable(
@@ -990,14 +989,14 @@ class DeviceListView(ObjectListView):
     template_name = 'dcim/device_list.html'
 
 
-class DeviceView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.view_device'
+class DeviceView(ObjectView):
+    queryset = Device.objects.prefetch_related(
+        'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform'
+    )
 
     def get(self, request, pk):
 
-        device = get_object_or_404(Device.objects.prefetch_related(
-            'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform'
-        ), pk=pk)
+        device = get_object_or_404(self.queryset, pk=pk)
 
         # VirtualChassis members
         if device.virtual_chassis is not None:
@@ -1068,12 +1067,12 @@ class DeviceView(PermissionRequiredMixin, View):
         })
 
 
-class DeviceInventoryView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.view_device'
+class DeviceInventoryView(ObjectView):
+    queryset = Device.objects.all()
 
     def get(self, request, pk):
 
-        device = get_object_or_404(Device, pk=pk)
+        device = get_object_or_404(self.queryset, pk=pk)
         inventory_items = InventoryItem.objects.filter(
             device=device, parent=None
         ).prefetch_related(
@@ -1087,12 +1086,13 @@ class DeviceInventoryView(PermissionRequiredMixin, View):
         })
 
 
-class DeviceStatusView(PermissionRequiredMixin, View):
+class DeviceStatusView(ObjectView):
     permission_required = ('dcim.view_device', 'dcim.napalm_read')
+    queryset = Device.objects.all()
 
     def get(self, request, pk):
 
-        device = get_object_or_404(Device, pk=pk)
+        device = get_object_or_404(self.queryset, pk=pk)
 
         return render(request, 'dcim/device_status.html', {
             'device': device,
@@ -1102,10 +1102,11 @@ class DeviceStatusView(PermissionRequiredMixin, View):
 
 class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
     permission_required = ('dcim.view_device', 'dcim.napalm_read')
+    queryset = Device.objects.all()
 
     def get(self, request, pk):
 
-        device = get_object_or_404(Device, pk=pk)
+        device = get_object_or_404(self.queryset, pk=pk)
         interfaces = device.vc_interfaces.exclude(type__in=NONCONNECTABLE_IFACE_TYPES).prefetch_related(
             '_connected_interface__device'
         )
@@ -1119,10 +1120,11 @@ class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
 
 class DeviceConfigView(PermissionRequiredMixin, View):
     permission_required = ('dcim.view_device', 'dcim.napalm_read')
+    queryset = Device.objects.all()
 
     def get(self, request, pk):
 
-        device = get_object_or_404(Device, pk=pk)
+        device = get_object_or_404(self.queryset, pk=pk)
 
         return render(request, 'dcim/device_config.html', {
             'device': device,
@@ -1426,12 +1428,12 @@ class InterfaceListView(ObjectListView):
     action_buttons = ('import', 'export')
 
 
-class InterfaceView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.view_interface'
+class InterfaceView(ObjectView):
+    queryset = Interface.objects.all()
 
     def get(self, request, pk):
 
-        interface = get_object_or_404(Interface, pk=pk)
+        interface = get_object_or_404(self.queryset, pk=pk)
 
         # Get assigned IP addresses
         ipaddress_table = InterfaceIPAddressTable(
@@ -1878,12 +1880,12 @@ class CableListView(ObjectListView):
     action_buttons = ('import', 'export')
 
 
-class CableView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.view_cable'
+class CableView(ObjectView):
+    queryset = Cable.objects.all()
 
     def get(self, request, pk):
 
-        cable = get_object_or_404(Cable, pk=pk)
+        cable = get_object_or_404(self.queryset, pk=pk)
 
         return render(request, 'dcim/cable.html', {
             'cable': cable,
@@ -2194,11 +2196,11 @@ class VirtualChassisListView(ObjectListView):
     action_buttons = ('export',)
 
 
-class VirtualChassisView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.view_virtualchassis'
+class VirtualChassisView(ObjectView):
+    queryset = VirtualChassis.objects.prefetch_related('members')
 
     def get(self, request, pk):
-        virtualchassis = get_object_or_404(VirtualChassis.objects.prefetch_related('members'), pk=pk)
+        virtualchassis = get_object_or_404(self.queryset, pk=pk)
 
         return render(request, 'dcim/virtualchassis.html', {
             'virtualchassis': virtualchassis,
@@ -2461,12 +2463,12 @@ class PowerPanelListView(ObjectListView):
     table = tables.PowerPanelTable
 
 
-class PowerPanelView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.view_powerpanel'
+class PowerPanelView(ObjectView):
+    queryset = PowerPanel.objects.prefetch_related('site', 'rack_group')
 
     def get(self, request, pk):
 
-        powerpanel = get_object_or_404(PowerPanel.objects.prefetch_related('site', 'rack_group'), pk=pk)
+        powerpanel = get_object_or_404(self.queryset, pk=pk)
         powerfeed_table = tables.PowerFeedTable(
             data=PowerFeed.objects.filter(power_panel=powerpanel).prefetch_related('rack'),
             orderable=False
@@ -2529,12 +2531,12 @@ class PowerFeedListView(ObjectListView):
     table = tables.PowerFeedTable
 
 
-class PowerFeedView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.view_powerfeed'
+class PowerFeedView(ObjectView):
+    queryset = PowerFeed.objects.prefetch_related('power_panel', 'rack')
 
     def get(self, request, pk):
 
-        powerfeed = get_object_or_404(PowerFeed.objects.prefetch_related('power_panel', 'rack'), pk=pk)
+        powerfeed = get_object_or_404(self.queryset, pk=pk)
 
         return render(request, 'dcim/powerfeed.html', {
             'powerfeed': powerfeed,

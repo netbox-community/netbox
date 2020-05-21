@@ -118,6 +118,18 @@ class GetReturnURLMixin(object):
 # Generic views
 #
 
+class ObjectView(ObjectPermissionRequiredMixin, View):
+    """
+    Retrieve a single object for display.
+
+    :param queryset: The base queryset for retrieving the object.
+    """
+    queryset = None
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'view')
+
+
 class ObjectListView(ObjectPermissionRequiredMixin, View):
     """
     List a series of objects.

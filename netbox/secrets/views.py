@@ -9,7 +9,8 @@ from django.urls import reverse
 from django.views.generic import View
 
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, GetReturnURLMixin, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkDeleteView, BulkEditView, BulkImportView, GetReturnURLMixin, ObjectView, ObjectDeleteView, ObjectEditView,
+    ObjectListView,
 )
 from . import filters, forms, tables
 from .decorators import userkey_required
@@ -66,12 +67,12 @@ class SecretListView(ObjectListView):
     action_buttons = ('import', 'export')
 
 
-class SecretView(PermissionRequiredMixin, View):
-    permission_required = 'secrets.view_secret'
+class SecretView(ObjectView):
+    queryset = Secret.objects.all()
 
     def get(self, request, pk):
 
-        secret = get_object_or_404(Secret, pk=pk)
+        secret = get_object_or_404(self.queryset, pk=pk)
 
         return render(request, 'secrets/secret.html', {
             'secret': secret,

@@ -1,13 +1,11 @@
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, render
-from django.views.generic import View
 
 from circuits.models import Circuit
 from dcim.models import Site, Rack, Device, RackReservation
 from ipam.models import IPAddress, Prefix, VLAN, VRF
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from virtualization.models import VirtualMachine, Cluster
 from . import filters, forms, tables
@@ -59,12 +57,12 @@ class TenantListView(ObjectListView):
     table = tables.TenantTable
 
 
-class TenantView(PermissionRequiredMixin, View):
-    permission_required = 'tenancy.view_tenant'
+class TenantView(ObjectView):
+    queryset = Tenant.objects.prefetch_related('group')
 
     def get(self, request, slug):
 
-        tenant = get_object_or_404(Tenant, slug=slug)
+        tenant = get_object_or_404(self.queryset, slug=slug)
         stats = {
             'site_count': Site.objects.filter(tenant=tenant).count(),
             'rack_count': Rack.objects.filter(tenant=tenant).count(),
