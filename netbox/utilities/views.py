@@ -122,7 +122,7 @@ class ObjectView(ObjectPermissionRequiredMixin, View):
     """
     Retrieve a single object for display.
 
-    :param queryset: The base queryset for retrieving the object.
+    queryset: The base queryset for retrieving the object.
     """
     queryset = None
 
@@ -134,11 +134,11 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
     """
     List a series of objects.
 
-    :param queryset: The queryset of objects to display
-    :param filter: A django-filter FilterSet that is applied to the queryset
-    :param filter_form: The form used to render filter options
-    :param table: The django-tables2 Table used to render the objects list
-    :param template_name: The name of the template
+    queryset: The queryset of objects to display
+    filter: A django-filter FilterSet that is applied to the queryset
+    filter_form: The form used to render filter options
+    table: The django-tables2 Table used to render the objects list
+    template_name: The name of the template
     """
     queryset = None
     filterset = None
@@ -294,9 +294,9 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Create or edit a single object.
 
-    :param queryset: The base queryset for the object being modified
-    :param model_form: The form used to create or edit the object
-    :param template_name: The name of the template
+    queryset: The base queryset for the object being modified
+    model_form: The form used to create or edit the object
+    template_name: The name of the template
     """
     queryset = None
     model_form = None
@@ -405,8 +405,8 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Delete a single object.
 
-    :param queryset: The base queryset for the object being deleted
-    :param template_name: The name of the template
+    queryset: The base queryset for the object being deleted
+    template_name: The name of the template
     """
     queryset = None
     template_name = 'utilities/obj_delete.html'
@@ -472,11 +472,11 @@ class BulkCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Create new objects in bulk.
 
-    :param queryset: Base queryset for the objects being created
-    :param form: Form class which provides the `pattern` field
-    :param model_form: The ModelForm used to create individual objects
-    :param pattern_target: Name of the field to be evaluated as a pattern (if any)
-    :param template_name: The name of the template
+    queryset: Base queryset for the objects being created
+    form: Form class which provides the `pattern` field
+    model_form: The ModelForm used to create individual objects
+    pattern_target: Name of the field to be evaluated as a pattern (if any)
+    template_name: The name of the template
     """
     queryset = None
     form = None
@@ -682,11 +682,11 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Import objects in bulk (CSV format).
 
-    :param queryset: Base queryset for the model
-    :param model_form: The form used to create each imported object
-    :param table: The django-tables2 Table used to render the list of imported objects
-    :param template_name: The name of the template
-    :param widget_attrs: A dict of attributes to apply to the import widget (e.g. to require a session key)
+    queryset: Base queryset for the model
+    model_form: The form used to create each imported object
+    table: The django-tables2 Table used to render the list of imported objects
+    template_name: The name of the template
+    widget_attrs: A dict of attributes to apply to the import widget (e.g. to require a session key)
     """
     queryset = None
     model_form = None
@@ -785,11 +785,11 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Edit objects in bulk.
 
-    :param queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
-    :param filter: FilterSet to apply when deleting by QuerySet
-    :param table: The table used to display devices being edited
-    :param form: The form class used to edit objects in bulk
-    :param template_name: The name of the template
+    queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
+    filter: FilterSet to apply when deleting by QuerySet
+    table: The table used to display devices being edited
+    form: The form class used to edit objects in bulk
+    template_name: The name of the template
     """
     queryset = None
     filterset = None
@@ -941,11 +941,11 @@ class BulkDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Delete objects in bulk.
 
-    :param queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
-    :param filter: FilterSet to apply when deleting by QuerySet
-    :param table: The table used to display devices being deleted
-    :param form: The form class used to delete objects in bulk
-    :param template_name: The name of the template
+    queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
+    filter: FilterSet to apply when deleting by QuerySet
+    table: The table used to display devices being deleted
+    form: The form class used to delete objects in bulk
+    template_name: The name of the template
     """
     queryset = None
     filterset = None
