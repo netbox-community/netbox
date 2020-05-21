@@ -134,16 +134,11 @@ class VRFView(PermissionRequiredMixin, View):
         })
 
 
-class VRFCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.add_vrf'
+class VRFEditView(ObjectEditView):
     queryset = VRF.objects.all()
     model_form = forms.VRFForm
     template_name = 'ipam/vrf_edit.html'
     default_return_url = 'ipam:vrf_list'
-
-
-class VRFEditView(VRFCreateView):
-    permission_required = 'ipam.change_vrf'
 
 
 class VRFDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -257,15 +252,10 @@ class RIRListView(ObjectListView):
         return rirs
 
 
-class RIRCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.add_rir'
+class RIREditView(ObjectEditView):
     queryset = RIR.objects.all()
     model_form = forms.RIRForm
     default_return_url = 'ipam:rir_list'
-
-
-class RIREditView(RIRCreateView):
-    permission_required = 'ipam.change_rir'
 
 
 class RIRBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -359,16 +349,11 @@ class AggregateView(PermissionRequiredMixin, View):
         })
 
 
-class AggregateCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.add_aggregate'
+class AggregateEditView(ObjectEditView):
     queryset = Aggregate.objects.all()
     model_form = forms.AggregateForm
     template_name = 'ipam/aggregate_edit.html'
     default_return_url = 'ipam:aggregate_list'
-
-
-class AggregateEditView(AggregateCreateView):
-    permission_required = 'ipam.change_aggregate'
 
 
 class AggregateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -411,15 +396,10 @@ class RoleListView(ObjectListView):
     table = tables.RoleTable
 
 
-class RoleCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.add_role'
+class RoleEditView(ObjectEditView):
     queryset = Role.objects.all()
     model_form = forms.RoleForm
     default_return_url = 'ipam:role_list'
-
-
-class RoleEditView(RoleCreateView):
-    permission_required = 'ipam.change_role'
 
 
 class RoleBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -585,16 +565,11 @@ class PrefixIPAddressesView(PermissionRequiredMixin, View):
         })
 
 
-class PrefixCreateView(ObjectPermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.add_prefix'
+class PrefixEditView(ObjectEditView):
     queryset = Prefix.objects.all()
     model_form = forms.PrefixForm
     template_name = 'ipam/prefix_edit.html'
     default_return_url = 'ipam:prefix_list'
-
-
-class PrefixEditView(PrefixCreateView):
-    permission_required = 'ipam.change_prefix'
 
 
 class PrefixDeleteView(ObjectPermissionRequiredMixin, ObjectDeleteView):
@@ -696,8 +671,7 @@ class IPAddressView(PermissionRequiredMixin, View):
         })
 
 
-class IPAddressCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.add_ipaddress'
+class IPAddressEditView(ObjectEditView):
     queryset = IPAddress.objects.all()
     model_form = forms.IPAddressForm
     template_name = 'ipam/ipaddress_edit.html'
@@ -713,10 +687,6 @@ class IPAddressCreateView(PermissionRequiredMixin, ObjectEditView):
                 pass
 
         return obj
-
-
-class IPAddressEditView(IPAddressCreateView):
-    permission_required = 'ipam.change_ipaddress'
 
 
 class IPAddressAssignView(PermissionRequiredMixin, View):
@@ -814,15 +784,11 @@ class VLANGroupListView(ObjectListView):
     table = tables.VLANGroupTable
 
 
-class VLANGroupCreateView(PermissionRequiredMixin, ObjectEditView):
+class VLANGroupEditView(ObjectEditView):
     permission_required = 'ipam.add_vlangroup'
     queryset = VLANGroup.objects.all()
     model_form = forms.VLANGroupForm
     default_return_url = 'ipam:vlangroup_list'
-
-
-class VLANGroupEditView(VLANGroupCreateView):
-    permission_required = 'ipam.change_vlangroup'
 
 
 class VLANGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -930,16 +896,11 @@ class VLANMembersView(PermissionRequiredMixin, View):
         })
 
 
-class VLANCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.add_vlan'
+class VLANEditView(ObjectEditView):
     queryset = VLAN.objects.all()
     model_form = forms.VLANForm
     template_name = 'ipam/vlan_edit.html'
     default_return_url = 'ipam:vlan_list'
-
-
-class VLANEditView(VLANCreateView):
-    permission_required = 'ipam.change_vlan'
 
 
 class VLANDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -997,8 +958,7 @@ class ServiceView(PermissionRequiredMixin, View):
         })
 
 
-class ServiceCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.add_service'
+class ServiceEditView(ObjectEditView):
     queryset = Service.objects.all()
     model_form = forms.ServiceForm
     template_name = 'ipam/service_edit.html'
@@ -1020,10 +980,6 @@ class ServiceBulkImportView(PermissionRequiredMixin, BulkImportView):
     model_form = forms.ServiceCSVForm
     table = tables.ServiceTable
     default_return_url = 'ipam:service_list'
-
-
-class ServiceEditView(ServiceCreateView):
-    permission_required = 'ipam.change_service'
 
 
 class ServiceDeleteView(PermissionRequiredMixin, ObjectDeleteView):

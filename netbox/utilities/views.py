@@ -278,7 +278,7 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         return {}
 
 
-class ObjectEditView(GetReturnURLMixin, View):
+class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Create or edit a single object.
 
@@ -289,6 +289,12 @@ class ObjectEditView(GetReturnURLMixin, View):
     queryset = None
     model_form = None
     template_name = 'utilities/obj_edit.html'
+
+    def get_required_permission(self):
+        # Determine required permission based on whether we are editing an existing object
+        if self.obj.pk is None:
+            return get_permission_for_model(self.queryset.model, 'add')
+        return get_permission_for_model(self.queryset.model, 'change')
 
     def get_object(self, kwargs):
         # Look up an existing object by slug or PK, if provided.

@@ -59,16 +59,11 @@ class ProviderView(PermissionRequiredMixin, View):
         })
 
 
-class ProviderCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'circuits.add_provider'
+class ProviderEditView(ObjectEditView):
     queryset = Provider.objects.all()
     model_form = forms.ProviderForm
     template_name = 'circuits/provider_edit.html'
     default_return_url = 'circuits:provider_list'
-
-
-class ProviderEditView(ProviderCreateView):
-    permission_required = 'circuits.change_provider'
 
 
 class ProviderDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -111,15 +106,10 @@ class CircuitTypeListView(ObjectListView):
     table = tables.CircuitTypeTable
 
 
-class CircuitTypeCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'circuits.add_circuittype'
+class CircuitTypeEditView(ObjectEditView):
     queryset = CircuitType.objects.all()
     model_form = forms.CircuitTypeForm
     default_return_url = 'circuits:circuittype_list'
-
-
-class CircuitTypeEditView(CircuitTypeCreateView):
-    permission_required = 'circuits.change_circuittype'
 
 
 class CircuitTypeBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -175,16 +165,11 @@ class CircuitView(PermissionRequiredMixin, View):
         })
 
 
-class CircuitCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'circuits.add_circuit'
+class CircuitEditView(ObjectEditView):
     queryset = Circuit.objects.all()
     model_form = forms.CircuitForm
     template_name = 'circuits/circuit_edit.html'
     default_return_url = 'circuits:circuit_list'
-
-
-class CircuitEditView(CircuitCreateView):
-    permission_required = 'circuits.change_circuit'
 
 
 class CircuitDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -271,8 +256,7 @@ def circuit_terminations_swap(request, pk):
 # Circuit terminations
 #
 
-class CircuitTerminationCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'circuits.add_circuittermination'
+class CircuitTerminationEditView(ObjectEditView):
     queryset = CircuitTermination.objects.all()
     model_form = forms.CircuitTerminationForm
     template_name = 'circuits/circuittermination_edit.html'
@@ -284,10 +268,6 @@ class CircuitTerminationCreateView(PermissionRequiredMixin, ObjectEditView):
 
     def get_return_url(self, request, obj):
         return obj.circuit.get_absolute_url()
-
-
-class CircuitTerminationEditView(CircuitTerminationCreateView):
-    permission_required = 'circuits.change_circuittermination'
 
 
 class CircuitTerminationDeleteView(PermissionRequiredMixin, ObjectDeleteView):

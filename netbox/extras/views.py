@@ -64,8 +64,7 @@ class TagView(PermissionRequiredMixin, View):
         })
 
 
-class TagEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'extras.change_tag'
+class TagEditView(ObjectEditView):
     queryset = Tag.objects.all()
     model_form = forms.TagForm
     default_return_url = 'extras:tag_list'
@@ -132,16 +131,11 @@ class ConfigContextView(PermissionRequiredMixin, View):
         })
 
 
-class ConfigContextCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'extras.add_configcontext'
+class ConfigContextEditView(ObjectEditView):
     queryset = ConfigContext.objects.all()
     model_form = forms.ConfigContextForm
     default_return_url = 'extras:configcontext_list'
     template_name = 'extras/configcontext_edit.html'
-
-
-class ConfigContextEditView(ConfigContextCreateView):
-    permission_required = 'extras.change_configcontext'
 
 
 class ConfigContextBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -301,8 +295,7 @@ class ObjectChangeLogView(View):
 # Image attachments
 #
 
-class ImageAttachmentEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'extras.change_imageattachment'
+class ImageAttachmentEditView(ObjectEditView):
     queryset = ImageAttachment.objects.all()
     model_form = forms.ImageAttachmentForm
 

@@ -154,15 +154,10 @@ class RegionListView(ObjectListView):
     table = tables.RegionTable
 
 
-class RegionCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.add_region'
+class RegionEditView(ObjectEditView):
     queryset = Region.objects.all()
     model_form = forms.RegionForm
     default_return_url = 'dcim:region_list'
-
-
-class RegionEditView(RegionCreateView):
-    permission_required = 'dcim.change_region'
 
 
 class RegionBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -218,16 +213,11 @@ class SiteView(ObjectPermissionRequiredMixin, View):
         })
 
 
-class SiteCreateView(ObjectPermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.add_site'
+class SiteEditView(ObjectEditView):
     queryset = Site.objects.all()
     model_form = forms.SiteForm
     template_name = 'dcim/site_edit.html'
     default_return_url = 'dcim:site_list'
-
-
-class SiteEditView(SiteCreateView):
-    permission_required = 'dcim.change_site'
 
 
 class SiteDeleteView(ObjectPermissionRequiredMixin, ObjectDeleteView):
@@ -278,15 +268,10 @@ class RackGroupListView(ObjectListView):
     table = tables.RackGroupTable
 
 
-class RackGroupCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.add_rackgroup'
+class RackGroupEditView(ObjectEditView):
     queryset = RackGroup.objects.all()
     model_form = forms.RackGroupForm
     default_return_url = 'dcim:rackgroup_list'
-
-
-class RackGroupEditView(RackGroupCreateView):
-    permission_required = 'dcim.change_rackgroup'
 
 
 class RackGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -314,15 +299,10 @@ class RackRoleListView(ObjectListView):
     table = tables.RackRoleTable
 
 
-class RackRoleCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.add_rackrole'
+class RackRoleEditView(ObjectEditView):
     queryset = RackRole.objects.all()
     model_form = forms.RackRoleForm
     default_return_url = 'dcim:rackrole_list'
-
-
-class RackRoleEditView(RackRoleCreateView):
-    permission_required = 'dcim.change_rackrole'
 
 
 class RackRoleBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -424,16 +404,11 @@ class RackView(PermissionRequiredMixin, View):
         })
 
 
-class RackCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.add_rack'
+class RackEditView(ObjectEditView):
     queryset = Rack.objects.all()
     model_form = forms.RackForm
     template_name = 'dcim/rack_edit.html'
     default_return_url = 'dcim:rack_list'
-
-
-class RackEditView(RackCreateView):
-    permission_required = 'dcim.change_rack'
 
 
 class RackDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -491,8 +466,7 @@ class RackReservationView(PermissionRequiredMixin, View):
         })
 
 
-class RackReservationCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.add_rackreservation'
+class RackReservationEditView(ObjectEditView):
     queryset = RackReservation.objects.all()
     model_form = forms.RackReservationForm
     template_name = 'dcim/rackreservation_edit.html'
@@ -504,10 +478,6 @@ class RackReservationCreateView(PermissionRequiredMixin, ObjectEditView):
                 obj.rack = get_object_or_404(Rack, pk=request.GET.get('rack'))
             obj.user = request.user
         return obj
-
-
-class RackReservationEditView(RackReservationCreateView):
-    permission_required = 'dcim.change_rackreservation'
 
 
 class RackReservationDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -564,15 +534,10 @@ class ManufacturerListView(ObjectListView):
     table = tables.ManufacturerTable
 
 
-class ManufacturerCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.add_manufacturer'
+class ManufacturerEditView(ObjectEditView):
     queryset = Manufacturer.objects.all()
     model_form = forms.ManufacturerForm
     default_return_url = 'dcim:manufacturer_list'
-
-
-class ManufacturerEditView(ManufacturerCreateView):
-    permission_required = 'dcim.change_manufacturer'
 
 
 class ManufacturerBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -664,16 +629,11 @@ class DeviceTypeView(PermissionRequiredMixin, View):
         })
 
 
-class DeviceTypeCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.add_devicetype'
+class DeviceTypeEditView(ObjectEditView):
     queryset = DeviceType.objects.all()
     model_form = forms.DeviceTypeForm
     template_name = 'dcim/devicetype_edit.html'
     default_return_url = 'dcim:devicetype_list'
-
-
-class DeviceTypeEditView(DeviceTypeCreateView):
-    permission_required = 'dcim.change_devicetype'
 
 
 class DeviceTypeDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -738,8 +698,7 @@ class ConsolePortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView
     template_name = 'dcim/device_component_add.html'
 
 
-class ConsolePortTemplateEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_consoleporttemplate'
+class ConsolePortTemplateEditView(ObjectEditView):
     queryset = ConsolePortTemplate.objects.all()
     model_form = forms.ConsolePortTemplateForm
 
@@ -774,8 +733,7 @@ class ConsoleServerPortTemplateCreateView(PermissionRequiredMixin, ComponentCrea
     template_name = 'dcim/device_component_add.html'
 
 
-class ConsoleServerPortTemplateEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_consoleserverporttemplate'
+class ConsoleServerPortTemplateEditView(ObjectEditView):
     queryset = ConsoleServerPortTemplate.objects.all()
     model_form = forms.ConsoleServerPortTemplateForm
 
@@ -810,8 +768,7 @@ class PowerPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class PowerPortTemplateEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_powerporttemplate'
+class PowerPortTemplateEditView(ObjectEditView):
     queryset = PowerPortTemplate.objects.all()
     model_form = forms.PowerPortTemplateForm
 
@@ -846,8 +803,7 @@ class PowerOutletTemplateCreateView(PermissionRequiredMixin, ComponentCreateView
     template_name = 'dcim/device_component_add.html'
 
 
-class PowerOutletTemplateEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_poweroutlettemplate'
+class PowerOutletTemplateEditView(ObjectEditView):
     queryset = PowerOutletTemplate.objects.all()
     model_form = forms.PowerOutletTemplateForm
 
@@ -882,8 +838,7 @@ class InterfaceTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class InterfaceTemplateEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_interfacetemplate'
+class InterfaceTemplateEditView(ObjectEditView):
     queryset = InterfaceTemplate.objects.all()
     model_form = forms.InterfaceTemplateForm
 
@@ -918,8 +873,7 @@ class FrontPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class FrontPortTemplateEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_frontporttemplate'
+class FrontPortTemplateEditView(ObjectEditView):
     queryset = FrontPortTemplate.objects.all()
     model_form = forms.FrontPortTemplateForm
 
@@ -954,8 +908,7 @@ class RearPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class RearPortTemplateEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_rearporttemplate'
+class RearPortTemplateEditView(ObjectEditView):
     queryset = RearPortTemplate.objects.all()
     model_form = forms.RearPortTemplateForm
 
@@ -990,8 +943,7 @@ class DeviceBayTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class DeviceBayTemplateEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_devicebaytemplate'
+class DeviceBayTemplateEditView(ObjectEditView):
     queryset = DeviceBayTemplate.objects.all()
     model_form = forms.DeviceBayTemplateForm
 
@@ -1023,15 +975,10 @@ class DeviceRoleListView(ObjectListView):
     table = tables.DeviceRoleTable
 
 
-class DeviceRoleCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.add_devicerole'
+class DeviceRoleEditView(ObjectEditView):
     queryset = DeviceRole.objects.all()
     model_form = forms.DeviceRoleForm
     default_return_url = 'dcim:devicerole_list'
-
-
-class DeviceRoleEditView(DeviceRoleCreateView):
-    permission_required = 'dcim.change_devicerole'
 
 
 class DeviceRoleBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -1058,15 +1005,10 @@ class PlatformListView(ObjectListView):
     table = tables.PlatformTable
 
 
-class PlatformCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.add_platform'
+class PlatformEditView(ObjectEditView):
     queryset = Platform.objects.all()
     model_form = forms.PlatformForm
     default_return_url = 'dcim:platform_list'
-
-
-class PlatformEditView(PlatformCreateView):
-    permission_required = 'dcim.change_platform'
 
 
 class PlatformBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -1244,16 +1186,11 @@ class DeviceConfigContextView(PermissionRequiredMixin, ObjectConfigContextView):
     base_template = 'dcim/device.html'
 
 
-class DeviceCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.add_device'
+class DeviceEditView(ObjectEditView):
     queryset = Device.objects.all()
     model_form = forms.DeviceForm
     template_name = 'dcim/device_edit.html'
     default_return_url = 'dcim:device_list'
-
-
-class DeviceEditView(DeviceCreateView):
-    permission_required = 'dcim.change_device'
 
 
 class DeviceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -1328,8 +1265,7 @@ class ConsolePortCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class ConsolePortEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_consoleport'
+class ConsolePortEditView(ObjectEditView):
     queryset = ConsolePort.objects.all()
     model_form = forms.ConsolePortForm
 
@@ -1383,8 +1319,7 @@ class ConsoleServerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class ConsoleServerPortEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_consoleserverport'
+class ConsoleServerPortEditView(ObjectEditView):
     queryset = ConsoleServerPort.objects.all()
     model_form = forms.ConsoleServerPortForm
 
@@ -1450,8 +1385,7 @@ class PowerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class PowerPortEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_powerport'
+class PowerPortEditView(ObjectEditView):
     queryset = PowerPort.objects.all()
     model_form = forms.PowerPortForm
 
@@ -1505,8 +1439,7 @@ class PowerOutletCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class PowerOutletEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_poweroutlet'
+class PowerOutletEditView(ObjectEditView):
     queryset = PowerOutlet.objects.all()
     model_form = forms.PowerOutletForm
 
@@ -1608,8 +1541,7 @@ class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_interface'
+class InterfaceEditView(ObjectEditView):
     queryset = Interface.objects.all()
     model_form = forms.InterfaceForm
     template_name = 'dcim/interface_edit.html'
@@ -1676,8 +1608,7 @@ class FrontPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class FrontPortEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_frontport'
+class FrontPortEditView(ObjectEditView):
     queryset = FrontPort.objects.all()
     model_form = forms.FrontPortForm
 
@@ -1743,8 +1674,7 @@ class RearPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class RearPortEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_rearport'
+class RearPortEditView(ObjectEditView):
     queryset = RearPort.objects.all()
     model_form = forms.RearPortForm
 
@@ -1812,8 +1742,7 @@ class DeviceBayCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class DeviceBayEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_devicebay'
+class DeviceBayEditView(ObjectEditView):
     queryset = DeviceBay.objects.all()
     model_form = forms.DeviceBayForm
 
@@ -2152,8 +2081,7 @@ class CableCreateView(PermissionRequiredMixin, GetReturnURLMixin, View):
         })
 
 
-class CableEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_cable'
+class CableEditView(ObjectEditView):
     queryset = Cable.objects.all()
     model_form = forms.CableForm
     template_name = 'dcim/cable_edit.html'
@@ -2306,8 +2234,7 @@ class InventoryItemListView(ObjectListView):
     action_buttons = ('import', 'export')
 
 
-class InventoryItemEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_inventoryitem'
+class InventoryItemEditView(ObjectEditView):
     queryset = InventoryItem.objects.all()
     model_form = forms.InventoryItemForm
 
@@ -2650,15 +2577,10 @@ class PowerPanelView(PermissionRequiredMixin, View):
         })
 
 
-class PowerPanelCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.add_powerpanel'
+class PowerPanelEditView(ObjectEditView):
     queryset = PowerPanel.objects.all()
     model_form = forms.PowerPanelForm
     default_return_url = 'dcim:powerpanel_list'
-
-
-class PowerPanelEditView(PowerPanelCreateView):
-    permission_required = 'dcim.change_powerpanel'
 
 
 class PowerPanelDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -2721,16 +2643,11 @@ class PowerFeedView(PermissionRequiredMixin, View):
         })
 
 
-class PowerFeedCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.add_powerfeed'
+class PowerFeedEditView(ObjectEditView):
     queryset = PowerFeed.objects.all()
     model_form = forms.PowerFeedForm
     template_name = 'dcim/powerfeed_edit.html'
     default_return_url = 'dcim:powerfeed_list'
-
-
-class PowerFeedEditView(PowerFeedCreateView):
-    permission_required = 'dcim.change_powerfeed'
 
 
 class PowerFeedDeleteView(PermissionRequiredMixin, ObjectDeleteView):

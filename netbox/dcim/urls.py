@@ -1,7 +1,7 @@
 from django.urls import path
 
 from extras.views import ObjectChangeLogView, ImageAttachmentEditView
-from ipam.views import ServiceCreateView
+from ipam.views import ServiceEditView
 from . import views
 from .models import (
     Cable, ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, FrontPort, Interface, Manufacturer, Platform,
@@ -14,7 +14,7 @@ urlpatterns = [
 
     # Regions
     path('regions/', views.RegionListView.as_view(), name='region_list'),
-    path('regions/add/', views.RegionCreateView.as_view(), name='region_add'),
+    path('regions/add/', views.RegionEditView.as_view(), name='region_add'),
     path('regions/import/', views.RegionBulkImportView.as_view(), name='region_import'),
     path('regions/delete/', views.RegionBulkDeleteView.as_view(), name='region_bulk_delete'),
     path('regions/<int:pk>/edit/', views.RegionEditView.as_view(), name='region_edit'),
@@ -22,7 +22,7 @@ urlpatterns = [
 
     # Sites
     path('sites/', views.SiteListView.as_view(), name='site_list'),
-    path('sites/add/', views.SiteCreateView.as_view(), name='site_add'),
+    path('sites/add/', views.SiteEditView.as_view(), name='site_add'),
     path('sites/import/', views.SiteBulkImportView.as_view(), name='site_import'),
     path('sites/edit/', views.SiteBulkEditView.as_view(), name='site_bulk_edit'),
     path('sites/delete/', views.SiteBulkDeleteView.as_view(), name='site_bulk_delete'),
@@ -34,7 +34,7 @@ urlpatterns = [
 
     # Rack groups
     path('rack-groups/', views.RackGroupListView.as_view(), name='rackgroup_list'),
-    path('rack-groups/add/', views.RackGroupCreateView.as_view(), name='rackgroup_add'),
+    path('rack-groups/add/', views.RackGroupEditView.as_view(), name='rackgroup_add'),
     path('rack-groups/import/', views.RackGroupBulkImportView.as_view(), name='rackgroup_import'),
     path('rack-groups/delete/', views.RackGroupBulkDeleteView.as_view(), name='rackgroup_bulk_delete'),
     path('rack-groups/<int:pk>/edit/', views.RackGroupEditView.as_view(), name='rackgroup_edit'),
@@ -42,7 +42,7 @@ urlpatterns = [
 
     # Rack roles
     path('rack-roles/', views.RackRoleListView.as_view(), name='rackrole_list'),
-    path('rack-roles/add/', views.RackRoleCreateView.as_view(), name='rackrole_add'),
+    path('rack-roles/add/', views.RackRoleEditView.as_view(), name='rackrole_add'),
     path('rack-roles/import/', views.RackRoleBulkImportView.as_view(), name='rackrole_import'),
     path('rack-roles/delete/', views.RackRoleBulkDeleteView.as_view(), name='rackrole_bulk_delete'),
     path('rack-roles/<int:pk>/edit/', views.RackRoleEditView.as_view(), name='rackrole_edit'),
@@ -50,7 +50,7 @@ urlpatterns = [
 
     # Rack reservations
     path('rack-reservations/', views.RackReservationListView.as_view(), name='rackreservation_list'),
-    path('rack-reservations/add/', views.RackReservationCreateView.as_view(), name='rackreservation_add'),
+    path('rack-reservations/add/', views.RackReservationEditView.as_view(), name='rackreservation_add'),
     path('rack-reservations/import/', views.RackReservationImportView.as_view(), name='rackreservation_import'),
     path('rack-reservations/edit/', views.RackReservationBulkEditView.as_view(), name='rackreservation_bulk_edit'),
     path('rack-reservations/delete/', views.RackReservationBulkDeleteView.as_view(), name='rackreservation_bulk_delete'),
@@ -62,7 +62,7 @@ urlpatterns = [
     # Racks
     path('racks/', views.RackListView.as_view(), name='rack_list'),
     path('rack-elevations/', views.RackElevationListView.as_view(), name='rack_elevation_list'),
-    path('racks/add/', views.RackCreateView.as_view(), name='rack_add'),
+    path('racks/add/', views.RackEditView.as_view(), name='rack_add'),
     path('racks/import/', views.RackBulkImportView.as_view(), name='rack_import'),
     path('racks/edit/', views.RackBulkEditView.as_view(), name='rack_bulk_edit'),
     path('racks/delete/', views.RackBulkDeleteView.as_view(), name='rack_bulk_delete'),
@@ -74,7 +74,7 @@ urlpatterns = [
 
     # Manufacturers
     path('manufacturers/', views.ManufacturerListView.as_view(), name='manufacturer_list'),
-    path('manufacturers/add/', views.ManufacturerCreateView.as_view(), name='manufacturer_add'),
+    path('manufacturers/add/', views.ManufacturerEditView.as_view(), name='manufacturer_add'),
     path('manufacturers/import/', views.ManufacturerBulkImportView.as_view(), name='manufacturer_import'),
     path('manufacturers/delete/', views.ManufacturerBulkDeleteView.as_view(), name='manufacturer_bulk_delete'),
     path('manufacturers/<slug:slug>/edit/', views.ManufacturerEditView.as_view(), name='manufacturer_edit'),
@@ -82,7 +82,7 @@ urlpatterns = [
 
     # Device types
     path('device-types/', views.DeviceTypeListView.as_view(), name='devicetype_list'),
-    path('device-types/add/', views.DeviceTypeCreateView.as_view(), name='devicetype_add'),
+    path('device-types/add/', views.DeviceTypeEditView.as_view(), name='devicetype_add'),
     path('device-types/import/', views.DeviceTypeImportView.as_view(), name='devicetype_import'),
     path('device-types/edit/', views.DeviceTypeBulkEditView.as_view(), name='devicetype_bulk_edit'),
     path('device-types/delete/', views.DeviceTypeBulkDeleteView.as_view(), name='devicetype_bulk_delete'),
@@ -149,7 +149,7 @@ urlpatterns = [
 
     # Device roles
     path('device-roles/', views.DeviceRoleListView.as_view(), name='devicerole_list'),
-    path('device-roles/add/', views.DeviceRoleCreateView.as_view(), name='devicerole_add'),
+    path('device-roles/add/', views.DeviceRoleEditView.as_view(), name='devicerole_add'),
     path('device-roles/import/', views.DeviceRoleBulkImportView.as_view(), name='devicerole_import'),
     path('device-roles/delete/', views.DeviceRoleBulkDeleteView.as_view(), name='devicerole_bulk_delete'),
     path('device-roles/<slug:slug>/edit/', views.DeviceRoleEditView.as_view(), name='devicerole_edit'),
@@ -157,7 +157,7 @@ urlpatterns = [
 
     # Platforms
     path('platforms/', views.PlatformListView.as_view(), name='platform_list'),
-    path('platforms/add/', views.PlatformCreateView.as_view(), name='platform_add'),
+    path('platforms/add/', views.PlatformEditView.as_view(), name='platform_add'),
     path('platforms/import/', views.PlatformBulkImportView.as_view(), name='platform_import'),
     path('platforms/delete/', views.PlatformBulkDeleteView.as_view(), name='platform_bulk_delete'),
     path('platforms/<slug:slug>/edit/', views.PlatformEditView.as_view(), name='platform_edit'),
@@ -165,7 +165,7 @@ urlpatterns = [
 
     # Devices
     path('devices/', views.DeviceListView.as_view(), name='device_list'),
-    path('devices/add/', views.DeviceCreateView.as_view(), name='device_add'),
+    path('devices/add/', views.DeviceEditView.as_view(), name='device_add'),
     path('devices/import/', views.DeviceBulkImportView.as_view(), name='device_import'),
     path('devices/import/child-devices/', views.ChildDeviceBulkImportView.as_view(), name='device_import_child'),
     path('devices/edit/', views.DeviceBulkEditView.as_view(), name='device_bulk_edit'),
@@ -179,7 +179,7 @@ urlpatterns = [
     path('devices/<int:pk>/status/', views.DeviceStatusView.as_view(), name='device_status'),
     path('devices/<int:pk>/lldp-neighbors/', views.DeviceLLDPNeighborsView.as_view(), name='device_lldp_neighbors'),
     path('devices/<int:pk>/config/', views.DeviceConfigView.as_view(), name='device_config'),
-    path('devices/<int:device>/services/assign/', ServiceCreateView.as_view(), name='device_service_assign'),
+    path('devices/<int:device>/services/assign/', ServiceEditView.as_view(), name='device_service_assign'),
     path('devices/<int:object_id>/images/add/', ImageAttachmentEditView.as_view(), name='device_add_image', kwargs={'model': Device}),
 
     # Console ports
@@ -332,7 +332,7 @@ urlpatterns = [
 
     # Power panels
     path('power-panels/', views.PowerPanelListView.as_view(), name='powerpanel_list'),
-    path('power-panels/add/', views.PowerPanelCreateView.as_view(), name='powerpanel_add'),
+    path('power-panels/add/', views.PowerPanelEditView.as_view(), name='powerpanel_add'),
     path('power-panels/import/', views.PowerPanelBulkImportView.as_view(), name='powerpanel_import'),
     path('power-panels/edit/', views.PowerPanelBulkEditView.as_view(), name='powerpanel_bulk_edit'),
     path('power-panels/delete/', views.PowerPanelBulkDeleteView.as_view(), name='powerpanel_bulk_delete'),
@@ -343,7 +343,7 @@ urlpatterns = [
 
     # Power feeds
     path('power-feeds/', views.PowerFeedListView.as_view(), name='powerfeed_list'),
-    path('power-feeds/add/', views.PowerFeedCreateView.as_view(), name='powerfeed_add'),
+    path('power-feeds/add/', views.PowerFeedEditView.as_view(), name='powerfeed_add'),
     path('power-feeds/import/', views.PowerFeedBulkImportView.as_view(), name='powerfeed_import'),
     path('power-feeds/edit/', views.PowerFeedBulkEditView.as_view(), name='powerfeed_bulk_edit'),
     path('power-feeds/delete/', views.PowerFeedBulkDeleteView.as_view(), name='powerfeed_bulk_delete'),

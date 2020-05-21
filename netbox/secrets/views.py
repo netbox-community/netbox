@@ -35,15 +35,10 @@ class SecretRoleListView(ObjectListView):
     table = tables.SecretRoleTable
 
 
-class SecretRoleCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'secrets.add_secretrole'
+class SecretRoleEditView(ObjectEditView):
     queryset = SecretRole.objects.all()
     model_form = forms.SecretRoleForm
     default_return_url = 'secrets:secretrole_list'
-
-
-class SecretRoleEditView(SecretRoleCreateView):
-    permission_required = 'secrets.change_secretrole'
 
 
 class SecretRoleBulkImportView(PermissionRequiredMixin, BulkImportView):

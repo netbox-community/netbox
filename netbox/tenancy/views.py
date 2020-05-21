@@ -29,15 +29,10 @@ class TenantGroupListView(ObjectListView):
     table = tables.TenantGroupTable
 
 
-class TenantGroupCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'tenancy.add_tenantgroup'
+class TenantGroupEditView(ObjectEditView):
     queryset = TenantGroup.objects.all()
     model_form = forms.TenantGroupForm
     default_return_url = 'tenancy:tenantgroup_list'
-
-
-class TenantGroupEditView(TenantGroupCreateView):
-    permission_required = 'tenancy.change_tenantgroup'
 
 
 class TenantGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -92,16 +87,11 @@ class TenantView(PermissionRequiredMixin, View):
         })
 
 
-class TenantCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'tenancy.add_tenant'
+class TenantEditView(ObjectEditView):
     queryset = Tenant.objects.all()
     model_form = forms.TenantForm
     template_name = 'tenancy/tenant_edit.html'
     default_return_url = 'tenancy:tenant_list'
-
-
-class TenantEditView(TenantCreateView):
-    permission_required = 'tenancy.change_tenant'
 
 
 class TenantDeleteView(PermissionRequiredMixin, ObjectDeleteView):
