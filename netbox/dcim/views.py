@@ -23,6 +23,7 @@ from ipam.models import Prefix, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
+from utilities.permissions import get_permission_for_model
 from utilities.utils import csv_format
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, GetReturnURLMixin,
@@ -41,7 +42,7 @@ from .models import (
 )
 
 
-class BulkRenameView(GetReturnURLMixin, View):
+class BulkRenameView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     An extendable view for renaming device components in bulk.
     """
@@ -49,9 +50,10 @@ class BulkRenameView(GetReturnURLMixin, View):
     form = None
     template_name = 'dcim/bulk_rename.html'
 
-    def post(self, request):
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'change')
 
-        model = self.queryset.model
+    def post(self, request):
 
         if '_preview' in request.POST or '_apply' in request.POST:
             form = self.form(request.POST, initial={'pk': request.POST.getlist('pk')})
@@ -76,7 +78,7 @@ class BulkRenameView(GetReturnURLMixin, View):
                         obj.save()
                     messages.success(request, "Renamed {} {}".format(
                         len(selected_objects),
-                        model._meta.verbose_name_plural
+                        self.queryset.model._meta.verbose_name_plural
                     ))
                     return redirect(self.get_return_url(request))
 
@@ -86,7 +88,7 @@ class BulkRenameView(GetReturnURLMixin, View):
 
         return render(request, self.template_name, {
             'form': form,
-            'obj_type_plural': model._meta.verbose_name_plural,
+            'obj_type_plural': self.queryset.model._meta.verbose_name_plural,
             'selected_objects': selected_objects,
             'return_url': self.get_return_url(request),
         })
@@ -96,9 +98,12 @@ class BulkDisconnectView(GetReturnURLMixin, View):
     """
     An extendable view for disconnection console/power/interface components in bulk.
     """
-    model = None
+    queryset = None
     form = None
     template_name = 'dcim/bulk_disconnect.html'
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'change')
 
     def post(self, request):
 
@@ -113,25 +118,25 @@ class BulkDisconnectView(GetReturnURLMixin, View):
                 with transaction.atomic():
 
                     count = 0
-                    for obj in self.model.objects.filter(pk__in=form.cleaned_data['pk']):
+                    for obj in self.queryset.filter(pk__in=form.cleaned_data['pk']):
                         if obj.cable is None:
                             continue
                         obj.cable.delete()
                         count += 1
 
                 messages.success(request, "Disconnected {} {}".format(
-                    count, self.model._meta.verbose_name_plural
+                    count, self.queryset.model._meta.verbose_name_plural
                 ))
 
                 return redirect(return_url)
 
         else:
             form = self.form(initial={'pk': request.POST.getlist('pk')})
-            selected_objects = self.model.objects.filter(pk__in=form.initial['pk'])
+            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
 
         return render(request, self.template_name, {
             'form': form,
-            'obj_type_plural': self.model._meta.verbose_name_plural,
+            'obj_type_plural': self.queryset.model._meta.verbose_name_plural,
             'selected_objects': selected_objects,
             'return_url': return_url,
         })
@@ -1285,15 +1290,13 @@ class ConsoleServerPortBulkEditView(BulkEditView):
     form = forms.ConsoleServerPortBulkEditForm
 
 
-class ConsoleServerPortBulkRenameView(PermissionRequiredMixin, BulkRenameView):
-    permission_required = 'dcim.change_consoleserverport'
+class ConsoleServerPortBulkRenameView(BulkRenameView):
     queryset = ConsoleServerPort.objects.all()
     form = forms.ConsoleServerPortBulkRenameForm
 
 
-class ConsoleServerPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
-    permission_required = 'dcim.change_consoleserverport'
-    model = ConsoleServerPort
+class ConsoleServerPortBulkDisconnectView(BulkDisconnectView):
+    queryset = ConsoleServerPort.objects.all()
     form = forms.ConsoleServerPortBulkDisconnectForm
 
 
@@ -1397,15 +1400,13 @@ class PowerOutletBulkEditView(BulkEditView):
     form = forms.PowerOutletBulkEditForm
 
 
-class PowerOutletBulkRenameView(PermissionRequiredMixin, BulkRenameView):
-    permission_required = 'dcim.change_poweroutlet'
+class PowerOutletBulkRenameView(BulkRenameView):
     queryset = PowerOutlet.objects.all()
     form = forms.PowerOutletBulkRenameForm
 
 
-class PowerOutletBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
-    permission_required = 'dcim.change_poweroutlet'
-    model = PowerOutlet
+class PowerOutletBulkDisconnectView(BulkDisconnectView):
+    queryset = PowerOutlet.objects.all()
     form = forms.PowerOutletBulkDisconnectForm
 
 
@@ -1496,15 +1497,13 @@ class InterfaceBulkEditView(BulkEditView):
     form = forms.InterfaceBulkEditForm
 
 
-class InterfaceBulkRenameView(PermissionRequiredMixin, BulkRenameView):
-    permission_required = 'dcim.change_interface'
+class InterfaceBulkRenameView(BulkRenameView):
     queryset = Interface.objects.all()
     form = forms.InterfaceBulkRenameForm
 
 
-class InterfaceBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
-    permission_required = 'dcim.change_interface'
-    model = Interface
+class InterfaceBulkDisconnectView(BulkDisconnectView):
+    queryset = Interface.objects.all()
     form = forms.InterfaceBulkDisconnectForm
 
 
@@ -1558,15 +1557,13 @@ class FrontPortBulkEditView(BulkEditView):
     form = forms.FrontPortBulkEditForm
 
 
-class FrontPortBulkRenameView(PermissionRequiredMixin, BulkRenameView):
-    permission_required = 'dcim.change_frontport'
+class FrontPortBulkRenameView(BulkRenameView):
     queryset = FrontPort.objects.all()
     form = forms.FrontPortBulkRenameForm
 
 
-class FrontPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
-    permission_required = 'dcim.change_frontport'
-    model = FrontPort
+class FrontPortBulkDisconnectView(BulkDisconnectView):
+    queryset = FrontPort.objects.all()
     form = forms.FrontPortBulkDisconnectForm
 
 
@@ -1620,15 +1617,13 @@ class RearPortBulkEditView(BulkEditView):
     form = forms.RearPortBulkEditForm
 
 
-class RearPortBulkRenameView(PermissionRequiredMixin, BulkRenameView):
-    permission_required = 'dcim.change_rearport'
+class RearPortBulkRenameView(BulkRenameView):
     queryset = RearPort.objects.all()
     form = forms.RearPortBulkRenameForm
 
 
-class RearPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
-    permission_required = 'dcim.change_rearport'
-    model = RearPort
+class RearPortBulkDisconnectView(BulkDisconnectView):
+    queryset = RearPort.objects.all()
     form = forms.RearPortBulkDisconnectForm
 
 
@@ -1753,8 +1748,7 @@ class DeviceBayBulkEditView(BulkEditView):
     form = forms.DeviceBayBulkEditForm
 
 
-class DeviceBayBulkRenameView(PermissionRequiredMixin, BulkRenameView):
-    permission_required = 'dcim.change_devicebay'
+class DeviceBayBulkRenameView(BulkRenameView):
     queryset = DeviceBay.objects.all()
     form = forms.DeviceBayBulkRenameForm
 
