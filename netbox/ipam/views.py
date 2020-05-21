@@ -721,7 +721,7 @@ class IPAddressDeleteView(ObjectDeleteView):
     default_return_url = 'ipam:ipaddress_list'
 
 
-class IPAddressBulkCreateView(PermissionRequiredMixin, BulkCreateView):
+class IPAddressBulkCreateView(BulkCreateView):
     permission_required = 'ipam.add_ipaddress'
     form = forms.IPAddressBulkCreateForm
     model_form = forms.IPAddressBulkAddForm

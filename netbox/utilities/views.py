@@ -468,19 +468,24 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         })
 
 
-class BulkCreateView(GetReturnURLMixin, View):
+class BulkCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Create new objects in bulk.
 
-    form: Form class which provides the `pattern` field
-    model_form: The ModelForm used to create individual objects
-    pattern_target: Name of the field to be evaluated as a pattern (if any)
-    template_name: The name of the template
+    :param queryset: Base queryset for the objects being created
+    :param form: Form class which provides the `pattern` field
+    :param model_form: The ModelForm used to create individual objects
+    :param pattern_target: Name of the field to be evaluated as a pattern (if any)
+    :param template_name: The name of the template
     """
+    queryset = None
     form = None
     model_form = None
     pattern_target = ''
     template_name = None
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'add')
 
     def get(self, request):
         # Set initial values for visible form fields from query args
@@ -501,7 +506,7 @@ class BulkCreateView(GetReturnURLMixin, View):
 
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkCreateView')
-        model = self.model_form._meta.model
+        model = self.queryset.model
         form = self.form(request.POST)
         model_form = self.model_form(request.POST)
 
@@ -534,6 +539,10 @@ class BulkCreateView(GetReturnURLMixin, View):
                             # Raise an IntegrityError to break the for loop and abort the transaction.
                             raise IntegrityError()
 
+                    # Enforce object-level permissions
+                    if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
+                        raise ObjectDoesNotExist
+
                     # If we make it to this point, validation has succeeded on all new objects.
                     msg = "Added {} {}".format(len(new_objs), model._meta.verbose_name_plural)
                     logger.info(msg)
@@ -545,6 +554,11 @@ class BulkCreateView(GetReturnURLMixin, View):
 
             except IntegrityError:
                 pass
+
+            except ObjectDoesNotExist:
+                msg = "Object creation failed due to object-level permissions violation"
+                logger.debug(msg)
+                form.add_error(None, msg)
 
         else:
             logger.debug("Form validation failed")
