@@ -27,6 +27,7 @@ from extras.querysets import CustomFieldQueryset
 from users.models import ObjectPermission
 from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField, TableConfigForm
+from utilities.permissions import get_permission_for_model
 from utilities.utils import csv_format, prepare_cloned_fields
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm, ImportForm
@@ -45,11 +46,15 @@ class ObjectPermissionRequiredMixin(AccessMixin):
     """
     permission_required = None
 
+    def get_required_permission(self):
+        return self.permission_required
+
     def has_permission(self):
         user = self.request.user
+        permission_required = self.get_required_permission()
 
         # First, check that the user is granted the required permission at either the model or object level.
-        if not user.has_perm(self.permission_required):
+        if not user.has_perm(permission_required):
             return False
 
         # Superusers implicitly have all permissions
@@ -58,23 +63,18 @@ class ObjectPermissionRequiredMixin(AccessMixin):
 
         # Determine whether the permission is model-level or object-level. Model-level permissions grant the
         # specified action to *all* objects, so no further action is needed.
-        if self.permission_required in {*user._user_perm_cache, *user._group_perm_cache}:
+        if permission_required in {*user._user_perm_cache, *user._group_perm_cache}:
             return True
 
         # If the permission is granted only at the object level, filter the view's queryset to return only objects
         # on which the user is permitted to perform the specified action.
-        attrs = ObjectPermission.objects.get_attr_constraints(user, self.permission_required)
+        attrs = ObjectPermission.objects.get_attr_constraints(user, permission_required)
         if attrs:
             # Update the view's QuerySet to filter only the permitted objects
             self.queryset = self.queryset.filter(attrs)
             return True
 
     def dispatch(self, request, *args, **kwargs):
-        if self.permission_required is None:
-            raise ImproperlyConfigured(
-                '{0} is missing the permission_required attribute. Define {0}.permission_required, or override '
-                '{0}.get_permission_required().'.format(self.__class__.__name__)
-            )
 
         if not hasattr(self, 'queryset'):
             raise ImproperlyConfigured(
@@ -118,15 +118,15 @@ class GetReturnURLMixin(object):
 # Generic views
 #
 
-class ObjectListView(View):
+class ObjectListView(ObjectPermissionRequiredMixin, View):
     """
     List a series of objects.
 
-    queryset: The queryset of objects to display
-    filter: A django-filter FilterSet that is applied to the queryset
-    filter_form: The form used to render filter options
-    table: The django-tables2 Table used to render the objects list
-    template_name: The name of the template
+    :param queryset: The queryset of objects to display
+    :param filter: A django-filter FilterSet that is applied to the queryset
+    :param filter_form: The form used to render filter options
+    :param table: The django-tables2 Table used to render the objects list
+    :param template_name: The name of the template
     """
     queryset = None
     filterset = None
@@ -134,6 +134,11 @@ class ObjectListView(View):
     table = None
     template_name = 'utilities/obj_list.html'
     action_buttons = ('add', 'import', 'export')
+
+    def get_required_permission(self):
+        if getattr(self, 'permission_required') is not None:
+            return self.permission_required
+        return get_permission_for_model(self.queryset.model, 'view')
 
     def queryset_to_yaml(self):
         """

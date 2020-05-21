@@ -18,8 +18,7 @@ from .models import Tenant, TenantGroup
 # Tenant groups
 #
 
-class TenantGroupListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'tenancy.view_tenantgroup'
+class TenantGroupListView(ObjectListView):
     queryset = TenantGroup.objects.add_related_count(
         TenantGroup.objects.all(),
         Tenant,
@@ -60,8 +59,7 @@ class TenantGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #  Tenants
 #
 
-class TenantListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'tenancy.view_tenant'
+class TenantListView(ObjectListView):
     queryset = Tenant.objects.prefetch_related('group')
     filterset = filters.TenantFilterSet
     filterset_form = forms.TenantFilterForm

@@ -22,8 +22,7 @@ from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 # Cluster types
 #
 
-class ClusterTypeListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'virtualization.view_clustertype'
+class ClusterTypeListView(ObjectListView):
     queryset = ClusterType.objects.annotate(cluster_count=Count('clusters'))
     table = tables.ClusterTypeTable
 
@@ -58,8 +57,7 @@ class ClusterTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Cluster groups
 #
 
-class ClusterGroupListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'virtualization.view_clustergroup'
+class ClusterGroupListView(ObjectListView):
     queryset = ClusterGroup.objects.annotate(cluster_count=Count('clusters'))
     table = tables.ClusterGroupTable
 
@@ -94,8 +92,7 @@ class ClusterGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Clusters
 #
 
-class ClusterListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'virtualization.view_cluster'
+class ClusterListView(ObjectListView):
     queryset = Cluster.objects.prefetch_related('type', 'group', 'site', 'tenant')
     table = tables.ClusterTable
     filterset = filters.ClusterFilterSet
@@ -251,8 +248,7 @@ class ClusterRemoveDevicesView(PermissionRequiredMixin, View):
 # Virtual machines
 #
 
-class VirtualMachineListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'virtualization.view_virtualmachine'
+class VirtualMachineListView(ObjectListView):
     queryset = VirtualMachine.objects.prefetch_related('cluster', 'tenant', 'role', 'primary_ip4', 'primary_ip6')
     filterset = filters.VirtualMachineFilterSet
     filterset_form = forms.VirtualMachineFilterForm

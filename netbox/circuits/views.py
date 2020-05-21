@@ -23,8 +23,7 @@ from .models import Circuit, CircuitTermination, CircuitType, Provider
 # Providers
 #
 
-class ProviderListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'circuits.view_provider'
+class ProviderListView(ObjectListView):
     queryset = Provider.objects.annotate(count_circuits=Count('circuits'))
     filterset = filters.ProviderFilterSet
     filterset_form = forms.ProviderFilterForm
@@ -107,8 +106,7 @@ class ProviderBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Circuit Types
 #
 
-class CircuitTypeListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'circuits.view_circuittype'
+class CircuitTypeListView(ObjectListView):
     queryset = CircuitType.objects.annotate(circuit_count=Count('circuits'))
     table = tables.CircuitTypeTable
 
@@ -143,8 +141,7 @@ class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Circuits
 #
 
-class CircuitListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'circuits.view_circuit'
+class CircuitListView(ObjectListView):
     _terminations = CircuitTermination.objects.filter(circuit=OuterRef('pk'))
     queryset = Circuit.objects.prefetch_related(
         'provider', 'type', 'tenant', 'terminations__site'

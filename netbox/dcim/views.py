@@ -141,8 +141,7 @@ class BulkDisconnectView(GetReturnURLMixin, View):
 # Regions
 #
 
-class RegionListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_region'
+class RegionListView(ObjectListView):
     queryset = Region.objects.add_related_count(
         Region.objects.all(),
         Site,
@@ -186,8 +185,7 @@ class RegionBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Sites
 #
 
-class SiteListView(ObjectPermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_site'
+class SiteListView(ObjectListView):
     queryset = Site.objects.prefetch_related('region', 'tenant')
     filterset = filters.SiteFilterSet
     filterset_form = forms.SiteFilterForm
@@ -267,8 +265,7 @@ class SiteBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Rack groups
 #
 
-class RackGroupListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_rackgroup'
+class RackGroupListView(ObjectListView):
     queryset = RackGroup.objects.add_related_count(
         RackGroup.objects.all(),
         Rack,
@@ -312,8 +309,7 @@ class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Rack roles
 #
 
-class RackRoleListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_rackrole'
+class RackRoleListView(ObjectListView):
     queryset = RackRole.objects.annotate(rack_count=Count('racks'))
     table = tables.RackRoleTable
 
@@ -348,8 +344,7 @@ class RackRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Racks
 #
 
-class RackListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_rack'
+class RackListView(ObjectListView):
     queryset = Rack.objects.prefetch_related(
         'site', 'group', 'tenant', 'role', 'devices__device_type'
     ).annotate(
@@ -476,8 +471,7 @@ class RackBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Rack reservations
 #
 
-class RackReservationListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_rackreservation'
+class RackReservationListView(ObjectListView):
     queryset = RackReservation.objects.prefetch_related('rack__site')
     filterset = filters.RackReservationFilterSet
     filterset_form = forms.RackReservationFilterForm
@@ -561,8 +555,7 @@ class RackReservationBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Manufacturers
 #
 
-class ManufacturerListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_manufacturer'
+class ManufacturerListView(ObjectListView):
     queryset = Manufacturer.objects.annotate(
         devicetype_count=Count('device_types', distinct=True),
         inventoryitem_count=Count('inventory_items', distinct=True),
@@ -601,8 +594,7 @@ class ManufacturerBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Device types
 #
 
-class DeviceTypeListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_devicetype'
+class DeviceTypeListView(ObjectListView):
     queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances'))
     filterset = filters.DeviceTypeFilterSet
     filterset_form = forms.DeviceTypeFilterForm
@@ -1026,8 +1018,7 @@ class DeviceBayTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Device roles
 #
 
-class DeviceRoleListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_devicerole'
+class DeviceRoleListView(ObjectListView):
     queryset = DeviceRole.objects.all()
     table = tables.DeviceRoleTable
 
@@ -1062,8 +1053,7 @@ class DeviceRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Platforms
 #
 
-class PlatformListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_platform'
+class PlatformListView(ObjectListView):
     queryset = Platform.objects.all()
     table = tables.PlatformTable
 
@@ -1098,8 +1088,7 @@ class PlatformBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Devices
 #
 
-class DeviceListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_device'
+class DeviceListView(ObjectListView):
     queryset = Device.objects.prefetch_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack', 'primary_ip4', 'primary_ip6'
     )
@@ -1323,8 +1312,7 @@ class DeviceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Console ports
 #
 
-class ConsolePortListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_consoleport'
+class ConsolePortListView(ObjectListView):
     queryset = ConsolePort.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
     filterset = filters.ConsolePortFilterSet
     filterset_form = forms.ConsolePortFilterForm
@@ -1379,8 +1367,7 @@ class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Console server ports
 #
 
-class ConsoleServerPortListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_consoleserverport'
+class ConsoleServerPortListView(ObjectListView):
     queryset = ConsoleServerPort.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
     filterset = filters.ConsoleServerPortFilterSet
     filterset_form = forms.ConsoleServerPortFilterForm
@@ -1447,8 +1434,7 @@ class ConsoleServerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Power ports
 #
 
-class PowerPortListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_powerport'
+class PowerPortListView(ObjectListView):
     queryset = PowerPort.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
     filterset = filters.PowerPortFilterSet
     filterset_form = forms.PowerPortFilterForm
@@ -1503,8 +1489,7 @@ class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Power outlets
 #
 
-class PowerOutletListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_poweroutlet'
+class PowerOutletListView(ObjectListView):
     queryset = PowerOutlet.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
     filterset = filters.PowerOutletFilterSet
     filterset_form = forms.PowerOutletFilterForm
@@ -1571,8 +1556,7 @@ class PowerOutletBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Interfaces
 #
 
-class InterfaceListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_interface'
+class InterfaceListView(ObjectListView):
     queryset = Interface.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
     filterset = filters.InterfaceFilterSet
     filterset_form = forms.InterfaceFilterForm
@@ -1676,8 +1660,7 @@ class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Front ports
 #
 
-class FrontPortListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_frontport'
+class FrontPortListView(ObjectListView):
     queryset = FrontPort.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
     filterset = filters.FrontPortFilterSet
     filterset_form = forms.FrontPortFilterForm
@@ -1744,8 +1727,7 @@ class FrontPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Rear ports
 #
 
-class RearPortListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_rearport'
+class RearPortListView(ObjectListView):
     queryset = RearPort.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
     filterset = filters.RearPortFilterSet
     filterset_form = forms.RearPortFilterForm
@@ -1812,8 +1794,7 @@ class RearPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Device bays
 #
 
-class DeviceBayListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_devicebay'
+class DeviceBayListView(ObjectListView):
     queryset = DeviceBay.objects.prefetch_related(
         'device', 'device__site', 'installed_device', 'installed_device__site'
     )
@@ -2045,8 +2026,7 @@ class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, BulkComponentCreateVie
 # Cables
 #
 
-class CableListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_cable'
+class CableListView(ObjectListView):
     queryset = Cable.objects.prefetch_related(
         'termination_a', 'termination_b'
     )
@@ -2215,7 +2195,7 @@ class CableBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Connections
 #
 
-class ConsoleConnectionsListView(PermissionRequiredMixin, ObjectListView):
+class ConsoleConnectionsListView(ObjectListView):
     permission_required = ('dcim.view_consoleport', 'dcim.view_consoleserverport')
     queryset = ConsolePort.objects.prefetch_related(
         'device', 'connected_endpoint__device'
@@ -2247,7 +2227,7 @@ class ConsoleConnectionsListView(PermissionRequiredMixin, ObjectListView):
         return '\n'.join(csv_data)
 
 
-class PowerConnectionsListView(PermissionRequiredMixin, ObjectListView):
+class PowerConnectionsListView(ObjectListView):
     permission_required = ('dcim.view_powerport', 'dcim.view_poweroutlet')
     queryset = PowerPort.objects.prefetch_related(
         'device', '_connected_poweroutlet__device'
@@ -2279,8 +2259,7 @@ class PowerConnectionsListView(PermissionRequiredMixin, ObjectListView):
         return '\n'.join(csv_data)
 
 
-class InterfaceConnectionsListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_interface'
+class InterfaceConnectionsListView(ObjectListView):
     queryset = Interface.objects.prefetch_related(
         'device', 'cable', '_connected_interface__device'
     ).filter(
@@ -2319,8 +2298,7 @@ class InterfaceConnectionsListView(PermissionRequiredMixin, ObjectListView):
 # Inventory items
 #
 
-class InventoryItemListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_inventoryitem'
+class InventoryItemListView(ObjectListView):
     queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
     filterset = filters.InventoryItemFilterSet
     filterset_form = forms.InventoryItemFilterForm
@@ -2376,8 +2354,7 @@ class InventoryItemBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Virtual chassis
 #
 
-class VirtualChassisListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_virtualchassis'
+class VirtualChassisListView(ObjectListView):
     queryset = VirtualChassis.objects.prefetch_related('master').annotate(member_count=Count('members'))
     table = tables.VirtualChassisTable
     filterset = filters.VirtualChassisFilterSet
@@ -2644,8 +2621,7 @@ class VirtualChassisBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Power panels
 #
 
-class PowerPanelListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_powerpanel'
+class PowerPanelListView(ObjectListView):
     queryset = PowerPanel.objects.prefetch_related(
         'site', 'rack_group'
     ).annotate(
@@ -2724,8 +2700,7 @@ class PowerPanelBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Power feeds
 #
 
-class PowerFeedListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.view_powerfeed'
+class PowerFeedListView(ObjectListView):
     queryset = PowerFeed.objects.prefetch_related(
         'power_panel', 'rack'
     )

@@ -25,8 +25,7 @@ from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemT
 # Tags
 #
 
-class TagListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'extras.view_tag'
+class TagListView(ObjectListView):
     queryset = Tag.objects.annotate(
         items=Count('extras_taggeditem_items', distinct=True)
     ).order_by(
@@ -106,8 +105,7 @@ class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Config contexts
 #
 
-class ConfigContextListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'extras.view_configcontext'
+class ConfigContextListView(ObjectListView):
     queryset = ConfigContext.objects.all()
     filterset = filters.ConfigContextFilterSet
     filterset_form = forms.ConfigContextFilterForm
@@ -200,8 +198,7 @@ class ObjectConfigContextView(View):
 # Change logging
 #
 
-class ObjectChangeListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'extras.view_objectchange'
+class ObjectChangeListView(ObjectListView):
     queryset = ObjectChange.objects.prefetch_related('user', 'changed_object_type')
     filterset = filters.ObjectChangeFilterSet
     filterset_form = forms.ObjectChangeFilterForm

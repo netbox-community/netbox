@@ -30,8 +30,7 @@ def get_session_key(request):
 # Secret roles
 #
 
-class SecretRoleListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'secrets.view_secretrole'
+class SecretRoleListView(ObjectListView):
     queryset = SecretRole.objects.annotate(secret_count=Count('secrets'))
     table = tables.SecretRoleTable
 
@@ -66,8 +65,7 @@ class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Secrets
 #
 
-class SecretListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'secrets.view_secret'
+class SecretListView(ObjectListView):
     queryset = Secret.objects.prefetch_related('role', 'device')
     filterset = filters.SecretFilterSet
     filterset_form = forms.SecretFilterForm
