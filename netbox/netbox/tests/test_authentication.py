@@ -460,35 +460,98 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['count'], 3)
 
-    # TODO
-    # @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-    # def test_create_object(self):
-    #     url = reverse('ipam-api:prefix-list')
-    #     data = {
-    #         'prefix': '10.0.9.0/24',
-    #         'site': self.sites[1].pk,
-    #     }
-    #     initial_count = Prefix.objects.count()
-    #
-    #     # Attempt to create an object without permission
-    #     response = self.client.post(url, data, format='json', **self.header)
-    #     self.assertEqual(response.status_code, 403)
-    #
-    #     # Assign object permission
-    #     obj_perm = ObjectPermission(
-    #         model=ContentType.objects.get_for_model(Prefix),
-    #         attrs={'site__name': 'Site 1'},
-    #         can_view=True
-    #     )
-    #     obj_perm.save()
-    #     obj_perm.users.add(self.user)
-    #
-    #     # Attempt to create a non-permitted object
-    #     response = self.client.post(url, data, format='json', **self.header)
-    #     self.assertEqual(response.status_code, 403)
-    #     self.assertEqual(Prefix.objects.count(), initial_count)
-    #
-    #     # Create a permitted object
-    #     response = self.client.post(url, data, format='json', **self.header)
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(Prefix.objects.count(), initial_count + 1)
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+    def test_create_object(self):
+        url = reverse('ipam-api:prefix-list')
+        data = {
+            'prefix': '10.0.9.0/24',
+            'site': self.sites[1].pk,
+        }
+        initial_count = Prefix.objects.count()
+
+        # Attempt to create an object without permission
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 403)
+
+        # Assign object permission
+        obj_perm = ObjectPermission(
+            model=ContentType.objects.get_for_model(Prefix),
+            attrs={'site__name': 'Site 1'},
+            can_add=True
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+
+        # Attempt to create a non-permitted object
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Prefix.objects.count(), initial_count)
+
+        # Create a permitted object
+        data['site'] = self.sites[0].pk
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Prefix.objects.count(), initial_count + 1)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+    def test_edit_object(self):
+
+        # Attempt to edit an object without permission
+        data = {'site': self.sites[0].pk}
+        url = reverse('ipam-api:prefix-detail', kwargs={'pk': self.prefixes[0].pk})
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 403)
+
+        # Assign object permission
+        obj_perm = ObjectPermission(
+            model=ContentType.objects.get_for_model(Prefix),
+            attrs={'site__name': 'Site 1'},
+            can_change=True
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+
+        # Attempt to edit a non-permitted object
+        data = {'site': self.sites[0].pk}
+        url = reverse('ipam-api:prefix-detail', kwargs={'pk': self.prefixes[3].pk})
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 404)
+
+        # Edit a permitted object
+        data['status'] = 'reserved'
+        url = reverse('ipam-api:prefix-detail', kwargs={'pk': self.prefixes[0].pk})
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 200)
+
+        # Attempt to modify a permitted object to a non-permitted object
+        data['site'] = self.sites[1].pk
+        url = reverse('ipam-api:prefix-detail', kwargs={'pk': self.prefixes[0].pk})
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 403)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+    def test_delete_object(self):
+
+        # Attempt to delete an object without permission
+        url = reverse('ipam-api:prefix-detail', kwargs={'pk': self.prefixes[0].pk})
+        response = self.client.delete(url, format='json', **self.header)
+        self.assertEqual(response.status_code, 403)
+
+        # Assign object permission
+        obj_perm = ObjectPermission(
+            model=ContentType.objects.get_for_model(Prefix),
+            attrs={'site__name': 'Site 1'},
+            can_delete=True
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+
+        # Attempt to delete a non-permitted object
+        url = reverse('ipam-api:prefix-detail', kwargs={'pk': self.prefixes[3].pk})
+        response = self.client.delete(url, format='json', **self.header)
+        self.assertEqual(response.status_code, 404)
+
+        # Delete a permitted object
+        url = reverse('ipam-api:prefix-detail', kwargs={'pk': self.prefixes[0].pk})
+        response = self.client.delete(url, format='json', **self.header)
+        self.assertEqual(response.status_code, 204)

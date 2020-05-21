@@ -4,7 +4,8 @@ from collections import OrderedDict
 import pytz
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldError, MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.exceptions import FieldError, MultipleObjectsReturned, ObjectDoesNotExist, PermissionDenied
+from django.db import transaction
 from django.db.models import ManyToManyField, ProtectedError
 from django.urls import reverse
 from rest_framework.exceptions import APIException
@@ -14,6 +15,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import Field, ModelSerializer, ValidationError
 from rest_framework.viewsets import ModelViewSet as _ModelViewSet
 
+from netbox.api import TokenPermissions
 from users.models import ObjectPermission
 from .utils import dict_to_filter_params, dynamic_import
 
@@ -329,11 +331,13 @@ class ModelViewSet(_ModelViewSet):
         if not request.user.is_authenticated or request.user.is_superuser:
             return
 
-        # Determine the required permission
-        permission_required = "{}.view_{}".format(
-            self.queryset.model._meta.app_label,
-            self.queryset.model._meta.model_name
-        )
+        # TODO: Move this to a cleaner function
+        # Determine the required permission based on the request method
+        kwargs = {
+            'app_label': self.queryset.model._meta.app_label,
+            'model_name': self.queryset.model._meta.model_name
+        }
+        permission_required = TokenPermissions.perms_map[request.method][0] % kwargs
 
         # Enforce object-level permissions
         if permission_required not in {*request.user._user_perm_cache, *request.user._group_perm_cache}:
@@ -361,34 +365,49 @@ class ModelViewSet(_ModelViewSet):
                 **kwargs
             )
 
-    def list(self, *args, **kwargs):
+    def _validate_objects(self, instance):
         """
-        Call to super to allow for caching
+        Check that the provided instance or list of instances are matched by the current queryset. This confirms that
+        any newly created or modified objects abide by the attributes granted by any applicable ObjectPermissions.
         """
-        return super().list(*args, **kwargs)
-
-    def retrieve(self, *args, **kwargs):
-        """
-        Call to super to allow for caching
-        """
-        return super().retrieve(*args, **kwargs)
-
-    #
-    # Logging
-    #
+        if type(instance) is list:
+            # Check that all instances are still included in the view's queryset
+            conforming_count = self.queryset.filter(pk__in=[obj.pk for obj in instance]).count()
+            if conforming_count != len(instance):
+                raise ObjectDoesNotExist
+        else:
+            # Check that the instance is matched by the view's queryset
+            self.queryset.get(pk=instance.pk)
 
     def perform_create(self, serializer):
-        model = serializer.child.Meta.model if hasattr(serializer, 'many') else serializer.Meta.model
+        model = self.queryset.model
         logger = logging.getLogger('netbox.api.views.ModelViewSet')
         logger.info(f"Creating new {model._meta.verbose_name}")
-        return super().perform_create(serializer)
+
+        # Enforce object-level permissions on save()
+        try:
+            with transaction.atomic():
+                instance = serializer.save()
+                self._validate_objects(instance)
+        except ObjectDoesNotExist:
+            raise PermissionDenied()
 
     def perform_update(self, serializer):
+        model = self.queryset.model
         logger = logging.getLogger('netbox.api.views.ModelViewSet')
-        logger.info(f"Updating {serializer.instance} (PK: {serializer.instance.pk})")
-        return super().perform_update(serializer)
+        logger.info(f"Updating {model._meta.verbose_name} {serializer.instance} (PK: {serializer.instance.pk})")
+
+        # Enforce object-level permissions on save()
+        try:
+            with transaction.atomic():
+                instance = serializer.save()
+                self._validate_objects(instance)
+        except ObjectDoesNotExist:
+            raise PermissionDenied()
 
     def perform_destroy(self, instance):
+        model = self.queryset.model
         logger = logging.getLogger('netbox.api.views.ModelViewSet')
-        logger.info(f"Deleting {instance} (PK: {instance.pk})")
+        logger.info(f"Deleting {model._meta.verbose_name} {instance} (PK: {instance.pk})")
+
         return super().perform_destroy(instance)
