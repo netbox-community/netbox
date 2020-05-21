@@ -605,14 +605,15 @@ class PrefixDeleteView(ObjectPermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'ipam:prefix_list'
 
 
-class PrefixBulkImportView(PermissionRequiredMixin, BulkImportView):
+class PrefixBulkImportView(ObjectPermissionRequiredMixin, BulkImportView):
     permission_required = 'ipam.add_prefix'
+    queryset = Prefix.objects.all()
     model_form = forms.PrefixCSVForm
     table = tables.PrefixTable
     default_return_url = 'ipam:prefix_list'
 
 
-class PrefixBulkEditView(PermissionRequiredMixin, BulkEditView):
+class PrefixBulkEditView(ObjectPermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_prefix'
     queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     filterset = filters.PrefixFilterSet
@@ -621,7 +622,7 @@ class PrefixBulkEditView(PermissionRequiredMixin, BulkEditView):
     default_return_url = 'ipam:prefix_list'
 
 
-class PrefixBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+class PrefixBulkDeleteView(ObjectPermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_prefix'
     queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     filterset = filters.PrefixFilterSet

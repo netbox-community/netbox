@@ -342,6 +342,14 @@ class ObjectPermissionViewTestCase(TestCase):
             'confirm': True
         }
 
+        # Attempt to delete object without permission
+        request = {
+            'path': reverse('ipam:prefix_delete', kwargs={'pk': self.prefixes[0].pk}),
+            'data': form_data,
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 403)
+
         # Assign object permission
         obj_perm = ObjectPermission(
             model=ContentType.objects.get_for_model(Prefix),
@@ -371,6 +379,147 @@ class ObjectPermissionViewTestCase(TestCase):
         response = self.client.post(**request)
         self.assertHttpStatus(response, 404)
         self.assertTrue(Prefix.objects.filter(pk=self.prefixes[3].pk).exists())
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+    def test_bulk_import_objects(self):
+        initial_count = Prefix.objects.count()
+        form_data = {
+            'csv': "prefix,status,site\n"
+                   "10.0.9.0/24,Active,Site 1\n"
+                   "10.0.10.0/24,Active,Site 2\n"
+                   "10.0.11.0/24,Active,Site 3\n",
+        }
+
+        # Attempt to import objects without permission
+        request = {
+            'path': reverse('ipam:prefix_import'),
+            'data': form_data,
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 403)
+        self.assertEqual(initial_count, Prefix.objects.count())
+
+        # Assign object permission
+        obj_perm = ObjectPermission(
+            model=ContentType.objects.get_for_model(Prefix),
+            attrs={'site__name': 'Site 1'},
+            can_add=True
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+
+        # Attempt to create non-permitted objects
+        request = {
+            'path': reverse('ipam:prefix_import'),
+            'data': form_data,
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(Prefix.objects.count(), initial_count)
+
+        # Create a permitted object
+        form_data = {
+            'csv': "prefix,status,site\n"
+                   "10.0.9.0/24,Active,Site 1\n"
+                   "10.0.10.0/24,Active,Site 1\n"
+                   "10.0.11.0/24,Active,Site 1\n",
+        }
+        request = {
+            'path': reverse('ipam:prefix_import'),
+            'data': form_data,
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(Prefix.objects.count(), initial_count + 3)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+    def test_bulk_edit_objects(self):
+        form_data = {
+            'pk': [p.pk for p in self.prefixes],
+            'status': 'reserved',
+            '_apply': True,
+        }
+
+        # Attempt to edit objects without permission
+        request = {
+            'path': reverse('ipam:prefix_bulk_edit'),
+            'data': form_data,
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 403)
+
+        # Assign object permission
+        obj_perm = ObjectPermission(
+            model=ContentType.objects.get_for_model(Prefix),
+            attrs={'site__name': 'Site 1'},
+            can_change=True
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+
+        # Attempt to edit non-permitted objects
+        request = {
+            'path': reverse('ipam:prefix_bulk_edit'),
+            'data': form_data,
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(Prefix.objects.get(pk=self.prefixes[3].pk).status, 'active')
+
+        # Edit permitted objects
+        form_data['pk'] = [p.pk for p in self.prefixes[:3]]
+        request = {
+            'path': reverse('ipam:prefix_bulk_edit'),
+            'data': form_data,
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(Prefix.objects.get(pk=self.prefixes[0].pk).status, 'reserved')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+    def test_bulk_delete_objects(self):
+        form_data = {
+            'pk': [p.pk for p in self.prefixes],
+            'confirm': True,
+            '_confirm': True,
+        }
+
+        # Attempt to delete objects without permission
+        request = {
+            'path': reverse('ipam:prefix_bulk_delete'),
+            'data': form_data,
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 403)
+
+        # Assign object permission
+        obj_perm = ObjectPermission(
+            model=ContentType.objects.get_for_model(Prefix),
+            attrs={'site__name': 'Site 1'},
+            can_view=True,
+            can_delete=True
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+
+        # Attempt to delete non-permitted object
+        request = {
+            'path': reverse('ipam:prefix_bulk_delete'),
+            'data': form_data,
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 200)
+        self.assertTrue(Prefix.objects.filter(pk=self.prefixes[3].pk).exists())
+
+        # Delete permitted objects
+        form_data['pk'] = [p.pk for p in self.prefixes[:3]]
+        request = {
+            'path': reverse('ipam:prefix_bulk_delete'),
+            'data': form_data,
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+        self.assertFalse(Prefix.objects.filter(pk=self.prefixes[0].pk).exists())
 
 
 class ObjectPermissionAPIViewTestCase(TestCase):

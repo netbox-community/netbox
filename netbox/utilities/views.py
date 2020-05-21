@@ -297,9 +297,9 @@ class ObjectEditView(GetReturnURLMixin, View):
                     return redirect(self.get_return_url(request, obj))
 
             except ObjectDoesNotExist:
-                logger.debug("Object save failed due to object-level permissions violation")
-                # TODO: Link user to personal permissions view
-                form.add_error(None, "Object save failed due to object-level permissions violation")
+                msg = "Object save failed due to object-level permissions violation"
+                logger.debug(msg)
+                form.add_error(None, msg)
 
         else:
             logger.debug("Form validation failed")
@@ -576,11 +576,13 @@ class BulkImportView(GetReturnURLMixin, View):
     """
     Import objects in bulk (CSV format).
 
-    model_form: The form used to create each imported object
-    table: The django-tables2 Table used to render the list of imported objects
-    template_name: The name of the template
-    widget_attrs: A dict of attributes to apply to the import widget (e.g. to require a session key)
+    :param queryset: Base queryset for the model
+    :param model_form: The form used to create each imported object
+    :param table: The django-tables2 Table used to render the list of imported objects
+    :param template_name: The name of the template
+    :param widget_attrs: A dict of attributes to apply to the import widget (e.g. to require a session key)
     """
+    queryset = None
     model_form = None
     table = None
     template_name = 'utilities/obj_bulk_import.html'
@@ -634,6 +636,10 @@ class BulkImportView(GetReturnURLMixin, View):
                                 form.add_error('csv', "Row {} {}: {}".format(row, field, err[0]))
                             raise ValidationError("")
 
+                    # Enforce object-level permissions
+                    if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
+                        raise ObjectDoesNotExist
+
                 # Compile a table containing the imported objects
                 obj_table = self.table(new_objs)
 
@@ -649,6 +655,11 @@ class BulkImportView(GetReturnURLMixin, View):
 
             except ValidationError:
                 pass
+
+            except ObjectDoesNotExist:
+                msg = "Object import failed due to object-level permissions violation"
+                logger.debug(msg)
+                form.add_error(None, msg)
 
         else:
             logger.debug("Form validation failed")
@@ -707,7 +718,7 @@ class BulkEditView(GetReturnURLMixin, View):
 
                     with transaction.atomic():
 
-                        updated_count = 0
+                        updated_objects = []
                         for obj in model.objects.filter(pk__in=form.cleaned_data['pk']):
 
                             # Update standard fields. If a field is listed in _nullify, delete its value.
@@ -736,6 +747,7 @@ class BulkEditView(GetReturnURLMixin, View):
 
                             obj.full_clean()
                             obj.save()
+                            updated_objects.append(obj)
                             logger.debug(f"Saved {obj} (PK: {obj.pk})")
 
                             # Update custom fields
@@ -765,10 +777,12 @@ class BulkEditView(GetReturnURLMixin, View):
                             if form.cleaned_data.get('remove_tags', None):
                                 obj.tags.remove(*form.cleaned_data['remove_tags'])
 
-                            updated_count += 1
+                        # Enforce object-level permissions
+                        if self.queryset.filter(pk__in=[obj.pk for obj in updated_objects]).count() != len(updated_objects):
+                            raise ObjectDoesNotExist
 
-                    if updated_count:
-                        msg = 'Updated {} {}'.format(updated_count, model._meta.verbose_name_plural)
+                    if updated_objects:
+                        msg = 'Updated {} {}'.format(len(updated_objects), model._meta.verbose_name_plural)
                         logger.info(msg)
                         messages.success(self.request, msg)
 
@@ -776,6 +790,11 @@ class BulkEditView(GetReturnURLMixin, View):
 
                 except ValidationError as e:
                     messages.error(self.request, "{} failed validation: {}".format(obj, e))
+
+                except ObjectDoesNotExist:
+                    msg = "Object update failed due to object-level permissions violation"
+                    logger.debug(msg)
+                    form.add_error(None, msg)
 
             else:
                 logger.debug("Form validation failed")
