@@ -41,8 +41,7 @@ class SecretRoleEditView(ObjectEditView):
     default_return_url = 'secrets:secretrole_list'
 
 
-class SecretRoleBulkImportView(PermissionRequiredMixin, BulkImportView):
-    permission_required = 'secrets.add_secretrole'
+class SecretRoleBulkImportView(BulkImportView):
     queryset = SecretRole.objects.all()
     model_form = forms.SecretRoleCSVForm
     table = tables.SecretRoleTable
@@ -189,7 +188,6 @@ class SecretDeleteView(ObjectDeleteView):
 
 
 class SecretBulkImportView(BulkImportView):
-    permission_required = 'secrets.add_secret'
     queryset = Secret.objects.all()
     model_form = forms.SecretCSVForm
     table = tables.SecretTable

@@ -35,8 +35,7 @@ class TenantGroupEditView(ObjectEditView):
     default_return_url = 'tenancy:tenantgroup_list'
 
 
-class TenantGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
-    permission_required = 'tenancy.add_tenantgroup'
+class TenantGroupBulkImportView(BulkImportView):
     queryset = TenantGroup.objects.all()
     model_form = forms.TenantGroupCSVForm
     table = tables.TenantGroupTable
@@ -99,8 +98,7 @@ class TenantDeleteView(ObjectDeleteView):
     default_return_url = 'tenancy:tenant_list'
 
 
-class TenantBulkImportView(PermissionRequiredMixin, BulkImportView):
-    permission_required = 'tenancy.add_tenant'
+class TenantBulkImportView(BulkImportView):
     queryset = Tenant.objects.all()
     model_form = forms.TenantCSVForm
     table = tables.TenantTable

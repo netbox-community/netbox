@@ -652,7 +652,7 @@ class ObjectImportView(GetReturnURLMixin, View):
         })
 
 
-class BulkImportView(GetReturnURLMixin, View):
+class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Import objects in bulk (CSV format).
 
@@ -683,6 +683,9 @@ class BulkImportView(GetReturnURLMixin, View):
         Provide a hook to modify the object immediately before saving it (e.g. to encrypt secret data).
         """
         return obj_form.save()
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'add')
 
     def get(self, request):
 
