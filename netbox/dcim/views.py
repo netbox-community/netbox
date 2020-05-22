@@ -1647,12 +1647,11 @@ class DeviceBayDeleteView(ObjectDeleteView):
     queryset = DeviceBay.objects.all()
 
 
-class DeviceBayPopulateView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.change_devicebay'
+class DeviceBayPopulateView(ObjectEditView):
+    queryset = DeviceBay.objects.all()
 
     def get(self, request, pk):
-
-        device_bay = get_object_or_404(DeviceBay, pk=pk)
+        device_bay = get_object_or_404(self.queryset, pk=pk)
         form = forms.PopulateDeviceBayForm(device_bay)
 
         return render(request, 'dcim/devicebay_populate.html', {
@@ -1662,8 +1661,7 @@ class DeviceBayPopulateView(PermissionRequiredMixin, View):
         })
 
     def post(self, request, pk):
-
-        device_bay = get_object_or_404(DeviceBay, pk=pk)
+        device_bay = get_object_or_404(self.queryset, pk=pk)
         form = forms.PopulateDeviceBayForm(device_bay, request.POST)
 
         if form.is_valid():
@@ -1681,12 +1679,12 @@ class DeviceBayPopulateView(PermissionRequiredMixin, View):
         })
 
 
-class DeviceBayDepopulateView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.change_devicebay'
+class DeviceBayDepopulateView(ObjectEditView):
+    queryset = DeviceBay.objects.all()
 
     def get(self, request, pk):
 
-        device_bay = get_object_or_404(DeviceBay, pk=pk)
+        device_bay = get_object_or_404(self.queryset, pk=pk)
         form = ConfirmationForm()
 
         return render(request, 'dcim/devicebay_depopulate.html', {
@@ -1697,7 +1695,7 @@ class DeviceBayDepopulateView(PermissionRequiredMixin, View):
 
     def post(self, request, pk):
 
-        device_bay = get_object_or_404(DeviceBay, pk=pk)
+        device_bay = get_object_or_404(self.queryset, pk=pk)
         form = ConfirmationForm(request.POST)
 
         if form.is_valid():
