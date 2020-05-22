@@ -4,7 +4,6 @@ from django.db import transaction
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.views.generic import View
 
 from dcim.models import Device, Interface
 from dcim.tables import DeviceTable
@@ -137,14 +136,13 @@ class ClusterBulkDeleteView(BulkDeleteView):
     default_return_url = 'virtualization:cluster_list'
 
 
-class ClusterAddDevicesView(PermissionRequiredMixin, View):
-    permission_required = 'virtualization.change_cluster'
+class ClusterAddDevicesView(ObjectEditView):
+    queryset = Cluster.objects.all()
     form = forms.ClusterAddDevicesForm
     template_name = 'virtualization/cluster_add_devices.html'
 
     def get(self, request, pk):
-
-        cluster = get_object_or_404(Cluster, pk=pk)
+        cluster = get_object_or_404(self.queryset, pk=pk)
         form = self.form(cluster, initial=request.GET)
 
         return render(request, self.template_name, {
@@ -154,8 +152,7 @@ class ClusterAddDevicesView(PermissionRequiredMixin, View):
         })
 
     def post(self, request, pk):
-
-        cluster = get_object_or_404(Cluster, pk=pk)
+        cluster = get_object_or_404(self.queryset, pk=pk)
         form = self.form(cluster, request.POST)
 
         if form.is_valid():
@@ -180,14 +177,14 @@ class ClusterAddDevicesView(PermissionRequiredMixin, View):
         })
 
 
-class ClusterRemoveDevicesView(PermissionRequiredMixin, View):
-    permission_required = 'virtualization.change_cluster'
+class ClusterRemoveDevicesView(ObjectEditView):
+    queryset = Cluster.objects.all()
     form = forms.ClusterRemoveDevicesForm
     template_name = 'utilities/obj_bulk_remove.html'
 
     def post(self, request, pk):
 
-        cluster = get_object_or_404(Cluster, pk=pk)
+        cluster = get_object_or_404(self.queryset, pk=pk)
 
         if '_confirm' in request.POST:
             form = self.form(request.POST)
