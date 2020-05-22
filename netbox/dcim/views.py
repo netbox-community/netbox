@@ -329,16 +329,15 @@ class RackListView(ObjectListView):
     table = tables.RackDetailTable
 
 
-class RackElevationListView(PermissionRequiredMixin, View):
+class RackElevationListView(ObjectListView):
     """
     Display a set of rack elevations side-by-side.
     """
-    permission_required = 'dcim.view_rack'
+    queryset = Rack.objects.prefetch_related('role')
 
     def get(self, request):
 
-        racks = Rack.objects.prefetch_related('role')
-        racks = filters.RackFilterSet(request.GET, racks).qs
+        racks = filters.RackFilterSet(request.GET, self.queryset).qs
         total_count = racks.count()
 
         # Pagination
