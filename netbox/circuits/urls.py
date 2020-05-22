@@ -37,10 +37,9 @@ urlpatterns = [
     path('circuits/<int:pk>/edit/', views.CircuitEditView.as_view(), name='circuit_edit'),
     path('circuits/<int:pk>/delete/', views.CircuitDeleteView.as_view(), name='circuit_delete'),
     path('circuits/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='circuit_changelog', kwargs={'model': Circuit}),
-    path('circuits/<int:pk>/terminations/swap/', views.circuit_terminations_swap, name='circuit_terminations_swap'),
+    path('circuits/<int:pk>/terminations/swap/', views.CircuitSwapTerminations.as_view(), name='circuit_terminations_swap'),
 
     # Circuit terminations
-
     path('circuits/<int:circuit>/terminations/add/', views.CircuitTerminationEditView.as_view(), name='circuittermination_add'),
     path('circuit-terminations/<int:pk>/edit/', views.CircuitTerminationEditView.as_view(), name='circuittermination_edit'),
     path('circuit-terminations/<int:pk>/delete/', views.CircuitTerminationDeleteView.as_view(), name='circuittermination_delete'),

@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import permission_required
 from django.db import transaction
 from django.db.models import Count, OuterRef
 from django.shortcuts import get_object_or_404, redirect, render
@@ -191,25 +190,47 @@ class CircuitBulkDeleteView(BulkDeleteView):
     default_return_url = 'circuits:circuit_list'
 
 
-@permission_required('circuits.change_circuittermination')
-def circuit_terminations_swap(request, pk):
+class CircuitSwapTerminations(ObjectEditView):
+    """
+    Swap the A and Z terminations of a circuit.
+    """
+    queryset = Circuit.objects.all()
 
-    circuit = get_object_or_404(Circuit, pk=pk)
-    termination_a = CircuitTermination.objects.filter(
-        circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_A
-    ).first()
-    termination_z = CircuitTermination.objects.filter(
-        circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_Z
-    ).first()
-    if not termination_a and not termination_z:
-        messages.error(request, "No terminations have been defined for circuit {}.".format(circuit))
-        return redirect('circuits:circuit', pk=circuit.pk)
+    def get(self, request, pk):
+        circuit = get_object_or_404(self.queryset, pk=pk)
+        form = ConfirmationForm()
 
-    if request.method == 'POST':
+        # Circuit must have at least one termination to swap
+        if not circuit.termination_a and not circuit.termination_z:
+            messages.error(request, "No terminations have been defined for circuit {}.".format(circuit))
+            return redirect('circuits:circuit', pk=circuit.pk)
+
+        return render(request, 'circuits/circuit_terminations_swap.html', {
+            'circuit': circuit,
+            'termination_a': circuit.termination_a,
+            'termination_z': circuit.termination_z,
+            'form': form,
+            'panel_class': 'default',
+            'button_class': 'primary',
+            'return_url': circuit.get_absolute_url(),
+        })
+
+    def post(self, request, pk):
+        circuit = get_object_or_404(self.queryset, pk=pk)
         form = ConfirmationForm(request.POST)
+
         if form.is_valid():
+
+            termination_a = CircuitTermination.objects.filter(
+                circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_A
+            ).first()
+            termination_z = CircuitTermination.objects.filter(
+                circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_Z
+            ).first()
+
             if termination_a and termination_z:
                 # Use a placeholder to avoid an IntegrityError on the (circuit, term_side) unique constraint
+                print('swapping')
                 with transaction.atomic():
                     termination_a.term_side = '_'
                     termination_a.save()
@@ -223,21 +244,19 @@ def circuit_terminations_swap(request, pk):
             else:
                 termination_z.term_side = 'A'
                 termination_z.save()
+
             messages.success(request, "Swapped terminations for circuit {}.".format(circuit))
             return redirect('circuits:circuit', pk=circuit.pk)
 
-    else:
-        form = ConfirmationForm()
-
-    return render(request, 'circuits/circuit_terminations_swap.html', {
-        'circuit': circuit,
-        'termination_a': termination_a,
-        'termination_z': termination_z,
-        'form': form,
-        'panel_class': 'default',
-        'button_class': 'primary',
-        'return_url': circuit.get_absolute_url(),
-    })
+        return render(request, 'circuits/circuit_terminations_swap.html', {
+            'circuit': circuit,
+            'termination_a': circuit.termination_a,
+            'termination_z': circuit.termination_z,
+            'form': form,
+            'panel_class': 'default',
+            'button_class': 'primary',
+            'return_url': circuit.get_absolute_url(),
+        })
 
 
 #
