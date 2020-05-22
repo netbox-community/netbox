@@ -1857,15 +1857,21 @@ class CableView(ObjectView):
         })
 
 
-class CableTraceView(PermissionRequiredMixin, View):
+class CableTraceView(ObjectPermissionRequiredMixin, View):
     """
     Trace a cable path beginning from the given termination.
     """
     permission_required = 'dcim.view_cable'
 
-    def get(self, request, model, pk):
+    def dispatch(self, request, *args, **kwargs):
+        model = kwargs.pop('model')
+        self.queryset = model.objects.all()
 
-        obj = get_object_or_404(model, pk=pk)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, pk):
+
+        obj = get_object_or_404(self.queryset, pk=pk)
         path, split_ends = obj.trace()
         total_length = sum(
             [entry[1]._abs_length for entry in path if entry[1] and entry[1]._abs_length]
