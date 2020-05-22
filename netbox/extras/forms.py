@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.utils.datastructures import MultiValueDict
 from mptt.forms import TreeNodeMultipleChoiceField
 from taggit.forms import TagField as TagField_
 
@@ -431,6 +432,23 @@ class ScriptForm(BootstrapMixin, forms.Form):
     )
 
     def __init__(self, vars, *args, commit_default=True, **kwargs):
+        from .scripts import MultiObjectVar
+
+        if 'initial' in kwargs:
+            orig_initial = kwargs['initial']
+            if isinstance(orig_initial, MultiValueDict):
+                # Convert MultiValueDict to a normal dict with single or multiple values based on the field type
+                new_initial = {}
+                for name in orig_initial:
+                    var = vars.get(name)
+                    if var and var.multiple_values:
+                        # Force MultiValueDict to give us the list of values
+                        new_initial[name] = orig_initial.getlist(name)
+                    else:
+                        # By default MultiValueDict gives us the last value
+                        new_initial[name] = orig_initial.get(name)
+
+                kwargs['initial'] = new_initial
 
         super().__init__(*args, **kwargs)
 

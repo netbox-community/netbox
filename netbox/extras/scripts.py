@@ -50,6 +50,9 @@ class ScriptVariable:
     """
     form_field = forms.CharField
 
+    # Accept multiple values (e.g. MultiObjectVar)
+    multiple_values = False
+
     def __init__(self, label='', description='', default=None, required=True, widget=None):
 
         # Initialize field attributes
@@ -187,6 +190,7 @@ class MultiObjectVar(ScriptVariable):
     Like ObjectVar, but can represent one or more objects.
     """
     form_field = DynamicModelMultipleChoiceField
+    multiple_values = True
 
     def __init__(self, queryset, *args, **kwargs):
         super().__init__(*args, **kwargs)
