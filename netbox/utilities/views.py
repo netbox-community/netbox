@@ -43,18 +43,24 @@ class ObjectPermissionRequiredMixin(AccessMixin):
     Similar to Django's built-in PermissionRequiredMixin, but extended to check for both model-level and object-level
     permission assignments. If the user has only object-level permissions assigned, the view's queryset is filtered
     to return only those objects on which the user is permitted to perform the specified action.
+
+    additional_permissions: An optional iterable of statically declared permissions to evaluate in addition to those
+                            derived from the object type
     """
-    permission_required = None
+    additional_permissions = list()
 
     def get_required_permission(self):
-        return self.permission_required
+        """
+        Return the specific permission necessary to perform the requested action on an object.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__} must implement get_required_permission()")
 
     def has_permission(self):
         user = self.request.user
         permission_required = self.get_required_permission()
 
-        # First, check that the user is granted the required permission at either the model or object level.
-        if not user.has_perm(permission_required):
+        # First, check that the user is granted the required permission(s) at either the model or object level.
+        if not user.has_perms((permission_required, *self.additional_permissions)):
             return False
 
         # Superusers implicitly have all permissions
@@ -148,8 +154,6 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
     action_buttons = ('add', 'import', 'export')
 
     def get_required_permission(self):
-        if getattr(self, 'permission_required') is not None:
-            return self.permission_required
         return get_permission_for_model(self.queryset.model, 'view')
 
     def queryset_to_yaml(self):

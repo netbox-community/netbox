@@ -1082,7 +1082,7 @@ class DeviceInventoryView(ObjectView):
 
 
 class DeviceStatusView(ObjectView):
-    permission_required = ('dcim.view_device', 'dcim.napalm_read')
+    additional_permissions = ['dcim.napalm_read']
     queryset = Device.objects.all()
 
     def get(self, request, pk):
@@ -1096,7 +1096,7 @@ class DeviceStatusView(ObjectView):
 
 
 class DeviceLLDPNeighborsView(ObjectView):
-    permission_required = ('dcim.view_device', 'dcim.napalm_read')
+    additional_permissions = ['dcim.napalm_read']
     queryset = Device.objects.all()
 
     def get(self, request, pk):
@@ -1114,7 +1114,7 @@ class DeviceLLDPNeighborsView(ObjectView):
 
 
 class DeviceConfigView(ObjectView):
-    permission_required = ('dcim.view_device', 'dcim.napalm_read')
+    additional_permissions = ['dcim.napalm_read']
     queryset = Device.objects.all()
 
     def get(self, request, pk):
@@ -1857,11 +1857,11 @@ class CableView(ObjectView):
         })
 
 
-class CableTraceView(ObjectPermissionRequiredMixin, View):
+class CableTraceView(ObjectView):
     """
     Trace a cable path beginning from the given termination.
     """
-    permission_required = 'dcim.view_cable'
+    additional_permissions = ['dcim.view_cable']
 
     def dispatch(self, request, *args, **kwargs):
         model = kwargs.pop('model')
@@ -2006,7 +2006,6 @@ class CableBulkDeleteView(BulkDeleteView):
 #
 
 class ConsoleConnectionsListView(ObjectListView):
-    permission_required = ('dcim.view_consoleport', 'dcim.view_consoleserverport')
     queryset = ConsolePort.objects.prefetch_related(
         'device', 'connected_endpoint__device'
     ).filter(
@@ -2038,7 +2037,6 @@ class ConsoleConnectionsListView(ObjectListView):
 
 
 class PowerConnectionsListView(ObjectListView):
-    permission_required = ('dcim.view_powerport', 'dcim.view_poweroutlet')
     queryset = PowerPort.objects.prefetch_related(
         'device', '_connected_poweroutlet__device'
     ).filter(

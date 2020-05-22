@@ -671,7 +671,7 @@ class IPAddressEditView(ObjectEditView):
         return obj
 
 
-class IPAddressAssignView(ObjectPermissionRequiredMixin, View):
+class IPAddressAssignView(ObjectView):
     """
     Search for IPAddresses to be assigned to an Interface.
     """
@@ -719,7 +719,6 @@ class IPAddressDeleteView(ObjectDeleteView):
 
 
 class IPAddressBulkCreateView(BulkCreateView):
-    permission_required = 'ipam.add_ipaddress'
     form = forms.IPAddressBulkCreateForm
     model_form = forms.IPAddressBulkAddForm
     pattern_target = 'address'
@@ -761,7 +760,6 @@ class VLANGroupListView(ObjectListView):
 
 
 class VLANGroupEditView(ObjectEditView):
-    permission_required = 'ipam.add_vlangroup'
     queryset = VLANGroup.objects.all()
     model_form = forms.VLANGroupForm
     default_return_url = 'ipam:vlangroup_list'
