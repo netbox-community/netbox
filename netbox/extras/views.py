@@ -154,15 +154,14 @@ class ConfigContextBulkDeleteView(BulkDeleteView):
     default_return_url = 'extras:configcontext_list'
 
 
-class ObjectConfigContextView(View):
-    object_class = None
+class ObjectConfigContextView(ObjectView):
     base_template = None
 
     def get(self, request, pk):
 
-        obj = get_object_or_404(self.object_class, pk=pk)
+        obj = get_object_or_404(self.queryset, pk=pk)
         source_contexts = ConfigContext.objects.get_for_object(obj)
-        model_name = self.object_class._meta.model_name
+        model_name = self.queryset.model._meta.model_name
 
         # Determine user's preferred output format
         if request.GET.get('format') in ['json', 'yaml']:

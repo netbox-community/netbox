@@ -1127,9 +1127,8 @@ class DeviceConfigView(ObjectView):
         })
 
 
-class DeviceConfigContextView(PermissionRequiredMixin, ObjectConfigContextView):
-    permission_required = 'dcim.view_device'
-    object_class = Device
+class DeviceConfigContextView(ObjectConfigContextView):
+    queryset = Device.objects.all()
     base_template = 'dcim/device.html'
 
 

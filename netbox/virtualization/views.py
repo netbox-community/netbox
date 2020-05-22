@@ -1,5 +1,4 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import transaction
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
@@ -246,9 +245,8 @@ class VirtualMachineView(ObjectView):
         })
 
 
-class VirtualMachineConfigContextView(PermissionRequiredMixin, ObjectConfigContextView):
-    permission_required = 'virtualization.view_virtualmachine'
-    object_class = VirtualMachine
+class VirtualMachineConfigContextView(ObjectConfigContextView):
+    queryset = VirtualMachine.objects.all()
     base_template = 'virtualization/virtualmachine.html'
 
 
