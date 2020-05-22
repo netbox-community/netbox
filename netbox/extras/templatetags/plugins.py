@@ -18,6 +18,7 @@ def _get_registered_content(obj, method, template_context):
         'object': obj,
         'request': template_context['request'],
         'settings': template_context['settings'],
+        'perms': template_context['perms'],
     }
 
     model_name = obj._meta.label_lower
