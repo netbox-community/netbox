@@ -347,6 +347,7 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         logger = logging.getLogger('netbox.views.ObjectEditView')
+        obj = self.alter_obj(self.get_object(kwargs), request, args, kwargs)
         form = self.model_form(
             data=request.POST,
             files=request.FILES,

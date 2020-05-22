@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission, User
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
@@ -5,7 +6,8 @@ from django.test import Client, TestCase as _TestCase, override_settings
 from django.urls import reverse, NoReverseMatch
 from rest_framework.test import APIClient
 
-from users.models import Token
+from users.models import ObjectPermission, Token
+from utilities.permissions import get_permission_for_model
 from .utils import disable_warnings, post_data
 
 
@@ -150,19 +152,41 @@ class ViewTestCases:
         Retrieve a single instance.
         """
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-        def test_get_object(self):
+        def test_get_object_without_permission(self):
             instance = self.model.objects.first()
 
-            # Attempt to make the request without required permissions
+            # Try GET without permission
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.get(instance.get_absolute_url()), 403)
 
-            # Assign the required permission and submit again
-            self.add_permissions(
-                '{}.view_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def test_get_object_with_model_permission(self):
+            instance = self.model.objects.first()
+
+            # Add model-level permission
+            self.add_permissions(get_permission_for_model(self.model, 'view'))
+
+            # Try GET with model-level permission
+            self.assertHttpStatus(self.client.get(instance.get_absolute_url()), 200)
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def test_get_object_with_object_permission(self):
+            instance1, instance2 = self.model.objects.all()[:2]
+
+            # Add object-level permission
+            obj_perm = ObjectPermission(
+                model=ContentType.objects.get_for_model(self.model),
+                attrs={'pk': instance1.pk},
+                can_view=True
             )
-            response = self.client.get(instance.get_absolute_url())
-            self.assertHttpStatus(response, 200)
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+
+            # Try GET to permitted object
+            self.assertHttpStatus(self.client.get(instance1.get_absolute_url()), 200)
+
+            # Try GET to non-permitted object
+            self.assertHttpStatus(self.client.get(instance2.get_absolute_url()), 404)
 
     class CreateObjectViewTestCase(ModelViewTestCase):
         """
@@ -171,33 +195,74 @@ class ViewTestCases:
         form_data = {}
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-        def test_create_object(self):
+        def test_create_object_without_permission(self):
 
             # Try GET without permission
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.post(self._get_url('add')), 403)
 
-            # Try GET with permission
-            self.add_permissions(
-                '{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
-            )
-            response = self.client.get(path=self._get_url('add'))
-            self.assertHttpStatus(response, 200)
+            # Try POST without permission
+            request = {
+                'path': self._get_url('add'),
+                'data': post_data(self.form_data),
+            }
+            response = self.client.post(**request)
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(response, 403)
 
-            # Try POST with permission
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def test_create_object_with_model_permission(self):
+            initial_count = self.model.objects.count()
+
+            # Assign model-level permission
+            self.add_permissions(get_permission_for_model(self.model, 'add'))
+
+            # Try GET with model-level permission
+            self.assertHttpStatus(self.client.get(self._get_url('add')), 200)
+
+            # Try POST with model-level permission
+            request = {
+                'path': self._get_url('add'),
+                'data': post_data(self.form_data),
+            }
+            self.assertHttpStatus(self.client.post(**request), 302)
+            self.assertEqual(initial_count + 1, self.model.objects.count())
+            self.assertInstanceEqual(self.model.objects.order_by('pk').last(), self.form_data)
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def test_create_object_with_object_permission(self):
+            initial_count = self.model.objects.count()
+            next_pk = self.model.objects.order_by('pk').last().pk + 1
+
+            # Assign object-level permission
+            obj_perm = ObjectPermission(
+                model=ContentType.objects.get_for_model(self.model),
+                attrs={'pk__gt': next_pk},
+                can_add=True
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+
+            # Try GET with object-level permission
+            self.assertHttpStatus(self.client.get(self._get_url('add')), 200)
+
+            # Try to create permitted object
+            request = {
+                'path': self._get_url('add'),
+                'data': post_data(self.form_data),
+            }
+            self.assertHttpStatus(self.client.post(**request), 302)
+            self.assertEqual(initial_count + 1, self.model.objects.count())
+            self.assertInstanceEqual(self.model.objects.order_by('pk').last(), self.form_data)
+
+            # Try to create a non-permitted object
             initial_count = self.model.objects.count()
             request = {
                 'path': self._get_url('add'),
                 'data': post_data(self.form_data),
-                'follow': False,  # Do not follow 302 redirects
             }
-            response = self.client.post(**request)
-            self.assertHttpStatus(response, 302)
-
-            # Validate object creation
-            self.assertEqual(initial_count + 1, self.model.objects.count())
-            instance = self.model.objects.order_by('-pk').first()
-            self.assertInstanceEqual(instance, self.form_data)
+            self.assertHttpStatus(self.client.post(**request), 200)
+            self.assertEqual(initial_count, self.model.objects.count())  # Check that no object was created
 
     class EditObjectViewTestCase(ModelViewTestCase):
         """
@@ -206,86 +271,191 @@ class ViewTestCases:
         form_data = {}
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-        def test_edit_object(self):
+        def test_edit_object_without_permission(self):
             instance = self.model.objects.first()
 
             # Try GET without permission
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.post(self._get_url('edit', instance)), 403)
 
-            # Try GET with permission
-            self.add_permissions(
-                '{}.change_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
-            )
-            response = self.client.get(path=self._get_url('edit', instance))
-            self.assertHttpStatus(response, 200)
-
-            # Try POST with permission
+            # Try POST without permission
             request = {
                 'path': self._get_url('edit', instance),
                 'data': post_data(self.form_data),
-                'follow': False,  # Do not follow 302 redirects
             }
-            response = self.client.post(**request)
-            self.assertHttpStatus(response, 302)
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.post(**request), 403)
 
-            # Validate object modifications
-            instance = self.model.objects.get(pk=instance.pk)
-            self.assertInstanceEqual(instance, self.form_data)
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def test_edit_object_with_model_permission(self):
+            instance = self.model.objects.first()
+
+            # Assign model-level permission
+            self.add_permissions(get_permission_for_model(self.model, 'change'))
+
+            # Try GET with model-level permission
+            self.assertHttpStatus(self.client.get(self._get_url('edit', instance)), 200)
+
+            # Try POST with model-level permission
+            request = {
+                'path': self._get_url('edit', instance),
+                'data': post_data(self.form_data),
+            }
+            self.assertHttpStatus(self.client.post(**request), 302)
+            self.assertInstanceEqual(self.model.objects.get(pk=instance.pk), self.form_data)
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def test_edit_object_with_object_permission(self):
+            instance1, instance2 = self.model.objects.all()[:2]
+
+            # Assign object-level permission
+            obj_perm = ObjectPermission(
+                model=ContentType.objects.get_for_model(self.model),
+                attrs={'pk': instance1.pk},
+                can_change=True
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+
+            # Try GET with a permitted object
+            self.assertHttpStatus(self.client.get(self._get_url('edit', instance1)), 200)
+
+            # Try GET with a non-permitted object
+            self.assertHttpStatus(self.client.get(self._get_url('edit', instance2)), 404)
+
+            # Try to edit a permitted object
+            request = {
+                'path': self._get_url('edit', instance1),
+                'data': post_data(self.form_data),
+            }
+            self.assertHttpStatus(self.client.post(**request), 302)
+            self.assertInstanceEqual(self.model.objects.get(pk=instance1.pk), self.form_data)
+
+            # Try to edit a non-permitted object
+            request = {
+                'path': self._get_url('edit', instance2),
+                'data': post_data(self.form_data),
+            }
+            self.assertHttpStatus(self.client.post(**request), 404)
 
     class DeleteObjectViewTestCase(ModelViewTestCase):
         """
         Delete a single instance.
         """
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-        def test_delete_object(self):
+        def test_delete_object_without_permission(self):
             instance = self.model.objects.first()
 
-            # Try GET without permissions
+            # Try GET without permission
             with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(self._get_url('delete', instance)), 403)
+                self.assertHttpStatus(self.client.get(instance.get_absolute_url()), 403)
 
-            # Try GET with permission
-            self.add_permissions(
-                '{}.delete_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
-            )
-            response = self.client.get(path=self._get_url('delete', instance))
-            self.assertHttpStatus(response, 200)
-
+            # Try POST without permission
             request = {
                 'path': self._get_url('delete', instance),
-                'data': {'confirm': True},
-                'follow': False,  # Do not follow 302 redirects
+                'data': post_data({'confirm': True}),
             }
-            response = self.client.post(**request)
-            self.assertHttpStatus(response, 302)
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.post(**request), 403)
 
-            # Validate object deletion
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def test_delete_object_with_model_permission(self):
+            instance = self.model.objects.first()
+
+            # Assign model-level permission
+            self.add_permissions(get_permission_for_model(self.model, 'delete'))
+
+            # Try GET with model-level permission
+            self.assertHttpStatus(self.client.get(self._get_url('delete', instance)), 200)
+
+            # Try POST with model-level permission
+            request = {
+                'path': self._get_url('delete', instance),
+                'data': post_data({'confirm': True}),
+            }
+            self.assertHttpStatus(self.client.post(**request), 302)
             with self.assertRaises(ObjectDoesNotExist):
                 self.model.objects.get(pk=instance.pk)
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def test_delete_object_with_object_permission(self):
+            instance1, instance2 = self.model.objects.all()[:2]
+
+            # Assign object-level permission
+            obj_perm = ObjectPermission(
+                model=ContentType.objects.get_for_model(self.model),
+                attrs={'pk': instance1.pk},
+                can_delete=True
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+
+            # Try GET with a permitted object
+            self.assertHttpStatus(self.client.get(self._get_url('delete', instance1)), 200)
+
+            # Try GET with a non-permitted object
+            self.assertHttpStatus(self.client.get(self._get_url('delete', instance2)), 404)
+
+            # Try to delete a permitted object
+            request = {
+                'path': self._get_url('delete', instance1),
+                'data': post_data({'confirm': True}),
+            }
+            self.assertHttpStatus(self.client.post(**request), 302)
+            with self.assertRaises(ObjectDoesNotExist):
+                self.model.objects.get(pk=instance1.pk)
+
+            # Try to delete a non-permitted object
+            request = {
+                'path': self._get_url('delete', instance2),
+                'data': post_data({'confirm': True}),
+            }
+            self.assertHttpStatus(self.client.post(**request), 404)
+            self.assertTrue(self.model.objects.filter(pk=instance2.pk).exists())
 
     class ListObjectsViewTestCase(ModelViewTestCase):
         """
         Retrieve multiple instances.
         """
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-        def test_list_objects(self):
-            # Attempt to make the request without required permissions
+        def test_list_objects_without_permission(self):
+
+            # Try GET without permission
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.get(self._get_url('list')), 403)
 
-            # Assign the required permission and submit again
-            self.add_permissions(
-                '{}.view_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
-            )
-            response = self.client.get(self._get_url('list'))
-            self.assertHttpStatus(response, 200)
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def test_list_objects_with_model_permission(self):
+
+            # Add model-level permission
+            self.add_permissions(get_permission_for_model(self.model, 'view'))
+
+            # Try GET with model-level permission
+            self.assertHttpStatus(self.client.get(self._get_url('list')), 200)
 
             # Built-in CSV export
             if hasattr(self.model, 'csv_headers'):
                 response = self.client.get('{}?export'.format(self._get_url('list')))
                 self.assertHttpStatus(response, 200)
                 self.assertEqual(response.get('Content-Type'), 'text/csv')
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        def test_list_objects_with_object_permission(self):
+            instance1, instance2 = self.model.objects.all()[:2]
+
+            # Add object-level permission
+            obj_perm = ObjectPermission(
+                model=ContentType.objects.get_for_model(self.model),
+                attrs={'pk': instance1.pk},
+                can_view=True
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+
+            # Try GET with object-level permission
+            self.assertHttpStatus(self.client.get(self._get_url('list')), 200)
+
+            # TODO: Verify that only the permitted object is returned
 
     class BulkCreateObjectsViewTestCase(ModelViewTestCase):
         """
