@@ -192,8 +192,12 @@ class InterfaceTestCase(
     model = Interface
 
     # Disable inapplicable tests
-    test_list_objects = None
-    test_import_objects = None
+    test_list_objects_without_permission = None
+    test_list_objects_with_model_permission = None
+    test_list_objects_with_object_permission = None
+    test_bulk_import_objects_without_permission = None
+    test_bulk_import_objects_with_model_permission = None
+    test_bulk_import_objects_with_object_permission = None
 
     def _get_base_url(self):
         # Interface belongs to the DCIM app, so we have to override the base URL

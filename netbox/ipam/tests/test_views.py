@@ -337,7 +337,9 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Service
 
     # TODO: Resolve URL for Service creation
-    test_create_object = None
+    test_create_object_without_permission = None
+    test_create_object_with_model_permission = None
+    test_create_object_with_object_permission = None
 
     @classmethod
     def setUpTestData(cls):

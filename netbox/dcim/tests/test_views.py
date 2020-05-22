@@ -794,7 +794,9 @@ class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
     model = DeviceBayTemplate
 
     # Disable inapplicable views
-    test_bulk_edit_objects = None
+    test_bulk_edit_objects_without_permission = None
+    test_bulk_edit_objects_with_model_permission = None
+    test_bulk_edit_objects_with_object_permission = None
 
     @classmethod
     def setUpTestData(cls):
@@ -1439,7 +1441,9 @@ class CableTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Cable
 
     # TODO: Creation URL needs termination context
-    test_create_object = None
+    test_create_object_without_permission = None
+    test_create_object_with_model_permission = None
+    test_create_object_with_object_permission = None
 
     @classmethod
     def setUpTestData(cls):
@@ -1513,11 +1517,17 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VirtualChassis
 
     # Disable inapplicable tests
-    test_import_objects = None
+    test_bulk_import_objects_without_permission = None
+    test_bulk_import_objects_with_model_permission = None
+    test_bulk_import_objects_with_object_permission = None
 
     # TODO: Requires special form handling
-    test_create_object = None
-    test_edit_object = None
+    test_create_object_without_permission = None
+    test_create_object_with_model_permission = None
+    test_create_object_with_object_permission = None
+    test_edit_object_without_permission = None
+    test_edit_object_with_model_permission = None
+    test_edit_object_with_object_permission = None
 
     @classmethod
     def setUpTestData(cls):

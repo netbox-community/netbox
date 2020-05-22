@@ -14,8 +14,12 @@ class TagTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Tag
 
     # Disable inapplicable tests
-    test_create_object = None
-    test_import_objects = None
+    test_create_object_without_permission = None
+    test_create_object_with_model_permission = None
+    test_create_object_with_object_permission = None
+    test_bulk_import_objects_without_permission = None
+    test_bulk_import_objects_with_model_permission = None
+    test_bulk_import_objects_with_object_permission = None
 
     @classmethod
     def setUpTestData(cls):
@@ -42,11 +46,17 @@ class ConfigContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ConfigContext
 
     # Disable inapplicable tests
-    test_import_objects = None
+    test_bulk_import_objects_without_permission = None
+    test_bulk_import_objects_with_model_permission = None
+    test_bulk_import_objects_with_object_permission = None
 
     # TODO: Resolve model discrepancies when creating/editing ConfigContexts
-    test_create_object = None
-    test_edit_object = None
+    test_create_object_without_permission = None
+    test_create_object_with_model_permission = None
+    test_create_object_with_object_permission = None
+    test_edit_object_without_permission = None
+    test_edit_object_with_model_permission = None
+    test_edit_object_with_object_permission = None
 
     @classmethod
     def setUpTestData(cls):
