@@ -1,20 +1,17 @@
 import base64
+import logging
 
 from django.contrib import messages
-from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
-from django.views.generic import View
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, GetReturnURLMixin, ObjectView, ObjectDeleteView, ObjectEditView,
-    ObjectListView,
+    BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
-from .decorators import userkey_required
-from .models import SecretRole, Secret, SessionKey
+from .models import SecretRole, Secret, SessionKey, UserKey
 
 
 def get_session_key(request):
@@ -79,107 +76,73 @@ class SecretView(ObjectView):
         })
 
 
-@permission_required('secrets.add_secret')
-@userkey_required()
-def secret_add(request):
+class SecretEditView(ObjectEditView):
+    queryset = Secret.objects.all()
+    model_form = forms.SecretForm
+    template_name = 'secrets/secret_edit.html'
 
-    secret = Secret()
-    session_key = get_session_key(request)
+    def dispatch(self, request, *args, **kwargs):
 
-    if request.method == 'POST':
-        form = forms.SecretForm(request.POST, instance=secret)
+        # Check that the user has a valid UserKey
+        try:
+            uk = UserKey.objects.get(user=request.user)
+        except UserKey.DoesNotExist:
+            messages.warning(request, "This operation requires an active user key, but you don't have one.")
+            return redirect('user:userkey')
+        if not uk.is_active():
+            messages.warning(request, "This operation is not available. Your user key has not been activated.")
+            return redirect('user:userkey')
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logger = logging.getLogger('netbox.views.ObjectEditView')
+        session_key = get_session_key(request)
+        secret = self.get_object(kwargs)
+        form = self.model_form(request.POST, instance=secret)
+
         if form.is_valid():
+            logger.debug("Form validation was successful")
 
-            # We need a valid session key in order to create a Secret
-            if session_key is None:
+            # We must have a session key in order to create a secret or update the plaintext of an existing secret
+            if (form.cleaned_data['plaintext'] or secret.pk is None) and session_key is None:
+                logger.debug("Unable to proceed: No session key was provided with the request")
                 form.add_error(None, "No session key was provided with the request. Unable to encrypt secret data.")
 
-            # Create and encrypt the new Secret
             else:
                 master_key = None
                 try:
                     sk = SessionKey.objects.get(userkey__user=request.user)
                     master_key = sk.get_master_key(session_key)
                 except SessionKey.DoesNotExist:
+                    logger.debug("Unable to proceed: User has no session key assigned")
                     form.add_error(None, "No session key found for this user.")
 
                 if master_key is not None:
+                    logger.debug("Successfully resolved master key for encryption")
                     secret = form.save(commit=False)
-                    secret.plaintext = str(form.cleaned_data['plaintext'])
+                    if form.cleaned_data['plaintext']:
+                        secret.plaintext = str(form.cleaned_data['plaintext'])
                     secret.encrypt(master_key)
                     secret.save()
                     form.save_m2m()
 
-                    messages.success(request, "Added new secret: {}.".format(secret))
-                    if '_addanother' in request.POST:
-                        return redirect('secrets:secret_add')
-                    else:
-                        return redirect('secrets:secret', pk=secret.pk)
+                    msg = '{} secret'.format('Created' if not form.instance.pk else 'Modified')
+                    logger.info(f"{msg} {secret} (PK: {secret.pk})")
+                    msg = '{} <a href="{}">{}</a>'.format(msg, secret.get_absolute_url(), escape(secret))
+                    messages.success(request, mark_safe(msg))
 
-    else:
-        initial_data = {
-            'device': request.GET.get('device'),
-        }
-        form = forms.SecretForm(initial=initial_data)
+                    return redirect(self.get_return_url(request, secret))
 
-    return render(request, 'secrets/secret_edit.html', {
-        'secret': secret,
-        'form': form,
-        'return_url': GetReturnURLMixin().get_return_url(request, secret)
-    })
+        else:
+            logger.debug("Form validation failed")
 
-
-@permission_required('secrets.change_secret')
-@userkey_required()
-def secret_edit(request, pk):
-
-    secret = get_object_or_404(Secret, pk=pk)
-    session_key = get_session_key(request)
-
-    if request.method == 'POST':
-        form = forms.SecretForm(request.POST, instance=secret)
-        if form.is_valid():
-
-            # Re-encrypt the Secret if a plaintext and session key have been provided.
-            if form.cleaned_data['plaintext'] and session_key is not None:
-
-                # Retrieve the master key using the provided session key
-                master_key = None
-                try:
-                    sk = SessionKey.objects.get(userkey__user=request.user)
-                    master_key = sk.get_master_key(session_key)
-                except SessionKey.DoesNotExist:
-                    form.add_error(None, "No session key found for this user.")
-
-                # Create and encrypt the new Secret
-                if master_key is not None:
-                    secret = form.save(commit=False)
-                    secret.plaintext = form.cleaned_data['plaintext']
-                    secret.encrypt(master_key)
-                    secret.save()
-                    messages.success(request, "Modified secret {}.".format(secret))
-                    return redirect('secrets:secret', pk=secret.pk)
-                else:
-                    form.add_error(None, "Invalid session key. Unable to encrypt secret data.")
-
-            # We can't save the plaintext without a session key.
-            elif form.cleaned_data['plaintext']:
-                form.add_error(None, "No session key was provided with the request. Unable to encrypt secret data.")
-
-            # If no new plaintext was specified, a session key is not needed.
-            else:
-                secret = form.save()
-                messages.success(request, "Modified secret {}.".format(secret))
-                return redirect('secrets:secret', pk=secret.pk)
-
-    else:
-        form = forms.SecretForm(instance=secret)
-
-    return render(request, 'secrets/secret_edit.html', {
-        'secret': secret,
-        'form': form,
-        'return_url': reverse('secrets:secret', kwargs={'pk': secret.pk}),
-    })
+        return render(request, self.template_name, {
+            'obj': secret,
+            'obj_type': self.queryset.model._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(request, secret),
+        })
 
 
 class SecretDeleteView(ObjectDeleteView):
