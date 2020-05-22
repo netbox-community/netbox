@@ -1,6 +1,5 @@
 import netaddr
 from django.conf import settings
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count, Q
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
@@ -11,7 +10,7 @@ from dcim.models import Device, Interface
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView,
-    ObjectListView,
+    ObjectListView, ObjectPermissionRequiredMixin,
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
@@ -672,11 +671,11 @@ class IPAddressEditView(ObjectEditView):
         return obj
 
 
-class IPAddressAssignView(PermissionRequiredMixin, View):
+class IPAddressAssignView(ObjectPermissionRequiredMixin, View):
     """
     Search for IPAddresses to be assigned to an Interface.
     """
-    permission_required = 'ipam.change_ipaddress'
+    queryset = IPAddress.objects.all()
 
     def dispatch(self, request, *args, **kwargs):
 
@@ -687,7 +686,6 @@ class IPAddressAssignView(PermissionRequiredMixin, View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
-
         form = forms.IPAddressAssignForm()
 
         return render(request, 'ipam/ipaddress_assign.html', {
@@ -696,13 +694,12 @@ class IPAddressAssignView(PermissionRequiredMixin, View):
         })
 
     def post(self, request):
-
         form = forms.IPAddressAssignForm(request.POST)
         table = None
 
         if form.is_valid():
 
-            addresses = IPAddress.objects.prefetch_related(
+            addresses = self.queryset.prefetch_related(
                 'vrf', 'tenant', 'interface__device', 'interface__virtual_machine'
             )
             # Limit to 100 results
@@ -784,12 +781,11 @@ class VLANGroupBulkDeleteView(BulkDeleteView):
     default_return_url = 'ipam:vlangroup_list'
 
 
-class VLANGroupVLANsView(PermissionRequiredMixin, View):
-    permission_required = 'ipam.view_vlangroup'
+class VLANGroupVLANsView(ObjectView):
+    queryset = VLANGroup.objects.all()
 
     def get(self, request, pk):
-
-        vlan_group = get_object_or_404(VLANGroup.objects.all(), pk=pk)
+        vlan_group = get_object_or_404(self.queryset, pk=pk)
 
         vlans = VLAN.objects.filter(group_id=pk)
         vlans = add_available_vlans(vlan_group, vlans)
