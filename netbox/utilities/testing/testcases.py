@@ -488,7 +488,7 @@ class ViewTestCases:
             for instance in self.model.objects.order_by('-pk')[:self.bulk_create_count]:
                 self.assertInstanceEqual(instance, self.bulk_create_data)
 
-    class ImportObjectsViewTestCase(ModelViewTestCase):
+    class BulkImportObjectsViewTestCase(ModelViewTestCase):
         """
         Create multiple instances from imported data.
         """
@@ -598,7 +598,7 @@ class ViewTestCases:
         EditObjectViewTestCase,
         DeleteObjectViewTestCase,
         ListObjectsViewTestCase,
-        ImportObjectsViewTestCase,
+        BulkImportObjectsViewTestCase,
         BulkEditObjectsViewTestCase,
         BulkDeleteObjectsViewTestCase,
     ):
@@ -611,7 +611,7 @@ class ViewTestCases:
         CreateObjectViewTestCase,
         EditObjectViewTestCase,
         ListObjectsViewTestCase,
-        ImportObjectsViewTestCase,
+        BulkImportObjectsViewTestCase,
         BulkDeleteObjectsViewTestCase,
     ):
         """
@@ -636,7 +636,7 @@ class ViewTestCases:
         DeleteObjectViewTestCase,
         ListObjectsViewTestCase,
         BulkCreateObjectsViewTestCase,
-        ImportObjectsViewTestCase,
+        BulkImportObjectsViewTestCase,
         BulkEditObjectsViewTestCase,
         BulkDeleteObjectsViewTestCase,
     ):
