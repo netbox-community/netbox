@@ -1747,96 +1747,88 @@ class DeviceBayBulkDeleteView(BulkDeleteView):
 # Bulk Device component creation
 #
 
-class DeviceBulkAddConsolePortView(PermissionRequiredMixin, BulkComponentCreateView):
-    permission_required = 'dcim.add_consoleport'
+class DeviceBulkAddConsolePortView(BulkComponentCreateView):
     parent_model = Device
     parent_field = 'device'
     form = forms.ConsolePortBulkCreateForm
-    model = ConsolePort
+    queryset = ConsolePort.objects.all()
     model_form = forms.ConsolePortForm
     filterset = filters.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
 
 
-class DeviceBulkAddConsoleServerPortView(PermissionRequiredMixin, BulkComponentCreateView):
-    permission_required = 'dcim.add_consoleserverport'
+class DeviceBulkAddConsoleServerPortView(BulkComponentCreateView):
     parent_model = Device
     parent_field = 'device'
     form = forms.ConsoleServerPortBulkCreateForm
-    model = ConsoleServerPort
+    queryset = ConsoleServerPort.objects.all()
     model_form = forms.ConsoleServerPortForm
     filterset = filters.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
 
 
-class DeviceBulkAddPowerPortView(PermissionRequiredMixin, BulkComponentCreateView):
-    permission_required = 'dcim.add_powerport'
+class DeviceBulkAddPowerPortView(BulkComponentCreateView):
     parent_model = Device
     parent_field = 'device'
     form = forms.PowerPortBulkCreateForm
-    model = PowerPort
+    queryset = PowerPort.objects.all()
     model_form = forms.PowerPortForm
     filterset = filters.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
 
 
-class DeviceBulkAddPowerOutletView(PermissionRequiredMixin, BulkComponentCreateView):
-    permission_required = 'dcim.add_poweroutlet'
+class DeviceBulkAddPowerOutletView(BulkComponentCreateView):
     parent_model = Device
     parent_field = 'device'
     form = forms.PowerOutletBulkCreateForm
-    model = PowerOutlet
+    queryset = PowerOutlet.objects.all()
     model_form = forms.PowerOutletForm
     filterset = filters.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
 
 
-class DeviceBulkAddInterfaceView(PermissionRequiredMixin, BulkComponentCreateView):
-    permission_required = 'dcim.add_interface'
+class DeviceBulkAddInterfaceView(BulkComponentCreateView):
     parent_model = Device
     parent_field = 'device'
     form = forms.InterfaceBulkCreateForm
-    model = Interface
+    queryset = Interface.objects.all()
     model_form = forms.InterfaceForm
     filterset = filters.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
 
 
-# class DeviceBulkAddFrontPortView(PermissionRequiredMixin, BulkComponentCreateView):
-#     permission_required = 'dcim.add_frontport'
+# class DeviceBulkAddFrontPortView(BulkComponentCreateView):
 #     parent_model = Device
 #     parent_field = 'device'
 #     form = forms.FrontPortBulkCreateForm
-#     model = FrontPort
+#     queryset = FrontPort.objects.all()
 #     model_form = forms.FrontPortForm
 #     filterset = filters.DeviceFilterSet
 #     table = tables.DeviceTable
 #     default_return_url = 'dcim:device_list'
 
 
-class DeviceBulkAddRearPortView(PermissionRequiredMixin, BulkComponentCreateView):
-    permission_required = 'dcim.add_rearport'
+class DeviceBulkAddRearPortView(BulkComponentCreateView):
     parent_model = Device
     parent_field = 'device'
     form = forms.RearPortBulkCreateForm
-    model = RearPort
+    queryset = RearPort.objects.all()
     model_form = forms.RearPortForm
     filterset = filters.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
 
 
-class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, BulkComponentCreateView):
-    permission_required = 'dcim.add_devicebay'
+class DeviceBulkAddDeviceBayView(BulkComponentCreateView):
     parent_model = Device
     parent_field = 'device'
     form = forms.DeviceBayBulkCreateForm
-    model = DeviceBay
+    queryset = DeviceBay.objects.all()
     model_form = forms.DeviceBayForm
     filterset = filters.DeviceFilterSet
     table = tables.DeviceTable

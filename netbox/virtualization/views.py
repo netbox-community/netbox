@@ -325,12 +325,11 @@ class InterfaceBulkDeleteView(BulkDeleteView):
 # Bulk Device component creation
 #
 
-class VirtualMachineBulkAddInterfaceView(PermissionRequiredMixin, BulkComponentCreateView):
-    permission_required = 'dcim.add_interface'
+class VirtualMachineBulkAddInterfaceView(BulkComponentCreateView):
     parent_model = VirtualMachine
     parent_field = 'virtual_machine'
     form = forms.InterfaceBulkCreateForm
-    model = Interface
+    queryset = Interface.objects.all()
     model_form = forms.InterfaceForm
     filterset = filters.VirtualMachineFilterSet
     table = tables.VirtualMachineTable

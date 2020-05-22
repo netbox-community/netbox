@@ -1118,14 +1118,14 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
         })
 
 
-class BulkComponentCreateView(GetReturnURLMixin, View):
+class BulkComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a set of Devices or VirtualMachines.
     """
     parent_model = None
     parent_field = None
     form = None
-    model = None
+    queryset = None
     model_form = None
     filterset = None
     table = None
@@ -1134,7 +1134,7 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkComponentCreateView')
         parent_model_name = self.parent_model._meta.verbose_name_plural
-        model_name = self.model._meta.verbose_name_plural
+        model_name = self.queryset.model._meta.verbose_name_plural
 
         # Are we editing *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all') and self.filterset is not None:
@@ -1179,8 +1179,17 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
                                         for e in errors:
                                             form.add_error(field, '{} {}: {}'.format(obj, name, ', '.join(e)))
 
+                        # Enforce object-level permissions
+                        if self.queryset.filter(pk__in=[obj.pk for obj in new_components]).count() != len(new_components):
+                            raise ObjectDoesNotExist
+
                 except IntegrityError:
                     pass
+
+                except ObjectDoesNotExist:
+                    msg = "Component creation failed due to object-level permissions violation"
+                    logger.debug(msg)
+                    form.add_error(None, msg)
 
                 if not form.errors:
                     msg = "Added {} {} to {} {}.".format(
