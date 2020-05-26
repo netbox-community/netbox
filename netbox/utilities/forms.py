@@ -14,8 +14,7 @@ from django.forms import BoundField
 from django.forms.models import fields_for_model
 from django.urls import reverse
 
-from .choices import unpack_grouped_choices
-from .constants import *
+from .choices import ColorChoices, unpack_grouped_choices
 from .validators import EnhancedURLValidator
 
 NUMERIC_EXPANSION_PATTERN = r'\[((?:\d+[?:,-])+\d+)\]'
@@ -163,7 +162,7 @@ class ColorSelect(forms.Select):
     option_template_name = 'widgets/colorselect_option.html'
 
     def __init__(self, *args, **kwargs):
-        kwargs['choices'] = add_blank_choice(COLOR_CHOICES)
+        kwargs['choices'] = add_blank_choice(ColorChoices)
         super().__init__(*args, **kwargs)
         self.attrs['class'] = 'netbox-select2-color-picker'
 
