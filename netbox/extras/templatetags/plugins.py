@@ -18,6 +18,7 @@ def _get_registered_content(obj, method, template_context):
         'object': obj,
         'request': template_context['request'],
         'settings': template_context['settings'],
+        'csrf_token': template_context['csrf_token'],
         'perms': template_context['perms'],
     }
 
