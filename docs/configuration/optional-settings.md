@@ -86,7 +86,12 @@ CORS_ORIGIN_WHITELIST = [
 
 Default: False
 
-This setting enables debugging. This should be done only during development or troubleshooting. Never enable debugging on a production system, as it can expose sensitive data to unauthenticated users.
+This setting enables debugging. This should be done only during development or troubleshooting. Note that only clients
+which access NetBox from a recognized [internal IP address](#internal_ips) will see debugging tools in the user
+interface.
+
+!!! warning
+    Never enable debugging on a production system, as it can expose sensitive data to unauthenticated users.
 
 ---
 
@@ -181,6 +186,16 @@ HTTP_PROXIES = {
     'https': 'http://10.10.1.10:1080',
 }
 ```
+
+---
+
+## INTERNAL_IPS
+
+Default: `('127.0.0.1', '::1',)`
+
+A list of IP addresses recognized as internal to the system, used to control the display of debugging output. For
+example, the debugging toolbar will be viewable only when a client is accessing NetBox from one of the listed IP
+addresses (and [`DEBUG`](#debug) is true).
 
 ---
 

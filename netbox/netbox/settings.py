@@ -78,6 +78,7 @@ EMAIL = getattr(configuration, 'EMAIL', {})
 ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
+INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
@@ -614,15 +615,6 @@ RQ_QUEUES = {
     'default': RQ_PARAMS,  # Webhooks
     'check_releases': RQ_PARAMS,
 }
-
-#
-# Django debug toolbar
-#
-
-INTERNAL_IPS = (
-    '127.0.0.1',
-    '::1',
-)
 
 
 #

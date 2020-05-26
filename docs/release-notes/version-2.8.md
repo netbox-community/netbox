@@ -6,6 +6,7 @@
 
 ### Enhancements
 
+* [#4650](https://github.com/netbox-community/netbox/issues/4650) - Expose `INTERNAL_IPS` configuration parameter
 * [#4651](https://github.com/netbox-community/netbox/issues/4651) - Add `csrf_token` context for plugin templates
 * [#4652](https://github.com/netbox-community/netbox/issues/4652) - Add permissions context for plugin templates
 * [#4665](https://github.com/netbox-community/netbox/issues/4665) - Add NEMA L14 and L21 power port/outlet types
