@@ -15,6 +15,7 @@
 ### Bug Fixes
 
 * [#3304](https://github.com/netbox-community/netbox/issues/3304) - Fix caching invalidation issue related to device/virtual machine primary IP addresses
+* [#4525](https://github.com/netbox-community/netbox/issues/4525) - Allow passing initial data to custom script MultiObjectVar
 * [#4644](https://github.com/netbox-community/netbox/issues/4644) - Fix ordering of services table by parent
 * [#4646](https://github.com/netbox-community/netbox/issues/4646) - Correct UI link for reports with custom name
 * [#4647](https://github.com/netbox-community/netbox/issues/4647) - Fix caching invalidation issue related to assigning new IP addresses to interfaces
