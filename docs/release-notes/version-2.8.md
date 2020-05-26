@@ -1,6 +1,32 @@
 # NetBox v2.8
 
-v2.8.4 (2020-05-13)
+## v2.8.5 (2020-05-26)
+
+**Note:** The minimum required version of PostgreSQL is now 9.6.
+
+### Enhancements
+
+* [#4650](https://github.com/netbox-community/netbox/issues/4650) - Expose `INTERNAL_IPS` configuration parameter
+* [#4651](https://github.com/netbox-community/netbox/issues/4651) - Add `csrf_token` context for plugin templates
+* [#4652](https://github.com/netbox-community/netbox/issues/4652) - Add permissions context for plugin templates
+* [#4665](https://github.com/netbox-community/netbox/issues/4665) - Add NEMA L14 and L21 power port/outlet types
+* [#4672](https://github.com/netbox-community/netbox/issues/4672) - Set default color for rack and devices roles
+
+### Bug Fixes
+
+* [#3304](https://github.com/netbox-community/netbox/issues/3304) - Fix caching invalidation issue related to device/virtual machine primary IP addresses
+* [#4525](https://github.com/netbox-community/netbox/issues/4525) - Allow passing initial data to custom script MultiObjectVar
+* [#4644](https://github.com/netbox-community/netbox/issues/4644) - Fix ordering of services table by parent
+* [#4646](https://github.com/netbox-community/netbox/issues/4646) - Correct UI link for reports with custom name
+* [#4647](https://github.com/netbox-community/netbox/issues/4647) - Fix caching invalidation issue related to assigning new IP addresses to interfaces
+* [#4648](https://github.com/netbox-community/netbox/issues/4648) - Fix bulk CSV import of child devices
+* [#4649](https://github.com/netbox-community/netbox/issues/4649) - Fix interface assignment for bulk-imported IP addresses
+* [#4676](https://github.com/netbox-community/netbox/issues/4676) - Set default value of `REMOTE_AUTH_AUTO_CREATE_USER` as `False` in docs
+* [#4684](https://github.com/netbox-community/netbox/issues/4684) - Respect `comments` field when importing device type in YAML/JSON format
+
+---
+
+## v2.8.4 (2020-05-13)
 
 ### Enhancements
 

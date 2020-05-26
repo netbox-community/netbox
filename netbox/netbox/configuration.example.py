@@ -132,6 +132,10 @@ EXEMPT_VIEW_PERMISSIONS = [
 #     'https': 'http://10.10.1.10:1080',
 # }
 
+# IP addresses recognized as internal to the system. The debugging toolbar will be available only to clients accessing
+# NetBox from an internal IP.
+INTERNAL_IPS = ('127.0.0.1', '::1')
+
 # Enable custom logging. Please see the Django documentation for detailed guidance on configuring custom logs:
 #   https://docs.djangoproject.com/en/stable/topics/logging/
 LOGGING = {}

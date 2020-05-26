@@ -932,6 +932,7 @@ class DeviceTypeImportForm(BootstrapMixin, forms.ModelForm):
         model = DeviceType
         fields = [
             'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'comments',
         ]
 
 
@@ -1956,7 +1957,7 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
         help_text='Parent device'
     )
     device_bay = CSVModelChoiceField(
-        queryset=Device.objects.all(),
+        queryset=DeviceBay.objects.all(),
         to_field_name='name',
         help_text='Device bay in which this device is installed'
     )
@@ -1975,6 +1976,20 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
             # Limit device bay queryset by parent device
             params = {f"device__{self.fields['parent'].to_field_name}": data.get('parent')}
             self.fields['device_bay'].queryset = self.fields['device_bay'].queryset.filter(**params)
+
+    def clean(self):
+        super().clean()
+
+        # Set parent_bay reverse relationship
+        device_bay = self.cleaned_data.get('device_bay')
+        if device_bay:
+            self.instance.parent_bay = device_bay
+
+        # Inherit site and rack from parent device
+        parent = self.cleaned_data.get('parent')
+        if parent:
+            self.instance.site = parent.site
+            self.instance.rack = parent.rack
 
 
 class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):

@@ -1105,7 +1105,7 @@ class DeviceView(PermissionRequiredMixin, View):
     def get(self, request, pk):
 
         device = get_object_or_404(Device.objects.prefetch_related(
-            'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform'
+            'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform', 'primary_ip4', 'primary_ip6'
         ), pk=pk)
 
         # VirtualChassis members

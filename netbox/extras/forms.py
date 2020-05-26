@@ -432,11 +432,11 @@ class ScriptForm(BootstrapMixin, forms.Form):
 
     def __init__(self, vars, *args, commit_default=True, **kwargs):
 
-        super().__init__(*args, **kwargs)
-
         # Dynamically populate fields for variables
         for name, var in vars.items():
-            self.fields[name] = var.as_field()
+            self.base_fields[name] = var.as_field()
+
+        super().__init__(*args, **kwargs)
 
         # Toggle default commit behavior based on Meta option
         if not commit_default:
