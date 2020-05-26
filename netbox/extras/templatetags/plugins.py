@@ -19,6 +19,7 @@ def _get_registered_content(obj, method, template_context):
         'request': template_context['request'],
         'settings': template_context['settings'],
         'csrf_token': template_context['csrf_token'],
+        'perms': template_context['perms'],
     }
 
     model_name = obj._meta.label_lower
