@@ -932,6 +932,7 @@ class DeviceTypeImportForm(BootstrapMixin, forms.ModelForm):
         model = DeviceType
         fields = [
             'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'comments',
         ]
 
 
