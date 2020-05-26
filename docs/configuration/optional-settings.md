@@ -385,7 +385,7 @@ When remote user authentication is in use, this is the name of the HTTP header w
 
 ## REMOTE_AUTH_AUTO_CREATE_USER
 
-Default: `True`
+Default: `False`
 
 If true, NetBox will automatically create local accounts for users authenticated via a remote service. (Requires `REMOTE_AUTH_ENABLED`.)
 
