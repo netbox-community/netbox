@@ -23,6 +23,7 @@ from dcim.fields import ASNField
 from dcim.elevations import RackElevationSVG
 from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
+from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object, to_meters
@@ -379,7 +380,9 @@ class RackRole(ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
-    color = ColorField()
+    color = ColorField(
+        default=ColorChoices.COLOR_GREY
+    )
     description = models.CharField(
         max_length=200,
         blank=True,
@@ -1190,7 +1193,9 @@ class DeviceRole(ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
-    color = ColorField()
+    color = ColorField(
+        default=ColorChoices.COLOR_GREY
+    )
     vm_role = models.BooleanField(
         default=True,
         verbose_name='VM Role',

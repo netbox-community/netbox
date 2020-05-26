@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from taggit.models import TagBase, GenericTaggedItemBase
 
+from utilities.choices import ColorChoices
 from utilities.fields import ColorField
 from utilities.models import ChangeLoggedModel
 
@@ -13,7 +14,7 @@ from utilities.models import ChangeLoggedModel
 
 class Tag(TagBase, ChangeLoggedModel):
     color = ColorField(
-        default='9e9e9e'
+        default=ColorChoices.COLOR_GREY
     )
     description = models.CharField(
         max_length=200,

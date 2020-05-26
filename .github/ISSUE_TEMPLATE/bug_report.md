@@ -30,10 +30,9 @@ about: Report a reproducible bug in the current release of NetBox
     library such as pynetbox.
 -->
 ### Steps to Reproduce
-1. Disable any installed plugins by commenting out the `PLUGINS` setting in
-   `configuration.py`.
-2.
-3.
+1. 
+2. 
+3. 
 
 <!-- What did you expect to happen? -->
 ### Expected Behavior
