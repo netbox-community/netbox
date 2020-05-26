@@ -1,6 +1,6 @@
 # NetBox v2.8
 
-## v2.8.5 (FUTURE)
+## v2.8.5 (2020-05-26)
 
 **Note:** The minimum required version of PostgreSQL is now 9.6.
 
