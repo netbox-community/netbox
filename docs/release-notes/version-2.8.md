@@ -19,6 +19,7 @@
 * [#4648](https://github.com/netbox-community/netbox/issues/4648) - Fix bulk CSV import of child devices
 * [#4649](https://github.com/netbox-community/netbox/issues/4649) - Fix interface assignment for bulk-imported IP addresses
 * [#4676](https://github.com/netbox-community/netbox/issues/4676) - Set default value of `REMOTE_AUTH_AUTO_CREATE_USER` as `False` in docs
+* [#4684](https://github.com/netbox-community/netbox/issues/4684) - Respect `comments` field when importing device type in YAML/JSON format
 
 ---
 
