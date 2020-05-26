@@ -6,6 +6,8 @@
 
 ### Enhancements
 
+* [#4651](https://github.com/netbox-community/netbox/issues/4651) - Add `csrf_token` context for plugin templates
+* [#4652](https://github.com/netbox-community/netbox/issues/4652) - Add permissions context for plugin templates
 * [#4665](https://github.com/netbox-community/netbox/issues/4665) - Add NEMA L14 and L21 power port/outlet types
 
 ### Bug Fixes
@@ -16,7 +18,8 @@
 * [#4647](https://github.com/netbox-community/netbox/issues/4647) - Fix caching invalidation issue related to assigning new IP addresses to interfaces
 * [#4648](https://github.com/netbox-community/netbox/issues/4648) - Fix bulk CSV import of child devices
 * [#4649](https://github.com/netbox-community/netbox/issues/4649) - Fix interface assignment for bulk-imported IP addresses
-* [#4684](https://github.com/netbox-community/netbox/issues/4684) - Fix ignored comment field when adding device type via YAML/JSON import.
+* [#4676](https://github.com/netbox-community/netbox/issues/4676) - Set default value of `REMOTE_AUTH_AUTO_CREATE_USER` as `False` in docs
+* [#4684](https://github.com/netbox-community/netbox/issues/4684) - Respect `comments` field when importing device type in YAML/JSON format
 
 ---
 
