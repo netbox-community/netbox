@@ -3,6 +3,7 @@ import sys
 from copy import deepcopy
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.mixins import AccessMixin
 from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured, ObjectDoesNotExist, ValidationError
@@ -14,6 +15,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
@@ -246,7 +248,10 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
             permissions[action] = request.user.has_perm(perm_name)
 
         # Construct the table based on the user's permissions
-        columns = request.user.config.get(f"tables.{self.table.__name__}.columns")
+        if request.user.is_authenticated:
+            columns = request.user.config.get(f"tables.{self.table.__name__}.columns")
+        else:
+            columns = None
         table = self.table(self.queryset, columns=columns)
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
@@ -270,6 +275,7 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
 
         return render(request, self.template_name, context)
 
+    @method_decorator(login_required)
     def post(self, request):
 
         # Update the user's table configuration

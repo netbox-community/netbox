@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from extras.filters import CustomFieldFilterSet, LocalConfigContextFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
 from tenancy.models import Tenant
-from utilities.constants import COLOR_CHOICES
+from utilities.choices import ColorChoices
 from utilities.filters import (
     BaseFilterSet, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter,
     NameSlugSearchFilterSet, TagFilter, TreeNodeMultipleChoiceFilter,
@@ -1084,7 +1084,7 @@ class CableFilterSet(BaseFilterSet):
         choices=CableStatusChoices
     )
     color = django_filters.MultipleChoiceFilter(
-        choices=COLOR_CHOICES
+        choices=ColorChoices
     )
     device_id = MultiValueNumberFilter(
         method='filter_device'

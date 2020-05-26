@@ -986,7 +986,7 @@ class DeviceListView(ObjectListView):
 
 class DeviceView(ObjectView):
     queryset = Device.objects.prefetch_related(
-        'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform'
+        'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform', 'primary_ip4', 'primary_ip6'
     )
 
     def get(self, request, pk):

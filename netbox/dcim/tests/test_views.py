@@ -366,6 +366,7 @@ manufacturer: Generic
 model: TEST-1000
 slug: test-1000
 u_height: 2
+comments: test comment
 console-ports:
   - name: Console Port 1
     type: de-9
@@ -456,6 +457,7 @@ device-bays:
         self.assertHttpStatus(response, 200)
 
         dt = DeviceType.objects.get(model='TEST-1000')
+        self.assertEqual(dt.comments, 'test comment')
 
         # Verify all of the components were created
         self.assertEqual(dt.consoleport_templates.count(), 3)

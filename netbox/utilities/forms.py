@@ -14,8 +14,7 @@ from django.forms import BoundField
 from django.forms.models import fields_for_model
 from django.urls import reverse
 
-from .choices import unpack_grouped_choices
-from .constants import *
+from .choices import ColorChoices, unpack_grouped_choices
 from .validators import EnhancedURLValidator
 
 NUMERIC_EXPANSION_PATTERN = r'\[((?:\d+[?:,-])+\d+)\]'
@@ -163,7 +162,7 @@ class ColorSelect(forms.Select):
     option_template_name = 'widgets/colorselect_option.html'
 
     def __init__(self, *args, **kwargs):
-        kwargs['choices'] = add_blank_choice(COLOR_CHOICES)
+        kwargs['choices'] = add_blank_choice(ColorChoices)
         super().__init__(*args, **kwargs)
         self.attrs['class'] = 'netbox-select2-color-picker'
 
@@ -607,15 +606,18 @@ class DynamicModelChoiceMixin:
     filter = django_filters.ModelChoiceFilter
     widget = APISelect
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def _get_initial_value(self, initial_data, field_name):
+        return initial_data.get(field_name)
 
     def get_bound_field(self, form, field_name):
         bound_field = BoundField(form, self, field_name)
 
+        # Override initial() to allow passing multiple values
+        bound_field.initial = self._get_initial_value(form.initial, field_name)
+
         # Modify the QuerySet of the field before we return it. Limit choices to any data already bound: Options
         # will be populated on-demand via the APISelect widget.
-        data = self.prepare_value(bound_field.data or bound_field.initial)
+        data = bound_field.value()
         if data:
             filter = self.filter(field_name=self.to_field_name or 'pk', queryset=self.queryset)
             self.queryset = filter.filter(self.queryset, data)
@@ -647,6 +649,12 @@ class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultip
     """
     filter = django_filters.ModelMultipleChoiceFilter
     widget = APISelectMultiple
+
+    def _get_initial_value(self, initial_data, field_name):
+        # If a QueryDict has been passed as initial form data, get *all* listed values
+        if hasattr(initial_data, 'getlist'):
+            return initial_data.getlist(field_name)
+        return initial_data.get(field_name)
 
 
 class LaxURLField(forms.URLField):

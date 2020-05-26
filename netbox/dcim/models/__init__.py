@@ -23,6 +23,7 @@ from dcim.fields import ASNField
 from dcim.elevations import RackElevationSVG
 from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
+from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object, to_meters
@@ -379,7 +380,9 @@ class RackRole(ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
-    color = ColorField()
+    color = ColorField(
+        default=ColorChoices.COLOR_GREY
+    )
     description = models.CharField(
         max_length=200,
         blank=True,
@@ -1190,7 +1193,9 @@ class DeviceRole(ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
-    color = ColorField()
+    color = ColorField(
+        default=ColorChoices.COLOR_GREY
+    )
     vm_role = models.BooleanField(
         default=True,
         verbose_name='VM Role',
@@ -2182,23 +2187,29 @@ class Cable(ChangeLoggedModel):
 
         # Check that termination types are compatible
         if type_b not in COMPATIBLE_TERMINATION_TYPES.get(type_a):
-            raise ValidationError("Incompatible termination types: {} and {}".format(
-                self.termination_a_type, self.termination_b_type
-            ))
+            raise ValidationError(
+                f"Incompatible termination types: {self.termination_a_type} and {self.termination_b_type}"
+            )
 
-        # A RearPort with multiple positions must be connected to a component with an equal number of positions
-        if isinstance(self.termination_a, RearPort) and isinstance(self.termination_b, RearPort):
-            if self.termination_a.positions != self.termination_b.positions:
-                raise ValidationError(
-                    "{} has {} positions and {} has {}. Both terminations must have the same number of positions.".format(
-                        self.termination_a, self.termination_a.positions,
-                        self.termination_b, self.termination_b.positions
+        # A RearPort with multiple positions must be connected to a RearPort with an equal number of positions
+        for term_a, term_b in [
+            (self.termination_a, self.termination_b),
+            (self.termination_b, self.termination_a)
+        ]:
+            if isinstance(term_a, RearPort) and term_a.positions > 1:
+                if not isinstance(term_b, RearPort):
+                    raise ValidationError(
+                        "Rear ports with multiple positions may only be connected to other rear ports"
                     )
-                )
+                elif term_a.positions != term_b.positions:
+                    raise ValidationError(
+                        f"{term_a} has {term_a.positions} position(s) but {term_b} has {term_b.positions}. "
+                        f"Both terminations must have the same number of positions."
+                    )
 
         # A termination point cannot be connected to itself
         if self.termination_a == self.termination_b:
-            raise ValidationError("Cannot connect {} to itself".format(self.termination_a_type))
+            raise ValidationError(f"Cannot connect {self.termination_a_type} to itself")
 
         # A front port cannot be connected to its corresponding rear port
         if (

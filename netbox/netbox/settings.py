@@ -78,6 +78,7 @@ EMAIL = getattr(configuration, 'EMAIL', {})
 ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
+INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
@@ -246,12 +247,16 @@ if SESSION_FILE_PATH is not None:
 #
 
 EMAIL_HOST = EMAIL.get('SERVER')
-EMAIL_PORT = EMAIL.get('PORT', 25)
 EMAIL_HOST_USER = EMAIL.get('USERNAME')
 EMAIL_HOST_PASSWORD = EMAIL.get('PASSWORD')
+EMAIL_PORT = EMAIL.get('PORT', 25)
+EMAIL_SSL_CERTFILE = EMAIL.get('SSL_CERTFILE')
+EMAIL_SSL_KEYFILE = EMAIL.get('SSL_KEYFILE')
+EMAIL_SUBJECT_PREFIX = '[NetBox] '
+EMAIL_USE_SSL = EMAIL.get('USE_SSL', False)
+EMAIL_USE_TLS = EMAIL.get('USE_TLS', False)
 EMAIL_TIMEOUT = EMAIL.get('TIMEOUT', 10)
 SERVER_EMAIL = EMAIL.get('FROM_EMAIL')
-EMAIL_SUBJECT_PREFIX = '[NetBox] '
 
 
 #
@@ -610,15 +615,6 @@ RQ_QUEUES = {
     'default': RQ_PARAMS,  # Webhooks
     'check_releases': RQ_PARAMS,
 }
-
-#
-# Django debug toolbar
-#
-
-INTERNAL_IPS = (
-    '127.0.0.1',
-    '::1',
-)
 
 
 #

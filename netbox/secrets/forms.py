@@ -1,11 +1,11 @@
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from django import forms
-from taggit.forms import TagField
 
 from dcim.models import Device
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
+    TagField,
 )
 from utilities.forms import (
     APISelectMultiple, BootstrapMixin, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,

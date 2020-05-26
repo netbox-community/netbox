@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from mptt.forms import TreeNodeMultipleChoiceField
-from taggit.forms import TagField
+from taggit.forms import TagField as TagField_
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
@@ -141,6 +141,15 @@ class CustomFieldFilterForm(forms.Form):
 #
 # Tags
 #
+
+class TagField(TagField_):
+
+    def widget_attrs(self, widget):
+        # Apply the "tagfield" CSS class to trigger the special API-based selection widget for tags
+        return {
+            'class': 'tagfield'
+        }
+
 
 class TagForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
@@ -423,11 +432,11 @@ class ScriptForm(BootstrapMixin, forms.Form):
 
     def __init__(self, vars, *args, commit_default=True, **kwargs):
 
-        super().__init__(*args, **kwargs)
-
         # Dynamically populate fields for variables
         for name, var in vars.items():
-            self.fields[name] = var.as_field()
+            self.base_fields[name] = var.as_field()
+
+        super().__init__(*args, **kwargs)
 
         # Toggle default commit behavior based on Meta option
         if not commit_default:

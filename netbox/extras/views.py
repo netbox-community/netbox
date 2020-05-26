@@ -118,9 +118,12 @@ class ConfigContextView(ObjectView):
         # Determine user's preferred output format
         if request.GET.get('format') in ['json', 'yaml']:
             format = request.GET.get('format')
-            request.user.config.set('extras.configcontext.format', format, commit=True)
-        else:
+            if request.user.is_authenticated:
+                request.user.config.set('extras.configcontext.format', format, commit=True)
+        elif request.user.is_authenticated:
             format = request.user.config.get('extras.configcontext.format', 'json')
+        else:
+            format = 'json'
 
         return render(request, 'extras/configcontext.html', {
             'configcontext': configcontext,
@@ -166,9 +169,12 @@ class ObjectConfigContextView(ObjectView):
         # Determine user's preferred output format
         if request.GET.get('format') in ['json', 'yaml']:
             format = request.GET.get('format')
-            request.user.config.set('extras.configcontext.format', format, commit=True)
-        else:
+            if request.user.is_authenticated:
+                request.user.config.set('extras.configcontext.format', format, commit=True)
+        elif request.user.is_authenticated:
             format = request.user.config.get('extras.configcontext.format', 'json')
+        else:
+            format = 'json'
 
         return render(request, 'extras/object_configcontext.html', {
             model_name: obj,

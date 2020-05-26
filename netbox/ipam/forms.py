@@ -1,10 +1,10 @@
 from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
-from taggit.forms import TagField
 
 from dcim.models import Device, Interface, Rack, Region, Site
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
+    TagField,
 )
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
@@ -618,7 +618,12 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         if self.instance and self.instance.interface:
             self.fields['interface'].queryset = Interface.objects.filter(
                 device=self.instance.interface.device, virtual_machine=self.instance.interface.virtual_machine
-            )
+            ).prefetch_related(
+                'device__primary_ip4',
+                'device__primary_ip6',
+                'virtual_machine__primary_ip4',
+                'virtual_machine__primary_ip6',
+            )  # We prefetch the primary address fields to ensure cache invalidation does not balk on the save()
         else:
             self.fields['interface'].choices = []
 
@@ -774,18 +779,6 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
             raise forms.ValidationError("No device or virtual machine specified; cannot set as primary IP")
 
     def save(self, *args, **kwargs):
-
-        # Set interface
-        if self.cleaned_data['device'] and self.cleaned_data['interface_name']:
-            self.instance.interface = Interface.objects.get(
-                device=self.cleaned_data['device'],
-                name=self.cleaned_data['interface_name']
-            )
-        elif self.cleaned_data['virtual_machine'] and self.cleaned_data['interface_name']:
-            self.instance.interface = Interface.objects.get(
-                virtual_machine=self.cleaned_data['virtual_machine'],
-                name=self.cleaned_data['interface_name']
-            )
 
         ipaddress = super().save(*args, **kwargs)
 

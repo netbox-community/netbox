@@ -86,7 +86,12 @@ CORS_ORIGIN_WHITELIST = [
 
 Default: False
 
-This setting enables debugging. This should be done only during development or troubleshooting. Never enable debugging on a production system, as it can expose sensitive data to unauthenticated users.
+This setting enables debugging. This should be done only during development or troubleshooting. Note that only clients
+which access NetBox from a recognized [internal IP address](#internal_ips) will see debugging tools in the user
+interface.
+
+!!! warning
+    Never enable debugging on a production system, as it can expose sensitive data to unauthenticated users.
 
 ---
 
@@ -108,16 +113,20 @@ The file path to NetBox's documentation. This is used when presenting context-se
 
 ## EMAIL
 
-In order to send email, NetBox needs an email server configured. The following items can be defined within the `EMAIL` setting:
+In order to send email, NetBox needs an email server configured. The following items can be defined within the `EMAIL` configuration parameter:
 
-* SERVER - Host name or IP address of the email server (use `localhost` if running locally)
-* PORT - TCP port to use for the connection (default: 25)
-* USERNAME - Username with which to authenticate
-* PASSSWORD - Password with which to authenticate
-* TIMEOUT - Amount of time to wait for a connection (seconds)
-* FROM_EMAIL - Sender address for emails sent by NetBox
+* `SERVER` - Host name or IP address of the email server (use `localhost` if running locally)
+* `PORT` - TCP port to use for the connection (default: `25`)
+* `USERNAME` - Username with which to authenticate
+* `PASSSWORD` - Password with which to authenticate
+* `USE_SSL` - Use SSL when connecting to the server (default: `False`). Mutually exclusive with `USE_TLS`.
+* `USE_TLS` - Use TLS when connecting to the server (default: `False`). Mutually exclusive with `USE_SSL`.
+* `SSL_CERTFILE` - Path to the PEM-formatted SSL certificate file (optional)
+* `SSL_KEYFILE` - Path to the PEM-formatted SSL private key file (optional)
+* `TIMEOUT` - Amount of time to wait for a connection, in seconds (default: `10`)
+* `FROM_EMAIL` - Sender address for emails sent by NetBox (default: `root@localhost`)
 
-Email is sent from NetBox only for critical events. If you would like to test the email server configuration please use the django function [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail):
+Email is sent from NetBox only for critical events or if configured for [logging](#logging). If you would like to test the email server configuration please use the django function [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail):
 
 ```
 # python ./manage.py nbshell
@@ -177,6 +186,16 @@ HTTP_PROXIES = {
     'https': 'http://10.10.1.10:1080',
 }
 ```
+
+---
+
+## INTERNAL_IPS
+
+Default: `('127.0.0.1', '::1',)`
+
+A list of IP addresses recognized as internal to the system, used to control the display of debugging output. For
+example, the debugging toolbar will be viewable only when a client is accessing NetBox from one of the listed IP
+addresses (and [`DEBUG`](#debug) is true).
 
 ---
 
@@ -381,7 +400,7 @@ When remote user authentication is in use, this is the name of the HTTP header w
 
 ## REMOTE_AUTH_AUTO_CREATE_USER
 
-Default: `True`
+Default: `False`
 
 If true, NetBox will automatically create local accounts for users authenticated via a remote service. (Requires `REMOTE_AUTH_ENABLED`.)
 

@@ -1,9 +1,9 @@
 from django import forms
-from taggit.forms import TagField
 
 from dcim.models import Region, Site
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
+    TagField,
 )
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant

@@ -378,6 +378,8 @@ class PrefixTable(BaseTable):
         verbose_name='Pool'
     )
 
+    add_prefetch = False
+
     class Meta(BaseTable.Meta):
         model = Prefix
         fields = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'is_pool', 'description')
@@ -664,6 +666,9 @@ class ServiceTable(BaseTable):
     name = tables.LinkColumn(
         viewname='ipam:service',
         args=[Accessor('pk')]
+    )
+    parent = tables.LinkColumn(
+        order_by=('device', 'virtual_machine')
     )
     tags = TagColumn(
         url_name='ipam:service_list'
