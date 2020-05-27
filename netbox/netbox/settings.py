@@ -339,7 +339,7 @@ TEMPLATES = [
 # Set up authentication backends
 AUTHENTICATION_BACKENDS = [
     'utilities.auth_backends.ObjectPermissionBackend',
-    REMOTE_AUTH_BACKEND,
+    # REMOTE_AUTH_BACKEND,
 ]
 
 # Internationalization

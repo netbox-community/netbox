@@ -12,42 +12,52 @@ class ObjectPermissionBackend(ModelBackend):
 
     def get_object_permissions(self, user_obj):
         """
-        Return all model-level permissions granted to the user by an ObjectPermission.
+        Return all permissions granted to the user by an ObjectPermission.
         """
         if not hasattr(user_obj, '_object_perm_cache'):
 
-            # Cache all assigned ObjectPermissions on the User instance
-            perms = set()
-            for obj_perm in ObjectPermission.objects.filter(
+            # Retrieve all assigned ObjectPermissions
+            object_permissions = ObjectPermission.objects.filter(
                 Q(users=user_obj) |
                 Q(groups__user=user_obj)
-            ).prefetch_related('model'):
+            ).prefetch_related('model')
+
+            # Create a dictionary mapping permissions to their attributes
+            perms = dict()
+            for obj_perm in object_permissions:
                 for action in ['view', 'add', 'change', 'delete']:
                     if getattr(obj_perm, f"can_{action}"):
-                        perms.add(f"{obj_perm.model.app_label}.{action}_{obj_perm.model.model}")
+                        perm_name = f"{obj_perm.model.app_label}.{action}_{obj_perm.model.model}"
+                        if perm_name in perms:
+                            perms[perm_name].append(obj_perm.attrs)
+                        else:
+                            perms[perm_name] = [obj_perm.attrs]
+
+            # Cache resolved permissions on the User instance
             setattr(user_obj, '_object_perm_cache', perms)
 
         return user_obj._object_perm_cache
 
-    def get_all_permissions(self, user_obj, obj=None):
-
-        # Handle inactive/anonymous users
-        if not user_obj.is_active or user_obj.is_anonymous:
-            return set()
-
-        # Cache model-level permissions on the User instance
-        if not hasattr(user_obj, '_perm_cache'):
-            user_obj._perm_cache = {
-                *self.get_user_permissions(user_obj, obj=obj),
-                *self.get_group_permissions(user_obj, obj=obj),
-                *self.get_object_permissions(user_obj)
-            }
-
-        return user_obj._perm_cache
+    # def get_all_permissions(self, user_obj, obj=None):
+    #
+    #     # Handle inactive/anonymous users
+    #     if not user_obj.is_active or user_obj.is_anonymous:
+    #         return set()
+    #
+    #     # Cache object permissions on the User instance
+    #     if not hasattr(user_obj, '_perm_cache'):
+    #         user_obj._perm_cache = self.get_object_permissions(user_obj)
+    #
+    #     return user_obj._perm_cache
 
     def has_perm(self, user_obj, perm, obj=None):
+        # print(f'has_perm({perm})')
         app_label, codename = perm.split('.')
         action, model_name = codename.split('_')
+
+        # Superusers implicitly have all permissions
+        if user_obj.is_active and user_obj.is_superuser:
+            return True
 
         # If this is a view permission, check whether the model has been exempted from enforcement
         if action == 'view':
@@ -60,29 +70,29 @@ class ObjectPermissionBackend(ModelBackend):
             ):
                 return True
 
-        # If no object is specified, evaluate model-level permissions. The presence of a permission in this set tells
-        # us that the user has permission for *some* objects, but not necessarily a specific object.
+        # Handle inactive/anonymous users
+        if not user_obj.is_active or user_obj.is_anonymous:
+            return False
+
+        # If no applicable ObjectPermissions have been created for this user/permission, deny permission
+        if perm not in self.get_object_permissions(user_obj):
+            return False
+
+        # If no object has been specified, grant permission. (The presence of a permission in this set tells
+        # us that the user has permission for *some* objects, but not necessarily a specific object.)
         if obj is None:
-            return perm in self.get_all_permissions(user_obj)
+            return True
 
         # Sanity check: Ensure that the requested permission applies to the specified object
         model = obj._meta.model
         if model._meta.label_lower != '.'.join((app_label, model_name)):
             raise ValueError(f"Invalid permission {perm} for model {model}")
 
-        # If the user has been granted model-level permission for the object, return True
-        model_perms = {
-            *self.get_user_permissions(user_obj),
-            *self.get_group_permissions(user_obj),
-        }
-        if perm in model_perms:
-            return True
-
-        # Gather all ObjectPermissions pertinent to the requested permission. If none are found, the User has no
-        # applicable permissions.
-        attrs = ObjectPermission.objects.get_attr_constraints(user_obj, perm)
-        if not attrs:
-            return False
+        # Compile a query filter that matches all instances of the specified model
+        obj_perm_attrs = self.get_object_permissions(user_obj)[perm]
+        attrs = Q()
+        for perm_attrs in obj_perm_attrs:
+            attrs |= Q(**perm_attrs.attrs)
 
         # Permission to perform the requested action on the object depends on whether the specified object matches
         # the specified attributes. Note that this check is made against the *database* record representing the object,

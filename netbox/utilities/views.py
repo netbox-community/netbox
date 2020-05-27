@@ -8,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.mixins import AccessMixin
 from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
-from django.db.models import ManyToManyField, ProtectedError
+from django.db.models import ManyToManyField, ProtectedError, Q
 from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
 from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
@@ -65,22 +65,16 @@ class ObjectPermissionRequiredMixin(AccessMixin):
         if not user.has_perms((permission_required, *self.additional_permissions)):
             return False
 
-        # Superusers implicitly have all permissions
-        if user.is_superuser:
-            return True
-
-        # Determine whether the permission is model-level or object-level. Model-level permissions grant the
-        # specified action to *all* objects, so no further action is needed.
-        if permission_required in {*user._user_perm_cache, *user._group_perm_cache}:
-            return True
-
-        # If the permission is granted only at the object level, filter the view's queryset to return only objects
-        # on which the user is permitted to perform the specified action.
-        attrs = ObjectPermission.objects.get_attr_constraints(user, permission_required)
-        if attrs:
-            # Update the view's QuerySet to filter only the permitted objects
+        # Update the view's QuerySet to filter only the permitted objects
+        if user.is_authenticated:
+            obj_perm_attrs = user._object_perm_cache[permission_required]
+            attrs = Q()
+            for perm_attrs in obj_perm_attrs:
+                if perm_attrs:
+                    attrs |= Q(**perm_attrs)
             self.queryset = self.queryset.filter(attrs)
-            return True
+
+        return True
 
     def dispatch(self, request, *args, **kwargs):
 

@@ -240,6 +240,8 @@ class ObjectPermission(models.Model):
         on_delete=models.CASCADE
     )
     attrs = JSONField(
+        blank=True,
+        null=True,
         verbose_name='Attributes'
     )
     can_view = models.BooleanField(
@@ -264,10 +266,11 @@ class ObjectPermission(models.Model):
 
         # Validate the specified model attributes by attempting to execute a query. We don't care whether the query
         # returns anything; we just want to make sure the specified attributes are valid.
-        model = self.model.model_class()
-        try:
-            model.objects.filter(**self.attrs).exists()
-        except FieldError as e:
-            raise ValidationError({
-                'attrs': f'Invalid attributes for {model}: {e}'
-            })
+        if self.attrs:
+            model = self.model.model_class()
+            try:
+                model.objects.filter(**self.attrs).exists()
+            except FieldError as e:
+                raise ValidationError({
+                    'attrs': f'Invalid attributes for {model}: {e}'
+                })
