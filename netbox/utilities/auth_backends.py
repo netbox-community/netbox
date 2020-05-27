@@ -1,7 +1,7 @@
 import logging
 
 from django.conf import settings
-from django.contrib.auth.backends import ModelBackend, RemoteUserBackend as RemoteUserBackend_
+from django.contrib.auth.backends import BaseBackend, ModelBackend
 from django.contrib.auth.models import Group, Permission
 from django.db.models import Q
 
@@ -100,7 +100,7 @@ class ObjectPermissionBackend(ModelBackend):
         return model.objects.filter(attrs, pk=obj.pk).exists()
 
 
-class RemoteUserBackend(RemoteUserBackend_):
+class RemoteUserBackend(BaseBackend):
     """
     Custom implementation of Django's RemoteUserBackend which provides configuration hooks for basic customization.
     """
