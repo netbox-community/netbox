@@ -340,12 +340,11 @@ class ModelViewSet(_ModelViewSet):
         permission_required = TokenPermissions.perms_map[request.method][0] % kwargs
 
         # Enforce object-level permissions
-        if permission_required not in {*request.user._user_perm_cache, *request.user._group_perm_cache}:
-            attrs = ObjectPermission.objects.get_attr_constraints(request.user, permission_required)
-            if attrs:
-                # Update the view's QuerySet to filter only the permitted objects
-                self.queryset = self.queryset.filter(attrs)
-                return True
+        attrs = ObjectPermission.objects.get_attr_constraints(request.user, permission_required)
+        if attrs:
+            # Update the view's QuerySet to filter only the permitted objects
+            self.queryset = self.queryset.filter(attrs)
+            return True
 
     def dispatch(self, request, *args, **kwargs):
         logger = logging.getLogger('netbox.api.views.ModelViewSet')

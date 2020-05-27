@@ -38,18 +38,6 @@ class ObjectPermissionBackend(ModelBackend):
 
         return user_obj._object_perm_cache
 
-    # def get_all_permissions(self, user_obj, obj=None):
-    #
-    #     # Handle inactive/anonymous users
-    #     if not user_obj.is_active or user_obj.is_anonymous:
-    #         return set()
-    #
-    #     # Cache object permissions on the User instance
-    #     if not hasattr(user_obj, '_perm_cache'):
-    #         user_obj._perm_cache = self.get_object_permissions(user_obj)
-    #
-    #     return user_obj._perm_cache
-
     def has_perm(self, user_obj, perm, obj=None):
         # print(f'has_perm({perm})')
         app_label, codename = perm.split('.')
@@ -92,7 +80,7 @@ class ObjectPermissionBackend(ModelBackend):
         obj_perm_attrs = self.get_object_permissions(user_obj)[perm]
         attrs = Q()
         for perm_attrs in obj_perm_attrs:
-            attrs |= Q(**perm_attrs.attrs)
+            attrs |= Q(**perm_attrs)
 
         # Permission to perform the requested action on the object depends on whether the specified object matches
         # the specified attributes. Note that this check is made against the *database* record representing the object,
