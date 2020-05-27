@@ -33,18 +33,31 @@ class TestCase(_TestCase):
         Assign a set of permissions to the test user. Accepts permission names in the form <app>.<action>_<model>.
         """
         for name in names:
-            app, codename = name.split('.')
-            perm = Permission.objects.get(content_type__app_label=app, codename=codename)
-            self.user.user_permissions.add(perm)
+            app_label, codename = name.split('.')
+            action, model_name = codename.split('_')
+
+            kwargs = {
+                'model': ContentType.objects.get(app_label=app_label, model=model_name),
+                f'can_{action}': True
+            }
+            obj_perm = ObjectPermission(**kwargs)
+            obj_perm.save()
+            obj_perm.users.add(self.user)
 
     def remove_permissions(self, *names):
         """
         Remove a set of permissions from the test user, if assigned.
         """
         for name in names:
-            app, codename = name.split('.')
-            perm = Permission.objects.get(content_type__app_label=app, codename=codename)
-            self.user.user_permissions.remove(perm)
+            app_label, codename = name.split('.')
+            action, model_name = codename.split('_')
+
+            kwargs = {
+                'user': self.user,
+                'model': ContentType.objects.get(app_label=app_label, model=model_name),
+                f'can_{action}': True
+            }
+            ObjectPermission.objects.filter(**kwargs).delete()
 
     #
     # Convenience methods
@@ -493,10 +506,14 @@ class ViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.post(**request), 403)
 
-            # Assign the required permission and submit again
-            self.add_permissions(
-                '{}.add_{}'.format(self.model._meta.app_label, self.model._meta.model_name)
+            # Assign object-level permission
+            obj_perm = ObjectPermission(
+                model=ContentType.objects.get_for_model(self.model),
+                can_add=True
             )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+
             response = self.client.post(**request)
             self.assertHttpStatus(response, 302)
 

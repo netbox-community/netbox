@@ -1,7 +1,7 @@
 import logging
 
 from django.conf import settings
-from django.contrib.auth.backends import BaseBackend, ModelBackend
+from django.contrib.auth.backends import ModelBackend, RemoteUserBackend as _RemoteUserBackend
 from django.contrib.auth.models import Group, Permission
 from django.db.models import Q
 
@@ -88,7 +88,7 @@ class ObjectPermissionBackend(ModelBackend):
         return model.objects.filter(attrs, pk=obj.pk).exists()
 
 
-class RemoteUserBackend(BaseBackend):
+class RemoteUserBackend(_RemoteUserBackend):
     """
     Custom implementation of Django's RemoteUserBackend which provides configuration hooks for basic customization.
     """
@@ -124,7 +124,11 @@ class RemoteUserBackend(BaseBackend):
                     "<app>.<action>_<model>. (Example: dcim.add_site)"
                 )
         if permissions_list:
+            # TODO: Create an ObjectPermission
             user.user_permissions.add(*permissions_list)
             logger.debug(f"Assigned permissions to remotely-authenticated user {user}: {permissions_list}")
 
         return user
+
+    def has_perm(self, user_obj, perm, obj=None):
+        return False
