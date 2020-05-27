@@ -122,18 +122,15 @@ class SecretRoleTest(APITestCase):
 
 
 class SecretTest(APITestCase):
+    user_permissions = (
+        'secrets.add_secret',
+        'secrets.change_secret',
+        'secrets.delete_secret',
+        'secrets.view_secret',
+    )
 
     def setUp(self):
-
-        # Create a non-superuser test user
-        self.user = create_test_user('testuser', permissions=(
-            'secrets.add_secret',
-            'secrets.change_secret',
-            'secrets.delete_secret',
-            'secrets.view_secret',
-        ))
-        self.token = Token.objects.create(user=self.user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(self.token.key)}
+        super().setUp()
 
         userkey = UserKey(user=self.user, public_key=PUBLIC_KEY)
         userkey.save()
