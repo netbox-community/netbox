@@ -214,6 +214,11 @@ class ObjectPermission(models.Model):
     )
     model = models.ForeignKey(
         to=ContentType,
+        limit_choices_to={
+            'app_label__in': [
+                'circuits', 'dcim', 'extras', 'ipam', 'secrets', 'tenancy', 'virtualization',
+            ],
+        },
         on_delete=models.CASCADE
     )
     attrs = JSONField(

@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                 ('can_change', models.BooleanField(default=False)),
                 ('can_delete', models.BooleanField(default=False)),
                 ('groups', models.ManyToManyField(blank=True, related_name='object_permissions', to='auth.Group')),
-                ('model', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
+                ('model', models.ForeignKey(limit_choices_to={'app_label__in': ['circuits', 'dcim', 'extras', 'ipam', 'secrets', 'tenancy', 'virtualization']}, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
                 ('users', models.ManyToManyField(blank=True, related_name='object_permissions', to=settings.AUTH_USER_MODEL)),
             ],
             options={

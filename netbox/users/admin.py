@@ -3,7 +3,13 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as UserAdmin_
 from django.contrib.auth.models import Group, User
 
+from extras.admin import order_content_types
 from .models import ObjectPermission, Token, UserConfig
+
+
+#
+# Users & groups
+#
 
 # Unregister the built-in GroupAdmin and UserAdmin classes so that we can use our custom admin classes below
 admin.site.unregister(Group)
@@ -44,6 +50,10 @@ class UserAdmin(UserAdmin_):
     inlines = (UserConfigInline,)
 
 
+#
+# REST API tokens
+#
+
 class TokenAdminForm(forms.ModelForm):
     key = forms.CharField(
         required=False,
@@ -65,8 +75,27 @@ class TokenAdmin(admin.ModelAdmin):
     ]
 
 
+#
+# Permissions
+#
+
+class ObjectPermissionForm(forms.ModelForm):
+
+    class Meta:
+        model = ObjectPermission
+        exclude = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Format ContentType choices
+        order_content_types(self.fields['model'])
+        self.fields['model'].choices.insert(0, ('', '---------'))
+
+
 @admin.register(ObjectPermission)
 class ObjectPermissionAdmin(admin.ModelAdmin):
+    form = ObjectPermissionForm
     list_display = [
         'model', 'can_view', 'can_add', 'can_change', 'can_delete'
     ]
