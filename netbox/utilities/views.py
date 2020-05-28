@@ -66,7 +66,7 @@ class ObjectPermissionRequiredMixin(AccessMixin):
             return False
 
         # Update the view's QuerySet to filter only the permitted objects
-        if user.is_authenticated:
+        if user.is_authenticated and not user.is_superuser:
             obj_perm_attrs = user._object_perm_cache[permission_required]
             attrs = Q()
             for perm_attrs in obj_perm_attrs:
