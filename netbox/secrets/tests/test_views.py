@@ -36,18 +36,15 @@ class SecretRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         )
 
 
-class SecretTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+# TODO: Change base class to PrimaryObjectViewTestCase
+class SecretTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
     model = Secret
-
-    # Disable inapplicable tests
-    test_create_object_without_permission = None
-    test_create_object_with_model_permission = None
-    test_create_object_with_object_permission = None
-
-    # TODO: Check permissions enforcement on secrets.views.secret_edit
-    test_edit_object_without_permission = None
-    test_edit_object_with_model_permission = None
-    test_edit_object_with_object_permission = None
 
     @classmethod
     def setUpTestData(cls):

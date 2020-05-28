@@ -321,7 +321,16 @@ class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         )
 
 
-class DeviceTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+# TODO: Change base class to PrimaryObjectViewTestCase
+class DeviceTypeTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.CreateObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
     model = DeviceType
 
     @classmethod
@@ -792,13 +801,14 @@ class RearPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase
         }
 
 
-class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
+# TODO: Change base class to DeviceComponentTemplateViewTestCase
+class DeviceBayTemplateTestCase(
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.BulkCreateObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
     model = DeviceBayTemplate
-
-    # Disable inapplicable views
-    test_bulk_edit_objects_without_permission = None
-    test_bulk_edit_objects_with_model_permission = None
-    test_bulk_edit_objects_with_object_permission = None
 
     @classmethod
     def setUpTestData(cls):
@@ -1439,13 +1449,17 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
 
 
-class CableTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+# TODO: Change base class to PrimaryObjectViewTestCase
+class CableTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkImportObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
     model = Cable
-
-    # TODO: Creation URL needs termination context
-    test_create_object_without_permission = None
-    test_create_object_with_model_permission = None
-    test_create_object_with_object_permission = None
 
     @classmethod
     def setUpTestData(cls):
@@ -1515,21 +1529,15 @@ class CableTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+# TODO: Change base class to PrimaryObjectViewTestCase
+class VirtualChassisTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
     model = VirtualChassis
-
-    # Disable inapplicable tests
-    test_bulk_import_objects_without_permission = None
-    test_bulk_import_objects_with_model_permission = None
-    test_bulk_import_objects_with_object_permission = None
-
-    # TODO: Requires special form handling
-    test_create_object_without_permission = None
-    test_create_object_with_model_permission = None
-    test_create_object_with_object_permission = None
-    test_edit_object_without_permission = None
-    test_edit_object_with_model_permission = None
-    test_edit_object_with_object_permission = None
 
     @classmethod
     def setUpTestData(cls):

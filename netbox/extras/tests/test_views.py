@@ -10,16 +10,16 @@ from extras.models import ConfigContext, ObjectChange, Tag
 from utilities.testing import ViewTestCases, TestCase
 
 
-class TagTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+# TODO: Change base class to PrimaryObjectViewTestCase
+class TagTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
     model = Tag
-
-    # Disable inapplicable tests
-    test_create_object_without_permission = None
-    test_create_object_with_model_permission = None
-    test_create_object_with_object_permission = None
-    test_bulk_import_objects_without_permission = None
-    test_bulk_import_objects_with_model_permission = None
-    test_bulk_import_objects_with_object_permission = None
 
     @classmethod
     def setUpTestData(cls):
@@ -42,21 +42,15 @@ class TagTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-class ConfigContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+# TODO: Change base class to PrimaryObjectViewTestCase
+class ConfigContextTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
     model = ConfigContext
-
-    # Disable inapplicable tests
-    test_bulk_import_objects_without_permission = None
-    test_bulk_import_objects_with_model_permission = None
-    test_bulk_import_objects_with_object_permission = None
-
-    # TODO: Resolve model discrepancies when creating/editing ConfigContexts
-    test_create_object_without_permission = None
-    test_create_object_with_model_permission = None
-    test_create_object_with_object_permission = None
-    test_edit_object_without_permission = None
-    test_edit_object_with_model_permission = None
-    test_edit_object_with_object_permission = None
 
     @classmethod
     def setUpTestData(cls):
