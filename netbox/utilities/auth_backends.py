@@ -2,7 +2,8 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend, RemoteUserBackend as _RemoteUserBackend
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
 from users.models import ObjectPermission
@@ -115,22 +116,27 @@ class RemoteUserBackend(_RemoteUserBackend):
             user.groups.add(*group_list)
             logger.debug(f"Assigned groups to remotely-authenticated user {user}: {group_list}")
 
-        # Assign default permissions to the user
+        # Assign default object permissions to the user
         permissions_list = []
         for permission_name in settings.REMOTE_AUTH_DEFAULT_PERMISSIONS:
             try:
                 app_label, codename = permission_name.split('.')
-                permissions_list.append(
-                    Permission.objects.get(content_type__app_label=app_label, codename=codename)
-                )
-            except (ValueError, Permission.DoesNotExist):
+                action, model_name = codename.split('_')
+
+                kwargs = {
+                    'model': ContentType.objects.get(app_label=app_label, model=model_name),
+                    f'can_{action}': True
+                }
+                obj_perm = ObjectPermission(**kwargs)
+                obj_perm.save()
+                obj_perm.users.add(user)
+                permissions_list.append(permission_name)
+            except ValueError:
                 logging.error(
                     "Invalid permission name: '{permission_name}'. Permissions must be in the form "
                     "<app>.<action>_<model>. (Example: dcim.add_site)"
                 )
         if permissions_list:
-            # TODO: Create an ObjectPermission
-            user.user_permissions.add(*permissions_list)
             logger.debug(f"Assigned permissions to remotely-authenticated user {user}: {permissions_list}")
 
         return user
