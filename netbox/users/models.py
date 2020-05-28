@@ -197,29 +197,6 @@ class Token(models.Model):
         return True
 
 
-class ObjectPermissionManager(models.Manager):
-
-    def get_attr_constraints(self, user, perm):
-        """
-        Compile all ObjectPermission attributes applicable to a specific combination of user, model, and action. Returns
-        a dictionary that can be passed directly to .filter() on a QuerySet.
-        """
-        content_type, action = resolve_permission(perm)
-        assert action in ['view', 'add', 'change', 'delete'], f"Invalid action: {action}"
-
-        qs = self.get_queryset().filter(
-            Q(users=user) | Q(groups__user=user),
-            model=content_type,
-            **{f'can_{action}': True}
-        )
-
-        attrs = Q()
-        for perm in qs:
-            attrs |= Q(**perm.attrs)
-
-        return attrs
-
-
 class ObjectPermission(models.Model):
     """
     A mapping of view, add, change, and/or delete permission for users and/or groups to an arbitrary set of objects
@@ -256,8 +233,6 @@ class ObjectPermission(models.Model):
     can_delete = models.BooleanField(
         default=False
     )
-
-    objects = ObjectPermissionManager()
 
     class Meta:
         unique_together = ('model', 'attrs')
