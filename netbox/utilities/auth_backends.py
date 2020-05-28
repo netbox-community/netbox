@@ -80,7 +80,12 @@ class ObjectPermissionBackend(ModelBackend):
         obj_perm_attrs = self.get_object_permissions(user_obj)[perm]
         attrs = Q()
         for perm_attrs in obj_perm_attrs:
-            attrs |= Q(**perm_attrs)
+            if perm_attrs:
+                attrs |= Q(**perm_attrs)
+            else:
+                # Found ObjectPermission with null attrs; allow model-level access
+                attrs = Q()
+                break
 
         # Permission to perform the requested action on the object depends on whether the specified object matches
         # the specified attributes. Note that this check is made against the *database* record representing the object,

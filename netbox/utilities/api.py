@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldError, MultipleObjectsReturned, ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
-from django.db.models import ManyToManyField, ProtectedError
+from django.db.models import ManyToManyField, ProtectedError, Q
 from django.urls import reverse
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
@@ -339,12 +339,13 @@ class ModelViewSet(_ModelViewSet):
         }
         permission_required = TokenPermissions.perms_map[request.method][0] % kwargs
 
-        # Enforce object-level permissions
-        attrs = ObjectPermission.objects.get_attr_constraints(request.user, permission_required)
-        if attrs:
-            # Update the view's QuerySet to filter only the permitted objects
-            self.queryset = self.queryset.filter(attrs)
-            return True
+        # Update the view's QuerySet to filter only the permitted objects
+        obj_perm_attrs = request.user._object_perm_cache[permission_required]
+        attrs = Q()
+        for perm_attrs in obj_perm_attrs:
+            if perm_attrs:
+                attrs |= Q(**perm_attrs)
+        self.queryset = self.queryset.filter(attrs)
 
     def dispatch(self, request, *args, **kwargs):
         logger = logging.getLogger('netbox.api.views.ModelViewSet')
