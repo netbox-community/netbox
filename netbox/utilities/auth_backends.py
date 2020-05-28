@@ -26,18 +26,19 @@ class ObjectPermissionBackend(ModelBackend):
         object_permissions = ObjectPermission.objects.filter(
             Q(users=user_obj) |
             Q(groups__user=user_obj)
-        ).prefetch_related('model')
+        ).prefetch_related('content_types')
 
         # Create a dictionary mapping permissions to their attributes
         perms = dict()
         for obj_perm in object_permissions:
-            for action in ['view', 'add', 'change', 'delete']:
-                if getattr(obj_perm, f"can_{action}"):
-                    perm_name = f"{obj_perm.model.app_label}.{action}_{obj_perm.model.model}"
-                    if perm_name in perms:
-                        perms[perm_name].append(obj_perm.attrs)
-                    else:
-                        perms[perm_name] = [obj_perm.attrs]
+            for content_type in obj_perm.content_types.all():
+                for action in ['view', 'add', 'change', 'delete']:
+                    if getattr(obj_perm, f"can_{action}"):
+                        perm_name = f"{content_type.app_label}.{action}_{content_type.model}"
+                        if perm_name in perms:
+                            perms[perm_name].append(obj_perm.attrs)
+                        else:
+                            perms[perm_name] = [obj_perm.attrs]
 
         return perms
 
@@ -122,10 +123,10 @@ class RemoteUserBackend(_RemoteUserBackend):
         for permission_name in settings.REMOTE_AUTH_DEFAULT_PERMISSIONS:
             try:
                 content_type, action = resolve_permission(permission_name)
-                user.object_permissions.create(**{
-                    'model': content_type,
-                    f'can_{action}': True
-                })
+                obj_perm = ObjectPermission(**{f'can_{action}': True})
+                obj_perm.save()
+                obj_perm.users.add(user)
+                obj_perm.content_types.add(content_type)
                 permissions_list.append(permission_name)
             except ValueError:
                 logging.error(

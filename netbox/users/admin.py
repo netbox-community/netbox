@@ -89,8 +89,8 @@ class ObjectPermissionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Format ContentType choices
-        order_content_types(self.fields['model'])
-        self.fields['model'].choices.insert(0, ('', '---------'))
+        order_content_types(self.fields['content_types'])
+        self.fields['content_types'].choices.insert(0, ('', '---------'))
 
 
 @admin.register(ObjectPermission)

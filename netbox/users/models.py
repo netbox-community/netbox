@@ -212,14 +212,14 @@ class ObjectPermission(models.Model):
         blank=True,
         related_name='object_permissions'
     )
-    model = models.ForeignKey(
+    content_types = models.ManyToManyField(
         to=ContentType,
         limit_choices_to={
             'app_label__in': [
                 'circuits', 'dcim', 'extras', 'ipam', 'secrets', 'tenancy', 'virtualization',
             ],
         },
-        on_delete=models.CASCADE
+        related_name='object_permissions'
     )
     attrs = JSONField(
         blank=True,
@@ -239,8 +239,8 @@ class ObjectPermission(models.Model):
         default=False
     )
 
-    class Meta:
-        unique_together = ('model', 'attrs')
+    def __str__(self):
+        return "Object permission"
 
     def clean(self):
 
