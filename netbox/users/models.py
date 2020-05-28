@@ -17,6 +17,7 @@ from utilities.utils import flatten_dict
 
 
 __all__ = (
+    'ObjectPermission',
     'Token',
     'UserConfig',
 )

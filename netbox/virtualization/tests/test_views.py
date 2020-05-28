@@ -192,6 +192,7 @@ class InterfaceTestCase(
     model = Interface
 
     # Disable inapplicable tests
+    test_list_objects_anonymous = None
     test_list_objects_without_permission = None
     test_list_objects_with_model_permission = None
     test_list_objects_with_object_permission = None
