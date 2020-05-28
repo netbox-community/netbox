@@ -201,13 +201,11 @@ class ObjectPermissionViewTestCase(TestCase):
         self.assertHttpStatus(response, 403)
 
         # Assign object permission
-        obj_perm = ObjectPermission(
+        self.user.object_permissions.create(
             model=ContentType.objects.get_for_model(Prefix),
             attrs={'site__name': 'Site 1'},
             can_view=True
         )
-        obj_perm.save()
-        obj_perm.users.add(self.user)
 
         # Retrieve permitted object
         response = self.client.get(self.prefixes[0].get_absolute_url())
@@ -225,13 +223,11 @@ class ObjectPermissionViewTestCase(TestCase):
         self.assertHttpStatus(response, 403)
 
         # Assign object permission
-        obj_perm = ObjectPermission(
+        self.user.object_permissions.create(
             model=ContentType.objects.get_for_model(Prefix),
             attrs={'site__name': 'Site 1'},
             can_view=True
         )
-        obj_perm.save()
-        obj_perm.users.add(self.user)
 
         # Retrieve all objects. Only permitted objects should be returned.
         response = self.client.get(reverse('ipam:prefix_list'))
@@ -259,14 +255,12 @@ class ObjectPermissionViewTestCase(TestCase):
         self.assertEqual(initial_count, Prefix.objects.count())
 
         # Assign object permission
-        obj_perm = ObjectPermission(
+        self.user.object_permissions.create(
             model=ContentType.objects.get_for_model(Prefix),
             attrs={'site__name': 'Site 1'},
             can_view=True,
             can_add=True
         )
-        obj_perm.save()
-        obj_perm.users.add(self.user)
 
         # Attempt to create a non-permitted object
         request = {
@@ -307,14 +301,12 @@ class ObjectPermissionViewTestCase(TestCase):
         self.assertHttpStatus(response, 403)
 
         # Assign object permission
-        obj_perm = ObjectPermission(
+        self.user.object_permissions.create(
             model=ContentType.objects.get_for_model(Prefix),
             attrs={'site__name': 'Site 1'},
             can_view=True,
             can_change=True
         )
-        obj_perm.save()
-        obj_perm.users.add(self.user)
 
         # Attempt to edit a non-permitted object
         request = {
@@ -351,14 +343,12 @@ class ObjectPermissionViewTestCase(TestCase):
         self.assertHttpStatus(response, 403)
 
         # Assign object permission
-        obj_perm = ObjectPermission(
+        self.user.object_permissions.create(
             model=ContentType.objects.get_for_model(Prefix),
             attrs={'site__name': 'Site 1'},
             can_view=True,
             can_delete=True
         )
-        obj_perm.save()
-        obj_perm.users.add(self.user)
 
         # Delete permitted object
         request = {
@@ -400,13 +390,11 @@ class ObjectPermissionViewTestCase(TestCase):
         self.assertEqual(initial_count, Prefix.objects.count())
 
         # Assign object permission
-        obj_perm = ObjectPermission(
+        self.user.object_permissions.create(
             model=ContentType.objects.get_for_model(Prefix),
             attrs={'site__name': 'Site 1'},
             can_add=True
         )
-        obj_perm.save()
-        obj_perm.users.add(self.user)
 
         # Attempt to create non-permitted objects
         request = {
@@ -449,13 +437,11 @@ class ObjectPermissionViewTestCase(TestCase):
         self.assertHttpStatus(response, 403)
 
         # Assign object permission
-        obj_perm = ObjectPermission(
+        self.user.object_permissions.create(
             model=ContentType.objects.get_for_model(Prefix),
             attrs={'site__name': 'Site 1'},
             can_change=True
         )
-        obj_perm.save()
-        obj_perm.users.add(self.user)
 
         # Attempt to edit non-permitted objects
         request = {
@@ -493,14 +479,12 @@ class ObjectPermissionViewTestCase(TestCase):
         self.assertHttpStatus(response, 403)
 
         # Assign object permission
-        obj_perm = ObjectPermission(
+        self.user.object_permissions.create(
             model=ContentType.objects.get_for_model(Prefix),
             attrs={'site__name': 'Site 1'},
             can_view=True,
             can_delete=True
         )
-        obj_perm.save()
-        obj_perm.users.add(self.user)
 
         # Attempt to delete non-permitted object
         request = {
@@ -565,15 +549,11 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
         # Assign object permission
-        obj_perm = ObjectPermission(
+        self.user.object_permissions.create(
             model=ContentType.objects.get_for_model(Prefix),
-            attrs={
-                'site__name': 'Site 1',
-            },
+            attrs={'site__name': 'Site 1'},
             can_view=True
         )
-        obj_perm.save()
-        obj_perm.users.add(self.user)
 
         # Retrieve permitted object
         url = reverse('ipam-api:prefix-detail', kwargs={'pk': self.prefixes[0].pk})
@@ -594,15 +574,11 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
         # Assign object permission
-        obj_perm = ObjectPermission(
+        self.user.object_permissions.create(
             model=ContentType.objects.get_for_model(Prefix),
-            attrs={
-                'site__name': 'Site 1',
-            },
+            attrs={'site__name': 'Site 1'},
             can_view=True
         )
-        obj_perm.save()
-        obj_perm.users.add(self.user)
 
         # Retrieve all objects. Only permitted objects should be returned.
         response = self.client.get(url, **self.header)
@@ -623,13 +599,11 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
         # Assign object permission
-        obj_perm = ObjectPermission(
+        self.user.object_permissions.create(
             model=ContentType.objects.get_for_model(Prefix),
             attrs={'site__name': 'Site 1'},
             can_add=True
         )
-        obj_perm.save()
-        obj_perm.users.add(self.user)
 
         # Attempt to create a non-permitted object
         response = self.client.post(url, data, format='json', **self.header)
@@ -652,13 +626,11 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
         # Assign object permission
-        obj_perm = ObjectPermission(
+        self.user.object_permissions.create(
             model=ContentType.objects.get_for_model(Prefix),
             attrs={'site__name': 'Site 1'},
             can_change=True
         )
-        obj_perm.save()
-        obj_perm.users.add(self.user)
 
         # Attempt to edit a non-permitted object
         data = {'site': self.sites[0].pk}
@@ -687,13 +659,11 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
         # Assign object permission
-        obj_perm = ObjectPermission(
+        self.user.object_permissions.create(
             model=ContentType.objects.get_for_model(Prefix),
             attrs={'site__name': 'Site 1'},
             can_delete=True
         )
-        obj_perm.save()
-        obj_perm.users.add(self.user)
 
         # Attempt to delete a non-permitted object
         url = reverse('ipam-api:prefix-detail', kwargs={'pk': self.prefixes[3].pk})

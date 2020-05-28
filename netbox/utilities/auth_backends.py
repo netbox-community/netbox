@@ -122,14 +122,10 @@ class RemoteUserBackend(_RemoteUserBackend):
             try:
                 app_label, codename = permission_name.split('.')
                 action, model_name = codename.split('_')
-
-                kwargs = {
+                user.object_permissions.create(**{
                     'model': ContentType.objects.get(app_label=app_label, model=model_name),
                     f'can_{action}': True
-                }
-                obj_perm = ObjectPermission(**kwargs)
-                obj_perm.save()
-                obj_perm.users.add(user)
+                })
                 permissions_list.append(permission_name)
             except ValueError:
                 logging.error(

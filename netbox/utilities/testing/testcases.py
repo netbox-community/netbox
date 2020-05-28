@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from django.test import Client, TestCase as _TestCase, override_settings
@@ -7,7 +7,6 @@ from django.urls import reverse, NoReverseMatch
 from rest_framework.test import APIClient
 
 from users.models import ObjectPermission, Token
-from utilities.permissions import get_permission_for_model
 from .utils import disable_warnings, post_data
 
 
@@ -36,13 +35,10 @@ class TestCase(_TestCase):
             app_label, codename = name.split('.')
             action, model_name = codename.split('_')
 
-            kwargs = {
+            self.user.object_permissions.create(**{
                 'model': ContentType.objects.get(app_label=app_label, model=model_name),
                 f'can_{action}': True
-            }
-            obj_perm = ObjectPermission(**kwargs)
-            obj_perm.save()
-            obj_perm.users.add(self.user)
+            })
 
     def remove_permissions(self, *names):
         """
@@ -52,12 +48,10 @@ class TestCase(_TestCase):
             app_label, codename = name.split('.')
             action, model_name = codename.split('_')
 
-            kwargs = {
-                'user': self.user,
+            self.user.object_permissions.filter(**{
                 'model': ContentType.objects.get(app_label=app_label, model=model_name),
                 f'can_{action}': True
-            }
-            ObjectPermission.objects.filter(**kwargs).delete()
+            }).delete()
 
     #
     # Convenience methods
