@@ -12,6 +12,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from utilities.permissions import resolve_permission
 from utilities.utils import flatten_dict
 
 
@@ -202,11 +203,9 @@ class ObjectPermissionManager(models.Manager):
         Compile all ObjectPermission attributes applicable to a specific combination of user, model, and action. Returns
         a dictionary that can be passed directly to .filter() on a QuerySet.
         """
-        app_label, codename = perm.split('.')
-        action, model_name = codename.split('_')
+        content_type, action = resolve_permission(perm)
         assert action in ['view', 'add', 'change', 'delete'], f"Invalid action: {action}"
 
-        content_type = ContentType.objects.get(app_label=app_label, model=model_name)
         qs = self.get_queryset().filter(
             Q(users=user) | Q(groups__user=user),
             model=content_type,

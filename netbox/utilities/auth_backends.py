@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
 from users.models import ObjectPermission
+from utilities.permissions import resolve_permission
 
 
 class ObjectPermissionBackend(ModelBackend):
@@ -40,7 +41,6 @@ class ObjectPermissionBackend(ModelBackend):
         return user_obj._object_perm_cache
 
     def has_perm(self, user_obj, perm, obj=None):
-        # print(f'has_perm({perm})')
         app_label, codename = perm.split('.')
         action, model_name = codename.split('_')
 
@@ -120,10 +120,9 @@ class RemoteUserBackend(_RemoteUserBackend):
         permissions_list = []
         for permission_name in settings.REMOTE_AUTH_DEFAULT_PERMISSIONS:
             try:
-                app_label, codename = permission_name.split('.')
-                action, model_name = codename.split('_')
+                content_type, action = resolve_permission(permission_name)
                 user.object_permissions.create(**{
-                    'model': ContentType.objects.get(app_label=app_label, model=model_name),
+                    'model': content_type,
                     f'can_{action}': True
                 })
                 permissions_list.append(permission_name)

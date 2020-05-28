@@ -7,6 +7,7 @@ from django.urls import reverse, NoReverseMatch
 from rest_framework.test import APIClient
 
 from users.models import ObjectPermission, Token
+from utilities.permissions import resolve_permission
 from .utils import disable_warnings, post_data
 
 
@@ -32,11 +33,9 @@ class TestCase(_TestCase):
         Assign a set of permissions to the test user. Accepts permission names in the form <app>.<action>_<model>.
         """
         for name in names:
-            app_label, codename = name.split('.')
-            action, model_name = codename.split('_')
-
+            ct, action = resolve_permission(name)
             self.user.object_permissions.create(**{
-                'model': ContentType.objects.get(app_label=app_label, model=model_name),
+                'model': ct,
                 f'can_{action}': True
             })
 
@@ -45,11 +44,9 @@ class TestCase(_TestCase):
         Remove a set of permissions from the test user, if assigned.
         """
         for name in names:
-            app_label, codename = name.split('.')
-            action, model_name = codename.split('_')
-
+            ct, action = resolve_permission(name)
             self.user.object_permissions.filter(**{
-                'model': ContentType.objects.get(app_label=app_label, model=model_name),
+                'model': ct,
                 f'can_{action}': True
             }).delete()
 
