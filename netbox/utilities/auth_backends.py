@@ -3,7 +3,6 @@ import logging
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend, RemoteUserBackend as _RemoteUserBackend
 from django.contrib.auth.models import Group
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
 from users.models import ObjectPermission
@@ -12,33 +11,35 @@ from utilities.permissions import resolve_permission
 
 class ObjectPermissionBackend(ModelBackend):
 
+    def get_all_permissions(self, user_obj, obj=None):
+        if not user_obj.is_active or user_obj.is_anonymous:
+            return set()
+        if not hasattr(user_obj, '_object_perm_cache'):
+            user_obj._object_perm_cache = self.get_object_permissions(user_obj)
+        return user_obj._object_perm_cache
+
     def get_object_permissions(self, user_obj):
         """
         Return all permissions granted to the user by an ObjectPermission.
         """
-        if not hasattr(user_obj, '_object_perm_cache'):
+        # Retrieve all assigned ObjectPermissions
+        object_permissions = ObjectPermission.objects.filter(
+            Q(users=user_obj) |
+            Q(groups__user=user_obj)
+        ).prefetch_related('model')
 
-            # Retrieve all assigned ObjectPermissions
-            object_permissions = ObjectPermission.objects.filter(
-                Q(users=user_obj) |
-                Q(groups__user=user_obj)
-            ).prefetch_related('model')
+        # Create a dictionary mapping permissions to their attributes
+        perms = dict()
+        for obj_perm in object_permissions:
+            for action in ['view', 'add', 'change', 'delete']:
+                if getattr(obj_perm, f"can_{action}"):
+                    perm_name = f"{obj_perm.model.app_label}.{action}_{obj_perm.model.model}"
+                    if perm_name in perms:
+                        perms[perm_name].append(obj_perm.attrs)
+                    else:
+                        perms[perm_name] = [obj_perm.attrs]
 
-            # Create a dictionary mapping permissions to their attributes
-            perms = dict()
-            for obj_perm in object_permissions:
-                for action in ['view', 'add', 'change', 'delete']:
-                    if getattr(obj_perm, f"can_{action}"):
-                        perm_name = f"{obj_perm.model.app_label}.{action}_{obj_perm.model.model}"
-                        if perm_name in perms:
-                            perms[perm_name].append(obj_perm.attrs)
-                        else:
-                            perms[perm_name] = [obj_perm.attrs]
-
-            # Cache resolved permissions on the User instance
-            setattr(user_obj, '_object_perm_cache', perms)
-
-        return user_obj._object_perm_cache
+        return perms
 
     def has_perm(self, user_obj, perm, obj=None):
         app_label, codename = perm.split('.')
@@ -64,7 +65,7 @@ class ObjectPermissionBackend(ModelBackend):
             return False
 
         # If no applicable ObjectPermissions have been created for this user/permission, deny permission
-        if perm not in self.get_object_permissions(user_obj):
+        if perm not in self.get_all_permissions(user_obj):
             return False
 
         # If no object has been specified, grant permission. (The presence of a permission in this set tells
@@ -78,7 +79,7 @@ class ObjectPermissionBackend(ModelBackend):
             raise ValueError(f"Invalid permission {perm} for model {model}")
 
         # Compile a query filter that matches all instances of the specified model
-        obj_perm_attrs = self.get_object_permissions(user_obj)[perm]
+        obj_perm_attrs = self.get_all_permissions(user_obj)[perm]
         attrs = Q()
         for perm_attrs in obj_perm_attrs:
             if perm_attrs:
