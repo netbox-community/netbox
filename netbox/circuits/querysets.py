@@ -1,7 +1,9 @@
-from django.db.models import OuterRef, QuerySet, Subquery
+from django.db.models import OuterRef, Subquery
+
+from utilities.querysets import RestrictedQuerySet
 
 
-class CircuitQuerySet(QuerySet):
+class CircuitQuerySet(RestrictedQuerySet):
 
     def annotate_sites(self):
         """

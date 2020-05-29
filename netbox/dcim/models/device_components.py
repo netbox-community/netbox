@@ -16,6 +16,7 @@ from extras.models import ObjectChange, TaggedItem
 from extras.utils import extras_features
 from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
+from utilities.querysets import RestrictedQuerySet
 from utilities.query_functions import CollateAsChar
 from utilities.utils import serialize_object
 from virtualization.choices import VMInterfaceTypeChoices
@@ -40,6 +41,8 @@ class ComponentModel(models.Model):
         max_length=200,
         blank=True
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         abstract = True

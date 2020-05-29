@@ -9,6 +9,7 @@ from dcim.models import Device
 from extras.models import ConfigContextModel, CustomFieldModel, TaggedItem
 from extras.utils import extras_features
 from utilities.models import ChangeLoggedModel
+from utilities.querysets import RestrictedQuerySet
 from .choices import *
 
 
@@ -39,6 +40,8 @@ class ClusterType(ChangeLoggedModel):
         max_length=200,
         blank=True
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'description']
 
@@ -78,6 +81,8 @@ class ClusterGroup(ChangeLoggedModel):
         max_length=200,
         blank=True
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'description']
 
@@ -145,8 +150,9 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'type', 'group', 'site', 'comments']
     clone_fields = [
@@ -269,8 +275,9 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
         'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',

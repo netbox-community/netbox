@@ -6,6 +6,7 @@ from taggit.models import TagBase, GenericTaggedItemBase
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField
 from utilities.models import ChangeLoggedModel
+from utilities.querysets import RestrictedQuerySet
 
 
 #
@@ -20,6 +21,8 @@ class Tag(TagBase, ChangeLoggedModel):
         max_length=200,
         blank=True,
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     def get_absolute_url(self):
         return reverse('extras:tag', args=[self.slug])

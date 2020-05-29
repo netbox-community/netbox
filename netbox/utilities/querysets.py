@@ -27,7 +27,7 @@ class RestrictedQuerySet(QuerySet):
         # Determine what constraints (if any) have been placed on this user for this action and model
         # TODO: Find a better way to ensure permissions are cached
         if not hasattr(user, '_object_perm_cache'):
-            user.get_all_permisisons()
+            user.get_all_permissions()
         obj_perm_attrs = user._object_perm_cache[permission_required]
 
         # Filter the queryset to include only objects with allowed attributes

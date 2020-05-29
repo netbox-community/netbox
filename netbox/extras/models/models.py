@@ -12,6 +12,7 @@ from django.template import Template, Context
 from django.urls import reverse
 from rest_framework.utils.encoders import JSONEncoder
 
+from utilities.querysets import RestrictedQuerySet
 from utilities.utils import deepmerge, render_jinja2
 from extras.choices import *
 from extras.constants import *
@@ -669,6 +670,8 @@ class ObjectChange(models.Model):
     object_data = JSONField(
         editable=False
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
         'time', 'user', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object_id',

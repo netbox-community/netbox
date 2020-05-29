@@ -25,7 +25,9 @@ from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, Ta
 from extras.utils import extras_features
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
+from utilities.querysets import RestrictedQuerySet
 from utilities.models import ChangeLoggedModel
+from utilities.mptt import TreeManager
 from utilities.utils import serialize_object, to_meters
 from utilities.validators import ExclusionValidator
 from .device_component_templates import (
@@ -102,6 +104,8 @@ class Region(MPTTModel, ChangeLoggedModel):
         max_length=200,
         blank=True
     )
+
+    objects = TreeManager()
 
     csv_headers = ['name', 'slug', 'parent', 'description']
 
@@ -244,6 +248,8 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
+    objects = RestrictedQuerySet.as_manager()
+
     csv_headers = [
         'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
         'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email', 'comments',
@@ -326,6 +332,8 @@ class RackGroup(MPTTModel, ChangeLoggedModel):
         blank=True
     )
 
+    objects = TreeManager()
+
     csv_headers = ['site', 'parent', 'name', 'slug', 'description']
 
     class Meta:
@@ -387,6 +395,8 @@ class RackRole(ChangeLoggedModel):
         max_length=200,
         blank=True,
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'color', 'description']
 
@@ -525,6 +535,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         to='extras.ImageAttachment'
     )
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
         'site', 'group', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
@@ -821,6 +833,8 @@ class RackReservation(ChangeLoggedModel):
         max_length=200
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     csv_headers = ['site', 'rack_group', 'rack', 'units', 'tenant', 'user', 'description']
 
     class Meta:
@@ -899,6 +913,8 @@ class Manufacturer(ChangeLoggedModel):
         max_length=200,
         blank=True
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'description']
 
@@ -982,8 +998,9 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
         'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role',
@@ -1206,6 +1223,8 @@ class DeviceRole(ChangeLoggedModel):
         blank=True,
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     csv_headers = ['name', 'slug', 'color', 'vm_role', 'description']
 
     class Meta:
@@ -1262,6 +1281,8 @@ class Platform(ChangeLoggedModel):
         max_length=200,
         blank=True
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description']
 
@@ -1428,6 +1449,8 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         to='extras.ImageAttachment'
     )
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
@@ -1741,8 +1764,9 @@ class VirtualChassis(ChangeLoggedModel):
         max_length=30,
         blank=True
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['master', 'domain']
 
@@ -1812,6 +1836,8 @@ class PowerPanel(ChangeLoggedModel):
     name = models.CharField(
         max_length=50
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['site', 'rack_group', 'name']
 
@@ -1916,8 +1942,9 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
         'site', 'power_panel', 'rack_group', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
@@ -2083,6 +2110,8 @@ class Cable(ChangeLoggedModel):
         blank=True,
         null=True
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
         'termination_a_type', 'termination_a_id', 'termination_b_type', 'termination_b_id', 'type', 'status', 'label',

@@ -7,6 +7,8 @@ from taggit.managers import TaggableManager
 from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
 from utilities.models import ChangeLoggedModel
+from utilities.mptt import TreeManager
+from utilities.querysets import RestrictedQuerySet
 from utilities.utils import serialize_object
 
 
@@ -39,6 +41,8 @@ class TenantGroup(MPTTModel, ChangeLoggedModel):
         max_length=200,
         blank=True
     )
+
+    objects = TreeManager()
 
     csv_headers = ['name', 'slug', 'parent', 'description']
 
@@ -104,8 +108,9 @@ class Tenant(ChangeLoggedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'group', 'description', 'comments']
     clone_fields = [
