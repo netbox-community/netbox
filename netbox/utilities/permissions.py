@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 
 
 def get_permission_for_model(model, action):
@@ -33,3 +34,20 @@ def resolve_permission(name):
         raise ValueError(f"Unknown app/model for {name}")
 
     return content_type, action
+
+
+def restrict_queryset(queryset, user, permission_required):
+    """
+    Filters a QuerySet to return only the objects on which the specified user has been granted the specified
+    permission.
+
+    :param queryset: Base QuerySet to be restricted
+    :param user: User instance
+    :param permission_required: Name of the required permission (e.g. "dcim.view_site")
+    """
+    obj_perm_attrs = user._object_perm_cache[permission_required]
+    attrs = Q()
+    for perm_attrs in obj_perm_attrs:
+        if perm_attrs:
+            attrs |= Q(**perm_attrs)
+    return queryset.filter(attrs)

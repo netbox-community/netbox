@@ -8,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.mixins import AccessMixin
 from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
-from django.db.models import ManyToManyField, ProtectedError, Q
+from django.db.models import ManyToManyField, ProtectedError
 from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
 from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
@@ -26,10 +26,9 @@ from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
-from users.models import ObjectPermission
 from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField, TableConfigForm
-from utilities.permissions import get_permission_for_model
+from utilities.permissions import get_permission_for_model, restrict_queryset
 from utilities.utils import csv_format, prepare_cloned_fields
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm, ImportForm
@@ -67,12 +66,7 @@ class ObjectPermissionRequiredMixin(AccessMixin):
 
         # Update the view's QuerySet to filter only the permitted objects
         if user.is_authenticated and not user.is_superuser:
-            obj_perm_attrs = user._object_perm_cache[permission_required]
-            attrs = Q()
-            for perm_attrs in obj_perm_attrs:
-                if perm_attrs:
-                    attrs |= Q(**perm_attrs)
-            self.queryset = self.queryset.filter(attrs)
+            self.queryset = restrict_queryset(self.queryset, user, permission_required)
 
         return True
 
