@@ -81,21 +81,52 @@ class TokenAdmin(admin.ModelAdmin):
 #
 
 class ObjectPermissionForm(forms.ModelForm):
+    can_view = forms.BooleanField(required=False)
+    can_add = forms.BooleanField(required=False)
+    can_change = forms.BooleanField(required=False)
+    can_delete = forms.BooleanField(required=False)
 
     class Meta:
         model = ObjectPermission
         exclude = []
+        help_texts = {
+            'actions': 'Actions granted in addition to those listed above'
+        }
+        labels = {
+            'actions': 'Additional actions'
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Make the actions field optional since the admin form uses it only for non-CRUD actions
+        self.fields['actions'].required = False
 
         # Format ContentType choices
         order_content_types(self.fields['content_types'])
         self.fields['content_types'].choices.insert(0, ('', '---------'))
 
+        # Check the appropriate checkboxes when editing an existing ObjectPermission
+        if self.instance:
+            for action in ['view', 'add', 'change', 'delete']:
+                if action in self.instance.actions:
+                    self.fields[f'can_{action}'].initial = True
+                    self.instance.actions.remove(action)
+
     def clean(self):
         content_types = self.cleaned_data['content_types']
         attrs = self.cleaned_data['attrs']
+
+        # Append any of the selected CRUD checkboxes to the actions list
+        if not self.cleaned_data.get('actions'):
+            self.cleaned_data['actions'] = list()
+        for action in ['view', 'add', 'change', 'delete']:
+            if self.cleaned_data[f'can_{action}'] and action not in self.cleaned_data['actions']:
+                self.cleaned_data['actions'].append(action)
+
+        # At least one action must be specified
+        if not self.cleaned_data['actions']:
+            raise ValidationError("At least one action must be selected.")
 
         # Validate the specified model attributes by attempting to execute a query. We don't care whether the query
         # returns anything; we just want to make sure the specified attributes are valid.
@@ -112,6 +143,20 @@ class ObjectPermissionForm(forms.ModelForm):
 
 @admin.register(ObjectPermission)
 class ObjectPermissionAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ('Objects', {
+            'fields': ('content_types',)
+        }),
+        ('Assignment', {
+            'fields': (('groups', 'users'),)
+        }),
+        ('Actions', {
+            'fields': (('can_view', 'can_add', 'can_change', 'can_delete'), 'actions')
+        }),
+        ('Constraints', {
+            'fields': ('attrs',)
+        }),
+    )
     form = ObjectPermissionForm
     list_display = [
         'list_models', 'list_users', 'list_groups', 'actions', 'attrs',
