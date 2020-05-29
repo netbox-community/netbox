@@ -34,7 +34,7 @@ class TestCase(_TestCase):
         """
         for name in names:
             ct, action = resolve_permission(name)
-            obj_perm = ObjectPermission(**{f'can_{action}': True})
+            obj_perm = ObjectPermission(actions=[action])
             obj_perm.save()
             obj_perm.users.add(self.user)
             obj_perm.content_types.add(ct)
@@ -165,7 +165,7 @@ class ViewTestCases:
 
             # Add model-level permission
             obj_perm = ObjectPermission(
-                can_view=True
+                actions=['view']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -181,7 +181,7 @@ class ViewTestCases:
             # Add object-level permission
             obj_perm = ObjectPermission(
                 attrs={'pk': instance1.pk},
-                can_view=True
+                actions=['view']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -221,7 +221,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
-                can_add=True
+                actions=['add']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -246,7 +246,7 @@ class ViewTestCases:
             # Assign object-level permission
             obj_perm = ObjectPermission(
                 attrs={'pk__gt': 0},  # Dummy permission to allow all
-                can_add=True
+                actions=['add']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -305,7 +305,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
-                can_change=True
+                actions=['change']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -329,7 +329,7 @@ class ViewTestCases:
             # Assign object-level permission
             obj_perm = ObjectPermission(
                 attrs={'pk': instance1.pk},
-                can_change=True
+                actions=['change']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -382,7 +382,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
-                can_delete=True
+                actions=['delete']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -407,7 +407,7 @@ class ViewTestCases:
             # Assign object-level permission
             obj_perm = ObjectPermission(
                 attrs={'pk': instance1.pk},
-                can_delete=True
+                actions=['delete']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -459,7 +459,7 @@ class ViewTestCases:
 
             # Add model-level permission
             obj_perm = ObjectPermission(
-                can_view=True
+                actions=['view']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -481,7 +481,7 @@ class ViewTestCases:
             # Add object-level permission
             obj_perm = ObjectPermission(
                 attrs={'pk': instance1.pk},
-                can_view=True
+                actions=['view']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -512,7 +512,7 @@ class ViewTestCases:
                 self.assertHttpStatus(self.client.post(**request), 403)
 
             # Assign object-level permission
-            obj_perm = ObjectPermission(can_add=True)
+            obj_perm = ObjectPermission(actions=['add'])
             obj_perm.save()
             obj_perm.users.add(self.user)
             obj_perm.content_types.add(ContentType.objects.get_for_model(self.model))
@@ -557,7 +557,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
-                can_add=True
+                actions=['add']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -580,7 +580,7 @@ class ViewTestCases:
             # Assign object-level permission
             obj_perm = ObjectPermission(
                 attrs={'pk__gt': 0},  # Dummy permission to allow all
-                can_add=True
+                actions=['add']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -627,7 +627,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
-                can_change=True
+                actions=['change']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -652,7 +652,7 @@ class ViewTestCases:
             # Assign object-level permission
             obj_perm = ObjectPermission(
                 attrs={'pk__in': list(pk_list)},
-                can_change=True
+                actions=['change']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -697,7 +697,7 @@ class ViewTestCases:
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
-                can_delete=True
+                actions=['delete']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -719,7 +719,7 @@ class ViewTestCases:
             # Assign object-level permission
             obj_perm = ObjectPermission(
                 attrs={'pk__in': list(pk_list)},
-                can_delete=True
+                actions=['delete']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)

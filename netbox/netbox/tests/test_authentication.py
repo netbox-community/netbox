@@ -203,7 +203,7 @@ class ObjectPermissionViewTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             attrs={'site__name': 'Site 1'},
-            can_view=True
+            actions=['view']
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -227,7 +227,7 @@ class ObjectPermissionViewTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             attrs={'site__name': 'Site 1'},
-            can_view=True
+            actions=['view']
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -261,8 +261,7 @@ class ObjectPermissionViewTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             attrs={'site__name': 'Site 1'},
-            can_view=True,
-            can_add=True
+            actions=['view', 'add']
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -309,8 +308,7 @@ class ObjectPermissionViewTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             attrs={'site__name': 'Site 1'},
-            can_view=True,
-            can_change=True
+            actions=['view', 'change']
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -353,8 +351,7 @@ class ObjectPermissionViewTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             attrs={'site__name': 'Site 1'},
-            can_view=True,
-            can_delete=True
+            actions=['view', 'delete']
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -402,7 +399,7 @@ class ObjectPermissionViewTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             attrs={'site__name': 'Site 1'},
-            can_add=True
+            actions=['add']
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -451,7 +448,7 @@ class ObjectPermissionViewTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             attrs={'site__name': 'Site 1'},
-            can_change=True
+            actions=['change']
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -495,8 +492,7 @@ class ObjectPermissionViewTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             attrs={'site__name': 'Site 1'},
-            can_view=True,
-            can_delete=True
+            actions=['view', 'delete']
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -567,7 +563,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             attrs={'site__name': 'Site 1'},
-            can_view=True
+            actions=['view']
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -594,7 +590,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             attrs={'site__name': 'Site 1'},
-            can_view=True
+            actions=['view']
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -621,7 +617,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             attrs={'site__name': 'Site 1'},
-            can_add=True
+            actions=['add']
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -650,7 +646,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             attrs={'site__name': 'Site 1'},
-            can_change=True
+            actions=['change']
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -685,7 +681,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         # Assign object permission
         obj_perm = ObjectPermission(
             attrs={'site__name': 'Site 1'},
-            can_delete=True
+            actions=['delete']
         )
         obj_perm.save()
         obj_perm.users.add(self.user)

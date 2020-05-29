@@ -1,10 +1,9 @@
 import binascii
 import os
 
-from django.contrib.auth.models import Group as Group_, User as User_
+from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import JSONField
-from django.core.exceptions import FieldError, ValidationError
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.db.models.signals import post_save
@@ -25,7 +24,7 @@ __all__ = (
 # Proxy models for admin
 #
 
-class Group(Group_):
+class AdminGroup(Group):
     """
     Proxy contrib.auth.models.Group for the admin UI
     """
@@ -33,7 +32,7 @@ class Group(Group_):
         proxy = True
 
 
-class User(User_):
+class AdminUser(User):
     """
     Proxy contrib.auth.models.User for the admin UI
     """
@@ -256,31 +255,13 @@ class ObjectPermission(models.Model):
         null=True,
         verbose_name='Attributes'
     )
-    can_view = models.BooleanField(
-        default=False
+    actions = ArrayField(
+        base_field=models.CharField(max_length=30),
+        help_text="The list of actions granted by this permission"
     )
-    can_add = models.BooleanField(
-        default=False
-    )
-    can_change = models.BooleanField(
-        default=False
-    )
-    can_delete = models.BooleanField(
-        default=False
-    )
+
+    class Meta:
+        verbose_name = "Permission"
 
     def __str__(self):
         return "Object permission"
-
-    def clean(self):
-
-        # Validate the specified model attributes by attempting to execute a query. We don't care whether the query
-        # returns anything; we just want to make sure the specified attributes are valid.
-        if self.attrs:
-            model = self.model.model_class()
-            try:
-                model.objects.filter(**self.attrs).exists()
-            except FieldError as e:
-                raise ValidationError({
-                    'attrs': f'Invalid attributes for {model}: {e}'
-                })

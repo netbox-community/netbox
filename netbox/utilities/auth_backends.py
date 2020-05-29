@@ -32,13 +32,12 @@ class ObjectPermissionBackend(ModelBackend):
         perms = dict()
         for obj_perm in object_permissions:
             for content_type in obj_perm.content_types.all():
-                for action in ['view', 'add', 'change', 'delete']:
-                    if getattr(obj_perm, f"can_{action}"):
-                        perm_name = f"{content_type.app_label}.{action}_{content_type.model}"
-                        if perm_name in perms:
-                            perms[perm_name].append(obj_perm.attrs)
-                        else:
-                            perms[perm_name] = [obj_perm.attrs]
+                for action in obj_perm.actions:
+                    perm_name = f"{content_type.app_label}.{action}_{content_type.model}"
+                    if perm_name in perms:
+                        perms[perm_name].append(obj_perm.attrs)
+                    else:
+                        perms[perm_name] = [obj_perm.attrs]
 
         return perms
 
@@ -123,7 +122,8 @@ class RemoteUserBackend(_RemoteUserBackend):
         for permission_name in settings.REMOTE_AUTH_DEFAULT_PERMISSIONS:
             try:
                 content_type, action = resolve_permission(permission_name)
-                obj_perm = ObjectPermission(**{f'can_{action}': True})
+                # TODO: Merge multiple actions into a single ObjectPermission per content type
+                obj_perm = ObjectPermission(actions=[action])
                 obj_perm.save()
                 obj_perm.users.add(user)
                 obj_perm.content_types.add(content_type)
