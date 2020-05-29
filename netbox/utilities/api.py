@@ -16,7 +16,6 @@ from rest_framework.serializers import Field, ModelSerializer, ValidationError
 from rest_framework.viewsets import ModelViewSet as _ModelViewSet
 
 from netbox.api import TokenPermissions
-from utilities.permissions import restrict_queryset
 from .utils import dict_to_filter_params, dynamic_import
 
 
@@ -339,8 +338,8 @@ class ModelViewSet(_ModelViewSet):
         }
         permission_required = TokenPermissions.perms_map[request.method][0] % kwargs
 
-        # Update the view's QuerySet to filter only the permitted objects
-        self.queryset = restrict_queryset(self.queryset, request.user, permission_required)
+        # Restrict the view's QuerySet to allow only the permitted objects
+        self.queryset = self.queryset.restrict(request.user, permission_required)
 
     def dispatch(self, request, *args, **kwargs):
         logger = logging.getLogger('netbox.api.views.ModelViewSet')
