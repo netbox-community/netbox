@@ -107,7 +107,7 @@ class ObjectPermissionForm(forms.ModelForm):
         self.fields['content_types'].choices.insert(0, ('', '---------'))
 
         # Check the appropriate checkboxes when editing an existing ObjectPermission
-        if self.instance:
+        if self.instance.pk:
             for action in ['view', 'add', 'change', 'delete']:
                 if action in self.instance.actions:
                     self.fields[f'can_{action}'].initial = True
