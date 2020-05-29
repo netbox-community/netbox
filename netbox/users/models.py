@@ -1,18 +1,16 @@
 import binascii
 import os
 
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group as Group_, User as User_
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import FieldError, ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
-from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from utilities.permissions import resolve_permission
 from utilities.utils import flatten_dict
 
 
@@ -22,6 +20,30 @@ __all__ = (
     'UserConfig',
 )
 
+
+#
+# Proxy models for admin
+#
+
+class Group(Group_):
+    """
+    Proxy contrib.auth.models.Group for the admin UI
+    """
+    class Meta:
+        proxy = True
+
+
+class User(User_):
+    """
+    Proxy contrib.auth.models.User for the admin UI
+    """
+    class Meta:
+        proxy = True
+
+
+#
+# User preferences
+#
 
 class UserConfig(models.Model):
     """
@@ -143,6 +165,10 @@ def create_userconfig(instance, created, **kwargs):
         UserConfig(user=instance).save()
 
 
+#
+# REST API
+#
+
 class Token(models.Model):
     """
     An API token used for user authentication. This extends the stock model to allow each user to have multiple tokens.
@@ -196,6 +222,10 @@ class Token(models.Model):
             return False
         return True
 
+
+#
+# Permissions
+#
 
 class ObjectPermission(models.Model):
     """
