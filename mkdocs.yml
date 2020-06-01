@@ -58,6 +58,7 @@ nav:
         - Using Plugins: 'plugins/index.md'
         - Developing Plugins: 'plugins/development.md'
     - Administration:
+        - Permissions: 'administration/permissions.md'
         - Replicating NetBox: 'administration/replicating-netbox.md'
         - NetBox Shell: 'administration/netbox-shell.md'
     - API:
