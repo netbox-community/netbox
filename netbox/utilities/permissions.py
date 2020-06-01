@@ -1,5 +1,5 @@
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
 
 
 def get_permission_for_model(model, action):
@@ -34,3 +34,25 @@ def resolve_permission(name):
         raise ValueError(f"Unknown app/model for {name}")
 
     return content_type, action
+
+
+def permission_is_exempt(name):
+    """
+    Determine whether a specified permission is exempt from evaluation.
+
+    :param name: Permission name in the format <app>.<action>_<model>
+    """
+    app_label, codename = name.split('.')
+    action, model_name = codename.split('_')
+
+    if action == 'view':
+        if (
+            # All models are exempt from view permission enforcement
+            '*' in settings.EXEMPT_VIEW_PERMISSIONS
+        ) or (
+            # This specific model is exempt from view permission enforcement
+            '{}.{}'.format(app_label, model_name) in settings.EXEMPT_VIEW_PERMISSIONS
+        ):
+            return True
+
+    return False
