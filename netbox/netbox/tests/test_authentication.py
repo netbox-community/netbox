@@ -144,7 +144,7 @@ class ExternalAuthenticationTestCase(TestCase):
     @override_settings(
         REMOTE_AUTH_ENABLED=True,
         REMOTE_AUTH_AUTO_CREATE_USER=True,
-        REMOTE_AUTH_DEFAULT_PERMISSIONS=['dcim.add_site', 'dcim.change_site'],
+        REMOTE_AUTH_DEFAULT_PERMISSIONS={'dcim.add_site': None, 'dcim.change_site': None},
         LOGIN_REQUIRED=True
     )
     def test_remote_auth_default_permissions(self):
@@ -158,7 +158,7 @@ class ExternalAuthenticationTestCase(TestCase):
         self.assertTrue(settings.REMOTE_AUTH_ENABLED)
         self.assertTrue(settings.REMOTE_AUTH_AUTO_CREATE_USER)
         self.assertEqual(settings.REMOTE_AUTH_HEADER, 'HTTP_REMOTE_USER')
-        self.assertEqual(settings.REMOTE_AUTH_DEFAULT_PERMISSIONS, ['dcim.add_site', 'dcim.change_site'])
+        self.assertEqual(settings.REMOTE_AUTH_DEFAULT_PERMISSIONS, {'dcim.add_site': None, 'dcim.change_site': None})
 
         response = self.client.get(reverse('home'), follow=True, **headers)
         self.assertEqual(response.status_code, 200)
