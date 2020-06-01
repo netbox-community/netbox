@@ -28,15 +28,22 @@ class RestrictedQuerySet(QuerySet):
         model_name = self.model._meta.model_name
         permission_required = f'{app_label}.{action}_{model_name}'
 
+        # TODO: Handle anonymous users
+        if not user.is_authenticated:
+            return self
+
         # Determine what constraints (if any) have been placed on this user for this action and model
         # TODO: Find a better way to ensure permissions are cached
         if not hasattr(user, '_object_perm_cache'):
             user.get_all_permissions()
-        obj_perm_attrs = user._object_perm_cache[permission_required]
+
+        # User has not been granted any permission
+        if permission_required not in user._object_perm_cache:
+            return self.none()
 
         # Filter the queryset to include only objects with allowed attributes
         attrs = Q()
-        for perm_attrs in obj_perm_attrs:
+        for perm_attrs in user._object_perm_cache[permission_required]:
             if perm_attrs:
                 attrs |= Q(**perm_attrs)
 

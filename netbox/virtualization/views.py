@@ -89,7 +89,7 @@ class ClusterView(ObjectView):
     def get(self, request, pk):
 
         cluster = get_object_or_404(self.queryset, pk=pk)
-        devices = Device.objects.filter(cluster=cluster).prefetch_related(
+        devices = Device.objects.restrict(request.user, 'view').filter(cluster=cluster).prefetch_related(
             'site', 'rack', 'tenant', 'device_type__manufacturer'
         )
         device_table = DeviceTable(list(devices), orderable=False)
@@ -235,8 +235,8 @@ class VirtualMachineView(ObjectView):
     def get(self, request, pk):
 
         virtualmachine = get_object_or_404(self.queryset, pk=pk)
-        interfaces = Interface.objects.filter(virtual_machine=virtualmachine)
-        services = Service.objects.filter(virtual_machine=virtualmachine)
+        interfaces = Interface.objects.restrict(request.user, 'view').filter(virtual_machine=virtualmachine)
+        services = Service.objects.restrict(request.user, 'view').filter(virtual_machine=virtualmachine)
 
         return render(request, 'virtualization/virtualmachine.html', {
             'virtualmachine': virtualmachine,

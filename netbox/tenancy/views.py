@@ -64,17 +64,17 @@ class TenantView(ObjectView):
 
         tenant = get_object_or_404(self.queryset, slug=slug)
         stats = {
-            'site_count': Site.objects.filter(tenant=tenant).count(),
-            'rack_count': Rack.objects.filter(tenant=tenant).count(),
-            'rackreservation_count': RackReservation.objects.filter(tenant=tenant).count(),
-            'device_count': Device.objects.filter(tenant=tenant).count(),
-            'vrf_count': VRF.objects.filter(tenant=tenant).count(),
-            'prefix_count': Prefix.objects.filter(tenant=tenant).count(),
-            'ipaddress_count': IPAddress.objects.filter(tenant=tenant).count(),
-            'vlan_count': VLAN.objects.filter(tenant=tenant).count(),
-            'circuit_count': Circuit.objects.filter(tenant=tenant).count(),
-            'virtualmachine_count': VirtualMachine.objects.filter(tenant=tenant).count(),
-            'cluster_count': Cluster.objects.filter(tenant=tenant).count(),
+            'site_count': Site.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
+            'rack_count': Rack.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
+            'rackreservation_count': RackReservation.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
+            'device_count': Device.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
+            'vrf_count': VRF.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
+            'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
+            'ipaddress_count': IPAddress.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
+            'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
+            'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
+            'virtualmachine_count': VirtualMachine.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
+            'cluster_count': Cluster.objects.restrict(request.user, 'view').filter(tenant=tenant).count(),
         }
 
         return render(request, 'tenancy/tenant.html', {

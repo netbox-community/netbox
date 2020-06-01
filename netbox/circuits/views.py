@@ -33,7 +33,7 @@ class ProviderView(ObjectView):
     def get(self, request, slug):
 
         provider = get_object_or_404(self.queryset, slug=slug)
-        circuits = Circuit.objects.filter(
+        circuits = Circuit.objects.restrict(request.user, 'view').filter(
             provider=provider
         ).prefetch_related(
             'type', 'tenant', 'terminations__site'
@@ -138,12 +138,12 @@ class CircuitView(ObjectView):
     def get(self, request, pk):
 
         circuit = get_object_or_404(self.queryset, pk=pk)
-        termination_a = CircuitTermination.objects.prefetch_related(
+        termination_a = CircuitTermination.objects.restrict(request.user, 'view').prefetch_related(
             'site__region', 'connected_endpoint__device'
         ).filter(
             circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_A
         ).first()
-        termination_z = CircuitTermination.objects.prefetch_related(
+        termination_z = CircuitTermination.objects.restrict(request.user, 'view').prefetch_related(
             'site__region', 'connected_endpoint__device'
         ).filter(
             circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_Z

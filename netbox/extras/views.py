@@ -163,7 +163,7 @@ class ObjectConfigContextView(ObjectView):
     def get(self, request, pk):
 
         obj = get_object_or_404(self.queryset, pk=pk)
-        source_contexts = ConfigContext.objects.get_for_object(obj)
+        source_contexts = ConfigContext.objects.restrict(request.user, 'view').get_for_object(obj)
         model_name = self.queryset.model._meta.model_name
 
         # Determine user's preferred output format
@@ -207,13 +207,17 @@ class ObjectChangeView(ObjectView):
 
         objectchange = get_object_or_404(self.queryset, pk=pk)
 
-        related_changes = ObjectChange.objects.filter(request_id=objectchange.request_id).exclude(pk=objectchange.pk)
+        related_changes = ObjectChange.objects.restrict(request.user, 'view').filter(
+            request_id=objectchange.request_id
+        ).exclude(
+            pk=objectchange.pk
+        )
         related_changes_table = ObjectChangeTable(
             data=related_changes[:50],
             orderable=False
         )
 
-        objectchanges = ObjectChange.objects.filter(
+        objectchanges = ObjectChange.objects.restrict(request.user, 'view').filter(
             changed_object_type=objectchange.changed_object_type,
             changed_object_id=objectchange.changed_object_id,
         )
@@ -255,7 +259,7 @@ class ObjectChangeLogView(View):
 
         # Gather all changes for this object (and its related objects)
         content_type = ContentType.objects.get_for_model(model)
-        objectchanges = ObjectChange.objects.prefetch_related(
+        objectchanges = ObjectChange.objects.restrict(request.user, 'view').prefetch_related(
             'user', 'changed_object_type'
         ).filter(
             Q(changed_object_type=content_type, changed_object_id=obj.pk) |

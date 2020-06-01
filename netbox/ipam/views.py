@@ -3,14 +3,13 @@ from django.conf import settings
 from django.db.models import Count, Q
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import View
 from django_tables2 import RequestConfig
 
 from dcim.models import Device, Interface
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView,
-    ObjectListView, ObjectPermissionRequiredMixin,
+    ObjectListView,
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
@@ -125,7 +124,7 @@ class VRFView(ObjectView):
     def get(self, request, pk):
 
         vrf = get_object_or_404(self.queryset, pk=pk)
-        prefix_count = Prefix.objects.filter(vrf=vrf).count()
+        prefix_count = Prefix.objects.restrict(request.user, 'view').filter(vrf=vrf).count()
 
         return render(request, 'ipam/vrf.html', {
             'vrf': vrf,
@@ -305,7 +304,7 @@ class AggregateView(ObjectView):
         aggregate = get_object_or_404(self.queryset, pk=pk)
 
         # Find all child prefixes contained by this aggregate
-        child_prefixes = Prefix.objects.filter(
+        child_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
             prefix__net_contained_or_equal=str(aggregate.prefix)
         ).prefetch_related(
             'site', 'role'
@@ -429,12 +428,14 @@ class PrefixView(ObjectView):
         prefix = get_object_or_404(self.queryset, pk=pk)
 
         try:
-            aggregate = Aggregate.objects.get(prefix__net_contains_or_equals=str(prefix.prefix))
+            aggregate = Aggregate.objects.restrict(request.user, 'view').get(
+                prefix__net_contains_or_equals=str(prefix.prefix)
+            )
         except Aggregate.DoesNotExist:
             aggregate = None
 
         # Parent prefixes table
-        parent_prefixes = Prefix.objects.filter(
+        parent_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
             Q(vrf=prefix.vrf) | Q(vrf__isnull=True)
         ).filter(
             prefix__net_contains=str(prefix.prefix)
@@ -445,7 +446,7 @@ class PrefixView(ObjectView):
         parent_prefix_table.exclude = ('vrf',)
 
         # Duplicate prefixes table
-        duplicate_prefixes = Prefix.objects.filter(
+        duplicate_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
             vrf=prefix.vrf, prefix=str(prefix.prefix)
         ).exclude(
             pk=prefix.pk
@@ -471,7 +472,7 @@ class PrefixPrefixesView(ObjectView):
         prefix = get_object_or_404(self.queryset, pk=pk)
 
         # Child prefixes table
-        child_prefixes = prefix.get_child_prefixes().prefetch_related(
+        child_prefixes = prefix.get_child_prefixes().restrict(request.user, 'view').prefetch_related(
             'site', 'vlan', 'role',
         ).annotate_depth(limit=0)
 
@@ -515,7 +516,7 @@ class PrefixIPAddressesView(ObjectView):
         prefix = get_object_or_404(self.queryset, pk=pk)
 
         # Find all IPAddresses belonging to this Prefix
-        ipaddresses = prefix.get_child_ips().prefetch_related(
+        ipaddresses = prefix.get_child_ips().restrict(request.user, 'view').prefetch_related(
             'vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for'
         )
 
@@ -607,7 +608,7 @@ class IPAddressView(ObjectView):
         ipaddress = get_object_or_404(self.queryset, pk=pk)
 
         # Parent prefixes table
-        parent_prefixes = Prefix.objects.filter(
+        parent_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
             vrf=ipaddress.vrf, prefix__net_contains=str(ipaddress.address.ip)
         ).prefetch_related(
             'site', 'role'
@@ -616,7 +617,7 @@ class IPAddressView(ObjectView):
         parent_prefixes_table.exclude = ('vrf',)
 
         # Duplicate IPs table
-        duplicate_ips = IPAddress.objects.filter(
+        duplicate_ips = IPAddress.objects.restrict(request.user, 'view').filter(
             vrf=ipaddress.vrf, address=str(ipaddress.address)
         ).exclude(
             pk=ipaddress.pk
@@ -629,14 +630,13 @@ class IPAddressView(ObjectView):
         duplicate_ips_table = tables.IPAddressTable(list(duplicate_ips), orderable=False)
 
         # Related IP table
-        related_ips = IPAddress.objects.prefetch_related(
+        related_ips = IPAddress.objects.restrict(request.user, 'view').prefetch_related(
             'interface__device'
         ).exclude(
             address=str(ipaddress.address)
         ).filter(
             vrf=ipaddress.vrf, address__net_contained_or_equal=str(ipaddress.address)
         )
-
         related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
 
         paginate = {
@@ -785,7 +785,7 @@ class VLANGroupVLANsView(ObjectView):
     def get(self, request, pk):
         vlan_group = get_object_or_404(self.queryset, pk=pk)
 
-        vlans = VLAN.objects.filter(group_id=pk)
+        vlans = VLAN.objects.restrict(request.user, 'view').filter(group_id=pk)
         vlans = add_available_vlans(vlan_group, vlans)
 
         vlan_table = tables.VLANDetailTable(vlans)
@@ -832,7 +832,9 @@ class VLANView(ObjectView):
     def get(self, request, pk):
 
         vlan = get_object_or_404(self.queryset, pk=pk)
-        prefixes = Prefix.objects.filter(vlan=vlan).prefetch_related('vrf', 'site', 'role')
+        prefixes = Prefix.objects.restrict(request.user, 'view').filter(vlan=vlan).prefetch_related(
+            'vrf', 'site', 'role'
+        )
         prefix_table = tables.PrefixTable(list(prefixes), orderable=False)
         prefix_table.exclude = ('vlan',)
 
@@ -848,7 +850,7 @@ class VLANMembersView(ObjectView):
     def get(self, request, pk):
 
         vlan = get_object_or_404(self.queryset, pk=pk)
-        members = vlan.get_members().prefetch_related('device', 'virtual_machine')
+        members = vlan.get_members().restrict(request.user, 'view').prefetch_related('device', 'virtual_machine')
 
         members_table = tables.VLANMemberTable(members)
 

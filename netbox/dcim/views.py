@@ -19,8 +19,9 @@ from django.views.generic import View
 from circuits.models import Circuit
 from extras.models import Graph
 from extras.views import ObjectConfigContextView
-from ipam.models import Prefix, VLAN
+from ipam.models import Prefix, Service, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
+from secrets.models import Secret
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.permissions import get_permission_for_model
@@ -197,14 +198,16 @@ class SiteView(ObjectView):
 
         site = get_object_or_404(self.queryset, slug=slug)
         stats = {
-            'rack_count': Rack.objects.filter(site=site).count(),
-            'device_count': Device.objects.filter(site=site).count(),
-            'prefix_count': Prefix.objects.filter(site=site).count(),
-            'vlan_count': VLAN.objects.filter(site=site).count(),
-            'circuit_count': Circuit.objects.filter(terminations__site=site).count(),
-            'vm_count': VirtualMachine.objects.filter(cluster__site=site).count(),
+            'rack_count': Rack.objects.restrict(request.user, 'view').filter(site=site).count(),
+            'device_count': Device.objects.restrict(request.user, 'view').filter(site=site).count(),
+            'prefix_count': Prefix.objects.restrict(request.user, 'view').filter(site=site).count(),
+            'vlan_count': VLAN.objects.restrict(request.user, 'view').filter(site=site).count(),
+            'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(terminations__site=site).count(),
+            'vm_count': VirtualMachine.objects.restrict(request.user, 'view').filter(cluster__site=site).count(),
         }
-        rack_groups = RackGroup.objects.filter(site=site).annotate(rack_count=Count('racks'))
+        rack_groups = RackGroup.objects.restrict(request.user, 'view').filter(site=site).annotate(
+            rack_count=Count('racks')
+        )
         show_graphs = Graph.objects.filter(type__model='site').exists()
 
         return render(request, 'dcim/site.html', {
@@ -372,7 +375,7 @@ class RackView(ObjectView):
 
         rack = get_object_or_404(self.queryset, pk=pk)
 
-        nonracked_devices = Device.objects.filter(
+        nonracked_devices = Device.objects.restrict(request.user, 'view').filter(
             rack=rack,
             position__isnull=True,
             parent_bay__isnull=True
@@ -384,8 +387,8 @@ class RackView(ObjectView):
         next_rack = peer_racks.filter(name__gt=rack.name).order_by('name').first()
         prev_rack = peer_racks.filter(name__lt=rack.name).order_by('-name').first()
 
-        reservations = RackReservation.objects.filter(rack=rack)
-        power_feeds = PowerFeed.objects.filter(rack=rack).prefetch_related('power_panel')
+        reservations = RackReservation.objects.restrict(request.user, 'view').filter(rack=rack)
+        power_feeds = PowerFeed.objects.restrict(request.user, 'view').filter(rack=rack).prefetch_related('power_panel')
 
         return render(request, 'dcim/rack.html', {
             'rack': rack,
@@ -558,35 +561,35 @@ class DeviceTypeView(ObjectView):
 
         # Component tables
         consoleport_table = tables.ConsolePortTemplateTable(
-            ConsolePortTemplate.objects.filter(device_type=devicetype),
+            ConsolePortTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype),
             orderable=False
         )
         consoleserverport_table = tables.ConsoleServerPortTemplateTable(
-            ConsoleServerPortTemplate.objects.filter(device_type=devicetype),
+            ConsoleServerPortTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype),
             orderable=False
         )
         powerport_table = tables.PowerPortTemplateTable(
-            PowerPortTemplate.objects.filter(device_type=devicetype),
+            PowerPortTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype),
             orderable=False
         )
         poweroutlet_table = tables.PowerOutletTemplateTable(
-            PowerOutletTemplate.objects.filter(device_type=devicetype),
+            PowerOutletTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype),
             orderable=False
         )
         interface_table = tables.InterfaceTemplateTable(
-            list(InterfaceTemplate.objects.filter(device_type=devicetype)),
+            list(InterfaceTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype)),
             orderable=False
         )
         front_port_table = tables.FrontPortTemplateTable(
-            FrontPortTemplate.objects.filter(device_type=devicetype),
+            FrontPortTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype),
             orderable=False
         )
         rear_port_table = tables.RearPortTemplateTable(
-            RearPortTemplate.objects.filter(device_type=devicetype),
+            RearPortTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype),
             orderable=False
         )
         devicebay_table = tables.DeviceBayTemplateTable(
-            DeviceBayTemplate.objects.filter(device_type=devicetype),
+            DeviceBayTemplate.objects.restrict(request.user, 'view').filter(device_type=devicetype),
             orderable=False
         )
         if request.user.has_perm('dcim.change_devicetype'):
@@ -995,47 +998,61 @@ class DeviceView(ObjectView):
 
         # VirtualChassis members
         if device.virtual_chassis is not None:
-            vc_members = Device.objects.filter(
+            vc_members = Device.objects.restrict(request.user, 'view').filter(
                 virtual_chassis=device.virtual_chassis
             ).order_by('vc_position')
         else:
             vc_members = []
 
         # Console ports
-        console_ports = device.consoleports.prefetch_related('connected_endpoint__device', 'cable')
+        console_ports = ConsolePort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
+            'connected_endpoint__device', 'cable',
+        )
 
         # Console server ports
-        consoleserverports = device.consoleserverports.prefetch_related('connected_endpoint__device', 'cable')
+        consoleserverports = ConsoleServerPort.objects.restrict(request.user, 'view').filter(
+            device=device
+        ).prefetch_related(
+            'connected_endpoint__device', 'cable',
+        )
 
         # Power ports
-        power_ports = device.powerports.prefetch_related('_connected_poweroutlet__device', 'cable')
+        power_ports = PowerPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
+            '_connected_poweroutlet__device', 'cable',
+        )
 
         # Power outlets
-        poweroutlets = device.poweroutlets.prefetch_related('connected_endpoint__device', 'cable', 'power_port')
+        poweroutlets = PowerOutlet.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
+            'connected_endpoint__device', 'cable', 'power_port',
+        )
 
         # Interfaces
-        interfaces = device.vc_interfaces.prefetch_related(
+        interfaces = device.vc_interfaces.restrict(request.user, 'view').filter(device=device).prefetch_related(
             'lag', '_connected_interface__device', '_connected_circuittermination__circuit', 'cable',
             'cable__termination_a', 'cable__termination_b', 'ip_addresses', 'tags'
         )
 
         # Front ports
-        front_ports = device.frontports.prefetch_related('rear_port', 'cable')
+        front_ports = FrontPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
+            'rear_port', 'cable',
+        )
 
         # Rear ports
-        rear_ports = device.rearports.prefetch_related('cable')
+        rear_ports = RearPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related('cable')
 
         # Device bays
-        device_bays = device.device_bays.prefetch_related('installed_device__device_type__manufacturer')
+        device_bays = DeviceBay.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
+            'installed_device__device_type__manufacturer',
+        )
 
         # Services
-        services = device.services.all()
+        services = Service.objects.restrict(request.user, 'view').filter(device=device)
 
         # Secrets
-        secrets = device.secrets.all()
+        secrets = Secret.objects.restrict(request.user, 'view').filter(device=device)
 
         # Find up to ten devices in the same site with the same functional role for quick reference.
-        related_devices = Device.objects.filter(
+        related_devices = Device.objects.restrict(request.user, 'view').filter(
             site=device.site, device_role=device.device_role
         ).exclude(
             pk=device.pk
@@ -1068,7 +1085,7 @@ class DeviceInventoryView(ObjectView):
     def get(self, request, pk):
 
         device = get_object_or_404(self.queryset, pk=pk)
-        inventory_items = InventoryItem.objects.filter(
+        inventory_items = InventoryItem.objects.restrict(request.user, 'view').filter(
             device=device, parent=None
         ).prefetch_related(
             'manufacturer', 'child_items'
@@ -1102,7 +1119,9 @@ class DeviceLLDPNeighborsView(ObjectView):
     def get(self, request, pk):
 
         device = get_object_or_404(self.queryset, pk=pk)
-        interfaces = device.vc_interfaces.exclude(type__in=NONCONNECTABLE_IFACE_TYPES).prefetch_related(
+        interfaces = device.vc_interfaces.restrict(request.user, 'view').exclude(
+            type__in=NONCONNECTABLE_IFACE_TYPES
+        ).prefetch_related(
             '_connected_interface__device'
         )
 
@@ -1423,7 +1442,7 @@ class InterfaceView(ObjectView):
 
         # Get assigned IP addresses
         ipaddress_table = InterfaceIPAddressTable(
-            data=interface.ip_addresses.prefetch_related('vrf', 'tenant'),
+            data=interface.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
             orderable=False
         )
 

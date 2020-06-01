@@ -187,7 +187,6 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 # TODO: Update base class to DeviceComponentViewTestCase
 class InterfaceTestCase(
-    ViewTestCases.GetObjectViewTestCase,
     ViewTestCases.EditObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
     ViewTestCases.BulkCreateObjectsViewTestCase,
