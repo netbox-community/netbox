@@ -1,5 +1,13 @@
 # NetBox v2.8
 
+## v2.8.6 (FUTURE)
+
+### Bug Fixes
+
+* [#4702](https://github.com/netbox-community/netbox/issues/4702) - Catch IntegrityError exception when adding a non-unique secret
+
+---
+
 ## v2.8.5 (2020-05-26)
 
 **Note:** The minimum required version of PostgreSQL is now 9.6.
