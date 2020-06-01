@@ -14,15 +14,19 @@ class DummyQuerySet:
 
 class RestrictedQuerySet(QuerySet):
 
-    def restrict(self, user, permission_required):
+    def restrict(self, user, action):
         """
         Filter the QuerySet to return only objects on which the specified user has been granted the specified
         permission.
 
         :param queryset: Base QuerySet to be restricted
         :param user: User instance
-        :param permission_required: Name of the required permission (e.g. "dcim.view_site")
+        :param action: The action which must be permitted (e.g. "view" for "dcim.view_site")
         """
+        # Resolve the full name of the required permission
+        app_label = self.model._meta.app_label
+        model_name = self.model._meta.model_name
+        permission_required = f'{app_label}.{action}_{model_name}'
 
         # Determine what constraints (if any) have been placed on this user for this action and model
         # TODO: Find a better way to ensure permissions are cached

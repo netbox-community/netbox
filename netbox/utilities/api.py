@@ -330,16 +330,20 @@ class ModelViewSet(_ModelViewSet):
         if not request.user.is_authenticated or request.user.is_superuser:
             return
 
-        # TODO: Move this to a cleaner function
-        # Determine the required permission based on the request method
-        kwargs = {
-            'app_label': self.queryset.model._meta.app_label,
-            'model_name': self.queryset.model._meta.model_name
-        }
-        permission_required = TokenPermissions.perms_map[request.method][0] % kwargs
+        # TODO: Reconcile this with TokenPermissions.perms_map
+        action = {
+            'GET': 'view',
+            'OPTIONS': None,
+            'HEAD': 'view',
+            'POST': 'add',
+            'PUT': 'change',
+            'PATCH': 'change',
+            'DELETE': 'delete',
+        }[request.method]
 
         # Restrict the view's QuerySet to allow only the permitted objects
-        self.queryset = self.queryset.restrict(request.user, permission_required)
+        if action:
+            self.queryset = self.queryset.restrict(request.user, action)
 
     def dispatch(self, request, *args, **kwargs):
         logger = logging.getLogger('netbox.api.views.ModelViewSet')

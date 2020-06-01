@@ -66,7 +66,8 @@ class ObjectPermissionRequiredMixin(AccessMixin):
 
         # Update the view's QuerySet to filter only the permitted objects
         if user.is_authenticated and not user.is_superuser:
-            self.queryset = self.queryset.restrict(user, permission_required)
+            action = permission_required.split('.')[1].split('_')[0]
+            self.queryset = self.queryset.restrict(user, action)
 
         return True
 
