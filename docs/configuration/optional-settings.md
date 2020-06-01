@@ -384,7 +384,7 @@ NetBox can be configured to support remote user authentication by inferring user
 
 ## REMOTE_AUTH_BACKEND
 
-Default: `'utilities.auth_backends.RemoteUserBackend'`
+Default: `'netbox.authentication.RemoteUserBackend'`
 
 Python path to the custom [Django authentication backend](https://docs.djangoproject.com/en/stable/topics/auth/customizing/) to use for external user authentication, if not using NetBox's built-in backend. (Requires `REMOTE_AUTH_ENABLED`.)
 
