@@ -1,5 +1,7 @@
 from django.db.models import Q, QuerySet
 
+from utilities.permissions import permission_is_exempt
+
 
 class DummyQuerySet:
     """
@@ -19,7 +21,6 @@ class RestrictedQuerySet(QuerySet):
         Filter the QuerySet to return only objects on which the specified user has been granted the specified
         permission.
 
-        :param queryset: Base QuerySet to be restricted
         :param user: User instance
         :param action: The action which must be permitted (e.g. "view" for "dcim.view_site")
         """
@@ -28,17 +29,12 @@ class RestrictedQuerySet(QuerySet):
         model_name = self.model._meta.model_name
         permission_required = f'{app_label}.{action}_{model_name}'
 
-        # TODO: Handle anonymous users
-        if not user.is_authenticated:
+        # Bypass restriction for superusers and exempt views
+        if user.is_superuser or permission_is_exempt(permission_required):
             return self
 
-        # Determine what constraints (if any) have been placed on this user for this action and model
-        # TODO: Find a better way to ensure permissions are cached
-        if not hasattr(user, '_object_perm_cache'):
-            user.get_all_permissions()
-
-        # User has not been granted any permission
-        if permission_required not in user._object_perm_cache:
+        # User is anonymous or has not been granted the requisite permission
+        if not user.is_authenticated or permission_required not in user.get_all_permissions():
             return self.none()
 
         # Filter the queryset to include only objects with allowed attributes

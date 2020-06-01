@@ -28,7 +28,7 @@ from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
 from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField, TableConfigForm
-from utilities.permissions import get_permission_for_model
+from utilities.permissions import get_permission_action, get_permission_for_model
 from utilities.utils import csv_format, prepare_cloned_fields
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm, ImportForm
@@ -60,16 +60,16 @@ class ObjectPermissionRequiredMixin(AccessMixin):
         user = self.request.user
         permission_required = self.get_required_permission()
 
-        # First, check that the user is granted the required permission(s) at either the model or object level.
-        if not user.has_perms((permission_required, *self.additional_permissions)):
-            return False
+        # Check that the user has been granted the required permission(s).
+        if user.has_perms((permission_required, *self.additional_permissions)):
 
-        # Update the view's QuerySet to filter only the permitted objects
-        if user.is_authenticated and not user.is_superuser:
-            action = permission_required.split('.')[1].split('_')[0]
+            # Update the view's QuerySet to filter only the permitted objects
+            action = get_permission_action(permission_required)
             self.queryset = self.queryset.restrict(user, action)
 
-        return True
+            return True
+
+        return False
 
     def dispatch(self, request, *args, **kwargs):
 

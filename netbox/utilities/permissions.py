@@ -19,12 +19,26 @@ def get_permission_for_model(model, action):
     )
 
 
+def get_permission_action(name):
+    """
+    Return the action component (e.g. view or add) from a permission name.
+
+    :param name: Permission name in the format <app_label>.<action>_<model>
+    """
+    try:
+        return name.split('.')[1].split('_')[0]
+    except ValueError:
+        raise ValueError(
+            f"Invalid permission name: {name}. Must be in the format <app_label>.<action>_<model>"
+        )
+
+
 def resolve_permission(name):
     """
     Given a permission name, return the relevant ContentType and action. For example, "dcim.view_site" returns
     (Site, "view").
 
-    :param name: Permission name in the format <app>.<action>_<model>
+    :param name: Permission name in the format <app_label>.<action>_<model>
     """
     app_label, codename = name.split('.')
     action, model_name = codename.split('_')
@@ -40,7 +54,7 @@ def permission_is_exempt(name):
     """
     Determine whether a specified permission is exempt from evaluation.
 
-    :param name: Permission name in the format <app>.<action>_<model>
+    :param name: Permission name in the format <app_label>.<action>_<model>
     """
     app_label, codename = name.split('.')
     action, model_name = codename.split('_')
