@@ -6,14 +6,14 @@ from django.contrib.auth.models import Group
 from django.db.models import Q
 
 from users.models import ObjectPermission
-from utilities.permissions import resolve_permission
+from utilities.permissions import permission_is_exempt, resolve_permission
 
 
 class ObjectPermissionBackend(ModelBackend):
 
     def get_all_permissions(self, user_obj, obj=None):
         if not user_obj.is_active or user_obj.is_anonymous:
-            return set()
+            return dict()
         if not hasattr(user_obj, '_object_perm_cache'):
             user_obj._object_perm_cache = self.get_object_permissions(user_obj)
         return user_obj._object_perm_cache
@@ -49,16 +49,9 @@ class ObjectPermissionBackend(ModelBackend):
         if user_obj.is_active and user_obj.is_superuser:
             return True
 
-        # If this is a view permission, check whether the model has been exempted from enforcement
-        if action == 'view':
-            if (
-                # All models are exempt from view permission enforcement
-                '*' in settings.EXEMPT_VIEW_PERMISSIONS
-            ) or (
-                # This specific model is exempt from view permission enforcement
-                '{}.{}'.format(app_label, model_name) in settings.EXEMPT_VIEW_PERMISSIONS
-            ):
-                return True
+        # Permission is exempt from enforcement (i.e. listed in EXEMPT_VIEW_PERMISSIONS)
+        if permission_is_exempt(perm):
+            return True
 
         # Handle inactive/anonymous users
         if not user_obj.is_active or user_obj.is_anonymous:
