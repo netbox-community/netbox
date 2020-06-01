@@ -112,18 +112,18 @@ class RemoteUserBackend(_RemoteUserBackend):
 
         # Assign default object permissions to the user
         permissions_list = []
-        for permission_name in settings.REMOTE_AUTH_DEFAULT_PERMISSIONS:
+        for permission_name, attrs in settings.REMOTE_AUTH_DEFAULT_PERMISSIONS.items():
             try:
                 content_type, action = resolve_permission(permission_name)
                 # TODO: Merge multiple actions into a single ObjectPermission per content type
-                obj_perm = ObjectPermission(actions=[action])
+                obj_perm = ObjectPermission(actions=[action], attrs=attrs)
                 obj_perm.save()
                 obj_perm.users.add(user)
                 obj_perm.content_types.add(content_type)
                 permissions_list.append(permission_name)
             except ValueError:
                 logging.error(
-                    "Invalid permission name: '{permission_name}'. Permissions must be in the form "
+                    f"Invalid permission name: '{permission_name}'. Permissions must be in the form "
                     "<app>.<action>_<model>. (Example: dcim.add_site)"
                 )
         if permissions_list:

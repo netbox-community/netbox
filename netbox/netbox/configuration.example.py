@@ -209,7 +209,7 @@ REMOTE_AUTH_BACKEND = 'netbox.authentication.RemoteUserBackend'
 REMOTE_AUTH_HEADER = 'HTTP_REMOTE_USER'
 REMOTE_AUTH_AUTO_CREATE_USER = True
 REMOTE_AUTH_DEFAULT_GROUPS = []
-REMOTE_AUTH_DEFAULT_PERMISSIONS = []
+REMOTE_AUTH_DEFAULT_PERMISSIONS = {}
 
 # This determines how often the GitHub API is called to check the latest release of NetBox. Must be at least 1 hour.
 RELEASE_CHECK_TIMEOUT = 24 * 3600

@@ -416,9 +416,9 @@ The list of groups to assign a new user account when created using remote authen
 
 ## REMOTE_AUTH_DEFAULT_PERMISSIONS
 
-Default: `[]` (Empty list)
+Default: `{}` (Empty dictionary)
 
-The list of permissions to assign a new user account when created using remote authentication. (Requires `REMOTE_AUTH_ENABLED`.)
+A mapping of permissions to assign a new user account when created using remote authentication. Each key in the dictionary should be set to a dictionary of the attributes to be applied to the permission, or `None` to allow all objects. (Requires `REMOTE_AUTH_ENABLED`.)
 
 ---
 
