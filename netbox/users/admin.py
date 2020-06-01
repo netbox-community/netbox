@@ -90,7 +90,9 @@ class ObjectPermissionForm(forms.ModelForm):
         model = ObjectPermission
         exclude = []
         help_texts = {
-            'actions': 'Actions granted in addition to those listed above'
+            'actions': 'Actions granted in addition to those listed above',
+            'attrs': 'JSON expression of a queryset filter that will return only permitted objects. Leave null to '
+                     'match all objects of this type.'
         }
         labels = {
             'actions': 'Additional actions'
@@ -105,6 +107,10 @@ class ObjectPermissionForm(forms.ModelForm):
         # Format ContentType choices
         order_content_types(self.fields['content_types'])
         self.fields['content_types'].choices.insert(0, ('', '---------'))
+
+        # Order group and user fields
+        self.fields['groups'].queryset = self.fields['groups'].queryset.order_by('name')
+        self.fields['users'].queryset = self.fields['users'].queryset.order_by('username')
 
         # Check the appropriate checkboxes when editing an existing ObjectPermission
         if self.instance.pk:
