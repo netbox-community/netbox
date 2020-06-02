@@ -395,7 +395,7 @@ class DeviceViewSet(CustomFieldModelViewSet):
             ))
 
         # Verify user permission
-        if not request.user.has_perm('dcim.napalm_read'):
+        if not request.user.has_perm('dcim.napalm_read_device'):
             return HttpResponseForbidden()
 
         # Connect to the device

@@ -1099,7 +1099,7 @@ class DeviceInventoryView(ObjectView):
 
 
 class DeviceStatusView(ObjectView):
-    additional_permissions = ['dcim.napalm_read']
+    additional_permissions = ['dcim.napalm_read_device']
     queryset = Device.objects.all()
 
     def get(self, request, pk):
@@ -1113,7 +1113,7 @@ class DeviceStatusView(ObjectView):
 
 
 class DeviceLLDPNeighborsView(ObjectView):
-    additional_permissions = ['dcim.napalm_read']
+    additional_permissions = ['dcim.napalm_read_device']
     queryset = Device.objects.all()
 
     def get(self, request, pk):
@@ -1133,7 +1133,7 @@ class DeviceLLDPNeighborsView(ObjectView):
 
 
 class DeviceConfigView(ObjectView):
-    additional_permissions = ['dcim.napalm_read']
+    additional_permissions = ['dcim.napalm_read_device']
     queryset = Device.objects.all()
 
     def get(self, request, pk):

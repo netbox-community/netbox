@@ -1477,10 +1477,6 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
             ('rack', 'position', 'face'),
             ('virtual_chassis', 'vc_position'),
         )
-        permissions = (
-            ('napalm_read', 'Read-only access to devices via NAPALM'),
-            ('napalm_write', 'Read/write access to devices via NAPALM'),
-        )
 
     def __str__(self):
         return self.display_name or super().__str__()

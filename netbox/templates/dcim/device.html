@@ -101,7 +101,7 @@
                 Inventory <span class="badge">{{ device.inventory_items.count }}</span>
             </a>
         </li>
-        {% if perms.dcim.napalm_read %}
+        {% if perms.dcim.napalm_read_device %}
             {% if device.status != 'active' %}
                 {% include 'dcim/inc/device_napalm_tabs.html' with disabled_message='Device must be in active status' %}
             {% elif not device.platform %}
