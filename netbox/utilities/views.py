@@ -346,7 +346,7 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         form = self.model_form(
             data=request.POST,
             files=request.FILES,
-            instance=self.alter_obj(self.get_object(kwargs), request, args, kwargs)
+            instance=obj
         )
 
         if form.is_valid():
