@@ -64,9 +64,6 @@ class UserKey(models.Model):
 
     class Meta:
         ordering = ['user__username']
-        permissions = (
-            ('activate_userkey', "Can activate user keys for decryption"),
-        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

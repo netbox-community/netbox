@@ -14,9 +14,12 @@ def replicate_permissions(apps, schema_editor):
     # TODO: Optimize this iteration so that ObjectPermissions with identical sets of users and groups
     # are combined into a single ObjectPermission instance.
     for perm in Permission.objects.all():
-        # Account for non-standard permission names; e.g. napalm_read
         if perm.codename.split('_')[0] in ACTIONS:
+            # Account for non-standard legacy permission names; e.g. napalm_read
             action = perm.codename.split('_')[0]
+        elif perm.codename == 'activate_userkey':
+            # Rename activate_userkey permission
+            action = 'change'
         else:
             action = perm.codename
 
