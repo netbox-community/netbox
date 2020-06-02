@@ -88,6 +88,10 @@
                     </table>
                 </div>
             </div>
+        {% elif position_stack %}
+            <div class="col-md-11 col-md-offset-1">
+                <h3 class="text-warning text-center">Multiple possible paths end at this point. No connection established!</h3>
+            </div>
         {% else %}
             <div class="col-md-11 col-md-offset-1">
                 <h3 class="text-success text-center">Trace completed!</h3>

@@ -2066,6 +2066,7 @@ class CableTraceView(PermissionRequiredMixin, View):
             'obj': obj,
             'trace': path,
             'split_ends': split_ends,
+            'position_stack': position_stack,
             'total_length': total_length,
         })
 
