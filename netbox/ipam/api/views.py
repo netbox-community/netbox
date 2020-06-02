@@ -276,7 +276,7 @@ class VLANViewSet(CustomFieldModelViewSet):
     queryset = VLAN.objects.prefetch_related(
         'site', 'group', 'tenant', 'role', 'tags'
     ).annotate(
-        prefix_count=get_subquery(Prefix, 'role')
+        prefix_count=get_subquery(Prefix, 'vlan')
     )
     serializer_class = serializers.VLANSerializer
     filterset_class = filters.VLANFilterSet
