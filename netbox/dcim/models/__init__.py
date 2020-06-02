@@ -2191,20 +2191,20 @@ class Cable(ChangeLoggedModel):
                 f"Incompatible termination types: {self.termination_a_type} and {self.termination_b_type}"
             )
 
-        # A RearPort with multiple positions must be connected to a RearPort with an equal number of positions, or a
-        # FrontPort
+        # Check that a RearPort isn't connected to something silly
         for term_a, term_b in [
             (self.termination_a, self.termination_b),
             (self.termination_b, self.termination_a)
         ]:
             if isinstance(term_a, RearPort) and term_a.positions > 1:
-                if not isinstance(term_b, (FrontPort, RearPort)):
+                if term_b.is_path_endpoint:
                     raise ValidationError(
                         "Rear ports with multiple positions may only be connected to other pass-through ports"
                     )
-                if isinstance(term_b, RearPort) and term_a.positions != term_b.positions:
+                if isinstance(term_b, RearPort) and term_b.positions > 1 and term_a.positions != term_b.positions:
                     raise ValidationError(
-                        f"{term_a} has {term_a.positions} position(s) but {term_b} has {term_b.positions}. "
+                        f"{term_a} of {term_a.device} has {term_a.positions} position(s) but "
+                        f"{term_b} of {term_b.device} has {term_b.positions}. "
                         f"Both terminations must have the same number of positions."
                     )
 
