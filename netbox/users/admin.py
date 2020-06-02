@@ -35,20 +35,42 @@ class UserConfigInline(admin.TabularInline):
     verbose_name = 'Preferences'
 
 
+class ObjectPermissionInline(admin.TabularInline):
+    model = AdminUser.object_permissions.through
+    fields = ['content_types', 'actions', 'attrs']
+    readonly_fields = fields
+    extra = 0
+    verbose_name = 'Permission'
+
+    def content_types(self, instance):
+        return ', '.join(instance.objectpermission.content_types.values_list('model', flat=True))
+
+    def actions(self, instance):
+        return ', '.join(instance.objectpermission.actions)
+
+    def attrs(self, instance):
+        return instance.objectpermission.attrs
+
+    def has_add_permission(self, request, obj):
+        # Don't allow the creation of new ObjectPermission assignments via this form
+        return False
+
+
 @admin.register(AdminUser)
 class UserAdmin(UserAdmin_):
     list_display = [
         'username', 'email', 'first_name', 'last_name', 'is_superuser', 'is_staff', 'is_active'
     ]
     fieldsets = (
-        (None, {'fields': ('username', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'email')}),
+        (None, {'fields': ('username', 'password', 'first_name', 'last_name', 'email')}),
+        ('Groups', {'fields': ('groups',)}),
         ('Permissions', {
             'fields': ('is_active', 'is_staff', 'is_superuser'),
         }),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
-    inlines = (UserConfigInline,)
+    inlines = [ObjectPermissionInline, UserConfigInline]
+    filter_horizontal = ('groups',)
 
 
 #
@@ -154,7 +176,7 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
             'fields': ('content_types',)
         }),
         ('Assignment', {
-            'fields': (('groups', 'users'),)
+            'fields': ('groups', 'users')
         }),
         ('Actions', {
             'fields': (('can_view', 'can_add', 'can_change', 'can_delete'), 'actions')
@@ -163,9 +185,13 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
             'fields': ('attrs',)
         }),
     )
+    filter_horizontal = ('content_types', 'groups', 'users')
     form = ObjectPermissionForm
     list_display = [
         'list_models', 'list_users', 'list_groups', 'actions', 'attrs',
+    ]
+    list_filter = [
+        'groups', 'users'
     ]
 
     def get_queryset(self, request):

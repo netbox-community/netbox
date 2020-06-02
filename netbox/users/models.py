@@ -29,6 +29,7 @@ class AdminGroup(Group):
     Proxy contrib.auth.models.Group for the admin UI
     """
     class Meta:
+        verbose_name = 'Group'
         proxy = True
 
 
@@ -37,6 +38,7 @@ class AdminUser(User):
     Proxy contrib.auth.models.User for the admin UI
     """
     class Meta:
+        verbose_name = 'User'
         proxy = True
 
 
@@ -264,4 +266,7 @@ class ObjectPermission(models.Model):
         verbose_name = "Permission"
 
     def __str__(self):
-        return "Object permission"
+        return '{}: {}'.format(
+            ', '.join(self.content_types.values_list('model', flat=True)),
+            ', '.join(self.actions)
+        )

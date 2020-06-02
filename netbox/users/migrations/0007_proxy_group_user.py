@@ -21,6 +21,7 @@ class Migration(migrations.Migration):
                 'proxy': True,
                 'indexes': [],
                 'constraints': [],
+                'verbose_name': 'Group',
             },
             bases=('auth.group',),
             managers=[
@@ -35,6 +36,7 @@ class Migration(migrations.Migration):
                 'proxy': True,
                 'indexes': [],
                 'constraints': [],
+                'verbose_name': 'User',
             },
             bases=('auth.user',),
             managers=[
