@@ -571,21 +571,29 @@ class BulkCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         })
 
 
-class ObjectImportView(GetReturnURLMixin, View):
+class ObjectImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Import a single object (YAML or JSON format).
+
+    queryset: Base queryset for the objects being created
+    model_form: The ModelForm used to create individual objects
+    related_object_forms: A dictionary mapping of forms to be used for the creation of related (child) objects
+    template_name: The name of the template
     """
-    model = None
+    queryset = None
     model_form = None
     related_object_forms = dict()
     template_name = 'utilities/obj_import.html'
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'add')
 
     def get(self, request):
         form = ImportForm()
 
         return render(request, self.template_name, {
             'form': form,
-            'obj_type': self.model._meta.verbose_name,
+            'obj_type': self.queryset.model._meta.verbose_name,
             'return_url': self.get_return_url(request),
         })
 
@@ -615,12 +623,17 @@ class ObjectImportView(GetReturnURLMixin, View):
 
                         # Save the primary object
                         obj = model_form.save()
+
+                        # Enforce object-level permissions
+                        self.queryset.get(pk=obj.pk)
+
                         logger.debug(f"Created {obj} (PK: {obj.pk})")
 
                         # Iterate through the related object forms (if any), validating and saving each instance.
                         for field_name, related_object_form in self.related_object_forms.items():
                             logger.debug("Processing form for related objects: {related_object_form}")
 
+                            related_obj_pks = []
                             for i, rel_obj_data in enumerate(data.get(field_name, list())):
 
                                 f = related_object_form(obj, rel_obj_data)
@@ -630,7 +643,8 @@ class ObjectImportView(GetReturnURLMixin, View):
                                         f.data[subfield_name] = field.initial
 
                                 if f.is_valid():
-                                    f.save()
+                                    related_obj = f.save()
+                                    related_obj_pks.append(related_obj.pk)
                                 else:
                                     # Replicate errors on the related object form to the primary form for display
                                     for subfield_name, errors in f.errors.items():
@@ -639,8 +653,18 @@ class ObjectImportView(GetReturnURLMixin, View):
                                             model_form.add_error(None, err_msg)
                                     raise AbortTransaction()
 
+                            # Enforce object-level permissions on related objects
+                            model = related_object_form.Meta.model
+                            if model.objects.filter(pk__in=related_obj_pks).count() != len(related_obj_pks):
+                                raise ObjectDoesNotExist
+
                 except AbortTransaction:
                     pass
+
+                except ObjectDoesNotExist:
+                    msg = "Object creation failed due to object-level permissions violation"
+                    logger.debug(msg)
+                    form.add_error(None, msg)
 
             if not model_form.errors:
                 logger.info(f"Import object {obj} (PK: {obj.pk})")
@@ -673,7 +697,7 @@ class ObjectImportView(GetReturnURLMixin, View):
 
         return render(request, self.template_name, {
             'form': form,
-            'obj_type': self.model._meta.verbose_name,
+            'obj_type': self.queryset.model._meta.verbose_name,
             'return_url': self.get_return_url(request),
         })
 

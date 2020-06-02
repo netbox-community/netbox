@@ -627,8 +627,8 @@ class DeviceTypeDeleteView(ObjectDeleteView):
     default_return_url = 'dcim:devicetype_list'
 
 
-class DeviceTypeImportView(PermissionRequiredMixin, ObjectImportView):
-    permission_required = [
+class DeviceTypeImportView(ObjectImportView):
+    additional_permissions = [
         'dcim.add_devicetype',
         'dcim.add_consoleporttemplate',
         'dcim.add_consoleserverporttemplate',
@@ -639,7 +639,7 @@ class DeviceTypeImportView(PermissionRequiredMixin, ObjectImportView):
         'dcim.add_rearporttemplate',
         'dcim.add_devicebaytemplate',
     ]
-    model = DeviceType
+    queryset = DeviceType.objects.all()
     model_form = forms.DeviceTypeImportForm
     related_object_forms = OrderedDict((
         ('console-ports', forms.ConsolePortTemplateImportForm),
