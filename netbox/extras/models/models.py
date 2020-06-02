@@ -564,9 +564,6 @@ class Script(models.Model):
     """
     class Meta:
         managed = False
-        permissions = (
-            ('run_script', 'Can run script'),
-        )
 
 
 #

@@ -15,11 +15,11 @@ def replicate_permissions(apps, schema_editor):
     # are combined into a single ObjectPermission instance.
     for perm in Permission.objects.all():
         if perm.codename.split('_')[0] in ACTIONS:
-            # Account for non-standard legacy permission names; e.g. napalm_read
             action = perm.codename.split('_')[0]
         elif perm.codename == 'activate_userkey':
-            # Rename activate_userkey permission
             action = 'change'
+        elif perm.codename == 'run_script':
+            action = 'run'
         else:
             action = perm.codename
 
