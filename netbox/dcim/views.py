@@ -3,7 +3,6 @@ import re
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
@@ -12,7 +11,6 @@ from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
-from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
@@ -2169,8 +2167,11 @@ class VirtualChassisView(ObjectView):
         })
 
 
-class VirtualChassisCreateView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.add_virtualchassis'
+class VirtualChassisCreateView(ObjectPermissionRequiredMixin, View):
+    queryset = VirtualChassis.objects.all()
+
+    def get_required_permission(self):
+        return 'dcim.add_virtualchassis'
 
     def post(self, request):
 
@@ -2224,8 +2225,11 @@ class VirtualChassisCreateView(PermissionRequiredMixin, View):
         })
 
 
-class VirtualChassisEditView(PermissionRequiredMixin, GetReturnURLMixin, View):
-    permission_required = 'dcim.change_virtualchassis'
+class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, View):
+    queryset = VirtualChassis.objects.all()
+
+    def get_required_permission(self):
+        return 'dcim.change_virtualchassis'
 
     def get(self, request, pk):
 
@@ -2294,12 +2298,15 @@ class VirtualChassisDeleteView(ObjectDeleteView):
     default_return_url = 'dcim:device_list'
 
 
-class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, View):
-    permission_required = 'dcim.change_virtualchassis'
+class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMixin, View):
+    queryset = VirtualChassis.objects.all()
+
+    def get_required_permission(self):
+        return 'dcim.change_virtualchassis'
 
     def get(self, request, pk):
 
-        virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
+        virtual_chassis = get_object_or_404(self.queryset, pk=pk)
 
         initial_data = {k: request.GET[k] for k in request.GET}
         member_select_form = forms.VCMemberSelectForm(initial=initial_data)
@@ -2314,7 +2321,7 @@ class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, Vi
 
     def post(self, request, pk):
 
-        virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
+        virtual_chassis = get_object_or_404(self.queryset, pk=pk)
 
         member_select_form = forms.VCMemberSelectForm(request.POST)
 
@@ -2348,12 +2355,15 @@ class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, Vi
         })
 
 
-class VirtualChassisRemoveMemberView(PermissionRequiredMixin, GetReturnURLMixin, View):
-    permission_required = 'dcim.change_virtualchassis'
+class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURLMixin, View):
+    queryset = Device.objects.all()
+
+    def get_required_permission(self):
+        return 'dcim.change_device'
 
     def get(self, request, pk):
 
-        device = get_object_or_404(Device, pk=pk, virtual_chassis__isnull=False)
+        device = get_object_or_404(self.queryset, pk=pk, virtual_chassis__isnull=False)
         form = ConfirmationForm(initial=request.GET)
 
         return render(request, 'dcim/virtualchassis_remove_member.html', {
@@ -2364,7 +2374,7 @@ class VirtualChassisRemoveMemberView(PermissionRequiredMixin, GetReturnURLMixin,
 
     def post(self, request, pk):
 
-        device = get_object_or_404(Device, pk=pk, virtual_chassis__isnull=False)
+        device = get_object_or_404(self.queryset, pk=pk, virtual_chassis__isnull=False)
         form = ConfirmationForm(request.POST)
 
         # Protect master device from being removed
