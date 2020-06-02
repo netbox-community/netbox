@@ -28,7 +28,7 @@ from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
 from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, CSVDataField, TableConfigForm
-from utilities.permissions import get_permission_action, get_permission_for_model
+from utilities.permissions import get_permission_for_model, resolve_permission
 from utilities.utils import csv_format, prepare_cloned_fields
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm, ImportForm
@@ -64,7 +64,7 @@ class ObjectPermissionRequiredMixin(AccessMixin):
         if user.has_perms((permission_required, *self.additional_permissions)):
 
             # Update the view's QuerySet to filter only the permitted objects
-            action = get_permission_action(permission_required)
+            action = resolve_permission(permission_required)[1]
             self.queryset = self.queryset.restrict(user, action)
 
             return True
@@ -233,7 +233,7 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         # Compile a dictionary indicating which permissions are available to the current user for this model
         permissions = {}
         for action in ('add', 'change', 'delete', 'view'):
-            perm_name = '{}.{}_{}'.format(model._meta.app_label, action, model._meta.model_name)
+            perm_name = get_permission_for_model(model, action)
             permissions[action] = request.user.has_perm(perm_name)
 
         # Construct the table based on the user's permissions

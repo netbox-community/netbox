@@ -7,7 +7,7 @@ from django.urls import reverse, NoReverseMatch
 from rest_framework.test import APIClient
 
 from users.models import ObjectPermission, Token
-from utilities.permissions import resolve_permission
+from utilities.permissions import resolve_permission_ct
 from .utils import disable_warnings, post_data
 
 
@@ -33,7 +33,7 @@ class TestCase(_TestCase):
         Assign a set of permissions to the test user. Accepts permission names in the form <app>.<action>_<model>.
         """
         for name in names:
-            ct, action = resolve_permission(name)
+            ct, action = resolve_permission_ct(name)
             obj_perm = ObjectPermission(actions=[action])
             obj_perm.save()
             obj_perm.users.add(self.user)

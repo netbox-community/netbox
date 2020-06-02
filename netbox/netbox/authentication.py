@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 from django.db.models import Q
 
 from users.models import ObjectPermission
-from utilities.permissions import permission_is_exempt, resolve_permission
+from utilities.permissions import permission_is_exempt, resolve_permission, resolve_permission_ct
 
 
 class ObjectPermissionBackend(ModelBackend):
@@ -42,8 +42,7 @@ class ObjectPermissionBackend(ModelBackend):
         return perms
 
     def has_perm(self, user_obj, perm, obj=None):
-        app_label, codename = perm.split('.')
-        action, model_name = codename.split('_')
+        app_label, action, model_name = resolve_permission(perm)
 
         # Superusers implicitly have all permissions
         if user_obj.is_active and user_obj.is_superuser:
@@ -114,7 +113,7 @@ class RemoteUserBackend(_RemoteUserBackend):
         permissions_list = []
         for permission_name, attrs in settings.REMOTE_AUTH_DEFAULT_PERMISSIONS.items():
             try:
-                content_type, action = resolve_permission(permission_name)
+                content_type, action = resolve_permission_ct(permission_name)
                 # TODO: Merge multiple actions into a single ObjectPermission per content type
                 obj_perm = ObjectPermission(actions=[action], attrs=attrs)
                 obj_perm.save()

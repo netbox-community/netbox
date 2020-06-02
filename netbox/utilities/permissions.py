@@ -19,33 +19,36 @@ def get_permission_for_model(model, action):
     )
 
 
-def get_permission_action(name):
+def resolve_permission(name):
     """
-    Return the action component (e.g. view or add) from a permission name.
+    Given a permission name, return the app_label, action, and model_name components. For example, "dcim.view_site"
+    returns ("dcim", "view", "site").
 
     :param name: Permission name in the format <app_label>.<action>_<model>
     """
     try:
-        return name.split('.')[1].split('_')[0]
+        app_label, codename = name.split('.')
+        action, model_name = codename.rsplit('_', 1)
     except ValueError:
         raise ValueError(
             f"Invalid permission name: {name}. Must be in the format <app_label>.<action>_<model>"
         )
 
+    return app_label, action, model_name
 
-def resolve_permission(name):
+
+def resolve_permission_ct(name):
     """
     Given a permission name, return the relevant ContentType and action. For example, "dcim.view_site" returns
     (Site, "view").
 
     :param name: Permission name in the format <app_label>.<action>_<model>
     """
-    app_label, codename = name.split('.')
-    action, model_name = codename.split('_')
+    app_label, action, model_name = resolve_permission(name)
     try:
         content_type = ContentType.objects.get(app_label=app_label, model=model_name)
     except ContentType.DoesNotExist:
-        raise ValueError(f"Unknown app/model for {name}")
+        raise ValueError(f"Unknown app_label/model_name for {name}")
 
     return content_type, action
 
@@ -56,8 +59,7 @@ def permission_is_exempt(name):
 
     :param name: Permission name in the format <app_label>.<action>_<model>
     """
-    app_label, codename = name.split('.')
-    action, model_name = codename.split('_')
+    app_label, action, model_name = resolve_permission(name)
 
     if action == 'view':
         if (
