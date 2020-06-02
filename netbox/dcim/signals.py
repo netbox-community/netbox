@@ -61,7 +61,7 @@ def update_connected_endpoints(instance, **kwargs):
                 break
 
         endpoint_a = path[0][0]
-        endpoint_b = path[-1][2]
+        endpoint_b = path[-1][2] if not split_ends and not position_stack else None
 
         if getattr(endpoint_a, 'is_path_endpoint', False) and getattr(endpoint_b, 'is_path_endpoint', False):
             logger.debug("Updating path endpoints: {} <---> {}".format(endpoint_a, endpoint_b))
