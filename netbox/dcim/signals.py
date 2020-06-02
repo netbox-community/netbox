@@ -52,7 +52,7 @@ def update_connected_endpoints(instance, **kwargs):
     # Update any endpoints for this Cable.
     endpoints = instance.termination_a.get_path_endpoints() + instance.termination_b.get_path_endpoints()
     for endpoint in endpoints:
-        path, split_ends = endpoint.trace()
+        path, split_ends, position_stack = endpoint.trace()
         # Determine overall path status (connected or planned)
         path_status = True
         for segment in path:

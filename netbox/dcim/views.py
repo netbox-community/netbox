@@ -2057,7 +2057,7 @@ class CableTraceView(PermissionRequiredMixin, View):
     def get(self, request, model, pk):
 
         obj = get_object_or_404(model, pk=pk)
-        path, split_ends = obj.trace()
+        path, split_ends, position_stack = obj.trace()
         total_length = sum(
             [entry[1]._abs_length for entry in path if entry[1] and entry[1]._abs_length]
         )
