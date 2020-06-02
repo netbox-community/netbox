@@ -1,7 +1,6 @@
 from django import template
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
 from django.http import Http404, HttpResponseForbidden
@@ -13,7 +12,10 @@ from django_tables2 import RequestConfig
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.utils import shallow_compare_dict
-from utilities.views import BulkDeleteView, BulkEditView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView
+from utilities.views import (
+    BulkDeleteView, BulkEditView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    ObjectPermissionRequiredMixin,
+)
 from . import filters, forms
 from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult, Tag, TaggedItem
 from .reports import get_report, get_reports
@@ -324,11 +326,12 @@ class ImageAttachmentDeleteView(ObjectDeleteView):
 # Reports
 #
 
-class ReportListView(PermissionRequiredMixin, View):
+class ReportListView(ObjectPermissionRequiredMixin, View):
     """
     Retrieve all of the available reports from disk and the recorded ReportResult (if any) for each.
     """
-    permission_required = 'extras.view_reportresult'
+    def get_required_permission(self):
+        return 'extras.view_reportresult'
 
     def get(self, request):
 
@@ -348,11 +351,12 @@ class ReportListView(PermissionRequiredMixin, View):
         })
 
 
-class ReportView(PermissionRequiredMixin, View):
+class ReportView(ObjectPermissionRequiredMixin, View):
     """
     Display a single Report and its associated ReportResult (if any).
     """
-    permission_required = 'extras.view_reportresult'
+    def get_required_permission(self):
+        return 'extras.view_reportresult'
 
     def get(self, request, name):
 
@@ -371,11 +375,12 @@ class ReportView(PermissionRequiredMixin, View):
         })
 
 
-class ReportRunView(PermissionRequiredMixin, View):
+class ReportRunView(ObjectPermissionRequiredMixin, View):
     """
     Run a Report and record a new ReportResult.
     """
-    permission_required = 'extras.add_reportresult'
+    def get_required_permission(self):
+        return 'extras.add_reportresult'
 
     def post(self, request, name):
 
@@ -401,8 +406,10 @@ class ReportRunView(PermissionRequiredMixin, View):
 # Scripts
 #
 
-class ScriptListView(PermissionRequiredMixin, View):
-    permission_required = 'extras.view_script'
+class ScriptListView(ObjectPermissionRequiredMixin, View):
+
+    def get_required_permission(self):
+        return 'extras.view_script'
 
     def get(self, request):
 
@@ -411,8 +418,10 @@ class ScriptListView(PermissionRequiredMixin, View):
         })
 
 
-class ScriptView(PermissionRequiredMixin, View):
-    permission_required = 'extras.view_script'
+class ScriptView(ObjectPermissionRequiredMixin, View):
+
+    def get_required_permission(self):
+        return 'extras.view_script'
 
     def _get_script(self, module, name):
         scripts = get_scripts()
