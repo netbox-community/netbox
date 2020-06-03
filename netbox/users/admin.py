@@ -37,7 +37,7 @@ class UserConfigInline(admin.TabularInline):
 
 class ObjectPermissionInline(admin.TabularInline):
     model = AdminUser.object_permissions.through
-    fields = ['object_types', 'actions', 'attrs']
+    fields = ['object_types', 'actions', 'constraints']
     readonly_fields = fields
     extra = 0
     verbose_name = 'Permission'
@@ -48,8 +48,8 @@ class ObjectPermissionInline(admin.TabularInline):
     def actions(self, instance):
         return ', '.join(instance.objectpermission.actions)
 
-    def attrs(self, instance):
-        return instance.objectpermission.attrs
+    def constraints(self, instance):
+        return instance.objectpermission.constraints
 
     def has_add_permission(self, request, obj):
         # Don't allow the creation of new ObjectPermission assignments via this form
@@ -113,8 +113,8 @@ class ObjectPermissionForm(forms.ModelForm):
         exclude = []
         help_texts = {
             'actions': 'Actions granted in addition to those listed above',
-            'attrs': 'JSON expression of a queryset filter that will return only permitted objects. Leave null to '
-                     'match all objects of this type.'
+            'constraints': 'JSON expression of a queryset filter that will return only permitted objects. Leave null '
+                           'to match all objects of this type.'
         }
         labels = {
             'actions': 'Additional actions'
@@ -143,7 +143,7 @@ class ObjectPermissionForm(forms.ModelForm):
 
     def clean(self):
         object_types = self.cleaned_data['object_types']
-        attrs = self.cleaned_data['attrs']
+        constraints = self.cleaned_data['constraints']
 
         # Append any of the selected CRUD checkboxes to the actions list
         if not self.cleaned_data.get('actions'):
@@ -156,16 +156,16 @@ class ObjectPermissionForm(forms.ModelForm):
         if not self.cleaned_data['actions']:
             raise ValidationError("At least one action must be selected.")
 
-        # Validate the specified model attributes by attempting to execute a query. We don't care whether the query
-        # returns anything; we just want to make sure the specified attributes are valid.
-        if attrs:
+        # Validate the specified model constraints by attempting to execute a query. We don't care whether the query
+        # returns anything; we just want to make sure the specified constraints are valid.
+        if constraints:
             for ct in object_types:
                 model = ct.model_class()
                 try:
-                    model.objects.filter(**attrs).exists()
+                    model.objects.filter(**constraints).exists()
                 except FieldError as e:
                     raise ValidationError({
-                        'attrs': f'Invalid attributes for {model}: {e}'
+                        'constraints': f'Invalid filter for {model}: {e}'
                     })
 
 
@@ -182,13 +182,13 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
             'fields': (('can_view', 'can_add', 'can_change', 'can_delete'), 'actions')
         }),
         ('Constraints', {
-            'fields': ('attrs',)
+            'fields': ('constraints',)
         }),
     )
     filter_horizontal = ('object_types', 'groups', 'users')
     form = ObjectPermissionForm
     list_display = [
-        'list_models', 'list_users', 'list_groups', 'actions', 'attrs',
+        'list_models', 'list_users', 'list_groups', 'actions', 'constraints',
     ]
     list_filter = [
         'groups', 'users'

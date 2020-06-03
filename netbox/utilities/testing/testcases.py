@@ -180,7 +180,7 @@ class ViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
-                attrs={'pk': instance1.pk},
+                constraints={'pk': instance1.pk},
                 actions=['view']
             )
             obj_perm.save()
@@ -245,7 +245,7 @@ class ViewTestCases:
 
             # Assign object-level permission
             obj_perm = ObjectPermission(
-                attrs={'pk__gt': 0},  # Dummy permission to allow all
+                constraints={'pk__gt': 0},  # Dummy permission to allow all
                 actions=['add']
             )
             obj_perm.save()
@@ -265,7 +265,7 @@ class ViewTestCases:
             self.assertInstanceEqual(self.model.objects.order_by('pk').last(), self.form_data)
 
             # Nullify ObjectPermission to disallow new object creation
-            obj_perm.attrs = {'pk': 0}
+            obj_perm.constraints = {'pk': 0}
             obj_perm.save()
 
             # Try to create a non-permitted object
@@ -328,7 +328,7 @@ class ViewTestCases:
 
             # Assign object-level permission
             obj_perm = ObjectPermission(
-                attrs={'pk': instance1.pk},
+                constraints={'pk': instance1.pk},
                 actions=['change']
             )
             obj_perm.save()
@@ -406,7 +406,7 @@ class ViewTestCases:
 
             # Assign object-level permission
             obj_perm = ObjectPermission(
-                attrs={'pk': instance1.pk},
+                constraints={'pk': instance1.pk},
                 actions=['delete']
             )
             obj_perm.save()
@@ -480,7 +480,7 @@ class ViewTestCases:
 
             # Add object-level permission
             obj_perm = ObjectPermission(
-                attrs={'pk': instance1.pk},
+                constraints={'pk': instance1.pk},
                 actions=['view']
             )
             obj_perm.save()
@@ -579,7 +579,7 @@ class ViewTestCases:
 
             # Assign object-level permission
             obj_perm = ObjectPermission(
-                attrs={'pk__gt': 0},  # Dummy permission to allow all
+                constraints={'pk__gt': 0},  # Dummy permission to allow all
                 actions=['add']
             )
             obj_perm.save()
@@ -651,7 +651,7 @@ class ViewTestCases:
 
             # Assign object-level permission
             obj_perm = ObjectPermission(
-                attrs={'pk__in': list(pk_list)},
+                constraints={'pk__in': list(pk_list)},
                 actions=['change']
             )
             obj_perm.save()
@@ -718,7 +718,7 @@ class ViewTestCases:
 
             # Assign object-level permission
             obj_perm = ObjectPermission(
-                attrs={'pk__in': list(pk_list)},
+                constraints={'pk__in': list(pk_list)},
                 actions=['delete']
             )
             obj_perm.save()

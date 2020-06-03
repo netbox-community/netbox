@@ -202,7 +202,7 @@ class ObjectPermissionViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
-            attrs={'site__name': 'Site 1'},
+            constraints={'site__name': 'Site 1'},
             actions=['view']
         )
         obj_perm.save()
@@ -226,7 +226,7 @@ class ObjectPermissionViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
-            attrs={'site__name': 'Site 1'},
+            constraints={'site__name': 'Site 1'},
             actions=['view']
         )
         obj_perm.save()
@@ -260,7 +260,7 @@ class ObjectPermissionViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
-            attrs={'site__name': 'Site 1'},
+            constraints={'site__name': 'Site 1'},
             actions=['view', 'add']
         )
         obj_perm.save()
@@ -307,7 +307,7 @@ class ObjectPermissionViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
-            attrs={'site__name': 'Site 1'},
+            constraints={'site__name': 'Site 1'},
             actions=['view', 'change']
         )
         obj_perm.save()
@@ -350,7 +350,7 @@ class ObjectPermissionViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
-            attrs={'site__name': 'Site 1'},
+            constraints={'site__name': 'Site 1'},
             actions=['view', 'delete']
         )
         obj_perm.save()
@@ -398,7 +398,7 @@ class ObjectPermissionViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
-            attrs={'site__name': 'Site 1'},
+            constraints={'site__name': 'Site 1'},
             actions=['add']
         )
         obj_perm.save()
@@ -447,7 +447,7 @@ class ObjectPermissionViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
-            attrs={'site__name': 'Site 1'},
+            constraints={'site__name': 'Site 1'},
             actions=['change']
         )
         obj_perm.save()
@@ -491,7 +491,7 @@ class ObjectPermissionViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
-            attrs={'site__name': 'Site 1'},
+            constraints={'site__name': 'Site 1'},
             actions=['view', 'delete']
         )
         obj_perm.save()
@@ -562,7 +562,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
-            attrs={'site__name': 'Site 1'},
+            constraints={'site__name': 'Site 1'},
             actions=['view']
         )
         obj_perm.save()
@@ -589,7 +589,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
-            attrs={'site__name': 'Site 1'},
+            constraints={'site__name': 'Site 1'},
             actions=['view']
         )
         obj_perm.save()
@@ -616,7 +616,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
-            attrs={'site__name': 'Site 1'},
+            constraints={'site__name': 'Site 1'},
             actions=['add']
         )
         obj_perm.save()
@@ -645,7 +645,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
-            attrs={'site__name': 'Site 1'},
+            constraints={'site__name': 'Site 1'},
             actions=['change']
         )
         obj_perm.save()
@@ -680,7 +680,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
 
         # Assign object permission
         obj_perm = ObjectPermission(
-            attrs={'site__name': 'Site 1'},
+            constraints={'site__name': 'Site 1'},
             actions=['delete']
         )
         obj_perm.save()

@@ -28,16 +28,16 @@ class ObjectPermissionBackend(ModelBackend):
             Q(groups__user=user_obj)
         ).prefetch_related('object_types')
 
-        # Create a dictionary mapping permissions to their attributes
+        # Create a dictionary mapping permissions to their constraints
         perms = dict()
         for obj_perm in object_permissions:
             for object_type in obj_perm.object_types.all():
                 for action in obj_perm.actions:
                     perm_name = f"{object_type.app_label}.{action}_{object_type.model}"
                     if perm_name in perms:
-                        perms[perm_name].append(obj_perm.attrs)
+                        perms[perm_name].append(obj_perm.constraints)
                     else:
-                        perms[perm_name] = [obj_perm.attrs]
+                        perms[perm_name] = [obj_perm.constraints]
 
         return perms
 
@@ -71,20 +71,20 @@ class ObjectPermissionBackend(ModelBackend):
             raise ValueError(f"Invalid permission {perm} for model {model}")
 
         # Compile a query filter that matches all instances of the specified model
-        obj_perm_attrs = self.get_all_permissions(user_obj)[perm]
-        attrs = Q()
-        for perm_attrs in obj_perm_attrs:
-            if perm_attrs:
-                attrs |= Q(**perm_attrs)
+        obj_perm_constraints = self.get_all_permissions(user_obj)[perm]
+        constraints = Q()
+        for perm_constraints in obj_perm_constraints:
+            if perm_constraints:
+                constraints |= Q(**perm_constraints)
             else:
-                # Found ObjectPermission with null attrs; allow model-level access
-                attrs = Q()
+                # Found ObjectPermission with null constraints; allow model-level access
+                constraints = Q()
                 break
 
         # Permission to perform the requested action on the object depends on whether the specified object matches
-        # the specified attributes. Note that this check is made against the *database* record representing the object,
+        # the specified constraints. Note that this check is made against the *database* record representing the object,
         # not the instance itself.
-        return model.objects.filter(attrs, pk=obj.pk).exists()
+        return model.objects.filter(constraints, pk=obj.pk).exists()
 
 
 class RemoteUserBackend(_RemoteUserBackend):
@@ -111,11 +111,11 @@ class RemoteUserBackend(_RemoteUserBackend):
 
         # Assign default object permissions to the user
         permissions_list = []
-        for permission_name, attrs in settings.REMOTE_AUTH_DEFAULT_PERMISSIONS.items():
+        for permission_name, constraints in settings.REMOTE_AUTH_DEFAULT_PERMISSIONS.items():
             try:
                 object_type, action = resolve_permission_ct(permission_name)
                 # TODO: Merge multiple actions into a single ObjectPermission per content type
-                obj_perm = ObjectPermission(actions=[action], attrs=attrs)
+                obj_perm = ObjectPermission(actions=[action], constraints=constraints)
                 obj_perm.save()
                 obj_perm.users.add(user)
                 obj_perm.object_types.add(object_type)

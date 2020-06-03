@@ -252,10 +252,10 @@ class ObjectPermission(models.Model):
         },
         related_name='object_permissions'
     )
-    attrs = JSONField(
+    constraints = JSONField(
         blank=True,
         null=True,
-        verbose_name='Attributes'
+        help_text="Queryset filter matching the applicable objects of the selected type(s)"
     )
     actions = ArrayField(
         base_field=models.CharField(max_length=30),
