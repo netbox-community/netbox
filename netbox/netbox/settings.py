@@ -195,19 +195,11 @@ if STORAGE_CONFIG and STORAGE_BACKEND is None:
 #
 
 # Background task queuing
-if 'tasks' in REDIS:
-    TASKS_REDIS = REDIS['tasks']
-elif 'webhooks' in REDIS:
-    # TODO: Remove support for 'webhooks' name in v2.9
-    warnings.warn(
-        "The 'webhooks' REDIS configuration section has been renamed to 'tasks'. Please update your configuration as "
-        "support for the old name will be removed in a future release."
-    )
-    TASKS_REDIS = REDIS['webhooks']
-else:
+if 'tasks' not in REDIS:
     raise ImproperlyConfigured(
         "REDIS section in configuration.py is missing the 'tasks' subsection."
     )
+TASKS_REDIS = REDIS['tasks']
 TASKS_REDIS_HOST = TASKS_REDIS.get('HOST', 'localhost')
 TASKS_REDIS_PORT = TASKS_REDIS.get('PORT', 6379)
 TASKS_REDIS_SENTINELS = TASKS_REDIS.get('SENTINELS', [])
@@ -222,12 +214,11 @@ TASKS_REDIS_DEFAULT_TIMEOUT = TASKS_REDIS.get('DEFAULT_TIMEOUT', 300)
 TASKS_REDIS_SSL = TASKS_REDIS.get('SSL', False)
 
 # Caching
-if 'caching' in REDIS:
-    CACHING_REDIS = REDIS['caching']
-else:
+if 'caching' not in REDIS:
     raise ImproperlyConfigured(
         "REDIS section in configuration.py is missing caching subsection."
     )
+CACHING_REDIS = REDIS['caching']
 CACHING_REDIS_HOST = CACHING_REDIS.get('HOST', 'localhost')
 CACHING_REDIS_PORT = CACHING_REDIS.get('PORT', 6379)
 CACHING_REDIS_SENTINELS = CACHING_REDIS.get('SENTINELS', [])
