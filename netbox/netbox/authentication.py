@@ -3,6 +3,7 @@ import logging
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend, RemoteUserBackend as _RemoteUserBackend
 from django.contrib.auth.models import Group
+from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Q
 
 from users.models import ObjectPermission
@@ -132,3 +133,50 @@ class RemoteUserBackend(_RemoteUserBackend):
 
     def has_perm(self, user_obj, perm, obj=None):
         return False
+
+
+class LDAPBackend:
+
+    def __new__(cls, *args, **kwargs):
+        try:
+            import ldap
+            from django_auth_ldap.backend import LDAPBackend as LDAPBackend_, LDAPSettings
+        except ImportError:
+            raise ImproperlyConfigured(
+                "LDAP authentication has been configured, but django-auth-ldap is not installed."
+            )
+
+        try:
+            from netbox import ldap_config
+        except ImportError:
+            raise ImproperlyConfigured(
+                "ldap_config.py does not exist"
+            )
+
+        try:
+            getattr(ldap_config, 'AUTH_LDAP_SERVER_URI')
+        except AttributeError:
+            raise ImproperlyConfigured(
+                "Required parameter AUTH_LDAP_SERVER_URI is missing from ldap_config.py."
+            )
+
+        # Create a new instance of django-auth-ldap's LDAPBackend
+        obj = LDAPBackend_()
+
+        # Read LDAP configuration parameters from ldap_config.py instead of settings.py
+        settings = LDAPSettings()
+        for param in dir(ldap_config):
+            if param.startswith(settings._prefix):
+                setattr(settings, param[10:], getattr(ldap_config, param))
+        obj.settings = settings
+
+        # Optionally disable strict certificate checking
+        if getattr(ldap_config, 'LDAP_IGNORE_CERT_ERRORS', False):
+            ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
+
+        # Enable logging for django_auth_ldap
+        ldap_logger = logging.getLogger('django_auth_ldap')
+        ldap_logger.addHandler(logging.StreamHandler())
+        ldap_logger.setLevel(logging.DEBUG)
+
+        return obj
