@@ -16,4 +16,5 @@ NetBox v2.9 replaces Django's built-in permissions framework with one that suppo
 
 * The `secrets.activate_userkey` permission no longer exists. Instead, `secrets.change_userkey` is checked to determine whether a user has the ability to activate a UserKey.
 * The `users.delete_token` permission is no longer enforced. All users are permitted to delete their own API tokens.
-* Backward compatibility for the `webhooks` Redis queue configuration has been dropped. (Use `tasks` instead.)
+* Dropped backward compatibility for the `webhooks` Redis queue configuration (use `tasks` instead).
+* Dropped backward compatibility for the `/admin/webhook-backend-status` URL (moved to `/admin/background-tasks/`).
