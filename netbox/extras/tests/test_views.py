@@ -10,12 +10,16 @@ from extras.models import ConfigContext, ObjectChange, Tag
 from utilities.testing import ViewTestCases, TestCase
 
 
-class TagTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+# TODO: Change base class to PrimaryObjectViewTestCase
+class TagTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
     model = Tag
-
-    # Disable inapplicable tests
-    test_create_object = None
-    test_import_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -38,15 +42,15 @@ class TagTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-class ConfigContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+# TODO: Change base class to PrimaryObjectViewTestCase
+class ConfigContextTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
     model = ConfigContext
-
-    # Disable inapplicable tests
-    test_import_objects = None
-
-    # TODO: Resolve model discrepancies when creating/editing ConfigContexts
-    test_create_object = None
-    test_edit_object = None
 
     @classmethod
     def setUpTestData(cls):

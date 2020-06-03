@@ -1,5 +1,4 @@
 import os
-import sys
 
 from Crypto.Cipher import AES
 from Crypto.PublicKey import RSA
@@ -18,6 +17,7 @@ from dcim.models import Device
 from extras.models import CustomFieldModel, TaggedItem
 from extras.utils import extras_features
 from utilities.models import ChangeLoggedModel
+from utilities.querysets import RestrictedQuerySet
 from .exceptions import InvalidKey
 from .hashers import SecretValidationHasher
 from .querysets import UserKeyQuerySet
@@ -64,9 +64,6 @@ class UserKey(models.Model):
 
     class Meta:
         ordering = ['user__username']
-        permissions = (
-            ('activate_userkey', "Can activate user keys for decryption"),
-        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -269,6 +266,8 @@ class SecretRole(ChangeLoggedModel):
         blank=True
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     csv_headers = ['name', 'slug', 'description']
 
     class Meta:
@@ -334,8 +333,9 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     plaintext = None
     csv_headers = ['device', 'role', 'name', 'plaintext']

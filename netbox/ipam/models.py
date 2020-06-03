@@ -12,6 +12,7 @@ from dcim.models import Device, Interface
 from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
 from utilities.models import ChangeLoggedModel
+from utilities.querysets import RestrictedQuerySet
 from utilities.utils import serialize_object
 from virtualization.models import VirtualMachine
 from .choices import *
@@ -74,8 +75,9 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
     clone_fields = [
@@ -131,6 +133,8 @@ class RIR(ChangeLoggedModel):
         blank=True
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     csv_headers = ['name', 'slug', 'is_private', 'description']
 
     class Meta:
@@ -179,8 +183,9 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['prefix', 'rir', 'date_added', 'description']
     clone_fields = [
@@ -274,6 +279,8 @@ class Role(ChangeLoggedModel):
         blank=True,
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     csv_headers = ['name', 'slug', 'weight', 'description']
 
     class Meta:
@@ -360,9 +367,9 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
+    tags = TaggableManager(through=TaggedItem)
 
     objects = PrefixQuerySet.as_manager()
-    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan', 'status', 'role', 'is_pool', 'description',
@@ -631,9 +638,9 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
+    tags = TaggableManager(through=TaggedItem)
 
     objects = IPAddressManager()
-    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface', 'is_primary',
@@ -828,6 +835,8 @@ class VLANGroup(ChangeLoggedModel):
         blank=True
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     csv_headers = ['name', 'slug', 'site', 'description']
 
     class Meta:
@@ -923,8 +932,9 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description']
     clone_fields = [
@@ -1039,8 +1049,9 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['device', 'virtual_machine', 'name', 'protocol', 'port', 'description']
 

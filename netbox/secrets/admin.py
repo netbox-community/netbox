@@ -23,7 +23,7 @@ class UserKeyAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         if 'delete_selected' in actions:
             del actions['delete_selected']
-        if not request.user.has_perm('secrets.activate_userkey'):
+        if not request.user.has_perm('secrets.change_userkey'):
             del actions['activate_selected']
         return actions
 

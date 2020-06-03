@@ -1,7 +1,6 @@
 from datetime import date
 
 from django.contrib.contenttypes.models import ContentType
-from django.test import Client, TestCase
 from django.urls import reverse
 from rest_framework import status
 
@@ -9,7 +8,7 @@ from dcim.forms import SiteCSVForm
 from dcim.models import Site
 from extras.choices import *
 from extras.models import CustomField, CustomFieldValue, CustomFieldChoice
-from utilities.testing import APITestCase, create_test_user
+from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
 
 
@@ -470,17 +469,10 @@ class CustomFieldChoiceAPITest(APITestCase):
 
 
 class CustomFieldImportTest(TestCase):
-
-    def setUp(self):
-
-        user = create_test_user(
-            permissions=[
-                'dcim.view_site',
-                'dcim.add_site',
-            ]
-        )
-        self.client = Client()
-        self.client.force_login(user)
+    user_permissions = (
+        'dcim.view_site',
+        'dcim.add_site',
+    )
 
     @classmethod
     def setUpTestData(cls):

@@ -194,52 +194,51 @@ class HomeView(View):
 
     def get(self, request):
 
-        connected_consoleports = ConsolePort.objects.filter(
+        connected_consoleports = ConsolePort.objects.restrict(request.user, 'view').filter(
             connected_endpoint__isnull=False
         )
-        connected_powerports = PowerPort.objects.filter(
+        connected_powerports = PowerPort.objects.restrict(request.user, 'view').filter(
             _connected_poweroutlet__isnull=False
         )
-        connected_interfaces = Interface.objects.filter(
+        connected_interfaces = Interface.objects.restrict(request.user, 'view').filter(
             _connected_interface__isnull=False,
             pk__lt=F('_connected_interface')
         )
-        cables = Cable.objects.all()
 
         stats = {
 
             # Organization
-            'site_count': Site.objects.count(),
-            'tenant_count': Tenant.objects.count(),
+            'site_count': Site.objects.restrict(request.user, 'view').count(),
+            'tenant_count': Tenant.objects.restrict(request.user, 'view').count(),
 
             # DCIM
-            'rack_count': Rack.objects.count(),
-            'devicetype_count': DeviceType.objects.count(),
-            'device_count': Device.objects.count(),
+            'rack_count': Rack.objects.restrict(request.user, 'view').count(),
+            'devicetype_count': DeviceType.objects.restrict(request.user, 'view').count(),
+            'device_count': Device.objects.restrict(request.user, 'view').count(),
             'interface_connections_count': connected_interfaces.count(),
-            'cable_count': cables.count(),
+            'cable_count': Cable.objects.restrict(request.user, 'view').count(),
             'console_connections_count': connected_consoleports.count(),
             'power_connections_count': connected_powerports.count(),
-            'powerpanel_count': PowerPanel.objects.count(),
-            'powerfeed_count': PowerFeed.objects.count(),
+            'powerpanel_count': PowerPanel.objects.restrict(request.user, 'view').count(),
+            'powerfeed_count': PowerFeed.objects.restrict(request.user, 'view').count(),
 
             # IPAM
-            'vrf_count': VRF.objects.count(),
-            'aggregate_count': Aggregate.objects.count(),
-            'prefix_count': Prefix.objects.count(),
-            'ipaddress_count': IPAddress.objects.count(),
-            'vlan_count': VLAN.objects.count(),
+            'vrf_count': VRF.objects.restrict(request.user, 'view').count(),
+            'aggregate_count': Aggregate.objects.restrict(request.user, 'view').count(),
+            'prefix_count': Prefix.objects.restrict(request.user, 'view').count(),
+            'ipaddress_count': IPAddress.objects.restrict(request.user, 'view').count(),
+            'vlan_count': VLAN.objects.restrict(request.user, 'view').count(),
 
             # Circuits
-            'provider_count': Provider.objects.count(),
-            'circuit_count': Circuit.objects.count(),
+            'provider_count': Provider.objects.restrict(request.user, 'view').count(),
+            'circuit_count': Circuit.objects.restrict(request.user, 'view').count(),
 
             # Secrets
-            'secret_count': Secret.objects.count(),
+            'secret_count': Secret.objects.restrict(request.user, 'view').count(),
 
             # Virtualization
-            'cluster_count': Cluster.objects.count(),
-            'virtualmachine_count': VirtualMachine.objects.count(),
+            'cluster_count': Cluster.objects.restrict(request.user, 'view').count(),
+            'virtualmachine_count': VirtualMachine.objects.restrict(request.user, 'view').count(),
 
         }
 
@@ -293,7 +292,7 @@ class SearchView(View):
 
             for obj_type in obj_types:
 
-                queryset = SEARCH_TYPES[obj_type]['queryset']
+                queryset = SEARCH_TYPES[obj_type]['queryset'].restrict(request.user, 'view')
                 filterset = SEARCH_TYPES[obj_type]['filterset']
                 table = SEARCH_TYPES[obj_type]['table']
                 url = SEARCH_TYPES[obj_type]['url']
@@ -344,5 +343,6 @@ class APIRootView(APIView):
             ('plugins', reverse('plugins-api:api-root', request=request, format=format)),
             ('secrets', reverse('secrets-api:api-root', request=request, format=format)),
             ('tenancy', reverse('tenancy-api:api-root', request=request, format=format)),
+            ('users', reverse('users-api:api-root', request=request, format=format)),
             ('virtualization', reverse('virtualization-api:api-root', request=request, format=format)),
         )))

@@ -1,9 +1,10 @@
-from django.db import models
+from django.db.models import Manager
 
 from ipam.lookups import Host, Inet
+from utilities.querysets import RestrictedQuerySet
 
 
-class IPAddressManager(models.Manager):
+class IPAddressManager(Manager.from_queryset(RestrictedQuerySet)):
 
     def get_queryset(self):
         """
@@ -13,5 +14,4 @@ class IPAddressManager(models.Manager):
         then re-cast this value to INET() so that records will be ordered properly. We are essentially re-casting each
         IP address as a /32 or /128.
         """
-        qs = super().get_queryset()
-        return qs.order_by(Inet(Host('address')))
+        return super().get_queryset().order_by(Inet(Host('address')))

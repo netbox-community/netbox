@@ -1,8 +1,9 @@
 import binascii
 import os
 
-from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
+from django.contrib.auth.models import Group, User
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.db.models.signals import post_save
@@ -13,10 +14,37 @@ from utilities.utils import flatten_dict
 
 
 __all__ = (
+    'ObjectPermission',
     'Token',
     'UserConfig',
 )
 
+
+#
+# Proxy models for admin
+#
+
+class AdminGroup(Group):
+    """
+    Proxy contrib.auth.models.Group for the admin UI
+    """
+    class Meta:
+        verbose_name = 'Group'
+        proxy = True
+
+
+class AdminUser(User):
+    """
+    Proxy contrib.auth.models.User for the admin UI
+    """
+    class Meta:
+        verbose_name = 'User'
+        proxy = True
+
+
+#
+# User preferences
+#
 
 class UserConfig(models.Model):
     """
@@ -138,6 +166,10 @@ def create_userconfig(instance, created, **kwargs):
         UserConfig(user=instance).save()
 
 
+#
+# REST API
+#
+
 class Token(models.Model):
     """
     An API token used for user authentication. This extends the stock model to allow each user to have multiple tokens.
@@ -190,3 +222,51 @@ class Token(models.Model):
         if self.expires is None or timezone.now() < self.expires:
             return False
         return True
+
+
+#
+# Permissions
+#
+
+class ObjectPermission(models.Model):
+    """
+    A mapping of view, add, change, and/or delete permission for users and/or groups to an arbitrary set of objects
+    identified by ORM query parameters.
+    """
+    object_types = models.ManyToManyField(
+        to=ContentType,
+        limit_choices_to={
+            'app_label__in': [
+                'circuits', 'dcim', 'extras', 'ipam', 'secrets', 'tenancy', 'virtualization',
+            ],
+        },
+        related_name='object_permissions'
+    )
+    groups = models.ManyToManyField(
+        to=Group,
+        blank=True,
+        related_name='object_permissions'
+    )
+    users = models.ManyToManyField(
+        to=User,
+        blank=True,
+        related_name='object_permissions'
+    )
+    actions = ArrayField(
+        base_field=models.CharField(max_length=30),
+        help_text="The list of actions granted by this permission"
+    )
+    constraints = JSONField(
+        blank=True,
+        null=True,
+        help_text="Queryset filter matching the applicable objects of the selected type(s)"
+    )
+
+    class Meta:
+        verbose_name = "Permission"
+
+    def __str__(self):
+        return '{}: {}'.format(
+            ', '.join(self.object_types.values_list('model', flat=True)),
+            ', '.join(self.actions)
+        )

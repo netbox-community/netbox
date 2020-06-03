@@ -97,9 +97,9 @@ PLUGINS = getattr(configuration, 'PLUGINS', [])
 PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 REMOTE_AUTH_AUTO_CREATE_USER = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_USER', False)
-REMOTE_AUTH_BACKEND = getattr(configuration, 'REMOTE_AUTH_BACKEND', 'utilities.auth_backends.RemoteUserBackend')
+REMOTE_AUTH_BACKEND = getattr(configuration, 'REMOTE_AUTH_BACKEND', 'netbox.authentication.RemoteUserBackend')
 REMOTE_AUTH_DEFAULT_GROUPS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_GROUPS', [])
-REMOTE_AUTH_DEFAULT_PERMISSIONS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_PERMISSIONS', [])
+REMOTE_AUTH_DEFAULT_PERMISSIONS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_PERMISSIONS', {})
 REMOTE_AUTH_ENABLED = getattr(configuration, 'REMOTE_AUTH_ENABLED', False)
 REMOTE_AUTH_HEADER = getattr(configuration, 'REMOTE_AUTH_HEADER', 'HTTP_REMOTE_USER')
 RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
@@ -126,6 +126,17 @@ if RELEASE_CHECK_URL:
 # Enforce a minimum cache timeout for update checks
 if RELEASE_CHECK_TIMEOUT < 3600:
     raise ImproperlyConfigured("RELEASE_CHECK_TIMEOUT has to be at least 3600 seconds (1 hour)")
+
+# TODO: Remove in v2.10
+# Backward compatibility for REMOTE_AUTH_DEFAULT_PERMISSIONS
+if type(REMOTE_AUTH_DEFAULT_PERMISSIONS) is not dict:
+    try:
+        REMOTE_AUTH_DEFAULT_PERMISSIONS = {perm: None for perm in REMOTE_AUTH_DEFAULT_PERMISSIONS}
+        warnings.warn(
+            "REMOTE_AUTH_DEFAULT_PERMISSIONS should be a dictionary. Backward compatibility will be removed in v2.10."
+        )
+    except TypeError:
+        raise ImproperlyConfigured("REMOTE_AUTH_DEFAULT_PERMISSIONS must be a dictionary.")
 
 
 #
@@ -339,7 +350,7 @@ TEMPLATES = [
 # Set up authentication backends
 AUTHENTICATION_BACKENDS = [
     REMOTE_AUTH_BACKEND,
-    'utilities.auth_backends.ViewExemptModelBackend',
+    'netbox.authentication.ObjectPermissionBackend',
 ]
 
 # Internationalization

@@ -65,6 +65,7 @@ _patterns = [
     path('api/ipam/', include('ipam.api.urls')),
     path('api/secrets/', include('secrets.api.urls')),
     path('api/tenancy/', include('tenancy.api.urls')),
+    path('api/users/', include('users.api.urls')),
     path('api/virtualization/', include('virtualization.api.urls')),
     path('api/docs/', schema_view.with_ui('swagger'), name='api_docs'),
     path('api/redoc/', schema_view.with_ui('redoc'), name='api_redocs'),

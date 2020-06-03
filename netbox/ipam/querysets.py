@@ -1,7 +1,7 @@
-from django.db.models import QuerySet
+from utilities.querysets import RestrictedQuerySet
 
 
-class PrefixQuerySet(QuerySet):
+class PrefixQuerySet(RestrictedQuerySet):
 
     def annotate_depth(self, limit=None):
         """

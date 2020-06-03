@@ -6,6 +6,7 @@ from dcim.choices import *
 from dcim.constants import *
 from extras.models import ObjectChange
 from utilities.fields import NaturalOrderingField
+from utilities.querysets import RestrictedQuerySet
 from utilities.ordering import naturalize_interface
 from utilities.utils import serialize_object
 from .device_components import (
@@ -26,6 +27,7 @@ __all__ = (
 
 
 class ComponentTemplateModel(models.Model):
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         abstract = True

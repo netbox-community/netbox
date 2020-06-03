@@ -333,11 +333,17 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+# TODO: Update base class to PrimaryObjectViewTestCase
+class ServiceTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkImportObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
     model = Service
-
-    # TODO: Resolve URL for Service creation
-    test_create_object = None
 
     @classmethod
     def setUpTestData(cls):
