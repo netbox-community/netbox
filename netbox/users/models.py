@@ -233,16 +233,6 @@ class ObjectPermission(models.Model):
     A mapping of view, add, change, and/or delete permission for users and/or groups to an arbitrary set of objects
     identified by ORM query parameters.
     """
-    users = models.ManyToManyField(
-        to=User,
-        blank=True,
-        related_name='object_permissions'
-    )
-    groups = models.ManyToManyField(
-        to=Group,
-        blank=True,
-        related_name='object_permissions'
-    )
     object_types = models.ManyToManyField(
         to=ContentType,
         limit_choices_to={
@@ -252,14 +242,24 @@ class ObjectPermission(models.Model):
         },
         related_name='object_permissions'
     )
-    constraints = JSONField(
+    groups = models.ManyToManyField(
+        to=Group,
         blank=True,
-        null=True,
-        help_text="Queryset filter matching the applicable objects of the selected type(s)"
+        related_name='object_permissions'
+    )
+    users = models.ManyToManyField(
+        to=User,
+        blank=True,
+        related_name='object_permissions'
     )
     actions = ArrayField(
         base_field=models.CharField(max_length=30),
         help_text="The list of actions granted by this permission"
+    )
+    constraints = JSONField(
+        blank=True,
+        null=True,
+        help_text="Queryset filter matching the applicable objects of the selected type(s)"
     )
 
     class Meta:

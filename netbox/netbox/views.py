@@ -343,5 +343,6 @@ class APIRootView(APIView):
             ('plugins', reverse('plugins-api:api-root', request=request, format=format)),
             ('secrets', reverse('secrets-api:api-root', request=request, format=format)),
             ('tenancy', reverse('tenancy-api:api-root', request=request, format=format)),
+            ('users', reverse('users-api:api-root', request=request, format=format)),
             ('virtualization', reverse('virtualization-api:api-root', request=request, format=format)),
         )))
