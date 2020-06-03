@@ -26,7 +26,7 @@ def replicate_permissions(apps, schema_editor):
         if perm.group_set.exists() or perm.user_set.exists():
             obj_perm = ObjectPermission(actions=[action])
             obj_perm.save()
-            obj_perm.content_types.add(perm.content_type)
+            obj_perm.object_types.add(perm.content_type)
             if perm.group_set.exists():
                 obj_perm.groups.add(*list(perm.group_set.all()))
             if perm.user_set.exists():

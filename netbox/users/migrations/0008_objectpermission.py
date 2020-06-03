@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('attrs', django.contrib.postgres.fields.jsonb.JSONField(blank=True, null=True)),
                 ('actions', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=30), size=None)),
-                ('content_types', models.ManyToManyField(limit_choices_to={'app_label__in': ['circuits', 'dcim', 'extras', 'ipam', 'secrets', 'tenancy', 'virtualization']}, related_name='object_permissions', to='contenttypes.ContentType')),
+                ('object_types', models.ManyToManyField(limit_choices_to={'app_label__in': ['circuits', 'dcim', 'extras', 'ipam', 'secrets', 'tenancy', 'virtualization']}, related_name='object_permissions', to='contenttypes.ContentType')),
                 ('groups', models.ManyToManyField(blank=True, related_name='object_permissions', to='auth.Group')),
                 ('users', models.ManyToManyField(blank=True, related_name='object_permissions', to=settings.AUTH_USER_MODEL)),
             ],

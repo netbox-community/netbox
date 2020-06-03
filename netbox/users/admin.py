@@ -37,13 +37,13 @@ class UserConfigInline(admin.TabularInline):
 
 class ObjectPermissionInline(admin.TabularInline):
     model = AdminUser.object_permissions.through
-    fields = ['content_types', 'actions', 'attrs']
+    fields = ['object_types', 'actions', 'attrs']
     readonly_fields = fields
     extra = 0
     verbose_name = 'Permission'
 
-    def content_types(self, instance):
-        return ', '.join(instance.objectpermission.content_types.values_list('model', flat=True))
+    def object_types(self, instance):
+        return ', '.join(instance.objectpermission.object_types.values_list('model', flat=True))
 
     def actions(self, instance):
         return ', '.join(instance.objectpermission.actions)
@@ -127,8 +127,8 @@ class ObjectPermissionForm(forms.ModelForm):
         self.fields['actions'].required = False
 
         # Format ContentType choices
-        order_content_types(self.fields['content_types'])
-        self.fields['content_types'].choices.insert(0, ('', '---------'))
+        order_content_types(self.fields['object_types'])
+        self.fields['object_types'].choices.insert(0, ('', '---------'))
 
         # Order group and user fields
         self.fields['groups'].queryset = self.fields['groups'].queryset.order_by('name')
@@ -142,7 +142,7 @@ class ObjectPermissionForm(forms.ModelForm):
                     self.instance.actions.remove(action)
 
     def clean(self):
-        content_types = self.cleaned_data['content_types']
+        object_types = self.cleaned_data['object_types']
         attrs = self.cleaned_data['attrs']
 
         # Append any of the selected CRUD checkboxes to the actions list
@@ -159,7 +159,7 @@ class ObjectPermissionForm(forms.ModelForm):
         # Validate the specified model attributes by attempting to execute a query. We don't care whether the query
         # returns anything; we just want to make sure the specified attributes are valid.
         if attrs:
-            for ct in content_types:
+            for ct in object_types:
                 model = ct.model_class()
                 try:
                     model.objects.filter(**attrs).exists()
@@ -173,7 +173,7 @@ class ObjectPermissionForm(forms.ModelForm):
 class ObjectPermissionAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Objects', {
-            'fields': ('content_types',)
+            'fields': ('object_types',)
         }),
         ('Assignment', {
             'fields': ('groups', 'users')
@@ -185,7 +185,7 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
             'fields': ('attrs',)
         }),
     )
-    filter_horizontal = ('content_types', 'groups', 'users')
+    filter_horizontal = ('object_types', 'groups', 'users')
     form = ObjectPermissionForm
     list_display = [
         'list_models', 'list_users', 'list_groups', 'actions', 'attrs',
@@ -195,10 +195,10 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
     ]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('content_types', 'users', 'groups')
+        return super().get_queryset(request).prefetch_related('object_types', 'users', 'groups')
 
     def list_models(self, obj):
-        return ', '.join([f"{ct}" for ct in obj.content_types.all()])
+        return ', '.join([f"{ct}" for ct in obj.object_types.all()])
     list_models.short_description = 'Models'
 
     def list_users(self, obj):

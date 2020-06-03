@@ -207,7 +207,7 @@ class ObjectPermissionViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.content_types.add(ContentType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ContentType.objects.get_for_model(Prefix))
 
         # Retrieve permitted object
         response = self.client.get(self.prefixes[0].get_absolute_url())
@@ -231,7 +231,7 @@ class ObjectPermissionViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.content_types.add(ContentType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ContentType.objects.get_for_model(Prefix))
 
         # Retrieve all objects. Only permitted objects should be returned.
         response = self.client.get(reverse('ipam:prefix_list'))
@@ -265,7 +265,7 @@ class ObjectPermissionViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.content_types.add(ContentType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ContentType.objects.get_for_model(Prefix))
 
         # Attempt to create a non-permitted object
         request = {
@@ -312,7 +312,7 @@ class ObjectPermissionViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.content_types.add(ContentType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ContentType.objects.get_for_model(Prefix))
 
         # Attempt to edit a non-permitted object
         request = {
@@ -355,7 +355,7 @@ class ObjectPermissionViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.content_types.add(ContentType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ContentType.objects.get_for_model(Prefix))
 
         # Delete permitted object
         request = {
@@ -403,7 +403,7 @@ class ObjectPermissionViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.content_types.add(ContentType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ContentType.objects.get_for_model(Prefix))
 
         # Attempt to create non-permitted objects
         request = {
@@ -452,7 +452,7 @@ class ObjectPermissionViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.content_types.add(ContentType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ContentType.objects.get_for_model(Prefix))
 
         # Attempt to edit non-permitted objects
         request = {
@@ -496,7 +496,7 @@ class ObjectPermissionViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.content_types.add(ContentType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ContentType.objects.get_for_model(Prefix))
 
         # Attempt to delete non-permitted object
         request = {
@@ -567,7 +567,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.content_types.add(ContentType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ContentType.objects.get_for_model(Prefix))
 
         # Retrieve permitted object
         url = reverse('ipam-api:prefix-detail', kwargs={'pk': self.prefixes[0].pk})
@@ -594,7 +594,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.content_types.add(ContentType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ContentType.objects.get_for_model(Prefix))
 
         # Retrieve all objects. Only permitted objects should be returned.
         response = self.client.get(url, **self.header)
@@ -621,7 +621,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.content_types.add(ContentType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ContentType.objects.get_for_model(Prefix))
 
         # Attempt to create a non-permitted object
         response = self.client.post(url, data, format='json', **self.header)
@@ -650,7 +650,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.content_types.add(ContentType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ContentType.objects.get_for_model(Prefix))
 
         # Attempt to edit a non-permitted object
         data = {'site': self.sites[0].pk}
@@ -685,7 +685,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.content_types.add(ContentType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ContentType.objects.get_for_model(Prefix))
 
         # Attempt to delete a non-permitted object
         url = reverse('ipam-api:prefix-detail', kwargs={'pk': self.prefixes[3].pk})

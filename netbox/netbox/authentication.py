@@ -26,14 +26,14 @@ class ObjectPermissionBackend(ModelBackend):
         object_permissions = ObjectPermission.objects.filter(
             Q(users=user_obj) |
             Q(groups__user=user_obj)
-        ).prefetch_related('content_types')
+        ).prefetch_related('object_types')
 
         # Create a dictionary mapping permissions to their attributes
         perms = dict()
         for obj_perm in object_permissions:
-            for content_type in obj_perm.content_types.all():
+            for object_type in obj_perm.object_types.all():
                 for action in obj_perm.actions:
-                    perm_name = f"{content_type.app_label}.{action}_{content_type.model}"
+                    perm_name = f"{object_type.app_label}.{action}_{object_type.model}"
                     if perm_name in perms:
                         perms[perm_name].append(obj_perm.attrs)
                     else:
@@ -113,12 +113,12 @@ class RemoteUserBackend(_RemoteUserBackend):
         permissions_list = []
         for permission_name, attrs in settings.REMOTE_AUTH_DEFAULT_PERMISSIONS.items():
             try:
-                content_type, action = resolve_permission_ct(permission_name)
+                object_type, action = resolve_permission_ct(permission_name)
                 # TODO: Merge multiple actions into a single ObjectPermission per content type
                 obj_perm = ObjectPermission(actions=[action], attrs=attrs)
                 obj_perm.save()
                 obj_perm.users.add(user)
-                obj_perm.content_types.add(content_type)
+                obj_perm.object_types.add(object_type)
                 permissions_list.append(permission_name)
             except ValueError:
                 logging.error(

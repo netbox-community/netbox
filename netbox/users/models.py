@@ -243,7 +243,7 @@ class ObjectPermission(models.Model):
         blank=True,
         related_name='object_permissions'
     )
-    content_types = models.ManyToManyField(
+    object_types = models.ManyToManyField(
         to=ContentType,
         limit_choices_to={
             'app_label__in': [
@@ -267,6 +267,6 @@ class ObjectPermission(models.Model):
 
     def __str__(self):
         return '{}: {}'.format(
-            ', '.join(self.content_types.values_list('model', flat=True)),
+            ', '.join(self.object_types.values_list('model', flat=True)),
             ', '.join(self.actions)
         )
