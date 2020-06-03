@@ -4,12 +4,12 @@ NetBox v2.9 introduced a new object-based permissions framework, which replace's
 
 Assigning a permission in NetBox entails defining a relationship among several components:
 
-* Model(s) - One or more types of object in NetBox
+* Object type(s) - One or more types of object in NetBox
 * User(s) - One or more users or groups of users
 * Actions - The actions that can be performed (view, add, change, and/or delete)
-* Attributes - An arbitrary filter used to limit the action to a specific subset of objects
+* Constraints - An arbitrary filter used to limit the granted action(s) to a specific subset of objects
 
-At a minimum, a permission assignment must specify one model, one user or group, and one action. The specification of constraining attributes is optional: A permission without any attributes specified will apply to all instances of the selected model(s).
+At a minimum, a permission assignment must specify one object type, one user or group, and one action. The specification of constraints is optional: A permission without any constraints specified will apply to all instances of the selected model(s).
 
 ## Actions
 
@@ -22,11 +22,11 @@ There are four core actions that can be permitted for each type of object within
 
 Some models introduce additional permissions that can be granted to allow other actions. For example, the `napalm_read` permission on the device model allows a user to execute NAPALM queries on a device via NetBox's REST API. These can be specified when granting a permission in the "additional actions" field.
 
-## Attributes
+## Constraints
 
-Constraining attributes are defined as a JSON object representing a [Django query filter](https://docs.djangoproject.com/en/stable/ref/models/querysets/#field-lookups). This is the same syntax that you would pass to the QuerySet `filter()` method when performing a query using the Django ORM. As with query filters, double underscores can be used to traverse related objects or invoke lookup expressions. Some example queries and their corresponding definitions are shown below.
+Constraints are defined as a JSON object representing a [Django query filter](https://docs.djangoproject.com/en/stable/ref/models/querysets/#field-lookups). This is the same syntax that you would pass to the QuerySet `filter()` method when performing a query using the Django ORM. As with query filters, double underscores can be used to traverse related objects or invoke lookup expressions. Some example queries and their corresponding definitions are shown below.
 
-All attributes defined on a permission are applied with a logic AND. For example, suppose you assign a permission for the site model with the following attributes.
+All constraints defined on a permission are applied with a logic AND. For example, suppose you assign a permission for the site model with the following constraints.
 
 ```json
 {
@@ -35,11 +35,11 @@ All attributes defined on a permission are applied with a logic AND. For example
 }
 ```
 
-The permission will grant access only to sites which have a status of "active" **and** which are assigned to the "Americas" region. To achieve a logical OR with a different set of attributes, simply create another permission assignment for the same model and user/group. 
+The permission will grant access only to sites which have a status of "active" **and** which are assigned to the "Americas" region. To achieve a logical OR with a different set of constraints, simply create another permission assignment for the same model and user/group. 
 
-### Example Attribute Definitions
+### Example Constraint Definitions
 
-| Query Filter | Permission Attributes |
+| Query Filter | Permission Constraints |
 | ------------ | --------------------- |
 | `filter(status='active')` | `{"status": "active"}` |
 | `filter(status='active', role='testing')` | `{"status": "active", "role": "testing"}` |
@@ -62,7 +62,7 @@ If the permission has been granted, NetBox will compile any specified constraint
 ]
 ```
 
-This grants the user access to view any device that is in NYC1 or NYC2, **or** which has a status of "offline" and has no tenant assigned. These attributes will result in the following ORM query:
+This grants the user access to view any device that is in NYC1 or NYC2, **or** which has a status of "offline" and has no tenant assigned. These constraints will result in the following ORM query:
 
 ```no-highlight
 Site.objects.filter(
@@ -73,4 +73,4 @@ Site.objects.filter(
 
 ### Creating and Modifying Objects
 
-The same sort of logic is in play when a user attempts to create or modify an object in NetBox, with a twist. Once validation has completed, NetBox starts an atomic database transaction to facilitate the change, and the object is created or saved normally. Next, still within the transaction, NetBox issues a second query to retrieve the newly created/updated object, filtering the restricted queryset with the object's primary key. If this query fails to return the object, NetBox knows that the new revision does not match the attributes granted by the permission. The transaction is then aborted, and the database is left in its original state.
+The same sort of logic is in play when a user attempts to create or modify an object in NetBox, with a twist. Once validation has completed, NetBox starts an atomic database transaction to facilitate the change, and the object is created or saved normally. Next, still within the transaction, NetBox issues a second query to retrieve the newly created/updated object, filtering the restricted queryset with the object's primary key. If this query fails to return the object, NetBox knows that the new revision does not match the constraints imposed by the permission. The transaction is then aborted, and the database is left in its original state.
