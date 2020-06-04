@@ -263,6 +263,11 @@ class InterfaceTemplate(ComponentTemplateModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="The physical label for this interface"
+    )
     type = models.CharField(
         max_length=50,
         choices=InterfaceTypeChoices

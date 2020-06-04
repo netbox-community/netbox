@@ -605,6 +605,11 @@ class Interface(CableTermination, ComponentModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="The physical label for this interface"
+    )
     _connected_interface = models.OneToOneField(
         to='self',
         on_delete=models.SET_NULL,
