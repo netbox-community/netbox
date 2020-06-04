@@ -691,6 +691,8 @@ class Interface(CableTermination, ComponentModel):
         unique_together = ('device', 'name')
 
     def __str__(self):
+        if self.label:
+            return f"{self.name} ({self.label})"
         return self.name
 
     def get_absolute_url(self):

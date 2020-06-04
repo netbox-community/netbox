@@ -282,6 +282,8 @@ class InterfaceTemplate(ComponentTemplateModel):
         unique_together = ('device_type', 'name')
 
     def __str__(self):
+        if self.label:
+            return f"{self.name} ({self.label})"
         return self.name
 
     def instantiate(self, device):
