@@ -46,24 +46,19 @@ class WebhookAdmin(admin.ModelAdmin):
     form = WebhookForm
     fieldsets = (
         (None, {
-            'fields': (
-                'name', 'obj_type', 'enabled',
-            )
+            'fields': ('name', 'obj_type', 'enabled')
         }),
         ('Events', {
-            'fields': (
-                'type_create', 'type_update', 'type_delete',
-            )
+            'fields': ('type_create', 'type_update', 'type_delete')
         }),
         ('HTTP Request', {
             'fields': (
                 'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
-            )
+            ),
+            'classes': ('monospace',)
         }),
         ('SSL', {
-            'fields': (
-                'ssl_verification', 'ca_file_path',
-            )
+            'fields': ('ssl_verification', 'ca_file_path')
         })
     )
 
@@ -121,6 +116,8 @@ class CustomLinkForm(forms.ModelForm):
             'url': forms.Textarea,
         }
         help_texts = {
+            'weight': 'A numeric weight to influence the ordering of this link among its peers. Lower weights appear '
+                      'first in a list.',
             'text': 'Jinja2 template code for the link text. Reference the object as <code>{{ obj }}</code>. Links '
                     'which render as empty text will not be displayed.',
             'url': 'Jinja2 template code for the link URL. Reference the object as <code>{{ obj }}</code>.',
@@ -136,6 +133,15 @@ class CustomLinkForm(forms.ModelForm):
 
 @admin.register(CustomLink)
 class CustomLinkAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ('Custom Link', {
+            'fields': ('content_type', 'name', 'group_name', 'weight', 'button_class', 'new_window')
+        }),
+        ('Templates', {
+            'fields': ('text', 'url'),
+            'classes': ('monospace',)
+        })
+    )
     list_display = [
         'name', 'content_type', 'group_name', 'weight',
     ]
@@ -149,8 +155,29 @@ class CustomLinkAdmin(admin.ModelAdmin):
 # Graphs
 #
 
+class GraphForm(forms.ModelForm):
+
+    class Meta:
+        model = Graph
+        exclude = ()
+        widgets = {
+            'source': forms.Textarea,
+            'link': forms.Textarea,
+        }
+
+
 @admin.register(Graph)
 class GraphAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ('Graph', {
+            'fields': ('type', 'name', 'weight')
+        }),
+        ('Templates', {
+            'fields': ('template_language', 'source', 'link'),
+            'classes': ('monospace',)
+        })
+    )
+    form = GraphForm
     list_display = [
         'name', 'type', 'weight', 'template_language', 'source',
     ]
@@ -179,6 +206,15 @@ class ExportTemplateForm(forms.ModelForm):
 
 @admin.register(ExportTemplate)
 class ExportTemplateAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ('Export Template', {
+            'fields': ('content_type', 'name', 'description', 'mime_type', 'file_extension')
+        }),
+        ('Content', {
+            'fields': ('template_language', 'template_code'),
+            'classes': ('monospace',)
+        })
+    )
     list_display = [
         'name', 'content_type', 'description', 'mime_type', 'file_extension',
     ]

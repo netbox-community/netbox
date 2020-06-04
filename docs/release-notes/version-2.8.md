@@ -2,6 +2,10 @@
 
 ## v2.8.6 (FUTURE)
 
+### Enhancements
+
+* [#4698](https://github.com/netbox-community/netbox/issues/4698) - Improve display of template code for object in admin UI
+
 ### Bug Fixes
 
 * [#4702](https://github.com/netbox-community/netbox/issues/4702) - Catch IntegrityError exception when adding a non-unique secret
