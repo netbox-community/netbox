@@ -304,7 +304,7 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = InterfaceTemplate
-        fields = ['id', 'device_type', 'name', 'type', 'mgmt_only']
+        fields = ['id', 'device_type', 'name', 'label', 'type', 'mgmt_only']
 
 
 class RearPortTemplateSerializer(ValidatedModelSerializer):
@@ -536,7 +536,7 @@ class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     class Meta:
         model = Interface
         fields = [
-            'id', 'device', 'name', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
+            'id', 'device', 'name', 'label', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
             'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable', 'mode', 'untagged_vlan',
             'tagged_vlans', 'tags', 'count_ipaddresses',
         ]
