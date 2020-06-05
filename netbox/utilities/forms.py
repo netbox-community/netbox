@@ -530,6 +530,8 @@ class ExpandableNameField(forms.CharField):
                 """
 
     def to_python(self, value):
+        if value is None:
+            return list()
         if re.search(ALPHANUMERIC_EXPANSION_PATTERN, value):
             return list(expand_alphanumeric_pattern(value))
         return [value]
