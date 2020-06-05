@@ -248,7 +248,7 @@ class ConsolePortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ConsolePortTemplate
-        fields = ['id', 'device_type', 'name', 'type']
+        fields = ['id', 'device_type', 'name', 'label', 'type']
 
 
 class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
@@ -261,7 +261,7 @@ class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ConsoleServerPortTemplate
-        fields = ['id', 'device_type', 'name', 'type']
+        fields = ['id', 'device_type', 'name', 'label',  'type']
 
 
 class PowerPortTemplateSerializer(ValidatedModelSerializer):
@@ -274,7 +274,7 @@ class PowerPortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = PowerPortTemplate
-        fields = ['id', 'device_type', 'name', 'type', 'maximum_draw', 'allocated_draw']
+        fields = ['id', 'device_type', 'name', 'label',  'type', 'maximum_draw', 'allocated_draw']
 
 
 class PowerOutletTemplateSerializer(ValidatedModelSerializer):
@@ -295,7 +295,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = PowerOutletTemplate
-        fields = ['id', 'device_type', 'name', 'type', 'power_port', 'feed_leg']
+        fields = ['id', 'device_type', 'name', 'label',  'type', 'power_port', 'feed_leg']
 
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
@@ -446,7 +446,7 @@ class ConsoleServerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer)
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'id', 'device', 'name', 'type', 'description', 'connected_endpoint_type', 'connected_endpoint',
+            'id', 'device', 'name', 'label',  'type', 'description', 'connected_endpoint_type', 'connected_endpoint',
             'connection_status', 'cable', 'tags',
         ]
 
@@ -464,7 +464,7 @@ class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     class Meta:
         model = ConsolePort
         fields = [
-            'id', 'device', 'name', 'type', 'description', 'connected_endpoint_type', 'connected_endpoint',
+            'id', 'device', 'name', 'label',  'type', 'description', 'connected_endpoint_type', 'connected_endpoint',
             'connection_status', 'cable', 'tags',
         ]
 
@@ -494,7 +494,7 @@ class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     class Meta:
         model = PowerOutlet
         fields = [
-            'id', 'device', 'name', 'type', 'power_port', 'feed_leg', 'description', 'connected_endpoint_type',
+            'id', 'device', 'name', 'label',  'type', 'power_port', 'feed_leg', 'description', 'connected_endpoint_type',
             'connected_endpoint', 'connection_status', 'cable', 'tags',
         ]
 
@@ -512,7 +512,7 @@ class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     class Meta:
         model = PowerPort
         fields = [
-            'id', 'device', 'name', 'type', 'maximum_draw', 'allocated_draw', 'description', 'connected_endpoint_type',
+            'id', 'device', 'name', 'label',  'type', 'maximum_draw', 'allocated_draw', 'description', 'connected_endpoint_type',
             'connected_endpoint', 'connection_status', 'cable', 'tags',
         ]
 
