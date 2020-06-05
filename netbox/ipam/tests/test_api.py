@@ -424,6 +424,7 @@ class VLANTest(APIViewTestCases.APIViewTestCase):
 
 class ServiceTest(APIViewTestCases.APIViewTestCase):
     model = Service
+    brief_fields = ['id', 'name', 'port', 'protocol', 'url']
 
     @classmethod
     def setUpTestData(cls):

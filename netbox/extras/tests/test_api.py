@@ -5,11 +5,10 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 
-from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Rack, RackGroup, RackRole, Region, Site
+from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, RackGroup, RackRole, Site
 from extras.api.views import ScriptViewSet
 from extras.models import ConfigContext, Graph, ExportTemplate, Tag
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
-from tenancy.models import Tenant, TenantGroup
 from utilities.testing import APITestCase, APIViewTestCases
 
 
@@ -25,6 +24,7 @@ class AppTest(APITestCase):
 
 class GraphTest(APIViewTestCases.APIViewTestCase):
     model = Graph
+    brief_fields = ['id', 'name', 'url']
     create_data = [
         {
             'type': 'dcim.site',
@@ -57,6 +57,7 @@ class GraphTest(APIViewTestCases.APIViewTestCase):
 
 class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ExportTemplate
+    brief_fields = ['id', 'name', 'url']
     create_data = [
         {
             'content_type': 'dcim.device',
@@ -101,6 +102,7 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class TagTest(APIViewTestCases.APIViewTestCase):
     model = Tag
+    brief_fields = ['color', 'id', 'name', 'slug', 'tagged_items', 'url']
     create_data = [
         {
             'name': 'Tag 4',
@@ -129,6 +131,7 @@ class TagTest(APIViewTestCases.APIViewTestCase):
 
 class ConfigContextTest(APIViewTestCases.APIViewTestCase):
     model = ConfigContext
+    brief_fields = ['id', 'name', 'url']
     create_data = [
         {
             'name': 'Config Context 4',

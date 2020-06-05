@@ -289,6 +289,7 @@ class RackTest(APIViewTestCases.APIViewTestCase):
 
 class RackReservationTest(APIViewTestCases.APIViewTestCase):
     model = RackReservation
+    brief_fields = ['id', 'units', 'url', 'user']
 
     @classmethod
     def setUpTestData(cls):
@@ -1303,7 +1304,7 @@ class DeviceBayTest(APIViewTestCases.APIViewTestCase):
 
 class InventoryItemTest(APIViewTestCases.APIViewTestCase):
     model = InventoryItem
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['device', 'id', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):
