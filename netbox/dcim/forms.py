@@ -1032,7 +1032,7 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsolePortTemplate
         fields = [
-            'device_type', 'name', 'type',
+            'device_type', 'name', 'label', 'type',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1046,10 +1046,26 @@ class ConsolePortTemplateCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    label_pattern = ExpandableNameField(
+        label='Label',
+        required=False
+    )
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect2()
     )
+
+    def clean(self):
+
+        # Validate that the number of ports being created from both the name_pattern and label_pattern are equal
+        name_pattern_count = len(self.cleaned_data['name_pattern'])
+        label_pattern_count = len(self.cleaned_data['label_pattern'])
+        if label_pattern_count and name_pattern_count != label_pattern_count:
+            raise forms.ValidationError({
+                'label_pattern': 'The provided name pattern will create {} ports, however {} labels will '
+                'be generated. These counts must match.'.format(
+                    name_pattern_count, label_pattern_count)
+            })
 
 
 class ConsolePortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -1072,7 +1088,7 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
-            'device_type', 'name', 'type',
+            'device_type', 'name', 'label', 'type',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1086,10 +1102,26 @@ class ConsoleServerPortTemplateCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    label_pattern = ExpandableNameField(
+        label='Label',
+        required=False
+    )
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect2()
     )
+
+    def clean(self):
+
+        # Validate that the number of ports being created from both the name_pattern and label_pattern are equal
+        name_pattern_count = len(self.cleaned_data['name_pattern'])
+        label_pattern_count = len(self.cleaned_data['label_pattern'])
+        if label_pattern_count and name_pattern_count != label_pattern_count:
+            raise forms.ValidationError({
+                'label_pattern': 'The provided name pattern will create {} ports, however {} labels will '
+                'be generated. These counts must match.'.format(
+                    name_pattern_count, label_pattern_count)
+            })
 
 
 class ConsoleServerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -1112,7 +1144,7 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerPortTemplate
         fields = [
-            'device_type', 'name', 'type', 'maximum_draw', 'allocated_draw',
+            'device_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1125,6 +1157,10 @@ class PowerPortTemplateCreateForm(BootstrapMixin, forms.Form):
     )
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    label_pattern = ExpandableNameField(
+        label='Label',
+        required=False
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerPortTypeChoices),
@@ -1140,6 +1176,18 @@ class PowerPortTemplateCreateForm(BootstrapMixin, forms.Form):
         required=False,
         help_text="Allocated power draw (watts)"
     )
+
+    def clean(self):
+
+        # Validate that the number of ports being created from both the name_pattern and label_pattern are equal
+        name_pattern_count = len(self.cleaned_data['name_pattern'])
+        label_pattern_count = len(self.cleaned_data['label_pattern'])
+        if label_pattern_count and name_pattern_count != label_pattern_count:
+            raise forms.ValidationError({
+                'label_pattern': 'The provided name pattern will create {} ports, however {} labels will '
+                'be generated. These counts must match.'.format(
+                    name_pattern_count, label_pattern_count)
+            })
 
 
 class PowerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -1172,7 +1220,7 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'device_type', 'name', 'type', 'power_port', 'feed_leg',
+            'device_type', 'name', 'label', 'type', 'power_port', 'feed_leg',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1195,6 +1243,10 @@ class PowerOutletTemplateCreateForm(BootstrapMixin, forms.Form):
     )
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    label_pattern = ExpandableNameField(
+        label='Label',
+        required=False
     )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
@@ -1220,6 +1272,18 @@ class PowerOutletTemplateCreateForm(BootstrapMixin, forms.Form):
         self.fields['power_port'].queryset = PowerPortTemplate.objects.filter(
             device_type=device_type
         )
+
+    def clean(self):
+
+        # Validate that the number of ports being created from both the name_pattern and label_pattern are equal
+        name_pattern_count = len(self.cleaned_data['name_pattern'])
+        label_pattern_count = len(self.cleaned_data['label_pattern'])
+        if label_pattern_count and name_pattern_count != label_pattern_count:
+            raise forms.ValidationError({
+                'label_pattern': 'The provided name pattern will create {} ports, however {} labels will '
+                'be generated. These counts must match.'.format(
+                    name_pattern_count, label_pattern_count)
+            })
 
 
 class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -1247,7 +1311,7 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'name', 'type', 'mgmt_only',
+            'device_type', 'name', 'label', 'type', 'mgmt_only',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1262,6 +1326,10 @@ class InterfaceTemplateCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    label_pattern = ExpandableNameField(
+        label='Label',
+        required=False
+    )
     type = forms.ChoiceField(
         choices=InterfaceTypeChoices,
         widget=StaticSelect2()
@@ -1270,6 +1338,18 @@ class InterfaceTemplateCreateForm(BootstrapMixin, forms.Form):
         required=False,
         label='Management only'
     )
+
+    def clean(self):
+
+        # Validate that the number of ports being created from both the name_pattern and label_pattern are equal
+        name_pattern_count = len(self.cleaned_data['name_pattern'])
+        label_pattern_count = len(self.cleaned_data['label_pattern'])
+        if label_pattern_count and name_pattern_count != label_pattern_count:
+            raise forms.ValidationError({
+                'label_pattern': 'The provided name pattern will create {} interfaces, however {} labels will '
+                'be generated. These counts must match.'.format(
+                    name_pattern_count, label_pattern_count)
+            })
 
 
 class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -1504,7 +1584,7 @@ class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = ConsolePortTemplate
         fields = [
-            'device_type', 'name', 'type',
+            'device_type', 'name', 'label', 'type',
         ]
 
 
@@ -1513,7 +1593,7 @@ class ConsoleServerPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
-            'device_type', 'name', 'type',
+            'device_type', 'name', 'label', 'type',
         ]
 
 
@@ -1522,7 +1602,7 @@ class PowerPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = PowerPortTemplate
         fields = [
-            'device_type', 'name', 'type', 'maximum_draw', 'allocated_draw',
+            'device_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw',
         ]
 
 
@@ -1536,7 +1616,7 @@ class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'device_type', 'name', 'type', 'power_port', 'feed_leg',
+            'device_type', 'name', 'label', 'type', 'power_port', 'feed_leg',
         ]
 
 
@@ -1548,7 +1628,7 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'name', 'type', 'mgmt_only',
+            'device_type', 'name', 'label', 'type', 'mgmt_only',
         ]
 
 
@@ -2199,11 +2279,27 @@ class DeviceBulkAddComponentForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    label_pattern = ExpandableNameField(
+        label='Label',
+        required=False
+    )
 
     def clean_tags(self):
         # Because we're feeding TagField data (on the bulk edit form) to another TagField (on the model form), we
         # must first convert the list of tags to a string.
         return ','.join(self.cleaned_data.get('tags'))
+
+    def clean(self):
+
+        # Validate that the number of ports being created from both the name_pattern and label_pattern are equal
+        name_pattern_count = len(self.cleaned_data['name_pattern'])
+        label_pattern_count = len(self.cleaned_data['label_pattern'])
+        if label_pattern_count and name_pattern_count != label_pattern_count:
+            raise forms.ValidationError({
+                'label_pattern': 'The provided name pattern will create {} {}}, however {} labels will '
+                'be generated. These counts must match.'.format(
+                    name_pattern_count, self.type, label_pattern_count)
+            })
 
 
 #
@@ -2229,7 +2325,7 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsolePort
         fields = [
-            'device', 'name', 'type', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2243,6 +2339,10 @@ class ConsolePortCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    label_pattern = ExpandableNameField(
+        label='Label',
+        required=False
+    )
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
@@ -2255,6 +2355,18 @@ class ConsolePortCreateForm(BootstrapMixin, forms.Form):
     tags = TagField(
         required=False
     )
+
+    def clean(self):
+
+        # Validate that the number of ports being created from both the name_pattern and label_pattern are equal
+        name_pattern_count = len(self.cleaned_data['name_pattern'])
+        label_pattern_count = len(self.cleaned_data['label_pattern'])
+        if label_pattern_count and name_pattern_count != label_pattern_count:
+            raise forms.ValidationError({
+                'label_pattern': 'The provided name pattern will create {} ports, however {} labels will '
+                'be generated. These counts must match.'.format(
+                    name_pattern_count, label_pattern_count)
+            })
 
 
 class ConsolePortBulkCreateForm(
@@ -2329,6 +2441,10 @@ class ConsoleServerPortCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    label_pattern = ExpandableNameField(
+        label='Label',
+        required=False
+    )
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
@@ -2341,6 +2457,18 @@ class ConsoleServerPortCreateForm(BootstrapMixin, forms.Form):
     tags = TagField(
         required=False
     )
+
+    def clean(self):
+
+        # Validate that the number of ports being created from both the name_pattern and label_pattern are equal
+        name_pattern_count = len(self.cleaned_data['name_pattern'])
+        label_pattern_count = len(self.cleaned_data['label_pattern'])
+        if label_pattern_count and name_pattern_count != label_pattern_count:
+            raise forms.ValidationError({
+                'label_pattern': 'The provided name pattern will create {} ports, however {} labels will '
+                'be generated. These counts must match.'.format(
+                    name_pattern_count, label_pattern_count)
+            })
 
 
 class ConsoleServerPortBulkCreateForm(
@@ -2429,6 +2557,10 @@ class PowerPortCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    label_pattern = ExpandableNameField(
+        label='Label',
+        required=False
+    )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerPortTypeChoices),
         required=False,
@@ -2451,6 +2583,17 @@ class PowerPortCreateForm(BootstrapMixin, forms.Form):
     tags = TagField(
         required=False
     )
+    def clean(self):
+
+        # Validate that the number of ports being created from both the name_pattern and label_pattern are equal
+        name_pattern_count = len(self.cleaned_data['name_pattern'])
+        label_pattern_count = len(self.cleaned_data['label_pattern'])
+        if label_pattern_count and name_pattern_count != label_pattern_count:
+            raise forms.ValidationError({
+                'label_pattern': 'The provided name pattern will create {} ports, however {} labels will '
+                'be generated. These counts must match.'.format(
+                    name_pattern_count, label_pattern_count)
+            })
 
 
 class PowerPortBulkCreateForm(
@@ -2538,6 +2681,10 @@ class PowerOutletCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    label_pattern = ExpandableNameField(
+        label='Label',
+        required=False
+    )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
         required=False,
@@ -2567,6 +2714,18 @@ class PowerOutletCreateForm(BootstrapMixin, forms.Form):
             pk=self.initial.get('device') or self.data.get('device')
         )
         self.fields['power_port'].queryset = PowerPort.objects.filter(device=device)
+
+    def clean(self):
+
+        # Validate that the number of ports being created from both the name_pattern and label_pattern are equal
+        name_pattern_count = len(self.cleaned_data['name_pattern'])
+        label_pattern_count = len(self.cleaned_data['label_pattern'])
+        if label_pattern_count and name_pattern_count != label_pattern_count:
+            raise forms.ValidationError({
+                'label_pattern': 'The provided name pattern will create {} ports, however {} labels will '
+                'be generated. These counts must match.'.format(
+                    name_pattern_count, label_pattern_count)
+            })
 
 
 class PowerOutletBulkCreateForm(
@@ -2721,7 +2880,7 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Interface
         fields = [
-            'device', 'name', 'type', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description',
+            'device', 'name', 'label', 'type', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description',
             'mode', 'untagged_vlan', 'tagged_vlans', 'tags',
         ]
         widgets = {
@@ -2762,6 +2921,10 @@ class InterfaceCreateForm(BootstrapMixin, InterfaceCommonForm, forms.Form):
     )
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    label_pattern = ExpandableNameField(
+        label='Label',
+        required=False
     )
     type = forms.ChoiceField(
         choices=InterfaceTypeChoices,
@@ -2842,6 +3005,19 @@ class InterfaceCreateForm(BootstrapMixin, InterfaceCommonForm, forms.Form):
         # Add current site to VLANs query params
         self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', device.site.pk)
         self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', device.site.pk)
+
+    def clean(self):
+
+        # Validate that the number of ports being created from both the name_pattern and label_pattern are equal
+        name_pattern_count = len(self.cleaned_data['name_pattern'])
+        label_pattern_count = len(self.cleaned_data['label_pattern'])
+        if label_pattern_count and name_pattern_count != label_pattern_count:
+            raise forms.ValidationError({
+                'label_pattern': 'The provided name pattern will create {} interfaces, however {} labels will '
+                'be generated. These counts must match.'.format(
+                    name_pattern_count, label_pattern_count)
+            })
+
 
 
 class InterfaceBulkCreateForm(
