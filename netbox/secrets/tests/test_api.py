@@ -6,7 +6,7 @@ from rest_framework import status
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
 from users.models import Token
-from utilities.testing import APITestCase, create_test_user
+from utilities.testing import APITestCase, APIViewTestCases, create_test_user
 from .constants import PRIVATE_KEY, PUBLIC_KEY
 
 
@@ -20,107 +20,36 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class SecretRoleTest(APITestCase):
+class SecretRoleTest(APIViewTestCases.APIViewTestCase):
+    model = SecretRole
+    brief_fields = ['id', 'name', 'secret_count', 'slug', 'url']
+    create_data = [
+        {
+            'name': 'Secret Role 4',
+            'slug': 'secret-role-4',
+        },
+        {
+            'name': 'Secret Role 5',
+            'slug': 'secret-role-5',
+        },
+        {
+            'name': 'Secret Role 6',
+            'slug': 'secret-role-6',
+        },
+    ]
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
 
-        super().setUp()
-
-        self.secretrole1 = SecretRole.objects.create(name='Test Secret Role 1', slug='test-secret-role-1')
-        self.secretrole2 = SecretRole.objects.create(name='Test Secret Role 2', slug='test-secret-role-2')
-        self.secretrole3 = SecretRole.objects.create(name='Test Secret Role 3', slug='test-secret-role-3')
-
-    def test_get_secretrole(self):
-
-        url = reverse('secrets-api:secretrole-detail', kwargs={'pk': self.secretrole1.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.data['name'], self.secretrole1.name)
-
-    def test_list_secretroles(self):
-
-        url = reverse('secrets-api:secretrole-list')
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.data['count'], 3)
-
-    def test_list_secretroles_brief(self):
-
-        url = reverse('secrets-api:secretrole-list')
-        response = self.client.get('{}?brief=1'.format(url), **self.header)
-
-        self.assertEqual(
-            sorted(response.data['results'][0]),
-            ['id', 'name', 'secret_count', 'slug', 'url']
+        secret_roles = (
+            SecretRole(name='Secret Role 1', slug='secret-role-1'),
+            SecretRole(name='Secret Role 2', slug='secret-role-2'),
+            SecretRole(name='Secret Role 3', slug='secret-role-3'),
         )
-
-    def test_create_secretrole(self):
-
-        data = {
-            'name': 'Test Secret Role 4',
-            'slug': 'test-secret-role-4',
-        }
-
-        url = reverse('secrets-api:secretrole-list')
-        response = self.client.post(url, data, format='json', **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(SecretRole.objects.count(), 4)
-        secretrole4 = SecretRole.objects.get(pk=response.data['id'])
-        self.assertEqual(secretrole4.name, data['name'])
-        self.assertEqual(secretrole4.slug, data['slug'])
-
-    def test_create_secretrole_bulk(self):
-
-        data = [
-            {
-                'name': 'Test Secret Role 4',
-                'slug': 'test-secret-role-4',
-            },
-            {
-                'name': 'Test Secret Role 5',
-                'slug': 'test-secret-role-5',
-            },
-            {
-                'name': 'Test Secret Role 6',
-                'slug': 'test-secret-role-6',
-            },
-        ]
-
-        url = reverse('secrets-api:secretrole-list')
-        response = self.client.post(url, data, format='json', **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(SecretRole.objects.count(), 6)
-        self.assertEqual(response.data[0]['name'], data[0]['name'])
-        self.assertEqual(response.data[1]['name'], data[1]['name'])
-        self.assertEqual(response.data[2]['name'], data[2]['name'])
-
-    def test_update_secretrole(self):
-
-        data = {
-            'name': 'Test SecretRole X',
-            'slug': 'test-secretrole-x',
-        }
-
-        url = reverse('secrets-api:secretrole-detail', kwargs={'pk': self.secretrole1.pk})
-        response = self.client.put(url, data, format='json', **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(SecretRole.objects.count(), 3)
-        secretrole1 = SecretRole.objects.get(pk=response.data['id'])
-        self.assertEqual(secretrole1.name, data['name'])
-        self.assertEqual(secretrole1.slug, data['slug'])
-
-    def test_delete_secretrole(self):
-
-        url = reverse('secrets-api:secretrole-detail', kwargs={'pk': self.secretrole1.pk})
-        response = self.client.delete(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(SecretRole.objects.count(), 2)
+        SecretRole.objects.bulk_create(secret_roles)
 
 
+# TODO: Standardize SecretTest
 class SecretTest(APITestCase):
 
     def setUp(self):
