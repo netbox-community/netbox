@@ -579,7 +579,7 @@ class APIViewTestCases:
             """
             instance = self.model.objects.first()
             url = self._get_detail_url(instance)
-            update_data = self.update_data
+            update_data = self.update_data or getattr(self, 'create_data')[0]
             response = self.client.patch(url, update_data, format='json', **self.header)
 
             self.assertHttpStatus(response, status.HTTP_200_OK)
