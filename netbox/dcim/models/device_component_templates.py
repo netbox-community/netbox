@@ -85,6 +85,8 @@ class ConsolePortTemplate(ComponentTemplateModel):
         unique_together = ('device_type', 'name')
 
     def __str__(self):
+        if self.label:
+            return f"{self.name} ({self.label})"
         return self.name
 
     def instantiate(self, device):
@@ -128,6 +130,8 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
         unique_together = ('device_type', 'name')
 
     def __str__(self):
+        if self.label:
+            return f"{self.name} ({self.label})"
         return self.name
 
     def instantiate(self, device):
@@ -183,6 +187,8 @@ class PowerPortTemplate(ComponentTemplateModel):
         unique_together = ('device_type', 'name')
 
     def __str__(self):
+        if self.label:
+            return f"{self.name} ({self.label})"
         return self.name
 
     def instantiate(self, device):
@@ -241,6 +247,8 @@ class PowerOutletTemplate(ComponentTemplateModel):
         unique_together = ('device_type', 'name')
 
     def __str__(self):
+        if self.label:
+            return f"{self.name} ({self.label})"
         return self.name
 
     def clean(self):
