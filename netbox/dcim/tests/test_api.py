@@ -1846,6 +1846,9 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
             Device(name='Device 7', device_type=devicetype, device_role=devicerole, site=site),
             Device(name='Device 8', device_type=devicetype, device_role=devicerole, site=site),
             Device(name='Device 9', device_type=devicetype, device_role=devicerole, site=site),
+            Device(name='Device 10', device_type=devicetype, device_role=devicerole, site=site),
+            Device(name='Device 11', device_type=devicetype, device_role=devicerole, site=site),
+            Device(name='Device 12', device_type=devicetype, device_role=devicerole, site=site),
         )
         Device.objects.bulk_create(devices)
 
@@ -1859,16 +1862,19 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
                 )
         Interface.objects.bulk_create(interfaces)
 
-        # Create two VirtualChassis with three members each
+        # Create three VirtualChassis with three members each
         virtual_chassis = (
             VirtualChassis(master=devices[0], domain='domain-1'),
             VirtualChassis(master=devices[3], domain='domain-2'),
+            VirtualChassis(master=devices[6], domain='domain-3'),
         )
         VirtualChassis.objects.bulk_create(virtual_chassis)
         Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis[0], vc_position=2)
         Device.objects.filter(pk=devices[2].pk).update(virtual_chassis=virtual_chassis[0], vc_position=3)
         Device.objects.filter(pk=devices[4].pk).update(virtual_chassis=virtual_chassis[1], vc_position=2)
         Device.objects.filter(pk=devices[5].pk).update(virtual_chassis=virtual_chassis[1], vc_position=3)
+        Device.objects.filter(pk=devices[7].pk).update(virtual_chassis=virtual_chassis[2], vc_position=2)
+        Device.objects.filter(pk=devices[8].pk).update(virtual_chassis=virtual_chassis[2], vc_position=3)
 
         cls.update_data = {
             'master': devices[1].pk,
@@ -1877,16 +1883,16 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
 
         cls.create_data = [
             {
-                'master': devices[6].pk,
-                'domain': 'domain-3',
-            },
-            {
-                'master': devices[7].pk,
+                'master': devices[9].pk,
                 'domain': 'domain-4',
             },
             {
-                'master': devices[8].pk,
+                'master': devices[10].pk,
                 'domain': 'domain-5',
+            },
+            {
+                'master': devices[11].pk,
+                'domain': 'domain-6',
             },
         ]
 
