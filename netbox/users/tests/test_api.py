@@ -18,10 +18,7 @@ class AppTest(APITestCase):
 
 class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
     model = ObjectPermission
-    brief_fields = []
-
-    # TODO: Add a nested serializer for ObjectPermission
-    test_list_objects_brief = None
+    brief_fields = ['actions', 'groups', 'id', 'object_types', 'users']
 
     @classmethod
     def setUpTestData(cls):
