@@ -74,12 +74,8 @@ class PrefixViewSet(CustomFieldModelViewSet):
     serializer_class = serializers.PrefixSerializer
     filterset_class = filters.PrefixFilterSet
 
-    @swagger_auto_schema(
-        methods=['get', 'post'],
-        responses={
-            200: serializers.AvailablePrefixSerializer(many=True),
-        }
-    )
+    @swagger_auto_schema(method='get', responses={200: serializers.AvailablePrefixSerializer(many=True)})
+    @swagger_auto_schema(method='post', responses={201: serializers.AvailablePrefixSerializer(many=True)})
     @action(detail=True, url_path='available-prefixes', methods=['get', 'post'])
     @advisory_lock(ADVISORY_LOCK_KEYS['available-prefixes'])
     def available_prefixes(self, request, pk=None):
@@ -158,12 +154,9 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
             return Response(serializer.data)
 
-    @swagger_auto_schema(
-        methods=['get', 'post'],
-        responses={
-            200: serializers.AvailableIPSerializer(many=True),
-        }
-    )
+    @swagger_auto_schema(method='get', responses={200: serializers.AvailableIPSerializer(many=True)})
+    @swagger_auto_schema(method='post', responses={201: serializers.AvailableIPSerializer(many=True)},
+                         request_body=serializers.AvailableIPSerializer(many=False))
     @action(detail=True, url_path='available-ips', methods=['get', 'post'])
     @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
     def available_ips(self, request, pk=None):
