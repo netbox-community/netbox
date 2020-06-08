@@ -115,6 +115,16 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
                 'plaintext2': "The two given plaintext values do not match. Please check your input."
             })
 
+        # Validate uniqueness
+        if Secret.objects.filter(
+            device=self.cleaned_data['device'],
+            role=self.cleaned_data['role'],
+            name=self.cleaned_data['name']
+        ).exists():
+            raise forms.ValidationError(
+                "Each secret assigned to a device must have a unique combination of role and name"
+            )
+
 
 class SecretCSVForm(CustomFieldModelCSVForm):
     device = CSVModelChoiceField(

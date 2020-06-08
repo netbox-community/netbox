@@ -1,5 +1,19 @@
 # NetBox v2.8
 
+## v2.8.6 (FUTURE)
+
+### Enhancements
+
+* [#4698](https://github.com/netbox-community/netbox/issues/4698) - Improve display of template code for object in admin UI
+
+### Bug Fixes
+
+* [#4702](https://github.com/netbox-community/netbox/issues/4702) - Catch IntegrityError exception when adding a non-unique secret
+* [#4707](https://github.com/netbox-community/netbox/issues/4707) - Fix `prefix_count` population on VLAN API serializer
+* [#4725](https://github.com/netbox-community/netbox/issues/4725) - Fix "brief" rendering of various REST API endpoints
+
+---
+
 ## v2.8.5 (2020-05-26)
 
 **Note:** The minimum required version of PostgreSQL is now 9.6.
