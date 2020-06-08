@@ -199,7 +199,10 @@ class APIViewTestCases:
             initial_count = self.model.objects.count()
             response = self.client.post(self._get_list_url(), self.create_data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            self.assertEqual(len(response.data), len(self.create_data))
             self.assertEqual(self.model.objects.count(), initial_count + len(self.create_data))
+            for i, obj in enumerate(response.data):
+                self.assertInstanceEqual(self.model.objects.get(pk=obj['id']), self.create_data[i], api=True)
 
     class UpdateObjectViewTestCase(APITestCase):
         update_data = {}
