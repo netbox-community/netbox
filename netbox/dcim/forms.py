@@ -2296,9 +2296,9 @@ class DeviceBulkAddComponentForm(BootstrapMixin, forms.Form):
         label_pattern_count = len(self.cleaned_data['label_pattern'])
         if label_pattern_count and name_pattern_count != label_pattern_count:
             raise forms.ValidationError({
-                'label_pattern': 'The provided name pattern will create {} {}}, however {} labels will '
+                'label_pattern': 'The provided name pattern will create {} ports, however {} labels will '
                 'be generated. These counts must match.'.format(
-                    name_pattern_count, self.type, label_pattern_count)
+                    name_pattern_count, label_pattern_count)
             })
 
 
