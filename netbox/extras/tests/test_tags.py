@@ -15,16 +15,15 @@ class TaggedItemTest(APITestCase):
         super().setUp()
 
     def test_create_tagged_item(self):
-
         data = {
             'name': 'Test Site',
             'slug': 'test-site',
             'tags': ['Foo', 'Bar', 'Baz']
         }
-
         url = reverse('dcim-api:site-list')
-        response = self.client.post(url, data, format='json', **self.header)
+        self.add_permissions('dcim.add_site')
 
+        response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(sorted(response.data['tags']), sorted(data['tags']))
         site = Site.objects.get(pk=response.data['id'])
@@ -32,20 +31,18 @@ class TaggedItemTest(APITestCase):
         self.assertEqual(sorted(tags), sorted(data['tags']))
 
     def test_update_tagged_item(self):
-
         site = Site.objects.create(
             name='Test Site',
             slug='test-site'
         )
         site.tags.add('Foo', 'Bar', 'Baz')
-
         data = {
             'tags': ['Foo', 'Bar', 'New Tag']
         }
-
+        self.add_permissions('dcim.change_site')
         url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
-        response = self.client.patch(url, data, format='json', **self.header)
 
+        response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(sorted(response.data['tags']), sorted(data['tags']))
         site = Site.objects.get(pk=response.data['id'])
