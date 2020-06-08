@@ -302,6 +302,7 @@ class NestedDeviceBaySerializer(WritableNestedSerializer):
 
 class NestedInventoryItemSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:inventoryitem-detail')
+    device = NestedDeviceSerializer(read_only=True)
 
     class Meta:
         model = models.InventoryItem
