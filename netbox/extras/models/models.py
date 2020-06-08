@@ -232,6 +232,8 @@ class Graph(models.Model):
         verbose_name='Link URL'
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     class Meta:
         ordering = ('type', 'weight', 'name', 'pk')  # (type, weight, name) may be non-unique
 
@@ -298,6 +300,8 @@ class ExportTemplate(models.Model):
         blank=True,
         help_text='Extension to append to the rendered filename'
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['content_type', 'name']
