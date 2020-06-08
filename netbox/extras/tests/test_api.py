@@ -295,6 +295,7 @@ class CreatedUpdatedFilterTest(APITestCase):
         )
 
     def test_get_rack_created(self):
+        self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?created=2001-02-03'.format(url), **self.header)
 
@@ -302,6 +303,7 @@ class CreatedUpdatedFilterTest(APITestCase):
         self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
 
     def test_get_rack_created_gte(self):
+        self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?created__gte=2001-02-04'.format(url), **self.header)
 
@@ -309,6 +311,7 @@ class CreatedUpdatedFilterTest(APITestCase):
         self.assertEqual(response.data['results'][0]['id'], self.rack1.pk)
 
     def test_get_rack_created_lte(self):
+        self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?created__lte=2001-02-04'.format(url), **self.header)
 
@@ -316,6 +319,7 @@ class CreatedUpdatedFilterTest(APITestCase):
         self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
 
     def test_get_rack_last_updated(self):
+        self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?last_updated=2001-02-03%2001:02:03.000004'.format(url), **self.header)
 
@@ -323,6 +327,7 @@ class CreatedUpdatedFilterTest(APITestCase):
         self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
 
     def test_get_rack_last_updated_gte(self):
+        self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?last_updated__gte=2001-02-04%2001:02:03.000004'.format(url), **self.header)
 
@@ -330,6 +335,7 @@ class CreatedUpdatedFilterTest(APITestCase):
         self.assertEqual(response.data['results'][0]['id'], self.rack1.pk)
 
     def test_get_rack_last_updated_lte(self):
+        self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?last_updated__lte=2001-02-04%2001:02:03.000004'.format(url), **self.header)
 

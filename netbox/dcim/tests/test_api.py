@@ -106,6 +106,7 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
         )
         Graph.objects.bulk_create(graphs)
 
+        self.add_permissions('dcim.view_site')
         url = reverse('dcim-api:site-graphs', kwargs={'pk': Site.objects.first().pk})
         response = self.client.get(url, **self.header)
 
@@ -245,6 +246,7 @@ class RackTest(APIViewTestCases.APIViewTestCase):
     def test_get_elevation_rack_units(self):
         rack = Rack.objects.first()
 
+        self.add_permissions('dcim.view_rack')
         url = '{}?q=3'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk}))
         response = self.client.get(url, **self.header)
 
@@ -270,6 +272,7 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         GET a single rack elevation.
         """
         rack = Rack.objects.first()
+        self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk})
         response = self.client.get(url, **self.header)
 
@@ -280,6 +283,7 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         GET a single rack elevation in SVG format.
         """
         rack = Rack.objects.first()
+        self.add_permissions('dcim.view_rack')
         url = '{}?render=svg'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk}))
         response = self.client.get(url, **self.header)
 
@@ -784,6 +788,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         )
         Graph.objects.bulk_create(graphs)
 
+        self.add_permissions('dcim.view_device')
         url = reverse('dcim-api:device-graphs', kwargs={'pk': Device.objects.first().pk})
         response = self.client.get(url, **self.header)
 
@@ -794,6 +799,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         """
         Check that config context data is included by default in the devices list.
         """
+        self.add_permissions('dcim.view_device')
         url = reverse('dcim-api:device-list') + '?slug=device-with-context-data'
         response = self.client.get(url, **self.header)
 
@@ -803,6 +809,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         """
         Check that config context data can be excluded by passing ?exclude=config_context.
         """
+        self.add_permissions('dcim.view_device')
         url = reverse('dcim-api:device-list') + '?exclude=config_context'
         response = self.client.get(url, **self.header)
 
@@ -820,6 +827,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
             'name': device.name,
         }
 
+        self.add_permissions('dcim.add_device')
         url = reverse('dcim-api:device-list')
         response = self.client.post(url, data, format='json', **self.header)
 
@@ -878,6 +886,7 @@ class ConsolePortTest(APIViewTestCases.APIViewTestCase):
         cable = Cable(termination_a=consoleport, termination_b=consoleserverport, label='Cable 1')
         cable.save()
 
+        self.add_permissions('dcim.view_consoleport')
         url = reverse('dcim-api:consoleport-trace', kwargs={'pk': consoleport.pk})
         response = self.client.get(url, **self.header)
 
@@ -941,6 +950,7 @@ class ConsoleServerPortTest(APIViewTestCases.APIViewTestCase):
         cable = Cable(termination_a=consoleserverport, termination_b=consoleport, label='Cable 1')
         cable.save()
 
+        self.add_permissions('dcim.view_consoleserverport')
         url = reverse('dcim-api:consoleserverport-trace', kwargs={'pk': consoleserverport.pk})
         response = self.client.get(url, **self.header)
 
@@ -1004,6 +1014,7 @@ class PowerPortTest(APIViewTestCases.APIViewTestCase):
         cable = Cable(termination_a=powerport, termination_b=poweroutlet, label='Cable 1')
         cable.save()
 
+        self.add_permissions('dcim.view_powerport')
         url = reverse('dcim-api:powerport-trace', kwargs={'pk': powerport.pk})
         response = self.client.get(url, **self.header)
 
@@ -1067,6 +1078,7 @@ class PowerOutletTest(APIViewTestCases.APIViewTestCase):
         cable = Cable(termination_a=poweroutlet, termination_b=powerport, label='Cable 1')
         cable.save()
 
+        self.add_permissions('dcim.view_poweroutlet')
         url = reverse('dcim-api:poweroutlet-trace', kwargs={'pk': poweroutlet.pk})
         response = self.client.get(url, **self.header)
 
@@ -1143,6 +1155,7 @@ class InterfaceTest(APIViewTestCases.APIViewTestCase):
         )
         Graph.objects.bulk_create(graphs)
 
+        self.add_permissions('dcim.view_interface')
         url = reverse('dcim-api:interface-graphs', kwargs={'pk': Interface.objects.first().pk})
         response = self.client.get(url, **self.header)
 
@@ -1446,6 +1459,7 @@ class ConnectionTest(APITestCase):
             'termination_b_id': consoleserverport1.pk,
         }
 
+        self.add_permissions('dcim.add_cable')
         url = reverse('dcim-api:cable-list')
         response = self.client.post(url, data, format='json', **self.header)
 
@@ -1484,6 +1498,7 @@ class ConnectionTest(APITestCase):
             device=self.panel2, name='Test Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport2
         )
 
+        self.add_permissions('dcim.add_cable')
         url = reverse('dcim-api:cable-list')
         cables = [
             # Console port to panel1 front
@@ -1539,6 +1554,7 @@ class ConnectionTest(APITestCase):
             'termination_b_id': poweroutlet1.pk,
         }
 
+        self.add_permissions('dcim.add_cable')
         url = reverse('dcim-api:cable-list')
         response = self.client.post(url, data, format='json', **self.header)
 
@@ -1574,6 +1590,7 @@ class ConnectionTest(APITestCase):
             'termination_b_id': interface2.pk,
         }
 
+        self.add_permissions('dcim.add_cable')
         url = reverse('dcim-api:cable-list')
         response = self.client.post(url, data, format='json', **self.header)
 
@@ -1612,6 +1629,7 @@ class ConnectionTest(APITestCase):
             device=self.panel2, name='Test Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport2
         )
 
+        self.add_permissions('dcim.add_cable')
         url = reverse('dcim-api:cable-list')
         cables = [
             # Interface1 to panel1 front
@@ -1676,6 +1694,7 @@ class ConnectionTest(APITestCase):
             'termination_b_id': circuittermination1.pk,
         }
 
+        self.add_permissions('dcim.add_cable')
         url = reverse('dcim-api:cable-list')
         response = self.client.post(url, data, format='json', **self.header)
 
@@ -1723,6 +1742,7 @@ class ConnectionTest(APITestCase):
             device=self.panel2, name='Test Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport2
         )
 
+        self.add_permissions('dcim.add_cable')
         url = reverse('dcim-api:cable-list')
         cables = [
             # Interface to panel1 front
@@ -1826,6 +1846,9 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
             Device(name='Device 7', device_type=devicetype, device_role=devicerole, site=site),
             Device(name='Device 8', device_type=devicetype, device_role=devicerole, site=site),
             Device(name='Device 9', device_type=devicetype, device_role=devicerole, site=site),
+            Device(name='Device 10', device_type=devicetype, device_role=devicerole, site=site),
+            Device(name='Device 11', device_type=devicetype, device_role=devicerole, site=site),
+            Device(name='Device 12', device_type=devicetype, device_role=devicerole, site=site),
         )
         Device.objects.bulk_create(devices)
 
@@ -1839,16 +1862,19 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
                 )
         Interface.objects.bulk_create(interfaces)
 
-        # Create two VirtualChassis with three members each
+        # Create three VirtualChassis with three members each
         virtual_chassis = (
             VirtualChassis(master=devices[0], domain='domain-1'),
             VirtualChassis(master=devices[3], domain='domain-2'),
+            VirtualChassis(master=devices[6], domain='domain-3'),
         )
         VirtualChassis.objects.bulk_create(virtual_chassis)
         Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis[0], vc_position=2)
         Device.objects.filter(pk=devices[2].pk).update(virtual_chassis=virtual_chassis[0], vc_position=3)
         Device.objects.filter(pk=devices[4].pk).update(virtual_chassis=virtual_chassis[1], vc_position=2)
         Device.objects.filter(pk=devices[5].pk).update(virtual_chassis=virtual_chassis[1], vc_position=3)
+        Device.objects.filter(pk=devices[7].pk).update(virtual_chassis=virtual_chassis[2], vc_position=2)
+        Device.objects.filter(pk=devices[8].pk).update(virtual_chassis=virtual_chassis[2], vc_position=3)
 
         cls.update_data = {
             'master': devices[1].pk,
@@ -1857,16 +1883,16 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
 
         cls.create_data = [
             {
-                'master': devices[6].pk,
-                'domain': 'domain-3',
-            },
-            {
-                'master': devices[7].pk,
+                'master': devices[9].pk,
                 'domain': 'domain-4',
             },
             {
-                'master': devices[8].pk,
+                'master': devices[10].pk,
                 'domain': 'domain-5',
+            },
+            {
+                'master': devices[11].pk,
+                'domain': 'domain-6',
             },
         ]
 

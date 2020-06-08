@@ -182,8 +182,9 @@ class CustomFieldAPITest(APITestCase):
         Validate that custom fields are present on an object even if it has no values defined.
         """
         url = reverse('dcim-api:site-detail', kwargs={'pk': self.sites[0].pk})
-        response = self.client.get(url, **self.header)
+        self.add_permissions('dcim.view_site')
 
+        response = self.client.get(url, **self.header)
         self.assertEqual(response.data['name'], self.sites[0].name)
         self.assertEqual(response.data['custom_fields'], {
             'text_field': None,
@@ -201,10 +202,10 @@ class CustomFieldAPITest(APITestCase):
         site2_cfvs = {
             cfv.field.name: cfv.value for cfv in self.sites[1].custom_field_values.all()
         }
-
         url = reverse('dcim-api:site-detail', kwargs={'pk': self.sites[1].pk})
-        response = self.client.get(url, **self.header)
+        self.add_permissions('dcim.view_site')
 
+        response = self.client.get(url, **self.header)
         self.assertEqual(response.data['name'], self.sites[1].name)
         self.assertEqual(response.data['custom_fields']['text_field'], site2_cfvs['text_field'])
         self.assertEqual(response.data['custom_fields']['number_field'], site2_cfvs['number_field'])
@@ -221,8 +222,9 @@ class CustomFieldAPITest(APITestCase):
             'name': 'Site 3',
             'slug': 'site-3',
         }
-
         url = reverse('dcim-api:site-list')
+        self.add_permissions('dcim.add_site')
+
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
 
@@ -263,8 +265,9 @@ class CustomFieldAPITest(APITestCase):
                 'choice_field': self.cf_select_choice2.pk,
             },
         }
-
         url = reverse('dcim-api:site-list')
+        self.add_permissions('dcim.add_site')
+
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
 
@@ -309,8 +312,9 @@ class CustomFieldAPITest(APITestCase):
                 'slug': 'site-5',
             },
         )
-
         url = reverse('dcim-api:site-list')
+        self.add_permissions('dcim.add_site')
+
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(len(response.data), len(data))
@@ -367,8 +371,9 @@ class CustomFieldAPITest(APITestCase):
                 'custom_fields': custom_field_data,
             },
         )
-
         url = reverse('dcim-api:site-list')
+        self.add_permissions('dcim.add_site')
+
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(len(response.data), len(data))
@@ -410,8 +415,9 @@ class CustomFieldAPITest(APITestCase):
                 'number_field': 1234,
             },
         }
-
         url = reverse('dcim-api:site-detail', kwargs={'pk': self.sites[1].pk})
+        self.add_permissions('dcim.change_site')
+
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 

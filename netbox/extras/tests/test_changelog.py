@@ -4,7 +4,6 @@ from rest_framework import status
 
 from dcim.models import Site
 from extras.choices import *
-from extras.constants import *
 from extras.models import CustomField, CustomFieldValue, ObjectChange
 from utilities.testing import APITestCase
 
@@ -26,7 +25,6 @@ class ChangeLogTest(APITestCase):
         cf.obj_type.set([ct])
 
     def test_create_object(self):
-
         data = {
             'name': 'Test Site 1',
             'slug': 'test-site-1',
@@ -37,10 +35,10 @@ class ChangeLogTest(APITestCase):
                 'bar', 'foo'
             ],
         }
-
         self.assertEqual(ObjectChange.objects.count(), 0)
-
         url = reverse('dcim-api:site-list')
+        self.add_permissions('dcim.add_site')
+
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
 
@@ -55,7 +53,6 @@ class ChangeLogTest(APITestCase):
         self.assertListEqual(sorted(oc.object_data['tags']), data['tags'])
 
     def test_update_object(self):
-
         site = Site(name='Test Site 1', slug='test-site-1')
         site.save()
 
@@ -69,10 +66,10 @@ class ChangeLogTest(APITestCase):
                 'abc', 'xyz'
             ],
         }
-
         self.assertEqual(ObjectChange.objects.count(), 0)
-
+        self.add_permissions('dcim.change_site')
         url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
+
         response = self.client.put(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
@@ -87,7 +84,6 @@ class ChangeLogTest(APITestCase):
         self.assertListEqual(sorted(oc.object_data['tags']), data['tags'])
 
     def test_delete_object(self):
-
         site = Site(
             name='Test Site 1',
             slug='test-site-1'
@@ -99,12 +95,11 @@ class ChangeLogTest(APITestCase):
             obj=site,
             value='ABC'
         )
-
         self.assertEqual(ObjectChange.objects.count(), 0)
-
+        self.add_permissions('dcim.delete_site')
         url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
-        response = self.client.delete(url, **self.header)
 
+        response = self.client.delete(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Site.objects.count(), 0)
 

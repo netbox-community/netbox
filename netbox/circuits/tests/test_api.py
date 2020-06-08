@@ -58,6 +58,7 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
         )
         Graph.objects.bulk_create(graphs)
 
+        self.add_permissions('circuits.view_provider')
         url = reverse('circuits-api:provider-graphs', kwargs={'pk': provider.pk})
         response = self.client.get(url, **self.header)
 

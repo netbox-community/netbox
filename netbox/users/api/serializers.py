@@ -1,3 +1,4 @@
+from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 
 from users.models import ObjectPermission

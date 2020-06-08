@@ -11,7 +11,7 @@ from dcim.models import Site
 from ipam.choices import PrefixStatusChoices
 from ipam.models import Prefix
 from users.models import ObjectPermission, Token
-from utilities.testing.testcases import TestCase
+from utilities.testing import TestCase
 
 
 class ExternalAuthenticationTestCase(TestCase):
