@@ -10,6 +10,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from utilities.querysets import RestrictedQuerySet
 from utilities.utils import flatten_dict
 
 
@@ -261,6 +262,8 @@ class ObjectPermission(models.Model):
         null=True,
         help_text="Queryset filter matching the applicable objects of the selected type(s)"
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         verbose_name = "Permission"

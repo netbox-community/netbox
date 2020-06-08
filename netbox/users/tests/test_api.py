@@ -1,10 +1,9 @@
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
-from rest_framework import status
 
 from users.models import ObjectPermission
-from utilities.testing import APITestCase
+from utilities.testing import APIViewTestCases, APITestCase
 
 
 class AppTest(APITestCase):
@@ -17,7 +16,12 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class ObjectPermissionTest(APITestCase):
+class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
+    model = ObjectPermission
+    brief_fields = []
+
+    # TODO: Add a nested serializer for ObjectPermission
+    test_list_objects_brief = None
 
     @classmethod
     def setUpTestData(cls):
@@ -48,43 +52,7 @@ class ObjectPermissionTest(APITestCase):
             objectpermission.groups.add(groups[i])
             objectpermission.users.add(users[i])
 
-    def test_get_objectpermission(self):
-        objectpermission = ObjectPermission.objects.first()
-        url = reverse('users-api:objectpermission-detail', kwargs={'pk': objectpermission.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.data['id'], objectpermission.pk)
-
-    def test_list_objectpermissions(self):
-        url = reverse('users-api:objectpermission-list')
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.data['count'], ObjectPermission.objects.count())
-
-    def test_create_objectpermission(self):
-        data = {
-            'object_types': ['dcim.site'],
-            'groups': [Group.objects.first().pk],
-            'users': [User.objects.first().pk],
-            'actions': ['view', 'add', 'change', 'delete'],
-            'constraints': {'name': 'TEST4'},
-        }
-
-        url = reverse('users-api:objectpermission-list')
-        response = self.client.post(url, data, format='json', **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(ObjectPermission.objects.count(), 4)
-        objectpermission = ObjectPermission.objects.get(pk=response.data['id'])
-        self.assertEqual(objectpermission.groups.first().pk, data['groups'][0])
-        self.assertEqual(objectpermission.users.first().pk, data['users'][0])
-        self.assertEqual(objectpermission.actions, data['actions'])
-        self.assertEqual(objectpermission.constraints, data['constraints'])
-
-    def test_create_objectpermission_bulk(self):
-        groups = Group.objects.all()[:3]
-        users = User.objects.all()[:3]
-        data = [
+        cls.create_data = [
             {
                 'object_types': ['dcim.site'],
                 'groups': [groups[0].pk],
@@ -107,38 +75,3 @@ class ObjectPermissionTest(APITestCase):
                 'constraints': {'name': 'TEST6'},
             },
         ]
-
-        url = reverse('users-api:objectpermission-list')
-        response = self.client.post(url, data, format='json', **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(ObjectPermission.objects.count(), 6)
-
-    def test_update_objectpermission(self):
-        objectpermission = ObjectPermission.objects.first()
-        data = {
-            'object_types': ['dcim.site', 'dcim.device'],
-            'groups': [g.pk for g in Group.objects.all()[:2]],
-            'users': [u.pk for u in User.objects.all()[:2]],
-            'actions': ['view'],
-            'constraints': {'name': 'TEST'},
-        }
-
-        url = reverse('users-api:objectpermission-detail', kwargs={'pk': objectpermission.pk})
-        response = self.client.put(url, data, format='json', **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(ObjectPermission.objects.count(), 3)
-        objectpermission = ObjectPermission.objects.get(pk=response.data['id'])
-        self.assertEqual(objectpermission.groups.first().pk, data['groups'][0])
-        self.assertEqual(objectpermission.users.first().pk, data['users'][0])
-        self.assertEqual(objectpermission.actions, data['actions'])
-        self.assertEqual(objectpermission.constraints, data['constraints'])
-
-    def test_delete_objectpermission(self):
-        objectpermission = ObjectPermission.objects.first()
-        url = reverse('users-api:objectpermission-detail', kwargs={'pk': objectpermission.pk})
-        response = self.client.delete(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(ObjectPermission.objects.count(), 2)

@@ -170,9 +170,6 @@ class APIViewTestCases:
             """
             POST a single object with permission.
             """
-            initial_count = self.model.objects.count()
-            url = self._get_list_url()
-
             # Add object-level permission
             obj_perm = ObjectPermission(
                 actions=['add']
@@ -181,7 +178,8 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
 
-            response = self.client.post(url, self.create_data[0], format='json', **self.header)
+            initial_count = self.model.objects.count()
+            response = self.client.post(self._get_list_url(), self.create_data[0], format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
             self.assertEqual(self.model.objects.count(), initial_count + 1)
             self.assertInstanceEqual(self.model.objects.get(pk=response.data['id']), self.create_data[0], api=True)
@@ -190,9 +188,6 @@ class APIViewTestCases:
             """
             POST a set of objects in a single request.
             """
-            initial_count = self.model.objects.count()
-            url = self._get_list_url()
-
             # Add object-level permission
             obj_perm = ObjectPermission(
                 actions=['add']
@@ -201,7 +196,8 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
 
-            response = self.client.post(url, self.create_data, format='json', **self.header)
+            initial_count = self.model.objects.count()
+            response = self.client.post(self._get_list_url(), self.create_data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
             self.assertEqual(self.model.objects.count(), initial_count + len(self.create_data))
 
