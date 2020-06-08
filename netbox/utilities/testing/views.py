@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import ForeignKey, ManyToManyField
 from django.forms.models import model_to_dict
 from django.test import Client, TestCase as _TestCase, override_settings
 from django.urls import reverse, NoReverseMatch
@@ -83,12 +84,15 @@ class TestCase(_TestCase):
             if api:
 
                 # Replace ContentType numeric IDs with <app_label>.<model>
-                if type(getattr(instance, key)) is ContentType:
+                field = instance._meta.get_field(key)
+                if type(field) is ForeignKey and field.related_model is ContentType:
                     ct = ContentType.objects.get(pk=value)
                     model_dict[key] = f'{ct.app_label}.{ct.model}'
+                elif type(field) is ManyToManyField and field.related_model is ContentType:
+                    model_dict[key] = [f'{ct.app_label}.{ct.model}' for ct in value]
 
                 # Convert IPNetwork instances to strings
-                if type(value) is IPNetwork:
+                elif type(value) is IPNetwork:
                     model_dict[key] = str(value)
 
         # Omit any dictionary keys which are not instance attributes
