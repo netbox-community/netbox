@@ -29,7 +29,6 @@ class SecretRoleViewSet(ModelViewSet):
         secret_count=Count('secrets')
     )
     serializer_class = serializers.SecretRoleSerializer
-    permission_classes = [IsAuthenticated]
     filterset_class = filters.SecretRoleFilterSet
 
 
