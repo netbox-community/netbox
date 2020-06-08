@@ -207,13 +207,6 @@ class ViewTestCases:
             # Try GET to non-permitted object
             self.assertHttpStatus(self.client.get(instance2.get_absolute_url()), 404)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
-        def test_get_object_anonymous(self):
-            # Make the request as an unauthenticated user
-            self.client.logout()
-            response = self.client.get(self.model.objects.first().get_absolute_url())
-            self.assertHttpStatus(response, 200)
-
     class CreateObjectViewTestCase(ModelViewTestCase):
         """
         Create a single new instance.
