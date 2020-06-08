@@ -1,8 +1,10 @@
 from django.contrib.auth.models import Permission, User
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from django.test import Client, TestCase as _TestCase, override_settings
 from django.urls import reverse, NoReverseMatch
+from netaddr import IPNetwork
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -58,22 +60,37 @@ class TestCase(_TestCase):
             expected_status, response.status_code, getattr(response, 'data', 'No data')
         ))
 
-    def assertInstanceEqual(self, instance, data):
+    def assertInstanceEqual(self, instance, data, api=False):
         """
         Compare a model instance to a dictionary, checking that its attribute values match those specified
         in the dictionary.
+
+        :instance: Python object instance
+        :data: Dictionary of test data used to define the instance
+        :api: Set to True is the data is a JSON representation of the instance
         """
         model_dict = model_to_dict(instance, fields=data.keys())
 
-        for key in list(model_dict.keys()):
+        for key, value in list(model_dict.items()):
 
             # TODO: Differentiate between tags assigned to the instance and a M2M field for tags (ex: ConfigContext)
             if key == 'tags':
-                model_dict[key] = ','.join(sorted([tag.name for tag in model_dict['tags']]))
+                model_dict[key] = ','.join(sorted([tag.name for tag in value]))
 
             # Convert ManyToManyField to list of instance PKs
-            elif model_dict[key] and type(model_dict[key]) in (list, tuple) and hasattr(model_dict[key][0], 'pk'):
-                model_dict[key] = [obj.pk for obj in model_dict[key]]
+            elif model_dict[key] and type(value) in (list, tuple) and hasattr(value[0], 'pk'):
+                model_dict[key] = [obj.pk for obj in value]
+
+            if api:
+
+                # Replace ContentType numeric IDs with <app_label>.<model>
+                if type(getattr(instance, key)) is ContentType:
+                    ct = ContentType.objects.get(pk=value)
+                    model_dict[key] = f'{ct.app_label}.{ct.model}'
+
+                # Convert IPNetwork instances to strings
+                if type(value) is IPNetwork:
+                    model_dict[key] = str(value)
 
         # Omit any dictionary keys which are not instance attributes
         relevant_data = {
@@ -557,7 +574,7 @@ class APIViewTestCases:
 
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
             self.assertEqual(self.model.objects.count(), initial_count + 1)
-            self.assertInstanceEqual(self.model.objects.get(pk=response.data['id']), self.create_data[0])
+            self.assertInstanceEqual(self.model.objects.get(pk=response.data['id']), self.create_data[0], api=True)
 
         def test_bulk_create_object(self):
             """
@@ -584,7 +601,7 @@ class APIViewTestCases:
 
             self.assertHttpStatus(response, status.HTTP_200_OK)
             instance.refresh_from_db()
-            self.assertInstanceEqual(instance, self.update_data)
+            self.assertInstanceEqual(instance, self.update_data, api=True)
 
     class DeleteObjectViewTestCase(APITestCase):
 
