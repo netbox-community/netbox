@@ -1254,6 +1254,34 @@ class InterfaceTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(len(response.data), 3)
         self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?interface=Interface 1&foo=1')
 
+    def test_trace_interface(self):
+        """
+        Test tracing an Interface cable.
+        """
+        interface_a = Interface.objects.first()
+        peer_device = Device.objects.create(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='Peer Device'
+        )
+        interface_b = Interface.objects.create(
+            device=peer_device,
+            name='Interface X'
+        )
+        cable = Cable(termination_a=interface_a, termination_b=interface_b, label='Cable 1')
+        cable.save()
+
+        url = reverse('dcim-api:interface-trace', kwargs={'pk': interface_a.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], interface_a.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], interface_b.name)
+
 
 class FrontPortTest(APIViewTestCases.APIViewTestCase):
     model = FrontPort
