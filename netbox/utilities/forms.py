@@ -804,6 +804,33 @@ class ImportForm(BootstrapMixin, forms.Form):
                 })
 
 
+class LabeledComponentForm(BootstrapMixin, forms.Form):
+    """
+    Base form for adding label pattern validation to `Create` forms
+    """
+    component_type = 'port'
+
+    name_pattern = ExpandableNameField(
+        label='Name'
+    )
+    label_pattern = ExpandableNameField(
+        label='Label',
+        required=False
+    )
+
+    def clean(self):
+
+        # Validate that the number of components being created from both the name_pattern and label_pattern are equal
+        name_pattern_count = len(self.cleaned_data['name_pattern'])
+        label_pattern_count = len(self.cleaned_data['label_pattern'])
+        if label_pattern_count and name_pattern_count != label_pattern_count:
+            raise forms.ValidationError({
+                'label_pattern': 'The provided name pattern will create {} {}s, however {} labels will '
+                'be generated. These counts must match.'.format(
+                    name_pattern_count, self.component_type, label_pattern_count)
+            }, code='label_pattern_mismatch')
+
+
 class TableConfigForm(BootstrapMixin, forms.Form):
     """
     Form for configuring user's table preferences.
