@@ -1336,6 +1336,34 @@ class FrontPortTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_trace_frontport(self):
+        """
+        Test tracing a FrontPort cable.
+        """
+        frontport = FrontPort.objects.first()
+        peer_device = Device.objects.create(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='Peer Device'
+        )
+        interface = Interface.objects.create(
+            device=peer_device,
+            name='Interface X'
+        )
+        cable = Cable(termination_a=frontport, termination_b=interface, label='Cable 1')
+        cable.save()
+
+        url = reverse('dcim-api:frontport-trace', kwargs={'pk': frontport.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], frontport.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], interface.name)
+
 
 class RearPortTest(APIViewTestCases.APIViewTestCase):
     model = RearPort
@@ -1373,6 +1401,34 @@ class RearPortTest(APIViewTestCases.APIViewTestCase):
                 'type': PortTypeChoices.TYPE_8P8C,
             },
         ]
+
+    def test_trace_rearport(self):
+        """
+        Test tracing a RearPort cable.
+        """
+        rearport = RearPort.objects.first()
+        peer_device = Device.objects.create(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='Peer Device'
+        )
+        interface = Interface.objects.create(
+            device=peer_device,
+            name='Interface X'
+        )
+        cable = Cable(termination_a=rearport, termination_b=interface, label='Cable 1')
+        cable.save()
+
+        url = reverse('dcim-api:rearport-trace', kwargs={'pk': rearport.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], rearport.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], interface.name)
 
 
 class DeviceBayTest(APIViewTestCases.APIViewTestCase):
