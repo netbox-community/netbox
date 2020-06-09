@@ -699,6 +699,8 @@ class InterfaceTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
         cls.bulk_create_data = {
             'device_type': devicetypes[1].pk,
             'name_pattern': 'Interface Template [4-6]',
+            # Test that a label can be applied to each generated interface templates
+            'label_pattern': 'Interface Template Label [3-5]',
             'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             'mgmt_only': True,
         }
@@ -995,6 +997,8 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.bulk_create_data = {
             'device': device.pk,
             'name_pattern': 'Console Port [4-6]',
+            # Test that a label can be applied to each generated console ports
+            'label_pattern': 'Serial[3-5]',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console port',
             'tags': 'Alpha,Bravo,Charlie',
