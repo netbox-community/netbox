@@ -133,7 +133,7 @@ class LabelTestCase(TestCase):
         cls.device = Device.objects.create(
             name='Device 2', device_type=cls.device_type, device_role=device_role, site=site
         )
-    
+
     def test_interface_label_count_valid(self):
         good_interface_data = {
             'device': self.device.pk,
@@ -143,7 +143,7 @@ class LabelTestCase(TestCase):
             'type': InterfaceTypeChoices.TYPE_100ME_FIXED,
         }
         form = InterfaceCreateForm(good_interface_data)
-        
+
         print(form.errors)
         self.assertTrue(form.is_valid())
 
@@ -159,7 +159,7 @@ class LabelTestCase(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn('label_pattern', form.errors)
-    
+
     def test_console_port_template_label_count_valid(self):
         bad_console_port_template_data = {
             'device_type': self.device_type,
