@@ -29,7 +29,7 @@ VIRTUALMACHINE_STATUS = """
 """
 
 VIRTUALMACHINE_ROLE = """
-{% if record.role %}<label class="label" style="background-color: #{{ record.role.color }}">{{ value }}</label>{% else %}&mdash;{% endif %}
+{% if record.role %}{% load helpers %}<label class="label" style="color: {{ record.role.color|fgcolor }}; background-color: #{{ record.role.color }}">{{ value }}</label>{% else %}&mdash;{% endif %}
 """
 
 VIRTUALMACHINE_PRIMARY_IP = """
