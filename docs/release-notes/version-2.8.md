@@ -14,6 +14,7 @@
 * [#4725](https://github.com/netbox-community/netbox/issues/4725) - Fix "brief" rendering of various REST API endpoints
 * [#4736](https://github.com/netbox-community/netbox/issues/4736) - Add cable trace endpoints for pass-through ports
 * [#4737](https://github.com/netbox-community/netbox/issues/4737) - Fix display of role labels in virtual machines table
+* [#4743](https://github.com/netbox-community/netbox/issues/4743) - Allow users to create "next available" IPs without needing permission to create prefixes
 
 ---
 

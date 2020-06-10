@@ -90,10 +90,6 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
         if request.method == 'POST':
 
-            # Permissions check
-            if not request.user.has_perm('ipam.add_prefix'):
-                raise PermissionDenied()
-
             # Validate Requested Prefixes' length
             serializer = serializers.PrefixLengthSerializer(
                 data=request.data if isinstance(request.data, list) else [request.data],
@@ -157,7 +153,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
     @swagger_auto_schema(method='get', responses={200: serializers.AvailableIPSerializer(many=True)})
     @swagger_auto_schema(method='post', responses={201: serializers.AvailableIPSerializer(many=True)},
                          request_body=serializers.AvailableIPSerializer(many=False))
-    @action(detail=True, url_path='available-ips', methods=['get', 'post'])
+    @action(detail=True, url_path='available-ips', methods=['get', 'post'], queryset=IPAddress.objects.all())
     @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
     def available_ips(self, request, pk=None):
         """
@@ -172,10 +168,6 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
         # Create the next available IP within the prefix
         if request.method == 'POST':
-
-            # Permissions check
-            if not request.user.has_perm('ipam.add_ipaddress'):
-                raise PermissionDenied()
 
             # Normalize to a list of objects
             requested_ips = request.data if isinstance(request.data, list) else [request.data]
