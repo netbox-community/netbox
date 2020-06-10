@@ -72,7 +72,7 @@ class ConsolePortTemplate(ComponentTemplateModel):
     label = models.CharField(
         max_length=64,
         blank=True,
-        help_text="The physical label for this console port"
+        help_text="Physical label"
     )
     type = models.CharField(
         max_length=50,
@@ -117,7 +117,7 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     label = models.CharField(
         max_length=64,
         blank=True,
-        help_text="The physical label for this console server port"
+        help_text="Physical label"
     )
     type = models.CharField(
         max_length=50,
@@ -162,7 +162,7 @@ class PowerPortTemplate(ComponentTemplateModel):
     label = models.CharField(
         max_length=64,
         blank=True,
-        help_text="The physical label for this power supply port"
+        help_text="Physical label"
     )
     type = models.CharField(
         max_length=50,
@@ -221,7 +221,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
     label = models.CharField(
         max_length=64,
         blank=True,
-        help_text="The physical label for this power outlet"
+        help_text="Physical label"
     )
     type = models.CharField(
         max_length=50,
@@ -294,7 +294,7 @@ class InterfaceTemplate(ComponentTemplateModel):
     label = models.CharField(
         max_length=64,
         blank=True,
-        help_text="The physical label for this interface"
+        help_text="Physical label"
     )
     type = models.CharField(
         max_length=50,

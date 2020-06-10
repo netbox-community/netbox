@@ -234,7 +234,7 @@ class ConsolePort(CableTermination, ComponentModel):
     label = models.CharField(
         max_length=64,
         blank=True,
-        help_text="The physical label for this console port"
+        help_text="Physical label"
     )
     _name = NaturalOrderingField(
         target_field='name',
@@ -308,7 +308,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     label = models.CharField(
         max_length=64,
         blank=True,
-        help_text="The physical label for this console server port"
+        help_text="Physical label"
     )
     type = models.CharField(
         max_length=50,
@@ -370,7 +370,7 @@ class PowerPort(CableTermination, ComponentModel):
     label = models.CharField(
         max_length=64,
         blank=True,
-        help_text="The physical label for this power supply port"
+        help_text="Physical label"
     )
     type = models.CharField(
         max_length=50,
@@ -540,7 +540,7 @@ class PowerOutlet(CableTermination, ComponentModel):
     label = models.CharField(
         max_length=64,
         blank=True,
-        help_text="The physical label for this power outlet"
+        help_text="Physical label"
     )
     type = models.CharField(
         max_length=50,
@@ -636,7 +636,7 @@ class Interface(CableTermination, ComponentModel):
     label = models.CharField(
         max_length=64,
         blank=True,
-        help_text="The physical label for this interface"
+        help_text="Physical label"
     )
     _connected_interface = models.OneToOneField(
         to='self',
