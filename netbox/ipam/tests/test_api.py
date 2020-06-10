@@ -276,8 +276,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         vrf = VRF.objects.create(name='Test VRF 1', rd='1234')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/30'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
-        # TODO: ipam.add_prefix should not be required
-        self.add_permissions('ipam.add_prefix', 'ipam.add_ipaddress')
+        self.add_permissions('ipam.add_ipaddress')
 
         # Create all four available IPs with individual requests
         for i in range(1, 5):
@@ -300,8 +299,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         """
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), is_pool=True)
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
-        # TODO: ipam.add_prefix, ipam.view_prefix should not be required
-        self.add_permissions('ipam.add_prefix', 'ipam.view_prefix', 'ipam.view_ipaddress', 'ipam.add_ipaddress')
+        self.add_permissions('ipam.view_ipaddress', 'ipam.add_ipaddress')
 
         # Try to create nine IPs (only eight are available)
         data = [{'description': 'Test IP {}'.format(i)} for i in range(1, 10)]  # 9 IPs

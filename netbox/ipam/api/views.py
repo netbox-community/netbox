@@ -164,7 +164,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
             200: serializers.AvailableIPSerializer(many=True),
         }
     )
-    @action(detail=True, url_path='available-ips', methods=['get', 'post'])
+    @action(detail=True, url_path='available-ips', methods=['get', 'post'], queryset=IPAddress.objects.all())
     @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
     def available_ips(self, request, pk=None):
         """
