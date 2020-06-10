@@ -921,13 +921,13 @@ class ComponentCreateView(GetReturnURLMixin, View):
 
             names = form.cleaned_data['name_pattern']
             labels = form.cleaned_data.get('label_pattern')
-            for pos, name in enumerate(names):
-                label = labels[pos] if labels else None
+            for i, name in enumerate(names):
+                label = labels[i] if labels else None
                 # Initialize the individual component form
                 data['name'] = name
                 data['label'] = label
                 if hasattr(form, 'get_iterative_data'):
-                    data.update(form.get_iterative_data(pos))
+                    data.update(form.get_iterative_data(i))
                 component_form = self.model_form(data)
 
                 if component_form.is_valid():
@@ -1009,8 +1009,8 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
 
                             names = data['name_pattern']
                             labels = data['label_pattern']
-                            for pos, name in enumerate(names):
-                                label = labels[pos] if labels else None
+                            for i, name in enumerate(names):
+                                label = labels[i] if labels else None
 
                                 component_data = {
                                     self.parent_field: obj.pk,
