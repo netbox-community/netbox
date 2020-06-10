@@ -399,6 +399,9 @@ class RackReservationTable(BaseTable):
         orderable=False,
         verbose_name='Units'
     )
+    tags = TagColumn(
+        url_name='dcim:rackreservation_list'
+    )
     actions = tables.TemplateColumn(
         template_code=RACKRESERVATION_ACTIONS,
         attrs={'td': {'class': 'text-right noprint'}},
@@ -408,7 +411,8 @@ class RackReservationTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = RackReservation
         fields = (
-            'pk', 'reservation', 'site', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'actions',
+            'pk', 'reservation', 'site', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'tags',
+            'actions',
         )
         default_columns = (
             'pk', 'reservation', 'site', 'rack', 'unit_list', 'user', 'description', 'actions',
@@ -1086,12 +1090,15 @@ class CableTable(BaseTable):
         order_by='_abs_length'
     )
     color = ColorColumn()
+    tags = TagColumn(
+        url_name='dcim:cable_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = Cable
         fields = (
             'pk', 'id', 'label', 'termination_a_parent', 'termination_a', 'termination_b_parent', 'termination_b',
-            'status', 'type', 'color', 'length',
+            'status', 'type', 'color', 'length', 'tags',
         )
         default_columns = (
             'pk', 'id', 'label', 'termination_a_parent', 'termination_a', 'termination_b_parent', 'termination_b',
@@ -1245,10 +1252,13 @@ class PowerPanelTable(BaseTable):
         template_code=POWERPANEL_POWERFEED_COUNT,
         verbose_name='Feeds'
     )
+    tags = TagColumn(
+        url_name='dcim:powerpanel_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = PowerPanel
-        fields = ('pk', 'name', 'site', 'rack_group', 'powerfeed_count')
+        fields = ('pk', 'name', 'site', 'rack_group', 'powerfeed_count', 'tags')
         default_columns = ('pk', 'name', 'site', 'rack_group', 'powerfeed_count')
 
 

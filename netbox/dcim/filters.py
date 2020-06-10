@@ -298,6 +298,7 @@ class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet):
         to_field_name='username',
         label='User (name)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = RackReservation
@@ -1117,6 +1118,7 @@ class CableFilterSet(BaseFilterSet):
         method='filter_device',
         field_name='device__tenant__slug'
     )
+    tag = TagFilter()
 
     class Meta:
         model = Cable
@@ -1265,6 +1267,7 @@ class PowerPanelFilterSet(BaseFilterSet):
         lookup_expr='in',
         label='Rack group (ID)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = PowerPanel

@@ -165,10 +165,11 @@ class RackReservationSerializer(ValidatedModelSerializer):
     rack = NestedRackSerializer()
     user = NestedUserSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = RackReservation
-        fields = ['id', 'rack', 'units', 'created', 'user', 'tenant', 'description']
+        fields = ['id', 'rack', 'units', 'created', 'user', 'tenant', 'description', 'tags']
 
 
 class RackElevationDetailFilterSerializer(serializers.Serializer):
@@ -640,12 +641,13 @@ class CableSerializer(ValidatedModelSerializer):
     termination_b = serializers.SerializerMethodField(read_only=True)
     status = ChoiceField(choices=CableStatusChoices, required=False)
     length_unit = ChoiceField(choices=CableLengthUnitChoices, allow_blank=True, required=False)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Cable
         fields = [
             'id', 'termination_a_type', 'termination_a_id', 'termination_a', 'termination_b_type', 'termination_b_id',
-            'termination_b', 'type', 'status', 'label', 'color', 'length', 'length_unit',
+            'termination_b', 'type', 'status', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
 
     def _get_termination(self, obj, side):
@@ -729,11 +731,12 @@ class PowerPanelSerializer(ValidatedModelSerializer):
         allow_null=True,
         default=None
     )
+    tags = TagListSerializerField(required=False)
     powerfeed_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = PowerPanel
-        fields = ['id', 'site', 'rack_group', 'name', 'powerfeed_count']
+        fields = ['id', 'site', 'rack_group', 'name', 'tags', 'powerfeed_count']
 
 
 class PowerFeedSerializer(TaggitSerializer, CustomFieldModelSerializer):

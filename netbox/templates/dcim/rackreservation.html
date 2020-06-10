@@ -124,6 +124,7 @@
                 </tr>
             </table>
         </div>
+        {% include 'extras/inc/tags_panel.html' with tags=rackreservation.tags.all url='dcim:rackreservation_list' %}
         {% plugin_left_page rackreservation %}
 	</div>
     <div class="col-md-6">

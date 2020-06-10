@@ -81,6 +81,7 @@
                     </tr>
                 </table>
             </div>
+            {% include 'extras/inc/tags_panel.html' with tags=cable.tags.all url='dcim:cable_list' %}
             {% plugin_left_page cable %}
         </div>
         <div class="col-md-6">

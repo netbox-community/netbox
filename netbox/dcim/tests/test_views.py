@@ -202,6 +202,7 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'user': user3.pk,
             'tenant': None,
             'description': 'Rack reservation',
+            'tags': 'Alpha,Bravo,Charlie',
         }
 
         cls.csv_data = (
@@ -1510,6 +1511,7 @@ class CableTestCase(
             'color': 'c0c0c0',
             'length': 100,
             'length_unit': CableLengthUnitChoices.UNIT_FOOT,
+            'tags': 'Alpha,Bravo,Charlie',
         }
 
         cls.csv_data = (
@@ -1609,6 +1611,7 @@ class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'site': sites[1].pk,
             'rack_group': rackgroups[1].pk,
             'name': 'Power Panel X',
+            'tags': 'Alpha,Bravo,Charlie',
         }
 
         cls.csv_data = (

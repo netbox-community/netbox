@@ -750,11 +750,14 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
         ),
         widget=StaticSelect2()
     )
+    tags = TagField(
+        required=False
+    )
 
     class Meta:
         model = RackReservation
         fields = [
-            'rack', 'units', 'user', 'tenant_group', 'tenant', 'description',
+            'rack', 'units', 'user', 'tenant_group', 'tenant', 'description', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -825,7 +828,7 @@ class RackReservationCSVForm(CSVModelForm):
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
 
-class RackReservationBulkEditForm(BootstrapMixin, BulkEditForm):
+class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RackReservation.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -851,6 +854,7 @@ class RackReservationBulkEditForm(BootstrapMixin, BulkEditForm):
 
 
 class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
+    model = RackReservation
     field_order = ['q', 'site', 'group_id', 'tenant_group', 'tenant']
     q = forms.CharField(
         required=False,
@@ -872,6 +876,7 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -3662,11 +3667,14 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
 
 
 class CableForm(BootstrapMixin, forms.ModelForm):
+    tags = TagField(
+        required=False
+    )
 
     class Meta:
         model = Cable
         fields = [
-            'type', 'status', 'label', 'color', 'length', 'length_unit',
+            'type', 'status', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
         widgets = {
             'status': StaticSelect2,
@@ -3799,7 +3807,7 @@ class CableCSVForm(CSVModelForm):
         return length_unit if length_unit is not None else ''
 
 
-class CableBulkEditForm(BootstrapMixin, BulkEditForm):
+class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Cable.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -3912,6 +3920,7 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Device'
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -4325,11 +4334,14 @@ class PowerPanelForm(BootstrapMixin, forms.ModelForm):
         queryset=RackGroup.objects.all(),
         required=False
     )
+    tags = TagField(
+        required=False
+    )
 
     class Meta:
         model = PowerPanel
         fields = [
-            'site', 'rack_group', 'name',
+            'site', 'rack_group', 'name', 'tags',
         ]
 
 
@@ -4359,7 +4371,7 @@ class PowerPanelCSVForm(CSVModelForm):
             self.fields['rack_group'].queryset = self.fields['rack_group'].queryset.filter(**params)
 
 
-class PowerPanelBulkEditForm(BootstrapMixin, BulkEditForm):
+class PowerPanelBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerPanel.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -4420,6 +4432,7 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 #

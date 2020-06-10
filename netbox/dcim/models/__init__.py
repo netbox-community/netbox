@@ -832,6 +832,7 @@ class RackReservation(ChangeLoggedModel):
     description = models.CharField(
         max_length=200
     )
+    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -1832,6 +1833,7 @@ class PowerPanel(ChangeLoggedModel):
     name = models.CharField(
         max_length=50
     )
+    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -2106,6 +2108,7 @@ class Cable(ChangeLoggedModel):
         blank=True,
         null=True
     )
+    tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
 
