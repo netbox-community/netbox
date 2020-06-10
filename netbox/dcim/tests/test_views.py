@@ -323,6 +323,7 @@ class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
 
 # TODO: Change base class to PrimaryObjectViewTestCase
+# Blocked by absence of bulk import view for DeviceTypes
 class DeviceTypeTestCase(
     ViewTestCases.GetObjectViewTestCase,
     ViewTestCases.CreateObjectViewTestCase,
@@ -803,6 +804,7 @@ class RearPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase
 
 
 # TODO: Change base class to DeviceComponentTemplateViewTestCase
+# Blocked by absence of bulk edit view for DeviceBays
 class DeviceBayTemplateTestCase(
     ViewTestCases.EditObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
@@ -1451,6 +1453,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 
 # TODO: Change base class to PrimaryObjectViewTestCase
+# Blocked by lack of common creation view for cables (termination A must be initialized)
 class CableTestCase(
     ViewTestCases.GetObjectViewTestCase,
     ViewTestCases.EditObjectViewTestCase,
@@ -1532,8 +1535,10 @@ class CableTestCase(
 
 
 # TODO: Change base class to PrimaryObjectViewTestCase
+# Blocked by standard creation, bulk creation views for VirtualChassis (member devices must be selected in bulk)
 class VirtualChassisTestCase(
     ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
     ViewTestCases.ListObjectsViewTestCase,
     ViewTestCases.BulkEditObjectsViewTestCase,
@@ -1554,32 +1559,39 @@ class VirtualChassisTestCase(
         )
 
         # Create 9 member Devices
-        device1 = Device.objects.create(
-            device_type=device_type, device_role=device_role, name='Device 1', site=site
+        devices = (
+            Device(device_type=device_type, device_role=device_role, name='Device 1', site=site),
+            Device(device_type=device_type, device_role=device_role, name='Device 2', site=site),
+            Device(device_type=device_type, device_role=device_role, name='Device 3', site=site),
+            Device(device_type=device_type, device_role=device_role, name='Device 4', site=site),
+            Device(device_type=device_type, device_role=device_role, name='Device 5', site=site),
+            Device(device_type=device_type, device_role=device_role, name='Device 6', site=site),
+            Device(device_type=device_type, device_role=device_role, name='Device 7', site=site),
+            Device(device_type=device_type, device_role=device_role, name='Device 8', site=site),
+            Device(device_type=device_type, device_role=device_role, name='Device 9', site=site),
         )
-        device2 = Device.objects.create(
-            device_type=device_type, device_role=device_role, name='Device 2', site=site
-        )
-        device3 = Device.objects.create(
-            device_type=device_type, device_role=device_role, name='Device 3', site=site
-        )
-        device4 = Device.objects.create(
-            device_type=device_type, device_role=device_role, name='Device 4', site=site
-        )
-        device5 = Device.objects.create(
-            device_type=device_type, device_role=device_role, name='Device 5', site=site
-        )
-        device6 = Device.objects.create(
-            device_type=device_type, device_role=device_role, name='Device 6', site=site
-        )
+        Device.objects.bulk_create(devices)
 
         # Create three VirtualChassis with two members each
-        vc1 = VirtualChassis.objects.create(master=device1, domain='test-domain-1')
-        Device.objects.filter(pk=device2.pk).update(virtual_chassis=vc1, vc_position=2)
-        vc2 = VirtualChassis.objects.create(master=device3, domain='test-domain-2')
-        Device.objects.filter(pk=device4.pk).update(virtual_chassis=vc2, vc_position=2)
-        vc3 = VirtualChassis.objects.create(master=device5, domain='test-domain-3')
-        Device.objects.filter(pk=device6.pk).update(virtual_chassis=vc3, vc_position=2)
+        vc1 = VirtualChassis.objects.create(master=devices[0], domain='domain-1')
+        Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=vc1, vc_position=2)
+        Device.objects.filter(pk=devices[2].pk).update(virtual_chassis=vc1, vc_position=3)
+        vc2 = VirtualChassis.objects.create(master=devices[3], domain='domain-2')
+        Device.objects.filter(pk=devices[4].pk).update(virtual_chassis=vc2, vc_position=2)
+        Device.objects.filter(pk=devices[5].pk).update(virtual_chassis=vc2, vc_position=3)
+        vc3 = VirtualChassis.objects.create(master=devices[6], domain='domain-3')
+        Device.objects.filter(pk=devices[7].pk).update(virtual_chassis=vc3, vc_position=2)
+        Device.objects.filter(pk=devices[8].pk).update(virtual_chassis=vc3, vc_position=3)
+
+        cls.form_data = {
+            'master': devices[1].pk,
+            'domain': 'domain-x',
+            # Management form data for VC members
+            'form-TOTAL_FORMS': 0,
+            'form-INITIAL_FORMS': 3,
+            'form-MIN_NUM_FORMS': 0,
+            'form-MAX_NUM_FORMS': 1000,
+        }
 
 
 class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
