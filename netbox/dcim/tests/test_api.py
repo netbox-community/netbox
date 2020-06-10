@@ -242,31 +242,6 @@ class RackTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
-    # TODO: Document this test
-    def test_get_elevation_rack_units(self):
-        rack = Rack.objects.first()
-
-        self.add_permissions('dcim.view_rack')
-        url = '{}?q=3'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk}))
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.data['count'], 13)
-
-        url = '{}?q=U3'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk}))
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.data['count'], 11)
-
-        url = '{}?q=10'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk}))
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.data['count'], 1)
-
-        url = '{}?q=U20'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk}))
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.data['count'], 1)
-
     def test_get_rack_elevation(self):
         """
         GET a single rack elevation.
@@ -274,9 +249,18 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         rack = Rack.objects.first()
         self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk})
-        response = self.client.get(url, **self.header)
 
+        # Retrieve all units
+        response = self.client.get(url, **self.header)
         self.assertEqual(response.data['count'], 42)
+
+        # Search for specific units
+        response = self.client.get(f'{url}?q=3', **self.header)
+        self.assertEqual(response.data['count'], 13)
+        response = self.client.get(f'{url}?q=U3', **self.header)
+        self.assertEqual(response.data['count'], 11)
+        response = self.client.get(f'{url}?q=U10', **self.header)
+        self.assertEqual(response.data['count'], 1)
 
     def test_get_rack_elevation_svg(self):
         """
@@ -285,8 +269,8 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         rack = Rack.objects.first()
         self.add_permissions('dcim.view_rack')
         url = '{}?render=svg'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk}))
-        response = self.client.get(url, **self.header)
 
+        response = self.client.get(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.get('Content-Type'), 'image/svg+xml')
 
