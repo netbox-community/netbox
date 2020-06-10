@@ -334,6 +334,7 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 
 # TODO: Update base class to PrimaryObjectViewTestCase
+# Blocked by absence of standard creation view
 class ServiceTestCase(
     ViewTestCases.GetObjectViewTestCase,
     ViewTestCases.EditObjectViewTestCase,

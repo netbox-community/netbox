@@ -186,6 +186,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 
 # TODO: Update base class to DeviceComponentViewTestCase
+# Blocked by #4721
 class InterfaceTestCase(
     ViewTestCases.GetObjectViewTestCase,
     ViewTestCases.EditObjectViewTestCase,

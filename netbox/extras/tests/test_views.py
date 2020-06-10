@@ -11,6 +11,7 @@ from utilities.testing import ViewTestCases, TestCase
 
 
 # TODO: Change base class to PrimaryObjectViewTestCase
+# Blocked by #3703
 class TagTestCase(
     ViewTestCases.GetObjectViewTestCase,
     ViewTestCases.EditObjectViewTestCase,
@@ -43,6 +44,7 @@ class TagTestCase(
 
 
 # TODO: Change base class to PrimaryObjectViewTestCase
+# Blocked by absence of standard create/edit, bulk create views
 class ConfigContextTestCase(
     ViewTestCases.GetObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
