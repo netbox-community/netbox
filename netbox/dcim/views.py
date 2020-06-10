@@ -2233,7 +2233,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
 
     def get(self, request, pk):
 
-        virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
+        virtual_chassis = get_object_or_404(self.queryset, pk=pk)
         VCMemberFormSet = modelformset_factory(
             model=Device,
             form=forms.DeviceVCMembershipForm,
@@ -2254,7 +2254,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
 
     def post(self, request, pk):
 
-        virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
+        virtual_chassis = get_object_or_404(self.queryset, pk=pk)
         VCMemberFormSet = modelformset_factory(
             model=Device,
             form=forms.DeviceVCMembershipForm,
