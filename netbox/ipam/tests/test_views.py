@@ -5,6 +5,7 @@ from netaddr import IPNetwork
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from tenancy.models import Tenant
 from utilities.testing import ViewTestCases
 
 
@@ -13,6 +14,12 @@ class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
+
+        tenants = (
+            Tenant(name='Tenant A', slug='tenant-a'),
+            Tenant(name='Tenant B', slug='tenant-b'),
+        )
+        Tenant.objects.bulk_create(tenants)
 
         VRF.objects.bulk_create([
             VRF(name='VRF 1', rd='65000:1'),
@@ -23,7 +30,7 @@ class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'name': 'VRF X',
             'rd': '65000:999',
-            'tenant': None,
+            'tenant': tenants[0].pk,
             'enforce_unique': True,
             'description': 'A new VRF',
             'tags': 'Alpha,Bravo,Charlie',
@@ -37,7 +44,7 @@ class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'tenant': None,
+            'tenant': tenants[1].pk,
             'enforce_unique': False,
             'description': 'New description',
         }

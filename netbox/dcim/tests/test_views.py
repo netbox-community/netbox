@@ -1062,8 +1062,7 @@ class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.bulk_edit_data = {
-            'device': device.pk,
-            'type': ConsolePortTypeChoices.TYPE_RJ45,
+            'type': ConsolePortTypeChoices.TYPE_RJ11,
             'description': 'New description',
         }
 
@@ -1163,8 +1162,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.bulk_edit_data = {
-            'device': device.pk,
-            'type': PowerOutletTypeChoices.TYPE_IEC_C13,
+            'type': PowerOutletTypeChoices.TYPE_IEC_C15,
             'power_port': powerports[1].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'New description',
@@ -1238,9 +1236,8 @@ class InterfaceTestCase(
         }
 
         cls.bulk_edit_data = {
-            'device': device.pk,
-            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
-            'enabled': False,
+            'type': InterfaceTypeChoices.TYPE_1GE_FIXED,
+            'enabled': True,
             'lag': interfaces[3].pk,
             'mac_address': EUI('01:02:03:04:05:06'),
             'mtu': 2000,
@@ -1442,8 +1439,6 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.bulk_edit_data = {
-            'device': device.pk,
-            'manufacturer': manufacturer.pk,
             'part_id': '123456',
             'description': 'New description',
         }
@@ -1595,6 +1590,10 @@ class VirtualChassisTestCase(
             'form-INITIAL_FORMS': 3,
             'form-MIN_NUM_FORMS': 0,
             'form-MAX_NUM_FORMS': 1000,
+        }
+
+        cls.bulk_edit_data = {
+            'domain': 'domain-x',
         }
 
 
