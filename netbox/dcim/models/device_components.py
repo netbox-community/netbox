@@ -47,6 +47,11 @@ class ComponentModel(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        if self.label:
+            return f"{self.name} ({self.label})"
+        return self.name
+
     def to_objectchange(self, action):
         # Annotate the parent Device/VM
         try:
@@ -234,6 +239,11 @@ class ConsolePort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     _name = NaturalOrderingField(
         target_field='name',
         max_length=100,
@@ -263,9 +273,6 @@ class ConsolePort(CableTermination, ComponentModel):
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
@@ -301,6 +308,11 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -318,9 +330,6 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
@@ -355,6 +364,11 @@ class PowerPort(CableTermination, ComponentModel):
         target_field='name',
         max_length=100,
         blank=True
+    )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
     )
     type = models.CharField(
         max_length=50,
@@ -399,9 +413,6 @@ class PowerPort(CableTermination, ComponentModel):
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
@@ -519,6 +530,11 @@ class PowerOutlet(CableTermination, ComponentModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     type = models.CharField(
         max_length=50,
         choices=PowerOutletTypeChoices,
@@ -549,9 +565,6 @@ class PowerOutlet(CableTermination, ComponentModel):
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
@@ -607,6 +620,11 @@ class Interface(CableTermination, ComponentModel):
         naturalize_function=naturalize_interface,
         max_length=100,
         blank=True
+    )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
     )
     _connected_interface = models.OneToOneField(
         to='self',
@@ -687,9 +705,6 @@ class Interface(CableTermination, ComponentModel):
         # TODO: ordering and unique_together should include virtual_machine
         ordering = ('device', CollateAsChar('_name'))
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:interface', kwargs={'pk': self.pk})
@@ -997,6 +1012,11 @@ class DeviceBay(ComponentModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     installed_device = models.OneToOneField(
         to='dcim.Device',
         on_delete=models.SET_NULL,
@@ -1013,6 +1033,8 @@ class DeviceBay(ComponentModel):
         unique_together = ('device', 'name')
 
     def __str__(self):
+        if self.label:
+            return '{} - {} ({})'.format(self.device.name, self.name, self.label)
         return '{} - {}'.format(self.device.name, self.name)
 
     def get_absolute_url(self):

@@ -1088,10 +1088,13 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
             new_components = []
             data = deepcopy(request.POST)
 
-            for i, name in enumerate(form.cleaned_data['name_pattern']):
-
+            names = form.cleaned_data['name_pattern']
+            labels = form.cleaned_data.get('label_pattern')
+            for i, name in enumerate(names):
+                label = labels[i] if labels else None
                 # Initialize the individual component form
                 data['name'] = name
+                data['label'] = label
                 if hasattr(form, 'get_iterative_data'):
                     data.update(form.get_iterative_data(i))
                 component_form = self.model_form(data)
@@ -1100,9 +1103,11 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
                     new_components.append(component_form)
                 else:
                     for field, errors in component_form.errors.as_data().items():
-                        # Assign errors on the child form's name field to name_pattern on the parent form
+                        # Assign errors on the child form's name/label field to name_pattern/label_pattern on the parent form
                         if field == 'name':
                             field = 'name_pattern'
+                        elif field == 'label':
+                            field = 'label_pattern'
                         for e in errors:
                             form.add_error(field, '{}: {}'.format(name, ', '.join(e)))
 
@@ -1187,10 +1192,14 @@ class BulkComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, 
                         for obj in data['pk']:
 
                             names = data['name_pattern']
-                            for name in names:
+                            labels = data['label_pattern']
+                            for i, name in enumerate(names):
+                                label = labels[i] if labels else None
+
                                 component_data = {
                                     self.parent_field: obj.pk,
                                     'name': name,
+                                    'label': label
                                 }
                                 component_data.update(data)
                                 component_form = self.model_form(component_data)
