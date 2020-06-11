@@ -937,7 +937,7 @@ class ComponentCreateView(GetReturnURLMixin, View):
                         # Assign errors on the child form's name/label field to name_pattern/label_pattern on the parent form
                         if field == 'name':
                             field = 'name_pattern'
-                        if field == 'label':
+                        elif field == 'label':
                             field = 'label_pattern'
                         for e in errors:
                             form.add_error(field, '{}: {}'.format(name, ', '.join(e)))
