@@ -30,6 +30,11 @@ class ComponentTemplateModel(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        if self.label:
+            return f"{self.name} ({self.label})"
+        return self.name
+
     def instantiate(self, device):
         """
         Instantiate a new component on the specified Device.
@@ -84,11 +89,6 @@ class ConsolePortTemplate(ComponentTemplateModel):
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
 
-    def __str__(self):
-        if self.label:
-            return f"{self.name} ({self.label})"
-        return self.name
-
     def instantiate(self, device):
         return ConsolePort(
             device=device,
@@ -128,11 +128,6 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
-
-    def __str__(self):
-        if self.label:
-            return f"{self.name} ({self.label})"
-        return self.name
 
     def instantiate(self, device):
         return ConsoleServerPort(
@@ -185,11 +180,6 @@ class PowerPortTemplate(ComponentTemplateModel):
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
-
-    def __str__(self):
-        if self.label:
-            return f"{self.name} ({self.label})"
-        return self.name
 
     def instantiate(self, device):
         return PowerPort(
@@ -245,11 +235,6 @@ class PowerOutletTemplate(ComponentTemplateModel):
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
-
-    def __str__(self):
-        if self.label:
-            return f"{self.name} ({self.label})"
-        return self.name
 
     def clean(self):
 
@@ -308,11 +293,6 @@ class InterfaceTemplate(ComponentTemplateModel):
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
-
-    def __str__(self):
-        if self.label:
-            return f"{self.name} ({self.label})"
-        return self.name
 
     def instantiate(self, device):
         return Interface(

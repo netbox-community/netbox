@@ -44,6 +44,11 @@ class ComponentModel(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        if self.label:
+            return f"{self.name} ({self.label})"
+        return self.name
+
     def to_objectchange(self, action):
         # Annotate the parent Device/VM
         try:
@@ -266,11 +271,6 @@ class ConsolePort(CableTermination, ComponentModel):
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
 
-    def __str__(self):
-        if self.label:
-            return f"{self.name} ({self.label})"
-        return self.name
-
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
@@ -327,11 +327,6 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        if self.label:
-            return f"{self.name} ({self.label})"
-        return self.name
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
@@ -415,11 +410,6 @@ class PowerPort(CableTermination, ComponentModel):
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        if self.label:
-            return f"{self.name} ({self.label})"
-        return self.name
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
@@ -573,11 +563,6 @@ class PowerOutlet(CableTermination, ComponentModel):
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
 
-    def __str__(self):
-        if self.label:
-            return f"{self.name} ({self.label})"
-        return self.name
-
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
@@ -717,11 +702,6 @@ class Interface(CableTermination, ComponentModel):
         # TODO: ordering and unique_together should include virtual_machine
         ordering = ('device', CollateAsChar('_name'))
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        if self.label:
-            return f"{self.name} ({self.label})"
-        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:interface', kwargs={'pk': self.pk})
