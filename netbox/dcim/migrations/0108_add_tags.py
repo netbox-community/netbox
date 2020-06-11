@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('extras', '0042_customfield_manager'),
-        ('dcim', '0106_role_default_color'),
+        ('dcim', '0107_component_labels'),
     ]
 
     operations = [
