@@ -433,13 +433,15 @@ class DeviceBayTemplate(ComponentTemplateModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
 
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
-
-    def __str__(self):
-        return self.name
 
     def instantiate(self, device):
         return DeviceBay(

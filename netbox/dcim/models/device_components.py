@@ -1009,6 +1009,11 @@ class DeviceBay(ComponentModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     installed_device = models.OneToOneField(
         to='dcim.Device',
         on_delete=models.SET_NULL,
@@ -1025,6 +1030,8 @@ class DeviceBay(ComponentModel):
         unique_together = ('device', 'name')
 
     def __str__(self):
+        if self.label:
+            return '{} - {} ({})'.format(self.device.name, self.name, self.label)
         return '{} - {}'.format(self.device.name, self.name)
 
     def get_absolute_url(self):

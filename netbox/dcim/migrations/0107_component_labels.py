@@ -60,4 +60,14 @@ class Migration(migrations.Migration):
             name='label',
             field=models.CharField(blank=True, max_length=64),
         ),
+        migrations.AddField(
+            model_name='devicebay',
+            name='label',
+            field=models.CharField(blank=True, max_length=64),
+        ),
+        migrations.AddField(
+            model_name='devicebaytemplate',
+            name='label',
+            field=models.CharField(blank=True, max_length=64),
+        ),
     ]

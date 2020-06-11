@@ -331,7 +331,7 @@ class DeviceBayTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = DeviceBayTemplate
-        fields = ['id', 'device_type', 'name']
+        fields = ['id', 'device_type', 'name', 'label']
 
 
 #
@@ -603,7 +603,7 @@ class DeviceBaySerializer(TaggitSerializer, ValidatedModelSerializer):
 
     class Meta:
         model = DeviceBay
-        fields = ['id', 'device', 'name', 'description', 'installed_device', 'tags']
+        fields = ['id', 'device', 'name', 'label', 'description', 'installed_device', 'tags']
 
 
 #
