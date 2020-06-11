@@ -2727,7 +2727,6 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
 
 
 class InterfaceCreateForm(InterfaceCommonForm, LabeledComponentForm):
-    component_type = 'interface'
     device = DynamicModelChoiceField(
         queryset=Device.objects.prefetch_related('device_type__manufacturer')
     )
@@ -2816,7 +2815,7 @@ class InterfaceBulkCreateForm(
     form_from_model(Interface, ['type', 'enabled', 'mtu', 'mgmt_only', 'description', 'tags']),
     DeviceBulkAddComponentForm
 ):
-    component_type = 'interface'
+    pass
 
 
 class InterfaceBulkEditForm(

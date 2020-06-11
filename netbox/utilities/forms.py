@@ -808,8 +808,6 @@ class LabeledComponentForm(BootstrapMixin, forms.Form):
     """
     Base form for adding label pattern validation to `Create` forms
     """
-    component_type = 'port'
-
     name_pattern = ExpandableNameField(
         label='Name'
     )
@@ -825,9 +823,9 @@ class LabeledComponentForm(BootstrapMixin, forms.Form):
         label_pattern_count = len(self.cleaned_data['label_pattern'])
         if label_pattern_count and name_pattern_count != label_pattern_count:
             raise forms.ValidationError({
-                'label_pattern': 'The provided name pattern will create {} {}s, however {} labels will '
+                'label_pattern': 'The provided name pattern will create {} components, however {} labels will '
                 'be generated. These counts must match.'.format(
-                    name_pattern_count, self.component_type, label_pattern_count)
+                    name_pattern_count, label_pattern_count)
             }, code='label_pattern_mismatch')
 
 
