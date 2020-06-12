@@ -13,14 +13,13 @@ from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.utils import shallow_compare_dict
 from utilities.views import (
-    BulkDeleteView, BulkEditView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
     ObjectPermissionRequiredMixin,
 )
-from . import filters, forms
+from . import filters, forms, tables
 from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult, Tag, TaggedItem
 from .reports import get_report, get_reports
 from .scripts import get_scripts, run_script
-from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemTable
 
 
 #
@@ -35,8 +34,7 @@ class TagListView(ObjectListView):
     )
     filterset = filters.TagFilterSet
     filterset_form = forms.TagFilterForm
-    table = TagTable
-    action_buttons = ()
+    table = tables.TagTable
 
 
 class TagView(ObjectView):
@@ -52,7 +50,7 @@ class TagView(ObjectView):
         )
 
         # Generate a table of all items tagged with this Tag
-        items_table = TaggedItemTable(tagged_items)
+        items_table = tables.TaggedItemTable(tagged_items)
         paginate = {
             'paginator_class': EnhancedPaginator,
             'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
@@ -78,13 +76,20 @@ class TagDeleteView(ObjectDeleteView):
     default_return_url = 'extras:tag_list'
 
 
+class TagBulkImportView(BulkImportView):
+    queryset = Tag.objects.all()
+    model_form = forms.TagCSVForm
+    table = tables.TagTable
+    default_return_url = 'extras:tag_list'
+
+
 class TagBulkEditView(BulkEditView):
     queryset = Tag.objects.annotate(
         items=Count('extras_taggeditem_items', distinct=True)
     ).order_by(
         'name'
     )
-    table = TagTable
+    table = tables.TagTable
     form = forms.TagBulkEditForm
     default_return_url = 'extras:tag_list'
 
@@ -95,7 +100,7 @@ class TagBulkDeleteView(BulkDeleteView):
     ).order_by(
         'name'
     )
-    table = TagTable
+    table = tables.TagTable
     default_return_url = 'extras:tag_list'
 
 
@@ -107,7 +112,7 @@ class ConfigContextListView(ObjectListView):
     queryset = ConfigContext.objects.all()
     filterset = filters.ConfigContextFilterSet
     filterset_form = forms.ConfigContextFilterForm
-    table = ConfigContextTable
+    table = tables.ConfigContextTable
     action_buttons = ('add',)
 
 
@@ -143,7 +148,7 @@ class ConfigContextEditView(ObjectEditView):
 class ConfigContextBulkEditView(BulkEditView):
     queryset = ConfigContext.objects.all()
     filterset = filters.ConfigContextFilterSet
-    table = ConfigContextTable
+    table = tables.ConfigContextTable
     form = forms.ConfigContextBulkEditForm
     default_return_url = 'extras:configcontext_list'
 
@@ -155,7 +160,7 @@ class ConfigContextDeleteView(ObjectDeleteView):
 
 class ConfigContextBulkDeleteView(BulkDeleteView):
     queryset = ConfigContext.objects.all()
-    table = ConfigContextTable
+    table = tables.ConfigContextTable
     default_return_url = 'extras:configcontext_list'
 
 
@@ -197,7 +202,7 @@ class ObjectChangeListView(ObjectListView):
     queryset = ObjectChange.objects.prefetch_related('user', 'changed_object_type')
     filterset = filters.ObjectChangeFilterSet
     filterset_form = forms.ObjectChangeFilterForm
-    table = ObjectChangeTable
+    table = tables.ObjectChangeTable
     template_name = 'extras/objectchange_list.html'
     action_buttons = ('export',)
 
@@ -214,7 +219,7 @@ class ObjectChangeView(ObjectView):
         ).exclude(
             pk=objectchange.pk
         )
-        related_changes_table = ObjectChangeTable(
+        related_changes_table = tables.ObjectChangeTable(
             data=related_changes[:50],
             orderable=False
         )
@@ -267,7 +272,7 @@ class ObjectChangeLogView(View):
             Q(changed_object_type=content_type, changed_object_id=obj.pk) |
             Q(related_object_type=content_type, related_object_id=obj.pk)
         )
-        objectchanges_table = ObjectChangeTable(
+        objectchanges_table = tables.ObjectChangeTable(
             data=objectchanges,
             orderable=False
         )

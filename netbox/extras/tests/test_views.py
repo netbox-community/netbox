@@ -10,16 +10,7 @@ from extras.models import ConfigContext, ObjectChange, Tag
 from utilities.testing import ViewTestCases, TestCase
 
 
-# TODO: Change base class to PrimaryObjectViewTestCase
-# Blocked by #3703
-class TagTestCase(
-    ViewTestCases.GetObjectViewTestCase,
-    ViewTestCases.EditObjectViewTestCase,
-    ViewTestCases.DeleteObjectViewTestCase,
-    ViewTestCases.ListObjectsViewTestCase,
-    ViewTestCases.BulkEditObjectsViewTestCase,
-    ViewTestCases.BulkDeleteObjectsViewTestCase
-):
+class TagTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Tag
 
     @classmethod
@@ -37,6 +28,13 @@ class TagTestCase(
             'color': 'c0c0c0',
             'comments': 'Some comments',
         }
+
+        cls.csv_data = (
+            "name,slug,color,description",
+            "Tag 4,tag-4,ff0000,Fourth tag",
+            "Tag 5,tag-5,00ff00,Fifth tag",
+            "Tag 6,tag-6,0000ff,Sixth tag",
+        )
 
         cls.bulk_edit_data = {
             'color': '00ff00',

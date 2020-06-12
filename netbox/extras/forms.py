@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.utils.safestring import mark_safe
 from mptt.forms import TreeNodeMultipleChoiceField
 from taggit.forms import TagField as TagField_
 
@@ -159,6 +160,17 @@ class TagForm(BootstrapMixin, forms.ModelForm):
         fields = [
             'name', 'slug', 'color', 'description'
         ]
+
+
+class TagCSVForm(CSVModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = Tag
+        fields = Tag.csv_headers
+        help_texts = {
+            'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
+        }
 
 
 class AddRemoveTagsForm(forms.Form):
