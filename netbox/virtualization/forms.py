@@ -7,8 +7,8 @@ from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
-    TagField,
 )
+from extras.models import Tag
 from ipam.models import IPAddress, VLAN
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
@@ -83,7 +83,8 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         required=False
     )
     comments = CommentField()
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -312,12 +313,13 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=Platform.objects.all(),
         required=False
     )
-    tags = TagField(
-        required=False
-    )
     local_context_data = JSONField(
         required=False,
         label=''
+    )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
     )
 
     class Meta:
@@ -590,7 +592,8 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
             },
         )
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -697,7 +700,8 @@ class InterfaceCreateForm(BootstrapMixin, forms.Form):
             },
         )
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 

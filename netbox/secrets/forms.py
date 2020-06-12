@@ -5,8 +5,8 @@ from django import forms
 from dcim.models import Device
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
-    TagField,
 )
+from extras.models import Tag
 from utilities.forms import (
     APISelectMultiple, BootstrapMixin, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, SlugField, StaticSelect2Multiple, TagFilterField,
@@ -90,7 +90,8 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
     role = DynamicModelChoiceField(
         queryset=SecretRole.objects.all()
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 

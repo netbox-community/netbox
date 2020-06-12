@@ -14,8 +14,9 @@ from timezone_field import TimeZoneFormField
 from circuits.models import Circuit, Provider
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldFilterForm, CustomFieldModelForm,
-    LocalConfigContextFilterForm, TagField,
+    LocalConfigContextFilterForm,
 )
+from extras.models import Tag
 from ipam.constants import BGP_ASN_MAX, BGP_ASN_MIN
 from ipam.models import IPAddress, VLAN
 from tenancy.forms import TenancyFilterForm, TenancyForm
@@ -225,7 +226,8 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     )
     slug = SlugField()
     comments = CommentField()
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -481,7 +483,8 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         required=False
     )
     comments = CommentField()
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -750,7 +753,8 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
         ),
         widget=StaticSelect2()
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -912,7 +916,8 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
         slug_source='model'
     )
     comments = CommentField()
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -1716,10 +1721,13 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         required=False
     )
     comments = CommentField()
-    tags = TagField(required=False)
     local_context_data = JSONField(
         required=False,
         label=''
+    )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
     )
 
     class Meta:
@@ -2209,7 +2217,8 @@ class ConsolePortFilterForm(DeviceComponentFilterForm):
 
 
 class ConsolePortForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2236,7 +2245,8 @@ class ConsolePortCreateForm(LabeledComponentForm):
         max_length=100,
         required=False
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2292,7 +2302,8 @@ class ConsoleServerPortFilterForm(DeviceComponentFilterForm):
 
 
 class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2319,7 +2330,8 @@ class ConsoleServerPortCreateForm(LabeledComponentForm):
         max_length=100,
         required=False
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2389,7 +2401,8 @@ class PowerPortFilterForm(DeviceComponentFilterForm):
 
 
 class PowerPortForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2426,7 +2439,8 @@ class PowerPortCreateForm(LabeledComponentForm):
         max_length=100,
         required=False
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2486,7 +2500,8 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
         queryset=PowerPort.objects.all(),
         required=False
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2530,7 +2545,8 @@ class PowerOutletCreateForm(LabeledComponentForm):
         max_length=100,
         required=False
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2689,7 +2705,8 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
             },
         )
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2773,7 +2790,8 @@ class InterfaceCreateForm(InterfaceCommonForm, LabeledComponentForm):
         required=False,
         widget=StaticSelect2(),
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
     untagged_vlan = DynamicModelChoiceField(
@@ -2985,7 +3003,8 @@ class FrontPortFilterForm(DeviceComponentFilterForm):
 
 
 class FrontPortForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -3176,7 +3195,8 @@ class RearPortFilterForm(DeviceComponentFilterForm):
 
 
 class RearPortForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -3279,7 +3299,8 @@ class DeviceBayFilterForm(DeviceComponentFilterForm):
 
 
 class DeviceBayForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -3300,7 +3321,8 @@ class DeviceBayCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -3330,7 +3352,8 @@ class DeviceBayBulkCreateForm(
     form_from_model(DeviceBay, ['description', 'tags']),
     DeviceBulkAddComponentForm
 ):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -3634,7 +3657,8 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
 
 
 class CableForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -3963,7 +3987,8 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
         queryset=Manufacturer.objects.all(),
         required=False
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -4111,7 +4136,8 @@ class DeviceSelectionForm(forms.Form):
 
 
 class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -4301,7 +4327,8 @@ class PowerPanelForm(BootstrapMixin, forms.ModelForm):
         queryset=RackGroup.objects.all(),
         required=False
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -4425,7 +4452,8 @@ class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
         required=False
     )
     comments = CommentField()
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 

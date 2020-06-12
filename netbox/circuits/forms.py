@@ -3,8 +3,8 @@ from django import forms
 from dcim.models import Region, Site
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
-    TagField,
 )
+from extras.models import Tag
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -23,7 +23,8 @@ from .models import Circuit, CircuitTermination, CircuitType, Provider
 class ProviderForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
     comments = CommentField()
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -165,7 +166,8 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=CircuitType.objects.all()
     )
     comments = CommentField()
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
