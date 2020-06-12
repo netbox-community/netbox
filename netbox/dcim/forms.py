@@ -21,10 +21,10 @@ from ipam.models import IPAddress, VLAN
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
-    APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
-    BulkEditNullBooleanSelect, ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField,
-    CSVModelForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model,
-    JSONField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
+    ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField, CSVModelForm,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
+    NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
@@ -729,20 +729,31 @@ class RackElevationFilterForm(RackFilterForm):
 #
 
 class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
-    rack = forms.ModelChoiceField(
-        queryset=Rack.objects.all(),
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
         required=False,
-        widget=forms.HiddenInput()
-    )
-    # TODO: Change this to an API-backed form field. We can't do this currently because we want to retain
-    # the multi-line <select> widget for easy selection of multiple rack units.
-    units = SimpleArrayField(
-        base_field=forms.IntegerField(),
-        widget=ArrayFieldSelectMultiple(
-            attrs={
-                'size': 10,
+        widget=APISelect(
+            filter_for={
+                'rack_group': 'site_id',
+                'rack': 'site_id',
             }
         )
+    )
+    rack_group = DynamicModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        widget=APISelect(
+            filter_for={
+                'rack': 'group_id'
+            }
+        )
+    )
+    rack = DynamicModelChoiceField(
+        queryset=Rack.objects.all()
+    )
+    units = NumericArrayField(
+        base_field=forms.IntegerField(),
+        help_text="Comma-separated list of numeric unit IDs. A range may be specified using a hyphen."
     )
     user = forms.ModelChoiceField(
         queryset=User.objects.order_by(
@@ -756,23 +767,6 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
         fields = [
             'rack', 'units', 'user', 'tenant_group', 'tenant', 'description',
         ]
-
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-
-        # Populate rack unit choices
-        if hasattr(self.instance, 'rack'):
-            self.fields['units'].widget.choices = self._get_unit_choices()
-
-    def _get_unit_choices(self):
-        rack = self.instance.rack
-        reserved_units = []
-        for resv in rack.reservations.exclude(pk=self.instance.pk):
-            for u in resv.units:
-                reserved_units.append(u)
-        unit_choices = [(u, {'label': str(u), 'disabled': u in reserved_units}) for u in rack.units]
-        return unit_choices
 
 
 class RackReservationCSVForm(CSVModelForm):

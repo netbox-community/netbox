@@ -70,6 +70,7 @@
                         <li{% if not perms.dcim.view_rackreservation %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_rackreservation %}
                                 <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:rackreservation_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
                                     <a href="{% url 'dcim:rackreservation_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
                                 </div>
                             {% endif %}

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from django.test import Client, TestCase as _TestCase, override_settings
@@ -91,6 +92,12 @@ class TestCase(_TestCase):
                 # Convert IPNetwork instances to strings
                 if type(value) is IPNetwork:
                     model_dict[key] = str(value)
+
+            else:
+
+                # Convert ArrayFields to CSV strings
+                if type(instance._meta.get_field(key)) is ArrayField:
+                    model_dict[key] = ','.join([str(v) for v in value])
 
         # Omit any dictionary keys which are not instance attributes
         relevant_data = {
