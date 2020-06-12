@@ -55,7 +55,7 @@ class TenantTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'group': tenant_groups[1].pk,
             'description': 'A new tenant',
             'comments': 'Some comments',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.csv_data = (

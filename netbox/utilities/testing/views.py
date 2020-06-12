@@ -5,8 +5,10 @@ from django.db.models import ForeignKey, ManyToManyField
 from django.forms.models import model_to_dict
 from django.test import Client, TestCase as _TestCase, override_settings
 from django.urls import reverse, NoReverseMatch
+from django.utils.text import slugify
 from netaddr import IPNetwork
 
+from extras.models import Tag
 from users.models import ObjectPermission
 from utilities.permissions import resolve_permission_ct
 from .utils import disable_warnings, post_data
@@ -48,7 +50,7 @@ class TestCase(_TestCase):
             obj_perm.object_types.add(ct)
 
     #
-    # Convenience methods
+    # Custom assertions
     #
 
     def assertHttpStatus(self, response, expected_status):
@@ -75,7 +77,7 @@ class TestCase(_TestCase):
 
             # TODO: Differentiate between tags assigned to the instance and a M2M field for tags (ex: ConfigContext)
             if key == 'tags':
-                model_dict[key] = ','.join(sorted([tag.name for tag in value]))
+                model_dict[key] = sorted(value)
 
             # Convert ManyToManyField to list of instance PKs
             elif model_dict[key] and type(value) in (list, tuple) and hasattr(value[0], 'pk'):
@@ -101,6 +103,19 @@ class TestCase(_TestCase):
         }
 
         self.assertDictEqual(model_dict, relevant_data)
+
+    #
+    # Convenience methods
+    #
+
+    @classmethod
+    def create_tags(cls, *names):
+        """
+        Create and return a Tag instance for each name given.
+        """
+        tags = [Tag(name=name, slug=slugify(name)) for name in names]
+        Tag.objects.bulk_create(tags)
+        return tags
 
 
 #

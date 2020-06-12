@@ -97,7 +97,7 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'tenant': None,
             'site': sites[1].pk,
             'comments': 'Some comments',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.csv_data = (
@@ -161,7 +161,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'memory': 32768,
             'disk': 4000,
             'comments': 'Some comments',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
             'local_context_data': None,
         }
 
@@ -228,6 +228,8 @@ class InterfaceTestCase(
         )
         VLAN.objects.bulk_create(vlans)
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'virtual_machine': virtualmachines[1].pk,
             'name': 'Interface X',
@@ -240,7 +242,7 @@ class InterfaceTestCase(
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_create_data = {
@@ -255,7 +257,7 @@ class InterfaceTestCase(
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_edit_data = {

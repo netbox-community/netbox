@@ -14,7 +14,14 @@ def post_data(data):
         if value is None:
             ret[key] = ''
         elif type(value) in (list, tuple):
-            ret[key] = value
+            if value and hasattr(value[0], 'pk'):
+                # Value is a list of instances
+                ret[key] = [v.pk for v in value]
+            else:
+                ret[key] = value
+        elif hasattr(value, 'pk'):
+            # Value is an instance
+            ret[key] = value.pk
         else:
             ret[key] = str(value)
 

@@ -94,7 +94,7 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'contact_phone': '123-555-9999',
             'contact_email': 'hank@stricklandpropane.com',
             'comments': 'Test site',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.csv_data = (
@@ -202,7 +202,7 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'user': user3.pk,
             'tenant': None,
             'description': 'Rack reservation',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.csv_data = (
@@ -268,7 +268,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'outer_depth': 500,
             'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER,
             'comments': 'Some comments',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.csv_data = (
@@ -359,7 +359,7 @@ class DeviceTypeTestCase(
             'is_full_depth': True,
             'subdevice_role': '',  # CharField
             'comments': 'Some comments',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.bulk_edit_data = {
@@ -967,7 +967,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'vc_position': None,
             'vc_priority': None,
             'comments': 'A new device',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
             'local_context_data': None,
         }
 
@@ -1001,12 +1001,14 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             ConsolePort(device=device, name='Console Port 3'),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'device': device.pk,
             'name': 'Console Port X',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console port',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_create_data = {
@@ -1016,7 +1018,7 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'label_pattern': 'Serial[3-5]',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console port',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_edit_data = {
@@ -1045,12 +1047,14 @@ class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             ConsoleServerPort(device=device, name='Console Server Port 3'),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'device': device.pk,
             'name': 'Console Server Port X',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console server port',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_create_data = {
@@ -1058,7 +1062,7 @@ class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'name_pattern': 'Console Server Port [4-6]',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console server port',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_edit_data = {
@@ -1087,6 +1091,8 @@ class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             PowerPort(device=device, name='Power Port 3'),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'device': device.pk,
             'name': 'Power Port X',
@@ -1094,7 +1100,7 @@ class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'maximum_draw': 100,
             'allocated_draw': 50,
             'description': 'A power port',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_create_data = {
@@ -1104,7 +1110,7 @@ class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'maximum_draw': 100,
             'allocated_draw': 50,
             'description': 'A power port',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_edit_data = {
@@ -1141,6 +1147,8 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             PowerOutlet(device=device, name='Power Outlet 3', power_port=powerports[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'device': device.pk,
             'name': 'Power Outlet X',
@@ -1148,7 +1156,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'power_port': powerports[1].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'A power outlet',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_create_data = {
@@ -1158,7 +1166,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'power_port': powerports[1].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'A power outlet',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_edit_data = {
@@ -1202,6 +1210,8 @@ class InterfaceTestCase(
         )
         VLAN.objects.bulk_create(vlans)
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'device': device.pk,
             'virtual_machine': None,
@@ -1216,7 +1226,7 @@ class InterfaceTestCase(
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_create_data = {
@@ -1232,7 +1242,7 @@ class InterfaceTestCase(
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_edit_data = {
@@ -1279,6 +1289,8 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             FrontPort(device=device, name='Front Port 3', rear_port=rearports[2]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'device': device.pk,
             'name': 'Front Port X',
@@ -1286,7 +1298,7 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'rear_port': rearports[3].pk,
             'rear_port_position': 1,
             'description': 'New description',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_create_data = {
@@ -1297,7 +1309,7 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
                 '{}:1'.format(rp.pk) for rp in rearports[3:6]
             ],
             'description': 'New description',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_edit_data = {
@@ -1326,13 +1338,15 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             RearPort(device=device, name='Rear Port 3'),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'device': device.pk,
             'name': 'Rear Port X',
             'type': PortTypeChoices.TYPE_8P8C,
             'positions': 3,
             'description': 'A rear port',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_create_data = {
@@ -1341,7 +1355,7 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'type': PortTypeChoices.TYPE_8P8C,
             'positions': 3,
             'description': 'A rear port',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_edit_data = {
@@ -1373,18 +1387,20 @@ class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
             DeviceBay(device=device, name='Device Bay 3'),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'device': device.pk,
             'name': 'Device Bay X',
             'description': 'A device bay',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_create_data = {
             'device': device.pk,
             'name_pattern': 'Device Bay [4-6]',
             'description': 'A device bay',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_edit_data = {
@@ -1413,6 +1429,8 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
             InventoryItem(device=device, name='Inventory Item 3'),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'device': device.pk,
             'manufacturer': manufacturer.pk,
@@ -1423,7 +1441,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'serial': '123ABC',
             'asset_tag': 'ABC123',
             'description': 'An inventory item',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_create_data = {
@@ -1435,7 +1453,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'part_id': '123456',
             'serial': '123ABC',
             'description': 'An inventory item',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': tags,
         }
 
         cls.bulk_edit_data = {
@@ -1513,7 +1531,7 @@ class CableTestCase(
             'color': 'c0c0c0',
             'length': 100,
             'length_unit': CableLengthUnitChoices.UNIT_FOOT,
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.csv_data = (
@@ -1626,7 +1644,7 @@ class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'site': sites[1].pk,
             'rack_group': rackgroups[1].pk,
             'name': 'Power Panel X',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.csv_data = (
@@ -1680,7 +1698,7 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'amperage': 100,
             'max_utilization': 50,
             'comments': 'New comments',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
 
             # Connection
             'cable': None,
