@@ -364,11 +364,9 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 class RackGroupForm(BootstrapMixin, forms.ModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        to_field_name='slug',
         widget=APISelect(
-            value_field='slug',
             filter_for={
-                'parent': 'site',
+                'parent': 'site_id',
             }
         )
     )
