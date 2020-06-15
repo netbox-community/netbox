@@ -15,6 +15,7 @@
 * [#4674](https://github.com/netbox-community/netbox/issues/4674) - Fix API definition for available prefix and IP address endpoints
 * [#4702](https://github.com/netbox-community/netbox/issues/4702) - Catch IntegrityError exception when adding a non-unique secret
 * [#4707](https://github.com/netbox-community/netbox/issues/4707) - Fix `prefix_count` population on VLAN API serializer
+* [#4710](https://github.com/netbox-community/netbox/issues/4710) - Fix merging of form fields among custom scripts
 * [#4725](https://github.com/netbox-community/netbox/issues/4725) - Fix "brief" rendering of various REST API endpoints
 * [#4736](https://github.com/netbox-community/netbox/issues/4736) - Add cable trace endpoints for pass-through ports
 * [#4737](https://github.com/netbox-community/netbox/issues/4737) - Fix display of role labels in virtual machines table
