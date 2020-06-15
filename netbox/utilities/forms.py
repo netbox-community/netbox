@@ -7,6 +7,7 @@ import django_filters
 import yaml
 from django import forms
 from django.conf import settings
+from django.contrib.postgres.forms import SimpleArrayField
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Count
@@ -243,24 +244,11 @@ class ContentTypeSelect(StaticSelect2):
     option_template_name = 'widgets/select_contenttype.html'
 
 
-class ArrayFieldSelectMultiple(SelectWithDisabled, forms.SelectMultiple):
-    """
-    MultiSelect widget for a SimpleArrayField. Choices must be populated on the widget.
-    """
-    def __init__(self, *args, **kwargs):
-        self.delimiter = kwargs.pop('delimiter', ',')
-        super().__init__(*args, **kwargs)
+class NumericArrayField(SimpleArrayField):
 
-    def optgroups(self, name, value, attrs=None):
-        # Split the delimited string of values into a list
-        if value:
-            value = value[0].split(self.delimiter)
-        return super().optgroups(name, value, attrs)
-
-    def value_from_datadict(self, data, files, name):
-        # Condense the list of selected choices into a delimited string
-        data = super().value_from_datadict(data, files, name)
-        return self.delimiter.join(data)
+    def to_python(self, value):
+        value = ','.join([str(n) for n in parse_numeric_range(value)])
+        return super().to_python(value)
 
 
 class APISelect(SelectWithDisabled):
@@ -661,9 +649,8 @@ class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultip
 
 class LaxURLField(forms.URLField):
     """
-    Modifies Django's built-in URLField in two ways:
-      1) Allow any valid scheme per RFC 3986 section 3.1
-      2) Remove the requirement for fully-qualified domain names (e.g. http://myserver/ is valid)
+    Modifies Django's built-in URLField to remove the requirement for fully-qualified domain names
+    (e.g. http://myserver/ is valid)
     """
     default_validators = [EnhancedURLValidator()]
 

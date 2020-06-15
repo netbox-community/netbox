@@ -84,6 +84,10 @@ class BaseTable(tables.Table):
         return [name for name in self.sequence if self.columns[name].visible]
 
 
+#
+# Table columns
+#
+
 class ToggleColumn(tables.CheckBoxColumn):
     """
     Extend CheckBoxColumn to add a "toggle all" checkbox in the column header.
@@ -127,6 +131,19 @@ class ColorColumn(tables.Column):
         return mark_safe(
             '<span class="label color-block" style="background-color: #{}">&nbsp;</span>'.format(value)
         )
+
+
+class ColoredLabelColumn(tables.TemplateColumn):
+    """
+    Render a colored label (e.g. for DeviceRoles).
+    """
+    template_code = """
+    {% load helpers %}
+    {% if value %}<label class="label" style="color: {{ value.color|fgcolor }}; background-color: #{{ value.color }}">{{ value }}</label>{% else %}&mdash;{% endif %}
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(template_code=self.template_code, *args, **kwargs)
 
 
 class TagColumn(tables.TemplateColumn):

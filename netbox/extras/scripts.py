@@ -276,13 +276,6 @@ class BaseScript:
     @classmethod
     def _get_vars(cls):
         vars = OrderedDict()
-
-        # Infer order from Meta.field_order (Python 3.5 and lower)
-        field_order = getattr(cls.Meta, 'field_order', [])
-        for name in field_order:
-            vars[name] = getattr(cls, name)
-
-        # Default to order of declaration on class
         for name, attr in cls.__dict__.items():
             if name not in vars and issubclass(attr.__class__, ScriptVariable):
                 vars[name] = attr
@@ -296,8 +289,16 @@ class BaseScript:
         """
         Return a Django form suitable for populating the context data required to run this Script.
         """
-        vars = self._get_vars()
-        form = ScriptForm(vars, data, files, initial=initial, commit_default=getattr(self.Meta, 'commit_default', True))
+        # Create a dynamic ScriptForm subclass from script variables
+        fields = {
+            name: var.as_field() for name, var in self._get_vars().items()
+        }
+        FormClass = type('ScriptForm', (ScriptForm,), fields)
+
+        form = FormClass(data, files, initial=initial)
+
+        # Set initial "commit" checkbox state based on the script's Meta parameter
+        form.fields['_commit'].initial = getattr(self.Meta, 'commit_default', True)
 
         return form
 

@@ -502,13 +502,13 @@ class InterfaceViewSet(CableTraceMixin, ModelViewSet):
         return Response(serializer.data)
 
 
-class FrontPortViewSet(ModelViewSet):
+class FrontPortViewSet(CableTraceMixin, ModelViewSet):
     queryset = FrontPort.objects.prefetch_related('device__device_type__manufacturer', 'rear_port', 'cable', 'tags')
     serializer_class = serializers.FrontPortSerializer
     filterset_class = filters.FrontPortFilterSet
 
 
-class RearPortViewSet(ModelViewSet):
+class RearPortViewSet(CableTraceMixin, ModelViewSet):
     queryset = RearPort.objects.prefetch_related('device__device_type__manufacturer', 'cable', 'tags')
     serializer_class = serializers.RearPortSerializer
     filterset_class = filters.RearPortFilterSet

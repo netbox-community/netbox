@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import ForeignKey, ManyToManyField
 from django.forms.models import model_to_dict
@@ -64,7 +65,6 @@ class TestCase(_TestCase):
         """
         Compare a model instance to a dictionary, checking that its attribute values match those specified
         in the dictionary.
-
         :instance: Python object instance
         :data: Dictionary of test data used to define the instance
         :api: Set to True is the data is a JSON representation of the instance
@@ -94,6 +94,12 @@ class TestCase(_TestCase):
                 # Convert IPNetwork instances to strings
                 elif type(value) is IPNetwork:
                     model_dict[key] = str(value)
+
+            else:
+
+                # Convert ArrayFields to CSV strings
+                if type(instance._meta.get_field(key)) is ArrayField:
+                    model_dict[key] = ','.join([str(v) for v in value])
 
         # Omit any dictionary keys which are not instance attributes
         relevant_data = {

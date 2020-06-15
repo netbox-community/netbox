@@ -198,7 +198,7 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {
             'rack': rack.pk,
-            'units': [10, 11, 12],
+            'units': "10,11,12",
             'user': user3.pk,
             'tenant': None,
             'description': 'Rack reservation',

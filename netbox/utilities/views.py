@@ -944,6 +944,8 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             # TODO: Find a better way to accomplish this
             if 'device' in request.GET:
                 initial_data['device'] = request.GET.get('device')
+            elif 'device_type' in request.GET:
+                initial_data['device_type'] = request.GET.get('device_type')
 
             form = self.form(model, initial=initial_data)
 

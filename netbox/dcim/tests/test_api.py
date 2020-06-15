@@ -8,9 +8,9 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, Interface, InterfaceTemplate, Manufacturer,
+    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerFeed, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, PowerPanel,
-    Rack, RackGroup, RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
+    Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
 )
 from ipam.models import VLAN
 from extras.models import Graph
@@ -562,6 +562,111 @@ class InterfaceTemplateTest(APIViewTestCases.APIViewTestCase):
                 'device_type': devicetype.pk,
                 'name': 'Interface Template 6',
                 'type': '1000base-t',
+            },
+        ]
+
+
+class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
+    model = FrontPortTemplate
+    brief_fields = ['id', 'name', 'url']
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+
+        rear_port_templates = (
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 1', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 2', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 3', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 4', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 5', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 6', type=PortTypeChoices.TYPE_8P8C),
+        )
+        RearPortTemplate.objects.bulk_create(rear_port_templates)
+
+        front_port_templates = (
+            FrontPortTemplate(
+                device_type=devicetype,
+                name='Front Port Template 1',
+                type=PortTypeChoices.TYPE_8P8C,
+                rear_port=rear_port_templates[0]
+            ),
+            FrontPortTemplate(
+                device_type=devicetype,
+                name='Front Port Template 2',
+                type=PortTypeChoices.TYPE_8P8C,
+                rear_port=rear_port_templates[1]
+            ),
+            FrontPortTemplate(
+                device_type=devicetype,
+                name='Front Port Template 3',
+                type=PortTypeChoices.TYPE_8P8C,
+                rear_port=rear_port_templates[2]
+            ),
+        )
+        FrontPortTemplate.objects.bulk_create(front_port_templates)
+
+        cls.create_data = [
+            {
+                'device_type': devicetype.pk,
+                'name': 'Front Port Template 4',
+                'type': PortTypeChoices.TYPE_8P8C,
+                'rear_port': rear_port_templates[3].pk,
+                'position': 1,
+            },
+            {
+                'device_type': devicetype.pk,
+                'name': 'Front Port Template 5',
+                'type': PortTypeChoices.TYPE_8P8C,
+                'rear_port': rear_port_templates[4].pk,
+                'position': 1,
+            },
+            {
+                'device_type': devicetype.pk,
+                'name': 'Front Port Template 6',
+                'type': PortTypeChoices.TYPE_8P8C,
+                'rear_port': rear_port_templates[5].pk,
+                'position': 1,
+            },
+        ]
+
+
+class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
+    model = RearPortTemplate
+    brief_fields = ['id', 'name', 'url']
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+
+        rear_port_templates = (
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 1', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 2', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 3', type=PortTypeChoices.TYPE_8P8C),
+        )
+        RearPortTemplate.objects.bulk_create(rear_port_templates)
+
+        cls.create_data = [
+            {
+                'device_type': devicetype.pk,
+                'name': 'Rear Port Template 4',
+                'type': PortTypeChoices.TYPE_8P8C,
+            },
+            {
+                'device_type': devicetype.pk,
+                'name': 'Rear Port Template 5',
+                'type': PortTypeChoices.TYPE_8P8C,
+            },
+            {
+                'device_type': devicetype.pk,
+                'name': 'Rear Port Template 6',
+                'type': PortTypeChoices.TYPE_8P8C,
             },
         ]
 
@@ -1146,6 +1251,35 @@ class InterfaceTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(len(response.data), 3)
         self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?interface=Interface 1&foo=1')
 
+    def test_trace_interface(self):
+        """
+        Test tracing an Interface cable.
+        """
+        interface_a = Interface.objects.first()
+        peer_device = Device.objects.create(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='Peer Device'
+        )
+        interface_b = Interface.objects.create(
+            device=peer_device,
+            name='Interface X'
+        )
+        cable = Cable(termination_a=interface_a, termination_b=interface_b, label='Cable 1')
+        cable.save()
+
+        self.add_permissions('dcim.view_interface')
+        url = reverse('dcim-api:interface-trace', kwargs={'pk': interface_a.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], interface_a.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], interface_b.name)
+
 
 class FrontPortTest(APIViewTestCases.APIViewTestCase):
     model = FrontPort
@@ -1200,6 +1334,35 @@ class FrontPortTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_trace_frontport(self):
+        """
+        Test tracing a FrontPort cable.
+        """
+        frontport = FrontPort.objects.first()
+        peer_device = Device.objects.create(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='Peer Device'
+        )
+        interface = Interface.objects.create(
+            device=peer_device,
+            name='Interface X'
+        )
+        cable = Cable(termination_a=frontport, termination_b=interface, label='Cable 1')
+        cable.save()
+
+        self.add_permissions('dcim.view_frontport')
+        url = reverse('dcim-api:frontport-trace', kwargs={'pk': frontport.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], frontport.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], interface.name)
+
 
 class RearPortTest(APIViewTestCases.APIViewTestCase):
     model = RearPort
@@ -1237,6 +1400,35 @@ class RearPortTest(APIViewTestCases.APIViewTestCase):
                 'type': PortTypeChoices.TYPE_8P8C,
             },
         ]
+
+    def test_trace_rearport(self):
+        """
+        Test tracing a RearPort cable.
+        """
+        rearport = RearPort.objects.first()
+        peer_device = Device.objects.create(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            device_role=DeviceRole.objects.first(),
+            name='Peer Device'
+        )
+        interface = Interface.objects.create(
+            device=peer_device,
+            name='Interface X'
+        )
+        cable = Cable(termination_a=rearport, termination_b=interface, label='Cable 1')
+        cable.save()
+
+        self.add_permissions('dcim.view_rearport')
+        url = reverse('dcim-api:rearport-trace', kwargs={'pk': rearport.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], rearport.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], interface.name)
 
 
 class DeviceBayTest(APIViewTestCases.APIViewTestCase):

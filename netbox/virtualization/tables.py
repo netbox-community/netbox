@@ -3,7 +3,7 @@ from django_tables2.utils import Accessor
 
 from dcim.models import Interface
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, ColoredLabelColumn, TagColumn, ToggleColumn
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 CLUSTERTYPE_ACTIONS = """
@@ -26,10 +26,6 @@ CLUSTERGROUP_ACTIONS = """
 
 VIRTUALMACHINE_STATUS = """
 <span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
-"""
-
-VIRTUALMACHINE_ROLE = """
-{% if record.role %}<label class="label" style="background-color: #{{ record.role.color }}">{{ value }}</label>{% else %}&mdash;{% endif %}
 """
 
 VIRTUALMACHINE_PRIMARY_IP = """
@@ -132,9 +128,7 @@ class VirtualMachineTable(BaseTable):
         viewname='virtualization:cluster',
         args=[Accessor('cluster.pk')]
     )
-    role = tables.TemplateColumn(
-        template_code=VIRTUALMACHINE_ROLE
-    )
+    role = ColoredLabelColumn()
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )

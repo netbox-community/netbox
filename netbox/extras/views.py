@@ -431,7 +431,6 @@ class ScriptView(ObjectPermissionRequiredMixin, View):
             raise Http404
 
     def get(self, request, module, name):
-
         script = self._get_script(module, name)
         form = script.as_form(initial=request.GET)
 
