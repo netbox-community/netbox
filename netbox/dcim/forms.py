@@ -1226,10 +1226,20 @@ class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=PowerOutletTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    device_type = forms.ModelChoiceField(
+        queryset=DeviceType.objects.all(),
+        required=False,
+        disabled=True,
+        widget=forms.HiddenInput()
+    )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
         required=False,
         widget=StaticSelect2()
+    )
+    power_port = forms.ModelChoiceField(
+        queryset=PowerPortTemplate.objects.all(),
+        required=False
     )
     feed_leg = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletFeedLegChoices),
@@ -1238,7 +1248,18 @@ class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ('type', 'feed_leg')
+        nullable_fields = ('type', 'power_port', 'feed_leg')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit power_port queryset to PowerPortTemplates which belong to the parent DeviceType
+        if 'device_type' in self.initial:
+            device_type = DeviceType.objects.filter(pk=self.initial['device_type']).first()
+            self.fields['power_port'].queryset = PowerPortTemplate.objects.filter(device_type=device_type)
+        else:
+            self.fields['power_port'].choices = ()
+            self.fields['power_port'].widget.attrs['disabled'] = True
 
 
 class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):

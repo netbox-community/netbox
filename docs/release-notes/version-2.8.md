@@ -18,6 +18,7 @@
 * [#4737](https://github.com/netbox-community/netbox/issues/4737) - Fix display of role labels in virtual machines table
 * [#4743](https://github.com/netbox-community/netbox/issues/4743) - Allow users to create "next available" IPs without needing permission to create prefixes
 * [#4756](https://github.com/netbox-community/netbox/issues/4756) - Filter parent group by site when creating rack groups
+* [#4760](https://github.com/netbox-community/netbox/issues/4760) - Enable power port template assignment when bulk editing power outlet templates
 
 ---
 
