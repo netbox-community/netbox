@@ -430,17 +430,8 @@ class ScriptForm(BootstrapMixin, forms.Form):
         help_text="Commit changes to the database (uncheck for a dry-run)"
     )
 
-    def __init__(self, vars, *args, commit_default=True, **kwargs):
-
-        # Dynamically populate fields for variables
-        for name, var in vars.items():
-            self.base_fields[name] = var.as_field()
-
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # Toggle default commit behavior based on Meta option
-        if not commit_default:
-            self.fields['_commit'].initial = False
 
         # Move _commit to the end of the form
         commit = self.fields.pop('_commit')

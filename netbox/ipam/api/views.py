@@ -74,12 +74,8 @@ class PrefixViewSet(CustomFieldModelViewSet):
     serializer_class = serializers.PrefixSerializer
     filterset_class = filters.PrefixFilterSet
 
-    @swagger_auto_schema(
-        methods=['get', 'post'],
-        responses={
-            200: serializers.AvailablePrefixSerializer(many=True),
-        }
-    )
+    @swagger_auto_schema(method='get', responses={200: serializers.AvailablePrefixSerializer(many=True)})
+    @swagger_auto_schema(method='post', responses={201: serializers.AvailablePrefixSerializer(many=True)})
     @action(detail=True, url_path='available-prefixes', methods=['get', 'post'])
     @advisory_lock(ADVISORY_LOCK_KEYS['available-prefixes'])
     def available_prefixes(self, request, pk=None):
@@ -93,10 +89,6 @@ class PrefixViewSet(CustomFieldModelViewSet):
         available_prefixes = prefix.get_available_prefixes()
 
         if request.method == 'POST':
-
-            # Permissions check
-            if not request.user.has_perm('ipam.add_prefix'):
-                raise PermissionDenied()
 
             # Validate Requested Prefixes' length
             serializer = serializers.PrefixLengthSerializer(
@@ -158,13 +150,10 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
             return Response(serializer.data)
 
-    @swagger_auto_schema(
-        methods=['get', 'post'],
-        responses={
-            200: serializers.AvailableIPSerializer(many=True),
-        }
-    )
-    @action(detail=True, url_path='available-ips', methods=['get', 'post'])
+    @swagger_auto_schema(method='get', responses={200: serializers.AvailableIPSerializer(many=True)})
+    @swagger_auto_schema(method='post', responses={201: serializers.AvailableIPSerializer(many=True)},
+                         request_body=serializers.AvailableIPSerializer(many=False))
+    @action(detail=True, url_path='available-ips', methods=['get', 'post'], queryset=IPAddress.objects.all())
     @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
     def available_ips(self, request, pk=None):
         """
@@ -179,10 +168,6 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
         # Create the next available IP within the prefix
         if request.method == 'POST':
-
-            # Permissions check
-            if not request.user.has_perm('ipam.add_ipaddress'):
-                raise PermissionDenied()
 
             # Normalize to a list of objects
             requested_ips = request.data if isinstance(request.data, list) else [request.data]
@@ -276,7 +261,7 @@ class VLANViewSet(CustomFieldModelViewSet):
     queryset = VLAN.objects.prefetch_related(
         'site', 'group', 'tenant', 'role', 'tags'
     ).annotate(
-        prefix_count=get_subquery(Prefix, 'role')
+        prefix_count=get_subquery(Prefix, 'vlan')
     )
     serializer_class = serializers.VLANSerializer
     filterset_class = filters.VLANFilterSet

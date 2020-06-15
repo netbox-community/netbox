@@ -145,3 +145,18 @@ $ curl -v -X DELETE -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f
 ```
 
 The response to a successful `DELETE` request will have code 204 (No Content); the body of the response will be empty.
+
+
+## Bulk Object Creation
+
+The REST API supports the creation of multiple objects of the same type using a single `POST` request. For example, to create multiple devices:
+
+```
+curl -X POST -H "Authorization: Token <TOKEN>" -H "Content-Type: application/json" -H "Accept: application/json; indent=4" http://localhost:8000/api/dcim/devices/ --data '[
+{"name": "device1", "device_type": 24, "device_role": 17, "site": 6},
+{"name": "device2", "device_type": 24, "device_role": 17, "site": 6},
+{"name": "device3", "device_type": 24, "device_role": 17, "site": 6},
+]'
+```
+
+Bulk creation is all-or-none: If any of the creations fails, the entire operation is rolled back. A successful response returns an HTTP code 201 and the body of the response will be a list/array of the objects created.

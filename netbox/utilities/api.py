@@ -6,14 +6,13 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldError, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import ManyToManyField, ProtectedError
-from django.http import Http404
 from django.urls import reverse
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
 from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
 from rest_framework.response import Response
 from rest_framework.serializers import Field, ModelSerializer, ValidationError
-from rest_framework.viewsets import ModelViewSet as _ModelViewSet, ViewSet
+from rest_framework.viewsets import ModelViewSet as _ModelViewSet
 
 from .utils import dict_to_filter_params, dynamic_import
 

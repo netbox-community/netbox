@@ -2115,9 +2115,9 @@ class Cable(ChangeLoggedModel):
         """
         instance = super().from_db(db, field_names, values)
 
-        instance._orig_termination_a_type = instance.termination_a_type
+        instance._orig_termination_a_type_id = instance.termination_a_type_id
         instance._orig_termination_a_id = instance.termination_a_id
-        instance._orig_termination_b_type = instance.termination_b_type
+        instance._orig_termination_b_type_id = instance.termination_b_type_id
         instance._orig_termination_b_id = instance.termination_b_id
 
         return instance
@@ -2154,14 +2154,14 @@ class Cable(ChangeLoggedModel):
         if self.pk:
             err_msg = 'Cable termination points may not be modified. Delete and recreate the cable instead.'
             if (
-                self.termination_a_type != self._orig_termination_a_type or
+                self.termination_a_type_id != self._orig_termination_a_type_id or
                 self.termination_a_id != self._orig_termination_a_id
             ):
                 raise ValidationError({
                     'termination_a': err_msg
                 })
             if (
-                self.termination_b_type != self._orig_termination_b_type or
+                self.termination_b_type_id != self._orig_termination_b_type_id or
                 self.termination_b_id != self._orig_termination_b_id
             ):
                 raise ValidationError({

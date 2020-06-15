@@ -187,13 +187,13 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 class InterfaceTestCase(
     ViewTestCases.GetObjectViewTestCase,
-    ViewTestCases.DeviceComponentViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.BulkCreateObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase,
 ):
     model = Interface
-
-    # Disable inapplicable tests
-    test_list_objects = None
-    test_import_objects = None
 
     def _get_base_url(self):
         # Interface belongs to the DCIM app, so we have to override the base URL
