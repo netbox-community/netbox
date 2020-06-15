@@ -58,6 +58,9 @@ SECRET_KEY = getattr(configuration, 'SECRET_KEY')
 
 # Set optional parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
+ALLOWED_URL_SCHEMES = getattr(configuration, 'ALLOWED_URL_SCHEMES', (
+    'file', 'ftp', 'ftps', 'http', 'https', 'irc', 'mailto', 'sftp', 'ssh', 'tel', 'telnet', 'tftp', 'vnc', 'xmpp',
+))
 BANNER_BOTTOM = getattr(configuration, 'BANNER_BOTTOM', '')
 BANNER_LOGIN = getattr(configuration, 'BANNER_LOGIN', '')
 BANNER_TOP = getattr(configuration, 'BANNER_TOP', '')

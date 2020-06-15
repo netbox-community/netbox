@@ -13,6 +13,14 @@ ADMINS = [
 
 ---
 
+## ALLOWED_URL_SCHEMES
+
+Default: `('file', 'ftp', 'ftps', 'http', 'https', 'irc', 'mailto', 'sftp', 'ssh', 'tel', 'telnet', 'tftp', 'vnc', 'xmpp')`
+
+A list of permitted URL schemes referenced when rendering links within NetBox. Note that only the schemes specified in this list will be accepted: If adding your own, be sure to replicate the entire default list as well (excluding those schemes which are not desirable).
+
+---
+
 ## BANNER_TOP
 
 ## BANNER_BOTTOM

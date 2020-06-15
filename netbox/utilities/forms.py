@@ -647,9 +647,8 @@ class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultip
 
 class LaxURLField(forms.URLField):
     """
-    Modifies Django's built-in URLField in two ways:
-      1) Allow any valid scheme per RFC 3986 section 3.1
-      2) Remove the requirement for fully-qualified domain names (e.g. http://myserver/ is valid)
+    Modifies Django's built-in URLField to remove the requirement for fully-qualified domain names
+    (e.g. http://myserver/ is valid)
     """
     default_validators = [EnhancedURLValidator()]
 

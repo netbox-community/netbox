@@ -10,7 +10,6 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
-from utilities.choices import unpack_grouped_choices
 from utilities.utils import foreground_color
 
 register = template.Library()
@@ -38,6 +37,11 @@ def render_markdown(value):
     """
     # Strip HTML tags
     value = strip_tags(value)
+
+    # Sanitize Markdown links
+    schemes = '|'.join(settings.ALLOWED_URL_SCHEMES)
+    pattern = fr'\[(.+)\]\((?!({schemes})).*:(.+)\)'
+    value = re.sub(pattern, '[\\1](\\3)', value, flags=re.IGNORECASE)
 
     # Render Markdown
     html = markdown(value, extensions=['fenced_code', 'tables'])
