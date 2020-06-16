@@ -215,7 +215,7 @@ def prepare_cloned_fields(instance):
 
     # Copy tags
     if is_taggable(instance):
-        params['tags'] = ','.join([t.name for t in instance.tags.all().unrestricted()])
+        params['tags'] = ','.join([t.name for t in instance.tags.all()])
 
     # Concatenate parameters into a URL query string
     param_string = '&'.join(

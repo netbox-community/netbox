@@ -28,7 +28,7 @@ from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemT
 #
 
 class TagListView(ObjectListView):
-    queryset = Tag.objects.annotate(
+    queryset = Tag.restricted.annotate(
         items=Count('extras_taggeditem_items', distinct=True)
     ).order_by(
         'name'
@@ -40,7 +40,7 @@ class TagListView(ObjectListView):
 
 
 class TagView(ObjectView):
-    queryset = Tag.objects.all()
+    queryset = Tag.restricted.all()
 
     def get(self, request, slug):
 
@@ -67,19 +67,19 @@ class TagView(ObjectView):
 
 
 class TagEditView(ObjectEditView):
-    queryset = Tag.objects.all()
+    queryset = Tag.restricted.all()
     model_form = forms.TagForm
     default_return_url = 'extras:tag_list'
     template_name = 'extras/tag_edit.html'
 
 
 class TagDeleteView(ObjectDeleteView):
-    queryset = Tag.objects.all()
+    queryset = Tag.restricted.all()
     default_return_url = 'extras:tag_list'
 
 
 class TagBulkEditView(BulkEditView):
-    queryset = Tag.objects.annotate(
+    queryset = Tag.restricted.annotate(
         items=Count('extras_taggeditem_items', distinct=True)
     ).order_by(
         'name'
@@ -90,7 +90,7 @@ class TagBulkEditView(BulkEditView):
 
 
 class TagBulkDeleteView(BulkDeleteView):
-    queryset = Tag.objects.annotate(
+    queryset = Tag.restricted.annotate(
         items=Count('extras_taggeditem_items')
     ).order_by(
         'name'

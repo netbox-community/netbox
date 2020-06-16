@@ -212,7 +212,7 @@ class ConfigContextFilterSet(BaseFilterSet):
     )
     tag = django_filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
-        queryset=Tag.objects.unrestricted(),
+        queryset=Tag.objects.all(),
         to_field_name='slug',
         label='Tag (slug)',
     )

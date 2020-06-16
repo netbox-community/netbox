@@ -22,7 +22,8 @@ class Tag(TagBase, ChangeLoggedModel):
         blank=True,
     )
 
-    objects = RestrictedQuerySet.as_manager()
+    objects = models.Manager()
+    restricted = RestrictedQuerySet.as_manager()
 
     def get_absolute_url(self):
         return reverse('extras:tag', args=[self.slug])
