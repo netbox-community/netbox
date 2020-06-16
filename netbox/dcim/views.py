@@ -370,7 +370,6 @@ class RackView(ObjectView):
     queryset = Rack.objects.prefetch_related('site__region', 'tenant__group', 'group', 'role')
 
     def get(self, request, pk):
-
         rack = get_object_or_404(self.queryset, pk=pk)
 
         nonracked_devices = Device.objects.restrict(request.user, 'view').filter(
@@ -378,10 +377,12 @@ class RackView(ObjectView):
             position__isnull=True,
             parent_bay__isnull=True
         ).prefetch_related('device_type__manufacturer')
+
+        peer_racks = Rack.objects.restrict(request.user, 'view').filter(site=rack.site)
         if rack.group:
-            peer_racks = Rack.objects.filter(site=rack.site, group=rack.group)
+            peer_racks = peer_racks.filter(group=rack.group)
         else:
-            peer_racks = Rack.objects.filter(site=rack.site, group__isnull=True)
+            peer_racks = peer_racks.filter(group__isnull=True)
         next_rack = peer_racks.filter(name__gt=rack.name).order_by('name').first()
         prev_rack = peer_racks.filter(name__lt=rack.name).order_by('-name').first()
 
@@ -390,6 +391,7 @@ class RackView(ObjectView):
 
         return render(request, 'dcim/rack.html', {
             'rack': rack,
+            'device_count': Device.objects.restrict(request.user, 'view').filter(rack=rack).count(),
             'reservations': reservations,
             'power_feeds': power_feeds,
             'nonracked_devices': nonracked_devices,

@@ -138,7 +138,7 @@
                 <tr>
                     <td>Devices</td>
                     <td>
-                        <a href="{% url 'dcim:device_list' %}?rack_id={{ rack.id }}">{{ rack.devices.count }}</a>
+                        <a href="{% url 'dcim:device_list' %}?rack_id={{ rack.id }}">{{ device_count }}</a>
                     </td>
                 </tr>
                     <tr>
