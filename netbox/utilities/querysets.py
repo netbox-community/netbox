@@ -21,20 +21,22 @@ class RestrictedQuerySet(QuerySet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Initialize the is_restricted flag to False. This indicates that the QuerySet has not yet been restricted.
-        self.is_restricted = False
+        # Initialize the allow_evaluation flag to False. This indicates that the QuerySet has not yet been restricted.
+        self.allow_evaluation = False
 
     def _check_restriction(self):
-        # Raise a warning if the QuerySet is evaluated without first calling restrict().
-        if not getattr(self, 'is_restricted', False):
+        # Raise a warning if the QuerySet is evaluated without first calling restrict() or unrestricted().
+        if not getattr(self, 'allow_evaluation', False):
             logger = logging.getLogger('netbox.RestrictedQuerySet')
-            logger.warning(f'Evaluation of RestrictedQuerySet prior to calling restrict(): {self.model}')
+            logger.warning(
+                f'Evaluation of RestrictedQuerySet prior to calling restrict() or unrestricted(): {self.model}'
+            )
 
     def _clone(self):
 
-        # Persist the is_restricted flag when cloning the QuerySet.
+        # Persist the allow_evaluation flag when cloning the QuerySet.
         c = super()._clone()
-        c.is_restricted = self.is_restricted
+        c.allow_evaluation = self.allow_evaluation
 
         return c
 
@@ -45,6 +47,14 @@ class RestrictedQuerySet(QuerySet):
     def count(self):
         self._check_restriction()
         return super().count()
+
+    def unrestricted(self):
+        """
+        Bypass restriction for the QuerySet. This is necessary in cases where we are not interacting with the objects
+        directly (e.g. when filtering by related object).
+        """
+        self.allow_evaluation = True
+        return self
 
     def restrict(self, user, action):
         """
@@ -75,7 +85,7 @@ class RestrictedQuerySet(QuerySet):
                     attrs |= Q(**perm_attrs)
             qs = self.filter(attrs)
 
-        # Mark the QuerySet as having been restricted
-        qs.is_restricted = True
+        # Allow QuerySet evaluation
+        qs.allow_evaluation = True
 
         return qs
