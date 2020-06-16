@@ -257,7 +257,8 @@ class ObjectChangeLogView(View):
     def get(self, request, model, **kwargs):
 
         # Get object my model and kwargs (e.g. slug='foo')
-        obj = get_object_or_404(model, **kwargs)
+        queryset = model.objects.restrict(request.user, 'view')
+        obj = get_object_or_404(queryset, **kwargs)
 
         # Gather all changes for this object (and its related objects)
         content_type = ContentType.objects.get_for_model(model)
