@@ -124,7 +124,7 @@ class CableTermination(models.Model):
                 # many-to-one points so we can select the correct FrontPort when we reach the corresponding
                 # one-to-many point.
                 if peer_port.positions > 1:
-                    position_stack.append(termination.rear_port_position)
+                    position_stack.append(termination)
 
                 return peer_port
 
@@ -135,7 +135,8 @@ class CableTermination(models.Model):
                     if not position_stack:
                         raise CableTraceSplit(termination)
 
-                    position = position_stack.pop()
+                    front_port = position_stack.pop()
+                    position = front_port.rear_port_position
 
                     # Validate the position
                     if position not in range(1, termination.positions + 1):

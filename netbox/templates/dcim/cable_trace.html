@@ -90,7 +90,13 @@
             </div>
         {% elif position_stack %}
             <div class="col-md-11 col-md-offset-1">
-                <h3 class="text-warning text-center">Multiple possible paths end at this point. No connection established!</h3>
+                <h3 class="text-warning text-center">
+                    {% with last_position=position_stack|last %}
+                        Trace completed, but there is no Front Port corresponding to
+                        <a href="{{ last_position.device.get_absolute_url }}">{{ last_position.device }}</a> {{ last_position }}.<br>
+                        Therefore no end-to-end connection can be established.
+                    {% endwith %}
+                </h3>
             </div>
         {% else %}
             <div class="col-md-11 col-md-offset-1">
