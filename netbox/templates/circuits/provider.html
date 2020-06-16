@@ -99,7 +99,7 @@
                 <tr>
                     <td>Circuits</td>
                     <td>
-                        <a href="{% url 'circuits:circuit_list' %}?provider={{ provider.slug }}">{{ provider.circuits.count }}</a>
+                        <a href="{% url 'circuits:circuit_list' %}?provider={{ provider.slug }}">{{ circuits_table.rows|length }}</a>
                     </td>
                 </tr>
             </table>

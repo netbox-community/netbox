@@ -136,18 +136,23 @@ class CircuitView(ObjectView):
     queryset = Circuit.objects.prefetch_related('provider', 'type', 'tenant__group')
 
     def get(self, request, pk):
-
         circuit = get_object_or_404(self.queryset, pk=pk)
+
         termination_a = CircuitTermination.objects.restrict(request.user, 'view').prefetch_related(
             'site__region', 'connected_endpoint__device'
         ).filter(
             circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_A
         ).first()
+        if termination_a and termination_a.connected_endpoint:
+            termination_a.ip_addresses = termination_a.connected_endpoint.ip_addresses.restrict(request.user, 'view')
+
         termination_z = CircuitTermination.objects.restrict(request.user, 'view').prefetch_related(
             'site__region', 'connected_endpoint__device'
         ).filter(
             circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_Z
         ).first()
+        if termination_z and termination_z.connected_endpoint:
+            termination_z.ip_addresses = termination_z.connected_endpoint.ip_addresses.restrict(request.user, 'view')
 
         return render(request, 'circuits/circuit.html', {
             'circuit': circuit,
