@@ -120,7 +120,9 @@ class CableTermination(models.Model):
                 # Retrieve the corresponding RearPort from database to ensure we have an up-to-date instance
                 peer_port = RearPort.objects.get(pk=termination.rear_port.pk)
 
-                # Don't use the stack for 1-on-1 ports, they don't have to come in pairs
+                # Don't use the stack for RearPorts with a single position. Only remember the position at
+                # many-to-one points so we can select the correct FrontPort when we reach the corresponding
+                # one-to-many point.
                 if peer_port.positions > 1:
                     position_stack.append(termination.rear_port_position)
 
@@ -141,7 +143,7 @@ class CableTermination(models.Model):
                             termination, termination.positions, position
                         ))
                 else:
-                    # Don't use the stack for 1-on-1 ports, they don't have to come in pairs
+                    # Don't use the stack for RearPorts with a single position. The only possible position is 1.
                     position = 1
 
                 try:
