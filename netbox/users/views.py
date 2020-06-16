@@ -53,7 +53,10 @@ class LoginView(View):
             redirect_to = request.POST.get('next')
             if redirect_to and not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
                 logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {redirect_to}")
-                redirect_to = reverse('home')
+                redirect_to = None
+            # Default to homepage
+            if not redirect_to:
+                 redirect_to = reverse('home')
 
             # If maintenance mode is enabled, assume the database is read-only, and disable updating the user's
             # last_login time upon authentication.
