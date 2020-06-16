@@ -695,7 +695,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         return [u for u in elevation.values()]
 
-    def get_available_units(self, u_height=1, rack_face=None, exclude=list()):
+    def get_available_units(self, u_height=1, rack_face=None, exclude=None):
         """
         Return a list of units within the rack available to accommodate a device of a given U height (default 1).
         Optionally exclude one or more devices when calculating empty units (needed when moving a device from one
@@ -705,9 +705,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         :param rack_face: The face of the rack (front or rear) required; 'None' if device is full depth
         :param exclude: List of devices IDs to exclude (useful when moving a device within a rack)
         """
-
         # Gather all devices which consume U space within the rack
-        devices = self.devices.prefetch_related('device_type').filter(position__gte=1).exclude(pk__in=exclude)
+        devices = self.devices.unrestricted().prefetch_related('device_type').filter(position__gte=1)
+        if exclude is not None:
+            devices = devices.exclude(pk__in=exclude)
 
         # Initialize the rack unit skeleton
         units = list(range(1, self.u_height + 1))
@@ -735,7 +736,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         Return a dictionary mapping all reserved units within the rack to their reservation.
         """
         reserved_units = {}
-        for r in self.reservations.all():
+        for r in self.reservations.unrestricted():
             for u in r.units:
                 reserved_units[u] = r
         return reserved_units
@@ -789,7 +790,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         """
         Determine the utilization rate of power in the rack and return it as a percentage.
         """
-        power_stats = PowerFeed.objects.filter(
+        power_stats = PowerFeed.objects.unrestricted().filter(
             rack=self
         ).annotate(
             allocated_draw_total=Sum('connected_endpoint__poweroutlets__connected_endpoint__allocated_draw'),
