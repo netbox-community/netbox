@@ -585,8 +585,12 @@ class TagFilterField(forms.MultipleChoiceField):
 
     def __init__(self, model, *args, **kwargs):
         def get_choices():
-            tags = model.tags.annotate(count=Count('extras_taggeditem_items')).order_by('name')
-            return [(str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags]
+            tags = model.tags.all().unrestricted().annotate(
+                count=Count('extras_taggeditem_items')
+            ).order_by('name')
+            return [
+                (str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags
+            ]
 
         # Choices are fetched each time the form is initialized
         super().__init__(label='Tags', choices=get_choices, required=False, *args, **kwargs)
