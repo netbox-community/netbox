@@ -13,11 +13,12 @@ from circuits.filters import CircuitFilterSet, ProviderFilterSet
 from circuits.models import Circuit, Provider
 from circuits.tables import CircuitTable, ProviderTable
 from dcim.filters import (
-    CableFilterSet, DeviceFilterSet, DeviceTypeFilterSet, PowerFeedFilterSet, RackFilterSet, RackGroupFilterSet, SiteFilterSet,
-    VirtualChassisFilterSet,
+    CableFilterSet, DeviceFilterSet, DeviceTypeFilterSet, PowerFeedFilterSet, RackFilterSet, RackGroupFilterSet,
+    SiteFilterSet, VirtualChassisFilterSet,
 )
 from dcim.models import (
-    Cable, ConsolePort, Device, DeviceType, Interface, PowerPanel, PowerFeed, PowerPort, Rack, RackGroup, Site, VirtualChassis
+    Cable, ConsolePort, Device, DeviceType, Interface, PowerPanel, PowerFeed, PowerPort, Rack, RackGroup, Site,
+    VirtualChassis,
 )
 from dcim.tables import (
     CableTable, DeviceTable, DeviceTypeTable, PowerFeedTable, RackTable, RackGroupTable, SiteTable,
@@ -43,14 +44,12 @@ SEARCH_MAX_RESULTS = 15
 SEARCH_TYPES = OrderedDict((
     # Circuits
     ('provider', {
-        'permission': 'circuits.view_provider',
         'queryset': Provider.objects.annotate(count_circuits=Count('circuits')),
         'filterset': ProviderFilterSet,
         'table': ProviderTable,
         'url': 'circuits:provider_list',
     }),
     ('circuit', {
-        'permission': 'circuits.view_circuit',
         'queryset': Circuit.objects.prefetch_related(
             'type', 'provider', 'tenant', 'terminations__site'
         ).annotate_sites(),
@@ -60,35 +59,30 @@ SEARCH_TYPES = OrderedDict((
     }),
     # DCIM
     ('site', {
-        'permission': 'dcim.view_site',
         'queryset': Site.objects.prefetch_related('region', 'tenant'),
         'filterset': SiteFilterSet,
         'table': SiteTable,
         'url': 'dcim:site_list',
     }),
     ('rack', {
-        'permission': 'dcim.view_rack',
         'queryset': Rack.objects.prefetch_related('site', 'group', 'tenant', 'role'),
         'filterset': RackFilterSet,
         'table': RackTable,
         'url': 'dcim:rack_list',
     }),
     ('rackgroup', {
-        'permission': 'dcim.view_rackgroup',
         'queryset': RackGroup.objects.prefetch_related('site').annotate(rack_count=Count('racks')),
         'filterset': RackGroupFilterSet,
         'table': RackGroupTable,
         'url': 'dcim:rackgroup_list',
     }),
     ('devicetype', {
-        'permission': 'dcim.view_devicetype',
         'queryset': DeviceType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances')),
         'filterset': DeviceTypeFilterSet,
         'table': DeviceTypeTable,
         'url': 'dcim:devicetype_list',
     }),
     ('device', {
-        'permission': 'dcim.view_device',
         'queryset': Device.objects.prefetch_related(
             'device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack', 'primary_ip4', 'primary_ip6',
         ),
@@ -97,21 +91,18 @@ SEARCH_TYPES = OrderedDict((
         'url': 'dcim:device_list',
     }),
     ('virtualchassis', {
-        'permission': 'dcim.view_virtualchassis',
         'queryset': VirtualChassis.objects.prefetch_related('master').annotate(member_count=Count('members')),
         'filterset': VirtualChassisFilterSet,
         'table': VirtualChassisTable,
         'url': 'dcim:virtualchassis_list',
     }),
     ('cable', {
-        'permission': 'dcim.view_cable',
         'queryset': Cable.objects.all(),
         'filterset': CableFilterSet,
         'table': CableTable,
         'url': 'dcim:cable_list',
     }),
     ('powerfeed', {
-        'permission': 'dcim.view_powerfeed',
         'queryset': PowerFeed.objects.all(),
         'filterset': PowerFeedFilterSet,
         'table': PowerFeedTable,
@@ -119,14 +110,12 @@ SEARCH_TYPES = OrderedDict((
     }),
     # Virtualization
     ('cluster', {
-        'permission': 'virtualization.view_cluster',
         'queryset': Cluster.objects.prefetch_related('type', 'group'),
         'filterset': ClusterFilterSet,
         'table': ClusterTable,
         'url': 'virtualization:cluster_list',
     }),
     ('virtualmachine', {
-        'permission': 'virtualization.view_virtualmachine',
         'queryset': VirtualMachine.objects.prefetch_related(
             'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
         ),
@@ -136,35 +125,30 @@ SEARCH_TYPES = OrderedDict((
     }),
     # IPAM
     ('vrf', {
-        'permission': 'ipam.view_vrf',
         'queryset': VRF.objects.prefetch_related('tenant'),
         'filterset': VRFFilterSet,
         'table': VRFTable,
         'url': 'ipam:vrf_list',
     }),
     ('aggregate', {
-        'permission': 'ipam.view_aggregate',
         'queryset': Aggregate.objects.prefetch_related('rir'),
         'filterset': AggregateFilterSet,
         'table': AggregateTable,
         'url': 'ipam:aggregate_list',
     }),
     ('prefix', {
-        'permission': 'ipam.view_prefix',
         'queryset': Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role'),
         'filterset': PrefixFilterSet,
         'table': PrefixTable,
         'url': 'ipam:prefix_list',
     }),
     ('ipaddress', {
-        'permission': 'ipam.view_ipaddress',
         'queryset': IPAddress.objects.prefetch_related('vrf__tenant', 'tenant'),
         'filterset': IPAddressFilterSet,
         'table': IPAddressTable,
         'url': 'ipam:ipaddress_list',
     }),
     ('vlan', {
-        'permission': 'ipam.view_vlan',
         'queryset': VLAN.objects.prefetch_related('site', 'group', 'tenant', 'role'),
         'filterset': VLANFilterSet,
         'table': VLANTable,
@@ -172,7 +156,6 @@ SEARCH_TYPES = OrderedDict((
     }),
     # Secrets
     ('secret', {
-        'permission': 'secrets.view_secret',
         'queryset': Secret.objects.prefetch_related('role', 'device'),
         'filterset': SecretFilterSet,
         'table': SecretTable,
@@ -180,7 +163,6 @@ SEARCH_TYPES = OrderedDict((
     }),
     # Tenancy
     ('tenant', {
-        'permission': 'tenancy.view_tenant',
         'queryset': Tenant.objects.prefetch_related('group'),
         'filterset': TenantFilterSet,
         'table': TenantTable,
@@ -242,6 +224,8 @@ class HomeView(View):
 
         }
 
+        changelog = ObjectChange.objects.restrict(request.user, 'view').prefetch_related('user', 'changed_object_type')
+
         # Check whether a new release is available. (Only for staff/superusers.)
         new_release = None
         if request.user.is_staff or request.user.is_superuser:
@@ -258,7 +242,7 @@ class HomeView(View):
             'search_form': SearchForm(),
             'stats': stats,
             'report_results': ReportResult.objects.order_by('-created')[:10],
-            'changelog': ObjectChange.objects.prefetch_related('user', 'changed_object_type')[:15],
+            'changelog': changelog[:15],
             'new_release': new_release,
         })
 
@@ -278,17 +262,12 @@ class SearchView(View):
 
         if form.is_valid():
 
-            # Searching for a single type of object
-            obj_types = []
             if form.cleaned_data['obj_type']:
-                obj_type = form.cleaned_data['obj_type']
-                if request.user.has_perm(SEARCH_TYPES[obj_type]['permission']):
-                    obj_types.append(form.cleaned_data['obj_type'])
-            # Searching all object types
+                # Searching for a single type of object
+                obj_types = [form.cleaned_data['obj_type']]
             else:
-                for obj_type in SEARCH_TYPES.keys():
-                    if request.user.has_perm(SEARCH_TYPES[obj_type]['permission']):
-                        obj_types.append(obj_type)
+                # Searching all object types
+                obj_types = SEARCH_TYPES.keys()
 
             for obj_type in obj_types:
 
