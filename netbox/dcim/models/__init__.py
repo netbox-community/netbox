@@ -2191,7 +2191,8 @@ class Cable(ChangeLoggedModel):
                 f"Incompatible termination types: {self.termination_a_type} and {self.termination_b_type}"
             )
 
-        # Check that a RearPort isn't connected to something silly
+        # Check that a RearPort with multiple positions isn't connected to an endpoint
+        # or a RearPort with a different number of positions.
         for term_a, term_b in [
             (self.termination_a, self.termination_b),
             (self.termination_b, self.termination_a)
