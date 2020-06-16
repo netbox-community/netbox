@@ -300,6 +300,9 @@ class CircuitTermination(CableTermination):
         blank=True
     )
 
+    # Paths do not end on cable terminations, they continue at the other end of the circuit
+    is_path_endpoint = False
+
     class Meta:
         ordering = ['circuit', 'term_side']
         unique_together = ['circuit', 'term_side']
