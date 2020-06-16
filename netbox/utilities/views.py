@@ -1006,7 +1006,7 @@ class BulkDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 logger.debug("Form validation was successful")
 
                 # Delete objects
-                queryset = model.objects.filter(pk__in=pk_list)
+                queryset = self.queryset.filter(pk__in=pk_list)
                 try:
                     deleted_count = queryset.delete()[1][model._meta.label]
                 except ProtectedError as e:
