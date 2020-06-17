@@ -2,7 +2,6 @@ from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from dcim.choices import *
 from dcim.constants import *
@@ -14,6 +13,7 @@ from dcim.models import (
     VirtualChassis,
 )
 from extras.api.customfields import CustomFieldModelSerializer
+from extras.api.serializers import TaggedObjectSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
 from ipam.models import VLAN
 from tenancy.api.nested_serializers import NestedTenantSerializer
@@ -67,12 +67,11 @@ class RegionSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'parent', 'description', 'site_count']
 
 
-class SiteSerializer(TaggitSerializer, CustomFieldModelSerializer):
+class SiteSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     status = ChoiceField(choices=SiteStatusChoices, required=False)
     region = NestedRegionSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     time_zone = TimeZoneField(required=False)
-    tags = TagListSerializerField(required=False)
     circuit_count = serializers.IntegerField(read_only=True)
     device_count = serializers.IntegerField(read_only=True)
     prefix_count = serializers.IntegerField(read_only=True)
@@ -112,7 +111,7 @@ class RackRoleSerializer(ValidatedModelSerializer):
         fields = ['id', 'name', 'slug', 'color', 'description', 'rack_count']
 
 
-class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
+class RackSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     site = NestedSiteSerializer()
     group = NestedRackGroupSerializer(required=False, allow_null=True, default=None)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
@@ -121,7 +120,6 @@ class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
     type = ChoiceField(choices=RackTypeChoices, allow_blank=True, required=False)
     width = ChoiceField(choices=RackWidthChoices, required=False)
     outer_unit = ChoiceField(choices=RackDimensionUnitChoices, allow_blank=True, required=False)
-    tags = TagListSerializerField(required=False)
     device_count = serializers.IntegerField(read_only=True)
     powerfeed_count = serializers.IntegerField(read_only=True)
 
@@ -161,11 +159,10 @@ class RackUnitSerializer(serializers.Serializer):
     device = NestedDeviceSerializer(read_only=True)
 
 
-class RackReservationSerializer(ValidatedModelSerializer):
+class RackReservationSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
     rack = NestedRackSerializer()
     user = NestedUserSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = RackReservation
@@ -224,10 +221,9 @@ class ManufacturerSerializer(ValidatedModelSerializer):
         ]
 
 
-class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
+class DeviceTypeSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     manufacturer = NestedManufacturerSerializer()
     subdevice_role = ChoiceField(choices=SubdeviceRoleChoices, allow_blank=True, required=False)
-    tags = TagListSerializerField(required=False)
     device_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -363,7 +359,7 @@ class PlatformSerializer(ValidatedModelSerializer):
         ]
 
 
-class DeviceSerializer(TaggitSerializer, CustomFieldModelSerializer):
+class DeviceSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     device_role = NestedDeviceRoleSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True)
@@ -378,7 +374,6 @@ class DeviceSerializer(TaggitSerializer, CustomFieldModelSerializer):
     parent_device = serializers.SerializerMethodField()
     cluster = NestedClusterSerializer(required=False, allow_null=True)
     virtual_chassis = NestedVirtualChassisSerializer(required=False, allow_null=True)
-    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Device
@@ -434,7 +429,7 @@ class DeviceNAPALMSerializer(serializers.Serializer):
     method = serializers.DictField()
 
 
-class ConsoleServerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
+class ConsoleServerPortSerializer(TaggedObjectSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(
         choices=ConsolePortTypeChoices,
@@ -442,7 +437,6 @@ class ConsoleServerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer)
         required=False
     )
     cable = NestedCableSerializer(read_only=True)
-    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = ConsoleServerPort
@@ -452,7 +446,7 @@ class ConsoleServerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer)
         ]
 
 
-class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
+class ConsolePortSerializer(TaggedObjectSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(
         choices=ConsolePortTypeChoices,
@@ -460,7 +454,6 @@ class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
         required=False
     )
     cable = NestedCableSerializer(read_only=True)
-    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = ConsolePort
@@ -470,7 +463,7 @@ class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
         ]
 
 
-class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
+class PowerOutletSerializer(TaggedObjectSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(
         choices=PowerOutletTypeChoices,
@@ -488,9 +481,6 @@ class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     cable = NestedCableSerializer(
         read_only=True
     )
-    tags = TagListSerializerField(
-        required=False
-    )
 
     class Meta:
         model = PowerOutlet
@@ -500,7 +490,7 @@ class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
         ]
 
 
-class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
+class PowerPortSerializer(TaggedObjectSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(
         choices=PowerPortTypeChoices,
@@ -508,7 +498,6 @@ class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
         required=False
     )
     cable = NestedCableSerializer(read_only=True)
-    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = PowerPort
@@ -518,7 +507,7 @@ class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
         ]
 
 
-class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
+class InterfaceSerializer(TaggedObjectSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=InterfaceTypeChoices)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
@@ -531,7 +520,6 @@ class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
         many=True
     )
     cable = NestedCableSerializer(read_only=True)
-    tags = TagListSerializerField(required=False)
     count_ipaddresses = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -563,11 +551,10 @@ class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
         return super().validate(data)
 
 
-class RearPortSerializer(TaggitSerializer, ValidatedModelSerializer):
+class RearPortSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=PortTypeChoices)
     cable = NestedCableSerializer(read_only=True)
-    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = RearPort
@@ -585,22 +572,20 @@ class FrontPortRearPortSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'name']
 
 
-class FrontPortSerializer(TaggitSerializer, ValidatedModelSerializer):
+class FrontPortSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=PortTypeChoices)
     rear_port = FrontPortRearPortSerializer()
     cable = NestedCableSerializer(read_only=True)
-    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = FrontPort
         fields = ['id', 'device', 'name', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'tags']
 
 
-class DeviceBaySerializer(TaggitSerializer, ValidatedModelSerializer):
+class DeviceBaySerializer(TaggedObjectSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     installed_device = NestedDeviceSerializer(required=False, allow_null=True)
-    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = DeviceBay
@@ -611,12 +596,11 @@ class DeviceBaySerializer(TaggitSerializer, ValidatedModelSerializer):
 # Inventory items
 #
 
-class InventoryItemSerializer(TaggitSerializer, ValidatedModelSerializer):
+class InventoryItemSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     # Provide a default value to satisfy UniqueTogetherValidator
     parent = serializers.PrimaryKeyRelatedField(queryset=InventoryItem.objects.all(), allow_null=True, default=None)
     manufacturer = NestedManufacturerSerializer(required=False, allow_null=True, default=None)
-    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = InventoryItem
@@ -630,7 +614,7 @@ class InventoryItemSerializer(TaggitSerializer, ValidatedModelSerializer):
 # Cables
 #
 
-class CableSerializer(ValidatedModelSerializer):
+class CableSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
     termination_a_type = ContentTypeField(
         queryset=ContentType.objects.filter(CABLE_TERMINATION_MODELS)
     )
@@ -641,7 +625,6 @@ class CableSerializer(ValidatedModelSerializer):
     termination_b = serializers.SerializerMethodField(read_only=True)
     status = ChoiceField(choices=CableStatusChoices, required=False)
     length_unit = ChoiceField(choices=CableLengthUnitChoices, allow_blank=True, required=False)
-    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Cable
@@ -710,9 +693,8 @@ class InterfaceConnectionSerializer(ValidatedModelSerializer):
 # Virtual chassis
 #
 
-class VirtualChassisSerializer(TaggitSerializer, ValidatedModelSerializer):
+class VirtualChassisSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
     master = NestedDeviceSerializer()
-    tags = TagListSerializerField(required=False)
     member_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -724,14 +706,13 @@ class VirtualChassisSerializer(TaggitSerializer, ValidatedModelSerializer):
 # Power panels
 #
 
-class PowerPanelSerializer(ValidatedModelSerializer):
+class PowerPanelSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
     site = NestedSiteSerializer()
     rack_group = NestedRackGroupSerializer(
         required=False,
         allow_null=True,
         default=None
     )
-    tags = TagListSerializerField(required=False)
     powerfeed_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -739,7 +720,7 @@ class PowerPanelSerializer(ValidatedModelSerializer):
         fields = ['id', 'site', 'rack_group', 'name', 'tags', 'powerfeed_count']
 
 
-class PowerFeedSerializer(TaggitSerializer, CustomFieldModelSerializer):
+class PowerFeedSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     power_panel = NestedPowerPanelSerializer()
     rack = NestedRackSerializer(
         required=False,
@@ -761,9 +742,6 @@ class PowerFeedSerializer(TaggitSerializer, CustomFieldModelSerializer):
     phase = ChoiceField(
         choices=PowerFeedPhaseChoices,
         default=PowerFeedPhaseChoices.PHASE_SINGLE
-    )
-    tags = TagListSerializerField(
-        required=False
     )
 
     class Meta:

@@ -2,8 +2,8 @@ from django import forms
 
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldModelForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelCSVForm,
-    TagField,
 )
+from extras.models import Tag
 from utilities.forms import (
     APISelect, APISelectMultiple, BootstrapMixin, CommentField, CSVModelChoiceField, CSVModelForm,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField, TagFilterField,
@@ -57,7 +57,8 @@ class TenantForm(BootstrapMixin, CustomFieldModelForm):
         required=False
     )
     comments = CommentField()
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 

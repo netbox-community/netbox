@@ -102,7 +102,7 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class TagTest(APIViewTestCases.APIViewTestCase):
     model = Tag
-    brief_fields = ['color', 'id', 'name', 'slug', 'tagged_items', 'url']
+    brief_fields = ['color', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Tag 4',

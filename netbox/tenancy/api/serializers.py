@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from extras.api.customfields import CustomFieldModelSerializer
+from extras.api.serializers import TaggedObjectSerializer
 from tenancy.models import Tenant, TenantGroup
 from utilities.api import ValidatedModelSerializer
 from .nested_serializers import *
@@ -20,9 +20,8 @@ class TenantGroupSerializer(ValidatedModelSerializer):
         fields = ['id', 'name', 'slug', 'parent', 'description', 'tenant_count']
 
 
-class TenantSerializer(TaggitSerializer, CustomFieldModelSerializer):
+class TenantSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     group = NestedTenantGroupSerializer(required=False)
-    tags = TagListSerializerField(required=False)
     circuit_count = serializers.IntegerField(read_only=True)
     device_count = serializers.IntegerField(read_only=True)
     ipaddress_count = serializers.IntegerField(read_only=True)

@@ -26,7 +26,7 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'noc_contact': 'noc@example.com',
             'admin_contact': 'admin@example.com',
             'comments': 'Another provider',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.csv_data = (
@@ -106,7 +106,7 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'commit_rate': 1000,
             'description': 'A new circuit',
             'comments': 'Some comments',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.csv_data = (
@@ -124,5 +124,4 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'commit_rate': 2000,
             'description': 'New description',
             'comments': 'New comments',
-
         }

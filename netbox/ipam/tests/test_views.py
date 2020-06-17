@@ -33,7 +33,7 @@ class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'tenant': tenants[0].pk,
             'enforce_unique': True,
             'description': 'A new VRF',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.csv_data = (
@@ -100,7 +100,7 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'rir': rirs[1].pk,
             'date_added': datetime.date(2020, 1, 1),
             'description': 'A new aggregate',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.csv_data = (
@@ -183,7 +183,7 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'role': roles[1].pk,
             'is_pool': True,
             'description': 'A new prefix',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.csv_data = (
@@ -232,7 +232,7 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'nat_inside': None,
             'dns_name': 'example',
             'description': 'A new IP address',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.csv_data = (
@@ -320,7 +320,7 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'status': VLANStatusChoices.STATUS_RESERVED,
             'role': roles[1].pk,
             'description': 'A new VLAN',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.csv_data = (
@@ -376,7 +376,7 @@ class ServiceTestCase(
             'port': 999,
             'ipaddresses': [],
             'description': 'A new service',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
         }
 
         cls.csv_data = (

@@ -11,7 +11,6 @@ from utilities.testing import APITestCase
 class ChangeLogTest(APITestCase):
 
     def setUp(self):
-
         super().setUp()
 
         # Create a custom field on the Site model
@@ -31,9 +30,6 @@ class ChangeLogTest(APITestCase):
             'custom_fields': {
                 'my_field': 'ABC'
             },
-            'tags': [
-                'bar', 'foo'
-            ],
         }
         self.assertEqual(ObjectChange.objects.count(), 0)
         url = reverse('dcim-api:site-list')
@@ -50,7 +46,6 @@ class ChangeLogTest(APITestCase):
         self.assertEqual(oc.changed_object, site)
         self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_CREATE)
         self.assertEqual(oc.object_data['custom_fields'], data['custom_fields'])
-        self.assertListEqual(sorted(oc.object_data['tags']), data['tags'])
 
     def test_update_object(self):
         site = Site(name='Test Site 1', slug='test-site-1')
@@ -62,9 +57,6 @@ class ChangeLogTest(APITestCase):
             'custom_fields': {
                 'my_field': 'DEF'
             },
-            'tags': [
-                'abc', 'xyz'
-            ],
         }
         self.assertEqual(ObjectChange.objects.count(), 0)
         self.add_permissions('dcim.change_site')
@@ -81,7 +73,6 @@ class ChangeLogTest(APITestCase):
         self.assertEqual(oc.changed_object, site)
         self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_UPDATE)
         self.assertEqual(oc.object_data['custom_fields'], data['custom_fields'])
-        self.assertListEqual(sorted(oc.object_data['tags']), data['tags'])
 
     def test_delete_object(self):
         site = Site(
@@ -89,7 +80,6 @@ class ChangeLogTest(APITestCase):
             slug='test-site-1'
         )
         site.save()
-        site.tags.add('foo', 'bar')
         CustomFieldValue.objects.create(
             field=CustomField.objects.get(name='my_field'),
             obj=site,
@@ -108,4 +98,3 @@ class ChangeLogTest(APITestCase):
         self.assertEqual(oc.object_repr, site.name)
         self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_DELETE)
         self.assertEqual(oc.object_data['custom_fields'], {'my_field': 'ABC'})
-        self.assertListEqual(sorted(oc.object_data['tags']), ['bar', 'foo'])

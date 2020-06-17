@@ -9,6 +9,8 @@ urlpatterns = [
 
     # Tags
     path('tags/', views.TagListView.as_view(), name='tag_list'),
+    path('tags/add/', views.TagEditView.as_view(), name='tag_add'),
+    path('tags/import/', views.TagBulkImportView.as_view(), name='tag_import'),
     path('tags/edit/', views.TagBulkEditView.as_view(), name='tag_bulk_edit'),
     path('tags/delete/', views.TagBulkDeleteView.as_view(), name='tag_bulk_delete'),
     path('tags/<str:slug>/', views.TagView.as_view(), name='tag'),

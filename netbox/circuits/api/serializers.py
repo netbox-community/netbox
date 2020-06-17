@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from circuits.choices import CircuitStatusChoices
 from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
 from dcim.api.nested_serializers import NestedCableSerializer, NestedInterfaceSerializer, NestedSiteSerializer
 from dcim.api.serializers import ConnectedEndpointSerializer
 from extras.api.customfields import CustomFieldModelSerializer
+from extras.api.serializers import TaggedObjectSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import ChoiceField, ValidatedModelSerializer, WritableNestedSerializer
 from .nested_serializers import *
@@ -15,8 +15,7 @@ from .nested_serializers import *
 # Providers
 #
 
-class ProviderSerializer(TaggitSerializer, CustomFieldModelSerializer):
-    tags = TagListSerializerField(required=False)
+class ProviderSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     circuit_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -49,14 +48,13 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'site', 'connected_endpoint', 'port_speed', 'upstream_speed', 'xconnect_id']
 
 
-class CircuitSerializer(TaggitSerializer, CustomFieldModelSerializer):
+class CircuitSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     provider = NestedProviderSerializer()
     status = ChoiceField(choices=CircuitStatusChoices, required=False)
     type = NestedCircuitTypeSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     termination_a = CircuitCircuitTerminationSerializer(read_only=True)
     termination_z = CircuitCircuitTerminationSerializer(read_only=True)
-    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Circuit
