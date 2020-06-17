@@ -86,7 +86,11 @@ class CableTermination(models.Model):
         object_id_field='termination_b_id'
     )
 
+    # Whether this class is always an endpoint for cable traces
     is_path_endpoint = True
+
+    # Whether this class can be a connected endpoint
+    is_connected_endpoint = True
 
     class Meta:
         abstract = True
@@ -895,7 +899,12 @@ class FrontPort(CableTermination, ComponentModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'rear_port', 'rear_port_position', 'description']
+
+    # Whether this class is always an endpoint for cable traces
     is_path_endpoint = False
+
+    # Whether this class can be a connected endpoint
+    is_connected_endpoint = False
 
     class Meta:
         ordering = ('device', '_name')
@@ -963,7 +972,12 @@ class RearPort(CableTermination, ComponentModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'positions', 'description']
+
+    # Whether this class is always an endpoint for cable traces
     is_path_endpoint = False
+
+    # Whether this class can be a connected endpoint
+    is_connected_endpoint = False
 
     class Meta:
         ordering = ('device', '_name')
