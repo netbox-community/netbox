@@ -10,6 +10,7 @@ NetBox v2.9 replaces Django's built-in permissions framework with one that suppo
 
 ### Enhancements
 
+* [#3703](https://github.com/netbox-community/netbox/issues/3703) - Tags must be created administratively before being assigned to an object
 * [#4615](https://github.com/netbox-community/netbox/issues/4615) - Add `label` field for all device components
 * [#4742](https://github.com/netbox-community/netbox/issues/4742) - Add tagging for cables, power panels, and rack reservations
 
@@ -17,6 +18,20 @@ NetBox v2.9 replaces Django's built-in permissions framework with one that suppo
 
 * If in use, LDAP authentication must be enabled by setting `REMOTE_AUTH_BACKEND` to `'netbox.authentication.LDAPBackend'`. (LDAP configuration parameters in `ldap_config.py` remain unchanged.)
 * `REMOTE_AUTH_DEFAULT_PERMISSIONS` now takes a dictionary rather than a list. This is a mapping of permission names to a dictionary of constraining attributes, or `None`. For example, `['dcim.add_site', 'dcim.change_site']` would become `{'dcim.add_site': None, 'dcim.change_site': None}`.
+
+### REST API Changes
+
+* The count of `tagged_items` is no longer included when viewing the tags list when `brief` is passed.
+* The assignment of tags to an object is now achieved in the same manner as specifying any other related device. The `tags` field accepts a list of JSON objects each matching a desired tag. (Alternatively, a list of numeric primary keys corresponding to tags may be passed instead.) For example:
+
+```json
+"tags": [
+  {"name": "First Tag"},
+  {"name": "Second Tag"}
+]
+```
+
+* The `tags` field of an object now includes a more complete representation of each tag, rather than just its name.
 
 ### Other Changes
 
