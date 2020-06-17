@@ -77,7 +77,7 @@ class TagDeleteView(ObjectDeleteView):
 
 
 class TagBulkImportView(BulkImportView):
-    queryset = Tag.objects.all()
+    queryset = Tag.restricted.all()
     model_form = forms.TagCSVForm
     table = tables.TagTable
     default_return_url = 'extras:tag_list'
