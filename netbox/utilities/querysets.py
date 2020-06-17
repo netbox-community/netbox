@@ -10,6 +10,9 @@ class DummyQuerySet:
     def __init__(self, queryset):
         self._cache = [obj for obj in queryset.all()]
 
+    def __iter__(self):
+        return iter(self._cache)
+
     def all(self):
         return self._cache
 
