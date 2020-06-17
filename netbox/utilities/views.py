@@ -1162,6 +1162,9 @@ class BulkComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, 
     table = None
     template_name = 'utilities/obj_bulk_add_component.html'
 
+    def get_required_permission(self):
+        return f'dcim.add_{self.queryset.model._meta.model_name}'
+
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkComponentCreateView')
         parent_model_name = self.parent_model._meta.verbose_name_plural
