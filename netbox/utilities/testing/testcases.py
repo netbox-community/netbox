@@ -26,6 +26,54 @@ class TestCase(_TestCase):
         self.client = Client()
         self.client.force_login(self.user)
 
+    def prepare_instance(self, instance):
+        """
+        Test cases can override this method to perform any necessary manipulation of an instance prior to its evaluation
+        against test data. For example, it can be used to decrypt a Secret's plaintext attribute.
+        """
+        return instance
+
+    def model_to_dict(self, instance, fields, api=False):
+        """
+        Return a dictionary representation of an instance.
+        """
+        # Prepare the instance and call Django's model_to_dict() to extract all fields
+        model_dict = model_to_dict(self.prepare_instance(instance), fields=fields)
+
+        # Map any additional (non-field) instance attributes that were specified
+        for attr in fields:
+            if hasattr(instance, attr) and attr not in model_dict:
+                model_dict[attr] = getattr(instance, attr)
+
+        for key, value in list(model_dict.items()):
+
+            # TODO: Differentiate between tags assigned to the instance and a M2M field for tags (ex: ConfigContext)
+            if key == 'tags':
+                model_dict[key] = ','.join(sorted([tag.name for tag in value]))
+
+            # Convert ManyToManyField to list of instance PKs
+            elif model_dict[key] and type(value) in (list, tuple) and hasattr(value[0], 'pk'):
+                model_dict[key] = [obj.pk for obj in value]
+
+            if api:
+
+                # Replace ContentType numeric IDs with <app_label>.<model>
+                if type(getattr(instance, key)) is ContentType:
+                    ct = ContentType.objects.get(pk=value)
+                    model_dict[key] = f'{ct.app_label}.{ct.model}'
+
+                # Convert IPNetwork instances to strings
+                if type(value) is IPNetwork:
+                    model_dict[key] = str(value)
+
+            else:
+
+                # Convert ArrayFields to CSV strings
+                if type(instance._meta.get_field(key)) is ArrayField:
+                    model_dict[key] = ','.join([str(v) for v in value])
+
+        return model_dict
+
     #
     # Permissions management
     #
@@ -70,34 +118,7 @@ class TestCase(_TestCase):
         :data: Dictionary of test data used to define the instance
         :api: Set to True is the data is a JSON representation of the instance
         """
-        model_dict = model_to_dict(instance, fields=data.keys())
-
-        for key, value in list(model_dict.items()):
-
-            # TODO: Differentiate between tags assigned to the instance and a M2M field for tags (ex: ConfigContext)
-            if key == 'tags':
-                model_dict[key] = ','.join(sorted([tag.name for tag in value]))
-
-            # Convert ManyToManyField to list of instance PKs
-            elif model_dict[key] and type(value) in (list, tuple) and hasattr(value[0], 'pk'):
-                model_dict[key] = [obj.pk for obj in value]
-
-            if api:
-
-                # Replace ContentType numeric IDs with <app_label>.<model>
-                if type(getattr(instance, key)) is ContentType:
-                    ct = ContentType.objects.get(pk=value)
-                    model_dict[key] = f'{ct.app_label}.{ct.model}'
-
-                # Convert IPNetwork instances to strings
-                if type(value) is IPNetwork:
-                    model_dict[key] = str(value)
-
-            else:
-
-                # Convert ArrayFields to CSV strings
-                if type(instance._meta.get_field(key)) is ArrayField:
-                    model_dict[key] = ','.join([str(v) for v in value])
+        model_dict = self.model_to_dict(instance, fields=data.keys(), api=api)
 
         # Omit any dictionary keys which are not instance attributes
         relevant_data = {
