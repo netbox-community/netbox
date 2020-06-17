@@ -2214,11 +2214,10 @@ class DeviceBulkAddComponentForm(LabeledComponentForm):
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
-
-    def clean_tags(self):
-        # Because we're feeding TagField data (on the bulk edit form) to another TagField (on the model form), we
-        # must first convert the list of tags to a string.
-        return ','.join(self.cleaned_data.get('tags'))
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
 
 #
@@ -2855,7 +2854,7 @@ class InterfaceCreateForm(InterfaceCommonForm, LabeledComponentForm):
 
 
 class InterfaceBulkCreateForm(
-    form_from_model(Interface, ['type', 'enabled', 'mtu', 'mgmt_only', 'description', 'tags']),
+    form_from_model(Interface, ['type', 'enabled', 'mtu', 'mgmt_only', 'description']),
     DeviceBulkAddComponentForm
 ):
     pass
