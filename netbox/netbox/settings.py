@@ -282,7 +282,6 @@ INSTALLED_APPS = [
     'mptt',
     'rest_framework',
     'taggit',
-    'taggit_serializer',
     'timezone_field',
     'circuits',
     'dcim',
