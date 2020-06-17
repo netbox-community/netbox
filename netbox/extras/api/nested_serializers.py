@@ -38,11 +38,10 @@ class NestedGraphSerializer(WritableNestedSerializer):
 
 class NestedTagSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:tag-detail')
-    tagged_items = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = models.Tag
-        fields = ['id', 'url', 'name', 'slug', 'color', 'tagged_items']
+        fields = ['id', 'url', 'name', 'slug', 'color']
 
 
 class NestedReportResultSerializer(serializers.ModelSerializer):

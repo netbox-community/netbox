@@ -1,11 +1,11 @@
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
-from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from dcim.api.nested_serializers import NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer
-from dcim.choices import InterfaceModeChoices, InterfaceTypeChoices
+from dcim.choices import InterfaceModeChoices
 from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
+from extras.api.serializers import TaggedObjectSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
 from ipam.models import VLAN
 from tenancy.api.nested_serializers import NestedTenantSerializer
@@ -35,12 +35,11 @@ class ClusterGroupSerializer(ValidatedModelSerializer):
         fields = ['id', 'name', 'slug', 'description', 'cluster_count']
 
 
-class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
+class ClusterSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     type = NestedClusterTypeSerializer()
     group = NestedClusterGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer(required=False, allow_null=True)
-    tags = TagListSerializerField(required=False)
     device_count = serializers.IntegerField(read_only=True)
     virtualmachine_count = serializers.IntegerField(read_only=True)
 
@@ -56,7 +55,7 @@ class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
 # Virtual machines
 #
 
-class VirtualMachineSerializer(TaggitSerializer, CustomFieldModelSerializer):
+class VirtualMachineSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     status = ChoiceField(choices=VirtualMachineStatusChoices, required=False)
     site = NestedSiteSerializer(read_only=True)
     cluster = NestedClusterSerializer()
@@ -66,7 +65,6 @@ class VirtualMachineSerializer(TaggitSerializer, CustomFieldModelSerializer):
     primary_ip = NestedIPAddressSerializer(read_only=True)
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
-    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = VirtualMachine
@@ -97,7 +95,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 # VM interfaces
 #
 
-class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
+class InterfaceSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
     virtual_machine = NestedVirtualMachineSerializer()
     type = ChoiceField(choices=VMInterfaceTypeChoices, default=VMInterfaceTypeChoices.TYPE_VIRTUAL, required=False)
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
@@ -108,7 +106,6 @@ class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
         required=False,
         many=True
     )
-    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Interface

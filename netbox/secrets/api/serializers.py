@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from dcim.api.nested_serializers import NestedDeviceSerializer
 from extras.api.customfields import CustomFieldModelSerializer
+from extras.api.serializers import TaggedObjectSerializer
 from secrets.models import Secret, SecretRole
 from utilities.api import ValidatedModelSerializer
 from .nested_serializers import *
@@ -20,11 +20,10 @@ class SecretRoleSerializer(ValidatedModelSerializer):
         fields = ['id', 'name', 'slug', 'description', 'secret_count']
 
 
-class SecretSerializer(TaggitSerializer, CustomFieldModelSerializer):
+class SecretSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     device = NestedDeviceSerializer()
     role = NestedSecretRoleSerializer()
     plaintext = serializers.CharField()
-    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Secret
