@@ -46,7 +46,7 @@ def handle_deleted_object(sender, instance, **kwargs):
 
     # Preserve tags
     if is_taggable(instance):
-        copy.tags = DummyQuerySet(instance.tags.all())
+        copy.tags = list(instance.tags.all())
 
     # Queue the copy of the object for processing once the request completes
     _thread_locals.changed_objects.append(
