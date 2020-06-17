@@ -1,5 +1,14 @@
 # NetBox v2.8
 
+## v2.8.7 (FUTURE)
+
+### Bug Fixes
+
+* [#4766](https://github.com/netbox-community/netbox/issues/4766) - Fix redirect after login when `next` is not specified
+* [#4772](https://github.com/netbox-community/netbox/issues/4772) - Fix "brief" format for the secrets REST API endpoint
+
+---
+
 ## v2.8.6 (2020-06-15)
 
 ### Enhancements
