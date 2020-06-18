@@ -32,6 +32,7 @@ NetBox v2.9 replaces Django's built-in permissions framework with one that suppo
 ```
 
 * The `tags` field of an object now includes a more complete representation of each tag, rather than just its name.
+* A `label` field has been added to all device components and component templates.
 
 ### Other Changes
 
