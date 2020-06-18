@@ -1476,7 +1476,7 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = DeviceBayTemplate
         fields = [
-            'device_type', 'name',
+            'device_type', 'name', 'label',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -3323,7 +3323,7 @@ class DeviceBayForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = DeviceBay
         fields = [
-            'device', 'name', 'description', 'tags',
+            'device', 'name', 'label', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
