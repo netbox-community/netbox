@@ -25,8 +25,8 @@ from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField, CSVModelForm,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
-    LabeledComponentForm, NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2,
-    StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
 from .choices import *
@@ -126,6 +126,28 @@ class InterfaceCommonForm:
                     'tagged_vlans': "The tagged VLANs ({}) must belong to the same site as the interface's parent "
                                     "device/VM, or they must be global".format(', '.join(invalid_vlans))
                 })
+
+
+class LabeledComponentForm(BootstrapMixin, forms.Form):
+    name_pattern = ExpandableNameField(
+        label='Name'
+    )
+    label_pattern = ExpandableNameField(
+        label='Label',
+        required=False
+    )
+
+    def clean(self):
+
+        # Validate that the number of components being created from both the name_pattern and label_pattern are equal
+        name_pattern_count = len(self.cleaned_data['name_pattern'])
+        label_pattern_count = len(self.cleaned_data['label_pattern'])
+        if label_pattern_count and name_pattern_count != label_pattern_count:
+            raise forms.ValidationError({
+                'label_pattern': 'The provided name pattern will create {} components, however {} labels will '
+                'be generated. These counts must match.'.format(
+                    name_pattern_count, label_pattern_count)
+            }, code='label_pattern_mismatch')
 
 
 class BulkRenameForm(forms.Form):
@@ -1036,6 +1058,27 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Device component templates
 #
 
+class ComponentTemplateCreateForm(LabeledComponentForm):
+    """
+    Base form for the creation of device component templates.
+    """
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        widget=APISelect(
+            filter_for={
+                'device_type': 'manufacturer_id'
+            }
+        )
+    )
+    device_type = DynamicModelChoiceField(
+        queryset=DeviceType.objects.all(),
+        widget=APISelect(
+            display_field='model'
+        )
+    )
+
+
 class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
@@ -1048,10 +1091,7 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsolePortTemplateCreateForm(LabeledComponentForm):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
+class ConsolePortTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect2()
@@ -1085,10 +1125,7 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsoleServerPortTemplateCreateForm(LabeledComponentForm):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
+class ConsoleServerPortTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect2()
@@ -1122,10 +1159,7 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPortTemplateCreateForm(LabeledComponentForm):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
+class PowerPortTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerPortTypeChoices),
         required=False
@@ -1189,10 +1223,7 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
             )
 
 
-class PowerOutletTemplateCreateForm(LabeledComponentForm):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
+class PowerOutletTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
         required=False
@@ -1273,10 +1304,7 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class InterfaceTemplateCreateForm(LabeledComponentForm):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
+class InterfaceTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=InterfaceTypeChoices,
         widget=StaticSelect2()
@@ -1330,13 +1358,7 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
             )
 
 
-class FrontPortTemplateCreateForm(BootstrapMixin, forms.Form):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class FrontPortTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=PortTypeChoices,
         widget=StaticSelect2()
@@ -1421,13 +1443,7 @@ class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class RearPortTemplateCreateForm(BootstrapMixin, forms.Form):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class RearPortTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=PortTypeChoices,
         widget=StaticSelect2(),
@@ -1467,13 +1483,8 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DeviceBayTemplateCreateForm(BootstrapMixin, forms.Form):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class DeviceBayTemplateCreateForm(ComponentTemplateCreateForm):
+    pass
 
 
 # TODO: DeviceBayTemplate has no fields suitable for bulk-editing yet
@@ -2206,8 +2217,21 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
 
 
 #
-# Bulk device component creation
+# Device components
 #
+
+class ComponentCreateForm(LabeledComponentForm):
+    """
+    Base form for the creation of device components.
+    """
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all()
+    )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
 
 class DeviceBulkAddComponentForm(LabeledComponentForm):
     pk = forms.ModelMultipleChoiceField(
@@ -2251,10 +2275,7 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsolePortCreateForm(LabeledComponentForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
+class ConsolePortCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
@@ -2336,10 +2357,7 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsoleServerPortCreateForm(LabeledComponentForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
+class ConsoleServerPortCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
@@ -2435,10 +2453,7 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPortCreateForm(LabeledComponentForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
+class PowerPortCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerPortTypeChoices),
         required=False,
@@ -2543,10 +2558,7 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
             )
 
 
-class PowerOutletCreateForm(LabeledComponentForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
+class PowerOutletCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
         required=False,
@@ -2767,10 +2779,7 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', device.site.pk)
 
 
-class InterfaceCreateForm(InterfaceCommonForm, LabeledComponentForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
+class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     type = forms.ChoiceField(
         choices=InterfaceTypeChoices,
         widget=StaticSelect2(),
@@ -3049,13 +3058,7 @@ class FrontPortForm(BootstrapMixin, forms.ModelForm):
 
 
 # TODO: Merge with FrontPortTemplateCreateForm to remove duplicate logic
-class FrontPortCreateForm(BootstrapMixin, forms.Form):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class FrontPortCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=PortTypeChoices,
         widget=StaticSelect2(),
@@ -3230,13 +3233,7 @@ class RearPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class RearPortCreateForm(BootstrapMixin, forms.Form):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class RearPortCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=PortTypeChoices,
         widget=StaticSelect2(),
@@ -3333,17 +3330,8 @@ class DeviceBayForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DeviceBayCreateForm(BootstrapMixin, forms.Form):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
+class DeviceBayCreateForm(ComponentCreateForm):
+    pass
 
 
 class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
