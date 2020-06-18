@@ -470,11 +470,14 @@ class DeviceTypeTable(BaseTable):
 # Device type components
 #
 
-class ConsolePortTemplateTable(BaseTable):
+class ComponentTemplateTable(BaseTable):
     pk = ToggleColumn()
     name = tables.Column(
         order_by=('_name',)
     )
+
+
+class ConsolePortTemplateTable(ComponentTemplateTable):
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('consoleporttemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -483,7 +486,7 @@ class ConsolePortTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConsolePortTemplate
-        fields = ('pk', 'name', 'type', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'actions')
         empty_text = "None"
 
 
@@ -499,11 +502,7 @@ class ConsolePortImportTable(BaseTable):
         empty_text = False
 
 
-class ConsoleServerPortTemplateTable(BaseTable):
-    pk = ToggleColumn()
-    name = tables.Column(
-        order_by=('_name',)
-    )
+class ConsoleServerPortTemplateTable(ComponentTemplateTable):
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('consoleserverporttemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -512,7 +511,7 @@ class ConsoleServerPortTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConsoleServerPortTemplate
-        fields = ('pk', 'name', 'type', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'actions')
         empty_text = "None"
 
 
@@ -528,11 +527,7 @@ class ConsoleServerPortImportTable(BaseTable):
         empty_text = False
 
 
-class PowerPortTemplateTable(BaseTable):
-    pk = ToggleColumn()
-    name = tables.Column(
-        order_by=('_name',)
-    )
+class PowerPortTemplateTable(ComponentTemplateTable):
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('powerporttemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -541,7 +536,7 @@ class PowerPortTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerPortTemplate
-        fields = ('pk', 'name', 'type', 'maximum_draw', 'allocated_draw', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'actions')
         empty_text = "None"
 
 
@@ -557,11 +552,7 @@ class PowerPortImportTable(BaseTable):
         empty_text = False
 
 
-class PowerOutletTemplateTable(BaseTable):
-    pk = ToggleColumn()
-    name = tables.Column(
-        order_by=('_name',)
-    )
+class PowerOutletTemplateTable(ComponentTemplateTable):
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('poweroutlettemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -570,7 +561,7 @@ class PowerOutletTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerOutletTemplate
-        fields = ('pk', 'name', 'type', 'power_port', 'feed_leg', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'actions')
         empty_text = "None"
 
 
@@ -586,10 +577,9 @@ class PowerOutletImportTable(BaseTable):
         empty_text = False
 
 
-class InterfaceTemplateTable(BaseTable):
-    pk = ToggleColumn()
-    mgmt_only = tables.TemplateColumn(
-        template_code="{% if value %}OOB Management{% endif %}"
+class InterfaceTemplateTable(ComponentTemplateTable):
+    mgmt_only = BooleanColumn(
+        verbose_name='Management Only'
     )
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('interfacetemplate'),
@@ -599,7 +589,7 @@ class InterfaceTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = InterfaceTemplate
-        fields = ('pk', 'name', 'mgmt_only', 'type', 'actions')
+        fields = ('pk', 'name', 'label', 'mgmt_only', 'type', 'actions')
         empty_text = "None"
 
 
@@ -623,11 +613,7 @@ class InterfaceImportTable(BaseTable):
         empty_text = False
 
 
-class FrontPortTemplateTable(BaseTable):
-    pk = ToggleColumn()
-    name = tables.Column(
-        order_by=('_name',)
-    )
+class FrontPortTemplateTable(ComponentTemplateTable):
     rear_port_position = tables.Column(
         verbose_name='Position'
     )
@@ -639,7 +625,7 @@ class FrontPortTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = FrontPortTemplate
-        fields = ('pk', 'name', 'type', 'rear_port', 'rear_port_position', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'actions')
         empty_text = "None"
 
 
@@ -655,11 +641,7 @@ class FrontPortImportTable(BaseTable):
         empty_text = False
 
 
-class RearPortTemplateTable(BaseTable):
-    pk = ToggleColumn()
-    name = tables.Column(
-        order_by=('_name',)
-    )
+class RearPortTemplateTable(ComponentTemplateTable):
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('rearporttemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -668,7 +650,7 @@ class RearPortTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RearPortTemplate
-        fields = ('pk', 'name', 'type', 'positions', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'positions', 'actions')
         empty_text = "None"
 
 
@@ -684,11 +666,7 @@ class RearPortImportTable(BaseTable):
         empty_text = False
 
 
-class DeviceBayTemplateTable(BaseTable):
-    pk = ToggleColumn()
-    name = tables.Column(
-        order_by=('_name',)
-    )
+class DeviceBayTemplateTable(ComponentTemplateTable):
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('devicebaytemplate'),
         attrs={'td': {'class': 'text-right noprint'}},
@@ -697,7 +675,7 @@ class DeviceBayTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = DeviceBayTemplate
-        fields = ('pk', 'name', 'actions')
+        fields = ('pk', 'name', 'label', 'actions')
         empty_text = "None"
 
 
@@ -890,8 +868,8 @@ class DeviceComponentDetailTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         order_by = ('device', 'name')
-        fields = ('pk', 'device', 'name', 'type', 'description', 'cable')
-        sequence = ('pk', 'device', 'name', 'type', 'description', 'cable')
+        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable')
+        sequence = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable')
 
 
 class ConsolePortTable(BaseTable):
@@ -899,7 +877,7 @@ class ConsolePortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConsolePort
-        fields = ('name', 'type')
+        fields = ('name', 'label', 'type')
 
 
 class ConsolePortDetailTable(DeviceComponentDetailTable):
@@ -914,7 +892,7 @@ class ConsoleServerPortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConsoleServerPort
-        fields = ('name', 'description')
+        fields = ('name', 'label', 'description')
 
 
 class ConsoleServerPortDetailTable(DeviceComponentDetailTable):
@@ -929,7 +907,7 @@ class PowerPortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerPort
-        fields = ('name', 'type')
+        fields = ('name', 'label', 'type')
 
 
 class PowerPortDetailTable(DeviceComponentDetailTable):
@@ -944,7 +922,7 @@ class PowerOutletTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerOutlet
-        fields = ('name', 'type', 'description')
+        fields = ('name', 'label', 'type', 'description')
 
 
 class PowerOutletDetailTable(DeviceComponentDetailTable):
@@ -958,7 +936,7 @@ class InterfaceTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = ('name', 'type', 'lag', 'enabled', 'mgmt_only', 'description')
+        fields = ('name', 'label', 'type', 'lag', 'enabled', 'mgmt_only', 'description')
 
 
 class InterfaceDetailTable(DeviceComponentDetailTable):
@@ -968,8 +946,8 @@ class InterfaceDetailTable(DeviceComponentDetailTable):
 
     class Meta(InterfaceTable.Meta):
         order_by = ('parent', 'name')
-        fields = ('pk', 'parent', 'name', 'enabled', 'type', 'description', 'cable')
-        sequence = ('pk', 'parent', 'name', 'enabled', 'type', 'description', 'cable')
+        fields = ('pk', 'parent', 'name', 'label', 'enabled', 'type', 'description', 'cable')
+        sequence = ('pk', 'parent', 'name', 'label', 'enabled', 'type', 'description', 'cable')
 
 
 class FrontPortTable(BaseTable):
@@ -977,7 +955,7 @@ class FrontPortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = FrontPort
-        fields = ('name', 'type', 'rear_port', 'rear_port_position', 'description')
+        fields = ('name', 'label', 'type', 'rear_port', 'rear_port_position', 'description')
         empty_text = "None"
 
 
@@ -993,7 +971,7 @@ class RearPortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RearPort
-        fields = ('name', 'type', 'positions', 'description')
+        fields = ('name', 'label', 'type', 'positions', 'description')
         empty_text = "None"
 
 
@@ -1009,7 +987,7 @@ class DeviceBayTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = DeviceBay
-        fields = ('name', 'description')
+        fields = ('name', 'label', 'description')
 
 
 class DeviceBayDetailTable(DeviceComponentDetailTable):
@@ -1017,8 +995,8 @@ class DeviceBayDetailTable(DeviceComponentDetailTable):
     installed_device = tables.LinkColumn()
 
     class Meta(DeviceBayTable.Meta):
-        fields = ('pk', 'name', 'device', 'installed_device', 'description')
-        sequence = ('pk', 'name', 'device', 'installed_device', 'description')
+        fields = ('pk', 'device', 'name', 'label', 'installed_device', 'description')
+        sequence = ('pk', 'device', 'name', 'label', 'installed_device', 'description')
         exclude = ('cable',)
 
 
