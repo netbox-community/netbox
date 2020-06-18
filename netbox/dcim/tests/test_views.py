@@ -76,6 +76,8 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Site(name='Site 3', slug='site-3', region=regions[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Site X',
             'slug': 'site-x',
@@ -94,7 +96,7 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'contact_phone': '123-555-9999',
             'contact_email': 'hank@stricklandpropane.com',
             'comments': 'Test site',
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -196,13 +198,15 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             RackReservation(rack=rack, user=user2, units=[7, 8, 9], description='Reservation 3'),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'rack': rack.pk,
             'units': "10,11,12",
             'user': user3.pk,
             'tenant': None,
             'description': 'Rack reservation',
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -250,6 +254,8 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Rack(name='Rack 3', site=sites[0]),
         ))
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Rack X',
             'facility_id': 'Facility X',
@@ -268,7 +274,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'outer_depth': 500,
             'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER,
             'comments': 'Some comments',
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -350,6 +356,8 @@ class DeviceTypeTestCase(
             DeviceType(model='Device Type 3', slug='device-type-3', manufacturer=manufacturers[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'manufacturer': manufacturers[1].pk,
             'model': 'Device Type X',
@@ -359,7 +367,7 @@ class DeviceTypeTestCase(
             'is_full_depth': True,
             'subdevice_role': '',  # CharField
             'comments': 'Some comments',
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_edit_data = {
@@ -947,6 +955,8 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Device(name='Device 3', site=sites[0], rack=racks[0], device_type=devicetypes[0], device_role=deviceroles[0], platform=platforms[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'device_type': devicetypes[1].pk,
             'device_role': deviceroles[1].pk,
@@ -967,7 +977,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'vc_position': None,
             'vc_priority': None,
             'comments': 'A new device',
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
             'local_context_data': None,
         }
 
@@ -1008,7 +1018,7 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'name': 'Console Port X',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console port',
-            'tags': tags,
+            'tags': sorted([t.pk for t in tags]),
         }
 
         cls.bulk_create_data = {
@@ -1018,7 +1028,7 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'label_pattern': 'Serial[3-5]',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console port',
-            'tags': tags,
+            'tags': sorted([t.pk for t in tags]),
         }
 
         cls.bulk_edit_data = {
@@ -1054,7 +1064,7 @@ class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'name': 'Console Server Port X',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console server port',
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_create_data = {
@@ -1062,7 +1072,7 @@ class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'name_pattern': 'Console Server Port [4-6]',
             'type': ConsolePortTypeChoices.TYPE_RJ45,
             'description': 'A console server port',
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_edit_data = {
@@ -1100,7 +1110,7 @@ class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'maximum_draw': 100,
             'allocated_draw': 50,
             'description': 'A power port',
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_create_data = {
@@ -1110,7 +1120,7 @@ class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'maximum_draw': 100,
             'allocated_draw': 50,
             'description': 'A power port',
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_edit_data = {
@@ -1156,7 +1166,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'power_port': powerports[1].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'A power outlet',
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_create_data = {
@@ -1166,7 +1176,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'power_port': powerports[1].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'A power outlet',
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_edit_data = {
@@ -1226,7 +1236,7 @@ class InterfaceTestCase(
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_create_data = {
@@ -1242,7 +1252,7 @@ class InterfaceTestCase(
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_edit_data = {
@@ -1298,7 +1308,7 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'rear_port': rearports[3].pk,
             'rear_port_position': 1,
             'description': 'New description',
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_create_data = {
@@ -1309,7 +1319,7 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
                 '{}:1'.format(rp.pk) for rp in rearports[3:6]
             ],
             'description': 'New description',
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_edit_data = {
@@ -1346,7 +1356,7 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'type': PortTypeChoices.TYPE_8P8C,
             'positions': 3,
             'description': 'A rear port',
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_create_data = {
@@ -1355,7 +1365,7 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'type': PortTypeChoices.TYPE_8P8C,
             'positions': 3,
             'description': 'A rear port',
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_edit_data = {
@@ -1393,14 +1403,14 @@ class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'device': device.pk,
             'name': 'Device Bay X',
             'description': 'A device bay',
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_create_data = {
             'device': device.pk,
             'name_pattern': 'Device Bay [4-6]',
             'description': 'A device bay',
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_edit_data = {
@@ -1441,7 +1451,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'serial': '123ABC',
             'asset_tag': 'ABC123',
             'description': 'An inventory item',
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_create_data = {
@@ -1453,7 +1463,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'part_id': '123456',
             'serial': '123ABC',
             'description': 'An inventory item',
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_edit_data = {
@@ -1518,6 +1528,8 @@ class CableTestCase(
         Cable(termination_a=interfaces[1], termination_b=interfaces[4], type=CableTypeChoices.TYPE_CAT6).save()
         Cable(termination_a=interfaces[2], termination_b=interfaces[5], type=CableTypeChoices.TYPE_CAT6).save()
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         interface_ct = ContentType.objects.get_for_model(Interface)
         cls.form_data = {
             # Changing terminations not supported when editing an existing Cable
@@ -1531,7 +1543,7 @@ class CableTestCase(
             'color': 'c0c0c0',
             'length': 100,
             'length_unit': CableLengthUnitChoices.UNIT_FOOT,
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -1640,11 +1652,13 @@ class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             PowerPanel(site=sites[0], rack_group=rackgroups[0], name='Power Panel 3'),
         ))
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'site': sites[1].pk,
             'rack_group': rackgroups[1].pk,
             'name': 'Power Panel X',
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -1686,6 +1700,8 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             PowerFeed(name='Power Feed 3', power_panel=powerpanels[0], rack=racks[0]),
         ))
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Power Feed X',
             'power_panel': powerpanels[1].pk,
@@ -1698,7 +1714,7 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'amperage': 100,
             'max_utilization': 50,
             'comments': 'New comments',
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
 
             # Connection
             'cable': None,

@@ -1,13 +1,14 @@
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import ForeignKey, ManyToManyField
+from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist
+from django.db.models import ManyToManyField
 from django.forms.models import model_to_dict
 from django.test import Client, TestCase as _TestCase, override_settings
 from django.urls import reverse, NoReverseMatch
 from django.utils.text import slugify
 from netaddr import IPNetwork
+from taggit.managers import TaggableManager
 
 from extras.models import Tag
 from users.models import ObjectPermission
@@ -55,14 +56,19 @@ class TestCase(_TestCase):
                 model_dict[attr] = getattr(instance, attr)
 
         for key, value in list(model_dict.items()):
+            try:
+                field = instance._meta.get_field(key)
+            except FieldDoesNotExist:
+                # Attribute is not a model field
+                continue
 
-            # TODO: Differentiate between tags assigned to the instance and a M2M field for tags (ex: ConfigContext)
-            if key == 'tags':
-                model_dict[key] = sorted(value, key=lambda t: t.name)
+            # Handle ManyToManyFields
+            if value and type(field) in (ManyToManyField, TaggableManager):
 
-            # Convert ManyToManyField to list of instance PKs
-            elif model_dict[key] and type(value) in (list, tuple) and hasattr(value[0], 'pk'):
-                model_dict[key] = [obj.pk for obj in value]
+                if field.related_model is ContentType:
+                    model_dict[key] = sorted([f'{ct.app_label}.{ct.model}' for ct in value])
+                else:
+                    model_dict[key] = sorted([obj.pk for obj in value])
 
             if api:
 
@@ -72,7 +78,7 @@ class TestCase(_TestCase):
                     model_dict[key] = f'{ct.app_label}.{ct.model}'
 
                 # Convert IPNetwork instances to strings
-                if type(value) is IPNetwork:
+                elif type(value) is IPNetwork:
                     model_dict[key] = str(value)
 
             else:

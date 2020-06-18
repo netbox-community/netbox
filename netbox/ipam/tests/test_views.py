@@ -27,13 +27,15 @@ class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             VRF(name='VRF 3', rd='65000:3'),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'VRF X',
             'rd': '65000:999',
             'tenant': tenants[0].pk,
             'enforce_unique': True,
             'description': 'A new VRF',
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -95,12 +97,14 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Aggregate(prefix=IPNetwork('10.3.0.0/16'), rir=rirs[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'prefix': IPNetwork('10.99.0.0/16'),
             'rir': rirs[1].pk,
             'date_added': datetime.date(2020, 1, 1),
             'description': 'A new aggregate',
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -173,6 +177,8 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Prefix(prefix=IPNetwork('10.3.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'prefix': IPNetwork('192.0.2.0/24'),
             'site': sites[1].pk,
@@ -183,7 +189,7 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'role': roles[1].pk,
             'is_pool': True,
             'description': 'A new prefix',
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -222,6 +228,8 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             IPAddress(address=IPNetwork('192.0.2.3/24'), vrf=vrfs[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'vrf': vrfs[1].pk,
             'address': IPNetwork('192.0.2.99/24'),
@@ -232,7 +240,7 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'nat_inside': None,
             'dns_name': 'example',
             'description': 'A new IP address',
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -311,6 +319,8 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             VLAN(group=vlangroups[0], vid=103, name='VLAN103', site=sites[0], role=roles[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'site': sites[1].pk,
             'group': vlangroups[1].pk,
@@ -320,7 +330,7 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'status': VLANStatusChoices.STATUS_RESERVED,
             'role': roles[1].pk,
             'description': 'A new VLAN',
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -368,6 +378,8 @@ class ServiceTestCase(
             Service(device=device, name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=103),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'device': device.pk,
             'virtual_machine': None,
@@ -376,7 +388,7 @@ class ServiceTestCase(
             'port': 999,
             'ipaddresses': [],
             'description': 'A new service',
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (

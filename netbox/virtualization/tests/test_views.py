@@ -90,6 +90,8 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Cluster(name='Cluster 3', group=clustergroups[0], type=clustertypes[0], site=sites[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Cluster X',
             'group': clustergroups[1].pk,
@@ -97,7 +99,7 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'tenant': None,
             'site': sites[1].pk,
             'comments': 'Some comments',
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -148,6 +150,8 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             VirtualMachine(name='Virtual Machine 3', cluster=clusters[0], role=deviceroles[0], platform=platforms[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'cluster': clusters[1].pk,
             'tenant': None,
@@ -161,7 +165,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'memory': 32768,
             'disk': 4000,
             'comments': 'Some comments',
-            'tags': cls.create_tags('Alpha', 'Bravo', 'Charlie'),
+            'tags': [t.pk for t in tags],
             'local_context_data': None,
         }
 
@@ -242,7 +246,7 @@ class InterfaceTestCase(
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_create_data = {
@@ -257,7 +261,7 @@ class InterfaceTestCase(
             'mode': InterfaceModeChoices.MODE_TAGGED,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
-            'tags': tags,
+            'tags': [t.pk for t in tags],
         }
 
         cls.bulk_edit_data = {
