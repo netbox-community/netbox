@@ -719,6 +719,7 @@ class IPAddressDeleteView(ObjectDeleteView):
 
 
 class IPAddressBulkCreateView(BulkCreateView):
+    queryset = IPAddress.objects.all()
     form = forms.IPAddressBulkCreateForm
     model_form = forms.IPAddressBulkAddForm
     pattern_target = 'address'
