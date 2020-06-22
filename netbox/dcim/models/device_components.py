@@ -689,7 +689,8 @@ class Interface(CableTermination, ComponentModel, BaseInterface):
     ip_addresses = GenericRelation(
         to='ipam.IPAddress',
         content_type_field='assigned_object_type',
-        object_id_field='assigned_object_id'
+        object_id_field='assigned_object_id',
+        related_query_name='interface'
     )
     tags = TaggableManager(through=TaggedItem)
 

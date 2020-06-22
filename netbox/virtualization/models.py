@@ -408,7 +408,8 @@ class Interface(BaseInterface):
     ip_addresses = GenericRelation(
         to='ipam.IPAddress',
         content_type_field='assigned_object_type',
-        object_id_field='assigned_object_id'
+        object_id_field='assigned_object_id',
+        related_query_name='vm_interface'
     )
     tags = TaggableManager(
         through=TaggedItem,

@@ -1,6 +1,5 @@
 import django_filters
 import netaddr
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from netaddr.core import AddrFormatError
@@ -12,7 +11,7 @@ from utilities.filters import (
     BaseFilterSet, MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, TagFilter,
     TreeNodeMultipleChoiceFilter,
 )
-from virtualization.models import Interface as VMInterface, VirtualMachine
+from virtualization.models import VirtualMachine
 from .choices import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
@@ -386,8 +385,7 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
         for device in devices:
             interface_ids.extend(device.vc_interfaces.values_list('id', flat=True))
         return queryset.filter(
-            assigned_object_type=ContentType.objects.get_for_model(Interface),
-            assigned_object_id__in=interface_ids
+            interface__in=interface_ids
         )
 
     def filter_virtual_machine(self, queryset, name, value):
@@ -398,8 +396,7 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
         for vm in virtual_machines:
             interface_ids.extend(vm.interfaces.values_list('id', flat=True))
         return queryset.filter(
-            assigned_object_type=ContentType.objects.get_for_model(VMInterface),
-            assigned_object_id__in=interface_ids
+            vm_interface__in=interface_ids
         )
 
     def _assigned_to_interface(self, queryset, name, value):

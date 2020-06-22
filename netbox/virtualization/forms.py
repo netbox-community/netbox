@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 
 from dcim.choices import InterfaceModeChoices
@@ -358,8 +357,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                 # Collect interface IPs
                 interface_ips = IPAddress.objects.prefetch_related('interface').filter(
                     address__family=family,
-                    assigned_object_type=ContentType.objects.get_for_model(Interface),
-                    assigned_object_id__in=self.instance.interfaces.values_list('id', flat=True)
+                    vm_interface__in=self.instance.interfaces.values_list('id', flat=True)
                 )
                 if interface_ips:
                     ip_choices.append(
@@ -370,8 +368,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                 # Collect NAT IPs
                 nat_ips = IPAddress.objects.prefetch_related('nat_inside').filter(
                     address__family=family,
-                    nat_inside__assigned_object_type=ContentType.objects.get_for_model(Interface),
-                    nat_inside__assigned_object_id__in=self.instance.interfaces.values_list('id', flat=True)
+                    nat_inside__vm_interface__in=self.instance.interfaces.values_list('id', flat=True)
                 )
                 if nat_ips:
                     ip_choices.append(
