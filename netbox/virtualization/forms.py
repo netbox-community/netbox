@@ -356,11 +356,10 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             for family in [4, 6]:
                 ip_choices = [(None, '---------')]
                 # Collect interface IPs
-                interface_pks = self.instance.interfaces.values_list('id', flat=True)
                 interface_ips = IPAddress.objects.prefetch_related('interface').filter(
                     address__family=family,
                     assigned_object_type=ContentType.objects.get_for_model(Interface),
-                    assigned_object_id__in=interface_pks
+                    assigned_object_id__in=self.instance.interfaces.values_list('id', flat=True)
                 )
                 if interface_ips:
                     ip_choices.append(
@@ -370,7 +369,9 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                     )
                 # Collect NAT IPs
                 nat_ips = IPAddress.objects.prefetch_related('nat_inside').filter(
-                    address__family=family, nat_inside__interface__virtual_machine=self.instance
+                    address__family=family,
+                    nat_inside__assigned_object_type=ContentType.objects.get_for_model(Interface),
+                    nat_inside__assigned_object_id__in=self.instance.interfaces.values_list('id', flat=True)
                 )
                 if nat_ips:
                     ip_choices.append(
@@ -622,7 +623,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Add current site to VLANs query params
-        site = getattr(self.instance.virtual_machine, 'site', None)
+        site = self.instance.virtual_machine.site
         if site is not None:
             # Add current site to VLANs query params
             self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', site.pk)

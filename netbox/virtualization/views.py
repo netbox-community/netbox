@@ -331,6 +331,7 @@ class InterfaceView(ObjectView):
         })
 
 
+# TODO: This should not use ComponentCreateView
 class InterfaceCreateView(ComponentCreateView):
     queryset = Interface.objects.all()
     form = forms.InterfaceCreateForm

@@ -195,7 +195,7 @@ class InterfaceTestCase(
     ViewTestCases.GetObjectViewTestCase,
     ViewTestCases.EditObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
-    ViewTestCases.BulkCreateObjectsViewTestCase,
+    # ViewTestCases.BulkCreateObjectsViewTestCase,
     ViewTestCases.BulkEditObjectsViewTestCase,
     ViewTestCases.BulkDeleteObjectsViewTestCase,
 ):
