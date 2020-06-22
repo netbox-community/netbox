@@ -484,7 +484,7 @@ class PowerOutletViewSet(CableTraceMixin, ModelViewSet):
 
 class InterfaceViewSet(CableTraceMixin, ModelViewSet):
     queryset = Interface.objects.prefetch_related(
-        'device', '_connected_interface', '_connected_circuittermination', 'cable', 'ip_addresses', 'tags'
+        'device', '_connected_interface', '_connected_circuittermination', 'cable', 'ipaddresses', 'tags'
     ).filter(
         device__isnull=False
     )
