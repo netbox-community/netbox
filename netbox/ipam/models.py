@@ -615,10 +615,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         null=True
     )
-    assigned_object_id = models.ForeignKey(
-        to='dcim.Interface',
-        on_delete=models.CASCADE,
-        related_name='ip_addresses',
+    assigned_object_id = models.PositiveIntegerField(
         blank=True,
         null=True
     )
@@ -660,7 +657,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         'dns_name', 'description',
     ]
     clone_fields = [
-        'vrf', 'tenant', 'status', 'role', 'description', 'interface',
+        'vrf', 'tenant', 'status', 'role', 'description',
     ]
 
     STATUS_CLASS_MAP = {

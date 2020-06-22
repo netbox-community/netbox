@@ -23,6 +23,11 @@ class Migration(migrations.Migration):
             old_name='interface',
             new_name='assigned_object_id',
         ),
+        migrations.AlterField(
+            model_name='ipaddress',
+            name='assigned_object_id',
+            field=models.PositiveIntegerField(blank=True, null=True),
+        ),
         migrations.AddField(
             model_name='ipaddress',
             name='assigned_object_type',
