@@ -28,21 +28,28 @@
             {% render_field form.tenant %}
         </div>
     </div>
-    {% if obj.interface %}
+    {% if obj.assigned_object %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Interface Assignment</strong>
             </div>
             <div class="panel-body">
                 <div class="form-group">
-                    <label class="col-md-3 control-label">{{ obj.interface.parent|meta:"verbose_name"|bettertitle }}</label>
+                    <label class="col-md-3 control-label">{{ obj.assigned_object.parent|meta:"verbose_name"|bettertitle }}</label>
                     <div class="col-md-9">
                         <p class="form-control-static">
-                            <a href="{{ obj.interface.parent.get_absolute_url }}">{{ obj.interface.parent }}</a>
+                            <a href="{{ obj.assigned_object.parent.get_absolute_url }}">{{ obj.assigned_object.parent }}</a>
                         </p>
                     </div>
                 </div>
-                {% render_field form.interface %}
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Interface</label>
+                    <div class="col-md-9">
+                        <p class="form-control-static">
+                            <a href="{{ obj.assigned_object.get_absolute_url }}">{{ obj.assigned_object }}</a>
+                        </p>
+                    </div>
+                </div>
                 {% render_field form.primary_for_parent %}
             </div>
         </div>
