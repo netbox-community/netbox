@@ -5,10 +5,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from dcim.models import Device
-from dcim.views import InterfaceView as DeviceInterfaceView
 from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
 from ipam.models import Service
+from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ObjectView,
     ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -297,8 +297,38 @@ class InterfaceListView(ObjectListView):
     action_buttons = ('import', 'export')
 
 
-class InterfaceView(DeviceInterfaceView):
+class InterfaceView(ObjectView):
     queryset = Interface.objects.all()
+
+    def get(self, request, pk):
+
+        interface = get_object_or_404(self.queryset, pk=pk)
+
+        # Get assigned IP addresses
+        ipaddress_table = InterfaceIPAddressTable(
+            data=interface.ipaddresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
+            orderable=False
+        )
+
+        # Get assigned VLANs and annotate whether each is tagged or untagged
+        vlans = []
+        if interface.untagged_vlan is not None:
+            vlans.append(interface.untagged_vlan)
+            vlans[0].tagged = False
+        for vlan in interface.tagged_vlans.prefetch_related('site', 'group', 'tenant', 'role'):
+            vlan.tagged = True
+            vlans.append(vlan)
+        vlan_table = InterfaceVLANTable(
+            interface=interface,
+            data=vlans,
+            orderable=False
+        )
+
+        return render(request, 'virtualization/interface.html', {
+            'interface': interface,
+            'ipaddress_table': ipaddress_table,
+            'vlan_table': vlan_table,
+        })
 
 
 class InterfaceCreateView(ComponentCreateView):
