@@ -686,7 +686,7 @@ class Interface(CableTermination, ComponentModel, BaseInterface):
         blank=True,
         verbose_name='Tagged VLANs'
     )
-    ipaddresses = GenericRelation(
+    ip_addresses = GenericRelation(
         to='ipam.IPAddress',
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id'

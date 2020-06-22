@@ -306,7 +306,7 @@ class InterfaceView(ObjectView):
 
         # Get assigned IP addresses
         ipaddress_table = InterfaceIPAddressTable(
-            data=interface.ipaddresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
+            data=interface.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
             orderable=False
         )
 
