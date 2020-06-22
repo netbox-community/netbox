@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import F, Q
+from django.db.models import F
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
@@ -653,7 +653,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
     objects = IPAddressManager()
 
     csv_headers = [
-        'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface', 'is_primary',
+        'address', 'vrf', 'tenant', 'status', 'role', 'assigned_object_type', 'assigned_object_id', 'is_primary',
         'dns_name', 'description',
     ]
     clone_fields = [
@@ -753,17 +753,11 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         super().save(*args, **kwargs)
 
     def to_objectchange(self, action):
-        # Annotate the assigned Interface (if any)
-        try:
-            parent_obj = self.interface
-        except ObjectDoesNotExist:
-            parent_obj = None
-
         return ObjectChange(
             changed_object=self,
             object_repr=str(self),
             action=action,
-            related_object=parent_obj,
+            related_object=self.assigned_object,
             object_data=serialize_object(self)
         )
 
@@ -783,9 +777,8 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
             self.tenant.name if self.tenant else None,
             self.get_status_display(),
             self.get_role_display(),
-            self.device.identifier if self.device else None,
-            self.virtual_machine.name if self.virtual_machine else None,
-            self.interface.name if self.interface else None,
+            '{}.{}'.format(self.assigned_object_type.app_label, self.assigned_object_type.model) if self.assigned_object_type else None,
+            self.assigned_object_id,
             is_primary,
             self.dns_name,
             self.description,
@@ -805,18 +798,6 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         if self.address is not None:
             self.address.prefixlen = value
     mask_length = property(fset=_set_mask_length)
-
-    @property
-    def device(self):
-        if self.interface:
-            return self.interface.device
-        return None
-
-    @property
-    def virtual_machine(self):
-        if self.interface:
-            return self.interface.virtual_machine
-        return None
 
     def get_status_class(self):
         return self.STATUS_CLASS_MAP.get(self.status)

@@ -481,13 +481,13 @@ class IPAddressAssignTable(BaseTable):
         template_code=IPADDRESS_PARENT,
         orderable=False
     )
-    interface = tables.Column(
+    assigned_object = tables.Column(
         orderable=False
     )
 
     class Meta(BaseTable.Meta):
         model = IPAddress
-        fields = ('address', 'dns_name', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface', 'description')
+        fields = ('address', 'dns_name', 'vrf', 'status', 'role', 'tenant', 'parent', 'assigned_object', 'description')
         orderable = False
 
 

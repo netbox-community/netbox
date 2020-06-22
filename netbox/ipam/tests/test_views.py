@@ -236,7 +236,6 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'tenant': None,
             'status': IPAddressStatusChoices.STATUS_RESERVED,
             'role': IPAddressRoleChoices.ROLE_ANYCAST,
-            'interface': None,
             'nat_inside': None,
             'dns_name': 'example',
             'description': 'A new IP address',

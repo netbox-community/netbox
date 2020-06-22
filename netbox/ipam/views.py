@@ -517,7 +517,7 @@ class PrefixIPAddressesView(ObjectView):
 
         # Find all IPAddresses belonging to this Prefix
         ipaddresses = prefix.get_child_ips().restrict(request.user, 'view').prefetch_related(
-            'vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for'
+            'vrf', 'primary_ip4_for', 'primary_ip6_for'
         )
 
         # Add available IP addresses to the table if requested
@@ -593,7 +593,7 @@ class PrefixBulkDeleteView(BulkDeleteView):
 
 class IPAddressListView(ObjectListView):
     queryset = IPAddress.objects.prefetch_related(
-        'vrf__tenant', 'tenant', 'nat_inside', 'interface__device', 'interface__virtual_machine'
+        'vrf__tenant', 'tenant', 'nat_inside'
     )
     filterset = filters.IPAddressFilterSet
     filterset_form = forms.IPAddressFilterForm
@@ -607,49 +607,47 @@ class IPAddressView(ObjectView):
 
         ipaddress = get_object_or_404(self.queryset, pk=pk)
 
-        # Parent prefixes table
-        parent_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
-            vrf=ipaddress.vrf, prefix__net_contains=str(ipaddress.address.ip)
-        ).prefetch_related(
-            'site', 'role'
-        )
-        parent_prefixes_table = tables.PrefixTable(list(parent_prefixes), orderable=False)
-        parent_prefixes_table.exclude = ('vrf',)
-
-        # Duplicate IPs table
-        duplicate_ips = IPAddress.objects.restrict(request.user, 'view').filter(
-            vrf=ipaddress.vrf, address=str(ipaddress.address)
-        ).exclude(
-            pk=ipaddress.pk
-        ).prefetch_related(
-            'nat_inside', 'interface__device'
-        )
-        # Exclude anycast IPs if this IP is anycast
-        if ipaddress.role == IPAddressRoleChoices.ROLE_ANYCAST:
-            duplicate_ips = duplicate_ips.exclude(role=IPAddressRoleChoices.ROLE_ANYCAST)
-        duplicate_ips_table = tables.IPAddressTable(list(duplicate_ips), orderable=False)
-
-        # Related IP table
-        related_ips = IPAddress.objects.restrict(request.user, 'view').prefetch_related(
-            'interface__device'
-        ).exclude(
-            address=str(ipaddress.address)
-        ).filter(
-            vrf=ipaddress.vrf, address__net_contained_or_equal=str(ipaddress.address)
-        )
-        related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
-
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
-        }
-        RequestConfig(request, paginate).configure(related_ips_table)
+        # # Parent prefixes table
+        # parent_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
+        #     vrf=ipaddress.vrf, prefix__net_contains=str(ipaddress.address.ip)
+        # ).prefetch_related(
+        #     'site', 'role'
+        # )
+        # parent_prefixes_table = tables.PrefixTable(list(parent_prefixes), orderable=False)
+        # parent_prefixes_table.exclude = ('vrf',)
+        #
+        # # Duplicate IPs table
+        # duplicate_ips = IPAddress.objects.restrict(request.user, 'view').filter(
+        #     vrf=ipaddress.vrf, address=str(ipaddress.address)
+        # ).exclude(
+        #     pk=ipaddress.pk
+        # ).prefetch_related(
+        #     'nat_inside'
+        # )
+        # # Exclude anycast IPs if this IP is anycast
+        # if ipaddress.role == IPAddressRoleChoices.ROLE_ANYCAST:
+        #     duplicate_ips = duplicate_ips.exclude(role=IPAddressRoleChoices.ROLE_ANYCAST)
+        # duplicate_ips_table = tables.IPAddressTable(list(duplicate_ips), orderable=False)
+        #
+        # # Related IP table
+        # related_ips = IPAddress.objects.restrict(request.user, 'view').exclude(
+        #     address=str(ipaddress.address)
+        # ).filter(
+        #     vrf=ipaddress.vrf, address__net_contained_or_equal=str(ipaddress.address)
+        # )
+        # related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
+        #
+        # paginate = {
+        #     'paginator_class': EnhancedPaginator,
+        #     'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+        # }
+        # RequestConfig(request, paginate).configure(related_ips_table)
 
         return render(request, 'ipam/ipaddress.html', {
             'ipaddress': ipaddress,
-            'parent_prefixes_table': parent_prefixes_table,
-            'duplicate_ips_table': duplicate_ips_table,
-            'related_ips_table': related_ips_table,
+            # 'parent_prefixes_table': parent_prefixes_table,
+            # 'duplicate_ips_table': duplicate_ips_table,
+            # 'related_ips_table': related_ips_table,
         })
 
 
@@ -699,9 +697,7 @@ class IPAddressAssignView(ObjectView):
 
         if form.is_valid():
 
-            addresses = self.queryset.prefetch_related(
-                'vrf', 'tenant', 'interface__device', 'interface__virtual_machine'
-            )
+            addresses = self.queryset.prefetch_related('vrf', 'tenant')
             # Limit to 100 results
             addresses = filters.IPAddressFilterSet(request.POST, addresses).qs[:100]
             table = tables.IPAddressAssignTable(addresses)
@@ -734,7 +730,7 @@ class IPAddressBulkImportView(BulkImportView):
 
 
 class IPAddressBulkEditView(BulkEditView):
-    queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant').prefetch_related('interface__device')
+    queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant')
     filterset = filters.IPAddressFilterSet
     table = tables.IPAddressTable
     form = forms.IPAddressBulkEditForm
@@ -742,7 +738,7 @@ class IPAddressBulkEditView(BulkEditView):
 
 
 class IPAddressBulkDeleteView(BulkDeleteView):
-    queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant').prefetch_related('interface__device')
+    queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant')
     filterset = filters.IPAddressFilterSet
     table = tables.IPAddressTable
     default_return_url = 'ipam:ipaddress_list'

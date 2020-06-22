@@ -120,8 +120,8 @@
                 <tr>
                     <td>Assignment</td>
                     <td>
-                        {% if ipaddress.interface %}
-                            <span><a href="{{ ipaddress.interface.parent.get_absolute_url }}">{{ ipaddress.interface.parent }}</a> ({{ ipaddress.interface }})</span>
+                        {% if ipaddress.assigned_object %}
+                            <span><a href="{{ ipaddress.assigned_object.parent.get_absolute_url }}">{{ ipaddress.assigned_object.parent }}</a> ({{ ipaddress.assigned_object }})</span>
                         {% else %}
                             <span class="text-muted">&mdash;</span>
                         {% endif %}
@@ -132,8 +132,8 @@
                     <td>
                         {% if ipaddress.nat_inside %}
                             <a href="{% url 'ipam:ipaddress' pk=ipaddress.nat_inside.pk %}">{{ ipaddress.nat_inside }}</a>
-                            {% if ipaddress.nat_inside.interface %}
-                                (<a href="{{ ipaddress.nat_inside.interface.parent.get_absolute_url }}">{{ ipaddress.nat_inside.interface.parent }}</a>)
+                            {% if ipaddress.nat_inside.assigned_object %}
+                                (<a href="{{ ipaddress.nat_inside.assigned_object.parent.get_absolute_url }}">{{ ipaddress.nat_inside.assigned_object.parent }}</a>)
                             {% endif %}
                         {% else %}
                             <span class="text-muted">None</span>

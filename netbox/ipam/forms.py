@@ -523,10 +523,10 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
 #
 
 class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModelForm):
-    interface = forms.ModelChoiceField(
-        queryset=Interface.objects.all(),
-        required=False
-    )
+    # interface = forms.ModelChoiceField(
+    #     queryset=Interface.objects.all(),
+    #     required=False
+    # )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -598,8 +598,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'status', 'role', 'dns_name', 'description', 'interface', 'primary_for_parent',
-            'nat_site', 'nat_rack', 'nat_inside', 'tenant_group', 'tenant', 'tags',
+            'address', 'vrf', 'status', 'role', 'dns_name', 'description', 'primary_for_parent', 'nat_site', 'nat_rack',
+            'nat_inside', 'tenant_group', 'tenant', 'tags',
         ]
         widgets = {
             'status': StaticSelect2(),
@@ -621,27 +621,27 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
 
         self.fields['vrf'].empty_label = 'Global'
 
-        # Limit interface selections to those belonging to the parent device/VM
-        if self.instance and self.instance.interface:
-            self.fields['interface'].queryset = Interface.objects.filter(
-                device=self.instance.interface.device, virtual_machine=self.instance.interface.virtual_machine
-            ).prefetch_related(
-                'device__primary_ip4',
-                'device__primary_ip6',
-                'virtual_machine__primary_ip4',
-                'virtual_machine__primary_ip6',
-            )  # We prefetch the primary address fields to ensure cache invalidation does not balk on the save()
-        else:
-            self.fields['interface'].choices = []
-
-        # Initialize primary_for_parent if IP address is already assigned
-        if self.instance.pk and self.instance.interface is not None:
-            parent = self.instance.interface.parent
-            if (
-                self.instance.address.version == 4 and parent.primary_ip4_id == self.instance.pk or
-                self.instance.address.version == 6 and parent.primary_ip6_id == self.instance.pk
-            ):
-                self.initial['primary_for_parent'] = True
+        # # Limit interface selections to those belonging to the parent device/VM
+        # if self.instance and self.instance.interface:
+        #     self.fields['interface'].queryset = Interface.objects.filter(
+        #         device=self.instance.interface.device, virtual_machine=self.instance.interface.virtual_machine
+        #     ).prefetch_related(
+        #         'device__primary_ip4',
+        #         'device__primary_ip6',
+        #         'virtual_machine__primary_ip4',
+        #         'virtual_machine__primary_ip6',
+        #     )  # We prefetch the primary address fields to ensure cache invalidation does not balk on the save()
+        # else:
+        #     self.fields['interface'].choices = []
+        #
+        # # Initialize primary_for_parent if IP address is already assigned
+        # if self.instance.pk and self.instance.interface is not None:
+        #     parent = self.instance.interface.parent
+        #     if (
+        #         self.instance.address.version == 4 and parent.primary_ip4_id == self.instance.pk or
+        #         self.instance.address.version == 6 and parent.primary_ip6_id == self.instance.pk
+        #     ):
+        #         self.initial['primary_for_parent'] = True
 
     def clean(self):
         super().clean()
@@ -664,14 +664,14 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
             else:
                 parent.primary_ip6 = ipaddress
             parent.save()
-        elif self.cleaned_data['interface']:
-            parent = self.cleaned_data['interface'].parent
-            if ipaddress.address.version == 4 and parent.primary_ip4 == ipaddress:
-                parent.primary_ip4 = None
-                parent.save()
-            elif ipaddress.address.version == 6 and parent.primary_ip6 == ipaddress:
-                parent.primary_ip6 = None
-                parent.save()
+        # elif self.cleaned_data['interface']:
+        #     parent = self.cleaned_data['interface'].parent
+        #     if ipaddress.address.version == 4 and parent.primary_ip4 == ipaddress:
+        #         parent.primary_ip4 = None
+        #         parent.save()
+        #     elif ipaddress.address.version == 6 and parent.primary_ip6 == ipaddress:
+        #         parent.primary_ip6 = None
+        #         parent.save()
 
         return ipaddress
 
@@ -730,24 +730,24 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
         required=False,
         help_text='Functional role'
     )
-    device = CSVModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        to_field_name='name',
-        help_text='Parent device of assigned interface (if any)'
-    )
-    virtual_machine = CSVModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        to_field_name='name',
-        help_text='Parent VM of assigned interface (if any)'
-    )
-    interface = CSVModelChoiceField(
-        queryset=Interface.objects.all(),
-        required=False,
-        to_field_name='name',
-        help_text='Assigned interface'
-    )
+    # device = CSVModelChoiceField(
+    #     queryset=Device.objects.all(),
+    #     required=False,
+    #     to_field_name='name',
+    #     help_text='Parent device of assigned interface (if any)'
+    # )
+    # virtual_machine = CSVModelChoiceField(
+    #     queryset=VirtualMachine.objects.all(),
+    #     required=False,
+    #     to_field_name='name',
+    #     help_text='Parent VM of assigned interface (if any)'
+    # )
+    # interface = CSVModelChoiceField(
+    #     queryset=Interface.objects.all(),
+    #     required=False,
+    #     to_field_name='name',
+    #     help_text='Assigned interface'
+    # )
     is_primary = forms.BooleanField(
         help_text='Make this the primary IP for the assigned device',
         required=False
@@ -760,23 +760,23 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
 
-        if data:
-
-            # Limit interface queryset by assigned device or virtual machine
-            if data.get('device'):
-                params = {
-                    f"device__{self.fields['device'].to_field_name}": data.get('device')
-                }
-            elif data.get('virtual_machine'):
-                params = {
-                    f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data.get('virtual_machine')
-                }
-            else:
-                params = {
-                    'device': None,
-                    'virtual_machine': None,
-                }
-            self.fields['interface'].queryset = self.fields['interface'].queryset.filter(**params)
+        # if data:
+        #
+        #     # Limit interface queryset by assigned device or virtual machine
+        #     if data.get('device'):
+        #         params = {
+        #             f"device__{self.fields['device'].to_field_name}": data.get('device')
+        #         }
+        #     elif data.get('virtual_machine'):
+        #         params = {
+        #             f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data.get('virtual_machine')
+        #         }
+        #     else:
+        #         params = {
+        #             'device': None,
+        #             'virtual_machine': None,
+        #         }
+        #     self.fields['interface'].queryset = self.fields['interface'].queryset.filter(**params)
 
     def clean(self):
         super().clean()
@@ -1197,7 +1197,7 @@ class ServiceForm(BootstrapMixin, CustomFieldModelForm):
         if self.instance.device:
             self.fields['ipaddresses'].queryset = IPAddress.objects.filter(
                 assigned_object_type=ContentType.objects.get_for_model(Interface),
-                assigned_object_id__in=self.instance.device.vc_interfaces.values('id', flat=True)
+                assigned_object_id__in=self.instance.device.vc_interfaces.values_list('id', flat=True)
             )
         elif self.instance.virtual_machine:
             self.fields['ipaddresses'].queryset = IPAddress.objects.filter(
