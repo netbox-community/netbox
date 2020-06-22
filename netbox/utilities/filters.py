@@ -256,6 +256,10 @@ class BaseFilterSet(django_filters.FilterSet):
                 except django_filters.exceptions.FieldLookupError:
                     # The filter could not be created because the lookup expression is not supported on the field
                     continue
+                except Exception as e:
+                    print(existing_filter_name, existing_filter)
+                    print(f'field: {field}, lookup_expr: {lookup_expr}')
+                    raise e
 
                 if lookup_name.startswith('n'):
                     # This is a negation filter which requires a queryset.exclude() clause

@@ -54,6 +54,7 @@ urlpatterns = [
     path('interfaces/add/', views.InterfaceCreateView.as_view(), name='interface_add'),
     path('interfaces/edit/', views.InterfaceBulkEditView.as_view(), name='interface_bulk_edit'),
     path('interfaces/delete/', views.InterfaceBulkDeleteView.as_view(), name='interface_bulk_delete'),
+    path('interfaces/<int:pk>/', views.InterfaceView.as_view(), name='interface'),
     path('interfaces/<int:pk>/edit/', views.InterfaceEditView.as_view(), name='interface_edit'),
     path('interfaces/<int:pk>/delete/', views.InterfaceDeleteView.as_view(), name='interface_delete'),
     path('virtual-machines/interfaces/add/', views.VirtualMachineBulkAddInterfaceView.as_view(), name='virtualmachine_bulk_add_interface'),

@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Q
 
-from dcim.models import DeviceRole, Interface, Platform, Region, Site
+from dcim.models import DeviceRole, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet, LocalConfigContextFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
@@ -9,7 +9,7 @@ from utilities.filters import (
     TreeNodeMultipleChoiceFilter,
 )
 from .choices import *
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from .models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
 
 __all__ = (
     'ClusterFilterSet',

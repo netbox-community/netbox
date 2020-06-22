@@ -1,10 +1,10 @@
 from django.test import TestCase
 
-from dcim.models import DeviceRole, Interface, Platform, Region, Site
+from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from virtualization.choices import *
 from virtualization.filters import *
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
 
 
 class ClusterTypeTestCase(TestCase):

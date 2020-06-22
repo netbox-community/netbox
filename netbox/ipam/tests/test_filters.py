@@ -4,7 +4,7 @@ from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer,
 from ipam.choices import *
 from ipam.filters import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
-from virtualization.models import Cluster, ClusterType, VirtualMachine
+from virtualization.models import Cluster, ClusterType, Interfaces as VMInterface, VirtualMachine
 from tenancy.models import Tenant, TenantGroup
 
 
@@ -375,6 +375,13 @@ class IPAddressTestCase(TestCase):
         )
         Device.objects.bulk_create(devices)
 
+        interfaces = (
+            Interface(device=devices[0], name='Interface 1'),
+            Interface(device=devices[1], name='Interface 2'),
+            Interface(device=devices[2], name='Interface 3'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
         clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
         cluster = Cluster.objects.create(type=clustertype, name='Cluster 1')
 
@@ -385,15 +392,12 @@ class IPAddressTestCase(TestCase):
         )
         VirtualMachine.objects.bulk_create(virtual_machines)
 
-        interfaces = (
-            Interface(device=devices[0], name='Interface 1'),
-            Interface(device=devices[1], name='Interface 2'),
-            Interface(device=devices[2], name='Interface 3'),
-            Interface(virtual_machine=virtual_machines[0], name='Interface 1'),
-            Interface(virtual_machine=virtual_machines[1], name='Interface 2'),
-            Interface(virtual_machine=virtual_machines[2], name='Interface 3'),
+        vm_interfaces = (
+            VMInterface(virtual_machine=virtual_machines[0], name='Interface 1'),
+            VMInterface(virtual_machine=virtual_machines[1], name='Interface 2'),
+            VMInterface(virtual_machine=virtual_machines[2], name='Interface 3'),
         )
-        Interface.objects.bulk_create(interfaces)
+        VMInterface.objects.bulk_create(vm_interfaces)
 
         tenant_groups = (
             TenantGroup(name='Tenant group 1', slug='tenant-group-1'),

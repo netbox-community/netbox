@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 from dcim.models import Device, Interface, Rack, Region, Site
@@ -14,7 +15,7 @@ from utilities.forms import (
     ExpandableIPAddressField, ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
-from virtualization.models import VirtualMachine
+from virtualization.models import Interface as VMInterface, VirtualMachine
 from .choices import *
 from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
@@ -1194,13 +1195,14 @@ class ServiceForm(BootstrapMixin, CustomFieldModelForm):
 
         # Limit IP address choices to those assigned to interfaces of the parent device/VM
         if self.instance.device:
-            vc_interface_ids = [i['id'] for i in self.instance.device.vc_interfaces.values('id')]
             self.fields['ipaddresses'].queryset = IPAddress.objects.filter(
-                interface_id__in=vc_interface_ids
+                assigned_object_type=ContentType.objects.get_for_model(Interface),
+                assigned_object_id__in=self.instance.device.vc_interfaces.values('id', flat=True)
             )
         elif self.instance.virtual_machine:
             self.fields['ipaddresses'].queryset = IPAddress.objects.filter(
-                interface__virtual_machine=self.instance.virtual_machine
+                assigned_object_type=ContentType.objects.get_for_model(VMInterface),
+                assigned_object_id__in=self.instance.virtual_machine.interfaces.values_list('id', flat=True)
             )
         else:
             self.fields['ipaddresses'].choices = []

@@ -1,10 +1,11 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.forms import INTERFACE_MODE_HELP_TEXT
-from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
+from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
 )
@@ -16,10 +17,10 @@ from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField, SlugField, SmallTextarea,
-    StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from .choices import *
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from .models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
 
 
 #
@@ -355,8 +356,11 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             for family in [4, 6]:
                 ip_choices = [(None, '---------')]
                 # Collect interface IPs
+                interface_pks = self.instance.interfaces.values_list('id', flat=True)
                 interface_ips = IPAddress.objects.prefetch_related('interface').filter(
-                    address__family=family, interface__virtual_machine=self.instance
+                    address__family=family,
+                    assigned_object_type=ContentType.objects.get_for_model(Interface),
+                    assigned_object_id__in=interface_pks
                 )
                 if interface_ips:
                     ip_choices.append(
@@ -600,12 +604,11 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Interface
         fields = [
-            'virtual_machine', 'name', 'type', 'enabled', 'mac_address', 'mtu', 'description', 'mode', 'tags',
-            'untagged_vlan', 'tagged_vlans',
+            'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description', 'mode', 'tags', 'untagged_vlan',
+            'tagged_vlans',
         ]
         widgets = {
             'virtual_machine': forms.HiddenInput(),
-            'type': forms.HiddenInput(),
             'mode': StaticSelect2()
         }
         labels = {
@@ -619,7 +622,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Add current site to VLANs query params
-        site = getattr(self.instance.parent, 'site', None)
+        site = getattr(self.instance.virtual_machine, 'site', None)
         if site is not None:
             # Add current site to VLANs query params
             self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', site.pk)
@@ -649,11 +652,6 @@ class InterfaceCreateForm(BootstrapMixin, forms.Form):
     )
     name_pattern = ExpandableNameField(
         label='Name'
-    )
-    type = forms.ChoiceField(
-        choices=VMInterfaceTypeChoices,
-        initial=VMInterfaceTypeChoices.TYPE_VIRTUAL,
-        widget=forms.HiddenInput()
     )
     enabled = forms.BooleanField(
         required=False,
@@ -789,6 +787,17 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
                 self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', site.pk)
 
 
+class InterfaceFilterForm(forms.Form):
+    model = Interface
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    tag = TagFilterField(model)
+
+
 #
 # Bulk VirtualMachine component creation
 #
@@ -812,8 +821,4 @@ class InterfaceBulkCreateForm(
     form_from_model(Interface, ['enabled', 'mtu', 'description', 'tags']),
     VirtualMachineBulkAddComponentForm
 ):
-    type = forms.ChoiceField(
-        choices=VMInterfaceTypeChoices,
-        initial=VMInterfaceTypeChoices.TYPE_VIRTUAL,
-        widget=forms.HiddenInput()
-    )
+    pass

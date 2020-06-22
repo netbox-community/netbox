@@ -3,7 +3,6 @@ from rest_framework import serializers
 
 from dcim.api.nested_serializers import NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer
 from dcim.choices import InterfaceModeChoices
-from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
@@ -11,7 +10,7 @@ from ipam.models import VLAN
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import ChoiceField, SerializedPKRelatedField, ValidatedModelSerializer
 from virtualization.choices import *
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
 from .nested_serializers import *
 
 
@@ -97,7 +96,6 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 
 class InterfaceSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
     virtual_machine = NestedVirtualMachineSerializer()
-    type = ChoiceField(choices=VMInterfaceTypeChoices, default=VMInterfaceTypeChoices.TYPE_VIRTUAL, required=False)
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
@@ -110,6 +108,6 @@ class InterfaceSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
     class Meta:
         model = Interface
         fields = [
-            'id', 'virtual_machine', 'name', 'type', 'enabled', 'mtu', 'mac_address', 'description', 'mode',
-            'untagged_vlan', 'tagged_vlans', 'tags',
+            'id', 'virtual_machine', 'name', 'enabled', 'mtu', 'mac_address', 'description', 'mode', 'untagged_vlan',
+            'tagged_vlans', 'tags',
         ]

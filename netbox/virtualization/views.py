@@ -4,7 +4,8 @@ from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from dcim.models import Device, Interface
+from dcim.models import Device
+from dcim.views import InterfaceView as DeviceInterfaceView
 from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
 from ipam.models import Service
@@ -13,7 +14,7 @@ from utilities.views import (
     ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from .models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
 
 
 #
@@ -287,6 +288,18 @@ class VirtualMachineBulkDeleteView(BulkDeleteView):
 #
 # VM interfaces
 #
+
+class InterfaceListView(ObjectListView):
+    queryset = Interface.objects.prefetch_related('virtual_machine', 'virtual_machine__tenant', 'cable')
+    filterset = filters.InterfaceFilterSet
+    filterset_form = forms.InterfaceFilterForm
+    table = tables.InterfaceTable
+    action_buttons = ('import', 'export')
+
+
+class InterfaceView(DeviceInterfaceView):
+    queryset = Interface.objects.all()
+
 
 class InterfaceCreateView(ComponentCreateView):
     queryset = Interface.objects.all()

@@ -299,37 +299,37 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
         to_field_name='rd',
         label='VRF (RD)',
     )
-    device = MultiValueCharFilter(
-        method='filter_device',
-        field_name='name',
-        label='Device (name)',
-    )
-    device_id = MultiValueNumberFilter(
-        method='filter_device',
-        field_name='pk',
-        label='Device (ID)',
-    )
-    virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='interface__virtual_machine',
-        queryset=VirtualMachine.objects.unrestricted(),
-        label='Virtual machine (ID)',
-    )
-    virtual_machine = django_filters.ModelMultipleChoiceFilter(
-        field_name='interface__virtual_machine__name',
-        queryset=VirtualMachine.objects.unrestricted(),
-        to_field_name='name',
-        label='Virtual machine (name)',
-    )
-    interface = django_filters.ModelMultipleChoiceFilter(
-        field_name='interface__name',
-        queryset=Interface.objects.unrestricted(),
-        to_field_name='name',
-        label='Interface (ID)',
-    )
-    interface_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Interface.objects.unrestricted(),
-        label='Interface (ID)',
-    )
+    # device = MultiValueCharFilter(
+    #     method='filter_device',
+    #     field_name='name',
+    #     label='Device (name)',
+    # )
+    # device_id = MultiValueNumberFilter(
+    #     method='filter_device',
+    #     field_name='pk',
+    #     label='Device (ID)',
+    # )
+    # virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
+    #     field_name='interface__virtual_machine',
+    #     queryset=VirtualMachine.objects.unrestricted(),
+    #     label='Virtual machine (ID)',
+    # )
+    # virtual_machine = django_filters.ModelMultipleChoiceFilter(
+    #     field_name='interface__virtual_machine__name',
+    #     queryset=VirtualMachine.objects.unrestricted(),
+    #     to_field_name='name',
+    #     label='Virtual machine (name)',
+    # )
+    # interface = django_filters.ModelMultipleChoiceFilter(
+    #     field_name='interface__name',
+    #     queryset=Interface.objects.unrestricted(),
+    #     to_field_name='name',
+    #     label='Interface (ID)',
+    # )
+    # interface_id = django_filters.ModelMultipleChoiceFilter(
+    #     queryset=Interface.objects.unrestricted(),
+    #     label='Interface (ID)',
+    # )
     assigned_to_interface = django_filters.BooleanFilter(
         method='_assigned_to_interface',
         label='Is assigned to an interface',

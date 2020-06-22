@@ -1,11 +1,11 @@
 from netaddr import EUI
 
 from dcim.choices import InterfaceModeChoices
-from dcim.models import DeviceRole, Interface, Platform, Site
+from dcim.models import DeviceRole, Platform, Site
 from ipam.models import VLAN
 from utilities.testing import ViewTestCases
 from virtualization.choices import *
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
 
 
 class ClusterGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
@@ -201,10 +201,6 @@ class InterfaceTestCase(
 ):
     model = Interface
 
-    def _get_base_url(self):
-        # Interface belongs to the DCIM app, so we have to override the base URL
-        return 'virtualization:interface_{}'
-
     @classmethod
     def setUpTestData(cls):
 
@@ -219,9 +215,9 @@ class InterfaceTestCase(
         VirtualMachine.objects.bulk_create(virtualmachines)
 
         Interface.objects.bulk_create([
-            Interface(virtual_machine=virtualmachines[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_VIRTUAL),
-            Interface(virtual_machine=virtualmachines[0], name='Interface 2', type=InterfaceTypeChoices.TYPE_VIRTUAL),
-            Interface(virtual_machine=virtualmachines[0], name='Interface 3', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(virtual_machine=virtualmachines[0], name='Interface 1'),
+            Interface(virtual_machine=virtualmachines[0], name='Interface 2'),
+            Interface(virtual_machine=virtualmachines[0], name='Interface 3'),
         ])
 
         vlans = (
@@ -237,7 +233,6 @@ class InterfaceTestCase(
         cls.form_data = {
             'virtual_machine': virtualmachines[1].pk,
             'name': 'Interface X',
-            'type': InterfaceTypeChoices.TYPE_VIRTUAL,
             'enabled': False,
             'mgmt_only': False,
             'mac_address': EUI('01-02-03-04-05-06'),
@@ -252,7 +247,6 @@ class InterfaceTestCase(
         cls.bulk_create_data = {
             'virtual_machine': virtualmachines[1].pk,
             'name_pattern': 'Interface [4-6]',
-            'type': InterfaceTypeChoices.TYPE_VIRTUAL,
             'enabled': False,
             'mgmt_only': False,
             'mac_address': EUI('01-02-03-04-05-06'),

@@ -1,11 +1,11 @@
 from django.db.models import Count
 
-from dcim.models import Device, Interface
+from dcim.models import Device
 from extras.api.views import CustomFieldModelViewSet
 from utilities.api import ModelViewSet
 from utilities.utils import get_subquery
 from virtualization import filters
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
 from . import serializers
 
 

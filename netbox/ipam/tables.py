@@ -431,18 +431,14 @@ class IPAddressTable(BaseTable):
     tenant = tables.TemplateColumn(
         template_code=TENANT_LINK
     )
-    parent = tables.TemplateColumn(
-        template_code=IPADDRESS_PARENT,
-        orderable=False
-    )
-    interface = tables.Column(
-        orderable=False
+    assigned = tables.BooleanColumn(
+        accessor='assigned_object_id'
     )
 
     class Meta(BaseTable.Meta):
         model = IPAddress
         fields = (
-            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface', 'dns_name', 'description',
+            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned', 'dns_name', 'description',
         )
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, IPAddress) else '',
@@ -465,11 +461,11 @@ class IPAddressDetailTable(IPAddressTable):
 
     class Meta(IPAddressTable.Meta):
         fields = (
-            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'parent', 'interface', 'dns_name',
+            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'assigned', 'dns_name',
             'description', 'tags',
         )
         default_columns = (
-            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface', 'dns_name', 'description',
+            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned', 'dns_name', 'description',
         )
 
 

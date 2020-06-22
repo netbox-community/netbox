@@ -1,10 +1,9 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from dcim.models import Interface
 from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, ColoredLabelColumn, TagColumn, ToggleColumn
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from .models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
 
 CLUSTERTYPE_ACTIONS = """
 <a href="{% url 'virtualization:clustertype_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">

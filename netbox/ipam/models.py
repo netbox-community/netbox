@@ -1,6 +1,7 @@
 import netaddr
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -606,12 +607,24 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         help_text='The functional role of this IP'
     )
-    interface = models.ForeignKey(
+    assigned_object_type = models.ForeignKey(
+        to=ContentType,
+        limit_choices_to=IPADDRESS_ASSIGNMENT_MODELS,
+        on_delete=models.PROTECT,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    assigned_object_id = models.ForeignKey(
         to='dcim.Interface',
         on_delete=models.CASCADE,
         related_name='ip_addresses',
         blank=True,
         null=True
+    )
+    assigned_object = GenericForeignKey(
+        ct_field='assigned_object_type',
+        fk_field='assigned_object_id'
     )
     nat_inside = models.OneToOneField(
         to='self',

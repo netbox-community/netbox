@@ -2,11 +2,9 @@ from django.urls import reverse
 from rest_framework import status
 
 from dcim.choices import InterfaceModeChoices
-from dcim.models import Interface
 from ipam.models import VLAN
 from utilities.testing import APITestCase, APIViewTestCases
-from virtualization.choices import *
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
 
 
 class AppTest(APITestCase):
@@ -207,18 +205,15 @@ class InterfaceTest(APITestCase):
         self.virtualmachine = VirtualMachine.objects.create(cluster=cluster, name='Test VM 1')
         self.interface1 = Interface.objects.create(
             virtual_machine=self.virtualmachine,
-            name='Test Interface 1',
-            type=InterfaceTypeChoices.TYPE_VIRTUAL
+            name='Test Interface 1'
         )
         self.interface2 = Interface.objects.create(
             virtual_machine=self.virtualmachine,
-            name='Test Interface 2',
-            type=InterfaceTypeChoices.TYPE_VIRTUAL
+            name='Test Interface 2'
         )
         self.interface3 = Interface.objects.create(
             virtual_machine=self.virtualmachine,
-            name='Test Interface 3',
-            type=InterfaceTypeChoices.TYPE_VIRTUAL
+            name='Test Interface 3'
         )
 
         self.vlan1 = VLAN.objects.create(name="Test VLAN 1", vid=1)
@@ -227,21 +222,21 @@ class InterfaceTest(APITestCase):
 
     def test_get_interface(self):
         url = reverse('virtualization-api:interface-detail', kwargs={'pk': self.interface1.pk})
-        self.add_permissions('dcim.view_interface')
+        self.add_permissions('virtualization.view_interface')
 
         response = self.client.get(url, **self.header)
         self.assertEqual(response.data['name'], self.interface1.name)
 
     def test_list_interfaces(self):
         url = reverse('virtualization-api:interface-list')
-        self.add_permissions('dcim.view_interface')
+        self.add_permissions('virtualization.view_interface')
 
         response = self.client.get(url, **self.header)
         self.assertEqual(response.data['count'], 3)
 
     def test_list_interfaces_brief(self):
         url = reverse('virtualization-api:interface-list')
-        self.add_permissions('dcim.view_interface')
+        self.add_permissions('virtualization.view_interface')
 
         response = self.client.get('{}?brief=1'.format(url), **self.header)
         self.assertEqual(
@@ -255,7 +250,7 @@ class InterfaceTest(APITestCase):
             'name': 'Test Interface 4',
         }
         url = reverse('virtualization-api:interface-list')
-        self.add_permissions('dcim.add_interface')
+        self.add_permissions('virtualization.add_interface')
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -273,7 +268,7 @@ class InterfaceTest(APITestCase):
             'tagged_vlans': [self.vlan1.id, self.vlan2.id],
         }
         url = reverse('virtualization-api:interface-list')
-        self.add_permissions('dcim.add_interface')
+        self.add_permissions('virtualization.add_interface')
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -299,7 +294,7 @@ class InterfaceTest(APITestCase):
             },
         ]
         url = reverse('virtualization-api:interface-list')
-        self.add_permissions('dcim.add_interface')
+        self.add_permissions('virtualization.add_interface')
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -333,7 +328,7 @@ class InterfaceTest(APITestCase):
             },
         ]
         url = reverse('virtualization-api:interface-list')
-        self.add_permissions('dcim.add_interface')
+        self.add_permissions('virtualization.add_interface')
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -349,7 +344,7 @@ class InterfaceTest(APITestCase):
             'name': 'Test Interface X',
         }
         url = reverse('virtualization-api:interface-detail', kwargs={'pk': self.interface1.pk})
-        self.add_permissions('dcim.change_interface')
+        self.add_permissions('virtualization.change_interface')
 
         response = self.client.put(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
@@ -359,7 +354,7 @@ class InterfaceTest(APITestCase):
 
     def test_delete_interface(self):
         url = reverse('virtualization-api:interface-detail', kwargs={'pk': self.interface1.pk})
-        self.add_permissions('dcim.delete_interface')
+        self.add_permissions('virtualization.delete_interface')
 
         response = self.client.delete(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
