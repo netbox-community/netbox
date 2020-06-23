@@ -57,7 +57,7 @@ class NestedVirtualMachineSerializer(WritableNestedSerializer):
 
 
 class NestedInterfaceSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:interface-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:vminterface-detail')
     virtual_machine = NestedVirtualMachineSerializer(read_only=True)
 
     class Meta:

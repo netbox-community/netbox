@@ -17,12 +17,12 @@
     </div>
     <div class="pull-right noprint">
         {% if perms.dcim.change_interface %}
-            <a href="{% if interface.device %}{% url 'dcim:interface_edit' pk=interface.pk %}{% else %}{% url 'virtualization:interface_edit' pk=interface.pk %}{% endif %}" class="btn btn-warning">
+            <a href="{% if interface.device %}{% url 'dcim:interface_edit' pk=interface.pk %}{% else %}{% url 'virtualization:vminterface_edit' pk=interface.pk %}{% endif %}" class="btn btn-warning">
                 <span class="fa fa-pencil" aria-hidden="true"></span> Edit
             </a>
         {% endif %}
         {% if perms.dcim.delete_interface %}
-            <a href="{% if interface.device %}{% url 'dcim:interface_delete' pk=interface.pk %}{% else %}{% url 'virtualization:interface_delete' pk=interface.pk %}{% endif %}" class="btn btn-danger">
+            <a href="{% if interface.device %}{% url 'dcim:interface_delete' pk=interface.pk %}{% else %}{% url 'virtualization:vminterface_delete' pk=interface.pk %}{% endif %}" class="btn btn-danger">
                 <span class="fa fa-trash" aria-hidden="true"></span> Delete
             </a>
         {% endif %}

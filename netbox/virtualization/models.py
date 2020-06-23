@@ -431,7 +431,7 @@ class VMInterface(BaseInterface):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('virtualization:interface', kwargs={'pk': self.pk})
+        return reverse('virtualization:vminterface', kwargs={'pk': self.pk})
 
     def to_csv(self):
         return (

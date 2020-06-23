@@ -221,22 +221,22 @@ class InterfaceTest(APITestCase):
         self.vlan3 = VLAN.objects.create(name="Test VLAN 3", vid=3)
 
     def test_get_interface(self):
-        url = reverse('virtualization-api:interface-detail', kwargs={'pk': self.interface1.pk})
-        self.add_permissions('virtualization.view_interface')
+        url = reverse('virtualization-api:vminterface-detail', kwargs={'pk': self.interface1.pk})
+        self.add_permissions('virtualization.view_vminterface')
 
         response = self.client.get(url, **self.header)
         self.assertEqual(response.data['name'], self.interface1.name)
 
     def test_list_interfaces(self):
-        url = reverse('virtualization-api:interface-list')
-        self.add_permissions('virtualization.view_interface')
+        url = reverse('virtualization-api:vminterface-list')
+        self.add_permissions('virtualization.view_vminterface')
 
         response = self.client.get(url, **self.header)
         self.assertEqual(response.data['count'], 3)
 
     def test_list_interfaces_brief(self):
-        url = reverse('virtualization-api:interface-list')
-        self.add_permissions('virtualization.view_interface')
+        url = reverse('virtualization-api:vminterface-list')
+        self.add_permissions('virtualization.view_vminterface')
 
         response = self.client.get('{}?brief=1'.format(url), **self.header)
         self.assertEqual(
@@ -249,8 +249,8 @@ class InterfaceTest(APITestCase):
             'virtual_machine': self.virtualmachine.pk,
             'name': 'Test Interface 4',
         }
-        url = reverse('virtualization-api:interface-list')
-        self.add_permissions('virtualization.add_interface')
+        url = reverse('virtualization-api:vminterface-list')
+        self.add_permissions('virtualization.add_vminterface')
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -267,8 +267,8 @@ class InterfaceTest(APITestCase):
             'untagged_vlan': self.vlan3.id,
             'tagged_vlans': [self.vlan1.id, self.vlan2.id],
         }
-        url = reverse('virtualization-api:interface-list')
-        self.add_permissions('virtualization.add_interface')
+        url = reverse('virtualization-api:vminterface-list')
+        self.add_permissions('virtualization.add_vminterface')
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -293,8 +293,8 @@ class InterfaceTest(APITestCase):
                 'name': 'Test Interface 6',
             },
         ]
-        url = reverse('virtualization-api:interface-list')
-        self.add_permissions('virtualization.add_interface')
+        url = reverse('virtualization-api:vminterface-list')
+        self.add_permissions('virtualization.add_vminterface')
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -327,8 +327,8 @@ class InterfaceTest(APITestCase):
                 'tagged_vlans': [self.vlan1.id],
             },
         ]
-        url = reverse('virtualization-api:interface-list')
-        self.add_permissions('virtualization.add_interface')
+        url = reverse('virtualization-api:vminterface-list')
+        self.add_permissions('virtualization.add_vminterface')
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -343,8 +343,8 @@ class InterfaceTest(APITestCase):
             'virtual_machine': self.virtualmachine.pk,
             'name': 'Test Interface X',
         }
-        url = reverse('virtualization-api:interface-detail', kwargs={'pk': self.interface1.pk})
-        self.add_permissions('virtualization.change_interface')
+        url = reverse('virtualization-api:vminterface-detail', kwargs={'pk': self.interface1.pk})
+        self.add_permissions('virtualization.change_vminterface')
 
         response = self.client.put(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
@@ -353,8 +353,8 @@ class InterfaceTest(APITestCase):
         self.assertEqual(interface1.name, data['name'])
 
     def test_delete_interface(self):
-        url = reverse('virtualization-api:interface-detail', kwargs={'pk': self.interface1.pk})
-        self.add_permissions('virtualization.delete_interface')
+        url = reverse('virtualization-api:vminterface-detail', kwargs={'pk': self.interface1.pk})
+        self.add_permissions('virtualization.delete_vminterface')
 
         response = self.client.delete(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)

@@ -166,7 +166,7 @@
                     </ul>
                 </span>
             {% endif %}
-            <a href="{% if iface.device_id %}{% url 'dcim:interface_edit' pk=iface.pk %}{% else %}{% url 'virtualization:interface_edit' pk=iface.pk %}{% endif %}?return_url={{ device.get_absolute_url }}" class="btn btn-info btn-xs" title="Edit interface">
+            <a href="{% if iface.device_id %}{% url 'dcim:interface_edit' pk=iface.pk %}{% else %}{% url 'virtualization:vminterface_edit' pk=iface.pk %}{% endif %}?return_url={{ device.get_absolute_url }}" class="btn btn-info btn-xs" title="Edit interface">
                 <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
             </a>
         {% endif %}
@@ -176,7 +176,7 @@
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </button>
             {% else %}
-                <a href="{% if iface.device_id %}{% url 'dcim:interface_delete' pk=iface.pk %}{% else %}{% url 'virtualization:interface_delete' pk=iface.pk %}{% endif %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs" title="Delete interface">
+                <a href="{% if iface.device_id %}{% url 'dcim:interface_delete' pk=iface.pk %}{% else %}{% url 'virtualization:vminterface_delete' pk=iface.pk %}{% endif %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs" title="Delete interface">
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </a>
             {% endif %}
