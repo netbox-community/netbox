@@ -51,6 +51,7 @@ urlpatterns = [
     path('virtual-machines/<int:virtualmachine>/services/assign/', ServiceEditView.as_view(), name='virtualmachine_service_assign'),
 
     # VM interfaces
+    path('interfaces/', views.InterfaceListView.as_view(), name='vminterface_list'),
     path('interfaces/add/', views.InterfaceCreateView.as_view(), name='vminterface_add'),
     path('interfaces/edit/', views.InterfaceBulkEditView.as_view(), name='vminterface_bulk_edit'),
     path('interfaces/delete/', views.InterfaceBulkDeleteView.as_view(), name='vminterface_bulk_delete'),

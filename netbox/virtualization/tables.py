@@ -173,7 +173,11 @@ class VirtualMachineDetailTable(VirtualMachineTable):
 #
 
 class VMInterfaceTable(BaseTable):
+    virtual_machine = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
 
     class Meta(BaseTable.Meta):
         model = VMInterface
-        fields = ('name', 'enabled', 'description')
+        fields = ('virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description')

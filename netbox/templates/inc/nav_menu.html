@@ -372,6 +372,9 @@
                             {% endif %}
                             <a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a>
                         </li>
+                        <li{% if not perms.virtualization.view_vminterface%} class="disabled"{% endif %}>
+                            <a href="{% url 'virtualization:vminterface_list' %}">Interfaces</a>
+                        </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Clusters</li>
                         <li{% if not perms.virtualization.view_cluster %} class="disabled"{% endif %}>

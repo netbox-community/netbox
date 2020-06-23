@@ -290,11 +290,11 @@ class VirtualMachineBulkDeleteView(BulkDeleteView):
 #
 
 class InterfaceListView(ObjectListView):
-    queryset = VMInterface.objects.prefetch_related('virtual_machine', 'virtual_machine__tenant', 'cable')
+    queryset = VMInterface.objects.prefetch_related('virtual_machine')
     filterset = filters.VMInterfaceFilterSet
     filterset_form = forms.VMInterfaceFilterForm
     table = tables.VMInterfaceTable
-    action_buttons = ('import', 'export')
+    action_buttons = ('export',)
 
 
 class InterfaceView(ObjectView):

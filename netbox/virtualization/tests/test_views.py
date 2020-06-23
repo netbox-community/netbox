@@ -192,6 +192,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 # TODO: Update base class to DeviceComponentViewTestCase
 # Blocked by #4721
 class VMInterfaceTestCase(
+    ViewTestCases.ListObjectsViewTestCase,
     ViewTestCases.GetObjectViewTestCase,
     ViewTestCases.EditObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
