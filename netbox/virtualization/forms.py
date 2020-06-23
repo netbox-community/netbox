@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
-from dcim.forms import INTERFACE_MODE_HELP_TEXT
+from dcim.forms import INTERFACE_MODE_HELP_TEXT, InterfaceCommonForm
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
@@ -619,10 +619,13 @@ class VMInterfaceForm(BootstrapMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        virtual_machine = VirtualMachine.objects.get(
+            pk=self.initial.get('virtual_machine') or self.data.get('virtual_machine')
+        )
+
         # Add current site to VLANs query params
-        site = self.instance.virtual_machine.site
-        if site is not None:
-            # Add current site to VLANs query params
+        site = virtual_machine.site
+        if site:
             self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', site.pk)
             self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', site.pk)
 
@@ -644,9 +647,8 @@ class VMInterfaceForm(BootstrapMixin, forms.ModelForm):
 
 
 class VMInterfaceCreateForm(BootstrapMixin, forms.Form):
-    virtual_machine = forms.ModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        widget=forms.HiddenInput()
+    virtual_machine = DynamicModelChoiceField(
+        queryset=VirtualMachine.objects.all()
     )
     name_pattern = ExpandableNameField(
         label='Name'
@@ -708,9 +710,9 @@ class VMInterfaceCreateForm(BootstrapMixin, forms.Form):
             pk=self.initial.get('virtual_machine') or self.data.get('virtual_machine')
         )
 
-        site = getattr(virtual_machine.cluster, 'site', None)
-        if site is not None:
-            # Add current site to VLANs query params
+        # Add current site to VLANs query params
+        site = virtual_machine.site
+        if site:
             self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', site.pk)
             self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', site.pk)
 
