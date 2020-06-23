@@ -77,12 +77,5 @@ class InterfaceViewSet(ModelViewSet):
     ).prefetch_related(
         'virtual_machine', 'tags'
     )
-    serializer_class = serializers.InterfaceSerializer
+    serializer_class = serializers.VMInterfaceSerializer
     filterset_class = filters.InterfaceFilterSet
-
-    def get_serializer_class(self):
-        request = self.get_serializer_context()['request']
-        if request.query_params.get('brief', False):
-            # Override get_serializer_for_model(), which will return the DCIM NestedInterfaceSerializer
-            return serializers.NestedInterfaceSerializer
-        return serializers.InterfaceSerializer

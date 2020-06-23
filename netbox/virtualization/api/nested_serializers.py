@@ -8,7 +8,7 @@ __all__ = [
     'NestedClusterGroupSerializer',
     'NestedClusterSerializer',
     'NestedClusterTypeSerializer',
-    'NestedInterfaceSerializer',
+    'NestedVMInterfaceSerializer',
     'NestedVirtualMachineSerializer',
 ]
 
@@ -56,7 +56,7 @@ class NestedVirtualMachineSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'name']
 
 
-class NestedInterfaceSerializer(WritableNestedSerializer):
+class NestedVMInterfaceSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:vminterface-detail')
     virtual_machine = NestedVirtualMachineSerializer(read_only=True)
 

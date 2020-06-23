@@ -94,7 +94,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 # VM interfaces
 #
 
-class InterfaceSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
+class VMInterfaceSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
     virtual_machine = NestedVirtualMachineSerializer()
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
