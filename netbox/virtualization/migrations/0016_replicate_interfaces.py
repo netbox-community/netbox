@@ -5,7 +5,7 @@ from django.db import migrations
 
 def replicate_interfaces(apps, schema_editor):
     ContentType = apps.get_model('contenttypes', 'ContentType')
-    TaggedItem = apps.get_model('taggit', 'TaggedItem')
+    TaggedItem = apps.get_model('extras', 'TaggedItem')
     Interface = apps.get_model('dcim', 'Interface')
     IPAddress = apps.get_model('ipam', 'IPAddress')
     VMInterface = apps.get_model('virtualization', 'Interface')
