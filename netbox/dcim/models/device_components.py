@@ -622,8 +622,7 @@ class BaseInterface(models.Model):
 @extras_features('graphs', 'export_templates', 'webhooks')
 class Interface(CableTermination, ComponentModel, BaseInterface):
     """
-    A network interface within a Device. A physical Interface can connect to exactly one other
-    Interface.
+    A network interface within a Device. A physical Interface can connect to exactly one other Interface.
     """
     device = models.ForeignKey(
         to='Device',
@@ -695,8 +694,7 @@ class Interface(CableTermination, ComponentModel, BaseInterface):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'device', 'name', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only',
-        'description', 'mode',
+        'device', 'name', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only', 'description', 'mode',
     ]
 
     class Meta:

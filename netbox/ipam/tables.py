@@ -92,14 +92,6 @@ IPADDRESS_ASSIGN_LINK = """
 {% endif %}
 """
 
-IPADDRESS_PARENT = """
-{% if record.interface %}
-    <a href="{{ record.interface.parent.get_absolute_url }}">{{ record.interface.parent }}</a>
-{% else %}
-    &mdash;
-{% endif %}
-"""
-
 VRF_LINK = """
 {% if record.vrf %}
     <a href="{{ record.vrf.get_absolute_url }}">{{ record.vrf }}</a>
@@ -477,17 +469,13 @@ class IPAddressAssignTable(BaseTable):
     status = tables.TemplateColumn(
         template_code=STATUS_LABEL
     )
-    parent = tables.TemplateColumn(
-        template_code=IPADDRESS_PARENT,
-        orderable=False
-    )
     assigned_object = tables.Column(
         orderable=False
     )
 
     class Meta(BaseTable.Meta):
         model = IPAddress
-        fields = ('address', 'dns_name', 'vrf', 'status', 'role', 'tenant', 'parent', 'assigned_object', 'description')
+        fields = ('address', 'dns_name', 'vrf', 'status', 'role', 'tenant', 'assigned_object', 'description')
         orderable = False
 
 

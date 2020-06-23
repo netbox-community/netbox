@@ -15,8 +15,8 @@ __all__ = (
     'ClusterFilterSet',
     'ClusterGroupFilterSet',
     'ClusterTypeFilterSet',
-    'InterfaceFilterSet',
     'VirtualMachineFilterSet',
+    'VMInterfaceFilterSet',
 )
 
 
@@ -201,7 +201,7 @@ class VirtualMachineFilterSet(
         )
 
 
-class InterfaceFilterSet(BaseFilterSet):
+class VMInterfaceFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

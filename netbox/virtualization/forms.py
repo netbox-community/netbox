@@ -571,7 +571,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
 # VM interfaces
 #
 
-class InterfaceForm(BootstrapMixin, forms.ModelForm):
+class VMInterfaceForm(BootstrapMixin, forms.ModelForm):
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
@@ -643,7 +643,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
             self.cleaned_data['tagged_vlans'] = []
 
 
-class InterfaceCreateForm(BootstrapMixin, forms.Form):
+class VMInterfaceCreateForm(BootstrapMixin, forms.Form):
     virtual_machine = forms.ModelChoiceField(
         queryset=VirtualMachine.objects.all(),
         widget=forms.HiddenInput()
@@ -715,7 +715,7 @@ class InterfaceCreateForm(BootstrapMixin, forms.Form):
             self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', site.pk)
 
 
-class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
+class VMInterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VMInterface.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -785,7 +785,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
                 self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', site.pk)
 
 
-class InterfaceFilterForm(forms.Form):
+class VMInterfaceFilterForm(forms.Form):
     model = VMInterface
     enabled = forms.NullBooleanField(
         required=False,
@@ -815,7 +815,7 @@ class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
         return ','.join(self.cleaned_data.get('tags'))
 
 
-class InterfaceBulkCreateForm(
+class VMInterfaceBulkCreateForm(
     form_from_model(VMInterface, ['enabled', 'mtu', 'description', 'tags']),
     VirtualMachineBulkAddComponentForm
 ):

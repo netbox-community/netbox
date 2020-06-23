@@ -194,7 +194,7 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
 
 
 # TODO: Standardize InterfaceTest (pending #4721)
-class InterfaceTest(APITestCase):
+class VMInterfaceTest(APITestCase):
 
     def setUp(self):
 

@@ -172,7 +172,7 @@ class VirtualMachineDetailTable(VirtualMachineTable):
 # VM components
 #
 
-class InterfaceTable(BaseTable):
+class VMInterfaceTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VMInterface

@@ -319,6 +319,7 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
         field_name='pk',
         label='Virtual machine (ID)',
     )
+    # TODO: Restore filtering by assigned interface
     # interface = django_filters.ModelMultipleChoiceFilter(
     #     field_name='interface__name',
     #     queryset=Interface.objects.unrestricted(),

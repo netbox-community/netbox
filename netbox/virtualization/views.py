@@ -291,9 +291,9 @@ class VirtualMachineBulkDeleteView(BulkDeleteView):
 
 class InterfaceListView(ObjectListView):
     queryset = VMInterface.objects.prefetch_related('virtual_machine', 'virtual_machine__tenant', 'cable')
-    filterset = filters.InterfaceFilterSet
-    filterset_form = forms.InterfaceFilterForm
-    table = tables.InterfaceTable
+    filterset = filters.VMInterfaceFilterSet
+    filterset_form = forms.VMInterfaceFilterForm
+    table = tables.VMInterfaceTable
     action_buttons = ('import', 'export')
 
 
@@ -334,14 +334,14 @@ class InterfaceView(ObjectView):
 # TODO: This should not use ComponentCreateView
 class InterfaceCreateView(ComponentCreateView):
     queryset = VMInterface.objects.all()
-    form = forms.InterfaceCreateForm
-    model_form = forms.InterfaceForm
+    form = forms.VMInterfaceCreateForm
+    model_form = forms.VMInterfaceForm
     template_name = 'virtualization/virtualmachine_component_add.html'
 
 
 class InterfaceEditView(ObjectEditView):
     queryset = VMInterface.objects.all()
-    model_form = forms.InterfaceForm
+    model_form = forms.VMInterfaceForm
     template_name = 'virtualization/vminterface_edit.html'
 
 
@@ -351,13 +351,13 @@ class InterfaceDeleteView(ObjectDeleteView):
 
 class InterfaceBulkEditView(BulkEditView):
     queryset = VMInterface.objects.all()
-    table = tables.InterfaceTable
-    form = forms.InterfaceBulkEditForm
+    table = tables.VMInterfaceTable
+    form = forms.VMInterfaceBulkEditForm
 
 
 class InterfaceBulkDeleteView(BulkDeleteView):
     queryset = VMInterface.objects.all()
-    table = tables.InterfaceTable
+    table = tables.VMInterfaceTable
 
 
 #
@@ -367,9 +367,9 @@ class InterfaceBulkDeleteView(BulkDeleteView):
 class VirtualMachineBulkAddInterfaceView(BulkComponentCreateView):
     parent_model = VirtualMachine
     parent_field = 'virtual_machine'
-    form = forms.InterfaceBulkCreateForm
+    form = forms.VMInterfaceBulkCreateForm
     queryset = VMInterface.objects.all()
-    model_form = forms.InterfaceForm
+    model_form = forms.VMInterfaceForm
     filterset = filters.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
     default_return_url = 'virtualization:virtualmachine_list'

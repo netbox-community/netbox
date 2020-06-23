@@ -191,11 +191,11 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 # TODO: Update base class to DeviceComponentViewTestCase
 # Blocked by #4721
-class InterfaceTestCase(
+class VMInterfaceTestCase(
     ViewTestCases.GetObjectViewTestCase,
     ViewTestCases.EditObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
-    # ViewTestCases.BulkCreateObjectsViewTestCase,
+    ViewTestCases.BulkCreateObjectsViewTestCase,
     ViewTestCases.BulkEditObjectsViewTestCase,
     ViewTestCases.BulkDeleteObjectsViewTestCase,
 ):
@@ -234,7 +234,6 @@ class InterfaceTestCase(
             'virtual_machine': virtualmachines[1].pk,
             'name': 'Interface X',
             'enabled': False,
-            'mgmt_only': False,
             'mac_address': EUI('01-02-03-04-05-06'),
             'mtu': 2000,
             'description': 'New description',
@@ -248,7 +247,6 @@ class InterfaceTestCase(
             'virtual_machine': virtualmachines[1].pk,
             'name_pattern': 'Interface [4-6]',
             'enabled': False,
-            'mgmt_only': False,
             'mac_address': EUI('01-02-03-04-05-06'),
             'mtu': 2000,
             'description': 'New description',
@@ -264,6 +262,6 @@ class InterfaceTestCase(
             'mtu': 2000,
             'description': 'New description',
             'mode': InterfaceModeChoices.MODE_TAGGED,
-            # 'untagged_vlan': vlans[0].pk,
-            # 'tagged_vlans': [v.pk for v in vlans[1:4]],
+            'untagged_vlan': vlans[0].pk,
+            'tagged_vlans': [v.pk for v in vlans[1:4]],
         }

@@ -753,6 +753,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         super().save(*args, **kwargs)
 
     def to_objectchange(self, action):
+        # Annotate the assigned object, if any
         return ObjectChange(
             changed_object=self,
             object_repr=str(self),
@@ -764,12 +765,15 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
     def to_csv(self):
 
         # Determine if this IP is primary for a Device
+        is_primary = False
         if self.address.version == 4 and getattr(self, 'primary_ip4_for', False):
             is_primary = True
         elif self.address.version == 6 and getattr(self, 'primary_ip6_for', False):
             is_primary = True
-        else:
-            is_primary = False
+
+        obj_type = None
+        if self.assigned_object_type:
+            obj_type = f'{self.assigned_object_type.app_label}.{self.assigned_object_type.model}'
 
         return (
             self.address,
@@ -777,7 +781,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
             self.tenant.name if self.tenant else None,
             self.get_status_display(),
             self.get_role_display(),
-            '{}.{}'.format(self.assigned_object_type.app_label, self.assigned_object_type.model) if self.assigned_object_type else None,
+            obj_type,
             self.assigned_object_id,
             is_primary,
             self.dns_name,

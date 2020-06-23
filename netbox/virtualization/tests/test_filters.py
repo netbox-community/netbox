@@ -367,7 +367,7 @@ class VirtualMachineTestCase(TestCase):
 
 class InterfaceTestCase(TestCase):
     queryset = VMInterface.objects.all()
-    filterset = InterfaceFilterSet
+    filterset = VMInterfaceFilterSet
 
     @classmethod
     def setUpTestData(cls):

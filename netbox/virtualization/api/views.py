@@ -78,4 +78,4 @@ class InterfaceViewSet(ModelViewSet):
         'virtual_machine', 'tags'
     )
     serializer_class = serializers.VMInterfaceSerializer
-    filterset_class = filters.InterfaceFilterSet
+    filterset_class = filters.VMInterfaceFilterSet

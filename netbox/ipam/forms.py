@@ -522,6 +522,7 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
 #
 
 class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModelForm):
+    # TODO: Restore ability to select assigned object when editing IPAddress
     # interface = forms.ModelChoiceField(
     #     queryset=Interface.objects.all(),
     #     required=False
