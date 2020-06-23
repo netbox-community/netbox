@@ -302,30 +302,30 @@ class InterfaceView(ObjectView):
 
     def get(self, request, pk):
 
-        interface = get_object_or_404(self.queryset, pk=pk)
+        vminterface = get_object_or_404(self.queryset, pk=pk)
 
         # Get assigned IP addresses
         ipaddress_table = InterfaceIPAddressTable(
-            data=interface.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
+            data=vminterface.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
             orderable=False
         )
 
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []
-        if interface.untagged_vlan is not None:
-            vlans.append(interface.untagged_vlan)
+        if vminterface.untagged_vlan is not None:
+            vlans.append(vminterface.untagged_vlan)
             vlans[0].tagged = False
-        for vlan in interface.tagged_vlans.prefetch_related('site', 'group', 'tenant', 'role'):
+        for vlan in vminterface.tagged_vlans.prefetch_related('site', 'group', 'tenant', 'role'):
             vlan.tagged = True
             vlans.append(vlan)
         vlan_table = InterfaceVLANTable(
-            interface=interface,
+            interface=vminterface,
             data=vlans,
             orderable=False
         )
 
-        return render(request, 'virtualization/interface.html', {
-            'interface': interface,
+        return render(request, 'virtualization/vminterface.html', {
+            'vminterface': vminterface,
             'ipaddress_table': ipaddress_table,
             'vlan_table': vlan_table,
         })
@@ -342,7 +342,7 @@ class InterfaceCreateView(ComponentCreateView):
 class InterfaceEditView(ObjectEditView):
     queryset = VMInterface.objects.all()
     model_form = forms.InterfaceForm
-    template_name = 'virtualization/interface_edit.html'
+    template_name = 'virtualization/vminterface_edit.html'
 
 
 class InterfaceDeleteView(ObjectDeleteView):

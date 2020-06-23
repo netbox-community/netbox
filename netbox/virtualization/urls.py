@@ -3,7 +3,7 @@ from django.urls import path
 from extras.views import ObjectChangeLogView
 from ipam.views import ServiceEditView
 from . import views
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 app_name = 'virtualization'
 urlpatterns = [
@@ -57,6 +57,7 @@ urlpatterns = [
     path('interfaces/<int:pk>/', views.InterfaceView.as_view(), name='vminterface'),
     path('interfaces/<int:pk>/edit/', views.InterfaceEditView.as_view(), name='vminterface_edit'),
     path('interfaces/<int:pk>/delete/', views.InterfaceDeleteView.as_view(), name='vminterface_delete'),
+    path('interfaces/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='vminterface_changelog', kwargs={'model': VMInterface}),
     path('virtual-machines/interfaces/add/', views.VirtualMachineBulkAddInterfaceView.as_view(), name='virtualmachine_bulk_add_vminterface'),
 
 ]
