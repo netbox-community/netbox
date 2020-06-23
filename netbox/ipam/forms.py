@@ -1,7 +1,7 @@
 from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-from dcim.models import Device, Rack, Region, Site
+from dcim.models import Device, Interface, Rack, Region, Site
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
 )
@@ -14,7 +14,7 @@ from utilities.forms import (
     ExpandableIPAddressField, ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
-from virtualization.models import VirtualMachine
+from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
@@ -729,24 +729,24 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
         required=False,
         help_text='Functional role'
     )
-    # device = CSVModelChoiceField(
-    #     queryset=Device.objects.all(),
-    #     required=False,
-    #     to_field_name='name',
-    #     help_text='Parent device of assigned interface (if any)'
-    # )
-    # virtual_machine = CSVModelChoiceField(
-    #     queryset=VirtualMachine.objects.all(),
-    #     required=False,
-    #     to_field_name='name',
-    #     help_text='Parent VM of assigned interface (if any)'
-    # )
-    # interface = CSVModelChoiceField(
-    #     queryset=Interface.objects.all(),
-    #     required=False,
-    #     to_field_name='name',
-    #     help_text='Assigned interface'
-    # )
+    device = CSVModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Parent device of assigned interface (if any)'
+    )
+    virtual_machine = CSVModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Parent VM of assigned interface (if any)'
+    )
+    interface = CSVModelChoiceField(
+        queryset=Interface.objects.none(),  # Can also refer to VMInterface
+        required=False,
+        to_field_name='name',
+        help_text='Assigned interface'
+    )
     is_primary = forms.BooleanField(
         help_text='Make this the primary IP for the assigned device',
         required=False
@@ -759,23 +759,19 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
 
-        # if data:
-        #
-        #     # Limit interface queryset by assigned device or virtual machine
-        #     if data.get('device'):
-        #         params = {
-        #             f"device__{self.fields['device'].to_field_name}": data.get('device')
-        #         }
-        #     elif data.get('virtual_machine'):
-        #         params = {
-        #             f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data.get('virtual_machine')
-        #         }
-        #     else:
-        #         params = {
-        #             'device': None,
-        #             'virtual_machine': None,
-        #         }
-        #     self.fields['interface'].queryset = self.fields['interface'].queryset.filter(**params)
+        if data:
+
+            # Limit interface queryset by assigned device
+            if data.get('device'):
+                self.fields['interface'].queryset = Interface.objects.filter(
+                    **{f"device__{self.fields['device'].to_field_name}": data['device']}
+                )
+
+            # Limit interface queryset by assigned device
+            elif data.get('virtual_machine'):
+                self.fields['interface'].queryset = VMInterface.objects.filter(
+                    **{f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data['virtual_machine']}
+                )
 
     def clean(self):
         super().clean()
@@ -789,6 +785,10 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
             raise forms.ValidationError("No device or virtual machine specified; cannot set as primary IP")
 
     def save(self, *args, **kwargs):
+
+        # Set interface assignment
+        if self.cleaned_data['interface']:
+            self.instance.assigned_object = self.cleaned_data['interface']
 
         ipaddress = super().save(*args, **kwargs)
 
