@@ -2963,12 +2963,6 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
 class InterfaceCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
-        required=False,
-        to_field_name='name'
-    )
-    virtual_machine = CSVModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
         to_field_name='name'
     )
     lag = CSVModelChoiceField(

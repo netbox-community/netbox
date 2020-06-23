@@ -349,6 +349,13 @@ class InterfaceDeleteView(ObjectDeleteView):
     queryset = VMInterface.objects.all()
 
 
+class InterfaceBulkImportView(BulkImportView):
+    queryset = VMInterface.objects.all()
+    model_form = forms.VMInterfaceCSVForm
+    table = tables.VMInterfaceTable
+    default_return_url = 'virtualization:vminterface_list'
+
+
 class InterfaceBulkEditView(BulkEditView):
     queryset = VMInterface.objects.all()
     table = tables.VMInterfaceTable

@@ -189,16 +189,9 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-# TODO: Update base class to DeviceComponentViewTestCase
-# Blocked by #4721
 class VMInterfaceTestCase(
-    ViewTestCases.ListObjectsViewTestCase,
     ViewTestCases.GetObjectViewTestCase,
-    ViewTestCases.EditObjectViewTestCase,
-    ViewTestCases.DeleteObjectViewTestCase,
-    ViewTestCases.BulkCreateObjectsViewTestCase,
-    ViewTestCases.BulkEditObjectsViewTestCase,
-    ViewTestCases.BulkDeleteObjectsViewTestCase,
+    ViewTestCases.DeviceComponentViewTestCase,
 ):
     model = VMInterface
 
@@ -256,6 +249,13 @@ class VMInterfaceTestCase(
             'tagged_vlans': [v.pk for v in vlans[1:4]],
             'tags': [t.pk for t in tags],
         }
+
+        cls.csv_data = (
+            "virtual_machine,name",
+            "Virtual Machine 2,Interface 4",
+            "Virtual Machine 2,Interface 5",
+            "Virtual Machine 2,Interface 6",
+        )
 
         cls.bulk_edit_data = {
             'virtual_machine': virtualmachines[1].pk,

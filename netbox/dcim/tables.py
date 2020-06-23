@@ -598,17 +598,11 @@ class InterfaceImportTable(BaseTable):
         viewname='dcim:device',
         args=[Accessor('device.pk')]
     )
-    virtual_machine = tables.LinkColumn(
-        viewname='virtualization:virtualmachine',
-        args=[Accessor('virtual_machine.pk')],
-        verbose_name='Virtual Machine'
-    )
 
     class Meta(BaseTable.Meta):
         model = Interface
         fields = (
-            'device', 'virtual_machine', 'name', 'description', 'lag', 'type', 'enabled', 'mac_address', 'mtu',
-            'mgmt_only', 'mode',
+            'device', 'name', 'description', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only', 'mode',
         )
         empty_text = False
 

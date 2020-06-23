@@ -715,6 +715,29 @@ class VMInterfaceCreateForm(BootstrapMixin, forms.Form):
             self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', site.pk)
 
 
+class VMInterfaceCSVForm(CSVModelForm):
+    virtual_machine = CSVModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        to_field_name='name'
+    )
+    mode = CSVChoiceField(
+        choices=InterfaceModeChoices,
+        required=False,
+        help_text='IEEE 802.1Q operational mode (for L2 interfaces)'
+    )
+
+    class Meta:
+        model = VMInterface
+        fields = VMInterface.csv_headers
+
+    def clean_enabled(self):
+        # Make sure enabled is True when it's not included in the uploaded data
+        if 'enabled' not in self.data:
+            return True
+        else:
+            return self.cleaned_data['enabled']
+
+
 class VMInterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VMInterface.objects.all(),

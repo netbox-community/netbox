@@ -53,6 +53,7 @@ urlpatterns = [
     # VM interfaces
     path('interfaces/', views.InterfaceListView.as_view(), name='vminterface_list'),
     path('interfaces/add/', views.InterfaceCreateView.as_view(), name='vminterface_add'),
+    path('interfaces/import/', views.InterfaceBulkImportView.as_view(), name='vminterface_import'),
     path('interfaces/edit/', views.InterfaceBulkEditView.as_view(), name='vminterface_bulk_edit'),
     path('interfaces/delete/', views.InterfaceBulkDeleteView.as_view(), name='vminterface_bulk_delete'),
     path('interfaces/<int:pk>/', views.InterfaceView.as_view(), name='vminterface'),
