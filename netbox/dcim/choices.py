@@ -260,6 +260,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_IEC_3PNE6H = 'iec-60309-3p-n-e-6h'
     TYPE_IEC_3PNE9H = 'iec-60309-3p-n-e-9h'
     # NEMA non-locking
+    TYPE_NEMA_115P = 'nema-1-15p'
     TYPE_NEMA_515P = 'nema-5-15p'
     TYPE_NEMA_520P = 'nema-5-20p'
     TYPE_NEMA_530P = 'nema-5-30p'
@@ -268,11 +269,17 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_NEMA_620P = 'nema-6-20p'
     TYPE_NEMA_630P = 'nema-6-30p'
     TYPE_NEMA_650P = 'nema-6-50p'
+    TYPE_NEMA_1030P = 'nema-10-30p'
+    TYPE_NEMA_1050P = 'nema-10-50p'
+    TYPE_NEMA_1420P = 'nema-14-20p'
+    TYPE_NEMA_1430P = 'nema-14-30p'
+    TYPE_NEMA_1450P = 'nema-14-50p'
+    TYPE_NEMA_1460P = 'nema-14-60p'
     # NEMA locking
     TYPE_NEMA_L515P = 'nema-l5-15p'
     TYPE_NEMA_L520P = 'nema-l5-20p'
     TYPE_NEMA_L530P = 'nema-l5-30p'
-    TYPE_NEMA_L615P = 'nema-l5-50p'
+    TYPE_NEMA_L615P = 'nema-l6-15p'
     TYPE_NEMA_L620P = 'nema-l6-20p'
     TYPE_NEMA_L630P = 'nema-l6-30p'
     TYPE_NEMA_L650P = 'nema-l6-50p'
@@ -324,6 +331,7 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_IEC_3PNE9H, '3P+N+E 9H'),
         )),
         ('NEMA (Non-locking)', (
+            (TYPE_NEMA_115P, 'NEMA 1-15P'),
             (TYPE_NEMA_515P, 'NEMA 5-15P'),
             (TYPE_NEMA_520P, 'NEMA 5-20P'),
             (TYPE_NEMA_530P, 'NEMA 5-30P'),
@@ -332,6 +340,12 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_NEMA_620P, 'NEMA 6-20P'),
             (TYPE_NEMA_630P, 'NEMA 6-30P'),
             (TYPE_NEMA_650P, 'NEMA 6-50P'),
+            (TYPE_NEMA_1030P, 'NEMA 10-30P'),
+            (TYPE_NEMA_1050P, 'NEMA 10-50P'),
+            (TYPE_NEMA_1420P, 'NEMA 14-20P'),
+            (TYPE_NEMA_1430P, 'NEMA 14-30P'),
+            (TYPE_NEMA_1450P, 'NEMA 14-50P'),
+            (TYPE_NEMA_1460P, 'NEMA 14-60P'),
         )),
         ('NEMA (Locking)', (
             (TYPE_NEMA_L515P, 'NEMA L5-15P'),
@@ -397,6 +411,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_IEC_3PNE6H = 'iec-60309-3p-n-e-6h'
     TYPE_IEC_3PNE9H = 'iec-60309-3p-n-e-9h'
     # NEMA non-locking
+    TYPE_NEMA_115R = 'nema-1-15r'
     TYPE_NEMA_515R = 'nema-5-15r'
     TYPE_NEMA_520R = 'nema-5-20r'
     TYPE_NEMA_530R = 'nema-5-30r'
@@ -405,11 +420,17 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_NEMA_620R = 'nema-6-20r'
     TYPE_NEMA_630R = 'nema-6-30r'
     TYPE_NEMA_650R = 'nema-6-50r'
+    TYPE_NEMA_1030R = 'nema-10-30r'
+    TYPE_NEMA_1050R = 'nema-10-50r'
+    TYPE_NEMA_1420R = 'nema-14-20r'
+    TYPE_NEMA_1430R = 'nema-14-30r'
+    TYPE_NEMA_1450R = 'nema-14-50r'
+    TYPE_NEMA_1460R = 'nema-14-60r'
     # NEMA locking
     TYPE_NEMA_L515R = 'nema-l5-15r'
     TYPE_NEMA_L520R = 'nema-l5-20r'
     TYPE_NEMA_L530R = 'nema-l5-30r'
-    TYPE_NEMA_L615R = 'nema-l5-50r'
+    TYPE_NEMA_L615R = 'nema-l6-15r'
     TYPE_NEMA_L620R = 'nema-l6-20r'
     TYPE_NEMA_L630R = 'nema-l6-30r'
     TYPE_NEMA_L650R = 'nema-l6-50r'
@@ -462,6 +483,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_IEC_3PNE9H, '3P+N+E 9H'),
         )),
         ('NEMA (Non-locking)', (
+            (TYPE_NEMA_115R, 'NEMA 1-15R'),
             (TYPE_NEMA_515R, 'NEMA 5-15R'),
             (TYPE_NEMA_520R, 'NEMA 5-20R'),
             (TYPE_NEMA_530R, 'NEMA 5-30R'),
@@ -470,6 +492,12 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_NEMA_620R, 'NEMA 6-20R'),
             (TYPE_NEMA_630R, 'NEMA 6-30R'),
             (TYPE_NEMA_650R, 'NEMA 6-50R'),
+            (TYPE_NEMA_1030R, 'NEMA 10-30R'),
+            (TYPE_NEMA_1050R, 'NEMA 10-50R'),
+            (TYPE_NEMA_1420R, 'NEMA 14-20R'),
+            (TYPE_NEMA_1430R, 'NEMA 14-30R'),
+            (TYPE_NEMA_1450R, 'NEMA 14-50R'),     
+            (TYPE_NEMA_1460R, 'NEMA 14-60R'),
         )),
         ('NEMA (Locking)', (
             (TYPE_NEMA_L515R, 'NEMA L5-15R'),
