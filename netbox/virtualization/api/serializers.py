@@ -10,7 +10,7 @@ from ipam.models import VLAN
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import ChoiceField, SerializedPKRelatedField, ValidatedModelSerializer
 from virtualization.choices import *
-from virtualization.models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from .nested_serializers import *
 
 
@@ -106,7 +106,7 @@ class InterfaceSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
     )
 
     class Meta:
-        model = Interface
+        model = VMInterface
         fields = [
             'id', 'virtual_machine', 'name', 'enabled', 'mtu', 'mac_address', 'description', 'mode', 'untagged_vlan',
             'tagged_vlans', 'tags',

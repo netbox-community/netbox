@@ -4,7 +4,7 @@ from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer,
 from ipam.choices import *
 from ipam.filters import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
-from virtualization.models import Cluster, ClusterType, Interface as VMInterface, VirtualMachine
+from virtualization.models import Cluster, ClusterType, VirtualMachine, VMInterface
 from tenancy.models import Tenant, TenantGroup
 
 

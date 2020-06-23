@@ -20,8 +20,8 @@ __all__ = (
     'Cluster',
     'ClusterGroup',
     'ClusterType',
-    'Interface',
     'VirtualMachine',
+    'VMInterface',
 )
 
 
@@ -381,7 +381,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 #
 
 @extras_features('graphs', 'export_templates', 'webhooks')
-class Interface(BaseInterface):
+class VMInterface(BaseInterface):
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',
         on_delete=models.CASCADE,
@@ -423,6 +423,7 @@ class Interface(BaseInterface):
     ]
 
     class Meta:
+        verbose_name = 'interface'
         ordering = ('virtual_machine', CollateAsChar('_name'))
         unique_together = ('virtual_machine', 'name')
 

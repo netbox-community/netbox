@@ -3,7 +3,7 @@ from django_tables2.utils import Accessor
 
 from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, ColoredLabelColumn, TagColumn, ToggleColumn
-from .models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
+from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 CLUSTERTYPE_ACTIONS = """
 <a href="{% url 'virtualization:clustertype_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
@@ -175,5 +175,5 @@ class VirtualMachineDetailTable(VirtualMachineTable):
 class InterfaceTable(BaseTable):
 
     class Meta(BaseTable.Meta):
-        model = Interface
+        model = VMInterface
         fields = ('name', 'enabled', 'description')

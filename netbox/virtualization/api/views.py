@@ -5,7 +5,7 @@ from extras.api.views import CustomFieldModelViewSet
 from utilities.api import ModelViewSet
 from utilities.utils import get_subquery
 from virtualization import filters
-from virtualization.models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from . import serializers
 
 
@@ -72,7 +72,7 @@ class VirtualMachineViewSet(CustomFieldModelViewSet):
 
 
 class InterfaceViewSet(ModelViewSet):
-    queryset = Interface.objects.filter(
+    queryset = VMInterface.objects.filter(
         virtual_machine__isnull=False
     ).prefetch_related(
         'virtual_machine', 'tags'

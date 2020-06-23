@@ -9,7 +9,7 @@ from utilities.filters import (
     TreeNodeMultipleChoiceFilter,
 )
 from .choices import *
-from .models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
+from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 __all__ = (
     'ClusterFilterSet',
@@ -222,7 +222,7 @@ class InterfaceFilterSet(BaseFilterSet):
     )
 
     class Meta:
-        model = Interface
+        model = VMInterface
         fields = ['id', 'name', 'enabled', 'mtu']
 
     def search(self, queryset, name, value):

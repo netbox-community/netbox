@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Interface',
+            name='VMInterface',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
@@ -38,6 +38,7 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ('virtual_machine', utilities.query_functions.CollateAsChar('_name')),
                 'unique_together': {('virtual_machine', 'name')},
+                'verbose_name': 'interface',
             },
         ),
     ]

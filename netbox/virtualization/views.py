@@ -14,7 +14,7 @@ from utilities.views import (
     ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
-from .models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
+from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 
 #
@@ -236,7 +236,7 @@ class VirtualMachineView(ObjectView):
     def get(self, request, pk):
 
         virtualmachine = get_object_or_404(self.queryset, pk=pk)
-        interfaces = Interface.objects.restrict(request.user, 'view').filter(virtual_machine=virtualmachine)
+        interfaces = VMInterface.objects.restrict(request.user, 'view').filter(virtual_machine=virtualmachine)
         services = Service.objects.restrict(request.user, 'view').filter(virtual_machine=virtualmachine)
 
         return render(request, 'virtualization/virtualmachine.html', {
@@ -290,7 +290,7 @@ class VirtualMachineBulkDeleteView(BulkDeleteView):
 #
 
 class InterfaceListView(ObjectListView):
-    queryset = Interface.objects.prefetch_related('virtual_machine', 'virtual_machine__tenant', 'cable')
+    queryset = VMInterface.objects.prefetch_related('virtual_machine', 'virtual_machine__tenant', 'cable')
     filterset = filters.InterfaceFilterSet
     filterset_form = forms.InterfaceFilterForm
     table = tables.InterfaceTable
@@ -298,7 +298,7 @@ class InterfaceListView(ObjectListView):
 
 
 class InterfaceView(ObjectView):
-    queryset = Interface.objects.all()
+    queryset = VMInterface.objects.all()
 
     def get(self, request, pk):
 
@@ -333,30 +333,30 @@ class InterfaceView(ObjectView):
 
 # TODO: This should not use ComponentCreateView
 class InterfaceCreateView(ComponentCreateView):
-    queryset = Interface.objects.all()
+    queryset = VMInterface.objects.all()
     form = forms.InterfaceCreateForm
     model_form = forms.InterfaceForm
     template_name = 'virtualization/virtualmachine_component_add.html'
 
 
 class InterfaceEditView(ObjectEditView):
-    queryset = Interface.objects.all()
+    queryset = VMInterface.objects.all()
     model_form = forms.InterfaceForm
     template_name = 'virtualization/interface_edit.html'
 
 
 class InterfaceDeleteView(ObjectDeleteView):
-    queryset = Interface.objects.all()
+    queryset = VMInterface.objects.all()
 
 
 class InterfaceBulkEditView(BulkEditView):
-    queryset = Interface.objects.all()
+    queryset = VMInterface.objects.all()
     table = tables.InterfaceTable
     form = forms.InterfaceBulkEditForm
 
 
 class InterfaceBulkDeleteView(BulkDeleteView):
-    queryset = Interface.objects.all()
+    queryset = VMInterface.objects.all()
     table = tables.InterfaceTable
 
 
@@ -368,7 +368,7 @@ class VirtualMachineBulkAddInterfaceView(BulkComponentCreateView):
     parent_model = VirtualMachine
     parent_field = 'virtual_machine'
     form = forms.InterfaceBulkCreateForm
-    queryset = Interface.objects.all()
+    queryset = VMInterface.objects.all()
     model_form = forms.InterfaceForm
     filterset = filters.VirtualMachineFilterSet
     table = tables.VirtualMachineTable

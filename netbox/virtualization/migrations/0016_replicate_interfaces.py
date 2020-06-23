@@ -8,10 +8,10 @@ def replicate_interfaces(apps, schema_editor):
     TaggedItem = apps.get_model('extras', 'TaggedItem')
     Interface = apps.get_model('dcim', 'Interface')
     IPAddress = apps.get_model('ipam', 'IPAddress')
-    VMInterface = apps.get_model('virtualization', 'Interface')
+    VMInterface = apps.get_model('virtualization', 'VMInterface')
 
     interface_ct = ContentType.objects.get_for_model(Interface)
-    vm_interface_ct = ContentType.objects.get_for_model(VMInterface)
+    vminterface_ct = ContentType.objects.get_for_model(VMInterface)
 
     # Replicate dcim.Interface instances assigned to VirtualMachines
     original_interfaces = Interface.objects.filter(virtual_machine__isnull=False)
@@ -35,12 +35,12 @@ def replicate_interfaces(apps, schema_editor):
         TaggedItem.objects.filter(
             content_type=interface_ct, object_id=interface.pk
         ).update(
-            content_type=vm_interface_ct, object_id=vm_interface.pk
+            content_type=vminterface_ct, object_id=vm_interface.pk
         )
 
         # Update any assigned IPAddresses
         IPAddress.objects.filter(assigned_object_id=interface.pk).update(
-            assigned_object_type=vm_interface_ct,
+            assigned_object_type=vminterface_ct,
             assigned_object_id=vm_interface.pk
         )
 
@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('ipam', '0037_ipaddress_assignment'),
-        ('virtualization', '0015_interface'),
+        ('virtualization', '0015_vminterface'),
     ]
 
     operations = [

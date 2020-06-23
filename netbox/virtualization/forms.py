@@ -19,7 +19,7 @@ from utilities.forms import (
     StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from .choices import *
-from .models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
+from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 
 #
@@ -600,7 +600,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
     )
 
     class Meta:
-        model = Interface
+        model = VMInterface
         fields = [
             'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description', 'mode', 'tags', 'untagged_vlan',
             'tagged_vlans',
@@ -717,7 +717,7 @@ class InterfaceCreateForm(BootstrapMixin, forms.Form):
 
 class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        queryset=Interface.objects.all(),
+        queryset=VMInterface.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
     virtual_machine = forms.ModelChoiceField(
@@ -786,7 +786,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
 
 
 class InterfaceFilterForm(forms.Form):
-    model = Interface
+    model = VMInterface
     enabled = forms.NullBooleanField(
         required=False,
         widget=StaticSelect2(
@@ -816,7 +816,7 @@ class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
 
 
 class InterfaceBulkCreateForm(
-    form_from_model(Interface, ['enabled', 'mtu', 'description', 'tags']),
+    form_from_model(VMInterface, ['enabled', 'mtu', 'description', 'tags']),
     VirtualMachineBulkAddComponentForm
 ):
     pass

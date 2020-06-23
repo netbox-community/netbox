@@ -5,7 +5,7 @@ from dcim.models import DeviceRole, Platform, Site
 from ipam.models import VLAN
 from utilities.testing import ViewTestCases
 from virtualization.choices import *
-from virtualization.models import Cluster, ClusterGroup, ClusterType, Interface, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 
 class ClusterGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
@@ -199,7 +199,7 @@ class InterfaceTestCase(
     ViewTestCases.BulkEditObjectsViewTestCase,
     ViewTestCases.BulkDeleteObjectsViewTestCase,
 ):
-    model = Interface
+    model = VMInterface
 
     @classmethod
     def setUpTestData(cls):
@@ -214,10 +214,10 @@ class InterfaceTestCase(
         )
         VirtualMachine.objects.bulk_create(virtualmachines)
 
-        Interface.objects.bulk_create([
-            Interface(virtual_machine=virtualmachines[0], name='Interface 1'),
-            Interface(virtual_machine=virtualmachines[0], name='Interface 2'),
-            Interface(virtual_machine=virtualmachines[0], name='Interface 3'),
+        VMInterface.objects.bulk_create([
+            VMInterface(virtual_machine=virtualmachines[0], name='Interface 1'),
+            VMInterface(virtual_machine=virtualmachines[0], name='Interface 2'),
+            VMInterface(virtual_machine=virtualmachines[0], name='Interface 3'),
         ])
 
         vlans = (
