@@ -447,7 +447,7 @@ class VMInterface(BaseInterface):
     def clean(self):
 
         # Validate untagged VLAN
-        if self.untagged_vlan and self.untagged_vlan.site not in [self.parent.site, None]:
+        if self.untagged_vlan and self.untagged_vlan.site not in [self.virtual_machine.site, None]:
             raise ValidationError({
                 'untagged_vlan': "The untagged VLAN ({}) must belong to the same site as the interface's parent "
                                  "virtual machine, or it must be global".format(self.untagged_vlan)
@@ -474,10 +474,6 @@ class VMInterface(BaseInterface):
             related_object=self.virtual_machine,
             object_data=serialize_object(self)
         )
-
-    @property
-    def parent(self):
-        return self.virtual_machine
 
     @property
     def count_ipaddresses(self):
