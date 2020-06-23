@@ -496,7 +496,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_NEMA_1050R, 'NEMA 10-50R'),
             (TYPE_NEMA_1420R, 'NEMA 14-20R'),
             (TYPE_NEMA_1430R, 'NEMA 14-30R'),
-            (TYPE_NEMA_1450R, 'NEMA 14-50R'),     
+            (TYPE_NEMA_1450R, 'NEMA 14-50R'),
             (TYPE_NEMA_1460R, 'NEMA 14-60R'),
         )),
         ('NEMA (Locking)', (
