@@ -321,6 +321,7 @@ urlpatterns = [
     # Virtual chassis
     path('virtual-chassis/', views.VirtualChassisListView.as_view(), name='virtualchassis_list'),
     path('virtual-chassis/add/', views.VirtualChassisCreateView.as_view(), name='virtualchassis_add'),
+    path('virtual-chassis/import/', views.VirtualChassisBulkImportView.as_view(), name='virtualchassis_import'),
     path('virtual-chassis/edit/', views.VirtualChassisBulkEditView.as_view(), name='virtualchassis_bulk_edit'),
     path('virtual-chassis/delete/', views.VirtualChassisBulkDeleteView.as_view(), name='virtualchassis_bulk_delete'),
     path('virtual-chassis/<int:pk>/', views.VirtualChassisView.as_view(), name='virtualchassis'),

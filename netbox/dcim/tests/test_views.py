@@ -1578,7 +1578,6 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             name='Device Role', slug='device-role-1'
         )
 
-        # Create 9 member Devices
         devices = (
             Device(device_type=device_type, device_role=device_role, name='Device 1', site=site),
             Device(device_type=device_type, device_role=device_role, name='Device 2', site=site),
@@ -1589,10 +1588,13 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Device(device_type=device_type, device_role=device_role, name='Device 7', site=site),
             Device(device_type=device_type, device_role=device_role, name='Device 8', site=site),
             Device(device_type=device_type, device_role=device_role, name='Device 9', site=site),
+            Device(device_type=device_type, device_role=device_role, name='Device 10', site=site),
+            Device(device_type=device_type, device_role=device_role, name='Device 11', site=site),
+            Device(device_type=device_type, device_role=device_role, name='Device 12', site=site),
         )
         Device.objects.bulk_create(devices)
 
-        # Create three VirtualChassis with two members each
+        # Create three VirtualChassis with three members each
         vc1 = VirtualChassis.objects.create(name='VC1', master=devices[0], domain='domain-1')
         Device.objects.filter(pk=devices[0].pk).update(virtual_chassis=vc1, vc_position=1)
         Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=vc1, vc_position=2)
@@ -1615,6 +1617,13 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'form-MIN_NUM_FORMS': 0,
             'form-MAX_NUM_FORMS': 1000,
         }
+
+        cls.csv_data = (
+            "name,domain,master",
+            "VC4,Domain 4,Device 10",
+            "VC5,Domain 5,Device 11",
+            "VC6,Domain 6,Device 12",
+        )
 
         cls.bulk_edit_data = {
             'domain': 'domain-x',

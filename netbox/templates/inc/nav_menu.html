@@ -147,6 +147,7 @@
                             {% if perms.dcim.add_virtualchassis %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:virtualchassis_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
+                                    <a href="{% url 'dcim:virtualchassis_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:virtualchassis_list' %}">Virtual Chassis</a>

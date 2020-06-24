@@ -4306,6 +4306,19 @@ class VirtualChassisBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm
         nullable_fields = ['domain']
 
 
+class VirtualChassisCSVForm(CSVModelForm):
+    master = CSVModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Master device'
+    )
+
+    class Meta:
+        model = VirtualChassis
+        fields = VirtualChassis.csv_headers
+
+
 class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = VirtualChassis
     q = forms.CharField(

@@ -2304,6 +2304,13 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
         })
 
 
+class VirtualChassisBulkImportView(BulkImportView):
+    queryset = VirtualChassis.objects.all()
+    model_form = forms.VirtualChassisCSVForm
+    table = tables.VirtualChassisTable
+    default_return_url = 'dcim:virtualchassis_list'
+
+
 class VirtualChassisBulkEditView(BulkEditView):
     queryset = VirtualChassis.objects.all()
     filterset = filters.VirtualChassisFilterSet
