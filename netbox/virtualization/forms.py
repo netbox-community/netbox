@@ -14,9 +14,9 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField, SlugField, SmallTextarea,
-    StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    BulkRenameForm, CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField, CSVModelForm,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
+    SlugField, SmallTextarea, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from .choices import *
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -808,6 +808,13 @@ class VMInterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
                 # Add current site to VLANs query params
                 self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', site.pk)
                 self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', site.pk)
+
+
+class VMInterfaceBulkRenameForm(BulkRenameForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=VMInterface.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
 
 
 class VMInterfaceFilterForm(forms.Form):

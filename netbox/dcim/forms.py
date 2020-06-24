@@ -23,12 +23,12 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField, CSVModelForm,
+    BulkRenameForm, ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField, CSVModelForm,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
     NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
-from virtualization.models import Cluster, ClusterGroup, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup
 from .choices import *
 from .constants import *
 from .models import (
@@ -148,30 +148,6 @@ class LabeledComponentForm(BootstrapMixin, forms.Form):
                 'be generated. These counts must match.'.format(
                     name_pattern_count, label_pattern_count)
             }, code='label_pattern_mismatch')
-
-
-class BulkRenameForm(forms.Form):
-    """
-    An extendable form to be used for renaming device components in bulk.
-    """
-    find = forms.CharField()
-    replace = forms.CharField()
-    use_regex = forms.BooleanField(
-        required=False,
-        initial=True,
-        label='Use regular expressions'
-    )
-
-    def clean(self):
-
-        # Validate regular expression in "find" field
-        if self.cleaned_data['use_regex']:
-            try:
-                re.compile(self.cleaned_data['find'])
-            except re.error:
-                raise forms.ValidationError({
-                    'find': "Invalid regular expression"
-                })
 
 
 #

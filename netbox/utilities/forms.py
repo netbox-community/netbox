@@ -733,6 +733,30 @@ class BulkEditForm(forms.Form):
             self.nullable_fields = self.Meta.nullable_fields
 
 
+class BulkRenameForm(forms.Form):
+    """
+    An extendable form to be used for renaming objects in bulk.
+    """
+    find = forms.CharField()
+    replace = forms.CharField()
+    use_regex = forms.BooleanField(
+        required=False,
+        initial=True,
+        label='Use regular expressions'
+    )
+
+    def clean(self):
+
+        # Validate regular expression in "find" field
+        if self.cleaned_data['use_regex']:
+            try:
+                re.compile(self.cleaned_data['find'])
+            except re.error:
+                raise forms.ValidationError({
+                    'find': "Invalid regular expression"
+                })
+
+
 class CSVModelForm(forms.ModelForm):
     """
     ModelForm used for the import of objects in CSV format.

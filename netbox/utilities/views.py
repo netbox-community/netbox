@@ -1,4 +1,5 @@
 import logging
+import re
 import sys
 from copy import deepcopy
 
@@ -959,6 +960,58 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             'form': form,
             'table': table,
             'obj_type_plural': model._meta.verbose_name_plural,
+            'return_url': self.get_return_url(request),
+        })
+
+
+class BulkRenameView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
+    """
+    An extendable view for renaming objects in bulk.
+    """
+    queryset = None
+    form = None
+    template_name = 'utilities/obj_bulk_rename.html'
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'change')
+
+    def post(self, request):
+
+        if '_preview' in request.POST or '_apply' in request.POST:
+            form = self.form(request.POST, initial={'pk': request.POST.getlist('pk')})
+            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
+
+            if form.is_valid():
+                for obj in selected_objects:
+                    find = form.cleaned_data['find']
+                    replace = form.cleaned_data['replace']
+                    if form.cleaned_data['use_regex']:
+                        try:
+                            obj.new_name = re.sub(find, replace, obj.name)
+                        # Catch regex group reference errors
+                        except re.error:
+                            obj.new_name = obj.name
+                    else:
+                        obj.new_name = obj.name.replace(find, replace)
+
+                if '_apply' in request.POST:
+                    for obj in selected_objects:
+                        obj.name = obj.new_name
+                        obj.save()
+                    messages.success(request, "Renamed {} {}".format(
+                        len(selected_objects),
+                        self.queryset.model._meta.verbose_name_plural
+                    ))
+                    return redirect(self.get_return_url(request))
+
+        else:
+            form = self.form(initial={'pk': request.POST.getlist('pk')})
+            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
+
+        return render(request, self.template_name, {
+            'form': form,
+            'obj_type_plural': self.queryset.model._meta.verbose_name_plural,
+            'selected_objects': selected_objects,
             'return_url': self.get_return_url(request),
         })
 

@@ -10,8 +10,8 @@ from extras.views import ObjectConfigContextView
 from ipam.models import Service
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from utilities.views import (
-    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ObjectView,
-    ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, BulkRenameView, ComponentCreateView,
+    ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -360,6 +360,11 @@ class InterfaceBulkEditView(BulkEditView):
     queryset = VMInterface.objects.all()
     table = tables.VMInterfaceTable
     form = forms.VMInterfaceBulkEditForm
+
+
+class InterfaceBulkRenameView(BulkRenameView):
+    queryset = VMInterface.objects.all()
+    form = forms.VMInterfaceBulkRenameForm
 
 
 class InterfaceBulkDeleteView(BulkDeleteView):
