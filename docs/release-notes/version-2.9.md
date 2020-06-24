@@ -1,4 +1,4 @@
-# NetBox v2.8
+# NetBox v2.9
 
 ## v2.9.0 (FUTURE)
 
@@ -33,9 +33,12 @@ NetBox v2.9 replaces Django's built-in permissions framework with one that suppo
 
 * The `tags` field of an object now includes a more complete representation of each tag, rather than just its name.
 * A `label` field has been added to all device components and component templates.
+* The IP address model now uses a generic foreign key to refer to the assigned interface. The `interface` field on the serializer has been replaced with `assigned_object_type` and `assigned_object_id` for write operations. If one exists, the assigned interface is available as `assigned_object`.
+* The serialized representation of a virtual machine interface now includes only relevant fields: `type`, `lag`, `mgmt_only`, `connected_endpoint_type`, `connected_endpoint`, and `cable` are no longer included.
 
 ### Other Changes
 
+* A new model, `VMInterface` has been introduced to represent interfaces assigned to VirtualMachine instances. Previously, these interfaces utilized the DCIM model `Interface`. Instances will be replicated automatically upon upgrade, however any custom code which references or manipulates virtual machine interfaces will need to be updated accordingly.
 * The `secrets.activate_userkey` permission no longer exists. Instead, `secrets.change_userkey` is checked to determine whether a user has the ability to activate a UserKey.
 * The `users.delete_token` permission is no longer enforced. All users are permitted to delete their own API tokens.
 * Dropped backward compatibility for the `webhooks` Redis queue configuration (use `tasks` instead).
