@@ -1,6 +1,6 @@
 import netaddr
 from django.conf import settings
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2 import RequestConfig
@@ -11,7 +11,7 @@ from utilities.views import (
     BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView,
     ObjectListView,
 )
-from virtualization.models import VirtualMachine
+from virtualization.models import VirtualMachine, VMInterface
 from . import filters, forms, tables
 from .choices import *
 from .constants import *
@@ -659,11 +659,16 @@ class IPAddressEditView(ObjectEditView):
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
 
-        interface_id = request.GET.get('interface')
-        if interface_id:
+        if 'interface' in request.GET:
             try:
-                obj.interface = Interface.objects.get(pk=interface_id)
+                obj.assigned_object = Interface.objects.get(pk=request.GET['interface'])
             except (ValueError, Interface.DoesNotExist):
+                pass
+
+        elif 'vminterface' in request.GET:
+            try:
+                obj.assigned_object = VMInterface.objects.get(pk=request.GET['vminterface'])
+            except (ValueError, VMInterface.DoesNotExist):
                 pass
 
         return obj
