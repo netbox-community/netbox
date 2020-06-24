@@ -9,7 +9,9 @@
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'dcim:virtualchassis_list' %}">Virtual Chassis</a></li>
-                <li><a href="{% url 'dcim:virtualchassis_list' %}?site={{ virtualchassis.master.site.slug }}">{{ virtualchassis.master.site }}</a></li>
+                {% if virtualchassis.master %}
+                    <li><a href="{% url 'dcim:virtualchassis_list' %}?site={{ virtualchassis.master.site.slug }}">{{ virtualchassis.master.site }}</a></li>
+                {% endif %}
                 <li>{{ virtualchassis }}</li>
             </ol>
         </div>
@@ -63,7 +65,17 @@
                 <tr>
                     <td>Domain</td>
                     <td>{{ virtualchassis.domain|placeholder }}</td>
-
+                </tr>
+                <tr>
+                    <td>Master</td>
+                    <td>
+                        {% if virtualchassis.master %}
+                            <a href="{{ virtualchassis.master.get_absolute_url }}">{{ virtualchassis.master }}</a>
+                        {% else %}
+                            <span class="text-muted">&mdash;</span>
+                        {% endif %}
+                    </td>
+                </tr>
             </table>
         </div>
         {% include 'extras/inc/tags_panel.html' with tags=virtualchassis.tags.all url='dcim:virtualchassis_list' %}

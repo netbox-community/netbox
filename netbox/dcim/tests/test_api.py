@@ -2003,7 +2003,7 @@ class ConnectedDeviceTest(APITestCase):
 
 class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
     model = VirtualChassis
-    brief_fields = ['id', 'master', 'member_count', 'url']
+    brief_fields = ['id', 'master', 'member_count', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):
@@ -2040,9 +2040,9 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
 
         # Create three VirtualChassis with three members each
         virtual_chassis = (
-            VirtualChassis(master=devices[0], domain='domain-1'),
-            VirtualChassis(master=devices[3], domain='domain-2'),
-            VirtualChassis(master=devices[6], domain='domain-3'),
+            VirtualChassis(name='Virtual Chassis 1', master=devices[0], domain='domain-1'),
+            VirtualChassis(name='Virtual Chassis 2', master=devices[3], domain='domain-2'),
+            VirtualChassis(name='Virtual Chassis 3', master=devices[6], domain='domain-3'),
         )
         VirtualChassis.objects.bulk_create(virtual_chassis)
         Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis[0], vc_position=2)
@@ -2053,21 +2053,22 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
         Device.objects.filter(pk=devices[8].pk).update(virtual_chassis=virtual_chassis[2], vc_position=3)
 
         cls.update_data = {
-            'master': devices[1].pk,
+            'name': 'Virtual Chassis X',
             'domain': 'domain-x',
+            'master': devices[1].pk,
         }
 
         cls.create_data = [
             {
-                'master': devices[9].pk,
+                'name': 'Virtual Chassis 4',
                 'domain': 'domain-4',
             },
             {
-                'master': devices[10].pk,
+                'name': 'Virtual Chassis 5',
                 'domain': 'domain-5',
             },
             {
-                'master': devices[11].pk,
+                'name': 'Virtual Chassis 6',
                 'domain': 'domain-6',
             },
         ]

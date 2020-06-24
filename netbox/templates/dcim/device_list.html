@@ -17,9 +17,4 @@
             </ul>
         </div>
     {% endif %}
-    {% if perms.dcim.add_virtualchassis %}
-        <button type="submit" name="_edit" formaction="{% url 'dcim:virtualchassis_add' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-primary btn-sm">
-            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create Virtual Chassis
-        </button>
-    {% endif %}
 {% endblock %}

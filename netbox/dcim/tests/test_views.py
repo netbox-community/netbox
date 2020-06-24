@@ -1563,16 +1563,7 @@ class CableTestCase(
         }
 
 
-# TODO: Change base class to PrimaryObjectViewTestCase
-# Blocked by standard creation, bulk creation views for VirtualChassis (member devices must be selected in bulk)
-class VirtualChassisTestCase(
-    ViewTestCases.GetObjectViewTestCase,
-    ViewTestCases.EditObjectViewTestCase,
-    ViewTestCases.DeleteObjectViewTestCase,
-    ViewTestCases.ListObjectsViewTestCase,
-    ViewTestCases.BulkEditObjectsViewTestCase,
-    ViewTestCases.BulkDeleteObjectsViewTestCase
-):
+class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VirtualChassis
 
     @classmethod
@@ -1602,19 +1593,22 @@ class VirtualChassisTestCase(
         Device.objects.bulk_create(devices)
 
         # Create three VirtualChassis with two members each
-        vc1 = VirtualChassis.objects.create(master=devices[0], domain='domain-1')
+        vc1 = VirtualChassis.objects.create(name='VC1', master=devices[0], domain='domain-1')
+        Device.objects.filter(pk=devices[0].pk).update(virtual_chassis=vc1, vc_position=1)
         Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=vc1, vc_position=2)
         Device.objects.filter(pk=devices[2].pk).update(virtual_chassis=vc1, vc_position=3)
-        vc2 = VirtualChassis.objects.create(master=devices[3], domain='domain-2')
+        vc2 = VirtualChassis.objects.create(name='VC2', master=devices[3], domain='domain-2')
+        Device.objects.filter(pk=devices[3].pk).update(virtual_chassis=vc2, vc_position=1)
         Device.objects.filter(pk=devices[4].pk).update(virtual_chassis=vc2, vc_position=2)
         Device.objects.filter(pk=devices[5].pk).update(virtual_chassis=vc2, vc_position=3)
-        vc3 = VirtualChassis.objects.create(master=devices[6], domain='domain-3')
+        vc3 = VirtualChassis.objects.create(name='VC3', master=devices[6], domain='domain-3')
+        Device.objects.filter(pk=devices[6].pk).update(virtual_chassis=vc3, vc_position=1)
         Device.objects.filter(pk=devices[7].pk).update(virtual_chassis=vc3, vc_position=2)
         Device.objects.filter(pk=devices[8].pk).update(virtual_chassis=vc3, vc_position=3)
 
         cls.form_data = {
-            'master': devices[1].pk,
-            'domain': 'domain-x',
+            'name': 'VC4',
+            'domain': 'domain-4',
             # Management form data for VC members
             'form-TOTAL_FORMS': 0,
             'form-INITIAL_FORMS': 3,

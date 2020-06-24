@@ -144,6 +144,11 @@
                             <a href="{% url 'dcim:platform_list' %}">Platforms</a>
                         </li>
                         <li{% if not perms.dcim.view_virtualchassis %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_virtualchassis %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:virtualchassis_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
+                                </div>
+                            {% endif %}
                             <a href="{% url 'dcim:virtualchassis_list' %}">Virtual Chassis</a>
                         </li>
                         <li class="divider"></li>
