@@ -522,11 +522,33 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
 #
 
 class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModelForm):
-    # TODO: Restore ability to select assigned object when editing IPAddress
-    # interface = forms.ModelChoiceField(
-    #     queryset=Interface.objects.all(),
-    #     required=False
-    # )
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        widget=APISelect(
+            filter_for={
+                'interface': 'device_id'
+            }
+        )
+    )
+    interface = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False
+    )
+    virtual_machine = DynamicModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        widget=APISelect(
+            filter_for={
+                'vminterface': 'virtual_machine_id'
+            }
+        )
+    )
+    vminterface = DynamicModelChoiceField(
+        queryset=VMInterface.objects.all(),
+        required=False,
+        label='Interface'
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -611,67 +633,68 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         # Initialize helper selectors
         instance = kwargs.get('instance')
         initial = kwargs.get('initial', {}).copy()
-        if instance and instance.nat_inside and instance.nat_inside.device is not None:
-            initial['nat_site'] = instance.nat_inside.device.site
-            initial['nat_rack'] = instance.nat_inside.device.rack
-            initial['nat_device'] = instance.nat_inside.device
+        if instance:
+            if type(instance.assigned_object) is Interface:
+                initial['device'] = instance.assigned_object.device
+                initial['interface'] = instance.assigned_object
+            elif type(instance.assigned_object) is VMInterface:
+                initial['virtual_machine'] = instance.assigned_object.virtual_machine
+                initial['vminterface'] = instance.assigned_object
+            if instance.nat_inside and instance.nat_inside.device is not None:
+                initial['nat_site'] = instance.nat_inside.device.site
+                initial['nat_rack'] = instance.nat_inside.device.rack
+                initial['nat_device'] = instance.nat_inside.device
         kwargs['initial'] = initial
 
         super().__init__(*args, **kwargs)
 
         self.fields['vrf'].empty_label = 'Global'
 
-        # # Limit interface selections to those belonging to the parent device/VM
-        # if self.instance and self.instance.interface:
-        #     self.fields['interface'].queryset = Interface.objects.filter(
-        #         device=self.instance.interface.device, virtual_machine=self.instance.interface.virtual_machine
-        #     ).prefetch_related(
-        #         'device__primary_ip4',
-        #         'device__primary_ip6',
-        #         'virtual_machine__primary_ip4',
-        #         'virtual_machine__primary_ip6',
-        #     )  # We prefetch the primary address fields to ensure cache invalidation does not balk on the save()
-        # else:
-        #     self.fields['interface'].choices = []
-        #
-        # # Initialize primary_for_parent if IP address is already assigned
-        # if self.instance.pk and self.instance.interface is not None:
-        #     parent = self.instance.interface.parent
-        #     if (
-        #         self.instance.address.version == 4 and parent.primary_ip4_id == self.instance.pk or
-        #         self.instance.address.version == 6 and parent.primary_ip6_id == self.instance.pk
-        #     ):
-        #         self.initial['primary_for_parent'] = True
+        # Initialize primary_for_parent if IP address is already assigned
+        if self.instance.pk and self.instance.assigned_object:
+            parent = self.instance.assigned_object.parent
+            if (
+                self.instance.address.version == 4 and parent.primary_ip4_id == self.instance.pk or
+                self.instance.address.version == 6 and parent.primary_ip6_id == self.instance.pk
+            ):
+                self.initial['primary_for_parent'] = True
 
     def clean(self):
         super().clean()
 
+        # Cannot select both a device interface and a VM interface
+        if self.cleaned_data.get('interface') and self.cleaned_data.get('vminterface'):
+            raise forms.ValidationError("Cannot select both a device interface and a virtual machine interface")
+
         # Primary IP assignment is only available if an interface has been assigned.
-        if self.cleaned_data.get('primary_for_parent') and not self.cleaned_data.get('interface'):
+        interface = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')
+        if self.cleaned_data.get('primary_for_parent') and not interface:
             self.add_error(
                 'primary_for_parent', "Only IP addresses assigned to an interface can be designated as primary IPs."
             )
 
     def save(self, *args, **kwargs):
 
+        # Set assigned object
+        interface = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')
+        if interface:
+            self.instance.assigned_object = interface
+
         ipaddress = super().save(*args, **kwargs)
 
         # Assign/clear this IPAddress as the primary for the associated Device/VirtualMachine.
-        if self.cleaned_data['primary_for_parent']:
-            parent = self.cleaned_data['interface'].parent
+        if interface and self.cleaned_data['primary_for_parent']:
             if ipaddress.address.version == 4:
-                parent.primary_ip4 = ipaddress
+                interface.parent.primary_ip4 = ipaddress
             else:
-                parent.primary_ip6 = ipaddress
-            parent.save()
-        # elif self.cleaned_data['interface']:
-        #     parent = self.cleaned_data['interface'].parent
-        #     if ipaddress.address.version == 4 and parent.primary_ip4 == ipaddress:
-        #         parent.primary_ip4 = None
-        #         parent.save()
-        #     elif ipaddress.address.version == 6 and parent.primary_ip6 == ipaddress:
-        #         parent.primary_ip6 = None
-        #         parent.save()
+                interface.primary_ip6 = ipaddress
+            interface.parent.save()
+        elif interface and ipaddress.address.version == 4 and interface.parent.primary_ip4 == ipaddress:
+            interface.parent.primary_ip4 = None
+            interface.parent.save()
+        elif interface and ipaddress.address.version == 6 and interface.parent.primary_ip6 == ipaddress:
+            interface.parent.primary_ip4 = None
+            interface.parent.save()
 
         return ipaddress
 

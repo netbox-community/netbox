@@ -15,7 +15,7 @@ from extras.utils import extras_features
 from utilities.models import ChangeLoggedModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import serialize_object
-from virtualization.models import VirtualMachine
+from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .constants import *
 from .fields import IPNetworkField, IPAddressField
@@ -717,32 +717,31 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
                         )
                     })
 
-        if self.pk:
-
-            # Check for primary IP assignment that doesn't match the assigned device/VM
+        # Check for primary IP assignment that doesn't match the assigned device/VM
+        if self.pk and type(self.assigned_object) is Interface:
             device = Device.objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
             if device:
-                if self.interface is None:
+                if self.assigned_object is None:
                     raise ValidationError({
-                        'interface': "IP address is primary for device {} but not assigned".format(device)
+                        'interface': f"IP address is primary for device {device} but not assigned to an interface"
                     })
-                elif (device.primary_ip4 == self or device.primary_ip6 == self) and self.interface.device != device:
+                elif self.assigned_object.device != device:
                     raise ValidationError({
-                        'interface': "IP address is primary for device {} but assigned to {} ({})".format(
-                            device, self.interface.device, self.interface
-                        )
+                        'interface': f"IP address is primary for device {device} but assigned to "
+                                     f"{self.assigned_object.device} ({self.assigned_object})"
                     })
+        elif self.pk and type(self.assigned_object) is VMInterface:
             vm = VirtualMachine.objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
             if vm:
-                if self.interface is None:
+                if self.assigned_object is None:
                     raise ValidationError({
-                        'interface': "IP address is primary for virtual machine {} but not assigned".format(vm)
+                        'vminterface': f"IP address is primary for virtual machine {vm} but not assigned to an "
+                                       f"interface"
                     })
-                elif (vm.primary_ip4 == self or vm.primary_ip6 == self) and self.interface.virtual_machine != vm:
+                elif self.interface.virtual_machine != vm:
                     raise ValidationError({
-                        'interface': "IP address is primary for virtual machine {} but assigned to {} ({})".format(
-                            vm, self.interface.virtual_machine, self.interface
-                        )
+                        'vminterface': f"IP address is primary for virtual machine {vm} but assigned to "
+                                       f"{self.assigned_object.virtual_machine} ({self.assigned_object})"
                     })
 
     def save(self, *args, **kwargs):
