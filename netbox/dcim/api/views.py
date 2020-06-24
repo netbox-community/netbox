@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from django.conf import settings
 from django.db.models import Count, F
-from django.http import HttpResponseForbidden, HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.openapi import Parameter
@@ -14,20 +14,17 @@ from rest_framework.viewsets import GenericViewSet, ViewSet
 
 from circuits.models import Circuit
 from dcim import filters
-from dcim.models import (
-    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    Manufacturer, InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
-    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
-    VirtualChassis,
-)
+from dcim.models import (Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
+                         DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface,
+                         InterfaceTemplate, InventoryItem, Manufacturer, Platform, PowerFeed, PowerOutlet,
+                         PowerOutletTemplate, PowerPanel, PowerPort, PowerPortTemplate, Rack, RackGroup,
+                         RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis)
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
 from extras.models import Graph
 from ipam.models import Prefix, VLAN
-from utilities.api import (
-    get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, ModelViewSet, ServiceUnavailable,
-)
+from utilities.api import (IsAuthenticatedOrLoginNotRequired, ModelViewSet, ServiceUnavailable,
+                           get_serializer_for_model)
 from utilities.utils import get_subquery
 from virtualization.models import VirtualMachine
 from . import serializers
@@ -52,14 +49,20 @@ class CableTraceMixin(object):
 
             # Serialize each object
             serializer_a = get_serializer_for_model(near_end, prefix='Nested')
-            x = serializer_a(near_end, context={'request': request}).data
+            x = serializer_a(near_end, context={
+                'request': request
+            }).data
             if cable is not None:
-                y = serializers.TracedCableSerializer(cable, context={'request': request}).data
+                y = serializers.TracedCableSerializer(cable, context={
+                    'request': request
+                }).data
             else:
                 y = None
             if far_end is not None:
                 serializer_b = get_serializer_for_model(far_end, prefix='Nested')
-                z = serializer_b(far_end, context={'request': request}).data
+                z = serializer_b(far_end, context={
+                    'request': request
+                }).data
             else:
                 z = None
 
@@ -105,7 +108,9 @@ class SiteViewSet(CustomFieldModelViewSet):
         """
         site = get_object_or_404(Site, pk=pk)
         queryset = Graph.objects.filter(type__model='site')
-        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': site})
+        serializer = RenderedGraphSerializer(queryset, many=True, context={
+            'graphed_object': site
+        })
         return Response(serializer.data)
 
 
@@ -148,7 +153,9 @@ class RackViewSet(CustomFieldModelViewSet):
     filterset_class = filters.RackFilterSet
 
     @swagger_auto_schema(
-        responses={200: serializers.RackUnitSerializer(many=True)},
+        responses={
+            200: serializers.RackUnitSerializer(many=True)
+        },
         query_serializer=serializers.RackElevationDetailFilterSerializer
     )
     @action(detail=True)
@@ -189,7 +196,9 @@ class RackViewSet(CustomFieldModelViewSet):
 
             page = self.paginate_queryset(elevation)
             if page is not None:
-                rack_units = serializers.RackUnitSerializer(page, many=True, context={'request': request})
+                rack_units = serializers.RackUnitSerializer(page, many=True, context={
+                    'request': request
+                })
                 return self.get_paginated_response(rack_units.data)
 
 
@@ -290,10 +299,11 @@ class DeviceBayTemplateViewSet(ModelViewSet):
 #
 
 class DeviceRoleViewSet(ModelViewSet):
-    queryset = DeviceRole.objects.annotate(
-        device_count=get_subquery(Device, 'device_role'),
-        virtualmachine_count=get_subquery(VirtualMachine, 'role')
-    )
+    queryset = DeviceRole.objects.all()
+    #     annotate(
+    #     device_count=Count('devices'),
+    #     virtualmachine_count=Count('virtual_machines')
+    # )
     serializer_class = serializers.DeviceRoleSerializer
     filterset_class = filters.DeviceRoleFilterSet
 
@@ -349,7 +359,9 @@ class DeviceViewSet(CustomFieldModelViewSet):
         """
         device = get_object_or_404(Device, pk=pk)
         queryset = Graph.objects.filter(type__model='device')
-        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': device})
+        serializer = RenderedGraphSerializer(queryset, many=True, context={
+            'graphed_object': device
+        })
 
         return Response(serializer.data)
 
@@ -362,7 +374,9 @@ class DeviceViewSet(CustomFieldModelViewSet):
                 type=openapi.TYPE_STRING
             )
         ],
-        responses={'200': serializers.DeviceNAPALMSerializer}
+        responses={
+            '200': serializers.DeviceNAPALMSerializer
+        }
     )
     @action(detail=True, url_path='napalm')
     def napalm(self, request, pk):
@@ -436,17 +450,25 @@ class DeviceViewSet(CustomFieldModelViewSet):
         # Validate and execute each specified NAPALM method
         for method in napalm_methods:
             if not hasattr(driver, method):
-                response[method] = {'error': 'Unknown NAPALM method'}
+                response[method] = {
+                    'error': 'Unknown NAPALM method'
+                }
                 continue
             if not method.startswith('get_'):
-                response[method] = {'error': 'Only get_* NAPALM methods are supported'}
+                response[method] = {
+                    'error': 'Only get_* NAPALM methods are supported'
+                }
                 continue
             try:
                 response[method] = getattr(d, method)()
             except NotImplementedError:
-                response[method] = {'error': 'Method {} not implemented for NAPALM driver {}'.format(method, driver)}
+                response[method] = {
+                    'error': 'Method {} not implemented for NAPALM driver {}'.format(method, driver)
+                }
             except Exception as e:
-                response[method] = {'error': 'Method {} failed: {}'.format(method, e)}
+                response[method] = {
+                    'error': 'Method {} failed: {}'.format(method, e)
+                }
         d.close()
 
         return Response(response)
@@ -498,7 +520,9 @@ class InterfaceViewSet(CableTraceMixin, ModelViewSet):
         """
         interface = get_object_or_404(Interface, pk=pk)
         queryset = Graph.objects.filter(type__model='interface')
-        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': interface})
+        serializer = RenderedGraphSerializer(queryset, many=True, context={
+            'graphed_object': interface
+        })
         return Response(serializer.data)
 
 
@@ -644,7 +668,9 @@ class ConnectedDeviceViewSet(ViewSet):
 
     @swagger_auto_schema(
         manual_parameters=[_device_param, _interface_param],
-        responses={'200': serializers.DeviceSerializer}
+        responses={
+            '200': serializers.DeviceSerializer
+        }
     )
     def list(self, request):
 
@@ -661,4 +687,6 @@ class ConnectedDeviceViewSet(ViewSet):
         if local_interface is None:
             return Response()
 
-        return Response(serializers.DeviceSerializer(local_interface.device, context={'request': request}).data)
+        return Response(serializers.DeviceSerializer(local_interface.device, context={
+            'request': request
+        }).data)
