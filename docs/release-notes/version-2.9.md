@@ -10,6 +10,7 @@ NetBox v2.9 replaces Django's built-in permissions framework with one that suppo
 
 ### Enhancements
 
+* [#2018](https://github.com/netbox-community/netbox/issues/2018) - Add `name` field to virtual chassis model
 * [#3703](https://github.com/netbox-community/netbox/issues/3703) - Tags must be created administratively before being assigned to an object
 * [#4615](https://github.com/netbox-community/netbox/issues/4615) - Add `label` field for all device components
 * [#4742](https://github.com/netbox-community/netbox/issues/4742) - Add tagging for cables, power panels, and rack reservations
@@ -35,6 +36,7 @@ NetBox v2.9 replaces Django's built-in permissions framework with one that suppo
 * A `label` field has been added to all device components and component templates.
 * The IP address model now uses a generic foreign key to refer to the assigned interface. The `interface` field on the serializer has been replaced with `assigned_object_type` and `assigned_object_id` for write operations. If one exists, the assigned interface is available as `assigned_object`.
 * The serialized representation of a virtual machine interface now includes only relevant fields: `type`, `lag`, `mgmt_only`, `connected_endpoint_type`, `connected_endpoint`, and `cable` are no longer included.
+* dcim.VirtualChassis: Added a mandatory `name` field
 
 ### Other Changes
 
@@ -43,3 +45,5 @@ NetBox v2.9 replaces Django's built-in permissions framework with one that suppo
 * The `users.delete_token` permission is no longer enforced. All users are permitted to delete their own API tokens.
 * Dropped backward compatibility for the `webhooks` Redis queue configuration (use `tasks` instead).
 * Dropped backward compatibility for the `/admin/webhook-backend-status` URL (moved to `/admin/background-tasks/`).
+* Virtual chassis are now created by navigating to `/dcim/virtual-chassis/add` rather than via the devices list.
+* A name is required when creating a virtual chassis.
