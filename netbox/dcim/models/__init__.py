@@ -1223,23 +1223,6 @@ class DeviceRole(ChangeLoggedModel):
             self.description,
         )
 
-    @property
-    def device_count(self):
-        device_count_map = dict(Device.objects
-                                .order_by('device_role')
-                                .values_list('device_role')
-                                .annotate(Count('pk')))
-        return device_count_map.get(self.pk)
-
-    @property
-    def virtualmachine_count(self):
-        from virtualization.models import VirtualMachine
-        virtualmachine_count_map = dict(VirtualMachine.objects
-                                        .order_by('role')
-                                        .values_list('role')
-                                        .annotate(Count('pk')))
-        return virtualmachine_count_map.get(self.pk)
-
 
 class Platform(ChangeLoggedModel):
     """
