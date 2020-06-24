@@ -289,7 +289,7 @@ class VirtualMachineBulkDeleteView(BulkDeleteView):
 # VM interfaces
 #
 
-class InterfaceListView(ObjectListView):
+class VMInterfaceListView(ObjectListView):
     queryset = VMInterface.objects.prefetch_related('virtual_machine')
     filterset = filters.VMInterfaceFilterSet
     filterset_form = forms.VMInterfaceFilterForm
@@ -297,7 +297,7 @@ class InterfaceListView(ObjectListView):
     action_buttons = ('export',)
 
 
-class InterfaceView(ObjectView):
+class VMInterfaceView(ObjectView):
     queryset = VMInterface.objects.all()
 
     def get(self, request, pk):
@@ -332,42 +332,42 @@ class InterfaceView(ObjectView):
 
 
 # TODO: This should not use ComponentCreateView
-class InterfaceCreateView(ComponentCreateView):
+class VMInterfaceCreateView(ComponentCreateView):
     queryset = VMInterface.objects.all()
     form = forms.VMInterfaceCreateForm
     model_form = forms.VMInterfaceForm
     template_name = 'virtualization/virtualmachine_component_add.html'
 
 
-class InterfaceEditView(ObjectEditView):
+class VMInterfaceEditView(ObjectEditView):
     queryset = VMInterface.objects.all()
     model_form = forms.VMInterfaceForm
     template_name = 'virtualization/vminterface_edit.html'
 
 
-class InterfaceDeleteView(ObjectDeleteView):
+class VMInterfaceDeleteView(ObjectDeleteView):
     queryset = VMInterface.objects.all()
 
 
-class InterfaceBulkImportView(BulkImportView):
+class VMInterfaceBulkImportView(BulkImportView):
     queryset = VMInterface.objects.all()
     model_form = forms.VMInterfaceCSVForm
     table = tables.VMInterfaceTable
     default_return_url = 'virtualization:vminterface_list'
 
 
-class InterfaceBulkEditView(BulkEditView):
+class VMInterfaceBulkEditView(BulkEditView):
     queryset = VMInterface.objects.all()
     table = tables.VMInterfaceTable
     form = forms.VMInterfaceBulkEditForm
 
 
-class InterfaceBulkRenameView(BulkRenameView):
+class VMInterfaceBulkRenameView(BulkRenameView):
     queryset = VMInterface.objects.all()
     form = forms.VMInterfaceBulkRenameForm
 
 
-class InterfaceBulkDeleteView(BulkDeleteView):
+class VMInterfaceBulkDeleteView(BulkDeleteView):
     queryset = VMInterface.objects.all()
     table = tables.VMInterfaceTable
 

@@ -71,7 +71,7 @@ class VirtualMachineViewSet(CustomFieldModelViewSet):
         return serializers.VirtualMachineWithConfigContextSerializer
 
 
-class InterfaceViewSet(ModelViewSet):
+class VMInterfaceViewSet(ModelViewSet):
     queryset = VMInterface.objects.filter(
         virtual_machine__isnull=False
     ).prefetch_related(
