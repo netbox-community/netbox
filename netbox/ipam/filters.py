@@ -11,7 +11,7 @@ from utilities.filters import (
     BaseFilterSet, MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, TagFilter,
     TreeNodeMultipleChoiceFilter,
 )
-from virtualization.models import VirtualMachine
+from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
@@ -319,17 +319,28 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
         field_name='pk',
         label='Virtual machine (ID)',
     )
-    # TODO: Restore filtering by assigned interface
-    # interface = django_filters.ModelMultipleChoiceFilter(
-    #     field_name='interface__name',
-    #     queryset=Interface.objects.unrestricted(),
-    #     to_field_name='name',
-    #     label='Interface (ID)',
-    # )
-    # interface_id = django_filters.ModelMultipleChoiceFilter(
-    #     queryset=Interface.objects.unrestricted(),
-    #     label='Interface (ID)',
-    # )
+    interface = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface__name',
+        queryset=Interface.objects.unrestricted(),
+        to_field_name='name',
+        label='Interface (name)',
+    )
+    interface_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface',
+        queryset=Interface.objects.unrestricted(),
+        label='Interface (ID)',
+    )
+    vminterface = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface__name',
+        queryset=VMInterface.objects.unrestricted(),
+        to_field_name='name',
+        label='VM interface (name)',
+    )
+    vminterface_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface',
+        queryset=VMInterface.objects.unrestricted(),
+        label='VM interface (ID)',
+    )
     assigned_to_interface = django_filters.BooleanFilter(
         method='_assigned_to_interface',
         label='Is assigned to an interface',
@@ -397,7 +408,7 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
         for vm in virtual_machines:
             interface_ids.extend(vm.interfaces.values_list('id', flat=True))
         return queryset.filter(
-            vm_interface__in=interface_ids
+            vminterface__in=interface_ids
         )
 
     def _assigned_to_interface(self, queryset, name, value):
