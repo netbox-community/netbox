@@ -28,25 +28,30 @@
             {% render_field form.tenant %}
         </div>
     </div>
-    {% if obj.interface %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Interface Assignment</strong>
-            </div>
-            <div class="panel-body">
-                <div class="form-group">
-                    <label class="col-md-3 control-label">{{ obj.interface.parent|meta:"verbose_name"|bettertitle }}</label>
-                    <div class="col-md-9">
-                        <p class="form-control-static">
-                            <a href="{{ obj.interface.parent.get_absolute_url }}">{{ obj.interface.parent }}</a>
-                        </p>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Interface Assignment</strong>
+        </div>
+        <div class="panel-body">
+            {% with vm_tab_active=obj.vminterface.exists %}
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation"{% if not vm_tab_active %} class="active"{% endif %}><a href="#device" role="tab" data-toggle="tab">Device</a></li>
+                    <li role="presentation"{% if vm_tab_active %} class="active"{% endif %}><a href="#virtualmachine" role="tab" data-toggle="tab">Virtual Machine</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane{% if not vm_tab_active %} active{% endif %}" id="device">
+                        {% render_field form.device %}
+                        {% render_field form.interface %}
+                    </div>
+                    <div class="tab-pane{% if vm_tab_active %} active{% endif %}" id="virtualmachine">
+                        {% render_field form.virtual_machine %}
+                        {% render_field form.vminterface %}
                     </div>
                 </div>
-                {% render_field form.interface %}
-                {% render_field form.primary_for_parent %}
-            </div>
+            {% endwith %}
+            {% render_field form.primary_for_parent %}
         </div>
-    {% endif %}
+    </div>
     <div class="panel panel-default">
         <div class="panel-heading"><strong>NAT IP (Inside)</strong></div>
         <div class="panel-body">

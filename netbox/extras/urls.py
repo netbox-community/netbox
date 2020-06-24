@@ -9,6 +9,8 @@ urlpatterns = [
 
     # Tags
     path('tags/', views.TagListView.as_view(), name='tag_list'),
+    path('tags/add/', views.TagEditView.as_view(), name='tag_add'),
+    path('tags/import/', views.TagBulkImportView.as_view(), name='tag_import'),
     path('tags/edit/', views.TagBulkEditView.as_view(), name='tag_bulk_edit'),
     path('tags/delete/', views.TagBulkDeleteView.as_view(), name='tag_bulk_delete'),
     path('tags/<str:slug>/', views.TagView.as_view(), name='tag'),
@@ -18,7 +20,7 @@ urlpatterns = [
 
     # Config contexts
     path('config-contexts/', views.ConfigContextListView.as_view(), name='configcontext_list'),
-    path('config-contexts/add/', views.ConfigContextCreateView.as_view(), name='configcontext_add'),
+    path('config-contexts/add/', views.ConfigContextEditView.as_view(), name='configcontext_add'),
     path('config-contexts/edit/', views.ConfigContextBulkEditView.as_view(), name='configcontext_bulk_edit'),
     path('config-contexts/delete/', views.ConfigContextBulkDeleteView.as_view(), name='configcontext_bulk_delete'),
     path('config-contexts/<int:pk>/', views.ConfigContextView.as_view(), name='configcontext'),

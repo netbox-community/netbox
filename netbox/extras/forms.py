@@ -1,8 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.utils.safestring import mark_safe
 from mptt.forms import TreeNodeMultipleChoiceField
-from taggit.forms import TagField
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
@@ -152,14 +152,31 @@ class TagForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
+class TagCSVForm(CSVModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = Tag
+        fields = Tag.csv_headers
+        help_texts = {
+            'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
+        }
+
+
 class AddRemoveTagsForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Add add/remove tags fields
-        self.fields['add_tags'] = TagField(required=False)
-        self.fields['remove_tags'] = TagField(required=False)
+        self.fields['add_tags'] = DynamicModelMultipleChoiceField(
+            queryset=Tag.objects.all(),
+            required=False
+        )
+        self.fields['remove_tags'] = DynamicModelMultipleChoiceField(
+            queryset=Tag.objects.all(),
+            required=False
+        )
 
 
 class TagFilterForm(BootstrapMixin, forms.Form):
@@ -421,17 +438,8 @@ class ScriptForm(BootstrapMixin, forms.Form):
         help_text="Commit changes to the database (uncheck for a dry-run)"
     )
 
-    def __init__(self, vars, *args, commit_default=True, **kwargs):
-
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # Dynamically populate fields for variables
-        for name, var in vars.items():
-            self.fields[name] = var.as_field()
-
-        # Toggle default commit behavior based on Meta option
-        if not commit_default:
-            self.fields['_commit'].initial = False
 
         # Move _commit to the end of the form
         commit = self.fields.pop('_commit')

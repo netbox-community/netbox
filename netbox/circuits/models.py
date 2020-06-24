@@ -8,6 +8,7 @@ from dcim.fields import ASNField
 from dcim.models import CableTermination
 from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
+from utilities.querysets import RestrictedQuerySet
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
 from .choices import *
@@ -66,8 +67,9 @@ class Provider(ChangeLoggedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
         'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
@@ -114,6 +116,8 @@ class CircuitType(ChangeLoggedModel):
         max_length=200,
         blank=True,
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'description']
 
@@ -299,6 +303,8 @@ class CircuitTermination(CableTermination):
         max_length=200,
         blank=True
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['circuit', 'term_side']

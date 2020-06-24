@@ -1254,8 +1254,8 @@ class DeviceTestCase(TestCase):
 
         # Assign primary IPs for filtering
         ipaddresses = (
-            IPAddress(address='192.0.2.1/24', interface=interfaces[0]),
-            IPAddress(address='192.0.2.2/24', interface=interfaces[1]),
+            IPAddress(address='192.0.2.1/24', assigned_object=interfaces[0]),
+            IPAddress(address='192.0.2.2/24', assigned_object=interfaces[1]),
         )
         IPAddress.objects.bulk_create(ipaddresses)
         Device.objects.filter(pk=devices[0].pk).update(primary_ip4=ipaddresses[0])

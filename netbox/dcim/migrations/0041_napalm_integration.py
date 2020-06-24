@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='device',
-            options={'ordering': ['name'], 'permissions': (('napalm_read', 'Read-only access to devices via NAPALM'), ('napalm_write', 'Read/write access to devices via NAPALM'))},
+            options={'ordering': ['name']},
         ),
         migrations.AddField(
             model_name='platform',

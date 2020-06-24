@@ -16,9 +16,9 @@ from extras.models import ObjectChange, TaggedItem
 from extras.utils import extras_features
 from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
+from utilities.querysets import RestrictedQuerySet
 from utilities.query_functions import CollateAsChar
 from utilities.utils import serialize_object
-from virtualization.choices import VMInterfaceTypeChoices
 
 
 __all__ = (
@@ -41,22 +41,23 @@ class ComponentModel(models.Model):
         blank=True
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     class Meta:
         abstract = True
 
-    def to_objectchange(self, action):
-        # Annotate the parent Device/VM
-        try:
-            parent = getattr(self, 'device', None) or getattr(self, 'virtual_machine', None)
-        except ObjectDoesNotExist:
-            # The parent device/VM has already been deleted
-            parent = None
+    def __str__(self):
+        if self.label:
+            return f"{self.name} ({self.label})"
+        return self.name
 
+    def to_objectchange(self, action):
+        # Annotate the parent Device
         return ObjectChange(
             changed_object=self,
             object_repr=str(self),
             action=action,
-            related_object=parent,
+            related_object=self.device,
             object_data=serialize_object(self)
         )
 
@@ -231,6 +232,11 @@ class ConsolePort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     _name = NaturalOrderingField(
         target_field='name',
         max_length=100,
@@ -260,9 +266,6 @@ class ConsolePort(CableTermination, ComponentModel):
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
@@ -298,6 +301,11 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -315,9 +323,6 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
@@ -352,6 +357,11 @@ class PowerPort(CableTermination, ComponentModel):
         target_field='name',
         max_length=100,
         blank=True
+    )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
     )
     type = models.CharField(
         max_length=50,
@@ -396,9 +406,6 @@ class PowerPort(CableTermination, ComponentModel):
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
@@ -516,6 +523,11 @@ class PowerOutlet(CableTermination, ComponentModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     type = models.CharField(
         max_length=50,
         choices=PowerOutletTypeChoices,
@@ -547,9 +559,6 @@ class PowerOutlet(CableTermination, ComponentModel):
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
 
-    def __str__(self):
-        return self.name
-
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
@@ -576,26 +585,7 @@ class PowerOutlet(CableTermination, ComponentModel):
 # Interfaces
 #
 
-@extras_features('graphs', 'export_templates', 'webhooks')
-class Interface(CableTermination, ComponentModel):
-    """
-    A network interface within a Device or VirtualMachine. A physical Interface can connect to exactly one other
-    Interface.
-    """
-    device = models.ForeignKey(
-        to='Device',
-        on_delete=models.CASCADE,
-        related_name='interfaces',
-        null=True,
-        blank=True
-    )
-    virtual_machine = models.ForeignKey(
-        to='virtualization.VirtualMachine',
-        on_delete=models.CASCADE,
-        related_name='interfaces',
-        null=True,
-        blank=True
-    )
+class BaseInterface(models.Model):
     name = models.CharField(
         max_length=64
     )
@@ -604,6 +594,47 @@ class Interface(CableTermination, ComponentModel):
         naturalize_function=naturalize_interface,
         max_length=100,
         blank=True
+    )
+    enabled = models.BooleanField(
+        default=True
+    )
+    mac_address = MACAddressField(
+        null=True,
+        blank=True,
+        verbose_name='MAC Address'
+    )
+    mtu = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1), MaxValueValidator(65536)],
+        verbose_name='MTU'
+    )
+    mode = models.CharField(
+        max_length=50,
+        choices=InterfaceModeChoices,
+        blank=True
+    )
+
+    class Meta:
+        abstract = True
+
+
+@extras_features('graphs', 'export_templates', 'webhooks')
+class Interface(CableTermination, ComponentModel, BaseInterface):
+    """
+    A network interface within a Device. A physical Interface can connect to exactly one other Interface.
+    """
+    device = models.ForeignKey(
+        to='Device',
+        on_delete=models.CASCADE,
+        related_name='interfaces',
+        null=True,
+        blank=True
+    )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
     )
     _connected_interface = models.OneToOneField(
         to='self',
@@ -635,29 +666,10 @@ class Interface(CableTermination, ComponentModel):
         max_length=50,
         choices=InterfaceTypeChoices
     )
-    enabled = models.BooleanField(
-        default=True
-    )
-    mac_address = MACAddressField(
-        null=True,
-        blank=True,
-        verbose_name='MAC Address'
-    )
-    mtu = models.PositiveIntegerField(
-        blank=True,
-        null=True,
-        validators=[MinValueValidator(1), MaxValueValidator(65536)],
-        verbose_name='MTU'
-    )
     mgmt_only = models.BooleanField(
         default=False,
         verbose_name='OOB Management',
         help_text='This interface is used only for out-of-band management'
-    )
-    mode = models.CharField(
-        max_length=50,
-        choices=InterfaceModeChoices,
-        blank=True
     )
     untagged_vlan = models.ForeignKey(
         to='ipam.VLAN',
@@ -673,20 +685,21 @@ class Interface(CableTermination, ComponentModel):
         blank=True,
         verbose_name='Tagged VLANs'
     )
+    ip_addresses = GenericRelation(
+        to='ipam.IPAddress',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+        related_query_name='interface'
+    )
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'device', 'virtual_machine', 'name', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only',
-        'description', 'mode',
+        'device', 'name', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only', 'description', 'mode',
     ]
 
     class Meta:
-        # TODO: ordering and unique_together should include virtual_machine
         ordering = ('device', CollateAsChar('_name'))
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:interface', kwargs={'pk': self.pk})
@@ -694,7 +707,6 @@ class Interface(CableTermination, ComponentModel):
     def to_csv(self):
         return (
             self.device.identifier if self.device else None,
-            self.virtual_machine.name if self.virtual_machine else None,
             self.name,
             self.lag.name if self.lag else None,
             self.get_type_display(),
@@ -707,18 +719,6 @@ class Interface(CableTermination, ComponentModel):
         )
 
     def clean(self):
-
-        # An Interface must belong to a Device *or* to a VirtualMachine
-        if self.device and self.virtual_machine:
-            raise ValidationError("An interface cannot belong to both a device and a virtual machine.")
-        if not self.device and not self.virtual_machine:
-            raise ValidationError("An interface must belong to either a device or a virtual machine.")
-
-        # VM interfaces must be virtual
-        if self.virtual_machine and self.type not in VMInterfaceTypeChoices.values():
-            raise ValidationError({
-                'type': "Invalid interface type for a virtual machine: {}".format(self.type)
-            })
 
         # Virtual interfaces cannot be connected
         if self.type in NONCONNECTABLE_IFACE_TYPES and (
@@ -755,7 +755,7 @@ class Interface(CableTermination, ComponentModel):
         if self.untagged_vlan and self.untagged_vlan.site not in [self.parent.site, None]:
             raise ValidationError({
                 'untagged_vlan': "The untagged VLAN ({}) must belong to the same site as the interface's parent "
-                                 "device/VM, or it must be global".format(self.untagged_vlan)
+                                 "device, or it must be global".format(self.untagged_vlan)
             })
 
     def save(self, *args, **kwargs):
@@ -769,21 +769,6 @@ class Interface(CableTermination, ComponentModel):
             self.tagged_vlans.clear()
 
         return super().save(*args, **kwargs)
-
-    def to_objectchange(self, action):
-        # Annotate the parent Device/VM
-        try:
-            parent_obj = self.device or self.virtual_machine
-        except ObjectDoesNotExist:
-            parent_obj = None
-
-        return ObjectChange(
-            changed_object=self,
-            object_repr=str(self),
-            action=action,
-            related_object=parent_obj,
-            object_data=serialize_object(self)
-        )
 
     @property
     def connected_endpoint(self):
@@ -823,7 +808,7 @@ class Interface(CableTermination, ComponentModel):
 
     @property
     def parent(self):
-        return self.device or self.virtual_machine
+        return self.device
 
     @property
     def is_connectable(self):
@@ -994,6 +979,11 @@ class DeviceBay(ComponentModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     installed_device = models.OneToOneField(
         to='dcim.Device',
         on_delete=models.SET_NULL,
@@ -1010,6 +1000,8 @@ class DeviceBay(ComponentModel):
         unique_together = ('device', 'name')
 
     def __str__(self):
+        if self.label:
+            return '{} - {} ({})'.format(self.device.name, self.name, self.label)
         return '{} - {}'.format(self.device.name, self.name)
 
     def get_absolute_url(self):

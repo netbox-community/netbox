@@ -23,8 +23,11 @@ from dcim.fields import ASNField
 from dcim.elevations import RackElevationSVG
 from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
+from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
+from utilities.querysets import RestrictedQuerySet
 from utilities.models import ChangeLoggedModel
+from utilities.mptt import TreeManager
 from utilities.utils import serialize_object, to_meters
 from utilities.validators import ExclusionValidator
 from .device_component_templates import (
@@ -32,11 +35,12 @@ from .device_component_templates import (
     PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
 from .device_components import (
-    CableTermination, ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, PowerOutlet,
-    PowerPort, RearPort,
+    BaseInterface, CableTermination, ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem,
+    PowerOutlet, PowerPort, RearPort,
 )
 
 __all__ = (
+    'BaseInterface',
     'Cable',
     'CableTermination',
     'ConsolePort',
@@ -101,6 +105,8 @@ class Region(MPTTModel, ChangeLoggedModel):
         max_length=200,
         blank=True
     )
+
+    objects = TreeManager()
 
     csv_headers = ['name', 'slug', 'parent', 'description']
 
@@ -243,6 +249,8 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
+    objects = RestrictedQuerySet.as_manager()
+
     csv_headers = [
         'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
         'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email', 'comments',
@@ -325,6 +333,8 @@ class RackGroup(MPTTModel, ChangeLoggedModel):
         blank=True
     )
 
+    objects = TreeManager()
+
     csv_headers = ['site', 'parent', 'name', 'slug', 'description']
 
     class Meta:
@@ -379,11 +389,15 @@ class RackRole(ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
-    color = ColorField()
+    color = ColorField(
+        default=ColorChoices.COLOR_GREY
+    )
     description = models.CharField(
         max_length=200,
         blank=True,
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'color', 'description']
 
@@ -522,6 +536,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         to='extras.ImageAttachment'
     )
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
         'site', 'group', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
@@ -680,7 +696,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         return [u for u in elevation.values()]
 
-    def get_available_units(self, u_height=1, rack_face=None, exclude=list()):
+    def get_available_units(self, u_height=1, rack_face=None, exclude=None):
         """
         Return a list of units within the rack available to accommodate a device of a given U height (default 1).
         Optionally exclude one or more devices when calculating empty units (needed when moving a device from one
@@ -690,9 +706,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         :param rack_face: The face of the rack (front or rear) required; 'None' if device is full depth
         :param exclude: List of devices IDs to exclude (useful when moving a device within a rack)
         """
-
         # Gather all devices which consume U space within the rack
-        devices = self.devices.prefetch_related('device_type').filter(position__gte=1).exclude(pk__in=exclude)
+        devices = self.devices.unrestricted().prefetch_related('device_type').filter(position__gte=1)
+        if exclude is not None:
+            devices = devices.exclude(pk__in=exclude)
 
         # Initialize the rack unit skeleton
         units = list(range(1, self.u_height + 1))
@@ -720,7 +737,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         Return a dictionary mapping all reserved units within the rack to their reservation.
         """
         reserved_units = {}
-        for r in self.reservations.all():
+        for r in self.reservations.unrestricted():
             for u in r.units:
                 reserved_units[u] = r
         return reserved_units
@@ -774,7 +791,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         """
         Determine the utilization rate of power in the rack and return it as a percentage.
         """
-        power_stats = PowerFeed.objects.filter(
+        power_stats = PowerFeed.objects.unrestricted().filter(
             rack=self
         ).annotate(
             allocated_draw_total=Sum('connected_endpoint__poweroutlets__connected_endpoint__allocated_draw'),
@@ -817,6 +834,9 @@ class RackReservation(ChangeLoggedModel):
     description = models.CharField(
         max_length=200
     )
+    tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['site', 'rack_group', 'rack', 'units', 'tenant', 'user', 'description']
 
@@ -896,6 +916,8 @@ class Manufacturer(ChangeLoggedModel):
         max_length=200,
         blank=True
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'description']
 
@@ -979,8 +1001,9 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     clone_fields = [
         'manufacturer', 'u_height', 'is_full_depth', 'subdevice_role',
@@ -1190,7 +1213,9 @@ class DeviceRole(ChangeLoggedModel):
     slug = models.SlugField(
         unique=True
     )
-    color = ColorField()
+    color = ColorField(
+        default=ColorChoices.COLOR_GREY
+    )
     vm_role = models.BooleanField(
         default=True,
         verbose_name='VM Role',
@@ -1200,6 +1225,8 @@ class DeviceRole(ChangeLoggedModel):
         max_length=200,
         blank=True,
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'color', 'vm_role', 'description']
 
@@ -1257,6 +1284,8 @@ class Platform(ChangeLoggedModel):
         max_length=200,
         blank=True
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description']
 
@@ -1424,6 +1453,8 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
+    objects = RestrictedQuerySet.as_manager()
+
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
         'site', 'rack_group', 'rack_name', 'position', 'face', 'comments',
@@ -1448,10 +1479,6 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
             ('site', 'tenant', 'name'),  # See validate_unique below
             ('rack', 'position', 'face'),
             ('virtual_chassis', 'vc_position'),
-        )
-        permissions = (
-            ('napalm_read', 'Read-only access to devices via NAPALM'),
-            ('napalm_write', 'Read/write access to devices via NAPALM'),
         )
 
     def __str__(self):
@@ -1736,8 +1763,9 @@ class VirtualChassis(ChangeLoggedModel):
         max_length=30,
         blank=True
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['master', 'domain']
 
@@ -1807,6 +1835,9 @@ class PowerPanel(ChangeLoggedModel):
     name = models.CharField(
         max_length=50
     )
+    tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['site', 'rack_group', 'name']
 
@@ -1911,8 +1942,9 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
         'site', 'power_panel', 'rack_group', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
@@ -2078,6 +2110,9 @@ class Cable(ChangeLoggedModel):
         blank=True,
         null=True
     )
+    tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
         'termination_a_type', 'termination_a_id', 'termination_b_type', 'termination_b_id', 'type', 'status', 'label',
@@ -2110,9 +2145,9 @@ class Cable(ChangeLoggedModel):
         """
         instance = super().from_db(db, field_names, values)
 
-        instance._orig_termination_a_type = instance.termination_a_type
+        instance._orig_termination_a_type_id = instance.termination_a_type_id
         instance._orig_termination_a_id = instance.termination_a_id
-        instance._orig_termination_b_type = instance.termination_b_type
+        instance._orig_termination_b_type_id = instance.termination_b_type_id
         instance._orig_termination_b_id = instance.termination_b_id
 
         return instance
@@ -2149,14 +2184,14 @@ class Cable(ChangeLoggedModel):
         if self.pk:
             err_msg = 'Cable termination points may not be modified. Delete and recreate the cable instead.'
             if (
-                self.termination_a_type != self._orig_termination_a_type or
+                self.termination_a_type_id != self._orig_termination_a_type_id or
                 self.termination_a_id != self._orig_termination_a_id
             ):
                 raise ValidationError({
                     'termination_a': err_msg
                 })
             if (
-                self.termination_b_type != self._orig_termination_b_type or
+                self.termination_b_type_id != self._orig_termination_b_type_id or
                 self.termination_b_id != self._orig_termination_b_id
             ):
                 raise ValidationError({
@@ -2182,23 +2217,29 @@ class Cable(ChangeLoggedModel):
 
         # Check that termination types are compatible
         if type_b not in COMPATIBLE_TERMINATION_TYPES.get(type_a):
-            raise ValidationError("Incompatible termination types: {} and {}".format(
-                self.termination_a_type, self.termination_b_type
-            ))
+            raise ValidationError(
+                f"Incompatible termination types: {self.termination_a_type} and {self.termination_b_type}"
+            )
 
-        # A RearPort with multiple positions must be connected to a component with an equal number of positions
-        if isinstance(self.termination_a, RearPort) and isinstance(self.termination_b, RearPort):
-            if self.termination_a.positions != self.termination_b.positions:
-                raise ValidationError(
-                    "{} has {} positions and {} has {}. Both terminations must have the same number of positions.".format(
-                        self.termination_a, self.termination_a.positions,
-                        self.termination_b, self.termination_b.positions
+        # A RearPort with multiple positions must be connected to a RearPort with an equal number of positions
+        for term_a, term_b in [
+            (self.termination_a, self.termination_b),
+            (self.termination_b, self.termination_a)
+        ]:
+            if isinstance(term_a, RearPort) and term_a.positions > 1:
+                if not isinstance(term_b, RearPort):
+                    raise ValidationError(
+                        "Rear ports with multiple positions may only be connected to other rear ports"
                     )
-                )
+                elif term_a.positions != term_b.positions:
+                    raise ValidationError(
+                        f"{term_a} has {term_a.positions} position(s) but {term_b} has {term_b.positions}. "
+                        f"Both terminations must have the same number of positions."
+                    )
 
         # A termination point cannot be connected to itself
         if self.termination_a == self.termination_b:
-            raise ValidationError("Cannot connect {} to itself".format(self.termination_a_type))
+            raise ValidationError(f"Cannot connect {self.termination_a_type} to itself")
 
         # A front port cannot be connected to its corresponding rear port
         if (

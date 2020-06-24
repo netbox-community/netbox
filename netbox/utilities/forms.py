@@ -7,6 +7,7 @@ import django_filters
 import yaml
 from django import forms
 from django.conf import settings
+from django.contrib.postgres.forms import SimpleArrayField
 from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Count
@@ -14,8 +15,7 @@ from django.forms import BoundField
 from django.forms.models import fields_for_model
 from django.urls import reverse
 
-from .choices import unpack_grouped_choices
-from .constants import *
+from .choices import ColorChoices, unpack_grouped_choices
 from .validators import EnhancedURLValidator
 
 NUMERIC_EXPANSION_PATTERN = r'\[((?:\d+[?:,-])+\d+)\]'
@@ -163,7 +163,7 @@ class ColorSelect(forms.Select):
     option_template_name = 'widgets/colorselect_option.html'
 
     def __init__(self, *args, **kwargs):
-        kwargs['choices'] = add_blank_choice(COLOR_CHOICES)
+        kwargs['choices'] = add_blank_choice(ColorChoices)
         super().__init__(*args, **kwargs)
         self.attrs['class'] = 'netbox-select2-color-picker'
 
@@ -244,24 +244,11 @@ class ContentTypeSelect(StaticSelect2):
     option_template_name = 'widgets/select_contenttype.html'
 
 
-class ArrayFieldSelectMultiple(SelectWithDisabled, forms.SelectMultiple):
-    """
-    MultiSelect widget for a SimpleArrayField. Choices must be populated on the widget.
-    """
-    def __init__(self, *args, **kwargs):
-        self.delimiter = kwargs.pop('delimiter', ',')
-        super().__init__(*args, **kwargs)
+class NumericArrayField(SimpleArrayField):
 
-    def optgroups(self, name, value, attrs=None):
-        # Split the delimited string of values into a list
-        if value:
-            value = value[0].split(self.delimiter)
-        return super().optgroups(name, value, attrs)
-
-    def value_from_datadict(self, data, files, name):
-        # Condense the list of selected choices into a delimited string
-        data = super().value_from_datadict(data, files, name)
-        return self.delimiter.join(data)
+    def to_python(self, value):
+        value = ','.join([str(n) for n in parse_numeric_range(value)])
+        return super().to_python(value)
 
 
 class APISelect(SelectWithDisabled):
@@ -531,6 +518,8 @@ class ExpandableNameField(forms.CharField):
                 """
 
     def to_python(self, value):
+        if value is None:
+            return list()
         if re.search(ALPHANUMERIC_EXPANSION_PATTERN, value):
             return list(expand_alphanumeric_pattern(value))
         return [value]
@@ -596,8 +585,12 @@ class TagFilterField(forms.MultipleChoiceField):
 
     def __init__(self, model, *args, **kwargs):
         def get_choices():
-            tags = model.tags.annotate(count=Count('extras_taggeditem_items')).order_by('name')
-            return [(str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags]
+            tags = model.tags.annotate(
+                count=Count('extras_taggeditem_items')
+            ).order_by('name')
+            return [
+                (str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags
+            ]
 
         # Choices are fetched each time the form is initialized
         super().__init__(label='Tags', choices=get_choices, required=False, *args, **kwargs)
@@ -607,15 +600,18 @@ class DynamicModelChoiceMixin:
     filter = django_filters.ModelChoiceFilter
     widget = APISelect
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def _get_initial_value(self, initial_data, field_name):
+        return initial_data.get(field_name)
 
     def get_bound_field(self, form, field_name):
         bound_field = BoundField(form, self, field_name)
 
+        # Override initial() to allow passing multiple values
+        bound_field.initial = self._get_initial_value(form.initial, field_name)
+
         # Modify the QuerySet of the field before we return it. Limit choices to any data already bound: Options
         # will be populated on-demand via the APISelect widget.
-        data = self.prepare_value(bound_field.data or bound_field.initial)
+        data = bound_field.value()
         if data:
             filter = self.filter(field_name=self.to_field_name or 'pk', queryset=self.queryset)
             self.queryset = filter.filter(self.queryset, data)
@@ -648,12 +644,17 @@ class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultip
     filter = django_filters.ModelMultipleChoiceFilter
     widget = APISelectMultiple
 
+    def _get_initial_value(self, initial_data, field_name):
+        # If a QueryDict has been passed as initial form data, get *all* listed values
+        if hasattr(initial_data, 'getlist'):
+            return initial_data.getlist(field_name)
+        return initial_data.get(field_name)
+
 
 class LaxURLField(forms.URLField):
     """
-    Modifies Django's built-in URLField in two ways:
-      1) Allow any valid scheme per RFC 3986 section 3.1
-      2) Remove the requirement for fully-qualified domain names (e.g. http://myserver/ is valid)
+    Modifies Django's built-in URLField to remove the requirement for fully-qualified domain names
+    (e.g. http://myserver/ is valid)
     """
     default_validators = [EnhancedURLValidator()]
 
@@ -732,6 +733,30 @@ class BulkEditForm(forms.Form):
             self.nullable_fields = self.Meta.nullable_fields
 
 
+class BulkRenameForm(forms.Form):
+    """
+    An extendable form to be used for renaming objects in bulk.
+    """
+    find = forms.CharField()
+    replace = forms.CharField()
+    use_regex = forms.BooleanField(
+        required=False,
+        initial=True,
+        label='Use regular expressions'
+    )
+
+    def clean(self):
+
+        # Validate regular expression in "find" field
+        if self.cleaned_data['use_regex']:
+            try:
+                re.compile(self.cleaned_data['find'])
+            except re.error:
+                raise forms.ValidationError({
+                    'find': "Invalid regular expression"
+                })
+
+
 class CSVModelForm(forms.ModelForm):
     """
     ModelForm used for the import of objects in CSV format.
@@ -792,6 +817,31 @@ class ImportForm(BootstrapMixin, forms.Form):
                 raise forms.ValidationError({
                     'data': "Invalid YAML data: {}".format(err)
                 })
+
+
+class LabeledComponentForm(BootstrapMixin, forms.Form):
+    """
+    Base form for adding label pattern validation to `Create` forms
+    """
+    name_pattern = ExpandableNameField(
+        label='Name'
+    )
+    label_pattern = ExpandableNameField(
+        label='Label',
+        required=False
+    )
+
+    def clean(self):
+
+        # Validate that the number of components being created from both the name_pattern and label_pattern are equal
+        name_pattern_count = len(self.cleaned_data['name_pattern'])
+        label_pattern_count = len(self.cleaned_data['label_pattern'])
+        if label_pattern_count and name_pattern_count != label_pattern_count:
+            raise forms.ValidationError({
+                'label_pattern': 'The provided name pattern will create {} components, however {} labels will '
+                'be generated. These counts must match.'.format(
+                    name_pattern_count, label_pattern_count)
+            }, code='label_pattern_mismatch')
 
 
 class TableConfigForm(BootstrapMixin, forms.Form):

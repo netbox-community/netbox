@@ -1,11 +1,11 @@
 from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
-from taggit.forms import TagField
 
 from dcim.models import Device, Interface, Rack, Region, Site
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
 )
+from extras.models import Tag
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -14,7 +14,7 @@ from utilities.forms import (
     ExpandableIPAddressField, ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
-from virtualization.models import VirtualMachine
+from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
@@ -33,7 +33,8 @@ IPADDRESS_MASK_LENGTH_CHOICES = add_blank_choice([
 #
 
 class VRFForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -141,7 +142,8 @@ class AggregateForm(BootstrapMixin, CustomFieldModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all()
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -292,7 +294,10 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=Role.objects.all(),
         required=False
     )
-    tags = TagField(required=False)
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Prefix
@@ -517,9 +522,32 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
 #
 
 class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModelForm):
-    interface = forms.ModelChoiceField(
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        widget=APISelect(
+            filter_for={
+                'interface': 'device_id'
+            }
+        )
+    )
+    interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False
+    )
+    virtual_machine = DynamicModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        widget=APISelect(
+            filter_for={
+                'vminterface': 'virtual_machine_id'
+            }
+        )
+    )
+    vminterface = DynamicModelChoiceField(
+        queryset=VMInterface.objects.all(),
+        required=False,
+        label='Interface'
     )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
@@ -584,15 +612,16 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         required=False,
         label='Make this the primary IP for the device/VM'
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'status', 'role', 'dns_name', 'description', 'interface', 'primary_for_parent',
-            'nat_site', 'nat_rack', 'nat_inside', 'tenant_group', 'tenant', 'tags',
+            'address', 'vrf', 'status', 'role', 'dns_name', 'description', 'primary_for_parent', 'nat_site', 'nat_rack',
+            'nat_inside', 'tenant_group', 'tenant', 'tags',
         ]
         widgets = {
             'status': StaticSelect2(),
@@ -604,27 +633,26 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         # Initialize helper selectors
         instance = kwargs.get('instance')
         initial = kwargs.get('initial', {}).copy()
-        if instance and instance.nat_inside and instance.nat_inside.device is not None:
-            initial['nat_site'] = instance.nat_inside.device.site
-            initial['nat_rack'] = instance.nat_inside.device.rack
-            initial['nat_device'] = instance.nat_inside.device
+        if instance:
+            if type(instance.assigned_object) is Interface:
+                initial['device'] = instance.assigned_object.device
+                initial['interface'] = instance.assigned_object
+            elif type(instance.assigned_object) is VMInterface:
+                initial['virtual_machine'] = instance.assigned_object.virtual_machine
+                initial['vminterface'] = instance.assigned_object
+            if instance.nat_inside and instance.nat_inside.device is not None:
+                initial['nat_site'] = instance.nat_inside.device.site
+                initial['nat_rack'] = instance.nat_inside.device.rack
+                initial['nat_device'] = instance.nat_inside.device
         kwargs['initial'] = initial
 
         super().__init__(*args, **kwargs)
 
         self.fields['vrf'].empty_label = 'Global'
 
-        # Limit interface selections to those belonging to the parent device/VM
-        if self.instance and self.instance.interface:
-            self.fields['interface'].queryset = Interface.objects.filter(
-                device=self.instance.interface.device, virtual_machine=self.instance.interface.virtual_machine
-            )
-        else:
-            self.fields['interface'].choices = []
-
         # Initialize primary_for_parent if IP address is already assigned
-        if self.instance.pk and self.instance.interface is not None:
-            parent = self.instance.interface.parent
+        if self.instance.pk and self.instance.assigned_object:
+            parent = self.instance.assigned_object.parent
             if (
                 self.instance.address.version == 4 and parent.primary_ip4_id == self.instance.pk or
                 self.instance.address.version == 6 and parent.primary_ip6_id == self.instance.pk
@@ -634,32 +662,39 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
     def clean(self):
         super().clean()
 
+        # Cannot select both a device interface and a VM interface
+        if self.cleaned_data.get('interface') and self.cleaned_data.get('vminterface'):
+            raise forms.ValidationError("Cannot select both a device interface and a virtual machine interface")
+
         # Primary IP assignment is only available if an interface has been assigned.
-        if self.cleaned_data.get('primary_for_parent') and not self.cleaned_data.get('interface'):
+        interface = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')
+        if self.cleaned_data.get('primary_for_parent') and not interface:
             self.add_error(
                 'primary_for_parent', "Only IP addresses assigned to an interface can be designated as primary IPs."
             )
 
     def save(self, *args, **kwargs):
 
+        # Set assigned object
+        interface = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')
+        if interface:
+            self.instance.assigned_object = interface
+
         ipaddress = super().save(*args, **kwargs)
 
         # Assign/clear this IPAddress as the primary for the associated Device/VirtualMachine.
-        if self.cleaned_data['primary_for_parent']:
-            parent = self.cleaned_data['interface'].parent
+        if interface and self.cleaned_data['primary_for_parent']:
             if ipaddress.address.version == 4:
-                parent.primary_ip4 = ipaddress
+                interface.parent.primary_ip4 = ipaddress
             else:
-                parent.primary_ip6 = ipaddress
-            parent.save()
-        elif self.cleaned_data['interface']:
-            parent = self.cleaned_data['interface'].parent
-            if ipaddress.address.version == 4 and parent.primary_ip4 == ipaddress:
-                parent.primary_ip4 = None
-                parent.save()
-            elif ipaddress.address.version == 6 and parent.primary_ip6 == ipaddress:
-                parent.primary_ip6 = None
-                parent.save()
+                interface.primary_ip6 = ipaddress
+            interface.parent.save()
+        elif interface and ipaddress.address.version == 4 and interface.parent.primary_ip4 == ipaddress:
+            interface.parent.primary_ip4 = None
+            interface.parent.save()
+        elif interface and ipaddress.address.version == 6 and interface.parent.primary_ip6 == ipaddress:
+            interface.parent.primary_ip4 = None
+            interface.parent.save()
 
         return ipaddress
 
@@ -676,11 +711,15 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         required=False,
         label='VRF'
     )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'status', 'role', 'dns_name', 'description', 'tenant_group', 'tenant',
+            'address', 'vrf', 'status', 'role', 'dns_name', 'description', 'tenant_group', 'tenant', 'tags',
         ]
         widgets = {
             'status': StaticSelect2(),
@@ -727,7 +766,7 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
         help_text='Parent VM of assigned interface (if any)'
     )
     interface = CSVModelChoiceField(
-        queryset=Interface.objects.all(),
+        queryset=Interface.objects.none(),  # Can also refer to VMInterface
         required=False,
         to_field_name='name',
         help_text='Assigned interface'
@@ -746,21 +785,17 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
 
         if data:
 
-            # Limit interface queryset by assigned device or virtual machine
+            # Limit interface queryset by assigned device
             if data.get('device'):
-                params = {
-                    f"device__{self.fields['device'].to_field_name}": data.get('device')
-                }
+                self.fields['interface'].queryset = Interface.objects.filter(
+                    **{f"device__{self.fields['device'].to_field_name}": data['device']}
+                )
+
+            # Limit interface queryset by assigned device
             elif data.get('virtual_machine'):
-                params = {
-                    f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data.get('virtual_machine')
-                }
-            else:
-                params = {
-                    'device': None,
-                    'virtual_machine': None,
-                }
-            self.fields['interface'].queryset = self.fields['interface'].queryset.filter(**params)
+                self.fields['interface'].queryset = VMInterface.objects.filter(
+                    **{f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data['virtual_machine']}
+                )
 
     def clean(self):
         super().clean()
@@ -775,17 +810,9 @@ class IPAddressCSVForm(CustomFieldModelCSVForm):
 
     def save(self, *args, **kwargs):
 
-        # Set interface
-        if self.cleaned_data['device'] and self.cleaned_data['interface_name']:
-            self.instance.interface = Interface.objects.get(
-                device=self.cleaned_data['device'],
-                name=self.cleaned_data['interface_name']
-            )
-        elif self.cleaned_data['virtual_machine'] and self.cleaned_data['interface_name']:
-            self.instance.interface = Interface.objects.get(
-                virtual_machine=self.cleaned_data['virtual_machine'],
-                name=self.cleaned_data['interface_name']
-            )
+        # Set interface assignment
+        if self.cleaned_data['interface']:
+            self.instance.assigned_object = self.cleaned_data['interface']
 
         ipaddress = super().save(*args, **kwargs)
 
@@ -997,7 +1024,10 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=Role.objects.all(),
         required=False
     )
-    tags = TagField(required=False)
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = VLAN
@@ -1164,7 +1194,8 @@ class ServiceForm(BootstrapMixin, CustomFieldModelForm):
         min_value=SERVICE_PORT_MIN,
         max_value=SERVICE_PORT_MAX
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -1187,13 +1218,12 @@ class ServiceForm(BootstrapMixin, CustomFieldModelForm):
 
         # Limit IP address choices to those assigned to interfaces of the parent device/VM
         if self.instance.device:
-            vc_interface_ids = [i['id'] for i in self.instance.device.vc_interfaces.values('id')]
             self.fields['ipaddresses'].queryset = IPAddress.objects.filter(
-                interface_id__in=vc_interface_ids
+                interface__in=self.instance.device.vc_interfaces.values_list('id', flat=True)
             )
         elif self.instance.virtual_machine:
             self.fields['ipaddresses'].queryset = IPAddress.objects.filter(
-                interface__virtual_machine=self.instance.virtual_machine
+                vminterface__in=self.instance.virtual_machine.interfaces.values_list('id', flat=True)
             )
         else:
             self.fields['ipaddresses'].choices = []

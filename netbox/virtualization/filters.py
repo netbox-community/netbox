@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Q
 
-from dcim.models import DeviceRole, Interface, Platform, Region, Site
+from dcim.models import DeviceRole, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet, LocalConfigContextFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
@@ -9,14 +9,14 @@ from utilities.filters import (
     TreeNodeMultipleChoiceFilter,
 )
 from .choices import *
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 __all__ = (
     'ClusterFilterSet',
     'ClusterGroupFilterSet',
     'ClusterTypeFilterSet',
-    'InterfaceFilterSet',
     'VirtualMachineFilterSet',
+    'VMInterfaceFilterSet',
 )
 
 
@@ -40,45 +40,45 @@ class ClusterFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Cr
         label='Search',
     )
     region_id = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
+        queryset=Region.objects.unrestricted(),
         field_name='site__region',
         lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
+        queryset=Region.objects.unrestricted(),
         field_name='site__region',
         lookup_expr='in',
         to_field_name='slug',
         label='Region (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Site.objects.all(),
+        queryset=Site.objects.unrestricted(),
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='site__slug',
-        queryset=Site.objects.all(),
+        queryset=Site.objects.unrestricted(),
         to_field_name='slug',
         label='Site (slug)',
     )
     group_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=ClusterGroup.objects.all(),
+        queryset=ClusterGroup.objects.unrestricted(),
         label='Parent group (ID)',
     )
     group = django_filters.ModelMultipleChoiceFilter(
         field_name='group__slug',
-        queryset=ClusterGroup.objects.all(),
+        queryset=ClusterGroup.objects.unrestricted(),
         to_field_name='slug',
         label='Parent group (slug)',
     )
     type_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=ClusterType.objects.all(),
+        queryset=ClusterType.objects.unrestricted(),
         label='Cluster type (ID)',
     )
     type = django_filters.ModelMultipleChoiceFilter(
         field_name='type__slug',
-        queryset=ClusterType.objects.all(),
+        queryset=ClusterType.objects.unrestricted(),
         to_field_name='slug',
         label='Cluster type (slug)',
     )
@@ -114,38 +114,38 @@ class VirtualMachineFilterSet(
     )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__group',
-        queryset=ClusterGroup.objects.all(),
+        queryset=ClusterGroup.objects.unrestricted(),
         label='Cluster group (ID)',
     )
     cluster_group = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__group__slug',
-        queryset=ClusterGroup.objects.all(),
+        queryset=ClusterGroup.objects.unrestricted(),
         to_field_name='slug',
         label='Cluster group (slug)',
     )
     cluster_type_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__type',
-        queryset=ClusterType.objects.all(),
+        queryset=ClusterType.objects.unrestricted(),
         label='Cluster type (ID)',
     )
     cluster_type = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__type__slug',
-        queryset=ClusterType.objects.all(),
+        queryset=ClusterType.objects.unrestricted(),
         to_field_name='slug',
         label='Cluster type (slug)',
     )
     cluster_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Cluster.objects.all(),
+        queryset=Cluster.objects.unrestricted(),
         label='Cluster (ID)',
     )
     region_id = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
+        queryset=Region.objects.unrestricted(),
         field_name='cluster__site__region',
         lookup_expr='in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
+        queryset=Region.objects.unrestricted(),
         field_name='cluster__site__region',
         lookup_expr='in',
         to_field_name='slug',
@@ -153,32 +153,32 @@ class VirtualMachineFilterSet(
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__site',
-        queryset=Site.objects.all(),
+        queryset=Site.objects.unrestricted(),
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__site__slug',
-        queryset=Site.objects.all(),
+        queryset=Site.objects.unrestricted(),
         to_field_name='slug',
         label='Site (slug)',
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=DeviceRole.objects.all(),
+        queryset=DeviceRole.objects.unrestricted(),
         label='Role (ID)',
     )
     role = django_filters.ModelMultipleChoiceFilter(
         field_name='role__slug',
-        queryset=DeviceRole.objects.all(),
+        queryset=DeviceRole.objects.unrestricted(),
         to_field_name='slug',
         label='Role (slug)',
     )
     platform_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Platform.objects.all(),
+        queryset=Platform.objects.unrestricted(),
         label='Platform (ID)',
     )
     platform = django_filters.ModelMultipleChoiceFilter(
         field_name='platform__slug',
-        queryset=Platform.objects.all(),
+        queryset=Platform.objects.unrestricted(),
         to_field_name='slug',
         label='Platform (slug)',
     )
@@ -201,19 +201,19 @@ class VirtualMachineFilterSet(
         )
 
 
-class InterfaceFilterSet(BaseFilterSet):
+class VMInterfaceFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
     )
     virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine',
-        queryset=VirtualMachine.objects.all(),
+        queryset=VirtualMachine.objects.unrestricted(),
         label='Virtual machine (ID)',
     )
     virtual_machine = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine__name',
-        queryset=VirtualMachine.objects.all(),
+        queryset=VirtualMachine.objects.unrestricted(),
         to_field_name='name',
         label='Virtual machine',
     )
@@ -222,7 +222,7 @@ class InterfaceFilterSet(BaseFilterSet):
     )
 
     class Meta:
-        model = Interface
+        model = VMInterface
         fields = ['id', 'name', 'enabled', 'mtu']
 
     def search(self, queryset, name, value):

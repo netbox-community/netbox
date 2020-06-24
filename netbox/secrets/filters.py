@@ -26,22 +26,22 @@ class SecretFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterS
         label='Search',
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=SecretRole.objects.all(),
+        queryset=SecretRole.objects.unrestricted(),
         label='Role (ID)',
     )
     role = django_filters.ModelMultipleChoiceFilter(
         field_name='role__slug',
-        queryset=SecretRole.objects.all(),
+        queryset=SecretRole.objects.unrestricted(),
         to_field_name='slug',
         label='Role (slug)',
     )
     device_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Device.objects.all(),
+        queryset=Device.objects.unrestricted(),
         label='Device (ID)',
     )
     device = django_filters.ModelMultipleChoiceFilter(
         field_name='device__name',
-        queryset=Device.objects.all(),
+        queryset=Device.objects.unrestricted(),
         to_field_name='name',
         label='Device (name)',
     )

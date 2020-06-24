@@ -9,7 +9,6 @@ from django.utils.safestring import mark_safe
 from mptt.forms import TreeNodeChoiceField
 from netaddr import EUI
 from netaddr.core import AddrFormatError
-from taggit.forms import TagField
 from timezone_field import TimeZoneFormField
 
 from circuits.models import Circuit, Provider
@@ -17,18 +16,19 @@ from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldFilterForm, CustomFieldModelForm,
     LocalConfigContextFilterForm,
 )
+from extras.models import Tag
 from ipam.constants import BGP_ASN_MAX, BGP_ASN_MIN
 from ipam.models import IPAddress, VLAN
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
-    APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
-    BulkEditNullBooleanSelect, ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField,
-    CSVModelForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model,
-    JSONField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
+    BulkRenameForm, ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField, CSVModelForm,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
+    NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
-from virtualization.models import Cluster, ClusterGroup, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup
 from .choices import *
 from .constants import *
 from .models import (
@@ -128,28 +128,26 @@ class InterfaceCommonForm:
                 })
 
 
-class BulkRenameForm(forms.Form):
-    """
-    An extendable form to be used for renaming device components in bulk.
-    """
-    find = forms.CharField()
-    replace = forms.CharField()
-    use_regex = forms.BooleanField(
-        required=False,
-        initial=True,
-        label='Use regular expressions'
+class LabeledComponentForm(BootstrapMixin, forms.Form):
+    name_pattern = ExpandableNameField(
+        label='Name'
+    )
+    label_pattern = ExpandableNameField(
+        label='Label',
+        required=False
     )
 
     def clean(self):
 
-        # Validate regular expression in "find" field
-        if self.cleaned_data['use_regex']:
-            try:
-                re.compile(self.cleaned_data['find'])
-            except re.error:
-                raise forms.ValidationError({
-                    'find': "Invalid regular expression"
-                })
+        # Validate that the number of components being created from both the name_pattern and label_pattern are equal
+        name_pattern_count = len(self.cleaned_data['name_pattern'])
+        label_pattern_count = len(self.cleaned_data['label_pattern'])
+        if label_pattern_count and name_pattern_count != label_pattern_count:
+            raise forms.ValidationError({
+                'label_pattern': 'The provided name pattern will create {} components, however {} labels will '
+                'be generated. These counts must match.'.format(
+                    name_pattern_count, label_pattern_count)
+            }, code='label_pattern_mismatch')
 
 
 #
@@ -226,7 +224,8 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     )
     slug = SlugField()
     comments = CommentField()
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -364,7 +363,12 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 
 class RackGroupForm(BootstrapMixin, forms.ModelForm):
     site = DynamicModelChoiceField(
-        queryset=Site.objects.all()
+        queryset=Site.objects.all(),
+        widget=APISelect(
+            filter_for={
+                'parent': 'site_id',
+            }
+        )
     )
     parent = DynamicModelChoiceField(
         queryset=RackGroup.objects.all(),
@@ -482,7 +486,8 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         required=False
     )
     comments = CommentField()
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -730,20 +735,31 @@ class RackElevationFilterForm(RackFilterForm):
 #
 
 class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
-    rack = forms.ModelChoiceField(
-        queryset=Rack.objects.all(),
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
         required=False,
-        widget=forms.HiddenInput()
-    )
-    # TODO: Change this to an API-backed form field. We can't do this currently because we want to retain
-    # the multi-line <select> widget for easy selection of multiple rack units.
-    units = SimpleArrayField(
-        base_field=forms.IntegerField(),
-        widget=ArrayFieldSelectMultiple(
-            attrs={
-                'size': 10,
+        widget=APISelect(
+            filter_for={
+                'rack_group': 'site_id',
+                'rack': 'site_id',
             }
         )
+    )
+    rack_group = DynamicModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        widget=APISelect(
+            filter_for={
+                'rack': 'group_id'
+            }
+        )
+    )
+    rack = DynamicModelChoiceField(
+        queryset=Rack.objects.all()
+    )
+    units = NumericArrayField(
+        base_field=forms.IntegerField(),
+        help_text="Comma-separated list of numeric unit IDs. A range may be specified using a hyphen."
     )
     user = forms.ModelChoiceField(
         queryset=User.objects.order_by(
@@ -751,29 +767,16 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
         ),
         widget=StaticSelect2()
     )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = RackReservation
         fields = [
-            'rack', 'units', 'user', 'tenant_group', 'tenant', 'description',
+            'rack', 'units', 'user', 'tenant_group', 'tenant', 'description', 'tags',
         ]
-
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-
-        # Populate rack unit choices
-        if hasattr(self.instance, 'rack'):
-            self.fields['units'].widget.choices = self._get_unit_choices()
-
-    def _get_unit_choices(self):
-        rack = self.instance.rack
-        reserved_units = []
-        for resv in rack.reservations.exclude(pk=self.instance.pk):
-            for u in resv.units:
-                reserved_units.append(u)
-        unit_choices = [(u, {'label': str(u), 'disabled': u in reserved_units}) for u in rack.units]
-        return unit_choices
 
 
 class RackReservationCSVForm(CSVModelForm):
@@ -826,7 +829,7 @@ class RackReservationCSVForm(CSVModelForm):
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
 
-class RackReservationBulkEditForm(BootstrapMixin, BulkEditForm):
+class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RackReservation.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -852,6 +855,7 @@ class RackReservationBulkEditForm(BootstrapMixin, BulkEditForm):
 
 
 class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
+    model = RackReservation
     field_order = ['q', 'site', 'group_id', 'tenant_group', 'tenant']
     q = forms.CharField(
         required=False,
@@ -873,6 +877,7 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -908,7 +913,8 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldModelForm):
         slug_source='model'
     )
     comments = CommentField()
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -933,6 +939,7 @@ class DeviceTypeImportForm(BootstrapMixin, forms.ModelForm):
         model = DeviceType
         fields = [
             'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'comments',
         ]
 
 
@@ -1027,25 +1034,40 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Device component templates
 #
 
+class ComponentTemplateCreateForm(LabeledComponentForm):
+    """
+    Base form for the creation of device component templates.
+    """
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        widget=APISelect(
+            filter_for={
+                'device_type': 'manufacturer_id'
+            }
+        )
+    )
+    device_type = DynamicModelChoiceField(
+        queryset=DeviceType.objects.all(),
+        widget=APISelect(
+            display_field='model'
+        )
+    )
+
+
 class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ConsolePortTemplate
         fields = [
-            'device_type', 'name', 'type',
+            'device_type', 'name', 'label', 'type',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
         }
 
 
-class ConsolePortTemplateCreateForm(BootstrapMixin, forms.Form):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class ConsolePortTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect2()
@@ -1072,20 +1094,14 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
-            'device_type', 'name', 'type',
+            'device_type', 'name', 'label', 'type',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
         }
 
 
-class ConsoleServerPortTemplateCreateForm(BootstrapMixin, forms.Form):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class ConsoleServerPortTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect2()
@@ -1112,20 +1128,14 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerPortTemplate
         fields = [
-            'device_type', 'name', 'type', 'maximum_draw', 'allocated_draw',
+            'device_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
         }
 
 
-class PowerPortTemplateCreateForm(BootstrapMixin, forms.Form):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class PowerPortTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerPortTypeChoices),
         required=False
@@ -1172,7 +1182,7 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'device_type', 'name', 'type', 'power_port', 'feed_leg',
+            'device_type', 'name', 'label', 'type', 'power_port', 'feed_leg',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1189,13 +1199,7 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
             )
 
 
-class PowerOutletTemplateCreateForm(BootstrapMixin, forms.Form):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class PowerOutletTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
         required=False
@@ -1227,10 +1231,20 @@ class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=PowerOutletTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    device_type = forms.ModelChoiceField(
+        queryset=DeviceType.objects.all(),
+        required=False,
+        disabled=True,
+        widget=forms.HiddenInput()
+    )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
         required=False,
         widget=StaticSelect2()
+    )
+    power_port = forms.ModelChoiceField(
+        queryset=PowerPortTemplate.objects.all(),
+        required=False
     )
     feed_leg = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletFeedLegChoices),
@@ -1239,7 +1253,18 @@ class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ('type', 'feed_leg')
+        nullable_fields = ('type', 'power_port', 'feed_leg')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit power_port queryset to PowerPortTemplates which belong to the parent DeviceType
+        if 'device_type' in self.initial:
+            device_type = DeviceType.objects.filter(pk=self.initial['device_type']).first()
+            self.fields['power_port'].queryset = PowerPortTemplate.objects.filter(device_type=device_type)
+        else:
+            self.fields['power_port'].choices = ()
+            self.fields['power_port'].widget.attrs['disabled'] = True
 
 
 class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1247,7 +1272,7 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'name', 'type', 'mgmt_only',
+            'device_type', 'name', 'label', 'type', 'mgmt_only',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1255,13 +1280,7 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class InterfaceTemplateCreateForm(BootstrapMixin, forms.Form):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class InterfaceTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=InterfaceTypeChoices,
         widget=StaticSelect2()
@@ -1315,13 +1334,7 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
             )
 
 
-class FrontPortTemplateCreateForm(BootstrapMixin, forms.Form):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class FrontPortTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=PortTypeChoices,
         widget=StaticSelect2()
@@ -1406,13 +1419,7 @@ class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class RearPortTemplateCreateForm(BootstrapMixin, forms.Form):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class RearPortTemplateCreateForm(ComponentTemplateCreateForm):
     type = forms.ChoiceField(
         choices=PortTypeChoices,
         widget=StaticSelect2(),
@@ -1445,20 +1452,15 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = DeviceBayTemplate
         fields = [
-            'device_type', 'name',
+            'device_type', 'name', 'label',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
         }
 
 
-class DeviceBayTemplateCreateForm(BootstrapMixin, forms.Form):
-    device_type = DynamicModelChoiceField(
-        queryset=DeviceType.objects.all()
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class DeviceBayTemplateCreateForm(ComponentTemplateCreateForm):
+    pass
 
 
 # TODO: DeviceBayTemplate has no fields suitable for bulk-editing yet
@@ -1504,7 +1506,7 @@ class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = ConsolePortTemplate
         fields = [
-            'device_type', 'name', 'type',
+            'device_type', 'name', 'label', 'type',
         ]
 
 
@@ -1513,7 +1515,7 @@ class ConsoleServerPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
-            'device_type', 'name', 'type',
+            'device_type', 'name', 'label', 'type',
         ]
 
 
@@ -1522,7 +1524,7 @@ class PowerPortTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = PowerPortTemplate
         fields = [
-            'device_type', 'name', 'type', 'maximum_draw', 'allocated_draw',
+            'device_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw',
         ]
 
 
@@ -1536,7 +1538,7 @@ class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'device_type', 'name', 'type', 'power_port', 'feed_leg',
+            'device_type', 'name', 'label', 'type', 'power_port', 'feed_leg',
         ]
 
 
@@ -1548,7 +1550,7 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'name', 'type', 'mgmt_only',
+            'device_type', 'name', 'label', 'type', 'mgmt_only',
         ]
 
 
@@ -1726,10 +1728,13 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         required=False
     )
     comments = CommentField()
-    tags = TagField(required=False)
     local_context_data = JSONField(
         required=False,
         label=''
+    )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
     )
 
     class Meta:
@@ -1787,18 +1792,20 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                 ip_choices = [(None, '---------')]
 
                 # Gather PKs of all interfaces belonging to this Device or a peer VirtualChassis member
-                interface_ids = self.instance.vc_interfaces.values('pk')
+                interface_ids = self.instance.vc_interfaces.values_list('pk', flat=True)
 
                 # Collect interface IPs
                 interface_ips = IPAddress.objects.prefetch_related('interface').filter(
-                    address__family=family, interface_id__in=interface_ids
+                    address__family=family,
+                    interface__in=interface_ids
                 )
                 if interface_ips:
                     ip_list = [(ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips]
                     ip_choices.append(('Interface IPs', ip_list))
                 # Collect NAT IPs
                 nat_ips = IPAddress.objects.prefetch_related('nat_inside').filter(
-                    address__family=family, nat_inside__interface__in=interface_ids
+                    address__family=family,
+                    nat_inside__interface__in=interface_ids
                 )
                 if nat_ips:
                     ip_list = [(ip.id, '{} ({})'.format(ip.address, ip.nat_inside.address)) for ip in nat_ips]
@@ -1957,7 +1964,7 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
         help_text='Parent device'
     )
     device_bay = CSVModelChoiceField(
-        queryset=Device.objects.all(),
+        queryset=DeviceBay.objects.all(),
         to_field_name='name',
         help_text='Device bay in which this device is installed'
     )
@@ -1976,6 +1983,20 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
             # Limit device bay queryset by parent device
             params = {f"device__{self.fields['parent'].to_field_name}": data.get('parent')}
             self.fields['device_bay'].queryset = self.fields['device_bay'].queryset.filter(**params)
+
+    def clean(self):
+        super().clean()
+
+        # Set parent_bay reverse relationship
+        device_bay = self.cleaned_data.get('device_bay')
+        if device_bay:
+            self.instance.parent_bay = device_bay
+
+        # Inherit site and rack from parent device
+        parent = self.cleaned_data.get('parent')
+        if parent:
+            self.instance.site = parent.site
+            self.instance.rack = parent.rack
 
 
 class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
@@ -2174,22 +2195,31 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
 
 
 #
-# Bulk device component creation
+# Device components
 #
 
-class DeviceBulkAddComponentForm(BootstrapMixin, forms.Form):
+class ComponentCreateForm(LabeledComponentForm):
+    """
+    Base form for the creation of device components.
+    """
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all()
+    )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+
+class DeviceBulkAddComponentForm(LabeledComponentForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
-    name_pattern = ExpandableNameField(
-        label='Name'
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
     )
-
-    def clean_tags(self):
-        # Because we're feeding TagField data (on the bulk edit form) to another TagField (on the model form), we
-        # must first convert the list of tags to a string.
-        return ','.join(self.cleaned_data.get('tags'))
 
 
 #
@@ -2208,27 +2238,22 @@ class ConsolePortFilterForm(DeviceComponentFilterForm):
 
 
 class ConsolePortForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
     class Meta:
         model = ConsolePort
         fields = [
-            'device', 'name', 'type', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
         }
 
 
-class ConsolePortCreateForm(BootstrapMixin, forms.Form):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class ConsolePortCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
@@ -2238,7 +2263,8 @@ class ConsolePortCreateForm(BootstrapMixin, forms.Form):
         max_length=100,
         required=False
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2294,7 +2320,8 @@ class ConsoleServerPortFilterForm(DeviceComponentFilterForm):
 
 
 class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2308,13 +2335,7 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsoleServerPortCreateForm(BootstrapMixin, forms.Form):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class ConsoleServerPortCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
@@ -2324,7 +2345,8 @@ class ConsoleServerPortCreateForm(BootstrapMixin, forms.Form):
         max_length=100,
         required=False
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2394,7 +2416,8 @@ class PowerPortFilterForm(DeviceComponentFilterForm):
 
 
 class PowerPortForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2408,13 +2431,7 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPortCreateForm(BootstrapMixin, forms.Form):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class PowerPortCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerPortTypeChoices),
         required=False,
@@ -2434,7 +2451,8 @@ class PowerPortCreateForm(BootstrapMixin, forms.Form):
         max_length=100,
         required=False
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2494,7 +2512,8 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
         queryset=PowerPort.objects.all(),
         required=False
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2517,13 +2536,7 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
             )
 
 
-class PowerOutletCreateForm(BootstrapMixin, forms.Form):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class PowerOutletCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
         required=False,
@@ -2541,7 +2554,8 @@ class PowerOutletCreateForm(BootstrapMixin, forms.Form):
         max_length=100,
         required=False
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -2700,14 +2714,15 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
             },
         )
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
     class Meta:
         model = Interface
         fields = [
-            'device', 'name', 'type', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description',
+            'device', 'name', 'label', 'type', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description',
             'mode', 'untagged_vlan', 'tagged_vlans', 'tags',
         ]
         widgets = {
@@ -2742,13 +2757,7 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', device.site.pk)
 
 
-class InterfaceCreateForm(BootstrapMixin, InterfaceCommonForm, forms.Form):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     type = forms.ChoiceField(
         choices=InterfaceTypeChoices,
         widget=StaticSelect2(),
@@ -2787,7 +2796,8 @@ class InterfaceCreateForm(BootstrapMixin, InterfaceCommonForm, forms.Form):
         required=False,
         widget=StaticSelect2(),
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
     untagged_vlan = DynamicModelChoiceField(
@@ -2831,7 +2841,7 @@ class InterfaceCreateForm(BootstrapMixin, InterfaceCommonForm, forms.Form):
 
 
 class InterfaceBulkCreateForm(
-    form_from_model(Interface, ['type', 'enabled', 'mtu', 'mgmt_only', 'description', 'tags']),
+    form_from_model(Interface, ['type', 'enabled', 'mtu', 'mgmt_only', 'description']),
     DeviceBulkAddComponentForm
 ):
     pass
@@ -2929,12 +2939,6 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
 class InterfaceCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
-        required=False,
-        to_field_name='name'
-    )
-    virtual_machine = CSVModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
         to_field_name='name'
     )
     lag = CSVModelChoiceField(
@@ -2999,7 +3003,8 @@ class FrontPortFilterForm(DeviceComponentFilterForm):
 
 
 class FrontPortForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -3025,13 +3030,7 @@ class FrontPortForm(BootstrapMixin, forms.ModelForm):
 
 
 # TODO: Merge with FrontPortTemplateCreateForm to remove duplicate logic
-class FrontPortCreateForm(BootstrapMixin, forms.Form):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class FrontPortCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=PortTypeChoices,
         widget=StaticSelect2(),
@@ -3190,7 +3189,8 @@ class RearPortFilterForm(DeviceComponentFilterForm):
 
 
 class RearPortForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -3205,13 +3205,7 @@ class RearPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class RearPortCreateForm(BootstrapMixin, forms.Form):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
+class RearPortCreateForm(ComponentCreateForm):
     type = forms.ChoiceField(
         choices=PortTypeChoices,
         widget=StaticSelect2(),
@@ -3293,30 +3287,23 @@ class DeviceBayFilterForm(DeviceComponentFilterForm):
 
 
 class DeviceBayForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
     class Meta:
         model = DeviceBay
         fields = [
-            'device', 'name', 'description', 'tags',
+            'device', 'name', 'label', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
         }
 
 
-class DeviceBayCreateForm(BootstrapMixin, forms.Form):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
-    tags = TagField(
-        required=False
-    )
+class DeviceBayCreateForm(ComponentCreateForm):
+    pass
 
 
 class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
@@ -3344,7 +3331,8 @@ class DeviceBayBulkCreateForm(
     form_from_model(DeviceBay, ['description', 'tags']),
     DeviceBulkAddComponentForm
 ):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -3648,16 +3636,25 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
 
 
 class CableForm(BootstrapMixin, forms.ModelForm):
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Cable
         fields = [
-            'type', 'status', 'label', 'color', 'length', 'length_unit',
+            'type', 'status', 'label', 'color', 'length', 'length_unit', 'tags',
         ]
         widgets = {
             'status': StaticSelect2,
             'type': StaticSelect2,
             'length_unit': StaticSelect2,
+        }
+        error_messages = {
+            'length': {
+                'max_value': 'Maximum length is 32767 (any unit)'
+            }
         }
 
 
@@ -3780,7 +3777,7 @@ class CableCSVForm(CSVModelForm):
         return length_unit if length_unit is not None else ''
 
 
-class CableBulkEditForm(BootstrapMixin, BulkEditForm):
+class CableBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Cable.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -3893,6 +3890,7 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Device'
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -3968,7 +3966,8 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
         queryset=Manufacturer.objects.all(),
         required=False
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -4116,7 +4115,8 @@ class DeviceSelectionForm(forms.Form):
 
 
 class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -4306,11 +4306,15 @@ class PowerPanelForm(BootstrapMixin, forms.ModelForm):
         queryset=RackGroup.objects.all(),
         required=False
     )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = PowerPanel
         fields = [
-            'site', 'rack_group', 'name',
+            'site', 'rack_group', 'name', 'tags',
         ]
 
 
@@ -4340,7 +4344,7 @@ class PowerPanelCSVForm(CSVModelForm):
             self.fields['rack_group'].queryset = self.fields['rack_group'].queryset.filter(**params)
 
 
-class PowerPanelBulkEditForm(BootstrapMixin, BulkEditForm):
+class PowerPanelBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerPanel.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -4401,6 +4405,7 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
+    tag = TagFilterField(model)
 
 
 #
@@ -4426,7 +4431,8 @@ class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
         required=False
     )
     comments = CommentField()
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 

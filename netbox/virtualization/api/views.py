@@ -1,11 +1,11 @@
 from django.db.models import Count
 
-from dcim.models import Device, Interface
+from dcim.models import Device
 from extras.api.views import CustomFieldModelViewSet
 from utilities.api import ModelViewSet
 from utilities.utils import get_subquery
 from virtualization import filters
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from . import serializers
 
 
@@ -71,18 +71,11 @@ class VirtualMachineViewSet(CustomFieldModelViewSet):
         return serializers.VirtualMachineWithConfigContextSerializer
 
 
-class InterfaceViewSet(ModelViewSet):
-    queryset = Interface.objects.filter(
+class VMInterfaceViewSet(ModelViewSet):
+    queryset = VMInterface.objects.filter(
         virtual_machine__isnull=False
     ).prefetch_related(
         'virtual_machine', 'tags'
     )
-    serializer_class = serializers.InterfaceSerializer
-    filterset_class = filters.InterfaceFilterSet
-
-    def get_serializer_class(self):
-        request = self.get_serializer_context()['request']
-        if request.query_params.get('brief', False):
-            # Override get_serializer_for_model(), which will return the DCIM NestedInterfaceSerializer
-            return serializers.NestedInterfaceSerializer
-        return serializers.InterfaceSerializer
+    serializer_class = serializers.VMInterfaceSerializer
+    filterset_class = filters.VMInterfaceFilterSet

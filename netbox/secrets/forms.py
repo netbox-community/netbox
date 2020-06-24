@@ -1,12 +1,12 @@
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from django import forms
-from taggit.forms import TagField
 
 from dcim.models import Device
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
 )
+from extras.models import Tag
 from utilities.forms import (
     APISelectMultiple, BootstrapMixin, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, SlugField, StaticSelect2Multiple, TagFilterField,
@@ -90,7 +90,8 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
     role = DynamicModelChoiceField(
         queryset=SecretRole.objects.all()
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -114,6 +115,16 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
             raise forms.ValidationError({
                 'plaintext2': "The two given plaintext values do not match. Please check your input."
             })
+
+        # Validate uniqueness
+        if Secret.objects.filter(
+            device=self.cleaned_data['device'],
+            role=self.cleaned_data['role'],
+            name=self.cleaned_data['name']
+        ).exists():
+            raise forms.ValidationError(
+                "Each secret assigned to a device must have a unique combination of role and name"
+            )
 
 
 class SecretCSVForm(CustomFieldModelCSVForm):

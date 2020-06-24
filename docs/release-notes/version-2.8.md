@@ -1,5 +1,93 @@
 # NetBox v2.8
 
+## v2.8.7 (FUTURE)
+
+### Bug Fixes
+
+* [#4766](https://github.com/netbox-community/netbox/issues/4766) - Fix redirect after login when `next` is not specified
+* [#4772](https://github.com/netbox-community/netbox/issues/4772) - Fix "brief" format for the secrets REST API endpoint
+* [#4775](https://github.com/netbox-community/netbox/issues/4775) - Allow selecting an alternate device type when creating component templates
+
+---
+
+## v2.8.6 (2020-06-15)
+
+### Enhancements
+
+* [#4698](https://github.com/netbox-community/netbox/issues/4698) - Improve display of template code for object in admin UI
+* [#4717](https://github.com/netbox-community/netbox/issues/4717) - Introduce `ALLOWED_URL_SCHEMES` configuration parameter to mitigate dangerous hyperlinks
+* [#4744](https://github.com/netbox-community/netbox/issues/4744) - Hide "IP addresses" tab when viewing a container prefix
+* [#4755](https://github.com/netbox-community/netbox/issues/4755) - Enable creation of rack reservations directly from navigation menu
+* [#4761](https://github.com/netbox-community/netbox/issues/4761) - Enable tag assignment during bulk creation of IP addresses
+
+### Bug Fixes
+
+* [#4674](https://github.com/netbox-community/netbox/issues/4674) - Fix API definition for available prefix and IP address endpoints
+* [#4702](https://github.com/netbox-community/netbox/issues/4702) - Catch IntegrityError exception when adding a non-unique secret
+* [#4707](https://github.com/netbox-community/netbox/issues/4707) - Fix `prefix_count` population on VLAN API serializer
+* [#4710](https://github.com/netbox-community/netbox/issues/4710) - Fix merging of form fields among custom scripts
+* [#4725](https://github.com/netbox-community/netbox/issues/4725) - Fix "brief" rendering of various REST API endpoints
+* [#4736](https://github.com/netbox-community/netbox/issues/4736) - Add cable trace endpoints for pass-through ports
+* [#4737](https://github.com/netbox-community/netbox/issues/4737) - Fix display of role labels in virtual machines table
+* [#4743](https://github.com/netbox-community/netbox/issues/4743) - Allow users to create "next available" IPs without needing permission to create prefixes
+* [#4756](https://github.com/netbox-community/netbox/issues/4756) - Filter parent group by site when creating rack groups
+* [#4760](https://github.com/netbox-community/netbox/issues/4760) - Enable power port template assignment when bulk editing power outlet templates
+
+---
+
+## v2.8.5 (2020-05-26)
+
+**Note:** The minimum required version of PostgreSQL is now 9.6.
+
+### Enhancements
+
+* [#4650](https://github.com/netbox-community/netbox/issues/4650) - Expose `INTERNAL_IPS` configuration parameter
+* [#4651](https://github.com/netbox-community/netbox/issues/4651) - Add `csrf_token` context for plugin templates
+* [#4652](https://github.com/netbox-community/netbox/issues/4652) - Add permissions context for plugin templates
+* [#4665](https://github.com/netbox-community/netbox/issues/4665) - Add NEMA L14 and L21 power port/outlet types
+* [#4672](https://github.com/netbox-community/netbox/issues/4672) - Set default color for rack and devices roles
+
+### Bug Fixes
+
+* [#3304](https://github.com/netbox-community/netbox/issues/3304) - Fix caching invalidation issue related to device/virtual machine primary IP addresses
+* [#4525](https://github.com/netbox-community/netbox/issues/4525) - Allow passing initial data to custom script MultiObjectVar
+* [#4644](https://github.com/netbox-community/netbox/issues/4644) - Fix ordering of services table by parent
+* [#4646](https://github.com/netbox-community/netbox/issues/4646) - Correct UI link for reports with custom name
+* [#4647](https://github.com/netbox-community/netbox/issues/4647) - Fix caching invalidation issue related to assigning new IP addresses to interfaces
+* [#4648](https://github.com/netbox-community/netbox/issues/4648) - Fix bulk CSV import of child devices
+* [#4649](https://github.com/netbox-community/netbox/issues/4649) - Fix interface assignment for bulk-imported IP addresses
+* [#4676](https://github.com/netbox-community/netbox/issues/4676) - Set default value of `REMOTE_AUTH_AUTO_CREATE_USER` as `False` in docs
+* [#4684](https://github.com/netbox-community/netbox/issues/4684) - Respect `comments` field when importing device type in YAML/JSON format
+
+---
+
+## v2.8.4 (2020-05-13)
+
+### Enhancements
+
+* [#4632](https://github.com/netbox-community/netbox/issues/4632) - Extend email configuration parameters to support SSL/TLS
+
+### Bug Fixes
+
+* [#4598](https://github.com/netbox-community/netbox/issues/4598) - Display error message when invalid cable length is specified
+* [#4604](https://github.com/netbox-community/netbox/issues/4604) - Multi-position rear ports may only be connected to other rear ports
+* [#4607](https://github.com/netbox-community/netbox/issues/4607) - Missing Contextual help for API Tokens
+* [#4613](https://github.com/netbox-community/netbox/issues/4613) - Fix tag assignment on config contexts (regression from #4527)
+* [#4617](https://github.com/netbox-community/netbox/issues/4617) - Restore IP prefix depth notation in list view
+* [#4629](https://github.com/netbox-community/netbox/issues/4629) - Replicate assigned interface when cloning IP addresses
+* [#4633](https://github.com/netbox-community/netbox/issues/4633) - Bump django-rq to v2.3.2 to fix ImportError with rq 1.4.0
+* [#4634](https://github.com/netbox-community/netbox/issues/4634) - Inventory Item List view exception caused by incorrect accessor definition 
+
+---
+
+## v2.8.3 (2020-05-06)
+
+### Bug Fixes
+
+* [#4593](https://github.com/netbox-community/netbox/issues/4593) - Fix AttributeError exception when viewing object lists as a non-authenticated user
+
+---
+
 ## v2.8.2 (2020-05-06)
 
 ### Enhancements

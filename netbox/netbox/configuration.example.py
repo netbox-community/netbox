@@ -68,6 +68,11 @@ ADMINS = [
     # ['John Doe', 'jdoe@example.com'],
 ]
 
+# URL schemes that are allowed within links in NetBox
+ALLOWED_URL_SCHEMES = (
+    'file', 'ftp', 'ftps', 'http', 'https', 'irc', 'mailto', 'sftp', 'ssh', 'tel', 'telnet', 'tftp', 'vnc', 'xmpp',
+)
+
 # Optionally display a persistent banner at the top and/or bottom of every page. HTML is allowed. To display the same
 # content in both banners, define BANNER_TOP and set BANNER_BOTTOM = BANNER_TOP.
 BANNER_TOP = ''
@@ -108,6 +113,8 @@ EMAIL = {
     'PORT': 25,
     'USERNAME': '',
     'PASSWORD': '',
+    'USE_SSL': False,
+    'USE_TLS': False,
     'TIMEOUT': 10,  # seconds
     'FROM_EMAIL': '',
 }
@@ -129,6 +136,10 @@ EXEMPT_VIEW_PERMISSIONS = [
 #     'http': 'http://10.10.1.10:3128',
 #     'https': 'http://10.10.1.10:1080',
 # }
+
+# IP addresses recognized as internal to the system. The debugging toolbar will be available only to clients accessing
+# NetBox from an internal IP.
+INTERNAL_IPS = ('127.0.0.1', '::1')
 
 # Enable custom logging. Please see the Django documentation for detailed guidance on configuring custom logs:
 #   https://docs.djangoproject.com/en/stable/topics/logging/
@@ -199,11 +210,11 @@ PREFER_IPV4 = False
 
 # Remote authentication support
 REMOTE_AUTH_ENABLED = False
-REMOTE_AUTH_BACKEND = 'utilities.auth_backends.RemoteUserBackend'
+REMOTE_AUTH_BACKEND = 'netbox.authentication.RemoteUserBackend'
 REMOTE_AUTH_HEADER = 'HTTP_REMOTE_USER'
 REMOTE_AUTH_AUTO_CREATE_USER = True
 REMOTE_AUTH_DEFAULT_GROUPS = []
-REMOTE_AUTH_DEFAULT_PERMISSIONS = []
+REMOTE_AUTH_DEFAULT_PERMISSIONS = {}
 
 # This determines how often the GitHub API is called to check the latest release of NetBox. Must be at least 1 hour.
 RELEASE_CHECK_TIMEOUT = 24 * 3600

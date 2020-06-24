@@ -6,6 +6,7 @@ from dcim.choices import *
 from dcim.constants import *
 from extras.models import ObjectChange
 from utilities.fields import NaturalOrderingField
+from utilities.querysets import RestrictedQuerySet
 from utilities.ordering import naturalize_interface
 from utilities.utils import serialize_object
 from .device_components import (
@@ -26,9 +27,15 @@ __all__ = (
 
 
 class ComponentTemplateModel(models.Model):
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         abstract = True
+
+    def __str__(self):
+        if self.label:
+            return f"{self.name} ({self.label})"
+        return self.name
 
     def instantiate(self, device):
         """
@@ -69,6 +76,11 @@ class ConsolePortTemplate(ComponentTemplateModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -78,9 +90,6 @@ class ConsolePortTemplate(ComponentTemplateModel):
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
-
-    def __str__(self):
-        return self.name
 
     def instantiate(self, device):
         return ConsolePort(
@@ -107,6 +116,11 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -116,9 +130,6 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
-
-    def __str__(self):
-        return self.name
 
     def instantiate(self, device):
         return ConsoleServerPort(
@@ -145,6 +156,11 @@ class PowerPortTemplate(ComponentTemplateModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     type = models.CharField(
         max_length=50,
         choices=PowerPortTypeChoices,
@@ -166,9 +182,6 @@ class PowerPortTemplate(ComponentTemplateModel):
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
-
-    def __str__(self):
-        return self.name
 
     def instantiate(self, device):
         return PowerPort(
@@ -197,6 +210,11 @@ class PowerOutletTemplate(ComponentTemplateModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     type = models.CharField(
         max_length=50,
         choices=PowerOutletTypeChoices,
@@ -219,9 +237,6 @@ class PowerOutletTemplate(ComponentTemplateModel):
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
-
-    def __str__(self):
-        return self.name
 
     def clean(self):
 
@@ -263,6 +278,11 @@ class InterfaceTemplate(ComponentTemplateModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     type = models.CharField(
         max_length=50,
         choices=InterfaceTypeChoices
@@ -275,9 +295,6 @@ class InterfaceTemplate(ComponentTemplateModel):
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
-
-    def __str__(self):
-        return self.name
 
     def instantiate(self, device):
         return Interface(
@@ -418,13 +435,15 @@ class DeviceBayTemplate(ComponentTemplateModel):
         max_length=100,
         blank=True
     )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
 
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
-
-    def __str__(self):
-        return self.name
 
     def instantiate(self, device):
         return DeviceBay(

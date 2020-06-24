@@ -35,12 +35,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='interface',
             name='_name',
-            field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize_interface),
+            field=utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize_interface),
         ),
         migrations.AddField(
             model_name='interfacetemplate',
             name='_name',
-            field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize_interface),
+            field=utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize_interface),
         ),
         migrations.RunPython(
             code=naturalize_interfacetemplates,

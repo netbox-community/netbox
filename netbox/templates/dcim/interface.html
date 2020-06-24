@@ -5,29 +5,25 @@
     <div class="row noprint">
         <div class="col-md-12">
             <ol class="breadcrumb">
-                {% if interface.device %}
-                    <li><a href="{% url 'dcim:device_list' %}">Devices</a></li>
-                {% else %}
-                    <li><a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a></li>
-                {% endif %}
-                <li><a href="{{ interface.parent.get_absolute_url }}">{{ interface.parent }}</a></li>
+                <li><a href="{% url 'dcim:device_list' %}">Devices</a></li>
+                <li><a href="{{ interface.device.get_absolute_url }}">{{ interface.device }}</a></li>
                 <li>{{ interface }}</li>
             </ol>
         </div>
     </div>
     <div class="pull-right noprint">
         {% if perms.dcim.change_interface %}
-            <a href="{% if interface.device %}{% url 'dcim:interface_edit' pk=interface.pk %}{% else %}{% url 'virtualization:interface_edit' pk=interface.pk %}{% endif %}" class="btn btn-warning">
+            <a href="{% url 'dcim:interface_edit' pk=interface.pk %}" class="btn btn-warning">
                 <span class="fa fa-pencil" aria-hidden="true"></span> Edit
             </a>
         {% endif %}
         {% if perms.dcim.delete_interface %}
-            <a href="{% if interface.device %}{% url 'dcim:interface_delete' pk=interface.pk %}{% else %}{% url 'virtualization:interface_delete' pk=interface.pk %}{% endif %}" class="btn btn-danger">
+            <a href="{% url 'dcim:interface_delete' pk=interface.pk %}" class="btn btn-danger">
                 <span class="fa fa-trash" aria-hidden="true"></span> Delete
             </a>
         {% endif %}
     </div>
-    <h1>{% block title %}{{ interface.parent }} / {{ interface.name }}{% endblock %}</h1>
+    <h1>{% block title %}{{ interface.device }} / {{ interface.name }}{% endblock %}</h1>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ interface.get_absolute_url }}">Interface</a>
@@ -49,14 +45,18 @@
             </div>
             <table class="table table-hover panel-body attr-table">
                 <tr>
-                    <td>{% if interface.device %}Device{% else %}Virtual Machine{% endif %}</td>
+                    <td>Device</td>
                     <td>
-                        <a href="{{ interface.parent.get_absolute_url }}">{{ interface.parent }}</a>
+                        <a href="{{ interface.device.get_absolute_url }}">{{ interface.device }}</a>
                     </td>
                 </tr>
                 <tr>
                     <td>Name</td>
                     <td>{{ interface.name }}</td>
+                </tr>
+                <tr>
+                    <td>Label</td>
+                    <td>{{ interface.label|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Type</td>
@@ -92,7 +92,7 @@
                 </tr>
                 <tr>
                     <td>MAC Address</td>
-                    <td>{{ interface.mac_address|placeholder }}</span></td>
+                    <td><span class="text-monospace">{{ interface.mac_address|placeholder }}</span></td>
                 </tr>
                 <tr>
                     <td>802.1Q Mode</td>
@@ -114,7 +114,7 @@
                             <tr>
                                 <td>Device</td>
                                 <td>
-                                    <a href="{{ connected_interface.parent.get_absolute_url }}">{{ connected_interface.device }}</a>
+                                    <a href="{{ connected_interface.device.get_absolute_url }}">{{ connected_interface.device }}</a>
                                 </td>
                             </tr>
                             <tr>
@@ -221,7 +221,7 @@
                         {% for member in interface.member_interfaces.all %}
                             <tr>
                                 <td>
-                                    <a href="{{ member.parent.get_absolute_url }}">{{ member.parent }}</a>
+                                    <a href="{{ member.device.get_absolute_url }}">{{ member.device }}</a>
                                 </td>
                                 <td>
                                     <a href="{{ member.get_absolute_url }}">{{ member }}</a>

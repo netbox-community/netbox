@@ -3,7 +3,7 @@ import logging
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.signals import user_logged_in
 from django.http import HttpResponseForbidden, HttpResponseRedirect
@@ -50,7 +50,7 @@ class LoginView(View):
             logger.debug("Login form validation was successful")
 
             # Determine where to direct user after successful login
-            redirect_to = request.POST.get('next')
+            redirect_to = request.POST.get('next', reverse('home'))
             if redirect_to and not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
                 logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {redirect_to}")
                 redirect_to = reverse('home')
@@ -320,8 +320,7 @@ class TokenEditView(LoginRequiredMixin, View):
         })
 
 
-class TokenDeleteView(PermissionRequiredMixin, View):
-    permission_required = 'users.delete_token'
+class TokenDeleteView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
 

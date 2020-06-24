@@ -1,7 +1,6 @@
 from django import template
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
 from django.http import Http404, HttpResponseForbidden
@@ -13,37 +12,37 @@ from django_tables2 import RequestConfig
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.utils import shallow_compare_dict
-from utilities.views import BulkDeleteView, BulkEditView, ObjectDeleteView, ObjectEditView, ObjectListView
-from . import filters, forms
+from utilities.views import (
+    BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    ObjectPermissionRequiredMixin,
+)
+from . import filters, forms, tables
 from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult, Tag, TaggedItem
 from .reports import get_report, get_reports
 from .scripts import get_scripts, run_script
-from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemTable
 
 
 #
 # Tags
 #
 
-class TagListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'extras.view_tag'
-    queryset = Tag.objects.annotate(
+class TagListView(ObjectListView):
+    queryset = Tag.restricted.annotate(
         items=Count('extras_taggeditem_items', distinct=True)
     ).order_by(
         'name'
     )
     filterset = filters.TagFilterSet
     filterset_form = forms.TagFilterForm
-    table = TagTable
-    action_buttons = ()
+    table = tables.TagTable
 
 
-class TagView(PermissionRequiredMixin, View):
-    permission_required = 'extras.view_tag'
+class TagView(ObjectView):
+    queryset = Tag.restricted.all()
 
     def get(self, request, slug):
 
-        tag = get_object_or_404(Tag, slug=slug)
+        tag = get_object_or_404(self.queryset, slug=slug)
         tagged_items = TaggedItem.objects.filter(
             tag=tag
         ).prefetch_related(
@@ -51,7 +50,7 @@ class TagView(PermissionRequiredMixin, View):
         )
 
         # Generate a table of all items tagged with this Tag
-        items_table = TaggedItemTable(tagged_items)
+        items_table = tables.TaggedItemTable(tagged_items)
         paginate = {
             'paginator_class': EnhancedPaginator,
             'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
@@ -65,40 +64,43 @@ class TagView(PermissionRequiredMixin, View):
         })
 
 
-class TagEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'extras.change_tag'
-    queryset = Tag.objects.all()
+class TagEditView(ObjectEditView):
+    queryset = Tag.restricted.all()
     model_form = forms.TagForm
     default_return_url = 'extras:tag_list'
     template_name = 'extras/tag_edit.html'
 
 
-class TagDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'extras.delete_tag'
-    queryset = Tag.objects.all()
+class TagDeleteView(ObjectDeleteView):
+    queryset = Tag.restricted.all()
     default_return_url = 'extras:tag_list'
 
 
-class TagBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'extras.change_tag'
-    queryset = Tag.objects.annotate(
+class TagBulkImportView(BulkImportView):
+    queryset = Tag.restricted.all()
+    model_form = forms.TagCSVForm
+    table = tables.TagTable
+    default_return_url = 'extras:tag_list'
+
+
+class TagBulkEditView(BulkEditView):
+    queryset = Tag.restricted.annotate(
         items=Count('extras_taggeditem_items', distinct=True)
     ).order_by(
         'name'
     )
-    table = TagTable
+    table = tables.TagTable
     form = forms.TagBulkEditForm
     default_return_url = 'extras:tag_list'
 
 
-class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'extras.delete_tag'
-    queryset = Tag.objects.annotate(
+class TagBulkDeleteView(BulkDeleteView):
+    queryset = Tag.restricted.annotate(
         items=Count('extras_taggeditem_items')
     ).order_by(
         'name'
     )
-    table = TagTable
+    table = tables.TagTable
     default_return_url = 'extras:tag_list'
 
 
@@ -106,27 +108,29 @@ class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Config contexts
 #
 
-class ConfigContextListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'extras.view_configcontext'
+class ConfigContextListView(ObjectListView):
     queryset = ConfigContext.objects.all()
     filterset = filters.ConfigContextFilterSet
     filterset_form = forms.ConfigContextFilterForm
-    table = ConfigContextTable
+    table = tables.ConfigContextTable
     action_buttons = ('add',)
 
 
-class ConfigContextView(PermissionRequiredMixin, View):
-    permission_required = 'extras.view_configcontext'
+class ConfigContextView(ObjectView):
+    queryset = ConfigContext.objects.all()
 
     def get(self, request, pk):
-        configcontext = get_object_or_404(ConfigContext, pk=pk)
+        configcontext = get_object_or_404(self.queryset, pk=pk)
 
         # Determine user's preferred output format
         if request.GET.get('format') in ['json', 'yaml']:
             format = request.GET.get('format')
-            request.user.config.set('extras.configcontext.format', format, commit=True)
-        else:
+            if request.user.is_authenticated:
+                request.user.config.set('extras.configcontext.format', format, commit=True)
+        elif request.user.is_authenticated:
             format = request.user.config.get('extras.configcontext.format', 'json')
+        else:
+            format = 'json'
 
         return render(request, 'extras/configcontext.html', {
             'configcontext': configcontext,
@@ -134,56 +138,50 @@ class ConfigContextView(PermissionRequiredMixin, View):
         })
 
 
-class ConfigContextCreateView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'extras.add_configcontext'
+class ConfigContextEditView(ObjectEditView):
     queryset = ConfigContext.objects.all()
     model_form = forms.ConfigContextForm
     default_return_url = 'extras:configcontext_list'
     template_name = 'extras/configcontext_edit.html'
 
 
-class ConfigContextEditView(ConfigContextCreateView):
-    permission_required = 'extras.change_configcontext'
-
-
-class ConfigContextBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'extras.change_configcontext'
+class ConfigContextBulkEditView(BulkEditView):
     queryset = ConfigContext.objects.all()
     filterset = filters.ConfigContextFilterSet
-    table = ConfigContextTable
+    table = tables.ConfigContextTable
     form = forms.ConfigContextBulkEditForm
     default_return_url = 'extras:configcontext_list'
 
 
-class ConfigContextDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'extras.delete_configcontext'
+class ConfigContextDeleteView(ObjectDeleteView):
     queryset = ConfigContext.objects.all()
     default_return_url = 'extras:configcontext_list'
 
 
-class ConfigContextBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'extras.delete_configcontext'
+class ConfigContextBulkDeleteView(BulkDeleteView):
     queryset = ConfigContext.objects.all()
-    table = ConfigContextTable
+    table = tables.ConfigContextTable
     default_return_url = 'extras:configcontext_list'
 
 
-class ObjectConfigContextView(View):
-    object_class = None
+class ObjectConfigContextView(ObjectView):
     base_template = None
 
     def get(self, request, pk):
 
-        obj = get_object_or_404(self.object_class, pk=pk)
-        source_contexts = ConfigContext.objects.get_for_object(obj)
-        model_name = self.object_class._meta.model_name
+        obj = get_object_or_404(self.queryset, pk=pk)
+        source_contexts = ConfigContext.objects.restrict(request.user, 'view').get_for_object(obj)
+        model_name = self.queryset.model._meta.model_name
 
         # Determine user's preferred output format
         if request.GET.get('format') in ['json', 'yaml']:
             format = request.GET.get('format')
-            request.user.config.set('extras.configcontext.format', format, commit=True)
-        else:
+            if request.user.is_authenticated:
+                request.user.config.set('extras.configcontext.format', format, commit=True)
+        elif request.user.is_authenticated:
             format = request.user.config.get('extras.configcontext.format', 'json')
+        else:
+            format = 'json'
 
         return render(request, 'extras/object_configcontext.html', {
             model_name: obj,
@@ -200,30 +198,33 @@ class ObjectConfigContextView(View):
 # Change logging
 #
 
-class ObjectChangeListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'extras.view_objectchange'
+class ObjectChangeListView(ObjectListView):
     queryset = ObjectChange.objects.prefetch_related('user', 'changed_object_type')
     filterset = filters.ObjectChangeFilterSet
     filterset_form = forms.ObjectChangeFilterForm
-    table = ObjectChangeTable
+    table = tables.ObjectChangeTable
     template_name = 'extras/objectchange_list.html'
     action_buttons = ('export',)
 
 
-class ObjectChangeView(PermissionRequiredMixin, View):
-    permission_required = 'extras.view_objectchange'
+class ObjectChangeView(ObjectView):
+    queryset = ObjectChange.objects.all()
 
     def get(self, request, pk):
 
-        objectchange = get_object_or_404(ObjectChange, pk=pk)
+        objectchange = get_object_or_404(self.queryset, pk=pk)
 
-        related_changes = ObjectChange.objects.filter(request_id=objectchange.request_id).exclude(pk=objectchange.pk)
-        related_changes_table = ObjectChangeTable(
+        related_changes = ObjectChange.objects.restrict(request.user, 'view').filter(
+            request_id=objectchange.request_id
+        ).exclude(
+            pk=objectchange.pk
+        )
+        related_changes_table = tables.ObjectChangeTable(
             data=related_changes[:50],
             orderable=False
         )
 
-        objectchanges = ObjectChange.objects.filter(
+        objectchanges = ObjectChange.objects.restrict(request.user, 'view').filter(
             changed_object_type=objectchange.changed_object_type,
             changed_object_id=objectchange.changed_object_id,
         )
@@ -261,17 +262,18 @@ class ObjectChangeLogView(View):
     def get(self, request, model, **kwargs):
 
         # Get object my model and kwargs (e.g. slug='foo')
-        obj = get_object_or_404(model, **kwargs)
+        queryset = model.objects.restrict(request.user, 'view')
+        obj = get_object_or_404(queryset, **kwargs)
 
         # Gather all changes for this object (and its related objects)
         content_type = ContentType.objects.get_for_model(model)
-        objectchanges = ObjectChange.objects.prefetch_related(
+        objectchanges = ObjectChange.objects.restrict(request.user, 'view').prefetch_related(
             'user', 'changed_object_type'
         ).filter(
             Q(changed_object_type=content_type, changed_object_id=obj.pk) |
             Q(related_object_type=content_type, related_object_id=obj.pk)
         )
-        objectchanges_table = ObjectChangeTable(
+        objectchanges_table = tables.ObjectChangeTable(
             data=objectchanges,
             orderable=False
         )
@@ -304,8 +306,7 @@ class ObjectChangeLogView(View):
 # Image attachments
 #
 
-class ImageAttachmentEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'extras.change_imageattachment'
+class ImageAttachmentEditView(ObjectEditView):
     queryset = ImageAttachment.objects.all()
     model_form = forms.ImageAttachmentForm
 
@@ -320,8 +321,7 @@ class ImageAttachmentEditView(PermissionRequiredMixin, ObjectEditView):
         return imageattachment.parent.get_absolute_url()
 
 
-class ImageAttachmentDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'extras.delete_imageattachment'
+class ImageAttachmentDeleteView(ObjectDeleteView):
     queryset = ImageAttachment.objects.all()
 
     def get_return_url(self, request, imageattachment):
@@ -332,11 +332,12 @@ class ImageAttachmentDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 # Reports
 #
 
-class ReportListView(PermissionRequiredMixin, View):
+class ReportListView(ObjectPermissionRequiredMixin, View):
     """
     Retrieve all of the available reports from disk and the recorded ReportResult (if any) for each.
     """
-    permission_required = 'extras.view_reportresult'
+    def get_required_permission(self):
+        return 'extras.view_reportresult'
 
     def get(self, request):
 
@@ -356,11 +357,12 @@ class ReportListView(PermissionRequiredMixin, View):
         })
 
 
-class ReportView(PermissionRequiredMixin, View):
+class ReportView(ObjectPermissionRequiredMixin, View):
     """
     Display a single Report and its associated ReportResult (if any).
     """
-    permission_required = 'extras.view_reportresult'
+    def get_required_permission(self):
+        return 'extras.view_reportresult'
 
     def get(self, request, name):
 
@@ -379,11 +381,12 @@ class ReportView(PermissionRequiredMixin, View):
         })
 
 
-class ReportRunView(PermissionRequiredMixin, View):
+class ReportRunView(ObjectPermissionRequiredMixin, View):
     """
     Run a Report and record a new ReportResult.
     """
-    permission_required = 'extras.add_reportresult'
+    def get_required_permission(self):
+        return 'extras.add_reportresult'
 
     def post(self, request, name):
 
@@ -409,8 +412,10 @@ class ReportRunView(PermissionRequiredMixin, View):
 # Scripts
 #
 
-class ScriptListView(PermissionRequiredMixin, View):
-    permission_required = 'extras.view_script'
+class ScriptListView(ObjectPermissionRequiredMixin, View):
+
+    def get_required_permission(self):
+        return 'extras.view_script'
 
     def get(self, request):
 
@@ -419,8 +424,10 @@ class ScriptListView(PermissionRequiredMixin, View):
         })
 
 
-class ScriptView(PermissionRequiredMixin, View):
-    permission_required = 'extras.view_script'
+class ScriptView(ObjectPermissionRequiredMixin, View):
+
+    def get_required_permission(self):
+        return 'extras.view_script'
 
     def _get_script(self, module, name):
         scripts = get_scripts()
@@ -430,7 +437,6 @@ class ScriptView(PermissionRequiredMixin, View):
             raise Http404
 
     def get(self, request, module, name):
-
         script = self._get_script(module, name)
         form = script.as_form(initial=request.GET)
 

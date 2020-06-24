@@ -3,7 +3,7 @@
 This section entails the installation and configuration of a local PostgreSQL database. If you already have a PostgreSQL database service in place, skip to [the next section](2-redis.md).
 
 !!! warning
-    NetBox requires PostgreSQL 9.4 or higher. Please note that MySQL and other relational databases are **not** supported.
+    NetBox requires PostgreSQL 9.6 or higher. Please note that MySQL and other relational databases are **not** supported.
 
 The installation instructions provided here have been tested to work on Ubuntu 18.04 and CentOS 7.5. The particular commands needed to install dependencies on other distributions may vary significantly. Unfortunately, this is outside the control of the NetBox maintainers. Please consult your distribution's documentation for assistance with any errors.
 
@@ -51,7 +51,7 @@ At a minimum, we need to create a database for NetBox and assign it a username a
 
 ```no-highlight
 # sudo -u postgres psql
-psql (9.4.5)
+psql (10.10)
 Type "help" for help.
 
 postgres=# CREATE DATABASE netbox;

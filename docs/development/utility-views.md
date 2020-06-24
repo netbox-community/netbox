@@ -4,6 +4,10 @@ Utility views are reusable views that handle common CRUD tasks, such as listing 
 
 ## Individual Views
 
+### ObjectView
+
+Retrieve and display a single object.
+
 ### ObjectListView
 
 Generates a paginated table of objects from a given queryset, which may optionally be filtered.

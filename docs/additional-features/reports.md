@@ -33,7 +33,6 @@ Within each report class, we'll create a number of test methods to execute our r
 
 ```
 from dcim.choices import DeviceStatusChoices
-from dcim.constants import CONNECTION_STATUS_PLANNED
 from dcim.models import ConsolePort, Device, PowerPort
 from extras.reports import Report
 
@@ -53,7 +52,7 @@ class DeviceConnectionsReport(Report):
                     console_port.device,
                     "No console connection defined for {}".format(console_port.name)
                 )
-            elif console_port.connection_status == CONNECTION_STATUS_PLANNED:
+            elif not console_port.connection_status:
                 self.log_warning(
                     console_port.device,
                     "Console connection for {} marked as planned".format(console_port.name)
@@ -69,7 +68,7 @@ class DeviceConnectionsReport(Report):
             for power_port in PowerPort.objects.filter(device=device):
                 if power_port.connected_endpoint is not None:
                     connected_ports += 1
-                    if power_port.connection_status == CONNECTION_STATUS_PLANNED:
+                    if not power_port.connection_status:
                         self.log_warning(
                             device,
                             "Power connection for {} marked as planned".format(power_port.name)
