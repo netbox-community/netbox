@@ -598,17 +598,11 @@ class InterfaceImportTable(BaseTable):
         viewname='dcim:device',
         args=[Accessor('device.pk')]
     )
-    virtual_machine = tables.LinkColumn(
-        viewname='virtualization:virtualmachine',
-        args=[Accessor('virtual_machine.pk')],
-        verbose_name='Virtual Machine'
-    )
 
     class Meta(BaseTable.Meta):
         model = Interface
         fields = (
-            'device', 'virtual_machine', 'name', 'description', 'lag', 'type', 'enabled', 'mac_address', 'mtu',
-            'mgmt_only', 'mode',
+            'device', 'name', 'description', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only', 'mode',
         )
         empty_text = False
 
@@ -863,6 +857,7 @@ class DeviceImportTable(BaseTable):
 
 class DeviceComponentDetailTable(BaseTable):
     pk = ToggleColumn()
+    device = tables.LinkColumn()
     name = tables.Column(order_by=('_name',))
     cable = tables.LinkColumn()
 
@@ -881,7 +876,6 @@ class ConsolePortTable(BaseTable):
 
 
 class ConsolePortDetailTable(DeviceComponentDetailTable):
-    device = tables.LinkColumn()
 
     class Meta(DeviceComponentDetailTable.Meta, ConsolePortTable.Meta):
         pass
@@ -896,7 +890,6 @@ class ConsoleServerPortTable(BaseTable):
 
 
 class ConsoleServerPortDetailTable(DeviceComponentDetailTable):
-    device = tables.LinkColumn()
 
     class Meta(DeviceComponentDetailTable.Meta, ConsoleServerPortTable.Meta):
         pass
@@ -911,7 +904,6 @@ class PowerPortTable(BaseTable):
 
 
 class PowerPortDetailTable(DeviceComponentDetailTable):
-    device = tables.LinkColumn()
 
     class Meta(DeviceComponentDetailTable.Meta, PowerPortTable.Meta):
         pass
@@ -926,7 +918,6 @@ class PowerOutletTable(BaseTable):
 
 
 class PowerOutletDetailTable(DeviceComponentDetailTable):
-    device = tables.LinkColumn()
 
     class Meta(DeviceComponentDetailTable.Meta, PowerOutletTable.Meta):
         pass
@@ -940,14 +931,11 @@ class InterfaceTable(BaseTable):
 
 
 class InterfaceDetailTable(DeviceComponentDetailTable):
-    parent = tables.LinkColumn(order_by=('device', 'virtual_machine'))
-    name = tables.LinkColumn()
     enabled = BooleanColumn()
 
-    class Meta(InterfaceTable.Meta):
-        order_by = ('parent', 'name')
-        fields = ('pk', 'parent', 'name', 'label', 'enabled', 'type', 'description', 'cable')
-        sequence = ('pk', 'parent', 'name', 'label', 'enabled', 'type', 'description', 'cable')
+    class Meta(DeviceComponentDetailTable.Meta, InterfaceTable.Meta):
+        fields = ('pk', 'device', 'name', 'label', 'enabled', 'type', 'description', 'cable')
+        sequence = ('pk', 'device', 'name', 'label', 'enabled', 'type', 'description', 'cable')
 
 
 class FrontPortTable(BaseTable):
@@ -960,7 +948,6 @@ class FrontPortTable(BaseTable):
 
 
 class FrontPortDetailTable(DeviceComponentDetailTable):
-    device = tables.LinkColumn()
 
     class Meta(DeviceComponentDetailTable.Meta, FrontPortTable.Meta):
         pass
@@ -976,7 +963,6 @@ class RearPortTable(BaseTable):
 
 
 class RearPortDetailTable(DeviceComponentDetailTable):
-    device = tables.LinkColumn()
 
     class Meta(DeviceComponentDetailTable.Meta, RearPortTable.Meta):
         pass
@@ -991,7 +977,6 @@ class DeviceBayTable(BaseTable):
 
 
 class DeviceBayDetailTable(DeviceComponentDetailTable):
-    device = tables.LinkColumn()
     installed_device = tables.LinkColumn()
 
     class Meta(DeviceBayTable.Meta):

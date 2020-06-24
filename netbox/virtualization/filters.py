@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Q
 
-from dcim.models import DeviceRole, Interface, Platform, Region, Site
+from dcim.models import DeviceRole, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet, LocalConfigContextFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
@@ -9,14 +9,14 @@ from utilities.filters import (
     TreeNodeMultipleChoiceFilter,
 )
 from .choices import *
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 __all__ = (
     'ClusterFilterSet',
     'ClusterGroupFilterSet',
     'ClusterTypeFilterSet',
-    'InterfaceFilterSet',
     'VirtualMachineFilterSet',
+    'VMInterfaceFilterSet',
 )
 
 
@@ -201,7 +201,7 @@ class VirtualMachineFilterSet(
         )
 
 
-class InterfaceFilterSet(BaseFilterSet):
+class VMInterfaceFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -222,7 +222,7 @@ class InterfaceFilterSet(BaseFilterSet):
     )
 
     class Meta:
-        model = Interface
+        model = VMInterface
         fields = ['id', 'name', 'enabled', 'mtu']
 
     def search(self, queryset, name, value):

@@ -35,11 +35,12 @@ from .device_component_templates import (
     PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
 from .device_components import (
-    CableTermination, ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, PowerOutlet,
-    PowerPort, RearPort,
+    BaseInterface, CableTermination, ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem,
+    PowerOutlet, PowerPort, RearPort,
 )
 
 __all__ = (
+    'BaseInterface',
     'Cable',
     'CableTermination',
     'ConsolePort',

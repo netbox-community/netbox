@@ -23,12 +23,12 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField, CSVModelForm,
+    BulkRenameForm, ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField, CSVModelForm,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
     NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
 )
-from virtualization.models import Cluster, ClusterGroup, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup
 from .choices import *
 from .constants import *
 from .models import (
@@ -148,30 +148,6 @@ class LabeledComponentForm(BootstrapMixin, forms.Form):
                 'be generated. These counts must match.'.format(
                     name_pattern_count, label_pattern_count)
             }, code='label_pattern_mismatch')
-
-
-class BulkRenameForm(forms.Form):
-    """
-    An extendable form to be used for renaming device components in bulk.
-    """
-    find = forms.CharField()
-    replace = forms.CharField()
-    use_regex = forms.BooleanField(
-        required=False,
-        initial=True,
-        label='Use regular expressions'
-    )
-
-    def clean(self):
-
-        # Validate regular expression in "find" field
-        if self.cleaned_data['use_regex']:
-            try:
-                re.compile(self.cleaned_data['find'])
-            except re.error:
-                raise forms.ValidationError({
-                    'find': "Invalid regular expression"
-                })
 
 
 #
@@ -1816,18 +1792,20 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                 ip_choices = [(None, '---------')]
 
                 # Gather PKs of all interfaces belonging to this Device or a peer VirtualChassis member
-                interface_ids = self.instance.vc_interfaces.values('pk')
+                interface_ids = self.instance.vc_interfaces.values_list('pk', flat=True)
 
                 # Collect interface IPs
                 interface_ips = IPAddress.objects.prefetch_related('interface').filter(
-                    address__family=family, interface_id__in=interface_ids
+                    address__family=family,
+                    interface__in=interface_ids
                 )
                 if interface_ips:
                     ip_list = [(ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips]
                     ip_choices.append(('Interface IPs', ip_list))
                 # Collect NAT IPs
                 nat_ips = IPAddress.objects.prefetch_related('nat_inside').filter(
-                    address__family=family, nat_inside__interface__in=interface_ids
+                    address__family=family,
+                    nat_inside__interface__in=interface_ids
                 )
                 if nat_ips:
                     ip_list = [(ip.id, '{} ({})'.format(ip.address, ip.nat_inside.address)) for ip in nat_ips]
@@ -2961,12 +2939,6 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
 class InterfaceCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
-        required=False,
-        to_field_name='name'
-    )
-    virtual_machine = CSVModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
         to_field_name='name'
     )
     lag = CSVModelChoiceField(

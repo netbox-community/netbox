@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+from django.contrib.contenttypes.models import ContentType
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework.validators import UniqueTogetherValidator
@@ -9,10 +11,12 @@ from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
 from ipam.choices import *
+from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import (
-    ChoiceField, SerializedPKRelatedField, ValidatedModelSerializer, WritableNestedSerializer,
+    ChoiceField, ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer, WritableNestedSerializer,
+    get_serializer_for_model,
 )
 from virtualization.api.nested_serializers import NestedVirtualMachineSerializer
 from .nested_serializers import *
@@ -228,17 +232,30 @@ class IPAddressSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=IPAddressStatusChoices, required=False)
     role = ChoiceField(choices=IPAddressRoleChoices, allow_blank=True, required=False)
-    interface = IPAddressInterfaceSerializer(required=False, allow_null=True)
+    assigned_object_type = ContentTypeField(
+        queryset=ContentType.objects.filter(IPADDRESS_ASSIGNMENT_MODELS),
+        required=False
+    )
+    assigned_object = serializers.SerializerMethodField(read_only=True)
     nat_inside = NestedIPAddressSerializer(required=False, allow_null=True)
     nat_outside = NestedIPAddressSerializer(read_only=True)
 
     class Meta:
         model = IPAddress
         fields = [
-            'id', 'family', 'address', 'vrf', 'tenant', 'status', 'role', 'interface', 'nat_inside',
-            'nat_outside', 'dns_name', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'family', 'address', 'vrf', 'tenant', 'status', 'role', 'assigned_object_type', 'assigned_object_id',
+            'assigned_object', 'nat_inside', 'nat_outside', 'dns_name', 'description', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
         read_only_fields = ['family']
+
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    def get_assigned_object(self, obj):
+        if obj.assigned_object is None:
+            return None
+        serializer = get_serializer_for_model(obj.assigned_object, prefix='Nested')
+        context = {'request': self.context['request']}
+        return serializer(obj.assigned_object, context=context).data
 
 
 class AvailableIPSerializer(serializers.Serializer):

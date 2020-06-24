@@ -1,6 +1,6 @@
 import netaddr
 from django.conf import settings
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2 import RequestConfig
@@ -11,7 +11,7 @@ from utilities.views import (
     BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView,
     ObjectListView,
 )
-from virtualization.models import VirtualMachine
+from virtualization.models import VirtualMachine, VMInterface
 from . import filters, forms, tables
 from .choices import *
 from .constants import *
@@ -517,7 +517,7 @@ class PrefixIPAddressesView(ObjectView):
 
         # Find all IPAddresses belonging to this Prefix
         ipaddresses = prefix.get_child_ips().restrict(request.user, 'view').prefetch_related(
-            'vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for'
+            'vrf', 'primary_ip4_for', 'primary_ip6_for'
         )
 
         # Add available IP addresses to the table if requested
@@ -593,7 +593,7 @@ class PrefixBulkDeleteView(BulkDeleteView):
 
 class IPAddressListView(ObjectListView):
     queryset = IPAddress.objects.prefetch_related(
-        'vrf__tenant', 'tenant', 'nat_inside', 'interface__device', 'interface__virtual_machine'
+        'vrf__tenant', 'tenant', 'nat_inside'
     )
     filterset = filters.IPAddressFilterSet
     filterset_form = forms.IPAddressFilterForm
@@ -622,7 +622,7 @@ class IPAddressView(ObjectView):
         ).exclude(
             pk=ipaddress.pk
         ).prefetch_related(
-            'nat_inside', 'interface__device'
+            'nat_inside'
         )
         # Exclude anycast IPs if this IP is anycast
         if ipaddress.role == IPAddressRoleChoices.ROLE_ANYCAST:
@@ -630,9 +630,7 @@ class IPAddressView(ObjectView):
         duplicate_ips_table = tables.IPAddressTable(list(duplicate_ips), orderable=False)
 
         # Related IP table
-        related_ips = IPAddress.objects.restrict(request.user, 'view').prefetch_related(
-            'interface__device'
-        ).exclude(
+        related_ips = IPAddress.objects.restrict(request.user, 'view').exclude(
             address=str(ipaddress.address)
         ).filter(
             vrf=ipaddress.vrf, address__net_contained_or_equal=str(ipaddress.address)
@@ -661,11 +659,16 @@ class IPAddressEditView(ObjectEditView):
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
 
-        interface_id = request.GET.get('interface')
-        if interface_id:
+        if 'interface' in request.GET:
             try:
-                obj.interface = Interface.objects.get(pk=interface_id)
+                obj.assigned_object = Interface.objects.get(pk=request.GET['interface'])
             except (ValueError, Interface.DoesNotExist):
+                pass
+
+        elif 'vminterface' in request.GET:
+            try:
+                obj.assigned_object = VMInterface.objects.get(pk=request.GET['vminterface'])
+            except (ValueError, VMInterface.DoesNotExist):
                 pass
 
         return obj
@@ -699,9 +702,7 @@ class IPAddressAssignView(ObjectView):
 
         if form.is_valid():
 
-            addresses = self.queryset.prefetch_related(
-                'vrf', 'tenant', 'interface__device', 'interface__virtual_machine'
-            )
+            addresses = self.queryset.prefetch_related('vrf', 'tenant')
             # Limit to 100 results
             addresses = filters.IPAddressFilterSet(request.POST, addresses).qs[:100]
             table = tables.IPAddressAssignTable(addresses)
@@ -735,7 +736,7 @@ class IPAddressBulkImportView(BulkImportView):
 
 
 class IPAddressBulkEditView(BulkEditView):
-    queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant').prefetch_related('interface__device')
+    queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant')
     filterset = filters.IPAddressFilterSet
     table = tables.IPAddressTable
     form = forms.IPAddressBulkEditForm
@@ -743,7 +744,7 @@ class IPAddressBulkEditView(BulkEditView):
 
 
 class IPAddressBulkDeleteView(BulkDeleteView):
-    queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant').prefetch_related('interface__device')
+    queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant')
     filterset = filters.IPAddressFilterSet
     table = tables.IPAddressTable
     default_return_url = 'ipam:ipaddress_list'

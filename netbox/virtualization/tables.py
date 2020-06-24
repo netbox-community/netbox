@@ -1,10 +1,9 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from dcim.models import Interface
 from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, ColoredLabelColumn, TagColumn, ToggleColumn
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 CLUSTERTYPE_ACTIONS = """
 <a href="{% url 'virtualization:clustertype_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
@@ -173,8 +172,12 @@ class VirtualMachineDetailTable(VirtualMachineTable):
 # VM components
 #
 
-class InterfaceTable(BaseTable):
+class VMInterfaceTable(BaseTable):
+    virtual_machine = tables.LinkColumn()
+    name = tables.Column(
+        linkify=True
+    )
 
     class Meta(BaseTable.Meta):
-        model = Interface
-        fields = ('name', 'enabled', 'description')
+        model = VMInterface
+        fields = ('virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description')

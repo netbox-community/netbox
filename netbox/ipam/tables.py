@@ -92,14 +92,6 @@ IPADDRESS_ASSIGN_LINK = """
 {% endif %}
 """
 
-IPADDRESS_PARENT = """
-{% if record.interface %}
-    <a href="{{ record.interface.parent.get_absolute_url }}">{{ record.interface.parent }}</a>
-{% else %}
-    &mdash;
-{% endif %}
-"""
-
 VRF_LINK = """
 {% if record.vrf %}
     <a href="{{ record.vrf.get_absolute_url }}">{{ record.vrf }}</a>
@@ -168,7 +160,7 @@ VLAN_MEMBER_UNTAGGED = """
 
 VLAN_MEMBER_ACTIONS = """
 {% if perms.dcim.change_interface %}
-    <a href="{% if record.device %}{% url 'dcim:interface_edit' pk=record.pk %}{% else %}{% url 'virtualization:interface_edit' pk=record.pk %}{% endif %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil"></i></a>
+    <a href="{% if record.device %}{% url 'dcim:interface_edit' pk=record.pk %}{% else %}{% url 'virtualization:vminterface_edit' pk=record.pk %}{% endif %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil"></i></a>
 {% endif %}
 """
 
@@ -431,18 +423,14 @@ class IPAddressTable(BaseTable):
     tenant = tables.TemplateColumn(
         template_code=TENANT_LINK
     )
-    parent = tables.TemplateColumn(
-        template_code=IPADDRESS_PARENT,
-        orderable=False
-    )
-    interface = tables.Column(
-        orderable=False
+    assigned = tables.BooleanColumn(
+        accessor='assigned_object_id'
     )
 
     class Meta(BaseTable.Meta):
         model = IPAddress
         fields = (
-            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface', 'dns_name', 'description',
+            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned', 'dns_name', 'description',
         )
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, IPAddress) else '',
@@ -465,11 +453,11 @@ class IPAddressDetailTable(IPAddressTable):
 
     class Meta(IPAddressTable.Meta):
         fields = (
-            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'parent', 'interface', 'dns_name',
+            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'assigned', 'dns_name',
             'description', 'tags',
         )
         default_columns = (
-            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface', 'dns_name', 'description',
+            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned', 'dns_name', 'description',
         )
 
 
@@ -481,17 +469,13 @@ class IPAddressAssignTable(BaseTable):
     status = tables.TemplateColumn(
         template_code=STATUS_LABEL
     )
-    parent = tables.TemplateColumn(
-        template_code=IPADDRESS_PARENT,
-        orderable=False
-    )
-    interface = tables.Column(
+    assigned_object = tables.Column(
         orderable=False
     )
 
     class Meta(BaseTable.Meta):
         model = IPAddress
-        fields = ('address', 'dns_name', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface', 'description')
+        fields = ('address', 'dns_name', 'vrf', 'status', 'role', 'tenant', 'assigned_object', 'description')
         orderable = False
 
 

@@ -1,10 +1,11 @@
 import netaddr
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericRelation
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import F, Q
+from django.db.models import F
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
@@ -14,7 +15,7 @@ from extras.utils import extras_features
 from utilities.models import ChangeLoggedModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import serialize_object
-from virtualization.models import VirtualMachine
+from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .constants import *
 from .fields import IPNetworkField, IPAddressField
@@ -606,12 +607,21 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         help_text='The functional role of this IP'
     )
-    interface = models.ForeignKey(
-        to='dcim.Interface',
-        on_delete=models.CASCADE,
-        related_name='ip_addresses',
+    assigned_object_type = models.ForeignKey(
+        to=ContentType,
+        limit_choices_to=IPADDRESS_ASSIGNMENT_MODELS,
+        on_delete=models.PROTECT,
+        related_name='+',
         blank=True,
         null=True
+    )
+    assigned_object_id = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+    assigned_object = GenericForeignKey(
+        ct_field='assigned_object_type',
+        fk_field='assigned_object_id'
     )
     nat_inside = models.OneToOneField(
         to='self',
@@ -643,11 +653,11 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
     objects = IPAddressManager()
 
     csv_headers = [
-        'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface', 'is_primary',
+        'address', 'vrf', 'tenant', 'status', 'role', 'assigned_object_type', 'assigned_object_id', 'is_primary',
         'dns_name', 'description',
     ]
     clone_fields = [
-        'vrf', 'tenant', 'status', 'role', 'description', 'interface',
+        'vrf', 'tenant', 'status', 'role', 'description',
     ]
 
     STATUS_CLASS_MAP = {
@@ -707,32 +717,31 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
                         )
                     })
 
-        if self.pk:
-
-            # Check for primary IP assignment that doesn't match the assigned device/VM
+        # Check for primary IP assignment that doesn't match the assigned device/VM
+        if self.pk and type(self.assigned_object) is Interface:
             device = Device.objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
             if device:
-                if self.interface is None:
+                if self.assigned_object is None:
                     raise ValidationError({
-                        'interface': "IP address is primary for device {} but not assigned".format(device)
+                        'interface': f"IP address is primary for device {device} but not assigned to an interface"
                     })
-                elif (device.primary_ip4 == self or device.primary_ip6 == self) and self.interface.device != device:
+                elif self.assigned_object.device != device:
                     raise ValidationError({
-                        'interface': "IP address is primary for device {} but assigned to {} ({})".format(
-                            device, self.interface.device, self.interface
-                        )
+                        'interface': f"IP address is primary for device {device} but assigned to "
+                                     f"{self.assigned_object.device} ({self.assigned_object})"
                     })
+        elif self.pk and type(self.assigned_object) is VMInterface:
             vm = VirtualMachine.objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
             if vm:
-                if self.interface is None:
+                if self.assigned_object is None:
                     raise ValidationError({
-                        'interface': "IP address is primary for virtual machine {} but not assigned".format(vm)
+                        'vminterface': f"IP address is primary for virtual machine {vm} but not assigned to an "
+                                       f"interface"
                     })
-                elif (vm.primary_ip4 == self or vm.primary_ip6 == self) and self.interface.virtual_machine != vm:
+                elif self.interface.virtual_machine != vm:
                     raise ValidationError({
-                        'interface': "IP address is primary for virtual machine {} but assigned to {} ({})".format(
-                            vm, self.interface.virtual_machine, self.interface
-                        )
+                        'vminterface': f"IP address is primary for virtual machine {vm} but assigned to "
+                                       f"{self.assigned_object.virtual_machine} ({self.assigned_object})"
                     })
 
     def save(self, *args, **kwargs):
@@ -743,29 +752,27 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         super().save(*args, **kwargs)
 
     def to_objectchange(self, action):
-        # Annotate the assigned Interface (if any)
-        try:
-            parent_obj = self.interface
-        except ObjectDoesNotExist:
-            parent_obj = None
-
+        # Annotate the assigned object, if any
         return ObjectChange(
             changed_object=self,
             object_repr=str(self),
             action=action,
-            related_object=parent_obj,
+            related_object=self.assigned_object,
             object_data=serialize_object(self)
         )
 
     def to_csv(self):
 
         # Determine if this IP is primary for a Device
+        is_primary = False
         if self.address.version == 4 and getattr(self, 'primary_ip4_for', False):
             is_primary = True
         elif self.address.version == 6 and getattr(self, 'primary_ip6_for', False):
             is_primary = True
-        else:
-            is_primary = False
+
+        obj_type = None
+        if self.assigned_object_type:
+            obj_type = f'{self.assigned_object_type.app_label}.{self.assigned_object_type.model}'
 
         return (
             self.address,
@@ -773,9 +780,8 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
             self.tenant.name if self.tenant else None,
             self.get_status_display(),
             self.get_role_display(),
-            self.device.identifier if self.device else None,
-            self.virtual_machine.name if self.virtual_machine else None,
-            self.interface.name if self.interface else None,
+            obj_type,
+            self.assigned_object_id,
             is_primary,
             self.dns_name,
             self.description,
@@ -795,18 +801,6 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         if self.address is not None:
             self.address.prefixlen = value
     mask_length = property(fset=_set_mask_length)
-
-    @property
-    def device(self):
-        if self.interface:
-            return self.interface.device
-        return None
-
-    @property
-    def virtual_machine(self):
-        if self.interface:
-            return self.interface.virtual_machine
-        return None
 
     def get_status_class(self):
         return self.STATUS_CLASS_MAP.get(self.status)

@@ -5,14 +5,8 @@ from drf_yasg.utils import get_serializer_ref_name
 from rest_framework.fields import ChoiceField
 from rest_framework.relations import ManyRelatedField
 
-from dcim.api.serializers import InterfaceSerializer as DeviceInterfaceSerializer
 from extras.api.customfields import CustomFieldsSerializer
 from utilities.api import ChoiceField, SerializedPKRelatedField, WritableNestedSerializer
-from virtualization.api.serializers import InterfaceSerializer as VirtualMachineInterfaceSerializer
-
-# this might be ugly, but it limits drf_yasg-specific code to this file
-DeviceInterfaceSerializer.Meta.ref_name = 'DeviceInterface'
-VirtualMachineInterfaceSerializer.Meta.ref_name = 'VirtualMachineInterface'
 
 
 class NetBoxSwaggerAutoSchema(SwaggerAutoSchema):

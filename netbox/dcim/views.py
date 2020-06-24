@@ -1,5 +1,4 @@
 from collections import OrderedDict
-import re
 
 from django.conf import settings
 from django.contrib import messages
@@ -25,8 +24,9 @@ from utilities.paginator import EnhancedPaginator
 from utilities.permissions import get_permission_for_model
 from utilities.utils import csv_format
 from utilities.views import (
-    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, GetReturnURLMixin,
-    ObjectView, ObjectImportView, ObjectDeleteView, ObjectEditView, ObjectListView, ObjectPermissionRequiredMixin,
+    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, BulkRenameView, ComponentCreateView,
+    GetReturnURLMixin, ObjectView, ObjectImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    ObjectPermissionRequiredMixin,
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
@@ -39,58 +39,6 @@ from .models import (
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
-
-
-class BulkRenameView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
-    """
-    An extendable view for renaming device components in bulk.
-    """
-    queryset = None
-    form = None
-    template_name = 'dcim/bulk_rename.html'
-
-    def get_required_permission(self):
-        return get_permission_for_model(self.queryset.model, 'change')
-
-    def post(self, request):
-
-        if '_preview' in request.POST or '_apply' in request.POST:
-            form = self.form(request.POST, initial={'pk': request.POST.getlist('pk')})
-            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
-
-            if form.is_valid():
-                for obj in selected_objects:
-                    find = form.cleaned_data['find']
-                    replace = form.cleaned_data['replace']
-                    if form.cleaned_data['use_regex']:
-                        try:
-                            obj.new_name = re.sub(find, replace, obj.name)
-                        # Catch regex group reference errors
-                        except re.error:
-                            obj.new_name = obj.name
-                    else:
-                        obj.new_name = obj.name.replace(find, replace)
-
-                if '_apply' in request.POST:
-                    for obj in selected_objects:
-                        obj.name = obj.new_name
-                        obj.save()
-                    messages.success(request, "Renamed {} {}".format(
-                        len(selected_objects),
-                        self.queryset.model._meta.verbose_name_plural
-                    ))
-                    return redirect(self.get_return_url(request))
-
-        else:
-            form = self.form(initial={'pk': request.POST.getlist('pk')})
-            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
-
-        return render(request, self.template_name, {
-            'form': form,
-            'obj_type_plural': self.queryset.model._meta.verbose_name_plural,
-            'selected_objects': selected_objects,
-            'return_url': self.get_return_url(request),
-        })
 
 
 class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
