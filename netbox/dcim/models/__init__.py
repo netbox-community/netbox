@@ -1572,9 +1572,9 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                 raise ValidationError({
                     'primary_ip4': f"{self.primary_ip4} is not an IPv4 address."
                 })
-            if self.primary_ip4.interface in vc_interfaces:
+            if self.primary_ip4.assigned_object in vc_interfaces:
                 pass
-            elif self.primary_ip4.nat_inside is not None and self.primary_ip4.nat_inside.interface in vc_interfaces:
+            elif self.primary_ip4.nat_inside is not None and self.primary_ip4.nat_inside.assigned_object in vc_interfaces:
                 pass
             else:
                 raise ValidationError({
@@ -1585,9 +1585,9 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                 raise ValidationError({
                     'primary_ip6': f"{self.primary_ip6} is not an IPv6 address."
                 })
-            if self.primary_ip6.interface in vc_interfaces:
+            if self.primary_ip6.assigned_object in vc_interfaces:
                 pass
-            elif self.primary_ip6.nat_inside is not None and self.primary_ip6.nat_inside.interface in vc_interfaces:
+            elif self.primary_ip6.nat_inside is not None and self.primary_ip6.nat_inside.assigned_object in vc_interfaces:
                 pass
             else:
                 raise ValidationError({
@@ -1757,7 +1757,12 @@ class VirtualChassis(ChangeLoggedModel):
     master = models.OneToOneField(
         to='Device',
         on_delete=models.PROTECT,
-        related_name='vc_master_for'
+        related_name='vc_master_for',
+        blank=True,
+        null=True
+    )
+    name = models.CharField(
+        max_length=64
     )
     domain = models.CharField(
         max_length=30,
@@ -1767,14 +1772,14 @@ class VirtualChassis(ChangeLoggedModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['master', 'domain']
+    csv_headers = ['name', 'domain', 'master']
 
     class Meta:
-        ordering = ['master']
+        ordering = ['name']
         verbose_name_plural = 'virtual chassis'
 
     def __str__(self):
-        return str(self.master) if hasattr(self, 'master') else 'New Virtual Chassis'
+        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:virtualchassis', kwargs={'pk': self.pk})
@@ -1783,9 +1788,9 @@ class VirtualChassis(ChangeLoggedModel):
 
         # Verify that the selected master device has been assigned to this VirtualChassis. (Skip when creating a new
         # VirtualChassis.)
-        if self.pk and self.master not in self.members.all():
+        if self.pk and self.master and self.master not in self.members.all():
             raise ValidationError({
-                'master': "The selected master is not assigned to this virtual chassis."
+                'master': f"The selected master ({self.master}) is not assigned to this virtual chassis."
             })
 
     def delete(self, *args, **kwargs):
@@ -1799,8 +1804,7 @@ class VirtualChassis(ChangeLoggedModel):
         )
         if interfaces:
             raise ProtectedError(
-                "Unable to delete virtual chassis {}. There are member interfaces which form a cross-chassis "
-                "LAG".format(self),
+                f"Unable to delete virtual chassis {self}. There are member interfaces which form a cross-chassis LAG",
                 interfaces
             )
 
@@ -1808,8 +1812,9 @@ class VirtualChassis(ChangeLoggedModel):
 
     def to_csv(self):
         return (
-            self.master,
+            self.name,
             self.domain,
+            self.master.name if self.master else None,
         )
 
 

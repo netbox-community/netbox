@@ -694,12 +694,12 @@ class InterfaceConnectionSerializer(ValidatedModelSerializer):
 #
 
 class VirtualChassisSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
-    master = NestedDeviceSerializer()
+    master = NestedDeviceSerializer(required=False)
     member_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VirtualChassis
-        fields = ['id', 'master', 'domain', 'tags', 'member_count']
+        fields = ['id', 'name', 'domain', 'master', 'tags', 'member_count']
 
 
 #

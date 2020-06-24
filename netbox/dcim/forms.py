@@ -4114,7 +4114,38 @@ class DeviceSelectionForm(forms.Form):
     )
 
 
-class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
+class VirtualChassisCreateForm(BootstrapMixin, forms.ModelForm):
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        widget=APISelect(
+            filter_for={
+                'rack': 'site_id',
+                'members': 'site_id',
+            }
+        )
+    )
+    rack = DynamicModelChoiceField(
+        queryset=Rack.objects.all(),
+        required=False,
+        widget=APISelect(
+            filter_for={
+                'members': 'rack_id'
+            },
+            attrs={
+                'nullable': 'true',
+            }
+        )
+    )
+    members = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+    )
+    initial_position = forms.IntegerField(
+        initial=1,
+        required=False,
+        help_text='Position of the first member device. Increases by one for each additional member.'
+    )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -4123,11 +4154,46 @@ class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = VirtualChassis
         fields = [
-            'master', 'domain', 'tags',
+            'name', 'domain', 'site', 'rack', 'members', 'initial_position', 'tags',
+        ]
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+
+        # Assign VC members
+        if instance.pk:
+            initial_position = self.cleaned_data.get('initial_position') or 1
+            for i, member in enumerate(self.cleaned_data['members'], start=initial_position):
+                member.virtual_chassis = instance
+                member.vc_position = i
+                member.save()
+
+        return instance
+
+
+class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
+    master = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+    )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = VirtualChassis
+        fields = [
+            'name', 'domain', 'master', 'tags',
         ]
         widgets = {
             'master': SelectWithPK(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['master'].queryset = Device.objects.filter(virtual_chassis=self.instance)
 
 
 class BaseVCMemberFormSet(forms.BaseModelFormSet):
@@ -4221,7 +4287,7 @@ class VCMemberSelectForm(BootstrapMixin, forms.Form):
         device = self.cleaned_data['device']
         if device.virtual_chassis is not None:
             raise forms.ValidationError(
-                "Device {} is already assigned to a virtual chassis.".format(device)
+                f"Device {device} is already assigned to a virtual chassis."
             )
         return device
 
@@ -4238,6 +4304,19 @@ class VirtualChassisBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm
 
     class Meta:
         nullable_fields = ['domain']
+
+
+class VirtualChassisCSVForm(CSVModelForm):
+    master = CSVModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Master device'
+    )
+
+    class Meta:
+        model = VirtualChassis
+        fields = VirtualChassis.csv_headers
 
 
 class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):

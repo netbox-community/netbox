@@ -1167,7 +1167,9 @@ class InventoryItemTable(BaseTable):
 class VirtualChassisTable(BaseTable):
     pk = ToggleColumn()
     name = tables.Column(
-        accessor=Accessor('master__name'),
+        linkify=True
+    )
+    master = tables.Column(
         linkify=True
     )
     member_count = tables.Column(
@@ -1179,8 +1181,8 @@ class VirtualChassisTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VirtualChassis
-        fields = ('pk', 'name', 'domain', 'member_count', 'tags')
-        default_columns = ('pk', 'name', 'domain', 'member_count')
+        fields = ('pk', 'name', 'domain', 'master', 'member_count', 'tags')
+        default_columns = ('pk', 'name', 'domain', 'master', 'member_count')
 
 
 #
