@@ -1200,7 +1200,7 @@ class ServiceForm(BootstrapMixin, CustomFieldModelForm):
             )
         elif self.instance.virtual_machine:
             self.fields['ipaddresses'].queryset = IPAddress.objects.filter(
-                vm_interface__in=self.instance.virtual_machine.interfaces.values_list('id', flat=True)
+                vminterface__in=self.instance.virtual_machine.interfaces.values_list('id', flat=True)
             )
         else:
             self.fields['ipaddresses'].choices = []

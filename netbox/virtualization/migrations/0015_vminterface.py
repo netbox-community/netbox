@@ -30,9 +30,9 @@ class Migration(migrations.Migration):
                 ('mtu', models.PositiveIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(65536)])),
                 ('mode', models.CharField(blank=True, max_length=50)),
                 ('description', models.CharField(blank=True, max_length=200)),
-                ('tagged_vlans', models.ManyToManyField(blank=True, related_name='vm_interfaces_as_tagged', to='ipam.VLAN')),
-                ('tags', taggit.managers.TaggableManager(related_name='vm_interface', through='extras.TaggedItem', to='extras.Tag')),
-                ('untagged_vlan', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='vm_interfaces_as_untagged', to='ipam.VLAN')),
+                ('tagged_vlans', models.ManyToManyField(blank=True, related_name='vminterfaces_as_tagged', to='ipam.VLAN')),
+                ('tags', taggit.managers.TaggableManager(related_name='vminterface', through='extras.TaggedItem', to='extras.Tag')),
+                ('untagged_vlan', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='vminterfaces_as_untagged', to='ipam.VLAN')),
                 ('virtual_machine', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='interfaces', to='virtualization.VirtualMachine')),
             ],
             options={

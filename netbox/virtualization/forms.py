@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
-from dcim.forms import INTERFACE_MODE_HELP_TEXT, InterfaceCommonForm
+from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldModelForm, CustomFieldFilterForm,
@@ -357,7 +357,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                 # Collect interface IPs
                 interface_ips = IPAddress.objects.prefetch_related('interface').filter(
                     address__family=family,
-                    vm_interface__in=self.instance.interfaces.values_list('id', flat=True)
+                    vminterface__in=self.instance.interfaces.values_list('id', flat=True)
                 )
                 if interface_ips:
                     ip_choices.append(
@@ -368,7 +368,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                 # Collect NAT IPs
                 nat_ips = IPAddress.objects.prefetch_related('nat_inside').filter(
                     address__family=family,
-                    nat_inside__vm_interface__in=self.instance.interfaces.values_list('id', flat=True)
+                    nat_inside__vminterface__in=self.instance.interfaces.values_list('id', flat=True)
                 )
                 if nat_ips:
                     ip_choices.append(

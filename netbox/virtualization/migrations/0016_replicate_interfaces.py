@@ -16,7 +16,7 @@ def replicate_interfaces(apps, schema_editor):
     # Replicate dcim.Interface instances assigned to VirtualMachines
     original_interfaces = Interface.objects.filter(virtual_machine__isnull=False)
     for interface in original_interfaces:
-        vm_interface = VMInterface(
+        vminterface = VMInterface(
             virtual_machine=interface.virtual_machine,
             name=interface.name,
             enabled=interface.enabled,
@@ -26,22 +26,22 @@ def replicate_interfaces(apps, schema_editor):
             description=interface.description,
             untagged_vlan=interface.untagged_vlan,
         )
-        vm_interface.save()
+        vminterface.save()
 
         # Copy tagged VLANs
-        vm_interface.tagged_vlans.set(interface.tagged_vlans.all())
+        vminterface.tagged_vlans.set(interface.tagged_vlans.all())
 
         # Reassign tags to the new instance
         TaggedItem.objects.filter(
             content_type=interface_ct, object_id=interface.pk
         ).update(
-            content_type=vminterface_ct, object_id=vm_interface.pk
+            content_type=vminterface_ct, object_id=vminterface.pk
         )
 
         # Update any assigned IPAddresses
         IPAddress.objects.filter(assigned_object_id=interface.pk).update(
             assigned_object_type=vminterface_ct,
-            assigned_object_id=vm_interface.pk
+            assigned_object_id=vminterface.pk
         )
 
     replicated_count = VMInterface.objects.count()

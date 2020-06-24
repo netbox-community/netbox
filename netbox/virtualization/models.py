@@ -394,14 +394,14 @@ class VMInterface(BaseInterface):
     untagged_vlan = models.ForeignKey(
         to='ipam.VLAN',
         on_delete=models.SET_NULL,
-        related_name='vm_interfaces_as_untagged',
+        related_name='vminterfaces_as_untagged',
         null=True,
         blank=True,
         verbose_name='Untagged VLAN'
     )
     tagged_vlans = models.ManyToManyField(
         to='ipam.VLAN',
-        related_name='vm_interfaces_as_tagged',
+        related_name='vminterfaces_as_tagged',
         blank=True,
         verbose_name='Tagged VLANs'
     )
@@ -409,11 +409,11 @@ class VMInterface(BaseInterface):
         to='ipam.IPAddress',
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
-        related_query_name='vm_interface'
+        related_query_name='vminterface'
     )
     tags = TaggableManager(
         through=TaggedItem,
-        related_name='vm_interface'
+        related_name='vminterface'
     )
 
     objects = RestrictedQuerySet.as_manager()

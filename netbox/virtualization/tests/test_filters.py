@@ -365,7 +365,7 @@ class VirtualMachineTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class InterfaceTestCase(TestCase):
+class VMInterfaceTestCase(TestCase):
     queryset = VMInterface.objects.all()
     filterset = VMInterfaceFilterSet
 
