@@ -13,9 +13,10 @@ def assign_virtualchassis_master(instance, created, **kwargs):
     When a VirtualChassis is created, automatically assign its master device (if any) to the VC.
     """
     if created and instance.master:
-        instance.master.virtual_chassis = instance
-        instance.master.vc_position = 1
-        instance.master.save()
+        master = Device.objects.get(pk=instance.master.pk)
+        master.virtual_chassis = instance
+        master.vc_position = 1
+        master.save()
 
 
 @receiver(pre_delete, sender=VirtualChassis)
