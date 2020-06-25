@@ -177,27 +177,23 @@ class ModelViewTestCase(TestCase):
 
     def _get_url(self, action, instance=None):
         """
-        Return the URL name for a specific action. An instance must be specified for
-        get/edit/delete views.
+        Return the URL name for a specific action and optionally a specific instance
         """
         url_format = self._get_base_url()
 
-        if action in ('list', 'add', 'import', 'bulk_edit', 'bulk_delete'):
+        # If no instance was provided, assume we don't need a unique identifier
+        if instance is None:
             return reverse(url_format.format(action))
 
-        elif action in ('get', 'edit', 'delete'):
-            if instance is None:
-                raise Exception("Resolving {} URL requires specifying an instance".format(action))
-            # Attempt to resolve using slug first
-            if hasattr(self.model, 'slug'):
-                try:
-                    return reverse(url_format.format(action), kwargs={'slug': instance.slug})
-                except NoReverseMatch:
-                    pass
-            return reverse(url_format.format(action), kwargs={'pk': instance.pk})
+        # Attempt to resolve using slug as the unique identifier if one exists
+        if hasattr(self.model, 'slug'):
+            try:
+                return reverse(url_format.format(action), kwargs={'slug': instance.slug})
+            except NoReverseMatch:
+                pass
 
-        else:
-            raise Exception("Invalid action for URL resolution: {}".format(action))
+        # Default to using the numeric PK to retrieve the URL for an object
+        return reverse(url_format.format(action), kwargs={'pk': instance.pk})
 
 
 class ViewTestCases:
@@ -256,6 +252,16 @@ class ViewTestCases:
 
             # Try GET to non-permitted object
             self.assertHttpStatus(self.client.get(instance2.get_absolute_url()), 404)
+
+    class GetObjectChangelogViewTestCase(ModelViewTestCase):
+        """
+        View the changelog for an instance.
+        """
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_get_object_changelog(self):
+            url = self._get_url('changelog', self.model.objects.first())
+            response = self.client.get(url)
+            self.assertHttpStatus(response, 200)
 
     class CreateObjectViewTestCase(ModelViewTestCase):
         """
@@ -879,6 +885,7 @@ class ViewTestCases:
 
     class PrimaryObjectViewTestCase(
         GetObjectViewTestCase,
+        GetObjectChangelogViewTestCase,
         CreateObjectViewTestCase,
         EditObjectViewTestCase,
         DeleteObjectViewTestCase,
@@ -893,6 +900,7 @@ class ViewTestCases:
         maxDiff = None
 
     class OrganizationalObjectViewTestCase(
+        GetObjectChangelogViewTestCase,
         CreateObjectViewTestCase,
         EditObjectViewTestCase,
         ListObjectsViewTestCase,
@@ -918,6 +926,7 @@ class ViewTestCases:
 
     class DeviceComponentViewTestCase(
         GetObjectViewTestCase,
+        GetObjectChangelogViewTestCase,
         EditObjectViewTestCase,
         DeleteObjectViewTestCase,
         ListObjectsViewTestCase,
