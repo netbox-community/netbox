@@ -1165,6 +1165,10 @@ class ConsolePortListView(ObjectListView):
     action_buttons = ('import', 'export')
 
 
+class ConsolePortView(ObjectView):
+    queryset = ConsolePort.objects.all()
+
+
 class ConsolePortCreateView(ComponentCreateView):
     queryset = ConsolePort.objects.all()
     form = forms.ConsolePortCreateForm
@@ -1212,6 +1216,10 @@ class ConsoleServerPortListView(ObjectListView):
     filterset_form = forms.ConsoleServerPortFilterForm
     table = tables.ConsoleServerPortDetailTable
     action_buttons = ('import', 'export')
+
+
+class ConsoleServerPortView(ObjectView):
+    queryset = ConsoleServerPort.objects.all()
 
 
 class ConsoleServerPortCreateView(ComponentCreateView):
@@ -1273,6 +1281,10 @@ class PowerPortListView(ObjectListView):
     action_buttons = ('import', 'export')
 
 
+class PowerPortView(ObjectView):
+    queryset = PowerPort.objects.all()
+
+
 class PowerPortCreateView(ComponentCreateView):
     queryset = PowerPort.objects.all()
     form = forms.PowerPortCreateForm
@@ -1320,6 +1332,10 @@ class PowerOutletListView(ObjectListView):
     filterset_form = forms.PowerOutletFilterForm
     table = tables.PowerOutletDetailTable
     action_buttons = ('import', 'export')
+
+
+class PowerOutletView(ObjectView):
+    queryset = PowerOutlet.objects.all()
 
 
 class PowerOutletCreateView(ComponentCreateView):
@@ -1409,7 +1425,7 @@ class InterfaceView(ObjectView):
         )
 
         return render(request, 'dcim/interface.html', {
-            'interface': interface,
+            'instance': interface,
             'connected_interface': interface._connected_interface,
             'connected_circuittermination': interface._connected_circuittermination,
             'ipaddress_table': ipaddress_table,
@@ -1477,6 +1493,10 @@ class FrontPortListView(ObjectListView):
     action_buttons = ('import', 'export')
 
 
+class FrontPortView(ObjectView):
+    queryset = FrontPort.objects.all()
+
+
 class FrontPortCreateView(ComponentCreateView):
     queryset = FrontPort.objects.all()
     form = forms.FrontPortCreateForm
@@ -1534,6 +1554,10 @@ class RearPortListView(ObjectListView):
     filterset_form = forms.RearPortFilterForm
     table = tables.RearPortDetailTable
     action_buttons = ('import', 'export')
+
+
+class RearPortView(ObjectView):
+    queryset = RearPort.objects.all()
 
 
 class RearPortCreateView(ComponentCreateView):
@@ -1595,6 +1619,10 @@ class DeviceBayListView(ObjectListView):
     filterset_form = forms.DeviceBayFilterForm
     table = tables.DeviceBayDetailTable
     action_buttons = ('import', 'export')
+
+
+class DeviceBayView(ObjectView):
+    queryset = DeviceBay.objects.all()
 
 
 class DeviceBayCreateView(ComponentCreateView):
