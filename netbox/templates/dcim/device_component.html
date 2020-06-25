@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load helpers %}
 {% load perms %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint">
@@ -14,6 +15,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons instance %}
         {% if request.user|can_change:instance %}
             <a href="{% url instance|url_name:"edit" pk=instance.pk %}" class="btn btn-warning">
                 <span class="fa fa-pencil" aria-hidden="true"></span> Edit

@@ -1,5 +1,6 @@
 {% extends 'dcim/device_component.html' %}
 {% load helpers %}
+{% load plugins %}
 
 {% block content %}
     <div class="row">
@@ -38,6 +39,7 @@
                 </table>
             </div>
             {% include 'extras/inc/tags_panel.html' with tags=instance.tags.all %}
+            {% plugin_left_page instance %}
         </div>
         <div class="col-md-6">
             <div class="panel panel-default">
@@ -72,6 +74,12 @@
                     </div>
                 {% endif %}
             </div>
+            {% plugin_right_page instance %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% plugin_full_width_page instance %}
         </div>
     </div>
 {% endblock %}
