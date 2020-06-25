@@ -296,6 +296,7 @@ class ObjectChangeLogView(View):
 
         return render(request, 'extras/object_changelog.html', {
             object_var: obj,
+            'instance': obj,  # We'll eventually standardize on 'instance` for the object variable name
             'table': objectchanges_table,
             'base_template': base_template,
             'active_tab': 'changelog',
