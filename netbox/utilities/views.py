@@ -28,7 +28,7 @@ from django_tables2 import RequestConfig
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
 from utilities.exceptions import AbortTransaction
-from utilities.forms import BootstrapMixin, CSVDataField, TableConfigForm
+from utilities.forms import BootstrapMixin, BulkRenameForm, CSVDataField, TableConfigForm
 from utilities.permissions import get_permission_for_model, resolve_permission
 from utilities.utils import csv_format, prepare_cloned_fields
 from .error_handlers import handle_protectederror
@@ -988,8 +988,19 @@ class BulkRenameView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     An extendable view for renaming objects in bulk.
     """
     queryset = None
-    form = None
     template_name = 'utilities/obj_bulk_rename.html'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Create a new Form class from BulkRenameForm
+        class _Form(BulkRenameForm):
+            pk = ModelMultipleChoiceField(
+                queryset=self.queryset,
+                widget=MultipleHiddenInput()
+            )
+
+        self.form = _Form
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'change')

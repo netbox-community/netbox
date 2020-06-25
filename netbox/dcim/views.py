@@ -1199,6 +1199,10 @@ class ConsolePortBulkEditView(BulkEditView):
     form = forms.ConsolePortBulkEditForm
 
 
+class ConsolePortBulkRenameView(BulkRenameView):
+    queryset = ConsolePort.objects.all()
+
+
 class ConsolePortBulkDeleteView(BulkDeleteView):
     queryset = ConsolePort.objects.all()
     filterset = filters.ConsolePortFilterSet
@@ -1254,7 +1258,6 @@ class ConsoleServerPortBulkEditView(BulkEditView):
 
 class ConsoleServerPortBulkRenameView(BulkRenameView):
     queryset = ConsoleServerPort.objects.all()
-    form = forms.ConsoleServerPortBulkRenameForm
 
 
 class ConsoleServerPortBulkDisconnectView(BulkDisconnectView):
@@ -1315,6 +1318,10 @@ class PowerPortBulkEditView(BulkEditView):
     form = forms.PowerPortBulkEditForm
 
 
+class PowerPortBulkRenameView(BulkRenameView):
+    queryset = PowerPort.objects.all()
+
+
 class PowerPortBulkDeleteView(BulkDeleteView):
     queryset = PowerPort.objects.all()
     filterset = filters.PowerPortFilterSet
@@ -1370,7 +1377,6 @@ class PowerOutletBulkEditView(BulkEditView):
 
 class PowerOutletBulkRenameView(BulkRenameView):
     queryset = PowerOutlet.objects.all()
-    form = forms.PowerOutletBulkRenameForm
 
 
 class PowerOutletBulkDisconnectView(BulkDisconnectView):
@@ -1466,7 +1472,6 @@ class InterfaceBulkEditView(BulkEditView):
 
 class InterfaceBulkRenameView(BulkRenameView):
     queryset = Interface.objects.all()
-    form = forms.InterfaceBulkRenameForm
 
 
 class InterfaceBulkDisconnectView(BulkDisconnectView):
@@ -1529,7 +1534,6 @@ class FrontPortBulkEditView(BulkEditView):
 
 class FrontPortBulkRenameView(BulkRenameView):
     queryset = FrontPort.objects.all()
-    form = forms.FrontPortBulkRenameForm
 
 
 class FrontPortBulkDisconnectView(BulkDisconnectView):
@@ -1592,7 +1596,6 @@ class RearPortBulkEditView(BulkEditView):
 
 class RearPortBulkRenameView(BulkRenameView):
     queryset = RearPort.objects.all()
-    form = forms.RearPortBulkRenameForm
 
 
 class RearPortBulkDisconnectView(BulkDisconnectView):
@@ -1722,7 +1725,6 @@ class DeviceBayBulkEditView(BulkEditView):
 
 class DeviceBayBulkRenameView(BulkRenameView):
     queryset = DeviceBay.objects.all()
-    form = forms.DeviceBayBulkRenameForm
 
 
 class DeviceBayBulkDeleteView(BulkDeleteView):

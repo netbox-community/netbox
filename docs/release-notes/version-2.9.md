@@ -15,6 +15,7 @@ NetBox v2.9 replaces Django's built-in permissions framework with one that suppo
 * [#4615](https://github.com/netbox-community/netbox/issues/4615) - Add `label` field for all device components
 * [#4742](https://github.com/netbox-community/netbox/issues/4742) - Add tagging for cables, power panels, and rack reservations
 * [#4788](https://github.com/netbox-community/netbox/issues/4788) - Add dedicated views for all device components
+* [#4792](https://github.com/netbox-community/netbox/issues/4792) - Add bulk rename capability for console and power ports
 
 ### Configuration Changes
 

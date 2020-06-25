@@ -1,5 +1,12 @@
 <tr class="powerport{% if pp.cable %} {{ pp.cable.get_status_class }}{% endif %}">
 
+    {# Checkbox #}
+    {% if perms.dcim.change_powerport or perms.dcim.delete_powerport %}
+        <td class="pk">
+            <input name="pk" type="checkbox" value="{{ pp.pk }}" />
+        </td>
+    {% endif %}
+
     {# Name #}
     <td>
         <i class="fa fa-fw fa-bolt"></i>

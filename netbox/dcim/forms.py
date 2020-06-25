@@ -23,7 +23,7 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    BulkRenameForm, ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField, CSVModelForm,
+    ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField, CSVModelForm,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
     NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
     BOOLEAN_WITH_BLANK_CHOICES,
@@ -2375,13 +2375,6 @@ class ConsoleServerPortBulkEditForm(
         ]
 
 
-class ConsoleServerPortBulkRenameForm(BulkRenameForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ConsoleServerPort.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
-
-
 class ConsoleServerPortBulkDisconnectForm(ConfirmationForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsoleServerPort.objects.all(),
@@ -2608,13 +2601,6 @@ class PowerOutletBulkEditForm(
         else:
             self.fields['power_port'].choices = ()
             self.fields['power_port'].widget.attrs['disabled'] = True
-
-
-class PowerOutletBulkRenameForm(BulkRenameForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=PowerOutlet.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
 
 
 class PowerOutletBulkDisconnectForm(ConfirmationForm):
@@ -2922,13 +2908,6 @@ class InterfaceBulkEditForm(
             self.cleaned_data['tagged_vlans'] = []
 
 
-class InterfaceBulkRenameForm(BulkRenameForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Interface.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
-
-
 class InterfaceBulkDisconnectForm(ConfirmationForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Interface.objects.all(),
@@ -3115,13 +3094,6 @@ class FrontPortBulkEditForm(
         ]
 
 
-class FrontPortBulkRenameForm(BulkRenameForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=FrontPort.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
-
-
 class FrontPortBulkDisconnectForm(ConfirmationForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=FrontPort.objects.all(),
@@ -3245,13 +3217,6 @@ class RearPortBulkEditForm(
         ]
 
 
-class RearPortBulkRenameForm(BulkRenameForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=RearPort.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
-
-
 class RearPortBulkDisconnectForm(ConfirmationForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RearPort.objects.all(),
@@ -3352,13 +3317,6 @@ class DeviceBayBulkEditForm(
         nullable_fields = (
             'description',
         )
-
-
-class DeviceBayBulkRenameForm(BulkRenameForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=DeviceBay.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
 
 
 class DeviceBayCSVForm(CSVModelForm):
