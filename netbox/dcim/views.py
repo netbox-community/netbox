@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.db.models import Count, F
-from django.forms import modelformset_factory
+from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
@@ -46,8 +46,19 @@ class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View)
     An extendable view for disconnection console/power/interface components in bulk.
     """
     queryset = None
-    form = None
     template_name = 'dcim/bulk_disconnect.html'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Create a new Form class from ConfirmationForm
+        class _Form(ConfirmationForm):
+            pk = ModelMultipleChoiceField(
+                queryset=self.queryset,
+                widget=MultipleHiddenInput()
+            )
+
+        self.form = _Form
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'change')
@@ -1203,6 +1214,10 @@ class ConsolePortBulkRenameView(BulkRenameView):
     queryset = ConsolePort.objects.all()
 
 
+class ConsolePortBulkDisconnectView(BulkDisconnectView):
+    queryset = ConsolePort.objects.all()
+
+
 class ConsolePortBulkDeleteView(BulkDeleteView):
     queryset = ConsolePort.objects.all()
     filterset = filters.ConsolePortFilterSet
@@ -1262,7 +1277,6 @@ class ConsoleServerPortBulkRenameView(BulkRenameView):
 
 class ConsoleServerPortBulkDisconnectView(BulkDisconnectView):
     queryset = ConsoleServerPort.objects.all()
-    form = forms.ConsoleServerPortBulkDisconnectForm
 
 
 class ConsoleServerPortBulkDeleteView(BulkDeleteView):
@@ -1319,6 +1333,10 @@ class PowerPortBulkEditView(BulkEditView):
 
 
 class PowerPortBulkRenameView(BulkRenameView):
+    queryset = PowerPort.objects.all()
+
+
+class PowerPortBulkDisconnectView(BulkDisconnectView):
     queryset = PowerPort.objects.all()
 
 
@@ -1381,7 +1399,6 @@ class PowerOutletBulkRenameView(BulkRenameView):
 
 class PowerOutletBulkDisconnectView(BulkDisconnectView):
     queryset = PowerOutlet.objects.all()
-    form = forms.PowerOutletBulkDisconnectForm
 
 
 class PowerOutletBulkDeleteView(BulkDeleteView):
@@ -1476,7 +1493,6 @@ class InterfaceBulkRenameView(BulkRenameView):
 
 class InterfaceBulkDisconnectView(BulkDisconnectView):
     queryset = Interface.objects.all()
-    form = forms.InterfaceBulkDisconnectForm
 
 
 class InterfaceBulkDeleteView(BulkDeleteView):
@@ -1538,7 +1554,6 @@ class FrontPortBulkRenameView(BulkRenameView):
 
 class FrontPortBulkDisconnectView(BulkDisconnectView):
     queryset = FrontPort.objects.all()
-    form = forms.FrontPortBulkDisconnectForm
 
 
 class FrontPortBulkDeleteView(BulkDeleteView):
@@ -1600,7 +1615,6 @@ class RearPortBulkRenameView(BulkRenameView):
 
 class RearPortBulkDisconnectView(BulkDisconnectView):
     queryset = RearPort.objects.all()
-    form = forms.RearPortBulkDisconnectForm
 
 
 class RearPortBulkDeleteView(BulkDeleteView):

@@ -2375,13 +2375,6 @@ class ConsoleServerPortBulkEditForm(
         ]
 
 
-class ConsoleServerPortBulkDisconnectForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=ConsoleServerPort.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
-
-
 class ConsoleServerPortCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
@@ -2601,13 +2594,6 @@ class PowerOutletBulkEditForm(
         else:
             self.fields['power_port'].choices = ()
             self.fields['power_port'].widget.attrs['disabled'] = True
-
-
-class PowerOutletBulkDisconnectForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=PowerOutlet.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
 
 
 class PowerOutletCSVForm(CSVModelForm):
@@ -2908,13 +2894,6 @@ class InterfaceBulkEditForm(
             self.cleaned_data['tagged_vlans'] = []
 
 
-class InterfaceBulkDisconnectForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=Interface.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
-
-
 class InterfaceCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
@@ -3094,13 +3073,6 @@ class FrontPortBulkEditForm(
         ]
 
 
-class FrontPortBulkDisconnectForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=FrontPort.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
-
-
 class FrontPortCSVForm(CSVModelForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
@@ -3215,13 +3187,6 @@ class RearPortBulkEditForm(
         nullable_fields = [
             'description',
         ]
-
-
-class RearPortBulkDisconnectForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=RearPort.objects.all(),
-        widget=forms.MultipleHiddenInput
-    )
 
 
 class RearPortCSVForm(CSVModelForm):
