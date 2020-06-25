@@ -490,18 +490,6 @@ class ConsolePortTemplateTable(ComponentTemplateTable):
         empty_text = "None"
 
 
-class ConsolePortImportTable(BaseTable):
-    device = tables.LinkColumn(
-        viewname='dcim:device',
-        args=[Accessor('device.pk')]
-    )
-
-    class Meta(BaseTable.Meta):
-        model = ConsolePort
-        fields = ('device', 'name', 'description')
-        empty_text = False
-
-
 class ConsoleServerPortTemplateTable(ComponentTemplateTable):
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('consoleserverporttemplate'),
@@ -513,18 +501,6 @@ class ConsoleServerPortTemplateTable(ComponentTemplateTable):
         model = ConsoleServerPortTemplate
         fields = ('pk', 'name', 'label', 'type', 'actions')
         empty_text = "None"
-
-
-class ConsoleServerPortImportTable(BaseTable):
-    device = tables.LinkColumn(
-        viewname='dcim:device',
-        args=[Accessor('device.pk')]
-    )
-
-    class Meta(BaseTable.Meta):
-        model = ConsoleServerPort
-        fields = ('device', 'name', 'description')
-        empty_text = False
 
 
 class PowerPortTemplateTable(ComponentTemplateTable):
@@ -540,18 +516,6 @@ class PowerPortTemplateTable(ComponentTemplateTable):
         empty_text = "None"
 
 
-class PowerPortImportTable(BaseTable):
-    device = tables.LinkColumn(
-        viewname='dcim:device',
-        args=[Accessor('device.pk')]
-    )
-
-    class Meta(BaseTable.Meta):
-        model = PowerPort
-        fields = ('device', 'name', 'description', 'maximum_draw', 'allocated_draw')
-        empty_text = False
-
-
 class PowerOutletTemplateTable(ComponentTemplateTable):
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('poweroutlettemplate'),
@@ -563,18 +527,6 @@ class PowerOutletTemplateTable(ComponentTemplateTable):
         model = PowerOutletTemplate
         fields = ('pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'actions')
         empty_text = "None"
-
-
-class PowerOutletImportTable(BaseTable):
-    device = tables.LinkColumn(
-        viewname='dcim:device',
-        args=[Accessor('device.pk')]
-    )
-
-    class Meta(BaseTable.Meta):
-        model = PowerOutlet
-        fields = ('device', 'name', 'description', 'power_port', 'feed_leg')
-        empty_text = False
 
 
 class InterfaceTemplateTable(ComponentTemplateTable):
@@ -593,20 +545,6 @@ class InterfaceTemplateTable(ComponentTemplateTable):
         empty_text = "None"
 
 
-class InterfaceImportTable(BaseTable):
-    device = tables.LinkColumn(
-        viewname='dcim:device',
-        args=[Accessor('device.pk')]
-    )
-
-    class Meta(BaseTable.Meta):
-        model = Interface
-        fields = (
-            'device', 'name', 'description', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only', 'mode',
-        )
-        empty_text = False
-
-
 class FrontPortTemplateTable(ComponentTemplateTable):
     rear_port_position = tables.Column(
         verbose_name='Position'
@@ -623,18 +561,6 @@ class FrontPortTemplateTable(ComponentTemplateTable):
         empty_text = "None"
 
 
-class FrontPortImportTable(BaseTable):
-    device = tables.LinkColumn(
-        viewname='dcim:device',
-        args=[Accessor('device.pk')]
-    )
-
-    class Meta(BaseTable.Meta):
-        model = FrontPort
-        fields = ('device', 'name', 'description', 'type', 'rear_port', 'rear_port_position')
-        empty_text = False
-
-
 class RearPortTemplateTable(ComponentTemplateTable):
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('rearporttemplate'),
@@ -646,18 +572,6 @@ class RearPortTemplateTable(ComponentTemplateTable):
         model = RearPortTemplate
         fields = ('pk', 'name', 'label', 'type', 'positions', 'actions')
         empty_text = "None"
-
-
-class RearPortImportTable(BaseTable):
-    device = tables.LinkColumn(
-        viewname='dcim:device',
-        args=[Accessor('device.pk')]
-    )
-
-    class Meta(BaseTable.Meta):
-        model = RearPort
-        fields = ('device', 'name', 'description', 'type', 'position')
-        empty_text = False
 
 
 class DeviceBayTemplateTable(ComponentTemplateTable):
@@ -855,144 +769,94 @@ class DeviceImportTable(BaseTable):
 # Device components
 #
 
-class DeviceComponentDetailTable(BaseTable):
+class DeviceComponentTable(BaseTable):
     pk = ToggleColumn()
-    device = tables.LinkColumn()
-    name = tables.Column(order_by=('_name',))
-    cable = tables.LinkColumn()
+    device = tables.Column(
+        linkify=True
+    )
+    name = tables.Column(
+        linkify=True,
+        order_by=('_name',)
+    )
+    cable = tables.Column(
+        linkify=True
+    )
 
     class Meta(BaseTable.Meta):
         order_by = ('device', 'name')
-        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable')
-        sequence = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable')
 
 
-class ConsolePortTable(BaseTable):
-    name = tables.Column(order_by=('_name',))
+class ConsolePortTable(DeviceComponentTable):
 
-    class Meta(BaseTable.Meta):
+    class Meta(DeviceComponentTable.Meta):
         model = ConsolePort
-        fields = ('name', 'label', 'type')
+        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable')
+        default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
-class ConsolePortDetailTable(DeviceComponentDetailTable):
+class ConsoleServerPortTable(DeviceComponentTable):
 
-    class Meta(DeviceComponentDetailTable.Meta, ConsolePortTable.Meta):
-        pass
-
-
-class ConsoleServerPortTable(BaseTable):
-    name = tables.Column(order_by=('_name',))
-
-    class Meta(BaseTable.Meta):
+    class Meta(DeviceComponentTable.Meta):
         model = ConsoleServerPort
-        fields = ('name', 'label', 'description')
+        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable')
+        default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
-class ConsoleServerPortDetailTable(DeviceComponentDetailTable):
+class PowerPortTable(DeviceComponentTable):
 
-    class Meta(DeviceComponentDetailTable.Meta, ConsoleServerPortTable.Meta):
-        pass
-
-
-class PowerPortTable(BaseTable):
-    name = tables.Column(order_by=('_name',))
-
-    class Meta(BaseTable.Meta):
+    class Meta(DeviceComponentTable.Meta):
         model = PowerPort
-        fields = ('name', 'label', 'type')
+        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'maximum_draw', 'allocated_draw', 'cable')
+        default_columns = ('pk', 'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description')
 
 
-class PowerPortDetailTable(DeviceComponentDetailTable):
+class PowerOutletTable(DeviceComponentTable):
 
-    class Meta(DeviceComponentDetailTable.Meta, PowerPortTable.Meta):
-        pass
-
-
-class PowerOutletTable(BaseTable):
-    name = tables.Column(order_by=('_name',))
-
-    class Meta(BaseTable.Meta):
+    class Meta(DeviceComponentTable.Meta):
         model = PowerOutlet
-        fields = ('name', 'label', 'type', 'description')
+        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'power_port', 'feed_leg', 'cable')
+        default_columns = ('pk', 'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description')
 
 
-class PowerOutletDetailTable(DeviceComponentDetailTable):
-
-    class Meta(DeviceComponentDetailTable.Meta, PowerOutletTable.Meta):
-        pass
-
-
-class InterfaceTable(BaseTable):
-
-    class Meta(BaseTable.Meta):
-        model = Interface
-        fields = ('name', 'label', 'type', 'lag', 'enabled', 'mgmt_only', 'description')
-
-
-class InterfaceDetailTable(DeviceComponentDetailTable):
+class InterfaceTable(DeviceComponentTable):
     enabled = BooleanColumn()
 
-    class Meta(DeviceComponentDetailTable.Meta, InterfaceTable.Meta):
-        fields = ('pk', 'device', 'name', 'label', 'enabled', 'type', 'description', 'cable')
-        sequence = ('pk', 'device', 'name', 'label', 'enabled', 'type', 'description', 'cable')
+    class Meta(DeviceComponentTable.Meta):
+        model = Interface
+        fields = (
+            'pk', 'device', 'name', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'description', 'cable',
+        )
+        default_columns = ('pk', 'device', 'name', 'label', 'enabled', 'type', 'description')
 
 
-class FrontPortTable(BaseTable):
-    name = tables.Column(order_by=('_name',))
+class FrontPortTable(DeviceComponentTable):
+    rear_port_position = tables.Column(
+        verbose_name='Position'
+    )
 
-    class Meta(BaseTable.Meta):
+    class Meta(DeviceComponentTable.Meta):
         model = FrontPort
-        fields = ('name', 'label', 'type', 'rear_port', 'rear_port_position', 'description')
-        empty_text = "None"
+        fields = ('pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable')
+        default_columns = ('pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description')
 
 
-class FrontPortDetailTable(DeviceComponentDetailTable):
+class RearPortTable(DeviceComponentTable):
 
-    class Meta(DeviceComponentDetailTable.Meta, FrontPortTable.Meta):
-        pass
-
-
-class RearPortTable(BaseTable):
-    name = tables.Column(order_by=('_name',))
-
-    class Meta(BaseTable.Meta):
+    class Meta(DeviceComponentTable.Meta):
         model = RearPort
-        fields = ('name', 'label', 'type', 'positions', 'description')
-        empty_text = "None"
+        fields = ('pk', 'device', 'name', 'label', 'type', 'positions', 'description', 'cable')
+        default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
-class RearPortDetailTable(DeviceComponentDetailTable):
+class DeviceBayTable(DeviceComponentTable):
+    installed_device = tables.Column(
+        linkify=True
+    )
 
-    class Meta(DeviceComponentDetailTable.Meta, RearPortTable.Meta):
-        pass
-
-
-class DeviceBayTable(BaseTable):
-    name = tables.Column(order_by=('_name',))
-
-    class Meta(BaseTable.Meta):
+    class Meta(DeviceComponentTable.Meta):
         model = DeviceBay
-        fields = ('name', 'label', 'description')
-
-
-class DeviceBayDetailTable(DeviceComponentDetailTable):
-    installed_device = tables.LinkColumn()
-
-    class Meta(DeviceBayTable.Meta):
         fields = ('pk', 'device', 'name', 'label', 'installed_device', 'description')
-        sequence = ('pk', 'device', 'name', 'label', 'installed_device', 'description')
-        exclude = ('cable',)
-
-
-class DeviceBayImportTable(BaseTable):
-    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
-    installed_device = tables.LinkColumn('dcim:device', args=[Accessor('installed_device.pk')], verbose_name='Installed Device')
-
-    class Meta(BaseTable.Meta):
-        model = DeviceBay
-        fields = ('device', 'name', 'installed_device', 'description')
-        empty_text = False
+        default_columns = ('pk', 'device', 'name', 'label', 'installed_device', 'description')
 
 
 #
