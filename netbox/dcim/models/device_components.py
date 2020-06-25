@@ -268,7 +268,7 @@ class ConsolePort(CableTermination, ComponentModel):
         unique_together = ('device', 'name')
 
     def get_absolute_url(self):
-        return self.device.get_absolute_url()
+        return reverse('dcim:consoleport', kwargs={'pk': self.pk})
 
     def to_csv(self):
         return (
@@ -325,7 +325,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         unique_together = ('device', 'name')
 
     def get_absolute_url(self):
-        return self.device.get_absolute_url()
+        return reverse('dcim:consoleserverport', kwargs={'pk': self.pk})
 
     def to_csv(self):
         return (
@@ -408,7 +408,7 @@ class PowerPort(CableTermination, ComponentModel):
         unique_together = ('device', 'name')
 
     def get_absolute_url(self):
-        return self.device.get_absolute_url()
+        return reverse('dcim:powerport', kwargs={'pk': self.pk})
 
     def to_csv(self):
         return (
@@ -560,7 +560,7 @@ class PowerOutlet(CableTermination, ComponentModel):
         unique_together = ('device', 'name')
 
     def get_absolute_url(self):
-        return self.device.get_absolute_url()
+        return reverse('dcim:poweroutlet', kwargs={'pk': self.pk})
 
     def to_csv(self):
         return (
@@ -881,6 +881,9 @@ class FrontPort(CableTermination, ComponentModel):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('dcim:frontport', kwargs={'pk': self.pk})
+
     def to_csv(self):
         return (
             self.device.identifier,
@@ -946,6 +949,9 @@ class RearPort(CableTermination, ComponentModel):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('dcim:rearport', kwargs={'pk': self.pk})
+
     def to_csv(self):
         return (
             self.device.identifier,
@@ -1005,7 +1011,7 @@ class DeviceBay(ComponentModel):
         return '{} - {}'.format(self.device.name, self.name)
 
     def get_absolute_url(self):
-        return self.device.get_absolute_url()
+        return reverse('dcim:devicebay', kwargs={'pk': self.pk})
 
     def to_csv(self):
         return (

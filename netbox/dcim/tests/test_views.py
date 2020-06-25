@@ -1194,10 +1194,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
 
 
-class InterfaceTestCase(
-    ViewTestCases.GetObjectViewTestCase,
-    ViewTestCases.DeviceComponentViewTestCase,
-):
+class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = Interface
 
     @classmethod
@@ -1425,7 +1422,16 @@ class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
 
 
-class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
+# TODO: Convert to DeviceComponentViewTestCase?
+class InventoryItemTestCase(
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkCreateObjectsViewTestCase,
+    ViewTestCases.BulkImportObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
     model = InventoryItem
 
     @classmethod

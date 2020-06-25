@@ -1158,11 +1158,15 @@ class DeviceBulkDeleteView(BulkDeleteView):
 #
 
 class ConsolePortListView(ObjectListView):
-    queryset = ConsolePort.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
+    queryset = ConsolePort.objects.prefetch_related('device', 'cable')
     filterset = filters.ConsolePortFilterSet
     filterset_form = forms.ConsolePortFilterForm
-    table = tables.ConsolePortDetailTable
+    table = tables.ConsolePortTable
     action_buttons = ('import', 'export')
+
+
+class ConsolePortView(ObjectView):
+    queryset = ConsolePort.objects.all()
 
 
 class ConsolePortCreateView(ComponentCreateView):
@@ -1184,7 +1188,7 @@ class ConsolePortDeleteView(ObjectDeleteView):
 class ConsolePortBulkImportView(BulkImportView):
     queryset = ConsolePort.objects.all()
     model_form = forms.ConsolePortCSVForm
-    table = tables.ConsolePortImportTable
+    table = tables.ConsolePortTable
     default_return_url = 'dcim:consoleport_list'
 
 
@@ -1207,11 +1211,15 @@ class ConsolePortBulkDeleteView(BulkDeleteView):
 #
 
 class ConsoleServerPortListView(ObjectListView):
-    queryset = ConsoleServerPort.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
+    queryset = ConsoleServerPort.objects.prefetch_related('device', 'cable')
     filterset = filters.ConsoleServerPortFilterSet
     filterset_form = forms.ConsoleServerPortFilterForm
-    table = tables.ConsoleServerPortDetailTable
+    table = tables.ConsoleServerPortTable
     action_buttons = ('import', 'export')
+
+
+class ConsoleServerPortView(ObjectView):
+    queryset = ConsoleServerPort.objects.all()
 
 
 class ConsoleServerPortCreateView(ComponentCreateView):
@@ -1233,7 +1241,7 @@ class ConsoleServerPortDeleteView(ObjectDeleteView):
 class ConsoleServerPortBulkImportView(BulkImportView):
     queryset = ConsoleServerPort.objects.all()
     model_form = forms.ConsoleServerPortCSVForm
-    table = tables.ConsoleServerPortImportTable
+    table = tables.ConsoleServerPortTable
     default_return_url = 'dcim:consoleserverport_list'
 
 
@@ -1266,11 +1274,15 @@ class ConsoleServerPortBulkDeleteView(BulkDeleteView):
 #
 
 class PowerPortListView(ObjectListView):
-    queryset = PowerPort.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
+    queryset = PowerPort.objects.prefetch_related('device', 'cable')
     filterset = filters.PowerPortFilterSet
     filterset_form = forms.PowerPortFilterForm
-    table = tables.PowerPortDetailTable
+    table = tables.PowerPortTable
     action_buttons = ('import', 'export')
+
+
+class PowerPortView(ObjectView):
+    queryset = PowerPort.objects.all()
 
 
 class PowerPortCreateView(ComponentCreateView):
@@ -1292,7 +1304,7 @@ class PowerPortDeleteView(ObjectDeleteView):
 class PowerPortBulkImportView(BulkImportView):
     queryset = PowerPort.objects.all()
     model_form = forms.PowerPortCSVForm
-    table = tables.PowerPortImportTable
+    table = tables.PowerPortTable
     default_return_url = 'dcim:powerport_list'
 
 
@@ -1315,11 +1327,15 @@ class PowerPortBulkDeleteView(BulkDeleteView):
 #
 
 class PowerOutletListView(ObjectListView):
-    queryset = PowerOutlet.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
+    queryset = PowerOutlet.objects.prefetch_related('device', 'cable')
     filterset = filters.PowerOutletFilterSet
     filterset_form = forms.PowerOutletFilterForm
-    table = tables.PowerOutletDetailTable
+    table = tables.PowerOutletTable
     action_buttons = ('import', 'export')
+
+
+class PowerOutletView(ObjectView):
+    queryset = PowerOutlet.objects.all()
 
 
 class PowerOutletCreateView(ComponentCreateView):
@@ -1341,7 +1357,7 @@ class PowerOutletDeleteView(ObjectDeleteView):
 class PowerOutletBulkImportView(BulkImportView):
     queryset = PowerOutlet.objects.all()
     model_form = forms.PowerOutletCSVForm
-    table = tables.PowerOutletImportTable
+    table = tables.PowerOutletTable
     default_return_url = 'dcim:poweroutlet_list'
 
 
@@ -1374,10 +1390,10 @@ class PowerOutletBulkDeleteView(BulkDeleteView):
 #
 
 class InterfaceListView(ObjectListView):
-    queryset = Interface.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
+    queryset = Interface.objects.prefetch_related('device', 'cable')
     filterset = filters.InterfaceFilterSet
     filterset_form = forms.InterfaceFilterForm
-    table = tables.InterfaceDetailTable
+    table = tables.InterfaceTable
     action_buttons = ('import', 'export')
 
 
@@ -1409,7 +1425,7 @@ class InterfaceView(ObjectView):
         )
 
         return render(request, 'dcim/interface.html', {
-            'interface': interface,
+            'instance': interface,
             'connected_interface': interface._connected_interface,
             'connected_circuittermination': interface._connected_circuittermination,
             'ipaddress_table': ipaddress_table,
@@ -1437,7 +1453,7 @@ class InterfaceDeleteView(ObjectDeleteView):
 class InterfaceBulkImportView(BulkImportView):
     queryset = Interface.objects.all()
     model_form = forms.InterfaceCSVForm
-    table = tables.InterfaceImportTable
+    table = tables.InterfaceTable
     default_return_url = 'dcim:interface_list'
 
 
@@ -1470,11 +1486,15 @@ class InterfaceBulkDeleteView(BulkDeleteView):
 #
 
 class FrontPortListView(ObjectListView):
-    queryset = FrontPort.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
+    queryset = FrontPort.objects.prefetch_related('device', 'cable')
     filterset = filters.FrontPortFilterSet
     filterset_form = forms.FrontPortFilterForm
-    table = tables.FrontPortDetailTable
+    table = tables.FrontPortTable
     action_buttons = ('import', 'export')
+
+
+class FrontPortView(ObjectView):
+    queryset = FrontPort.objects.all()
 
 
 class FrontPortCreateView(ComponentCreateView):
@@ -1496,7 +1516,7 @@ class FrontPortDeleteView(ObjectDeleteView):
 class FrontPortBulkImportView(BulkImportView):
     queryset = FrontPort.objects.all()
     model_form = forms.FrontPortCSVForm
-    table = tables.FrontPortImportTable
+    table = tables.FrontPortTable
     default_return_url = 'dcim:frontport_list'
 
 
@@ -1529,11 +1549,15 @@ class FrontPortBulkDeleteView(BulkDeleteView):
 #
 
 class RearPortListView(ObjectListView):
-    queryset = RearPort.objects.prefetch_related('device', 'device__tenant', 'device__site', 'cable')
+    queryset = RearPort.objects.prefetch_related('device', 'cable')
     filterset = filters.RearPortFilterSet
     filterset_form = forms.RearPortFilterForm
-    table = tables.RearPortDetailTable
+    table = tables.RearPortTable
     action_buttons = ('import', 'export')
+
+
+class RearPortView(ObjectView):
+    queryset = RearPort.objects.all()
 
 
 class RearPortCreateView(ComponentCreateView):
@@ -1555,7 +1579,7 @@ class RearPortDeleteView(ObjectDeleteView):
 class RearPortBulkImportView(BulkImportView):
     queryset = RearPort.objects.all()
     model_form = forms.RearPortCSVForm
-    table = tables.RearPortImportTable
+    table = tables.RearPortTable
     default_return_url = 'dcim:rearport_list'
 
 
@@ -1588,13 +1612,15 @@ class RearPortBulkDeleteView(BulkDeleteView):
 #
 
 class DeviceBayListView(ObjectListView):
-    queryset = DeviceBay.objects.prefetch_related(
-        'device', 'device__site', 'installed_device', 'installed_device__site'
-    )
+    queryset = DeviceBay.objects.prefetch_related('device', 'installed_device')
     filterset = filters.DeviceBayFilterSet
     filterset_form = forms.DeviceBayFilterForm
-    table = tables.DeviceBayDetailTable
+    table = tables.DeviceBayTable
     action_buttons = ('import', 'export')
+
+
+class DeviceBayView(ObjectView):
+    queryset = DeviceBay.objects.all()
 
 
 class DeviceBayCreateView(ComponentCreateView):
@@ -1683,7 +1709,7 @@ class DeviceBayDepopulateView(ObjectEditView):
 class DeviceBayBulkImportView(BulkImportView):
     queryset = DeviceBay.objects.all()
     model_form = forms.DeviceBayCSVForm
-    table = tables.DeviceBayImportTable
+    table = tables.DeviceBayTable
     default_return_url = 'dcim:devicebay_list'
 
 

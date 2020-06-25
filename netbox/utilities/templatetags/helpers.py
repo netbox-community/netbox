@@ -5,7 +5,6 @@ import re
 import yaml
 from django import template
 from django.conf import settings
-from django.urls import NoReverseMatch, reverse
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown
@@ -79,14 +78,7 @@ def url_name(model, action):
     """
     Return the URL name for the given model and action, or None if invalid.
     """
-    url_name = '{}:{}_{}'.format(model._meta.app_label, model._meta.model_name, action)
-    try:
-        # Validate and return the URL name. We don't return the actual URL yet because many of the templates
-        # are written to pass a name to {% url %}.
-        reverse(url_name)
-        return url_name
-    except NoReverseMatch:
-        return None
+    return '{}:{}_{}'.format(model._meta.app_label, model._meta.model_name, action)
 
 
 @register.filter()

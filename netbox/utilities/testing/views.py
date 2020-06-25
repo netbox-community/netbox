@@ -917,6 +917,7 @@ class ViewTestCases:
         maxDiff = None
 
     class DeviceComponentViewTestCase(
+        GetObjectViewTestCase,
         EditObjectViewTestCase,
         DeleteObjectViewTestCase,
         ListObjectsViewTestCase,
