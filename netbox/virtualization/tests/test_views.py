@@ -189,10 +189,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-class VMInterfaceTestCase(
-    ViewTestCases.GetObjectViewTestCase,
-    ViewTestCases.DeviceComponentViewTestCase,
-):
+class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = VMInterface
 
     @classmethod
