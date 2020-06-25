@@ -5,6 +5,7 @@ import re
 import yaml
 from django import template
 from django.conf import settings
+from django.urls import NoReverseMatch, reverse
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown
@@ -74,11 +75,26 @@ def meta(obj, attr):
 
 
 @register.filter()
-def url_name(model, action):
+def viewname(model, action):
     """
-    Return the URL name for the given model and action, or None if invalid.
+    Return the view name for the given model and action. Does not perform any validation.
     """
-    return '{}:{}_{}'.format(model._meta.app_label, model._meta.model_name, action)
+    return f'{model._meta.app_label}:{model._meta.model_name}_{action}'
+
+
+@register.filter()
+def validated_viewname(model, action):
+    """
+    Return the view name for the given model and action if valid, or None if invalid.
+    """
+    viewname = f'{model._meta.app_label}:{model._meta.model_name}_{action}'
+    try:
+        # Validate and return the view name. We don't return the actual URL yet because many of the templates
+        # are written to pass a name to {% url %}.
+        reverse(viewname)
+        return viewname
+    except NoReverseMatch:
+        return None
 
 
 @register.filter()
