@@ -127,6 +127,25 @@ class ObjectView(ObjectPermissionRequiredMixin, View):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
 
+    def get_template_name(self):
+        """
+        Return self.template_name if set. Otherwise, resolve the template path by model app_label and name.
+        """
+        if hasattr(self, 'template_name'):
+            return self.template_name
+        model_opts = self.queryset.model._meta
+        return f'{model_opts.app_label}/{model_opts.model_name}.html'
+
+    def get(self, request, pk):
+        """
+        Generic GET handler for accessing an object by PK
+        """
+        instance = get_object_or_404(self.queryset, pk=pk)
+
+        return render(request, self.get_template_name(), {
+            'instance': instance,
+        })
+
 
 class ObjectListView(ObjectPermissionRequiredMixin, View):
     """
