@@ -271,7 +271,6 @@ class ViewTestCases:
         """
         form_data = {}
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_create_object_without_permission(self):
 
             # Try GET without permission
@@ -287,7 +286,7 @@ class ViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(response, 403)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_create_object_with_permission(self):
             initial_count = self.model.objects.count()
 
@@ -311,7 +310,7 @@ class ViewTestCases:
             self.assertEqual(initial_count + 1, self.model.objects.count())
             self.assertInstanceEqual(self.model.objects.order_by('pk').last(), self.form_data)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_create_object_with_constrained_permission(self):
             initial_count = self.model.objects.count()
 
@@ -356,7 +355,6 @@ class ViewTestCases:
         """
         form_data = {}
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_edit_object_without_permission(self):
             instance = self.model.objects.first()
 
@@ -372,7 +370,7 @@ class ViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.post(**request), 403)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_edit_object_with_permission(self):
             instance = self.model.objects.first()
 
@@ -395,7 +393,7 @@ class ViewTestCases:
             self.assertHttpStatus(self.client.post(**request), 302)
             self.assertInstanceEqual(self.model.objects.get(pk=instance.pk), self.form_data)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_edit_object_with_constrained_permission(self):
             instance1, instance2 = self.model.objects.all()[:2]
 
@@ -433,7 +431,6 @@ class ViewTestCases:
         """
         Delete a single instance.
         """
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_delete_object_without_permission(self):
             instance = self.model.objects.first()
 
@@ -449,7 +446,7 @@ class ViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.post(**request), 403)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_delete_object_with_permission(self):
             instance = self.model.objects.first()
 
@@ -473,7 +470,7 @@ class ViewTestCases:
             with self.assertRaises(ObjectDoesNotExist):
                 self.model.objects.get(pk=instance.pk)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_delete_object_with_constrained_permission(self):
             instance1, instance2 = self.model.objects.all()[:2]
 
