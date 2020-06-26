@@ -220,7 +220,7 @@ class ViewTestCases:
 
             # Try GET without permission
             with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(self._get_url('add')), 403)
+                self.assertHttpStatus(self.client.get(self._get_url('add')), 403)
 
             # Try GET with permission
             self.add_permissions(
@@ -256,7 +256,7 @@ class ViewTestCases:
 
             # Try GET without permission
             with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(self._get_url('edit', instance)), 403)
+                self.assertHttpStatus(self.client.get(self._get_url('edit', instance)), 403)
 
             # Try GET with permission
             self.add_permissions(
@@ -288,7 +288,7 @@ class ViewTestCases:
 
             # Try GET without permissions
             with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(self._get_url('delete', instance)), 403)
+                self.assertHttpStatus(self.client.get(self._get_url('delete', instance)), 403)
 
             # Try GET with permission
             self.add_permissions(
