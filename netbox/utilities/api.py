@@ -327,7 +327,7 @@ class ModelViewSet(_ModelViewSet):
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
 
-        if not request.user.is_authenticated or request.user.is_superuser:
+        if not request.user.is_authenticated:
             return
 
         # TODO: Reconcile this with TokenPermissions.perms_map
