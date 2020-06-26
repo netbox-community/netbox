@@ -300,9 +300,6 @@ class CircuitTermination(CableTermination):
         blank=True
     )
 
-    # Paths do not end on cable terminations, they continue at the other end of the circuit
-    is_path_endpoint = False
-
     # But they are a possible connected endpoint
     is_connected_endpoint = True
 

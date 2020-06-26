@@ -2129,6 +2129,7 @@ class Cable(ChangeLoggedModel):
         return reverse('dcim:cable', args=[self.pk])
 
     def clean(self):
+        from circuits.models import CircuitTermination
 
         # Validate that termination A exists
         if not hasattr(self, 'termination_a_type'):
@@ -2198,7 +2199,7 @@ class Cable(ChangeLoggedModel):
             (self.termination_b, self.termination_a)
         ]:
             if isinstance(term_a, RearPort) and term_a.positions > 1:
-                if term_b.is_path_endpoint:
+                if not isinstance(term_b, (FrontPort, RearPort, CircuitTermination)):
                     raise ValidationError(
                         "Rear ports with multiple positions may only be connected to other pass-through ports"
                     )
