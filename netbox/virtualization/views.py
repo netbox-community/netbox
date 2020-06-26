@@ -1,13 +1,13 @@
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from dcim.models import Device
 from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
-from ipam.models import Service
+from ipam.models import IPAddress, Service
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, BulkRenameView, ComponentCreateView,
@@ -88,6 +88,9 @@ class ClusterView(ObjectView):
     queryset = Cluster.objects.all()
 
     def get(self, request, pk):
+        self.queryset = self.queryset.prefetch_related(
+            Prefetch('virtual_machines', queryset=VirtualMachine.objects.restrict(request.user))
+        )
 
         cluster = get_object_or_404(self.queryset, pk=pk)
         devices = Device.objects.restrict(request.user, 'view').filter(cluster=cluster).prefetch_related(
@@ -236,8 +239,16 @@ class VirtualMachineView(ObjectView):
     def get(self, request, pk):
 
         virtualmachine = get_object_or_404(self.queryset, pk=pk)
-        interfaces = VMInterface.objects.restrict(request.user, 'view').filter(virtual_machine=virtualmachine)
-        services = Service.objects.restrict(request.user, 'view').filter(virtual_machine=virtualmachine)
+        interfaces = VMInterface.objects.restrict(request.user, 'view').filter(
+            virtual_machine=virtualmachine
+        ).prefetch_related(
+            Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user))
+        )
+        services = Service.objects.restrict(request.user, 'view').filter(
+            virtual_machine=virtualmachine
+        ).prefetch_related(
+            Prefetch('ipaddresses', queryset=IPAddress.objects.restrict(request.user))
+        )
 
         return render(request, 'virtualization/virtualmachine.html', {
             'virtualmachine': virtualmachine,
@@ -315,7 +326,7 @@ class VMInterfaceView(ObjectView):
         if vminterface.untagged_vlan is not None:
             vlans.append(vminterface.untagged_vlan)
             vlans[0].tagged = False
-        for vlan in vminterface.tagged_vlans.prefetch_related('site', 'group', 'tenant', 'role'):
+        for vlan in vminterface.tagged_vlans.restrict(request.user).prefetch_related('site', 'group', 'tenant', 'role'):
             vlan.tagged = True
             vlans.append(vlan)
         vlan_table = InterfaceVLANTable(

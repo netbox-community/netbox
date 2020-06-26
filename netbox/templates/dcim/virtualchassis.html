@@ -93,7 +93,7 @@
                     <th>Master</th>
                     <th>Priority</th>
                 </tr>
-                {% for vc_member in virtualchassis.members.all %}
+                {% for vc_member in members %}
                     <tr{% if vc_member == device %} class="info"{% endif %}>
                         <td>
                             <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>

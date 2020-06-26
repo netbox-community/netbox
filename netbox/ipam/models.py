@@ -255,7 +255,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         """
         Determine the prefix utilization of the aggregate and return it as a percentage.
         """
-        queryset = Prefix.objects.filter(prefix__net_contained_or_equal=str(self.prefix))
+        queryset = Prefix.objects.unrestricted().filter(prefix__net_contained_or_equal=str(self.prefix))
         child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
         return int(float(child_prefixes.size) / self.prefix.size * 100)
 
@@ -553,7 +553,10 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         "container", calculate utilization based on child prefixes. For all others, count child IP addresses.
         """
         if self.status == PrefixStatusChoices.STATUS_CONTAINER:
-            queryset = Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
+            queryset = Prefix.objects.unrestricted().filter(
+                prefix__net_contained=str(self.prefix),
+                vrf=self.vrf
+            )
             child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
             return int(float(child_prefixes.size) / self.prefix.size * 100)
         else:

@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
-from django.db.models import Count, F
+from django.db.models import Count, F, Prefetch
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -16,7 +16,7 @@ from django.views.generic import View
 from circuits.models import Circuit
 from extras.models import Graph
 from extras.views import ObjectConfigContextView
-from ipam.models import Prefix, Service, VLAN
+from ipam.models import IPAddress, Prefix, Service, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from secrets.models import Secret
 from utilities.forms import ConfirmationForm
@@ -517,6 +517,7 @@ class DeviceTypeView(ObjectView):
     def get(self, request, pk):
 
         devicetype = get_object_or_404(self.queryset, pk=pk)
+        instance_count = Device.objects.restrict(request.user).filter(device_type=devicetype).count()
 
         # Component tables
         consoleport_table = tables.ConsolePortTemplateTable(
@@ -563,6 +564,7 @@ class DeviceTypeView(ObjectView):
 
         return render(request, 'dcim/devicetype.html', {
             'devicetype': devicetype,
+            'instance_count': instance_count,
             'consoleport_table': consoleport_table,
             'consoleserverport_table': consoleserverport_table,
             'powerport_table': powerport_table,
@@ -987,8 +989,10 @@ class DeviceView(ObjectView):
 
         # Interfaces
         interfaces = device.vc_interfaces.restrict(request.user, 'view').filter(device=device).prefetch_related(
+            Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user)),
+            Prefetch('member_interfaces', queryset=Interface.objects.restrict(request.user)),
             'lag', '_connected_interface__device', '_connected_circuittermination__circuit', 'cable',
-            'cable__termination_a', 'cable__termination_b', 'ip_addresses', 'tags'
+            'cable__termination_a', 'cable__termination_b', 'tags'
         )
 
         # Front ports
@@ -1438,7 +1442,7 @@ class InterfaceView(ObjectView):
         if interface.untagged_vlan is not None:
             vlans.append(interface.untagged_vlan)
             vlans[0].tagged = False
-        for vlan in interface.tagged_vlans.prefetch_related('site', 'group', 'tenant', 'role'):
+        for vlan in interface.tagged_vlans.restrict(request.user).prefetch_related('site', 'group', 'tenant', 'role'):
             vlan.tagged = True
             vlans.append(vlan)
         vlan_table = InterfaceVLANTable(
@@ -2149,13 +2153,15 @@ class VirtualChassisListView(ObjectListView):
 
 
 class VirtualChassisView(ObjectView):
-    queryset = VirtualChassis.objects.prefetch_related('members')
+    queryset = VirtualChassis.objects.all()
 
     def get(self, request, pk):
         virtualchassis = get_object_or_404(self.queryset, pk=pk)
+        members = Device.objects.restrict(request.user).filter(virtual_chassis=virtualchassis)
 
         return render(request, 'dcim/virtualchassis.html', {
             'virtualchassis': virtualchassis,
+            'members': members,
         })
 
 
@@ -2389,8 +2395,9 @@ class PowerPanelView(ObjectView):
     def get(self, request, pk):
 
         powerpanel = get_object_or_404(self.queryset, pk=pk)
+        power_feeds = PowerFeed.objects.restrict(request.user).filter(power_panel=powerpanel).prefetch_related('rack')
         powerfeed_table = tables.PowerFeedTable(
-            data=PowerFeed.objects.filter(power_panel=powerpanel).prefetch_related('rack'),
+            data=power_feeds,
             orderable=False
         )
         powerfeed_table.exclude = ['power_panel']

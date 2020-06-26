@@ -1,6 +1,6 @@
 import netaddr
 from django.conf import settings
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2 import RequestConfig
@@ -108,10 +108,12 @@ class RIRListView(ObjectListView):
                 'deprecated': 0,
                 'available': 0,
             }
-            aggregate_list = Aggregate.objects.filter(prefix__family=family, rir=rir)
+            aggregate_list = Aggregate.objects.restrict(request.user).filter(prefix__family=family, rir=rir)
             for aggregate in aggregate_list:
 
-                queryset = Prefix.objects.filter(prefix__net_contained_or_equal=str(aggregate.prefix))
+                queryset = Prefix.objects.restrict(request.user).filter(
+                    prefix__net_contained_or_equal=str(aggregate.prefix)
+                )
 
                 # Find all consumed space for each prefix status (we ignore containers for this purpose).
                 active_prefixes = netaddr.cidr_merge(
@@ -699,7 +701,9 @@ class VLANGroupVLANsView(ObjectView):
     def get(self, request, pk):
         vlan_group = get_object_or_404(self.queryset, pk=pk)
 
-        vlans = VLAN.objects.restrict(request.user, 'view').filter(group_id=pk)
+        vlans = VLAN.objects.restrict(request.user, 'view').filter(group_id=pk).prefetch_related(
+            Prefetch('prefixes', queryset=Prefix.objects.restrict(request.user))
+        )
         vlans = add_available_vlans(vlan_group, vlans)
 
         vlan_table = tables.VLANDetailTable(vlans)

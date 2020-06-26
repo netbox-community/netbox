@@ -2,13 +2,15 @@ from django import template
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count, Q
+from django.db.models import Count, Prefetch, Q
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 from django_tables2 import RequestConfig
 
+from dcim.models import DeviceRole, Platform, Region, Site
+from tenancy.models import Tenant, TenantGroup
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.utils import shallow_compare_dict
@@ -16,6 +18,7 @@ from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
     ObjectPermissionRequiredMixin,
 )
+from virtualization.models import Cluster, ClusterGroup
 from . import filters, forms, tables
 from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult, Tag, TaggedItem
 from .reports import get_report, get_reports
@@ -120,6 +123,18 @@ class ConfigContextView(ObjectView):
     queryset = ConfigContext.objects.all()
 
     def get(self, request, pk):
+        # Extend queryset to prefetch related objects
+        self.queryset = self.queryset.prefetch_related(
+            Prefetch('regions', queryset=Region.objects.restrict(request.user)),
+            Prefetch('sites', queryset=Site.objects.restrict(request.user)),
+            Prefetch('roles', queryset=DeviceRole.objects.restrict(request.user)),
+            Prefetch('platforms', queryset=Platform.objects.restrict(request.user)),
+            Prefetch('clusters', queryset=Cluster.objects.restrict(request.user)),
+            Prefetch('cluster_groups', queryset=ClusterGroup.objects.restrict(request.user)),
+            Prefetch('tenants', queryset=Tenant.objects.restrict(request.user)),
+            Prefetch('tenant_groups', queryset=TenantGroup.objects.restrict(request.user)),
+        )
+
         configcontext = get_object_or_404(self.queryset, pk=pk)
 
         # Determine user's preferred output format
