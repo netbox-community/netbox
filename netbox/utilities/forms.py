@@ -15,6 +15,7 @@ from django.forms import BoundField
 from django.forms.models import fields_for_model
 from django.urls import reverse
 
+from utilities.querysets import RestrictedQuerySet
 from .choices import ColorChoices, unpack_grouped_choices
 from .validators import EnhancedURLValidator
 
@@ -136,6 +137,16 @@ def form_from_model(model, fields):
         field.required = False
 
     return type('FormFromModel', (forms.Form,), form_fields)
+
+
+def restrict_form_fields(form, user, action='view'):
+    """
+    Restrict all form fields which reference a RestrictedQuerySet. This ensures that users see only permitted objects
+    as available choices.
+    """
+    for field in form.fields.values():
+        if hasattr(field, 'queryset') and issubclass(field.queryset.__class__, RestrictedQuerySet):
+            field.queryset = field.queryset.restrict(user, action)
 
 
 #
