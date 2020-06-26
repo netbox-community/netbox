@@ -3,7 +3,7 @@ from django.utils.encoding import force_str
 from utilities.api import ContentTypeField
 
 
-class LimitedMetaData(SimpleMetadata):
+class ContentTypeMetadata(SimpleMetadata):
 
     def get_field_info(self, field):
         field_info = super().get_field_info(field)

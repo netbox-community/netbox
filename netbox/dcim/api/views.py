@@ -29,7 +29,7 @@ from utilities.api import (
     get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, ModelViewSet, ServiceUnavailable,
 )
 from utilities.utils import get_subquery
-from utilities.metadata import LimitedMetaData
+from utilities.metadata import ContentTypeMetadata
 from virtualization.models import VirtualMachine
 from . import serializers
 from .exceptions import MissingFilterException
@@ -568,7 +568,7 @@ class InterfaceConnectionViewSet(ListModelMixin, GenericViewSet):
 #
 
 class CableViewSet(ModelViewSet):
-    metadata_class = LimitedMetaData
+    metadata_class = ContentTypeMetadata
     queryset = Cable.objects.prefetch_related(
         'termination_a', 'termination_b'
     )
