@@ -863,6 +863,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
         if '_apply' in request.POST:
             form = self.form(model, request.POST)
+            restrict_form_fields(form, request.user)
 
             if form.is_valid():
                 logger.debug("Form validation was successful")
@@ -970,6 +971,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 initial_data['device_type'] = request.GET.get('device_type')
 
             form = self.form(model, initial=initial_data)
+            restrict_form_fields(form, request.user)
 
         # Retrieve objects being edited
         table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)

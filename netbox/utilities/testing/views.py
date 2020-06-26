@@ -654,7 +654,6 @@ class ViewTestCases:
         def _get_csv_data(self):
             return '\n'.join(self.csv_data)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_bulk_import_objects_without_permission(self):
             data = {
                 'csv': self._get_csv_data(),
@@ -669,7 +668,7 @@ class ViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(response, 403)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_import_objects_with_permission(self):
             initial_count = self.model.objects.count()
             data = {
@@ -691,7 +690,7 @@ class ViewTestCases:
             self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
             self.assertEqual(self.model.objects.count(), initial_count + len(self.csv_data) - 1)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_import_objects_with_constrained_permission(self):
             initial_count = self.model.objects.count()
             data = {
@@ -728,7 +727,6 @@ class ViewTestCases:
         """
         bulk_edit_data = {}
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_bulk_edit_objects_without_permission(self):
             pk_list = self.model.objects.values_list('pk', flat=True)[:3]
             data = {
@@ -744,7 +742,7 @@ class ViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.post(self._get_url('bulk_edit'), data), 403)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_edit_objects_with_permission(self):
             pk_list = self.model.objects.values_list('pk', flat=True)[:3]
             data = {
@@ -768,7 +766,7 @@ class ViewTestCases:
             for i, instance in enumerate(self.model.objects.filter(pk__in=pk_list)):
                 self.assertInstanceEqual(instance, self.bulk_edit_data)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_edit_objects_with_constrained_permission(self):
             initial_instances = self.model.objects.all()[:3]
             pk_list = list(self.model.objects.values_list('pk', flat=True)[:3])
