@@ -300,9 +300,6 @@ class CircuitTermination(CableTermination):
         blank=True
     )
 
-    # But they are a possible connected endpoint
-    is_connected_endpoint = True
-
     class Meta:
         ordering = ['circuit', 'term_side']
         unique_together = ['circuit', 'term_side']
