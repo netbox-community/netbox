@@ -275,7 +275,7 @@ class ViewTestCases:
 
             # Try GET without permission
             with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(self._get_url('add')), 403)
+                self.assertHttpStatus(self.client.get(self._get_url('add')), 403)
 
             # Try POST without permission
             request = {
@@ -360,7 +360,7 @@ class ViewTestCases:
 
             # Try GET without permission
             with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(self._get_url('edit', instance)), 403)
+                self.assertHttpStatus(self.client.get(self._get_url('edit', instance)), 403)
 
             # Try POST without permission
             request = {
