@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as UserAdmin_
-from django.contrib.auth.models import Group as StockGroup, User as StockUser
+from django.contrib.auth.models import Group, User
 from django.core.exceptions import FieldError, ValidationError
 
 from extras.admin import order_content_types
@@ -13,8 +13,8 @@ from .models import AdminGroup, AdminUser, ObjectPermission, Token, UserConfig
 #
 
 # Unregister the built-in GroupAdmin and UserAdmin classes so that we can use our custom admin classes below
-admin.site.unregister(StockGroup)
-admin.site.unregister(StockUser)
+admin.site.unregister(Group)
+admin.site.unregister(User)
 
 
 @admin.register(AdminGroup)
