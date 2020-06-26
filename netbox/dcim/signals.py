@@ -4,7 +4,7 @@ from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 
 from .choices import CableStatusChoices
-from .models import Cable, Device, FrontPort, RearPort, VirtualChassis
+from .models import Cable, CableTermination, Device, FrontPort, RearPort, VirtualChassis
 
 
 @receiver(post_save, sender=VirtualChassis)
@@ -63,8 +63,9 @@ def update_connected_endpoints(instance, **kwargs):
         endpoint_a = path[0][0]
         endpoint_b = path[-1][2] if not split_ends and not position_stack else None
 
-        # Patch panel ports are not connected endpoints, everything else is
-        if not isinstance(endpoint_a, (FrontPort, RearPort)) and not isinstance(endpoint_b, (FrontPort, RearPort)):
+        # Patch panel ports are not connected endpoints, all other cable terminations are
+        if isinstance(endpoint_a, CableTermination) and not isinstance(endpoint_a, (FrontPort, RearPort)) and \
+                isinstance(endpoint_b, CableTermination) and not isinstance(endpoint_b, (FrontPort, RearPort)):
             logger.debug("Updating path endpoints: {} <---> {}".format(endpoint_a, endpoint_b))
             endpoint_a.connected_endpoint = endpoint_b
             endpoint_a.connection_status = path_status
