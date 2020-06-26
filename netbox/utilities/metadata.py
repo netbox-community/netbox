@@ -15,4 +15,5 @@ class ContentTypeMetadata(SimpleMetadata):
                 }
                 for choice_value, choice_name in field.choices.items()
             ]
+            field_info['choices'].sort(key=lambda item: item['display_name'])
         return field_info
