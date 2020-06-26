@@ -629,6 +629,7 @@ class ObjectImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             # Initialize model form
             data = form.cleaned_data['data']
             model_form = self.model_form(data)
+            restrict_form_fields(model_form, request.user)
 
             # Assign default values for any fields which were not specified. We have to do this manually because passing
             # 'initial=' to the form on initialization merely sets default values for the widgets. Since widgets are not
@@ -782,6 +783,7 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                     headers, records = form.cleaned_data['csv']
                     for row, data in enumerate(records, start=1):
                         obj_form = self.model_form(data, headers=headers)
+                        restrict_form_fields(obj_form, request.user)
 
                         if obj_form.is_valid():
                             obj = self._save_obj(obj_form, request)
