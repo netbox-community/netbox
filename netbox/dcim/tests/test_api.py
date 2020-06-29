@@ -107,7 +107,7 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
         Graph.objects.bulk_create(graphs)
 
         self.add_permissions('dcim.view_site')
-        url = reverse('dcim-api:site-graphs', kwargs={'pk': Site.objects.unrestricted().first().pk})
+        url = reverse('dcim-api:site-graphs', kwargs={'pk': Site.objects.unrestricted().unrestricted().first().pk})
         response = self.client.get(url, **self.header)
 
         self.assertEqual(len(response.data), 3)
@@ -246,7 +246,7 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         """
         GET a single rack elevation.
         """
-        rack = Rack.objects.first()
+        rack = Rack.objects.unrestricted().first()
         self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk})
 
@@ -266,7 +266,7 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         """
         GET a single rack elevation in SVG format.
         """
-        rack = Rack.objects.first()
+        rack = Rack.objects.unrestricted().first()
         self.add_permissions('dcim.view_rack')
         url = '{}?render=svg'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk}))
 
@@ -281,9 +281,7 @@ class RackReservationTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         user = User.objects.create(username='user1', is_active=True)
-
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
 
         cls.racks = (
@@ -908,7 +906,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         """
         Check that creating a device with a duplicate name within a site fails.
         """
-        device = Device.objects.first()
+        device = Device.objects.unrestricted().first()
         data = {
             'device_type': device.device_type.pk,
             'device_role': device.device_role.pk,
@@ -1640,11 +1638,11 @@ class ConnectionTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Cable.objects.count(), 1)
+        self.assertEqual(Cable.objects.unrestricted().count(), 1)
 
-        cable = Cable.objects.get(pk=response.data['id'])
-        consoleport1 = ConsolePort.objects.get(pk=consoleport1.pk)
-        consoleserverport1 = ConsoleServerPort.objects.get(pk=consoleserverport1.pk)
+        cable = Cable.objects.unrestricted().get(pk=response.data['id'])
+        consoleport1 = ConsolePort.objects.unrestricted().get(pk=consoleport1.pk)
+        consoleserverport1 = ConsoleServerPort.objects.unrestricted().get(pk=consoleserverport1.pk)
 
         self.assertEqual(cable.termination_a, consoleport1)
         self.assertEqual(cable.termination_b, consoleserverport1)
@@ -1705,12 +1703,12 @@ class ConnectionTest(APITestCase):
             response = self.client.post(url, data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
 
-            cable = Cable.objects.get(pk=response.data['id'])
+            cable = Cable.objects.unrestricted().get(pk=response.data['id'])
             self.assertEqual(cable.termination_a.cable, cable)
             self.assertEqual(cable.termination_b.cable, cable)
 
-        consoleport1 = ConsolePort.objects.get(pk=consoleport1.pk)
-        consoleserverport1 = ConsoleServerPort.objects.get(pk=consoleserverport1.pk)
+        consoleport1 = ConsolePort.objects.unrestricted().get(pk=consoleport1.pk)
+        consoleserverport1 = ConsoleServerPort.objects.unrestricted().get(pk=consoleserverport1.pk)
         self.assertEqual(consoleport1.connected_endpoint, consoleserverport1)
         self.assertEqual(consoleserverport1.connected_endpoint, consoleport1)
 
@@ -1735,11 +1733,11 @@ class ConnectionTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Cable.objects.count(), 1)
+        self.assertEqual(Cable.objects.unrestricted().count(), 1)
 
-        cable = Cable.objects.get(pk=response.data['id'])
-        powerport1 = PowerPort.objects.get(pk=powerport1.pk)
-        poweroutlet1 = PowerOutlet.objects.get(pk=poweroutlet1.pk)
+        cable = Cable.objects.unrestricted().get(pk=response.data['id'])
+        powerport1 = PowerPort.objects.unrestricted().get(pk=powerport1.pk)
+        poweroutlet1 = PowerOutlet.objects.unrestricted().get(pk=poweroutlet1.pk)
 
         self.assertEqual(cable.termination_a, powerport1)
         self.assertEqual(cable.termination_b, poweroutlet1)
@@ -1771,11 +1769,11 @@ class ConnectionTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Cable.objects.count(), 1)
+        self.assertEqual(Cable.objects.unrestricted().count(), 1)
 
-        cable = Cable.objects.get(pk=response.data['id'])
-        interface1 = Interface.objects.get(pk=interface1.pk)
-        interface2 = Interface.objects.get(pk=interface2.pk)
+        cable = Cable.objects.unrestricted().get(pk=response.data['id'])
+        interface1 = Interface.objects.unrestricted().get(pk=interface1.pk)
+        interface2 = Interface.objects.unrestricted().get(pk=interface2.pk)
 
         self.assertEqual(cable.termination_a, interface1)
         self.assertEqual(cable.termination_b, interface2)
@@ -1836,12 +1834,12 @@ class ConnectionTest(APITestCase):
             response = self.client.post(url, data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
 
-            cable = Cable.objects.get(pk=response.data['id'])
+            cable = Cable.objects.unrestricted().get(pk=response.data['id'])
             self.assertEqual(cable.termination_a.cable, cable)
             self.assertEqual(cable.termination_b.cable, cable)
 
-        interface1 = Interface.objects.get(pk=interface1.pk)
-        interface2 = Interface.objects.get(pk=interface2.pk)
+        interface1 = Interface.objects.unrestricted().get(pk=interface1.pk)
+        interface2 = Interface.objects.unrestricted().get(pk=interface2.pk)
         self.assertEqual(interface1.connected_endpoint, interface2)
         self.assertEqual(interface2.connected_endpoint, interface1)
 
@@ -1875,11 +1873,11 @@ class ConnectionTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Cable.objects.count(), 1)
+        self.assertEqual(Cable.objects.unrestricted().count(), 1)
 
-        cable = Cable.objects.get(pk=response.data['id'])
-        interface1 = Interface.objects.get(pk=interface1.pk)
-        circuittermination1 = CircuitTermination.objects.get(pk=circuittermination1.pk)
+        cable = Cable.objects.unrestricted().get(pk=response.data['id'])
+        interface1 = Interface.objects.unrestricted().get(pk=interface1.pk)
+        circuittermination1 = CircuitTermination.objects.unrestricted().get(pk=circuittermination1.pk)
 
         self.assertEqual(cable.termination_a, interface1)
         self.assertEqual(cable.termination_b, circuittermination1)
@@ -1949,12 +1947,12 @@ class ConnectionTest(APITestCase):
             response = self.client.post(url, data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
 
-            cable = Cable.objects.get(pk=response.data['id'])
+            cable = Cable.objects.unrestricted().get(pk=response.data['id'])
             self.assertEqual(cable.termination_a.cable, cable)
             self.assertEqual(cable.termination_b.cable, cable)
 
-        interface1 = Interface.objects.get(pk=interface1.pk)
-        circuittermination1 = CircuitTermination.objects.get(pk=circuittermination1.pk)
+        interface1 = Interface.objects.unrestricted().get(pk=interface1.pk)
+        circuittermination1 = CircuitTermination.objects.unrestricted().get(pk=circuittermination1.pk)
         self.assertEqual(interface1.connected_endpoint, circuittermination1)
         self.assertEqual(circuittermination1.connected_endpoint, interface1)
 
@@ -2045,12 +2043,12 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
             VirtualChassis(name='Virtual Chassis 3', master=devices[6], domain='domain-3'),
         )
         VirtualChassis.objects.bulk_create(virtual_chassis)
-        Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis[0], vc_position=2)
-        Device.objects.filter(pk=devices[2].pk).update(virtual_chassis=virtual_chassis[0], vc_position=3)
-        Device.objects.filter(pk=devices[4].pk).update(virtual_chassis=virtual_chassis[1], vc_position=2)
-        Device.objects.filter(pk=devices[5].pk).update(virtual_chassis=virtual_chassis[1], vc_position=3)
-        Device.objects.filter(pk=devices[7].pk).update(virtual_chassis=virtual_chassis[2], vc_position=2)
-        Device.objects.filter(pk=devices[8].pk).update(virtual_chassis=virtual_chassis[2], vc_position=3)
+        Device.objects.unrestricted().filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis[0], vc_position=2)
+        Device.objects.unrestricted().filter(pk=devices[2].pk).update(virtual_chassis=virtual_chassis[0], vc_position=3)
+        Device.objects.unrestricted().filter(pk=devices[4].pk).update(virtual_chassis=virtual_chassis[1], vc_position=2)
+        Device.objects.unrestricted().filter(pk=devices[5].pk).update(virtual_chassis=virtual_chassis[1], vc_position=3)
+        Device.objects.unrestricted().filter(pk=devices[7].pk).update(virtual_chassis=virtual_chassis[2], vc_position=2)
+        Device.objects.unrestricted().filter(pk=devices[8].pk).update(virtual_chassis=virtual_chassis[2], vc_position=3)
 
         cls.update_data = {
             'name': 'Virtual Chassis X',

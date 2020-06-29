@@ -226,7 +226,7 @@ class ManufacturerViewSet(ModelViewSet):
 #
 
 class DeviceTypeViewSet(CustomFieldModelViewSet):
-    queryset = DeviceType.objects.prefetch_related('manufacturer').prefetch_related('tags').annotate(
+    queryset = DeviceType.objects.prefetch_related('manufacturer', 'tags').annotate(
         device_count=Count('instances')
     )
     serializer_class = serializers.DeviceTypeSerializer
