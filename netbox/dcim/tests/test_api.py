@@ -28,39 +28,41 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class ComponentTraceMixin(APITestCase):
-    peer_termination_type = None
+class Mixins:
 
-    def test_trace(self):
-        """
-        Test tracing a device component's attached cable.
-        """
-        obj = self.model.objects.unrestricted().first()
-        peer_device = Device.objects.create(
-            site=Site.objects.unrestricted().first(),
-            device_type=DeviceType.objects.unrestricted().first(),
-            device_role=DeviceRole.objects.unrestricted().first(),
-            name='Peer Device'
-        )
-        if self.peer_termination_type is None:
-            raise NotImplementedError("Test case must set peer_termination_type")
-        peer_obj = self.peer_termination_type.objects.create(
-            device=peer_device,
-            name='Peer Termination'
-        )
-        cable = Cable(termination_a=obj, termination_b=peer_obj, label='Cable 1')
-        cable.save()
+    class ComponentTraceMixin(APITestCase):
+        peer_termination_type = None
 
-        self.add_permissions(f'dcim.view_{self.model._meta.model_name}')
-        url = reverse(f'dcim-api:{self.model._meta.model_name}-trace', kwargs={'pk': obj.pk})
-        response = self.client.get(url, **self.header)
+        def test_trace(self):
+            """
+            Test tracing a device component's attached cable.
+            """
+            obj = self.model.objects.unrestricted().first()
+            peer_device = Device.objects.create(
+                site=Site.objects.unrestricted().first(),
+                device_type=DeviceType.objects.unrestricted().first(),
+                device_role=DeviceRole.objects.unrestricted().first(),
+                name='Peer Device'
+            )
+            if self.peer_termination_type is None:
+                raise NotImplementedError("Test case must set peer_termination_type")
+            peer_obj = self.peer_termination_type.objects.create(
+                device=peer_device,
+                name='Peer Termination'
+            )
+            cable = Cable(termination_a=obj, termination_b=peer_obj, label='Cable 1')
+            cable.save()
 
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        segment1 = response.data[0]
-        self.assertEqual(segment1[0]['name'], obj.name)
-        self.assertEqual(segment1[1]['label'], cable.label)
-        self.assertEqual(segment1[2]['name'], peer_obj.name)
+            self.add_permissions(f'dcim.view_{self.model._meta.model_name}')
+            url = reverse(f'dcim-api:{self.model._meta.model_name}-trace', kwargs={'pk': obj.pk})
+            response = self.client.get(url, **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            self.assertEqual(len(response.data), 1)
+            segment1 = response.data[0]
+            self.assertEqual(segment1[0]['name'], obj.name)
+            self.assertEqual(segment1[1]['label'], cable.label)
+            self.assertEqual(segment1[2]['name'], peer_obj.name)
 
 
 class RegionTest(APIViewTestCases.APIViewTestCase):
@@ -956,7 +958,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
-class ConsolePortTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsolePort
     brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
     peer_termination_type = ConsoleServerPort
@@ -992,7 +994,7 @@ class ConsolePortTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
         ]
 
 
-class ConsoleServerPortTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsoleServerPort
     brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
     peer_termination_type = ConsolePort
@@ -1028,7 +1030,7 @@ class ConsoleServerPortTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCas
         ]
 
 
-class PowerPortTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class PowerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerPort
     brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
     peer_termination_type = PowerOutlet
@@ -1064,7 +1066,7 @@ class PowerPortTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
         ]
 
 
-class PowerOutletTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerOutlet
     brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
     peer_termination_type = PowerPort
@@ -1100,7 +1102,7 @@ class PowerOutletTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
         ]
 
 
-class InterfaceTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = Interface
     brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
     peer_termination_type = Interface
@@ -1174,7 +1176,7 @@ class InterfaceTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
         self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?interface=Interface 1&foo=1')
 
 
-class FrontPortTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class FrontPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = FrontPort
     brief_fields = ['cable', 'device', 'id', 'name', 'url']
     peer_termination_type = Interface
@@ -1229,7 +1231,7 @@ class FrontPortTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
         ]
 
 
-class RearPortTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class RearPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = RearPort
     brief_fields = ['cable', 'device', 'id', 'name', 'url']
     peer_termination_type = Interface
