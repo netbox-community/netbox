@@ -254,8 +254,11 @@ class WritableNestedSerializer(ModelSerializer):
         # Dictionary of related object attributes
         if isinstance(data, dict):
             params = dict_to_filter_params(data)
+            queryset = self.Meta.model.objects
+            if hasattr(queryset, 'restrict'):
+                queryset = queryset.unrestricted()
             try:
-                return self.Meta.model.objects.get(**params)
+                return queryset.get(**params)
             except ObjectDoesNotExist:
                 raise ValidationError(
                     "Related object not found using the provided attributes: {}".format(params)
@@ -281,8 +284,11 @@ class WritableNestedSerializer(ModelSerializer):
                 )
 
         # Look up object by PK
+        queryset = self.Meta.model.objects
+        if hasattr(queryset, 'restrict'):
+            queryset = queryset.unrestricted()
         try:
-            return self.Meta.model.objects.get(pk=int(data))
+            return queryset.get(pk=int(data))
         except ObjectDoesNotExist:
             raise ValidationError(
                 "Related object not found using the provided numeric ID: {}".format(pk)
