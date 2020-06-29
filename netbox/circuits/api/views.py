@@ -1,4 +1,4 @@
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -52,7 +52,10 @@ class CircuitTypeViewSet(ModelViewSet):
 
 class CircuitViewSet(CustomFieldModelViewSet):
     queryset = Circuit.objects.prefetch_related(
-        'type', 'tenant', 'provider', 'terminations__site', 'terminations__connected_endpoint__device'
+        Prefetch('terminations', queryset=CircuitTermination.objects.unrestricted().prefetch_related(
+            'site', 'connected_endpoint__device'
+        )),
+        'type', 'tenant', 'provider',
     ).prefetch_related('tags')
     serializer_class = serializers.CircuitSerializer
     filterset_class = filters.CircuitFilterSet

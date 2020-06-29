@@ -239,7 +239,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         return self.STATUS_CLASS_MAP.get(self.status)
 
     def _get_termination(self, side):
-        for ct in self.terminations.all():
+        for ct in self.terminations.unrestricted():
             if ct.term_side == side:
                 return ct
         return None
