@@ -108,7 +108,7 @@ class ExportTemplateViewSet(ModelViewSet):
 #
 
 class TagViewSet(ModelViewSet):
-    queryset = Tag.restricted.annotate(
+    queryset = Tag.objects.annotate(
         tagged_items=Count('extras_taggeditem_items', distinct=True)
     )
     serializer_class = serializers.TagSerializer

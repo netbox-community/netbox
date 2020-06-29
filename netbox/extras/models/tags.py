@@ -22,8 +22,7 @@ class Tag(TagBase, ChangeLoggedModel):
         blank=True,
     )
 
-    objects = models.Manager()
-    restricted = RestrictedQuerySet.as_manager()
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'color', 'description']
 
