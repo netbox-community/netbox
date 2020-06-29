@@ -28,8 +28,8 @@ class ProviderViewSet(CustomFieldModelViewSet):
         """
         A convenience method for rendering graphs for a particular provider.
         """
-        provider = get_object_or_404(Provider, pk=pk)
-        queryset = Graph.objects.filter(type__model='provider')
+        provider = get_object_or_404(self.queryset, pk=pk)
+        queryset = Graph.objects.restrict(request.user).filter(type__model='provider')
         serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': provider})
         return Response(serializer.data)
 

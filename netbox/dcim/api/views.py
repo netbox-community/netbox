@@ -103,8 +103,8 @@ class SiteViewSet(CustomFieldModelViewSet):
         """
         A convenience method for rendering graphs for a particular site.
         """
-        site = get_object_or_404(Site, pk=pk)
-        queryset = Graph.objects.filter(type__model='site')
+        site = get_object_or_404(self.queryset, pk=pk)
+        queryset = Graph.objects.restrict(request.user).filter(type__model='site')
         serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': site})
         return Response(serializer.data)
 
@@ -347,8 +347,8 @@ class DeviceViewSet(CustomFieldModelViewSet):
         """
         A convenience method for rendering graphs for a particular Device.
         """
-        device = get_object_or_404(Device, pk=pk)
-        queryset = Graph.objects.filter(type__model='device')
+        device = get_object_or_404(self.queryset, pk=pk)
+        queryset = Graph.objects.restrict(request.user).filter(type__model='device')
         serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': device})
 
         return Response(serializer.data)
@@ -496,8 +496,8 @@ class InterfaceViewSet(CableTraceMixin, ModelViewSet):
         """
         A convenience method for rendering graphs for a particular interface.
         """
-        interface = get_object_or_404(Interface, pk=pk)
-        queryset = Graph.objects.filter(type__model='interface')
+        interface = get_object_or_404(self.queryset, pk=pk)
+        queryset = Graph.objects.restrict(request.user).filter(type__model='interface')
         serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': interface})
         return Response(serializer.data)
 

@@ -107,7 +107,7 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
         Graph.objects.bulk_create(graphs)
 
         self.add_permissions('dcim.view_site')
-        url = reverse('dcim-api:site-graphs', kwargs={'pk': Site.objects.first().pk})
+        url = reverse('dcim-api:site-graphs', kwargs={'pk': Site.objects.unrestricted().first().pk})
         response = self.client.get(url, **self.header)
 
         self.assertEqual(len(response.data), 3)
@@ -878,7 +878,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         Graph.objects.bulk_create(graphs)
 
         self.add_permissions('dcim.view_device')
-        url = reverse('dcim-api:device-graphs', kwargs={'pk': Device.objects.first().pk})
+        url = reverse('dcim-api:device-graphs', kwargs={'pk': Device.objects.unrestricted().first().pk})
         response = self.client.get(url, **self.header)
 
         self.assertEqual(len(response.data), 3)
@@ -1245,7 +1245,7 @@ class InterfaceTest(APIViewTestCases.APIViewTestCase):
         Graph.objects.bulk_create(graphs)
 
         self.add_permissions('dcim.view_interface')
-        url = reverse('dcim-api:interface-graphs', kwargs={'pk': Interface.objects.first().pk})
+        url = reverse('dcim-api:interface-graphs', kwargs={'pk': Interface.objects.unrestricted().first().pk})
         response = self.client.get(url, **self.header)
 
         self.assertEqual(len(response.data), 3)
