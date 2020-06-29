@@ -216,7 +216,9 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
                 })
 
             # Ensure that the aggregate being added is not covered by an existing aggregate
-            covering_aggregates = Aggregate.objects.filter(prefix__net_contains_or_equals=str(self.prefix))
+            covering_aggregates = Aggregate.objects.unrestricted().filter(
+                prefix__net_contains_or_equals=str(self.prefix)
+            )
             if self.pk:
                 covering_aggregates = covering_aggregates.exclude(pk=self.pk)
             if covering_aggregates:
@@ -227,7 +229,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
                 })
 
             # Ensure that the aggregate being added does not cover an existing aggregate
-            covered_aggregates = Aggregate.objects.filter(prefix__net_contained=str(self.prefix))
+            covered_aggregates = Aggregate.objects.unrestricted().filter(prefix__net_contained=str(self.prefix))
             if self.pk:
                 covered_aggregates = covered_aggregates.exclude(pk=self.pk)
             if covered_aggregates:
@@ -722,7 +724,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
 
         # Check for primary IP assignment that doesn't match the assigned device/VM
         if self.pk and type(self.assigned_object) is Interface:
-            device = Device.objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
+            device = Device.objects.unrestricted().filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
             if device:
                 if self.assigned_object is None:
                     raise ValidationError({
@@ -734,7 +736,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
                                      f"{self.assigned_object.device} ({self.assigned_object})"
                     })
         elif self.pk and type(self.assigned_object) is VMInterface:
-            vm = VirtualMachine.objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
+            vm = VirtualMachine.unrestricted().objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
             if vm:
                 if self.assigned_object is None:
                     raise ValidationError({
