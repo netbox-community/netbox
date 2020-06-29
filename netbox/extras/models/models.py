@@ -573,25 +573,6 @@ class Script(models.Model):
     class Meta:
         managed = False
 
-    @classmethod
-    def get_absolute_url_from_job_result(cls, job_result):
-        """
-        Given a JobResult that links to this content type, return URL to an instance which corresponds to that job
-        result, i.e. for historical records
-        """
-        if job_result.obj_type.model_class() != cls:
-            return None
-
-        module, script_name = job_result.name.split('.')
-        return reverse(
-            'extras:script_history_detail',
-            kwargs={
-                'module': module,
-                'script_name': script_name,
-                'job_id': job_result.job_id
-            }
-        )
-
 
 #
 # Reports
@@ -605,23 +586,6 @@ class Report(models.Model):
 
     class Meta:
         managed = False
-
-    @classmethod
-    def get_absolute_url_from_job_result(cls, job_result):
-        """
-        Given a JobResult that links to this content type, return URL to an instance which corresponds to that job
-        result, i.e. for historical records
-        """
-        if job_result.obj_type.model_class() != cls:
-            return None
-
-        return reverse(
-            'extras:report_history_detail',
-            kwargs={
-                'name': job_result.name,
-                'job_id': job_result.job_id
-            }
-        )
 
 
 #
@@ -676,12 +640,6 @@ class JobResult(models.Model):
     def __str__(self):
         return str(self.job_id)
 
-    def get_absolute_url(self):
-        """
-        Job results are accessed only under the context of the content type they link to
-        """
-        return self.obj_type.model_class().get_absolute_url_from_job_result(self)
-
     @property
     def duration(self):
         if not self.completed:
@@ -691,7 +649,6 @@ class JobResult(models.Model):
         minutes, seconds = divmod(duration.total_seconds(), 60)
 
         return f"{int(minutes)} minutes, {seconds:.2f} seconds"
-
 
     @classmethod
     def enqueue_job(cls, func, name, obj_type, user, *args, **kwargs):

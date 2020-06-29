@@ -17,6 +17,7 @@ from extras.models import (
 from extras.reports import get_report, get_reports
 from extras.scripts import get_script, get_scripts, run_script
 from utilities.api import IsAuthenticatedOrLoginNotRequired, ModelViewSet
+from utilities.utils import copy_safe_request
 from . import serializers
 
 
@@ -304,12 +305,12 @@ class ScriptViewSet(ViewSet):
                 script.full_name,
                 script_content_type,
                 request.user,
-                data=form.cleaned_data,
+                data=data,
                 request=copy_safe_request(request),
                 commit=commit
             )
             script.result = job_result
-            serializer = serializers.ScriptDetailSerializer(script)
+            serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
 
             return Response(serializer.data)
 

@@ -10,6 +10,7 @@ from extras.api.views import ScriptViewSet
 from extras.models import ConfigContext, Graph, ExportTemplate, Tag
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
+from utilities.utils import copy_safe_request
 
 
 class AppTest(APITestCase):
@@ -263,13 +264,7 @@ class ScriptTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
-        self.assertEqual(response.data['log'][0]['status'], 'info')
-        self.assertEqual(response.data['log'][0]['message'], script_data['var1'])
-        self.assertEqual(response.data['log'][1]['status'], 'success')
-        self.assertEqual(response.data['log'][1]['message'], script_data['var2'])
-        self.assertEqual(response.data['log'][2]['status'], 'failure')
-        self.assertEqual(response.data['log'][2]['message'], script_data['var3'])
-        self.assertEqual(response.data['output'], 'Script complete')
+        self.assertEqual(response.data['result']['status']['value'], 'pending')
 
 
 class CreatedUpdatedFilterTest(APITestCase):

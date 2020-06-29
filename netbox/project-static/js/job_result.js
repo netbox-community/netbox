@@ -30,9 +30,6 @@ $(document).ready(function(){
                 url: url + pending_result_id + '/',
                 method: 'GET',
                 dataType: 'json',
-                beforeSend: function(xhr, settings) {
-                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
-                },
                 context: this,
                 success: function(data) {
                     updatePendingStatusLabel(data.status);

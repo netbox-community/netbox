@@ -284,20 +284,11 @@ class ScriptSerializer(serializers.Serializer):
         lookup_field='full_name',
         lookup_url_kwarg='pk'
     )
-    id = serializers.SerializerMethodField(read_only=True)
-    name = serializers.SerializerMethodField(read_only=True)
-    description = serializers.SerializerMethodField(read_only=True)
+    id = serializers.CharField(read_only=True, source="full_name")
+    name = serializers.CharField(read_only=True)
+    description = serializers.CharField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
     result = NestedJobResultSerializer()
-
-    def get_id(self, instance):
-        return '{}.{}'.format(instance.__module__, instance.__name__)
-
-    def get_name(self, instance):
-        return getattr(instance.Meta, 'name', instance.__name__)
-
-    def get_description(self, instance):
-        return getattr(instance.Meta, 'description', '')
 
     def get_vars(self, instance):
         return {

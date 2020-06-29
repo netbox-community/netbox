@@ -273,11 +273,19 @@ class BaseScript:
         self.source = inspect.getsource(self.__class__)
 
     def __str__(self):
+        return self.name
+
+    @classproperty
+    def name(self):
         return getattr(self.Meta, 'name', self.__class__.__name__)
 
     @classproperty
     def full_name(self):
         return '.'.join([self.__module__, self.__name__])
+
+    @classproperty
+    def description(self):
+        return getattr(self.Meta, 'description', '')
 
     @classmethod
     def module(cls):

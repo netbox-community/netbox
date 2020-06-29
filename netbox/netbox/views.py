@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, F
 from django.shortcuts import render
 from django.views.generic import View
@@ -24,6 +25,7 @@ from dcim.tables import (
     CableTable, DeviceTable, DeviceTypeTable, PowerFeedTable, RackTable, RackGroupTable, SiteTable,
     VirtualChassisTable,
 )
+from extras.choices import JobResultStatusChoices
 from extras.models import ObjectChange, JobResult
 from ipam.filters import AggregateFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
@@ -187,6 +189,13 @@ class HomeView(View):
             pk__lt=F('_connected_interface')
         )
 
+        # Report Results
+        report_content_type = ContentType.objects.get(app_label='extras', model='report')
+        report_results = JobResult.objects.filter(
+            obj_type=report_content_type,
+            status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+        ).defer('data')[:10]
+
         stats = {
 
             # Organization
@@ -241,7 +250,7 @@ class HomeView(View):
         return render(request, self.template_name, {
             'search_form': SearchForm(),
             'stats': stats,
-            'report_results': [],#ReportResult.objects.order_by('-created')[:10],
+            'report_results': report_results,
             'changelog': changelog[:15],
             'new_release': new_release,
         })

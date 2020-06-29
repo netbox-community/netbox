@@ -12,6 +12,7 @@ from dcim.choices import CableLengthUnitChoices
 from extras.utils import is_taggable
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 
+
 def csv_format(data):
     """
     Encapsulate any data which contains a comma within double quotes.

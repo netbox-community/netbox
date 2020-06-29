@@ -501,7 +501,6 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
 
         if form.is_valid():
             commit = form.cleaned_data.pop('_commit')
-            #output, execution_time = run_script(script, form.cleaned_data, request, commit)
 
             script_content_type = ContentType.objects.get(app_label='extras', model='script')
             job_result = JobResult.enqueue_job(
