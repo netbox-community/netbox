@@ -39,6 +39,40 @@ from .paginator import EnhancedPaginator, get_paginate_count
 # Mixins
 #
 
+class ContentTypePermissionRequiredMixin(AccessMixin):
+    """
+    Similar to Django's built-in PermissionRequiredMixin, but extended to check model-level permission assignments.
+    This is related to ObjectPermissionRequiredMixin, except that is does not enforce object-level permissions,
+    and fits within NetBox's custom permission enforcement system.
+
+    additional_permissions: An optional iterable of statically declared permissions to evaluate in addition to those
+                            derived from the object type
+    """
+    additional_permissions = list()
+
+    def get_required_permission(self):
+        """
+        Return the specific permission necessary to perform the requested action on an object.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__} must implement get_required_permission()")
+
+    def has_permission(self):
+        user = self.request.user
+        permission_required = self.get_required_permission()
+
+        # Check that the user has been granted the required permission(s).
+        if user.has_perms((permission_required, *self.additional_permissions)):
+            return True
+
+        return False
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.has_permission():
+            return self.handle_no_permission()
+
+        return super().dispatch(request, *args, **kwargs)
+
+
 class ObjectPermissionRequiredMixin(AccessMixin):
     """
     Similar to Django's built-in PermissionRequiredMixin, but extended to check for both model-level and object-level

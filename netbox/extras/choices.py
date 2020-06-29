@@ -121,6 +121,35 @@ class TemplateLanguageChoices(ChoiceSet):
 
 
 #
+# Job results
+#
+
+class JobResultStatusChoices(ChoiceSet):
+
+    STATUS_PENDING = 'pending'
+    STATUS_RUNNING = 'running'
+    STATUS_COMPLETED = 'completed'
+    STATUS_FAILED = 'failed'
+
+    CHOICES = (
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_RUNNING, 'Running'),
+        (STATUS_COMPLETED, 'Completed'),
+        (STATUS_FAILED, 'Failed'),
+    )
+
+    TERMINAL_STATE_CHOICES = (
+        STATUS_COMPLETED,
+        STATUS_FAILED,
+    )
+
+    NON_TERMINAL_STATE_CHOICES = (
+        STATUS_PENDING,
+        STATUS_RUNNING,
+    )
+
+
+#
 # Webhooks
 #
 

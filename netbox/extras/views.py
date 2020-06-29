@@ -1,3 +1,5 @@
+import time
+
 from django import template
 from django.conf import settings
 from django.contrib import messages
@@ -11,14 +13,15 @@ from django_tables2 import RequestConfig
 
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
-from utilities.utils import shallow_compare_dict
+from utilities.utils import copy_safe_request, shallow_compare_dict
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
-    ObjectPermissionRequiredMixin,
+    ContentTypePermissionRequiredMixin,
 )
 from . import filters, forms, tables
-from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult, Tag, TaggedItem
-from .reports import get_report, get_reports
+from .choices import JobResultStatusChoices
+from .models import ConfigContext, ImageAttachment, ObjectChange, Report, JobResult, Script, Tag, TaggedItem
+from .reports import get_report, get_reports, run_report
 from .scripts import get_scripts, run_script
 
 
@@ -332,9 +335,9 @@ class ImageAttachmentDeleteView(ObjectDeleteView):
 # Reports
 #
 
-class ReportListView(ObjectPermissionRequiredMixin, View):
+class ReportListView(ContentTypePermissionRequiredMixin, View):
     """
-    Retrieve all of the available reports from disk and the recorded ReportResult (if any) for each.
+    Retrieve all of the available reports from disk and the recorded JobResult (if any) for each.
     """
     def get_required_permission(self):
         return 'extras.view_reportresult'
@@ -342,7 +345,14 @@ class ReportListView(ObjectPermissionRequiredMixin, View):
     def get(self, request):
 
         reports = get_reports()
-        results = {r.report: r for r in ReportResult.objects.all()}
+        report_content_type = ContentType.objects.get(app_label='extras', model='report')
+        results = {
+            r.name: r
+            for r in JobResult.objects.filter(
+                obj_type=report_content_type,
+                status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+            ).defer('data')
+        }
 
         ret = []
         for module, report_list in reports:
@@ -357,23 +367,46 @@ class ReportListView(ObjectPermissionRequiredMixin, View):
         })
 
 
-class ReportView(ObjectPermissionRequiredMixin, View):
+class GetReportMixin:
+    def get_report(self, name):
+        if '.' not in name:
+            raise Http404
+        # Retrieve the Report by "<module>.<report>"
+        module_name, report_name = name.split('.', 1)
+        report = get_report(module_name, report_name)
+        if report is None:
+            raise Http404
+
+        return report
+
+
+class ReportView(GetReportMixin, ContentTypePermissionRequiredMixin, View):
     """
-    Display a single Report and its associated ReportResult (if any).
+    Display a single Report and its associated JobResult (if any).
     """
     def get_required_permission(self):
         return 'extras.view_reportresult'
 
     def get(self, request, name):
 
-        # Retrieve the Report by "<module>.<report>"
-        module_name, report_name = name.split('.')
-        report = get_report(module_name, report_name)
-        if report is None:
-            raise Http404
+        report = self.get_report(name)
 
-        # Attach the ReportResult (if any)
-        report.result = ReportResult.objects.filter(report=report.full_name).first()
+        report_content_type = ContentType.objects.get(app_label='extras', model='report')
+        latest_run_result = JobResult.objects.filter(
+            obj_type=report_content_type,
+            name=report.full_name,
+            status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+        ).first()
+        pending_run_result = JobResult.objects.filter(
+            obj_type=report_content_type,
+            name=report.full_name,
+            status__in=JobResultStatusChoices.NON_TERMINAL_STATE_CHOICES
+        ).order_by(
+            'created'
+        ).first()
+
+        report.result = latest_run_result
+        report.pending_result = pending_run_result
 
         return render(request, 'extras/report.html', {
             'report': report,
@@ -381,7 +414,7 @@ class ReportView(ObjectPermissionRequiredMixin, View):
         })
 
 
-class ReportRunView(ObjectPermissionRequiredMixin, View):
+class ReportRunView(GetReportMixin, ContentTypePermissionRequiredMixin, View):
     """
     Run a Report and record a new ReportResult.
     """
@@ -390,20 +423,19 @@ class ReportRunView(ObjectPermissionRequiredMixin, View):
 
     def post(self, request, name):
 
-        # Retrieve the Report by "<module>.<report>"
-        module_name, report_name = name.split('.')
-        report = get_report(module_name, report_name)
-        if report is None:
-            raise Http404
+        report = self.get_report(name)
 
         form = ConfirmationForm(request.POST)
         if form.is_valid():
 
-            # Run the Report. A new ReportResult is created.
-            report.run()
-            result = 'failed' if report.failed else 'passed'
-            msg = "Ran report {} ({})".format(report.full_name, result)
-            messages.success(request, mark_safe(msg))
+            # Run the Report. A new JobResult is created.
+            report_content_type = ContentType.objects.get(app_label='extras', model='report')
+            job_result = JobResult.enqueue_job(
+                run_report,
+                report.full_name,
+                report_content_type,
+                request.user
+            )
 
         return redirect('extras:report', name=report.full_name)
 
@@ -412,7 +444,16 @@ class ReportRunView(ObjectPermissionRequiredMixin, View):
 # Scripts
 #
 
-class ScriptListView(ObjectPermissionRequiredMixin, View):
+class GetScriptMixin:
+    def _get_script(self, module, name):
+        scripts = get_scripts()
+        try:
+            return scripts[module][name]()
+        except KeyError:
+            raise Http404
+
+
+class ScriptListView(ContentTypePermissionRequiredMixin, View):
 
     def get_required_permission(self):
         return 'extras.view_script'
@@ -424,21 +465,22 @@ class ScriptListView(ObjectPermissionRequiredMixin, View):
         })
 
 
-class ScriptView(ObjectPermissionRequiredMixin, View):
+class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
 
     def get_required_permission(self):
         return 'extras.view_script'
 
-    def _get_script(self, module, name):
-        scripts = get_scripts()
-        try:
-            return scripts[module][name]()
-        except KeyError:
-            raise Http404
-
     def get(self, request, module, name):
         script = self._get_script(module, name)
         form = script.as_form(initial=request.GET)
+
+        # Look for a pending JobResult (use the latest one by creation timestamp)
+        script_content_type = ContentType.objects.get(app_label='extras', model='script')
+        script.result = JobResult.objects.filter(
+            obj_type=script_content_type,
+            name=script.full_name,
+            status__in=JobResultStatusChoices.NON_TERMINAL_STATE_CHOICES
+        ).first()
 
         return render(request, 'extras/script.html', {
             'module': module,
@@ -459,12 +501,40 @@ class ScriptView(ObjectPermissionRequiredMixin, View):
 
         if form.is_valid():
             commit = form.cleaned_data.pop('_commit')
-            output, execution_time = run_script(script, form.cleaned_data, request, commit)
+            #output, execution_time = run_script(script, form.cleaned_data, request, commit)
 
-        return render(request, 'extras/script.html', {
+            script_content_type = ContentType.objects.get(app_label='extras', model='script')
+            job_result = JobResult.enqueue_job(
+                run_script,
+                script.full_name,
+                script_content_type,
+                request.user,
+                data=form.cleaned_data,
+                request=copy_safe_request(request),
+                commit=commit
+            )
+
+        return redirect('extras:script_result', module=module, name=name, job_result_pk=job_result.pk)
+
+
+class ScriptResultView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
+
+    def get_required_permission(self):
+        return 'extras.view_script'
+
+    def get(self, request, module, name, job_result_pk):
+        script = self._get_script(module, name)
+        form = script.as_form(initial=request.GET)
+
+        # Look for a pending JobResult (use the latest one by creation timestamp)
+        script_content_type = ContentType.objects.get(app_label='extras', model='script')
+        result = get_object_or_404(JobResult.objects.all(), pk=job_result_pk)
+        if result.obj_type != script_content_type:
+            raise Http404
+
+        return render(request, 'extras/script_result.html', {
             'module': module,
             'script': script,
-            'form': form,
-            'output': output,
-            'execution_time': execution_time,
+            'result': result,
+            'class_name': name
         })

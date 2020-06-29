@@ -11,7 +11,7 @@ from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
 from extras.choices import *
 from extras.constants import *
 from extras.models import (
-    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, Tag,
+    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, JobResult, Tag,
 )
 from extras.utils import FeatureQuery
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
@@ -233,26 +233,45 @@ class ConfigContextSerializer(ValidatedModelSerializer):
 
 
 #
+# Job Results
+#
+
+class JobResultSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:jobresult-detail')
+    user = NestedUserSerializer(
+        read_only=True
+    )
+    status = ChoiceField(choices=JobResultStatusChoices, read_only=True)
+    obj_type = ContentTypeField(
+        read_only=True
+    )
+
+    class Meta:
+        model = JobResult
+        fields = [
+            'id', 'url', 'created', 'completed', 'name', 'obj_type', 'status', 'user', 'data', 'job_id',
+        ]
+
+
+#
 # Reports
 #
 
-class ReportResultSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = ReportResult
-        fields = ['created', 'user', 'failed', 'data']
-
-
 class ReportSerializer(serializers.Serializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='extras-api:report-detail',
+        lookup_field='full_name',
+        lookup_url_kwarg='pk'
+    )
     module = serializers.CharField(max_length=255)
     name = serializers.CharField(max_length=255)
     description = serializers.CharField(max_length=255, required=False)
     test_methods = serializers.ListField(child=serializers.CharField(max_length=255))
-    result = NestedReportResultSerializer()
+    result = NestedJobResultSerializer()
 
 
 class ReportDetailSerializer(ReportSerializer):
-    result = ReportResultSerializer()
+    result = JobResultSerializer()
 
 
 #
@@ -260,10 +279,16 @@ class ReportDetailSerializer(ReportSerializer):
 #
 
 class ScriptSerializer(serializers.Serializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='extras-api:script-detail',
+        lookup_field='full_name',
+        lookup_url_kwarg='pk'
+    )
     id = serializers.SerializerMethodField(read_only=True)
     name = serializers.SerializerMethodField(read_only=True)
     description = serializers.SerializerMethodField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
+    result = NestedJobResultSerializer()
 
     def get_id(self, instance):
         return '{}.{}'.format(instance.__module__, instance.__name__)
@@ -278,6 +303,10 @@ class ScriptSerializer(serializers.Serializer):
         return {
             k: v.__class__.__name__ for k, v in instance._get_vars().items()
         }
+
+
+class ScriptDetailSerializer(ScriptSerializer):
+    result = JobResultSerializer()
 
 
 class ScriptInputSerializer(serializers.Serializer):

@@ -24,7 +24,7 @@
                                         <a href="{% url 'extras:report' name=report.full_name %}" name="report.{{ report.name }}"><strong>{{ report.name }}</strong></a>
                                     </td>
                                     <td>
-                                        {% include 'extras/inc/report_label.html' with result=report.result %}
+                                        {% include 'extras/inc/job_label.html' with result=report.result %}
                                     </td>
                                     <td>{{ report.description|default:"" }}</td>
                                     {% if report.result %}
@@ -69,7 +69,7 @@
                                 <a href="#report.{{ report.name }}" class="list-group-item">
                                     <i class="fa fa-list-alt"></i> {{ report.name }}
                                     <div class="pull-right">
-                                        {% include 'extras/inc/report_label.html' with result=report.result %}
+                                        {% include 'extras/inc/job_label.html' with result=report.result %}
                                     </div>
                                 </a>
                             {% endfor %}

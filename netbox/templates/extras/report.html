@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load helpers %}
+{% load static %}
 
 {% block title %}{{ report.name }}{% endblock %}
 
@@ -22,14 +23,21 @@
             </form>
         </div>
     {% endif %}
-    <h1>{{ report.name }}{% include 'extras/inc/report_label.html' with result=report.result %}</h1>
+    <h1>{{ report.name }}{% include 'extras/inc/job_label.html' with result=report.result %}</h1>
     <div class="row">
         <div class="col-md-12">
             {% if report.description %}
                 <p class="lead">{{ report.description }}</p>
             {% endif %}
             {% if report.result %}
-                <p>Last run: <strong>{{ report.result.created }}</strong></p>
+                <p>Last run: <strong>{{ report.result.created }}</strong> {% if report.result.completed %} Duration: <strong>{{ report.result.duration }}</strong>{% endif %}</p>
+            {% endif %}
+            {% if report.pending_result %}
+                <p>
+                    Pending run: <strong>{{ report.pending_result.created }}</strong>
+                    <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=report.pending_result %}</span>
+                    <img id="pending-result-loader" src="{% static 'img/ajax-loader.gif' %}" />
+                </p>
             {% endif %}
             {% if report.result %}
                 <div class="panel panel-default">
@@ -99,4 +107,26 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+{% if report.pending_result %}
+var pending_result_id = {{ report.pending_result.pk }};
+{% else %}
+var pending_result_id = null;
+{% endif %}
+
+function jobTerminatedAction(){
+    $('#pending-result-loader').hide();
+    var refreshButton = document.createElement('button');
+    refreshButton.className = 'btn btn-xs btn-primary';
+    refreshButton.onclick = refreshWindow;
+    refreshButton.innerHTML = '<i class="fa fa-refresh"></i> Refresh';
+    $('#pending-result-loader').parents('p').append(refreshButton)
+}
+
+</script>
+<script src="{% static 'js/job_result.js' %}?v{{ settings.VERSION }}"
+        onerror="window.location='{% url 'media_failure' %}?filename=js/job_result.js'"></script>
 {% endblock %}

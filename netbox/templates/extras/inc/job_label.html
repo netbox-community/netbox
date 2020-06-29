@@ -1,0 +1,11 @@
+{% if result.status == 'failed' %}
+    <label class="label label-danger">Failed</label>
+{% elif result.status == 'pending' %}
+    <label class="label label-default">Pending</label>
+{% elif result.status == 'running' %}
+    <label class="label label-warning">Running</label>
+{% elif result.status == 'completed' %}
+    <label class="label label-success">Passed</label>
+{% else %}
+    <label class="label label-default">N/A</label>
+{% endif %}

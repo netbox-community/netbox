@@ -19,7 +19,8 @@ HTTP_CONTENT_TYPE_JSON = 'application/json'
 EXTRAS_FEATURES = [
     'custom_fields',
     'custom_links',
-    'graphs',
     'export_templates',
+    'graphs',
+    'job_results',
     'webhooks'
 ]

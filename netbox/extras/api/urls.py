@@ -41,5 +41,8 @@ router.register('scripts', views.ScriptViewSet, basename='script')
 # Change logging
 router.register('object-changes', views.ObjectChangeViewSet)
 
+# Job Results
+router.register('job-results', views.JobResultViewSet)
+
 app_name = 'extras-api'
 urlpatterns = router.urls

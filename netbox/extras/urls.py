@@ -43,5 +43,6 @@ urlpatterns = [
     # Scripts
     path('scripts/', views.ScriptListView.as_view(), name='script_list'),
     path('scripts/<str:module>/<str:name>/', views.ScriptView.as_view(), name='script'),
+    path('scripts/<str:module>/<str:name>/result/<int:job_result_pk>/', views.ScriptResultView.as_view(), name='script_result'),
 
 ]

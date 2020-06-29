@@ -24,7 +24,7 @@ from dcim.tables import (
     CableTable, DeviceTable, DeviceTypeTable, PowerFeedTable, RackTable, RackGroupTable, SiteTable,
     VirtualChassisTable,
 )
-from extras.models import ObjectChange, ReportResult
+from extras.models import ObjectChange, JobResult
 from ipam.filters import AggregateFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from ipam.tables import AggregateTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
@@ -241,7 +241,7 @@ class HomeView(View):
         return render(request, self.template_name, {
             'search_form': SearchForm(),
             'stats': stats,
-            'report_results': ReportResult.objects.order_by('-created')[:10],
+            'report_results': [],#ReportResult.objects.order_by('-created')[:10],
             'changelog': changelog[:15],
             'new_release': new_release,
         })

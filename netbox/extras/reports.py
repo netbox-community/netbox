@@ -5,10 +5,13 @@ import pkgutil
 from collections import OrderedDict
 
 from django.conf import settings
+from django.db.models import Q
 from django.utils import timezone
+from django_rq import job
 
+from .choices import JobResultStatusChoices
 from .constants import *
-from .models import ReportResult
+from .models import JobResult
 
 
 def is_report(obj):
@@ -58,6 +61,25 @@ def get_reports():
         module_list.append((module_name, report_list))
 
     return module_list
+
+
+@job('default')
+def run_report(job_result, *args, **kwargs):
+    """
+    Helper function to call the run method on a report. This is needed to get around the inability to pickle an instance
+    method for queueing into the background processor.
+    """
+    module_name, report_name = job_result.name.split('.', 1)
+    report = get_report(module_name, report_name)
+    report.run(job_result)
+
+    # Delete any previous terminal state results
+    JobResult.objects.filter(
+        obj_type=job_result.obj_type,
+        status=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+    ).exclude(
+        pk=job_result.pk
+    ).delete()
 
 
 class Report(object):
@@ -177,27 +199,29 @@ class Report(object):
         self.logger.info(f"Failure | {obj}: {message}")
         self.failed = True
 
-    def run(self):
+    def run(self, job_result):
         """
-        Run the report and return its results. Each test method will be executed in order.
+        Run the report and save its results. Each test method will be executed in order.
         """
         self.logger.info(f"Running report")
+        job_result.status = JobResultStatusChoices.STATUS_RUNNING
+        job_result.save()
 
         for method_name in self.test_methods:
             self.active_test = method_name
             test_method = getattr(self, method_name)
             test_method()
 
-        # Delete any previous ReportResult and create a new one to record the result.
-        ReportResult.objects.filter(report=self.full_name).delete()
-        result = ReportResult(report=self.full_name, failed=self.failed, data=self._results)
-        result.save()
-        self.result = result
-
         if self.failed:
             self.logger.warning("Report failed")
+            job_result.status = JobResultStatusChoices.STATUS_FAILED
         else:
             self.logger.info("Report completed successfully")
+            job_result.status = JobResultStatusChoices.STATUS_COMPLETED
+
+        job_result.data = self._results
+        job_result.completed = timezone.now()
+        job_result.save()
 
         # Perform any post-run tasks
         self.post_run()

@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ToggleColumn
-from .models import ConfigContext, ObjectChange, Tag, TaggedItem
+from .models import ConfigContext, ObjectChange, JobResult, Tag, TaggedItem
 
 TAG_ACTIONS = """
 <a href="{% url 'extras:tag_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
@@ -59,6 +59,28 @@ OBJECTCHANGE_OBJECT = """
 
 OBJECTCHANGE_REQUEST_ID = """
 <a href="{% url 'extras:objectchange_list' %}?request_id={{ value }}">{{ value }}</a>
+"""
+
+JOB_RESULT_CREATED = """
+<a href="{{ record.get_absolute_url }}">{{ value|date:"SHORT_DATETIME_FORMAT" }}</a>
+"""
+
+JOB_RESULT_COMPLETED = """
+<span>{% if value %}{{ value|date:"SHORT_DATETIME_FORMAT" }}{% else %}—{% endif %}</span>
+"""
+
+JOB_RESULT_STATUS = """
+{% if record.status == 'failed' %}
+    <label class="label label-danger">Failed</label>
+{% elif record.status == 'pending' %}
+    <label class="label label-default">Pending</label>
+{% elif record.status == 'running' %}
+    <label class="label label-warning">Running</label>
+{% elif record.status == 'completed' %}
+    <label class="label label-success">Passed</label>
+{% else %}
+    <label class="label label-default">N/A</label>
+{% endif %}
 """
 
 
@@ -133,3 +155,21 @@ class ObjectChangeTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = ObjectChange
         fields = ('time', 'user_name', 'action', 'changed_object_type', 'object_repr', 'request_id')
+
+
+class JobResultHistoryTable(BaseTable):
+    created = tables.TemplateColumn(
+        template_code=JOB_RESULT_CREATED,
+        verbose_name='Run'
+    )
+    completed = tables.TemplateColumn(
+        template_code=JOB_RESULT_COMPLETED
+    )
+    status = tables.TemplateColumn(
+        template_code=JOB_RESULT_STATUS
+    )
+
+    class Meta(BaseTable.Meta):
+        model = JobResult
+        fields = ('created', 'completed', 'status')
+

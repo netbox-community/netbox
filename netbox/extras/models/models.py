@@ -1,6 +1,8 @@
 import json
+import uuid
 from collections import OrderedDict
 
+import django_rq
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -17,7 +19,7 @@ from utilities.utils import deepmerge, render_jinja2
 from extras.choices import *
 from extras.constants import *
 from extras.querysets import ConfigContextQuerySet
-from extras.utils import FeatureQuery, image_upload
+from extras.utils import extras_features, FeatureQuery, image_upload
 
 
 #
@@ -562,28 +564,91 @@ class ConfigContextModel(models.Model):
 # Custom scripts
 #
 
+@extras_features('job_results')
 class Script(models.Model):
     """
     Dummy model used to generate permissions for custom scripts. Does not exist in the database.
     """
+
     class Meta:
         managed = False
 
+    @classmethod
+    def get_absolute_url_from_job_result(cls, job_result):
+        """
+        Given a JobResult that links to this content type, return URL to an instance which corresponds to that job
+        result, i.e. for historical records
+        """
+        if job_result.obj_type.model_class() != cls:
+            return None
+
+        module, script_name = job_result.name.split('.')
+        return reverse(
+            'extras:script_history_detail',
+            kwargs={
+                'module': module,
+                'script_name': script_name,
+                'job_id': job_result.job_id
+            }
+        )
+
 
 #
-# Report results
+# Reports
 #
 
-class ReportResult(models.Model):
+@extras_features('job_results')
+class Report(models.Model):
+    """
+    Dummy model used to generate permissions for reports. Does not exist in the database.
+    """
+
+    class Meta:
+        managed = False
+
+    @classmethod
+    def get_absolute_url_from_job_result(cls, job_result):
+        """
+        Given a JobResult that links to this content type, return URL to an instance which corresponds to that job
+        result, i.e. for historical records
+        """
+        if job_result.obj_type.model_class() != cls:
+            return None
+
+        return reverse(
+            'extras:report_history_detail',
+            kwargs={
+                'name': job_result.name,
+                'job_id': job_result.job_id
+            }
+        )
+
+
+#
+# Job results
+#
+
+class JobResult(models.Model):
     """
     This model stores the results from running a user-defined report.
     """
-    report = models.CharField(
-        max_length=255,
-        unique=True
+    name = models.CharField(
+        max_length=255
+    )
+    obj_type = models.ForeignKey(
+        to=ContentType,
+        related_name='job_results',
+        verbose_name='Object types',
+        limit_choices_to=FeatureQuery('job_results'),
+        help_text="The object type to which this job result applies.",
+        on_delete=models.CASCADE,
     )
     created = models.DateTimeField(
         auto_now_add=True
+    )
+    completed = models.DateTimeField(
+        null=True,
+        blank=True
     )
     user = models.ForeignKey(
         to=User,
@@ -592,18 +657,64 @@ class ReportResult(models.Model):
         blank=True,
         null=True
     )
-    failed = models.BooleanField()
-    data = JSONField()
+    status = models.CharField(
+        max_length=30,
+        choices=JobResultStatusChoices,
+        default=JobResultStatusChoices.STATUS_PENDING
+    )
+    data = JSONField(
+        null=True,
+        blank=True
+    )
+    job_id = models.UUIDField(
+        unique=True
+    )
 
     class Meta:
-        ordering = ['report']
+        ordering = ['obj_type', 'name', '-created']
 
     def __str__(self):
-        return "{} {} at {}".format(
-            self.report,
-            "passed" if not self.failed else "failed",
-            self.created
+        return str(self.job_id)
+
+    def get_absolute_url(self):
+        """
+        Job results are accessed only under the context of the content type they link to
+        """
+        return self.obj_type.model_class().get_absolute_url_from_job_result(self)
+
+    @property
+    def duration(self):
+        if not self.completed:
+            return None
+
+        duration = self.completed - self.created
+        minutes, seconds = divmod(duration.total_seconds(), 60)
+
+        return f"{int(minutes)} minutes, {seconds:.2f} seconds"
+
+
+    @classmethod
+    def enqueue_job(cls, func, name, obj_type, user, *args, **kwargs):
+        """
+        Create a JobResult instance and enqueue a job using the given callable
+
+        func: The callable object to be enqueued for execution
+        name: Name for the JobResult instance
+        obj_type: ContentType to link to the JobResult instance obj_type
+        user: User object to link to the JobResult instance
+        args: additional args passed to the callable
+        kwargs: additional kargs passed to the callable
+        """
+        job_result = cls.objects.create(
+            name=name,
+            obj_type=obj_type,
+            user=user,
+            job_id=uuid.uuid4()
         )
+
+        func.delay(*args, job_id=str(job_result.job_id), job_result=job_result, **kwargs)
+
+        return job_result
 
 
 #

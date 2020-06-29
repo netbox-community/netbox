@@ -11,24 +11,25 @@ def log_level(level):
     """
     Display a label indicating a syslog severity (e.g. info, warning, etc.).
     """
+    # TODO: we should convert this to a choices class
     levels = {
-        LOG_DEFAULT: {
+        'default': {
             'name': 'Default',
             'class': 'default'
         },
-        LOG_SUCCESS: {
+        'success': {
             'name': 'Success',
             'class': 'success',
         },
-        LOG_INFO: {
+        'info': {
             'name': 'Info',
             'class': 'info'
         },
-        LOG_WARNING: {
+        'warning': {
             'name': 'Warning',
             'class': 'warning'
         },
-        LOG_FAILURE: {
+        'failure': {
             'name': 'Failure',
             'class': 'danger'
         }
