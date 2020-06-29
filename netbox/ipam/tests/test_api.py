@@ -416,7 +416,7 @@ class VLANTest(APIViewTestCases.APIViewTestCase):
         """
         Attempt and fail to delete a VLAN with a Prefix assigned to it.
         """
-        vlan = VLAN.objects.first()
+        vlan = VLAN.objects.unrestricted().first()
         Prefix.objects.create(prefix=IPNetwork('192.0.2.0/24'), vlan=vlan)
 
         self.add_permissions('ipam.delete_vlan')

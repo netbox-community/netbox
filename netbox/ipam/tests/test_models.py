@@ -43,7 +43,7 @@ class TestPrefix(TestCase):
             Prefix(prefix=netaddr.IPNetwork('192.0.2.0/24')),
             Prefix(prefix=netaddr.IPNetwork('192.0.2.0/24')),
         ))
-        duplicate_prefix_pks = [p.pk for p in prefixes[0].get_duplicates()]
+        duplicate_prefix_pks = [p.pk for p in prefixes[0].get_duplicates().unrestricted()]
 
         self.assertSetEqual(set(duplicate_prefix_pks), {prefixes[1].pk, prefixes[2].pk})
 
@@ -227,7 +227,7 @@ class TestIPAddress(TestCase):
             IPAddress(address=netaddr.IPNetwork('192.0.2.1/24')),
             IPAddress(address=netaddr.IPNetwork('192.0.2.1/24')),
         ))
-        duplicate_ip_pks = [p.pk for p in ips[0].get_duplicates()]
+        duplicate_ip_pks = [p.pk for p in ips[0].get_duplicates().unrestricted()]
 
         self.assertSetEqual(set(duplicate_ip_pks), {ips[1].pk, ips[2].pk})
 
