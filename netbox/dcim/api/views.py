@@ -43,7 +43,7 @@ class CableTraceMixin(object):
         """
         Trace a complete cable path and return each segment as a three-tuple of (termination, cable, termination).
         """
-        obj = get_object_or_404(self.queryset.model, pk=pk)
+        obj = get_object_or_404(self.queryset, pk=pk)
 
         # Initialize the path array
         path = []
@@ -156,7 +156,7 @@ class RackViewSet(CustomFieldModelViewSet):
         """
         Rack elevation representing the list of rack units. Also supports rendering the elevation as an SVG.
         """
-        rack = get_object_or_404(Rack, pk=pk)
+        rack = get_object_or_404(self.queryset, pk=pk)
         serializer = serializers.RackElevationDetailFilterSerializer(data=request.GET)
         if not serializer.is_valid():
             return Response(serializer.errors, 400)
@@ -369,7 +369,7 @@ class DeviceViewSet(CustomFieldModelViewSet):
         """
         Execute a NAPALM method on a Device
         """
-        device = get_object_or_404(Device, pk=pk)
+        device = get_object_or_404(self.queryset, pk=pk)
         if not device.primary_ip:
             raise ServiceUnavailable("This device does not have a primary IP address configured.")
         if device.platform is None:
@@ -655,7 +655,11 @@ class ConnectedDeviceViewSet(ViewSet):
             raise MissingFilterException(detail='Request must include "peer_device" and "peer_interface" filters.')
 
         # Determine local interface from peer interface's connection
-        peer_interface = get_object_or_404(Interface, device__name=peer_device_name, name=peer_interface_name)
+        peer_interface = get_object_or_404(
+            Interface.objects.unrestricted(),
+            device__name=peer_device_name,
+            name=peer_interface_name
+        )
         local_interface = peer_interface._connected_interface
 
         if local_interface is None:

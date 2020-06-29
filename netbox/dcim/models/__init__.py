@@ -673,7 +673,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         # Add devices to rack units list
         if self.pk:
-            queryset = Device.objects.prefetch_related(
+            queryset = Device.objects.unrestricted().prefetch_related(
                 'device_type',
                 'device_type__manufacturer',
                 'device_role'
