@@ -28,6 +28,41 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class ComponentTraceMixin(APITestCase):
+    peer_termination_type = None
+
+    def test_trace(self):
+        """
+        Test tracing a device component's attached cable.
+        """
+        obj = self.model.objects.unrestricted().first()
+        peer_device = Device.objects.create(
+            site=Site.objects.unrestricted().first(),
+            device_type=DeviceType.objects.unrestricted().first(),
+            device_role=DeviceRole.objects.unrestricted().first(),
+            name='Peer Device'
+        )
+        if self.peer_termination_type is None:
+            raise NotImplementedError("Test case must set peer_termination_type")
+        peer_obj = self.peer_termination_type.objects.create(
+            device=peer_device,
+            name='Peer Termination'
+        )
+        cable = Cable(termination_a=obj, termination_b=peer_obj, label='Cable 1')
+        cable.save()
+
+        self.add_permissions(f'dcim.view_{self.model._meta.model_name}')
+        url = reverse(f'dcim-api:{self.model._meta.model_name}-trace', kwargs={'pk': obj.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        segment1 = response.data[0]
+        self.assertEqual(segment1[0]['name'], obj.name)
+        self.assertEqual(segment1[1]['label'], cable.label)
+        self.assertEqual(segment1[2]['name'], peer_obj.name)
+
+
 class RegionTest(APIViewTestCases.APIViewTestCase):
     model = Region
     brief_fields = ['id', 'name', 'site_count', 'slug', 'url']
@@ -921,9 +956,10 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
-class ConsolePortTest(APIViewTestCases.APIViewTestCase):
+class ConsolePortTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsolePort
     brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
+    peer_termination_type = ConsoleServerPort
 
     @classmethod
     def setUpTestData(cls):
@@ -955,39 +991,11 @@ class ConsolePortTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
-    def test_trace_consoleport(self):
-        """
-        Test tracing a ConsolePort cable.
-        """
-        consoleport = ConsolePort.objects.first()
-        peer_device = Device.objects.create(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            device_role=DeviceRole.objects.first(),
-            name='Peer Device'
-        )
-        consoleserverport = ConsoleServerPort.objects.create(
-            device=peer_device,
-            name='Console Server Port 1'
-        )
-        cable = Cable(termination_a=consoleport, termination_b=consoleserverport, label='Cable 1')
-        cable.save()
 
-        self.add_permissions('dcim.view_consoleport')
-        url = reverse('dcim-api:consoleport-trace', kwargs={'pk': consoleport.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        segment1 = response.data[0]
-        self.assertEqual(segment1[0]['name'], consoleport.name)
-        self.assertEqual(segment1[1]['label'], cable.label)
-        self.assertEqual(segment1[2]['name'], consoleserverport.name)
-
-
-class ConsoleServerPortTest(APIViewTestCases.APIViewTestCase):
+class ConsoleServerPortTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsoleServerPort
     brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
+    peer_termination_type = ConsolePort
 
     @classmethod
     def setUpTestData(cls):
@@ -1019,39 +1027,11 @@ class ConsoleServerPortTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
-    def test_trace_consoleserverport(self):
-        """
-        Test tracing a ConsoleServerPort cable.
-        """
-        consoleserverport = ConsoleServerPort.objects.first()
-        peer_device = Device.objects.create(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            device_role=DeviceRole.objects.first(),
-            name='Peer Device'
-        )
-        consoleport = ConsolePort.objects.create(
-            device=peer_device,
-            name='Console Port 1'
-        )
-        cable = Cable(termination_a=consoleserverport, termination_b=consoleport, label='Cable 1')
-        cable.save()
 
-        self.add_permissions('dcim.view_consoleserverport')
-        url = reverse('dcim-api:consoleserverport-trace', kwargs={'pk': consoleserverport.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        segment1 = response.data[0]
-        self.assertEqual(segment1[0]['name'], consoleserverport.name)
-        self.assertEqual(segment1[1]['label'], cable.label)
-        self.assertEqual(segment1[2]['name'], consoleport.name)
-
-
-class PowerPortTest(APIViewTestCases.APIViewTestCase):
+class PowerPortTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerPort
     brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
+    peer_termination_type = PowerOutlet
 
     @classmethod
     def setUpTestData(cls):
@@ -1083,39 +1063,11 @@ class PowerPortTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
-    def test_trace_powerport(self):
-        """
-        Test tracing a PowerPort cable.
-        """
-        powerport = PowerPort.objects.first()
-        peer_device = Device.objects.create(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            device_role=DeviceRole.objects.first(),
-            name='Peer Device'
-        )
-        poweroutlet = PowerOutlet.objects.create(
-            device=peer_device,
-            name='Power Outlet 1'
-        )
-        cable = Cable(termination_a=powerport, termination_b=poweroutlet, label='Cable 1')
-        cable.save()
 
-        self.add_permissions('dcim.view_powerport')
-        url = reverse('dcim-api:powerport-trace', kwargs={'pk': powerport.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        segment1 = response.data[0]
-        self.assertEqual(segment1[0]['name'], powerport.name)
-        self.assertEqual(segment1[1]['label'], cable.label)
-        self.assertEqual(segment1[2]['name'], poweroutlet.name)
-
-
-class PowerOutletTest(APIViewTestCases.APIViewTestCase):
+class PowerOutletTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerOutlet
     brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
+    peer_termination_type = PowerPort
 
     @classmethod
     def setUpTestData(cls):
@@ -1147,39 +1099,11 @@ class PowerOutletTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
-    def test_trace_poweroutlet(self):
-        """
-        Test tracing a PowerOutlet cable.
-        """
-        poweroutlet = PowerOutlet.objects.first()
-        peer_device = Device.objects.create(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            device_role=DeviceRole.objects.first(),
-            name='Peer Device'
-        )
-        powerport = PowerPort.objects.create(
-            device=peer_device,
-            name='Power Port 1'
-        )
-        cable = Cable(termination_a=poweroutlet, termination_b=powerport, label='Cable 1')
-        cable.save()
 
-        self.add_permissions('dcim.view_poweroutlet')
-        url = reverse('dcim-api:poweroutlet-trace', kwargs={'pk': poweroutlet.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        segment1 = response.data[0]
-        self.assertEqual(segment1[0]['name'], poweroutlet.name)
-        self.assertEqual(segment1[1]['label'], cable.label)
-        self.assertEqual(segment1[2]['name'], powerport.name)
-
-
-class InterfaceTest(APIViewTestCases.APIViewTestCase):
+class InterfaceTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = Interface
     brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
+    peer_termination_type = Interface
 
     @classmethod
     def setUpTestData(cls):
@@ -1249,39 +1173,11 @@ class InterfaceTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(len(response.data), 3)
         self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?interface=Interface 1&foo=1')
 
-    def test_trace_interface(self):
-        """
-        Test tracing an Interface cable.
-        """
-        interface_a = Interface.objects.first()
-        peer_device = Device.objects.create(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            device_role=DeviceRole.objects.first(),
-            name='Peer Device'
-        )
-        interface_b = Interface.objects.create(
-            device=peer_device,
-            name='Interface X'
-        )
-        cable = Cable(termination_a=interface_a, termination_b=interface_b, label='Cable 1')
-        cable.save()
 
-        self.add_permissions('dcim.view_interface')
-        url = reverse('dcim-api:interface-trace', kwargs={'pk': interface_a.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        segment1 = response.data[0]
-        self.assertEqual(segment1[0]['name'], interface_a.name)
-        self.assertEqual(segment1[1]['label'], cable.label)
-        self.assertEqual(segment1[2]['name'], interface_b.name)
-
-
-class FrontPortTest(APIViewTestCases.APIViewTestCase):
+class FrontPortTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = FrontPort
     brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    peer_termination_type = Interface
 
     @classmethod
     def setUpTestData(cls):
@@ -1332,39 +1228,11 @@ class FrontPortTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
-    def test_trace_frontport(self):
-        """
-        Test tracing a FrontPort cable.
-        """
-        frontport = FrontPort.objects.first()
-        peer_device = Device.objects.create(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            device_role=DeviceRole.objects.first(),
-            name='Peer Device'
-        )
-        interface = Interface.objects.create(
-            device=peer_device,
-            name='Interface X'
-        )
-        cable = Cable(termination_a=frontport, termination_b=interface, label='Cable 1')
-        cable.save()
 
-        self.add_permissions('dcim.view_frontport')
-        url = reverse('dcim-api:frontport-trace', kwargs={'pk': frontport.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        segment1 = response.data[0]
-        self.assertEqual(segment1[0]['name'], frontport.name)
-        self.assertEqual(segment1[1]['label'], cable.label)
-        self.assertEqual(segment1[2]['name'], interface.name)
-
-
-class RearPortTest(APIViewTestCases.APIViewTestCase):
+class RearPortTest(ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = RearPort
     brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    peer_termination_type = Interface
 
     @classmethod
     def setUpTestData(cls):
@@ -1398,35 +1266,6 @@ class RearPortTest(APIViewTestCases.APIViewTestCase):
                 'type': PortTypeChoices.TYPE_8P8C,
             },
         ]
-
-    def test_trace_rearport(self):
-        """
-        Test tracing a RearPort cable.
-        """
-        rearport = RearPort.objects.first()
-        peer_device = Device.objects.create(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            device_role=DeviceRole.objects.first(),
-            name='Peer Device'
-        )
-        interface = Interface.objects.create(
-            device=peer_device,
-            name='Interface X'
-        )
-        cable = Cable(termination_a=rearport, termination_b=interface, label='Cable 1')
-        cable.save()
-
-        self.add_permissions('dcim.view_rearport')
-        url = reverse('dcim-api:rearport-trace', kwargs={'pk': rearport.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        segment1 = response.data[0]
-        self.assertEqual(segment1[0]['name'], rearport.name)
-        self.assertEqual(segment1[1]['label'], cable.label)
-        self.assertEqual(segment1[2]['name'], interface.name)
 
 
 class DeviceBayTest(APIViewTestCases.APIViewTestCase):
