@@ -867,10 +867,10 @@ class DeviceBayTemplateDeleteView(ObjectDeleteView):
     queryset = DeviceBayTemplate.objects.all()
 
 
-# class DeviceBayTemplateBulkEditView(BulkEditView):
-#     queryset = DeviceBayTemplate.objects.all()
-#     table = tables.DeviceBayTemplateTable
-#     form = forms.DeviceBayTemplateBulkEditForm
+class DeviceBayTemplateBulkEditView(BulkEditView):
+    queryset = DeviceBayTemplate.objects.all()
+    table = tables.DeviceBayTemplateTable
+    form = forms.DeviceBayTemplateBulkEditForm
 
 
 class DeviceBayTemplateBulkDeleteView(BulkDeleteView):

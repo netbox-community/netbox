@@ -1486,15 +1486,17 @@ class DeviceBayTemplateCreateForm(ComponentTemplateCreateForm):
     )
 
 
-# TODO: DeviceBayTemplate has no fields suitable for bulk-editing yet
-# class DeviceBayTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
-#     pk = forms.ModelMultipleChoiceField(
-#         queryset=FrontPortTemplate.objects.all(),
-#         widget=forms.MultipleHiddenInput()
-#     )
-#
-#     class Meta:
-#         nullable_fields = ()
+class DeviceBayTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=DeviceBayTemplate.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    description = forms.CharField(
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = ('description',)
 
 
 #

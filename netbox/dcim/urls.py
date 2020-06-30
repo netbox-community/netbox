@@ -142,7 +142,7 @@ urlpatterns = [
 
     # Device bay templates
     path('device-bay-templates/add/', views.DeviceBayTemplateCreateView.as_view(), name='devicebaytemplate_add'),
-    # path('device-bay-templates/edit/', views.DeviceBayTemplateBulkEditView.as_view(), name='devicebaytemplate_bulk_edit'),
+    path('device-bay-templates/edit/', views.DeviceBayTemplateBulkEditView.as_view(), name='devicebaytemplate_bulk_edit'),
     path('device-bay-templates/delete/', views.DeviceBayTemplateBulkDeleteView.as_view(), name='devicebaytemplate_bulk_delete'),
     path('device-bay-templates/<int:pk>/edit/', views.DeviceBayTemplateEditView.as_view(), name='devicebaytemplate_edit'),
     path('device-bay-templates/<int:pk>/delete/', views.DeviceBayTemplateDeleteView.as_view(), name='devicebaytemplate_delete'),

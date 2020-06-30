@@ -813,14 +813,7 @@ class RearPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase
         }
 
 
-# TODO: Change base class to DeviceComponentTemplateViewTestCase
-# Blocked by absence of bulk edit view for DeviceBays
-class DeviceBayTemplateTestCase(
-    ViewTestCases.EditObjectViewTestCase,
-    ViewTestCases.DeleteObjectViewTestCase,
-    ViewTestCases.BulkCreateObjectsViewTestCase,
-    ViewTestCases.BulkDeleteObjectsViewTestCase
-):
+class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = DeviceBayTemplate
 
     @classmethod
@@ -846,6 +839,10 @@ class DeviceBayTemplateTestCase(
         cls.bulk_create_data = {
             'device_type': devicetypes[1].pk,
             'name_pattern': 'Device Bay Template [4-6]',
+        }
+
+        cls.bulk_edit_data = {
+            'description': 'Foo bar',
         }
 
 

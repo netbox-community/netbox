@@ -173,7 +173,7 @@
 {% if devicetype.is_parent_device or devicebay_table.rows %}
     <div class="row">
         <div class="col-md-12">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=devicebay_table title='Device Bays' add_url='dcim:devicebaytemplate_add' edit_url=None delete_url='dcim:devicebaytemplate_bulk_delete' %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=devicebay_table title='Device Bays' add_url='dcim:devicebaytemplate_add' edit_url='dcim:devicebaytemplate_bulk_edit' delete_url='dcim:devicebaytemplate_bulk_delete' %}
         </div>
     </div>
 {% endif %}

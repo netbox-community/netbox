@@ -18,6 +18,7 @@ NetBox v2.9 replaces Django's built-in permissions framework with one that suppo
 * [#4792](https://github.com/netbox-community/netbox/issues/4792) - Add bulk rename capability for console and power ports
 * [#4793](https://github.com/netbox-community/netbox/issues/4793) - Add `description` field to device component templates
 * [#4795](https://github.com/netbox-community/netbox/issues/4795) - Add bulk disconnect capability for console and power ports
+* [#4807](https://github.com/netbox-community/netbox/issues/4807) - Add bulk edit ability for device bay templates
 
 ### Configuration Changes
 
