@@ -139,14 +139,14 @@ class LabeledComponentForm(BootstrapMixin, forms.Form):
     def clean(self):
 
         # Validate that the number of components being created from both the name_pattern and label_pattern are equal
-        name_pattern_count = len(self.cleaned_data['name_pattern'])
-        label_pattern_count = len(self.cleaned_data['label_pattern'])
-        if label_pattern_count and name_pattern_count != label_pattern_count:
-            raise forms.ValidationError({
-                'label_pattern': 'The provided name pattern will create {} components, however {} labels will '
-                'be generated. These counts must match.'.format(
-                    name_pattern_count, label_pattern_count)
-            }, code='label_pattern_mismatch')
+        if self.cleaned_data['label_pattern']:
+            name_pattern_count = len(self.cleaned_data['name_pattern'])
+            label_pattern_count = len(self.cleaned_data['label_pattern'])
+            if name_pattern_count != label_pattern_count:
+                raise forms.ValidationError({
+                    'label_pattern': f'The provided name pattern will create {name_pattern_count} components, however '
+                                     f'{label_pattern_count} labels will be generated. These counts must match.'
+                }, code='label_pattern_mismatch')
 
 
 #

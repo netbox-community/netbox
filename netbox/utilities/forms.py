@@ -529,8 +529,8 @@ class ExpandableNameField(forms.CharField):
                 """
 
     def to_python(self, value):
-        if value is None:
-            return list()
+        if not value:
+            return ''
         if re.search(ALPHANUMERIC_EXPANSION_PATTERN, value):
             return list(expand_alphanumeric_pattern(value))
         return [value]
@@ -828,31 +828,6 @@ class ImportForm(BootstrapMixin, forms.Form):
                 raise forms.ValidationError({
                     'data': "Invalid YAML data: {}".format(err)
                 })
-
-
-class LabeledComponentForm(BootstrapMixin, forms.Form):
-    """
-    Base form for adding label pattern validation to `Create` forms
-    """
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
-    label_pattern = ExpandableNameField(
-        label='Label',
-        required=False
-    )
-
-    def clean(self):
-
-        # Validate that the number of components being created from both the name_pattern and label_pattern are equal
-        name_pattern_count = len(self.cleaned_data['name_pattern'])
-        label_pattern_count = len(self.cleaned_data['label_pattern'])
-        if label_pattern_count and name_pattern_count != label_pattern_count:
-            raise forms.ValidationError({
-                'label_pattern': 'The provided name pattern will create {} components, however {} labels will '
-                'be generated. These counts must match.'.format(
-                    name_pattern_count, label_pattern_count)
-            }, code='label_pattern_mismatch')
 
 
 class TableConfigForm(BootstrapMixin, forms.Form):
