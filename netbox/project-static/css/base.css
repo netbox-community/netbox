@@ -183,13 +183,6 @@ nav ul.pagination {
     margin-bottom: 8px !important;
 }
 
-/* Racks */
-div.rack_header {
-    margin-left: 32px;
-    text-align: center;
-    width: 220px;
-}
-
 /* Devices */
 table.component-list td.subtable {
     padding: 0;

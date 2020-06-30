@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#4796](https://github.com/netbox-community/netbox/issues/4796) - Introduce configuration parameters for default rack elevation size
 * [#4802](https://github.com/netbox-community/netbox/issues/4802) - Allow changing page size when displaying only a single page of results
 
 ### Bug Fixes

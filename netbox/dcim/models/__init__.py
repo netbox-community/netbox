@@ -731,8 +731,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def get_elevation_svg(
             self,
             face=DeviceFaceChoices.FACE_FRONT,
-            unit_width=RACK_ELEVATION_UNIT_WIDTH_DEFAULT,
-            unit_height=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT,
+            unit_width=settings.RACK_ELEVATION_DEFAULT_UNIT_WIDTH,
+            unit_height=settings.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT,
             legend_width=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT,
             include_images=True,
             base_url=None

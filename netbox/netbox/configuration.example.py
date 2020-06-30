@@ -208,6 +208,10 @@ PLUGINS = []
 # prefer IPv4 instead.
 PREFER_IPV4 = False
 
+# Rack elevation size defaults, in pixels. For best results, the ratio of width to height should be roughly 10:1.
+RACK_ELEVATION_DEFAULT_UNIT_HEIGHT = 22
+RACK_ELEVATION_DEFAULT_UNIT_WIDTH = 220
+
 # Remote authentication support
 REMOTE_AUTH_ENABLED = False
 REMOTE_AUTH_BACKEND = 'utilities.auth_backends.RemoteUserBackend'
