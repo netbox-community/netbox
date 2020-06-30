@@ -44,6 +44,9 @@ class ComponentModel(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        return getattr(self, 'name')
+
     def to_objectchange(self, action):
         # Annotate the parent Device/VM
         try:
@@ -261,9 +264,6 @@ class ConsolePort(CableTermination, ComponentModel):
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
 
-    def __str__(self):
-        return self.name
-
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
@@ -315,9 +315,6 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
@@ -396,9 +393,6 @@ class PowerPort(CableTermination, ComponentModel):
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
@@ -547,9 +541,6 @@ class PowerOutlet(CableTermination, ComponentModel):
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
 
-    def __str__(self):
-        return self.name
-
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
@@ -684,9 +675,6 @@ class Interface(CableTermination, ComponentModel):
         # TODO: ordering and unique_together should include virtual_machine
         ordering = ('device', CollateAsChar('_name'))
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:interface', kwargs={'pk': self.pk})
@@ -893,9 +881,6 @@ class FrontPort(CableTermination, ComponentModel):
             ('rear_port', 'rear_port_position'),
         )
 
-    def __str__(self):
-        return self.name
-
     def to_csv(self):
         return (
             self.device.identifier,
@@ -958,9 +943,6 @@ class RearPort(CableTermination, ComponentModel):
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
 
-    def __str__(self):
-        return self.name
-
     def to_csv(self):
         return (
             self.device.identifier,
@@ -1008,9 +990,6 @@ class DeviceBay(ComponentModel):
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        return '{} - {}'.format(self.device.name, self.name)
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
