@@ -16,6 +16,7 @@ NetBox v2.9 replaces Django's built-in permissions framework with one that suppo
 * [#4742](https://github.com/netbox-community/netbox/issues/4742) - Add tagging for cables, power panels, and rack reservations
 * [#4788](https://github.com/netbox-community/netbox/issues/4788) - Add dedicated views for all device components
 * [#4792](https://github.com/netbox-community/netbox/issues/4792) - Add bulk rename capability for console and power ports
+* [#4793](https://github.com/netbox-community/netbox/issues/4793) - Add `description` field to device component templates
 * [#4795](https://github.com/netbox-community/netbox/issues/4795) - Add bulk disconnect capability for console and power ports
 
 ### Configuration Changes
@@ -40,6 +41,7 @@ NetBox v2.9 replaces Django's built-in permissions framework with one that suppo
 * The IP address model now uses a generic foreign key to refer to the assigned interface. The `interface` field on the serializer has been replaced with `assigned_object_type` and `assigned_object_id` for write operations. If one exists, the assigned interface is available as `assigned_object`.
 * The serialized representation of a virtual machine interface now includes only relevant fields: `type`, `lag`, `mgmt_only`, `connected_endpoint_type`, `connected_endpoint`, and `cable` are no longer included.
 * dcim.VirtualChassis: Added a mandatory `name` field
+* An optional `description` field has been added to all device component templates
 
 ### Other Changes
 

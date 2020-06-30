@@ -1053,6 +1053,9 @@ class ComponentTemplateCreateForm(LabeledComponentForm):
             display_field='model'
         )
     )
+    description = forms.CharField(
+        required=False
+    )
 
 
 class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1060,7 +1063,7 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsolePortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type',
+            'device_type', 'name', 'label', 'type', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1086,7 +1089,7 @@ class ConsolePortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ('type',)
+        nullable_fields = ('type', 'description')
 
 
 class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1094,7 +1097,7 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type',
+            'device_type', 'name', 'label', 'type', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1118,9 +1121,12 @@ class ConsoleServerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False,
         widget=StaticSelect2()
     )
+    description = forms.CharField(
+        required=False
+    )
 
     class Meta:
-        nullable_fields = ('type',)
+        nullable_fields = ('type', 'description')
 
 
 class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1128,7 +1134,7 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerPortTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw',
+            'device_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1172,9 +1178,12 @@ class PowerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False,
         help_text="Allocated power draw (watts)"
     )
+    description = forms.CharField(
+        required=False
+    )
 
     class Meta:
-        nullable_fields = ('type', 'maximum_draw', 'allocated_draw')
+        nullable_fields = ('type', 'maximum_draw', 'allocated_draw', 'description')
 
 
 class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1182,7 +1191,7 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'power_port', 'feed_leg',
+            'device_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1251,9 +1260,12 @@ class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False,
         widget=StaticSelect2()
     )
+    description = forms.CharField(
+        required=False
+    )
 
     class Meta:
-        nullable_fields = ('type', 'power_port', 'feed_leg')
+        nullable_fields = ('type', 'power_port', 'feed_leg', 'description')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1272,7 +1284,7 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'name', 'label', 'type', 'mgmt_only',
+            'device_type', 'name', 'label', 'type', 'mgmt_only', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1306,9 +1318,12 @@ class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         widget=BulkEditNullBooleanSelect,
         label='Management only'
     )
+    description = forms.CharField(
+        required=False
+    )
 
     class Meta:
-        nullable_fields = []
+        nullable_fields = ('description',)
 
 
 class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1316,7 +1331,7 @@ class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'device_type', 'name', 'type', 'rear_port', 'rear_port_position',
+            'device_type', 'name', 'type', 'rear_port', 'rear_port_position', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1401,9 +1416,12 @@ class FrontPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False,
         widget=StaticSelect2()
     )
+    description = forms.CharField(
+        required=False
+    )
 
     class Meta:
-        nullable_fields = ()
+        nullable_fields = ('description',)
 
 
 class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1411,7 +1429,7 @@ class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = RearPortTemplate
         fields = [
-            'device_type', 'name', 'type', 'positions',
+            'device_type', 'name', 'type', 'positions', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1442,9 +1460,12 @@ class RearPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False,
         widget=StaticSelect2()
     )
+    description = forms.CharField(
+        required=False
+    )
 
     class Meta:
-        nullable_fields = ()
+        nullable_fields = ('description',)
 
 
 class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1452,7 +1473,7 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = DeviceBayTemplate
         fields = [
-            'device_type', 'name', 'label',
+            'device_type', 'name', 'label', 'description',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
@@ -1460,7 +1481,9 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class DeviceBayTemplateCreateForm(ComponentTemplateCreateForm):
-    pass
+    description = forms.CharField(
+        required=False
+    )
 
 
 # TODO: DeviceBayTemplate has no fields suitable for bulk-editing yet

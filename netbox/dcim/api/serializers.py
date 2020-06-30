@@ -245,7 +245,7 @@ class ConsolePortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ConsolePortTemplate
-        fields = ['id', 'device_type', 'name', 'label', 'type']
+        fields = ['id', 'device_type', 'name', 'label', 'type', 'description']
 
 
 class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
@@ -258,7 +258,7 @@ class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ConsoleServerPortTemplate
-        fields = ['id', 'device_type', 'name', 'label', 'type']
+        fields = ['id', 'device_type', 'name', 'label', 'type', 'description']
 
 
 class PowerPortTemplateSerializer(ValidatedModelSerializer):
@@ -271,7 +271,7 @@ class PowerPortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = PowerPortTemplate
-        fields = ['id', 'device_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw']
+        fields = ['id', 'device_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description']
 
 
 class PowerOutletTemplateSerializer(ValidatedModelSerializer):
@@ -292,7 +292,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = PowerOutletTemplate
-        fields = ['id', 'device_type', 'name', 'label', 'type', 'power_port', 'feed_leg']
+        fields = ['id', 'device_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description']
 
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
@@ -301,7 +301,7 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = InterfaceTemplate
-        fields = ['id', 'device_type', 'name', 'label', 'type', 'mgmt_only']
+        fields = ['id', 'device_type', 'name', 'label', 'type', 'mgmt_only', 'description']
 
 
 class RearPortTemplateSerializer(ValidatedModelSerializer):
@@ -310,7 +310,7 @@ class RearPortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = RearPortTemplate
-        fields = ['id', 'device_type', 'name', 'type', 'positions']
+        fields = ['id', 'device_type', 'name', 'type', 'positions', 'description']
 
 
 class FrontPortTemplateSerializer(ValidatedModelSerializer):
@@ -320,7 +320,7 @@ class FrontPortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = FrontPortTemplate
-        fields = ['id', 'device_type', 'name', 'type', 'rear_port', 'rear_port_position']
+        fields = ['id', 'device_type', 'name', 'type', 'rear_port', 'rear_port_position', 'description']
 
 
 class DeviceBayTemplateSerializer(ValidatedModelSerializer):
@@ -328,7 +328,7 @@ class DeviceBayTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = DeviceBayTemplate
-        fields = ['id', 'device_type', 'name', 'label']
+        fields = ['id', 'device_type', 'name', 'label', 'description']
 
 
 #

@@ -27,6 +27,11 @@ __all__ = (
 
 
 class ComponentTemplateModel(models.Model):
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:

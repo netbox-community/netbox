@@ -486,7 +486,7 @@ class ConsolePortTemplateTable(ComponentTemplateTable):
 
     class Meta(BaseTable.Meta):
         model = ConsolePortTemplate
-        fields = ('pk', 'name', 'label', 'type', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'description', 'actions')
         empty_text = "None"
 
 
@@ -499,7 +499,7 @@ class ConsoleServerPortTemplateTable(ComponentTemplateTable):
 
     class Meta(BaseTable.Meta):
         model = ConsoleServerPortTemplate
-        fields = ('pk', 'name', 'label', 'type', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'description', 'actions')
         empty_text = "None"
 
 
@@ -512,7 +512,7 @@ class PowerPortTemplateTable(ComponentTemplateTable):
 
     class Meta(BaseTable.Meta):
         model = PowerPortTemplate
-        fields = ('pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'actions')
         empty_text = "None"
 
 
@@ -525,7 +525,7 @@ class PowerOutletTemplateTable(ComponentTemplateTable):
 
     class Meta(BaseTable.Meta):
         model = PowerOutletTemplate
-        fields = ('pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'actions')
         empty_text = "None"
 
 
@@ -541,7 +541,7 @@ class InterfaceTemplateTable(ComponentTemplateTable):
 
     class Meta(BaseTable.Meta):
         model = InterfaceTemplate
-        fields = ('pk', 'name', 'label', 'mgmt_only', 'type', 'actions')
+        fields = ('pk', 'name', 'label', 'mgmt_only', 'type', 'description', 'actions')
         empty_text = "None"
 
 
@@ -557,7 +557,7 @@ class FrontPortTemplateTable(ComponentTemplateTable):
 
     class Meta(BaseTable.Meta):
         model = FrontPortTemplate
-        fields = ('pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'actions')
         empty_text = "None"
 
 
@@ -570,7 +570,7 @@ class RearPortTemplateTable(ComponentTemplateTable):
 
     class Meta(BaseTable.Meta):
         model = RearPortTemplate
-        fields = ('pk', 'name', 'label', 'type', 'positions', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'positions', 'description', 'actions')
         empty_text = "None"
 
 
@@ -583,7 +583,7 @@ class DeviceBayTemplateTable(ComponentTemplateTable):
 
     class Meta(BaseTable.Meta):
         model = DeviceBayTemplate
-        fields = ('pk', 'name', 'label', 'actions')
+        fields = ('pk', 'name', 'label', 'description', 'actions')
         empty_text = "None"
 
 
