@@ -2,6 +2,10 @@
 
 ## v2.8.7 (FUTURE)
 
+### Enhancements
+
+* [#4802](https://github.com/netbox-community/netbox/issues/4802) - Allow changing page size when displaying only a single page of results
+
 ### Bug Fixes
 
 * [#4766](https://github.com/netbox-community/netbox/issues/4766) - Fix redirect after login when `next` is not specified
