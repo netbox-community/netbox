@@ -23,10 +23,9 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ColorSelect, CommentField, ConfirmationForm, CSVChoiceField, CSVModelChoiceField, CSVModelForm,
-    DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField,
-    NumericArrayField, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
-    BOOLEAN_WITH_BLANK_CHOICES,
+    ColorSelect, CommentField, CSVChoiceField, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model, JSONField, NumericArrayField, SelectWithPK,
+    SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
@@ -1082,6 +1081,10 @@ class ConsolePortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=ConsolePortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    label = forms.CharField(
+        max_length=64,
+        required=False
+    )
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
@@ -1089,7 +1092,7 @@ class ConsolePortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ('type', 'description')
+        nullable_fields = ('label', 'type', 'description')
 
 
 class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1116,6 +1119,10 @@ class ConsoleServerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=ConsoleServerPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    label = forms.CharField(
+        max_length=64,
+        required=False
+    )
     type = forms.ChoiceField(
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
@@ -1126,7 +1133,7 @@ class ConsoleServerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ('type', 'description')
+        nullable_fields = ('label', 'type', 'description')
 
 
 class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1163,6 +1170,10 @@ class PowerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=PowerPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    label = forms.CharField(
+        max_length=64,
+        required=False
+    )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerPortTypeChoices),
         required=False,
@@ -1183,7 +1194,7 @@ class PowerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ('type', 'maximum_draw', 'allocated_draw', 'description')
+        nullable_fields = ('label', 'type', 'maximum_draw', 'allocated_draw', 'description')
 
 
 class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1246,6 +1257,10 @@ class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         disabled=True,
         widget=forms.HiddenInput()
     )
+    label = forms.CharField(
+        max_length=64,
+        required=False
+    )
     type = forms.ChoiceField(
         choices=add_blank_choice(PowerOutletTypeChoices),
         required=False,
@@ -1265,7 +1280,7 @@ class PowerOutletTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ('type', 'power_port', 'feed_leg', 'description')
+        nullable_fields = ('label', 'type', 'power_port', 'feed_leg', 'description')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1308,6 +1323,10 @@ class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=InterfaceTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    label = forms.CharField(
+        max_length=64,
+        required=False
+    )
     type = forms.ChoiceField(
         choices=add_blank_choice(InterfaceTypeChoices),
         required=False,
@@ -1323,7 +1342,7 @@ class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ('description',)
+        nullable_fields = ('label', 'description')
 
 
 class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1491,12 +1510,16 @@ class DeviceBayTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=DeviceBayTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    label = forms.CharField(
+        max_length=64,
+        required=False
+    )
     description = forms.CharField(
         required=False
     )
 
     class Meta:
-        nullable_fields = ('description',)
+        nullable_fields = ('label', 'description')
 
 
 #
@@ -2295,14 +2318,14 @@ class ConsolePortCreateForm(ComponentCreateForm):
 
 
 class ConsolePortBulkCreateForm(
-    form_from_model(ConsolePort, ['type', 'description', 'tags']),
+    form_from_model(ConsolePort, ['label', 'type', 'description', 'tags']),
     DeviceBulkAddComponentForm
 ):
     pass
 
 
 class ConsolePortBulkEditForm(
-    form_from_model(ConsolePort, ['type', 'description']),
+    form_from_model(ConsolePort, ['label', 'type', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
     BulkEditForm
@@ -2313,9 +2336,7 @@ class ConsolePortBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = (
-            'description',
-        )
+        nullable_fields = ('label', 'description')
 
 
 class ConsolePortCSVForm(CSVModelForm):
@@ -2377,14 +2398,14 @@ class ConsoleServerPortCreateForm(ComponentCreateForm):
 
 
 class ConsoleServerPortBulkCreateForm(
-    form_from_model(ConsoleServerPort, ['type', 'description', 'tags']),
+    form_from_model(ConsoleServerPort, ['label', 'type', 'description', 'tags']),
     DeviceBulkAddComponentForm
 ):
     pass
 
 
 class ConsoleServerPortBulkEditForm(
-    form_from_model(ConsoleServerPort, ['type', 'description']),
+    form_from_model(ConsoleServerPort, ['label', 'type', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
     BulkEditForm
@@ -2395,9 +2416,7 @@ class ConsoleServerPortBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = [
-            'description',
-        ]
+        nullable_fields = ('label', 'description')
 
 
 class ConsoleServerPortCSVForm(CSVModelForm):
@@ -2469,14 +2488,14 @@ class PowerPortCreateForm(ComponentCreateForm):
 
 
 class PowerPortBulkCreateForm(
-    form_from_model(PowerPort, ['type', 'maximum_draw', 'allocated_draw', 'description', 'tags']),
+    form_from_model(PowerPort, ['label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'tags']),
     DeviceBulkAddComponentForm
 ):
     pass
 
 
 class PowerPortBulkEditForm(
-    form_from_model(PowerPort, ['type', 'maximum_draw', 'allocated_draw', 'description']),
+    form_from_model(PowerPort, ['label', 'type', 'maximum_draw', 'allocated_draw', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
     BulkEditForm
@@ -2487,9 +2506,7 @@ class PowerPortBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = (
-            'description',
-        )
+        nullable_fields = ('label', 'description')
 
 
 class PowerPortCSVForm(CSVModelForm):
@@ -2581,14 +2598,14 @@ class PowerOutletCreateForm(ComponentCreateForm):
 
 
 class PowerOutletBulkCreateForm(
-    form_from_model(PowerOutlet, ['type', 'feed_leg', 'description', 'tags']),
+    form_from_model(PowerOutlet, ['label', 'type', 'feed_leg', 'description', 'tags']),
     DeviceBulkAddComponentForm
 ):
     pass
 
 
 class PowerOutletBulkEditForm(
-    form_from_model(PowerOutlet, ['type', 'feed_leg', 'power_port', 'description']),
+    form_from_model(PowerOutlet, ['label', 'type', 'feed_leg', 'power_port', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
     BulkEditForm
@@ -2605,9 +2622,7 @@ class PowerOutletBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = [
-            'type', 'feed_leg', 'power_port', 'description',
-        ]
+        nullable_fields = ('label', 'type', 'feed_leg', 'power_port', 'description')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2838,14 +2853,16 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
 
 
 class InterfaceBulkCreateForm(
-    form_from_model(Interface, ['type', 'enabled', 'mtu', 'mgmt_only', 'description']),
+    form_from_model(Interface, ['label', 'type', 'enabled', 'mtu', 'mgmt_only', 'description']),
     DeviceBulkAddComponentForm
 ):
     pass
 
 
 class InterfaceBulkEditForm(
-    form_from_model(Interface, ['type', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description', 'mode']),
+    form_from_model(Interface, [
+        'label', 'type', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description', 'mode'
+    ]),
     BootstrapMixin,
     AddRemoveTagsForm,
     BulkEditForm
@@ -2884,9 +2901,9 @@ class InterfaceBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = [
-            'lag', 'mac_address', 'mtu', 'description', 'mode', 'untagged_vlan', 'tagged_vlans'
-        ]
+        nullable_fields = (
+            'label', 'lag', 'mac_address', 'mtu', 'description', 'mode', 'untagged_vlan', 'tagged_vlans'
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -3283,7 +3300,7 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
 
 
 class DeviceBayBulkCreateForm(
-    form_from_model(DeviceBay, ['description', 'tags']),
+    form_from_model(DeviceBay, ['label', 'description', 'tags']),
     DeviceBulkAddComponentForm
 ):
     tags = DynamicModelMultipleChoiceField(
@@ -3293,7 +3310,7 @@ class DeviceBayBulkCreateForm(
 
 
 class DeviceBayBulkEditForm(
-    form_from_model(DeviceBay, ['description']),
+    form_from_model(DeviceBay, ['label', 'description']),
     BootstrapMixin,
     AddRemoveTagsForm,
     BulkEditForm
@@ -3304,9 +3321,7 @@ class DeviceBayBulkEditForm(
     )
 
     class Meta:
-        nullable_fields = (
-            'description',
-        )
+        nullable_fields = ('label', 'description')
 
 
 class DeviceBayCSVForm(CSVModelForm):
