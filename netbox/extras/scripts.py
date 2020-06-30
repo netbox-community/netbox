@@ -462,6 +462,7 @@ def run_script(data, request, commit=True, *args, **kwargs):
     # Delete any previous terminal state results
     JobResult.objects.filter(
         obj_type=job_result.obj_type,
+        name=job_result.name,
         status=JobResultStatusChoices.TERMINAL_STATE_CHOICES
     ).exclude(
         pk=job_result.pk
