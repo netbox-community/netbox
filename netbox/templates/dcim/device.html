@@ -358,7 +358,7 @@
                                     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
                                 </button>
                             {% endif %}
-                            {% if console_ports and perms.dcim.change_consoleport %}
+                            {% if console_ports and perms.dcim.add_consoleport %}
                                 <div class="pull-right">
                                     <a href="{% url 'dcim:consoleport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-xs btn-primary">
                                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console port
@@ -398,7 +398,7 @@
                                     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
                                 </button>
                             {% endif %}
-                            {% if power_ports and perms.dcim.change_powerport %}
+                            {% if power_ports and perms.dcim.add_powerport %}
                                 <div class="pull-right">
                                     <a href="{% url 'dcim:powerport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-xs btn-primary">
                                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power port
