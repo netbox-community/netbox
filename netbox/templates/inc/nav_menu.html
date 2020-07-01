@@ -173,16 +173,6 @@
                             <a href="{% url 'dcim:manufacturer_list' %}">Manufacturers</a>
                         </li>
                         <li class="divider"></li>
-                        <li class="dropdown-header">Inventory</li>
-                        <li{% if not perms.dcim.view_inventoryitem %} class="disabled"{% endif %}>
-                            {% if perms.dcim.add_inventoryitem %}
-                                <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:inventoryitem_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
-                                </div>
-                            {% endif %}
-                            <a href="{% url 'dcim:inventoryitem_list' %}">Inventory Items</a>
-                        </li>
-                        <li class="divider"></li>
                         <li class="dropdown-header">Connections</li>
                         <li{% if not perms.dcim.view_cable %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_cable %}
@@ -266,6 +256,14 @@
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:devicebay_list' %}">Device Bays</a>
+                        </li>
+                        <li{% if not perms.dcim.view_inventoryitem %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_inventoryitem %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:inventoryitem_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:inventoryitem_list' %}">Inventory Items</a>
                         </li>
                     </ul>
                 </li>

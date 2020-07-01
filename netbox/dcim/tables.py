@@ -775,6 +775,20 @@ class DeviceBayTable(DeviceComponentTable):
         default_columns = ('pk', 'device', 'name', 'label', 'installed_device', 'description')
 
 
+class InventoryItemTable(DeviceComponentTable):
+    manufacturer = tables.Column(
+        linkify=True
+    )
+    discovered = BooleanColumn()
+
+    class Meta(DeviceComponentTable.Meta):
+        model = InventoryItem
+        fields = (
+            'pk', 'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'discovered'
+        )
+        default_columns = ('pk', 'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag')
+
+
 #
 # Cables
 #
@@ -915,29 +929,6 @@ class InterfaceConnectionTable(BaseTable):
         fields = (
             'device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status',
         )
-
-
-#
-# InventoryItems
-#
-
-class InventoryItemTable(BaseTable):
-    pk = ToggleColumn()
-    device = tables.LinkColumn(
-        viewname='dcim:device_inventory',
-        args=[Accessor('device.pk')]
-    )
-    manufacturer = tables.Column(
-        accessor=Accessor('manufacturer')
-    )
-    discovered = BooleanColumn()
-
-    class Meta(BaseTable.Meta):
-        model = InventoryItem
-        fields = (
-            'pk', 'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'discovered'
-        )
-        default_columns = ('pk', 'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag')
 
 
 #

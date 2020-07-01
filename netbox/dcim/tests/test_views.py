@@ -1419,16 +1419,7 @@ class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
 
 
-# TODO: Convert to DeviceComponentViewTestCase?
-class InventoryItemTestCase(
-    ViewTestCases.EditObjectViewTestCase,
-    ViewTestCases.DeleteObjectViewTestCase,
-    ViewTestCases.ListObjectsViewTestCase,
-    ViewTestCases.BulkCreateObjectsViewTestCase,
-    ViewTestCases.BulkImportObjectsViewTestCase,
-    ViewTestCases.BulkEditObjectsViewTestCase,
-    ViewTestCases.BulkDeleteObjectsViewTestCase
-):
+class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = InventoryItem
 
     @classmethod

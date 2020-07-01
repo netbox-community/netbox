@@ -1120,7 +1120,7 @@ class InventoryItem(ComponentModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('dcim:device_inventory', kwargs={'pk': self.device.pk})
+        return reverse('dcim:inventoryitem', kwargs={'pk': self.pk})
 
     def to_csv(self):
         return (

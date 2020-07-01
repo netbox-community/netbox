@@ -1,5 +1,7 @@
 <tr>
-    <td style="padding-left: {{ indent|add:5 }}px">{{ item }}</td>
+    <td style="padding-left: {{ indent|add:5 }}px">
+        <a href="{{ item.get_absolute_url }}">{{ item }}</a>
+    </td>
     <td>{% if not item.discovered %}<i class="fa fa-asterisk" title="Manually created"></i>{% endif %}</td>
     <td>{{ item.manufacturer|default:"" }}</td>
     <td>{{ item.part_id }}</td>

@@ -5,8 +5,8 @@ from ipam.views import ServiceEditView
 from . import views
 from .models import (
     Cable, ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, FrontPort, Interface,
-    Manufacturer, Platform, PowerFeed, PowerPanel, PowerPort, PowerOutlet, Rack, RackGroup, RackReservation, RackRole,
-    RearPort, Region, Site, VirtualChassis,
+    InventoryItem, Manufacturer, Platform, PowerFeed, PowerPanel, PowerPort, PowerOutlet, Rack, RackGroup,
+    RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
 )
 
 app_name = 'dcim'
@@ -322,8 +322,10 @@ urlpatterns = [
     path('inventory-items/edit/', views.InventoryItemBulkEditView.as_view(), name='inventoryitem_bulk_edit'),
     # TODO: Bulk rename view for InventoryItems
     path('inventory-items/delete/', views.InventoryItemBulkDeleteView.as_view(), name='inventoryitem_bulk_delete'),
+    path('inventory-items/<int:pk>/', views.InventoryItemView.as_view(), name='inventoryitem'),
     path('inventory-items/<int:pk>/edit/', views.InventoryItemEditView.as_view(), name='inventoryitem_edit'),
     path('inventory-items/<int:pk>/delete/', views.InventoryItemDeleteView.as_view(), name='inventoryitem_delete'),
+    path('inventory-items/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='inventoryitem_changelog', kwargs={'model': InventoryItem}),
 
     # Cables
     path('cables/', views.CableListView.as_view(), name='cable_list'),

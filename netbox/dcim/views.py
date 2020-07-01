@@ -1717,6 +1717,57 @@ class DeviceBayBulkDeleteView(BulkDeleteView):
 
 
 #
+# Inventory items
+#
+
+class InventoryItemListView(ObjectListView):
+    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
+    filterset = filters.InventoryItemFilterSet
+    filterset_form = forms.InventoryItemFilterForm
+    table = tables.InventoryItemTable
+    action_buttons = ('import', 'export')
+
+
+class InventoryItemView(ObjectView):
+    queryset = InventoryItem.objects.all()
+
+
+class InventoryItemEditView(ObjectEditView):
+    queryset = InventoryItem.objects.all()
+    model_form = forms.InventoryItemForm
+
+
+class InventoryItemCreateView(ComponentCreateView):
+    queryset = InventoryItem.objects.all()
+    form = forms.InventoryItemCreateForm
+    model_form = forms.InventoryItemForm
+    template_name = 'dcim/device_component_add.html'
+
+
+class InventoryItemDeleteView(ObjectDeleteView):
+    queryset = InventoryItem.objects.all()
+
+
+class InventoryItemBulkImportView(BulkImportView):
+    queryset = InventoryItem.objects.all()
+    model_form = forms.InventoryItemCSVForm
+    table = tables.InventoryItemTable
+
+
+class InventoryItemBulkEditView(BulkEditView):
+    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
+    filterset = filters.InventoryItemFilterSet
+    table = tables.InventoryItemTable
+    form = forms.InventoryItemBulkEditForm
+
+
+class InventoryItemBulkDeleteView(BulkDeleteView):
+    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
+    table = tables.InventoryItemTable
+    template_name = 'dcim/inventoryitem_bulk_delete.html'
+
+
+#
 # Bulk Device component creation
 #
 
@@ -2046,53 +2097,6 @@ class InterfaceConnectionsListView(ObjectListView):
             csv_data.append(csv)
 
         return '\n'.join(csv_data)
-
-
-#
-# Inventory items
-#
-
-class InventoryItemListView(ObjectListView):
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
-    filterset = filters.InventoryItemFilterSet
-    filterset_form = forms.InventoryItemFilterForm
-    table = tables.InventoryItemTable
-    action_buttons = ('import', 'export')
-
-
-class InventoryItemEditView(ObjectEditView):
-    queryset = InventoryItem.objects.all()
-    model_form = forms.InventoryItemForm
-
-
-class InventoryItemCreateView(ComponentCreateView):
-    queryset = InventoryItem.objects.all()
-    form = forms.InventoryItemCreateForm
-    model_form = forms.InventoryItemForm
-    template_name = 'dcim/device_component_add.html'
-
-
-class InventoryItemDeleteView(ObjectDeleteView):
-    queryset = InventoryItem.objects.all()
-
-
-class InventoryItemBulkImportView(BulkImportView):
-    queryset = InventoryItem.objects.all()
-    model_form = forms.InventoryItemCSVForm
-    table = tables.InventoryItemTable
-
-
-class InventoryItemBulkEditView(BulkEditView):
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
-    filterset = filters.InventoryItemFilterSet
-    table = tables.InventoryItemTable
-    form = forms.InventoryItemBulkEditForm
-
-
-class InventoryItemBulkDeleteView(BulkDeleteView):
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
-    table = tables.InventoryItemTable
-    template_name = 'dcim/inventoryitem_bulk_delete.html'
 
 
 #
