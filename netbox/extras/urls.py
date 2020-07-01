@@ -13,7 +13,6 @@ urlpatterns = [
     path('tags/import/', views.TagBulkImportView.as_view(), name='tag_import'),
     path('tags/edit/', views.TagBulkEditView.as_view(), name='tag_bulk_edit'),
     path('tags/delete/', views.TagBulkDeleteView.as_view(), name='tag_bulk_delete'),
-    path('tags/<str:slug>/', views.TagView.as_view(), name='tag'),
     path('tags/<str:slug>/edit/', views.TagEditView.as_view(), name='tag_edit'),
     path('tags/<str:slug>/delete/', views.TagDeleteView.as_view(), name='tag_delete'),
     path('tags/<str:slug>/changelog/', views.ObjectChangeLogView.as_view(), name='tag_changelog', kwargs={'model': Tag}),

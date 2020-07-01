@@ -10,7 +10,7 @@ from extras.models import ConfigContext, ObjectChange, Tag
 from utilities.testing import ViewTestCases, TestCase
 
 
-class TagTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Tag
 
     @classmethod

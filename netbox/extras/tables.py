@@ -52,10 +52,6 @@ OBJECTCHANGE_REQUEST_ID = """
 
 class TagTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(
-        viewname='extras:tag',
-        args=[Accessor('slug')]
-    )
     color = ColorColumn()
     actions = ButtonsColumn(Tag, pk_field='slug')
 

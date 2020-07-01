@@ -40,33 +40,6 @@ class TagListView(ObjectListView):
     table = tables.TagTable
 
 
-class TagView(ObjectView):
-    queryset = Tag.objects.all()
-
-    def get(self, request, slug):
-
-        tag = get_object_or_404(self.queryset, slug=slug)
-        tagged_items = TaggedItem.objects.filter(
-            tag=tag
-        ).prefetch_related(
-            'content_type', 'content_object'
-        )
-
-        # Generate a table of all items tagged with this Tag
-        items_table = tables.TaggedItemTable(tagged_items)
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
-        }
-        RequestConfig(request, paginate).configure(items_table)
-
-        return render(request, 'extras/tag.html', {
-            'tag': tag,
-            'items_count': tagged_items.count(),
-            'items_table': items_table,
-        })
-
-
 class TagEditView(ObjectEditView):
     queryset = Tag.objects.all()
     model_form = forms.TagForm
