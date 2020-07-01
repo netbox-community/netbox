@@ -1761,6 +1761,10 @@ class InventoryItemBulkEditView(BulkEditView):
     form = forms.InventoryItemBulkEditForm
 
 
+class InventoryItemBulkRenameView(BulkRenameView):
+    queryset = InventoryItem.objects.all()
+
+
 class InventoryItemBulkDeleteView(BulkDeleteView):
     queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
     table = tables.InventoryItemTable

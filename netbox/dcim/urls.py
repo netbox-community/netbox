@@ -320,7 +320,7 @@ urlpatterns = [
     path('inventory-items/add/', views.InventoryItemCreateView.as_view(), name='inventoryitem_add'),
     path('inventory-items/import/', views.InventoryItemBulkImportView.as_view(), name='inventoryitem_import'),
     path('inventory-items/edit/', views.InventoryItemBulkEditView.as_view(), name='inventoryitem_bulk_edit'),
-    # TODO: Bulk rename view for InventoryItems
+    path('inventory-items/rename/', views.InventoryItemBulkRenameView.as_view(), name='inventoryitem_bulk_rename'),
     path('inventory-items/delete/', views.InventoryItemBulkDeleteView.as_view(), name='inventoryitem_bulk_delete'),
     path('inventory-items/<int:pk>/', views.InventoryItemView.as_view(), name='inventoryitem'),
     path('inventory-items/<int:pk>/edit/', views.InventoryItemEditView.as_view(), name='inventoryitem_edit'),

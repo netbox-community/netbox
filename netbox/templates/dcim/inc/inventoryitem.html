@@ -1,13 +1,34 @@
+{% load helpers %}
 <tr>
+
+    {# Checkbox #}
+    {% if perms.dcim.change_inventoryitem or perms.dcim.delete_inventoryitem %}
+        <td class="pk">
+            <input name="pk" type="checkbox" value="{{ item.pk }}" />
+        </td>
+    {% endif %}
+
     <td style="padding-left: {{ indent|add:5 }}px">
         <a href="{{ item.get_absolute_url }}">{{ item }}</a>
     </td>
-    <td>{% if not item.discovered %}<i class="fa fa-asterisk" title="Manually created"></i>{% endif %}</td>
-    <td>{{ item.manufacturer|default:"" }}</td>
-    <td>{{ item.part_id }}</td>
-    <td>{{ item.serial }}</td>
-    <td>{{ item.asset_tag|default:"" }}</td>
-    <td>{{ item.description }}</td>
+    <td>
+        {% if item.manufacturer %}
+            <a href="{{ item.manufacturer.get_absolute_url }}">{{ item.manufacturer }}</a>
+        {% else %}
+            <span class="text-muted">&mdash;</span>
+        {% endif %}
+    </td>
+    <td>{{ item.part_id|placeholder }}</td>
+    <td>{{ item.serial|placeholder }}</td>
+    <td>{{ item.asset_tag|placeholder }}</td>
+    <td>
+        {% if item.discovered %}
+            <span class="text-success"><i class="fa fa-check"></i></span>
+        {% else %}
+            <span class="text-muted">&mdash;</span>
+        {% endif %}
+    </td>
+    <td>{{ item.description|placeholder }}</td>
     <td class="text-right noprint">
         {% if perms.dcim.change_inventoryitem %}
             <a href="{% url 'dcim:inventoryitem_edit' pk=item.pk %}" class="btn btn-xs btn-warning"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
