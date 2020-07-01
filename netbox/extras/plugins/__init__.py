@@ -1,12 +1,13 @@
 import collections
+import importlib
 import inspect
+import sys
 from packaging import version
 
 from django.apps import AppConfig
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import get_template
-from django.utils.module_loading import import_string
 
 from extras.registry import registry
 from utilities.choices import ButtonColorChoices
@@ -60,18 +61,26 @@ class PluginConfig(AppConfig):
     def ready(self):
 
         # Register template content
-        try:
-            template_extensions = import_string(f"{self.__module__}.{self.template_extensions}")
-            register_template_extensions(template_extensions)
-        except ImportError:
-            pass
+        module, attr = f"{self.__module__}.{self.template_extensions}".rsplit('.', 1)
+        spec = importlib.util.find_spec(module)
+        if spec is not None:
+            template_content = importlib.util.module_from_spec(spec)
+            sys.modules[module] = template_content
+            spec.loader.exec_module(template_content)
+            if hasattr(template_content, attr):
+                template_extensions = getattr(template_content, attr)
+                register_template_extensions(template_extensions)
 
         # Register navigation menu items (if defined)
-        try:
-            menu_items = import_string(f"{self.__module__}.{self.menu_items}")
-            register_menu_items(self.verbose_name, menu_items)
-        except ImportError:
-            pass
+        module, attr = f"{self.__module__}.{self.menu_items}".rsplit('.', 1)
+        spec = importlib.util.find_spec(module)
+        if spec is not None:
+            navigation = importlib.util.module_from_spec(spec)
+            sys.modules[module] = navigation
+            spec.loader.exec_module(navigation)
+            if hasattr(navigation, attr):
+                menu_items = getattr(navigation, attr)
+                register_menu_items(self.verbose_name, menu_items)
 
     @classmethod
     def validate(cls, user_config):

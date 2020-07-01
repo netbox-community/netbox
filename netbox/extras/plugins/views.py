@@ -1,10 +1,11 @@
 from collections import OrderedDict
+import importlib
+import sys
 
 from django.apps import apps
 from django.conf import settings
 from django.shortcuts import render
 from django.urls.exceptions import NoReverseMatch
-from django.utils.module_loading import import_string
 from django.views.generic import View
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -60,11 +61,23 @@ class PluginsAPIRootView(APIView):
 
     @staticmethod
     def _get_plugin_entry(plugin, app_config, request, format):
-        try:
-            api_app_name = import_string(f"{plugin}.api.urls.app_name")
-        except (ImportError, ModuleNotFoundError):
-            # Plugin does not expose an API
+        # Check if the plugin specifies any API URLs
+        spec = importlib.util.find_spec(f"{plugin}.api")
+        if spec is None:
+            # There is no plugin.api module
             return None
+        spec = importlib.util.find_spec(f"{plugin}.api.urls")
+        if spec is None:
+            # There is no plugin.api.urls module
+            return None
+        # The plugin has a .api.urls module - import it
+        api_urls = importlib.util.module_from_spec(spec)
+        sys.modules[f"{plugin}.api.urls"] = api_urls
+        spec.loader.exec_module(api_urls)
+        if not hasattr(api_urls, "app_name"):
+            # The plugin api.urls does not declare an app_name string
+            return None
+        api_app_name = api_urls.app_name
 
         try:
             entry = (getattr(app_config, 'base_url', app_config.label), reverse(
@@ -73,7 +86,7 @@ class PluginsAPIRootView(APIView):
                 format=format
             ))
         except NoReverseMatch:
-            # The plugin does not include an api-root
+            # The plugin does not include an api-root url
             entry = None
 
         return entry
