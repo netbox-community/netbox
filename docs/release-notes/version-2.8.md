@@ -9,6 +9,8 @@
 
 ### Bug Fixes
 
+* [#4695](https://github.com/netbox-community/netbox/issues/4695) - Expose cable termination type choices in OpenAPI spec
+* [#4708](https://github.com/netbox-community/netbox/issues/4708) - Relax connection constraints for multi-position rear ports
 * [#4766](https://github.com/netbox-community/netbox/issues/4766) - Fix redirect after login when `next` is not specified
 * [#4771](https://github.com/netbox-community/netbox/issues/4771) - Fix add/remove tag population when bulk editing objects
 * [#4772](https://github.com/netbox-community/netbox/issues/4772) - Fix "brief" format for the secrets REST API endpoint
