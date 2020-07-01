@@ -3,7 +3,7 @@ from django_tables2.utils import Accessor
 
 from dcim.models import Interface
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, BooleanColumn, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, TagColumn, ToggleColumn
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 RIR_UTILIZATION = """
@@ -25,15 +25,6 @@ RIR_UTILIZATION = """
 </div>
 """
 
-RIR_ACTIONS = """
-<a href="{% url 'ipam:rir_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
-{% if perms.ipam.change_rir %}
-    <a href="{% url 'ipam:rir_edit' slug=record.slug %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
-"""
-
 UTILIZATION_GRAPH = """
 {% load helpers %}
 {% if record.pk %}{% utilization_graph record.get_utilization %}{% else %}&mdash;{% endif %}
@@ -45,15 +36,6 @@ ROLE_PREFIX_COUNT = """
 
 ROLE_VLAN_COUNT = """
 <a href="{% url 'ipam:vlan_list' %}?role={{ record.slug }}">{{ value }}</a>
-"""
-
-ROLE_ACTIONS = """
-<a href="{% url 'ipam:role_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
-{% if perms.ipam.change_role %}
-    <a href="{% url 'ipam:role_edit' slug=record.slug %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
 """
 
 PREFIX_LINK = """
@@ -136,10 +118,7 @@ VLAN_ROLE_LINK = """
 {% endif %}
 """
 
-VLANGROUP_ACTIONS = """
-<a href="{% url 'ipam:vlangroup_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
+VLANGROUP_ADD_VLAN = """
 {% with next_vid=record.get_next_available_vid %}
     {% if next_vid and perms.ipam.add_vlan %}
         <a href="{% url 'ipam:vlan_add' %}?site={{ record.site_id }}&group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-xs btn-success">
@@ -147,9 +126,6 @@ VLANGROUP_ACTIONS = """
         </a>
     {% endif %}
 {% endwith %}
-{% if perms.ipam.change_vlangroup %}
-    <a href="{% url 'ipam:vlangroup_edit' pk=record.pk %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
 """
 
 VLAN_MEMBER_UNTAGGED = """
@@ -214,11 +190,7 @@ class RIRTable(BaseTable):
     aggregate_count = tables.Column(
         verbose_name='Aggregates'
     )
-    actions = tables.TemplateColumn(
-        template_code=RIR_ACTIONS,
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
-    )
+    actions = ButtonsColumn(RIR, pk_field='slug')
 
     class Meta(BaseTable.Meta):
         model = RIR
@@ -322,11 +294,7 @@ class RoleTable(BaseTable):
         orderable=False,
         verbose_name='VLANs'
     )
-    actions = tables.TemplateColumn(
-        template_code=ROLE_ACTIONS,
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
-    )
+    actions = ButtonsColumn(Role, pk_field='slug')
 
     class Meta(BaseTable.Meta):
         model = Role
@@ -516,10 +484,9 @@ class VLANGroupTable(BaseTable):
     vlan_count = tables.Column(
         verbose_name='VLANs'
     )
-    actions = tables.TemplateColumn(
-        template_code=VLANGROUP_ACTIONS,
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
+    actions = ButtonsColumn(
+        model=VLANGroup,
+        prepend_template=VLANGROUP_ADD_VLAN
     )
 
     class Meta(BaseTable.Meta):

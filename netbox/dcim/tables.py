@@ -2,7 +2,9 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ColoredLabelColumn, TagColumn, ToggleColumn
+from utilities.tables import (
+    BaseTable, BooleanColumn, ButtonsColumn, ColorColumn, ColoredLabelColumn, TagColumn, ToggleColumn,
+)
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
@@ -40,67 +42,14 @@ DEVICE_LINK = """
 </a>
 """
 
-REGION_ACTIONS = """
-<a href="{% url 'dcim:region_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
-{% if perms.dcim.change_region %}
-    <a href="{% url 'dcim:region_edit' pk=record.pk %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
-"""
-
-RACKGROUP_ACTIONS = """
-<a href="{% url 'dcim:rackgroup_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
+RACKGROUP_ELEVATIONS = """
 <a href="{% url 'dcim:rack_elevation_list' %}?site={{ record.site.slug }}&group_id={{ record.pk }}" class="btn btn-xs btn-primary" title="View elevations">
     <i class="fa fa-eye"></i>
 </a>
-{% if perms.dcim.change_rackgroup %}
-    <a href="{% url 'dcim:rackgroup_edit' pk=record.pk %}?return_url={{ request.path }}" class="btn btn-xs btn-warning" title="Edit">
-        <i class="glyphicon glyphicon-pencil"></i>
-    </a>
-{% endif %}
-"""
-
-RACKROLE_ACTIONS = """
-<a href="{% url 'dcim:rackrole_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
-{% if perms.dcim.change_rackrole %}
-    <a href="{% url 'dcim:rackrole_edit' pk=record.pk %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
 """
 
 RACK_DEVICE_COUNT = """
 <a href="{% url 'dcim:device_list' %}?rack_id={{ record.pk }}">{{ value }}</a>
-"""
-
-RACKRESERVATION_ACTIONS = """
-<a href="{% url 'dcim:rackreservation_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
-{% if perms.dcim.change_rackreservation %}
-    <a href="{% url 'dcim:rackreservation_edit' pk=record.pk %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
-"""
-
-MANUFACTURER_ACTIONS = """
-<a href="{% url 'dcim:manufacturer_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
-{% if perms.dcim.change_manufacturer %}
-    <a href="{% url 'dcim:manufacturer_edit' slug=record.slug %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
-"""
-
-DEVICEROLE_ACTIONS = """
-<a href="{% url 'dcim:devicerole_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
-{% if perms.dcim.change_devicerole %}
-    <a href="{% url 'dcim:devicerole_edit' slug=record.slug %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
 """
 
 DEVICEROLE_DEVICE_COUNT = """
@@ -117,15 +66,6 @@ PLATFORM_DEVICE_COUNT = """
 
 PLATFORM_VM_COUNT = """
 <a href="{% url 'virtualization:virtualmachine_list' %}?platform={{ record.slug }}">{{ value }}</a>
-"""
-
-PLATFORM_ACTIONS = """
-<a href="{% url 'dcim:platform_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
-{% if perms.dcim.change_platform %}
-    <a href="{% url 'dcim:platform_edit' slug=record.slug %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
 """
 
 STATUS_LABEL = """
@@ -198,11 +138,7 @@ class RegionTable(BaseTable):
     site_count = tables.Column(
         verbose_name='Sites'
     )
-    actions = tables.TemplateColumn(
-        template_code=REGION_ACTIONS,
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
-    )
+    actions = ButtonsColumn(Region)
 
     class Meta(BaseTable.Meta):
         model = Region
@@ -260,10 +196,9 @@ class RackGroupTable(BaseTable):
     rack_count = tables.Column(
         verbose_name='Racks'
     )
-    actions = tables.TemplateColumn(
-        template_code=RACKGROUP_ACTIONS,
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
+    actions = ButtonsColumn(
+        model=RackGroup,
+        prepend_template=RACKGROUP_ELEVATIONS
     )
 
     class Meta(BaseTable.Meta):
@@ -280,11 +215,7 @@ class RackRoleTable(BaseTable):
     pk = ToggleColumn()
     rack_count = tables.Column(verbose_name='Racks')
     color = tables.TemplateColumn(COLOR_LABEL)
-    actions = tables.TemplateColumn(
-        template_code=RACKROLE_ACTIONS,
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
-    )
+    actions = ButtonsColumn(RackRole)
 
     class Meta(BaseTable.Meta):
         model = RackRole
@@ -386,11 +317,7 @@ class RackReservationTable(BaseTable):
     tags = TagColumn(
         url_name='dcim:rackreservation_list'
     )
-    actions = tables.TemplateColumn(
-        template_code=RACKRESERVATION_ACTIONS,
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
-    )
+    actions = ButtonsColumn(RackReservation)
 
     class Meta(BaseTable.Meta):
         model = RackReservation
@@ -420,11 +347,7 @@ class ManufacturerTable(BaseTable):
         verbose_name='Platforms'
     )
     slug = tables.Column()
-    actions = tables.TemplateColumn(
-        template_code=MANUFACTURER_ACTIONS,
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
-    )
+    actions = ButtonsColumn(Manufacturer, pk_field='slug')
 
     class Meta(BaseTable.Meta):
         model = Manufacturer
@@ -609,11 +532,8 @@ class DeviceRoleTable(BaseTable):
         template_code=COLOR_LABEL,
         verbose_name='Label'
     )
-    actions = tables.TemplateColumn(
-        template_code=DEVICEROLE_ACTIONS,
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
-    )
+    vm_role = BooleanColumn()
+    actions = ButtonsColumn(DeviceRole, pk_field='slug')
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
@@ -639,11 +559,7 @@ class PlatformTable(BaseTable):
         orderable=False,
         verbose_name='VMs'
     )
-    actions = tables.TemplateColumn(
-        template_code=PLATFORM_ACTIONS,
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
-    )
+    actions = ButtonsColumn(Platform, pk_field='slug')
 
     class Meta(BaseTable.Meta):
         model = Platform
