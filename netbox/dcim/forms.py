@@ -1843,20 +1843,22 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                 interface_ids = self.instance.vc_interfaces.values_list('pk', flat=True)
 
                 # Collect interface IPs
-                interface_ips = IPAddress.objects.prefetch_related('interface').filter(
+                interface_ips = IPAddress.objects.filter(
                     address__family=family,
-                    interface__in=interface_ids
-                )
+                    assigned_object_type=ContentType.objects.get_for_model(Interface),
+                    assigned_object_id__in=interface_ids
+                ).prefetch_related('assigned_object')
                 if interface_ips:
-                    ip_list = [(ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips]
+                    ip_list = [(ip.id, f'{ip.address} ({ip.assigned_object})') for ip in interface_ips]
                     ip_choices.append(('Interface IPs', ip_list))
                 # Collect NAT IPs
                 nat_ips = IPAddress.objects.prefetch_related('nat_inside').filter(
                     address__family=family,
-                    nat_inside__interface__in=interface_ids
-                )
+                    nat_inside__assigned_object_type=ContentType.objects.get_for_model(Interface),
+                    nat_inside__assigned_object_id__in=interface_ids
+                ).prefetch_related('assigned_object')
                 if nat_ips:
-                    ip_list = [(ip.id, '{} ({})'.format(ip.address, ip.nat_inside.address)) for ip in nat_ips]
+                    ip_list = [(ip.id, f'{ip.address} ({ip.assigned_object})') for ip in nat_ips]
                     ip_choices.append(('NAT IPs', ip_list))
                 self.fields['primary_ip{}'.format(family)].choices = ip_choices
 
