@@ -14,6 +14,7 @@
                 {% if perms.dcim.add_interface %}<li><a href="{% url 'dcim:device_bulk_add_interface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Interfaces</a></li>{% endif %}
                 {% if perms.dcim.add_rearport %}<li><a href="{% url 'dcim:device_bulk_add_rearport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Rear Ports</a></li>{% endif %}
                 {% if perms.dcim.add_devicebay %}<li><a href="{% url 'dcim:device_bulk_add_devicebay' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Device Bays</a></li>{% endif %}
+                {% if perms.dcim.add_inventoryitem %}<li><a href="{% url 'dcim:device_bulk_add_inventoryitem' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Inventory Items</a></li>{% endif %}
             </ul>
         </div>
     {% endif %}

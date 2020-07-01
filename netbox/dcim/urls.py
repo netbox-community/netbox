@@ -326,6 +326,7 @@ urlpatterns = [
     path('inventory-items/<int:pk>/edit/', views.InventoryItemEditView.as_view(), name='inventoryitem_edit'),
     path('inventory-items/<int:pk>/delete/', views.InventoryItemDeleteView.as_view(), name='inventoryitem_delete'),
     path('inventory-items/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='inventoryitem_changelog', kwargs={'model': InventoryItem}),
+    path('devices/inventory-items/add/', views.DeviceBulkAddInventoryItemView.as_view(), name='device_bulk_add_inventoryitem'),
 
     # Cables
     path('cables/', views.CableListView.as_view(), name='cable_list'),

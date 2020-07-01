@@ -1859,6 +1859,17 @@ class DeviceBulkAddDeviceBayView(BulkComponentCreateView):
     default_return_url = 'dcim:device_list'
 
 
+class DeviceBulkAddInventoryItemView(BulkComponentCreateView):
+    parent_model = Device
+    parent_field = 'device'
+    form = forms.InventoryItemBulkCreateForm
+    queryset = InventoryItem.objects.all()
+    model_form = forms.InventoryItemForm
+    filterset = filters.DeviceFilterSet
+    table = tables.DeviceTable
+    default_return_url = 'dcim:device_list'
+
+
 #
 # Cables
 #

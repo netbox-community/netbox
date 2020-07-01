@@ -3373,6 +3373,165 @@ class DeviceBayCSVForm(CSVModelForm):
 
 
 #
+# Inventory items
+#
+
+class InventoryItemForm(BootstrapMixin, forms.ModelForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.prefetch_related('device_type__manufacturer')
+    )
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False
+    )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = InventoryItem
+        fields = [
+            'name', 'device', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'tags',
+        ]
+
+
+class InventoryItemCreateForm(BootstrapMixin, forms.Form):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.prefetch_related('device_type__manufacturer')
+    )
+    name_pattern = ExpandableNameField(
+        label='Name'
+    )
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False
+    )
+    part_id = forms.CharField(
+        max_length=50,
+        required=False,
+        label='Part ID'
+    )
+    serial = forms.CharField(
+        max_length=50,
+        required=False,
+    )
+    asset_tag = forms.CharField(
+        max_length=50,
+        required=False,
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+
+class InventoryItemCSVForm(CSVModelForm):
+    device = CSVModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name'
+    )
+    manufacturer = CSVModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        to_field_name='name',
+        required=False
+    )
+
+    class Meta:
+        model = InventoryItem
+        fields = InventoryItem.csv_headers
+
+
+class InventoryItemBulkCreateForm(
+    form_from_model(InventoryItem, ['manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'tags']),
+    DeviceBulkAddComponentForm
+):
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+
+class InventoryItemBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=InventoryItem.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False
+    )
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False
+    )
+    part_id = forms.CharField(
+        max_length=50,
+        required=False,
+        label='Part ID'
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = [
+            'manufacturer', 'part_id', 'description',
+        ]
+
+
+class InventoryItemFilterForm(BootstrapMixin, forms.Form):
+    model = InventoryItem
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
+    region = DynamicModelMultipleChoiceField(
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            value_field="slug",
+            filter_for={
+                'site': 'region'
+            }
+        )
+    )
+    site = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelectMultiple(
+            value_field="slug",
+            filter_for={
+                'device_id': 'site'
+            }
+        )
+    )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label='Device'
+    )
+    manufacturer = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        to_field_name='slug',
+        required=False,
+        widget=APISelect(
+            value_field="slug",
+        )
+    )
+    discovered = forms.NullBooleanField(
+        required=False,
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    tag = TagFilterField(model)
+
+
+#
 # Cables
 #
 
@@ -3917,155 +4076,6 @@ class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Device'
     )
-
-
-#
-# Inventory items
-#
-
-class InventoryItemForm(BootstrapMixin, forms.ModelForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
-    manufacturer = DynamicModelChoiceField(
-        queryset=Manufacturer.objects.all(),
-        required=False
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
-
-    class Meta:
-        model = InventoryItem
-        fields = [
-            'name', 'device', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'tags',
-        ]
-
-
-class InventoryItemCreateForm(BootstrapMixin, forms.Form):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
-    )
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
-    manufacturer = DynamicModelChoiceField(
-        queryset=Manufacturer.objects.all(),
-        required=False
-    )
-    part_id = forms.CharField(
-        max_length=50,
-        required=False,
-        label='Part ID'
-    )
-    serial = forms.CharField(
-        max_length=50,
-        required=False,
-    )
-    asset_tag = forms.CharField(
-        max_length=50,
-        required=False,
-    )
-    description = forms.CharField(
-        max_length=100,
-        required=False
-    )
-
-
-class InventoryItemCSVForm(CSVModelForm):
-    device = CSVModelChoiceField(
-        queryset=Device.objects.all(),
-        to_field_name='name'
-    )
-    manufacturer = CSVModelChoiceField(
-        queryset=Manufacturer.objects.all(),
-        to_field_name='name',
-        required=False
-    )
-
-    class Meta:
-        model = InventoryItem
-        fields = InventoryItem.csv_headers
-
-
-class InventoryItemBulkEditForm(BootstrapMixin, BulkEditForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=InventoryItem.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False
-    )
-    manufacturer = DynamicModelChoiceField(
-        queryset=Manufacturer.objects.all(),
-        required=False
-    )
-    part_id = forms.CharField(
-        max_length=50,
-        required=False,
-        label='Part ID'
-    )
-    description = forms.CharField(
-        max_length=100,
-        required=False
-    )
-
-    class Meta:
-        nullable_fields = [
-            'manufacturer', 'part_id', 'description',
-        ]
-
-
-class InventoryItemFilterForm(BootstrapMixin, forms.Form):
-    model = InventoryItem
-    q = forms.CharField(
-        required=False,
-        label='Search'
-    )
-    region = DynamicModelMultipleChoiceField(
-        queryset=Region.objects.all(),
-        to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-            filter_for={
-                'site': 'region'
-            }
-        )
-    )
-    site = DynamicModelMultipleChoiceField(
-        queryset=Site.objects.all(),
-        to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-            filter_for={
-                'device_id': 'site'
-            }
-        )
-    )
-    device_id = DynamicModelMultipleChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        label='Device'
-    )
-    manufacturer = DynamicModelMultipleChoiceField(
-        queryset=Manufacturer.objects.all(),
-        to_field_name='slug',
-        required=False,
-        widget=APISelect(
-            value_field="slug",
-        )
-    )
-    discovered = forms.NullBooleanField(
-        required=False,
-        widget=StaticSelect2(
-            choices=BOOLEAN_WITH_BLANK_CHOICES
-        )
-    )
-    tag = TagFilterField(model)
 
 
 #

@@ -74,6 +74,9 @@
                     {% if perms.dcim.add_devicebay %}
                         <li><a href="{% url 'dcim:devicebay_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}">Device Bays</a></li>
                     {% endif %}
+                    {% if perms.dcim.add_inventoryitem %}
+                        <li><a href="{% url 'dcim:inventoryitem_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}">Inventory Items</a></li>
+                    {% endif %}
                 </ul>
             </div>
         {% endif %}
