@@ -48,19 +48,16 @@ class VRFEditView(ObjectEditView):
     queryset = VRF.objects.all()
     model_form = forms.VRFForm
     template_name = 'ipam/vrf_edit.html'
-    default_return_url = 'ipam:vrf_list'
 
 
 class VRFDeleteView(ObjectDeleteView):
     queryset = VRF.objects.all()
-    default_return_url = 'ipam:vrf_list'
 
 
 class VRFBulkImportView(BulkImportView):
     queryset = VRF.objects.all()
     model_form = forms.VRFCSVForm
     table = tables.VRFTable
-    default_return_url = 'ipam:vrf_list'
 
 
 class VRFBulkEditView(BulkEditView):
@@ -68,14 +65,12 @@ class VRFBulkEditView(BulkEditView):
     filterset = filters.VRFFilterSet
     table = tables.VRFTable
     form = forms.VRFBulkEditForm
-    default_return_url = 'ipam:vrf_list'
 
 
 class VRFBulkDeleteView(BulkDeleteView):
     queryset = VRF.objects.prefetch_related('tenant')
     filterset = filters.VRFFilterSet
     table = tables.VRFTable
-    default_return_url = 'ipam:vrf_list'
 
 
 #
@@ -163,21 +158,18 @@ class RIRListView(ObjectListView):
 class RIREditView(ObjectEditView):
     queryset = RIR.objects.all()
     model_form = forms.RIRForm
-    default_return_url = 'ipam:rir_list'
 
 
 class RIRBulkImportView(BulkImportView):
     queryset = RIR.objects.all()
     model_form = forms.RIRCSVForm
     table = tables.RIRTable
-    default_return_url = 'ipam:rir_list'
 
 
 class RIRBulkDeleteView(BulkDeleteView):
     queryset = RIR.objects.annotate(aggregate_count=Count('aggregates'))
     filterset = filters.RIRFilterSet
     table = tables.RIRTable
-    default_return_url = 'ipam:rir_list'
 
 
 #
@@ -259,19 +251,16 @@ class AggregateEditView(ObjectEditView):
     queryset = Aggregate.objects.all()
     model_form = forms.AggregateForm
     template_name = 'ipam/aggregate_edit.html'
-    default_return_url = 'ipam:aggregate_list'
 
 
 class AggregateDeleteView(ObjectDeleteView):
     queryset = Aggregate.objects.all()
-    default_return_url = 'ipam:aggregate_list'
 
 
 class AggregateBulkImportView(BulkImportView):
     queryset = Aggregate.objects.all()
     model_form = forms.AggregateCSVForm
     table = tables.AggregateTable
-    default_return_url = 'ipam:aggregate_list'
 
 
 class AggregateBulkEditView(BulkEditView):
@@ -279,14 +268,12 @@ class AggregateBulkEditView(BulkEditView):
     filterset = filters.AggregateFilterSet
     table = tables.AggregateTable
     form = forms.AggregateBulkEditForm
-    default_return_url = 'ipam:aggregate_list'
 
 
 class AggregateBulkDeleteView(BulkDeleteView):
     queryset = Aggregate.objects.prefetch_related('rir')
     filterset = filters.AggregateFilterSet
     table = tables.AggregateTable
-    default_return_url = 'ipam:aggregate_list'
 
 
 #
@@ -301,20 +288,17 @@ class RoleListView(ObjectListView):
 class RoleEditView(ObjectEditView):
     queryset = Role.objects.all()
     model_form = forms.RoleForm
-    default_return_url = 'ipam:role_list'
 
 
 class RoleBulkImportView(BulkImportView):
     queryset = Role.objects.all()
     model_form = forms.RoleCSVForm
     table = tables.RoleTable
-    default_return_url = 'ipam:role_list'
 
 
 class RoleBulkDeleteView(BulkDeleteView):
     queryset = Role.objects.all()
     table = tables.RoleTable
-    default_return_url = 'ipam:role_list'
 
 
 #
@@ -470,20 +454,17 @@ class PrefixEditView(ObjectEditView):
     queryset = Prefix.objects.all()
     model_form = forms.PrefixForm
     template_name = 'ipam/prefix_edit.html'
-    default_return_url = 'ipam:prefix_list'
 
 
 class PrefixDeleteView(ObjectDeleteView):
     queryset = Prefix.objects.all()
     template_name = 'ipam/prefix_delete.html'
-    default_return_url = 'ipam:prefix_list'
 
 
 class PrefixBulkImportView(BulkImportView):
     queryset = Prefix.objects.all()
     model_form = forms.PrefixCSVForm
     table = tables.PrefixTable
-    default_return_url = 'ipam:prefix_list'
 
 
 class PrefixBulkEditView(BulkEditView):
@@ -491,14 +472,12 @@ class PrefixBulkEditView(BulkEditView):
     filterset = filters.PrefixFilterSet
     table = tables.PrefixTable
     form = forms.PrefixBulkEditForm
-    default_return_url = 'ipam:prefix_list'
 
 
 class PrefixBulkDeleteView(BulkDeleteView):
     queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     filterset = filters.PrefixFilterSet
     table = tables.PrefixTable
-    default_return_url = 'ipam:prefix_list'
 
 
 #
@@ -569,7 +548,6 @@ class IPAddressEditView(ObjectEditView):
     queryset = IPAddress.objects.all()
     model_form = forms.IPAddressForm
     template_name = 'ipam/ipaddress_edit.html'
-    default_return_url = 'ipam:ipaddress_list'
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
 
@@ -630,7 +608,6 @@ class IPAddressAssignView(ObjectView):
 
 class IPAddressDeleteView(ObjectDeleteView):
     queryset = IPAddress.objects.all()
-    default_return_url = 'ipam:ipaddress_list'
 
 
 class IPAddressBulkCreateView(BulkCreateView):
@@ -639,14 +616,12 @@ class IPAddressBulkCreateView(BulkCreateView):
     model_form = forms.IPAddressBulkAddForm
     pattern_target = 'address'
     template_name = 'ipam/ipaddress_bulk_add.html'
-    default_return_url = 'ipam:ipaddress_list'
 
 
 class IPAddressBulkImportView(BulkImportView):
     queryset = IPAddress.objects.all()
     model_form = forms.IPAddressCSVForm
     table = tables.IPAddressTable
-    default_return_url = 'ipam:ipaddress_list'
 
 
 class IPAddressBulkEditView(BulkEditView):
@@ -654,14 +629,12 @@ class IPAddressBulkEditView(BulkEditView):
     filterset = filters.IPAddressFilterSet
     table = tables.IPAddressTable
     form = forms.IPAddressBulkEditForm
-    default_return_url = 'ipam:ipaddress_list'
 
 
 class IPAddressBulkDeleteView(BulkDeleteView):
     queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant')
     filterset = filters.IPAddressFilterSet
     table = tables.IPAddressTable
-    default_return_url = 'ipam:ipaddress_list'
 
 
 #
@@ -678,21 +651,18 @@ class VLANGroupListView(ObjectListView):
 class VLANGroupEditView(ObjectEditView):
     queryset = VLANGroup.objects.all()
     model_form = forms.VLANGroupForm
-    default_return_url = 'ipam:vlangroup_list'
 
 
 class VLANGroupBulkImportView(BulkImportView):
     queryset = VLANGroup.objects.all()
     model_form = forms.VLANGroupCSVForm
     table = tables.VLANGroupTable
-    default_return_url = 'ipam:vlangroup_list'
 
 
 class VLANGroupBulkDeleteView(BulkDeleteView):
     queryset = VLANGroup.objects.prefetch_related('site').annotate(vlan_count=Count('vlans'))
     filterset = filters.VLANGroupFilterSet
     table = tables.VLANGroupTable
-    default_return_url = 'ipam:vlangroup_list'
 
 
 class VLANGroupVLANsView(ObjectView):
@@ -789,19 +759,16 @@ class VLANEditView(ObjectEditView):
     queryset = VLAN.objects.all()
     model_form = forms.VLANForm
     template_name = 'ipam/vlan_edit.html'
-    default_return_url = 'ipam:vlan_list'
 
 
 class VLANDeleteView(ObjectDeleteView):
     queryset = VLAN.objects.all()
-    default_return_url = 'ipam:vlan_list'
 
 
 class VLANBulkImportView(BulkImportView):
     queryset = VLAN.objects.all()
     model_form = forms.VLANCSVForm
     table = tables.VLANTable
-    default_return_url = 'ipam:vlan_list'
 
 
 class VLANBulkEditView(BulkEditView):
@@ -809,14 +776,12 @@ class VLANBulkEditView(BulkEditView):
     filterset = filters.VLANFilterSet
     table = tables.VLANTable
     form = forms.VLANBulkEditForm
-    default_return_url = 'ipam:vlan_list'
 
 
 class VLANBulkDeleteView(BulkDeleteView):
     queryset = VLAN.objects.prefetch_related('site', 'group', 'tenant', 'role')
     filterset = filters.VLANFilterSet
     table = tables.VLANTable
-    default_return_url = 'ipam:vlan_list'
 
 
 #
@@ -863,7 +828,6 @@ class ServiceBulkImportView(BulkImportView):
     queryset = Service.objects.all()
     model_form = forms.ServiceCSVForm
     table = tables.ServiceTable
-    default_return_url = 'ipam:service_list'
 
 
 class ServiceDeleteView(ObjectDeleteView):
@@ -875,11 +839,9 @@ class ServiceBulkEditView(BulkEditView):
     filterset = filters.ServiceFilterSet
     table = tables.ServiceTable
     form = forms.ServiceBulkEditForm
-    default_return_url = 'ipam:service_list'
 
 
 class ServiceBulkDeleteView(BulkDeleteView):
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
     filterset = filters.ServiceFilterSet
     table = tables.ServiceTable
-    default_return_url = 'ipam:service_list'

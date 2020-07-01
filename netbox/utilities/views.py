@@ -16,6 +16,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 from django.utils.decorators import method_decorator
 from django.utils.html import escape
 from django.utils.http import is_safe_url
@@ -86,7 +87,7 @@ class ObjectPermissionRequiredMixin(AccessMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class GetReturnURLMixin(object):
+class GetReturnURLMixin:
     """
     Provides logic for determining where a user should be redirected after processing a form.
     """
@@ -101,12 +102,20 @@ class GetReturnURLMixin(object):
             return query_param
 
         # Next, check if the object being modified (if any) has an absolute URL.
-        elif obj is not None and obj.pk and hasattr(obj, 'get_absolute_url'):
+        if obj is not None and obj.pk and hasattr(obj, 'get_absolute_url'):
             return obj.get_absolute_url()
 
         # Fall back to the default URL (if specified) for the view.
-        elif self.default_return_url is not None:
+        if self.default_return_url is not None:
             return reverse(self.default_return_url)
+
+        # Attempt to dynamically resolve the list view for the object
+        if hasattr(self, 'queryset'):
+            model_opts = self.queryset.model._meta
+            try:
+                return reverse(f'{model_opts.app_label}:{model_opts.model_name}_list')
+            except NoReverseMatch:
+                pass
 
         # If all else fails, return home. Ideally this should never happen.
         return reverse('home')

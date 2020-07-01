@@ -60,19 +60,16 @@ class ProviderEditView(ObjectEditView):
     queryset = Provider.objects.all()
     model_form = forms.ProviderForm
     template_name = 'circuits/provider_edit.html'
-    default_return_url = 'circuits:provider_list'
 
 
 class ProviderDeleteView(ObjectDeleteView):
     queryset = Provider.objects.all()
-    default_return_url = 'circuits:provider_list'
 
 
 class ProviderBulkImportView(BulkImportView):
     queryset = Provider.objects.all()
     model_form = forms.ProviderCSVForm
     table = tables.ProviderTable
-    default_return_url = 'circuits:provider_list'
 
 
 class ProviderBulkEditView(BulkEditView):
@@ -80,14 +77,12 @@ class ProviderBulkEditView(BulkEditView):
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
     form = forms.ProviderBulkEditForm
-    default_return_url = 'circuits:provider_list'
 
 
 class ProviderBulkDeleteView(BulkDeleteView):
     queryset = Provider.objects.annotate(count_circuits=Count('circuits'))
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
-    default_return_url = 'circuits:provider_list'
 
 
 #
@@ -102,20 +97,17 @@ class CircuitTypeListView(ObjectListView):
 class CircuitTypeEditView(ObjectEditView):
     queryset = CircuitType.objects.all()
     model_form = forms.CircuitTypeForm
-    default_return_url = 'circuits:circuittype_list'
 
 
 class CircuitTypeBulkImportView(BulkImportView):
     queryset = CircuitType.objects.all()
     model_form = forms.CircuitTypeCSVForm
     table = tables.CircuitTypeTable
-    default_return_url = 'circuits:circuittype_list'
 
 
 class CircuitTypeBulkDeleteView(BulkDeleteView):
     queryset = CircuitType.objects.annotate(circuit_count=Count('circuits'))
     table = tables.CircuitTypeTable
-    default_return_url = 'circuits:circuittype_list'
 
 
 #
@@ -165,19 +157,16 @@ class CircuitEditView(ObjectEditView):
     queryset = Circuit.objects.all()
     model_form = forms.CircuitForm
     template_name = 'circuits/circuit_edit.html'
-    default_return_url = 'circuits:circuit_list'
 
 
 class CircuitDeleteView(ObjectDeleteView):
     queryset = Circuit.objects.all()
-    default_return_url = 'circuits:circuit_list'
 
 
 class CircuitBulkImportView(BulkImportView):
     queryset = Circuit.objects.all()
     model_form = forms.CircuitCSVForm
     table = tables.CircuitTable
-    default_return_url = 'circuits:circuit_list'
 
 
 class CircuitBulkEditView(BulkEditView):
@@ -185,14 +174,12 @@ class CircuitBulkEditView(BulkEditView):
     filterset = filters.CircuitFilterSet
     table = tables.CircuitTable
     form = forms.CircuitBulkEditForm
-    default_return_url = 'circuits:circuit_list'
 
 
 class CircuitBulkDeleteView(BulkDeleteView):
     queryset = Circuit.objects.prefetch_related('provider', 'type', 'tenant').prefetch_related('terminations__site')
     filterset = filters.CircuitFilterSet
     table = tables.CircuitTable
-    default_return_url = 'circuits:circuit_list'
 
 
 class CircuitSwapTerminations(ObjectEditView):

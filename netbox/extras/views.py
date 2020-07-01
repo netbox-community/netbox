@@ -70,20 +70,17 @@ class TagView(ObjectView):
 class TagEditView(ObjectEditView):
     queryset = Tag.objects.all()
     model_form = forms.TagForm
-    default_return_url = 'extras:tag_list'
     template_name = 'extras/tag_edit.html'
 
 
 class TagDeleteView(ObjectDeleteView):
     queryset = Tag.objects.all()
-    default_return_url = 'extras:tag_list'
 
 
 class TagBulkImportView(BulkImportView):
     queryset = Tag.objects.all()
     model_form = forms.TagCSVForm
     table = tables.TagTable
-    default_return_url = 'extras:tag_list'
 
 
 class TagBulkEditView(BulkEditView):
@@ -94,7 +91,6 @@ class TagBulkEditView(BulkEditView):
     )
     table = tables.TagTable
     form = forms.TagBulkEditForm
-    default_return_url = 'extras:tag_list'
 
 
 class TagBulkDeleteView(BulkDeleteView):
@@ -104,7 +100,6 @@ class TagBulkDeleteView(BulkDeleteView):
         'name'
     )
     table = tables.TagTable
-    default_return_url = 'extras:tag_list'
 
 
 #
@@ -156,7 +151,6 @@ class ConfigContextView(ObjectView):
 class ConfigContextEditView(ObjectEditView):
     queryset = ConfigContext.objects.all()
     model_form = forms.ConfigContextForm
-    default_return_url = 'extras:configcontext_list'
     template_name = 'extras/configcontext_edit.html'
 
 
@@ -165,18 +159,15 @@ class ConfigContextBulkEditView(BulkEditView):
     filterset = filters.ConfigContextFilterSet
     table = tables.ConfigContextTable
     form = forms.ConfigContextBulkEditForm
-    default_return_url = 'extras:configcontext_list'
 
 
 class ConfigContextDeleteView(ObjectDeleteView):
     queryset = ConfigContext.objects.all()
-    default_return_url = 'extras:configcontext_list'
 
 
 class ConfigContextBulkDeleteView(BulkDeleteView):
     queryset = ConfigContext.objects.all()
     table = tables.ConfigContextTable
-    default_return_url = 'extras:configcontext_list'
 
 
 class ObjectConfigContextView(ObjectView):

@@ -29,20 +29,17 @@ class ClusterTypeListView(ObjectListView):
 class ClusterTypeEditView(ObjectEditView):
     queryset = ClusterType.objects.all()
     model_form = forms.ClusterTypeForm
-    default_return_url = 'virtualization:clustertype_list'
 
 
 class ClusterTypeBulkImportView(BulkImportView):
     queryset = ClusterType.objects.all()
     model_form = forms.ClusterTypeCSVForm
     table = tables.ClusterTypeTable
-    default_return_url = 'virtualization:clustertype_list'
 
 
 class ClusterTypeBulkDeleteView(BulkDeleteView):
     queryset = ClusterType.objects.annotate(cluster_count=Count('clusters'))
     table = tables.ClusterTypeTable
-    default_return_url = 'virtualization:clustertype_list'
 
 
 #
@@ -57,20 +54,17 @@ class ClusterGroupListView(ObjectListView):
 class ClusterGroupEditView(ObjectEditView):
     queryset = ClusterGroup.objects.all()
     model_form = forms.ClusterGroupForm
-    default_return_url = 'virtualization:clustergroup_list'
 
 
 class ClusterGroupBulkImportView(BulkImportView):
     queryset = ClusterGroup.objects.all()
     model_form = forms.ClusterGroupCSVForm
     table = tables.ClusterGroupTable
-    default_return_url = 'virtualization:clustergroup_list'
 
 
 class ClusterGroupBulkDeleteView(BulkDeleteView):
     queryset = ClusterGroup.objects.annotate(cluster_count=Count('clusters'))
     table = tables.ClusterGroupTable
-    default_return_url = 'virtualization:clustergroup_list'
 
 
 #
@@ -114,14 +108,12 @@ class ClusterEditView(ObjectEditView):
 
 class ClusterDeleteView(ObjectDeleteView):
     queryset = Cluster.objects.all()
-    default_return_url = 'virtualization:cluster_list'
 
 
 class ClusterBulkImportView(BulkImportView):
     queryset = Cluster.objects.all()
     model_form = forms.ClusterCSVForm
     table = tables.ClusterTable
-    default_return_url = 'virtualization:cluster_list'
 
 
 class ClusterBulkEditView(BulkEditView):
@@ -129,14 +121,12 @@ class ClusterBulkEditView(BulkEditView):
     filterset = filters.ClusterFilterSet
     table = tables.ClusterTable
     form = forms.ClusterBulkEditForm
-    default_return_url = 'virtualization:cluster_list'
 
 
 class ClusterBulkDeleteView(BulkDeleteView):
     queryset = Cluster.objects.prefetch_related('type', 'group', 'site')
     filterset = filters.ClusterFilterSet
     table = tables.ClusterTable
-    default_return_url = 'virtualization:cluster_list'
 
 
 class ClusterAddDevicesView(ObjectEditView):
@@ -266,19 +256,16 @@ class VirtualMachineEditView(ObjectEditView):
     queryset = VirtualMachine.objects.all()
     model_form = forms.VirtualMachineForm
     template_name = 'virtualization/virtualmachine_edit.html'
-    default_return_url = 'virtualization:virtualmachine_list'
 
 
 class VirtualMachineDeleteView(ObjectDeleteView):
     queryset = VirtualMachine.objects.all()
-    default_return_url = 'virtualization:virtualmachine_list'
 
 
 class VirtualMachineBulkImportView(BulkImportView):
     queryset = VirtualMachine.objects.all()
     model_form = forms.VirtualMachineCSVForm
     table = tables.VirtualMachineTable
-    default_return_url = 'virtualization:virtualmachine_list'
 
 
 class VirtualMachineBulkEditView(BulkEditView):
@@ -286,14 +273,12 @@ class VirtualMachineBulkEditView(BulkEditView):
     filterset = filters.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
     form = forms.VirtualMachineBulkEditForm
-    default_return_url = 'virtualization:virtualmachine_list'
 
 
 class VirtualMachineBulkDeleteView(BulkDeleteView):
     queryset = VirtualMachine.objects.prefetch_related('cluster', 'tenant', 'role')
     filterset = filters.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
-    default_return_url = 'virtualization:virtualmachine_list'
 
 
 #
@@ -364,7 +349,6 @@ class VMInterfaceBulkImportView(BulkImportView):
     queryset = VMInterface.objects.all()
     model_form = forms.VMInterfaceCSVForm
     table = tables.VMInterfaceTable
-    default_return_url = 'virtualization:vminterface_list'
 
 
 class VMInterfaceBulkEditView(BulkEditView):
@@ -395,4 +379,3 @@ class VirtualMachineBulkAddInterfaceView(BulkComponentCreateView):
     model_form = forms.VMInterfaceForm
     filterset = filters.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
-    default_return_url = 'virtualization:virtualmachine_list'
