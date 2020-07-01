@@ -89,16 +89,16 @@ class CableTermination(models.Model):
         object_id_field='termination_b_id'
     )
 
-    is_path_endpoint = True
-
     class Meta:
         abstract = True
 
     def trace(self):
         """
-        Return two items: the traceable portion of a cable path, and the termination points where it splits (if any).
-        This occurs when the trace is initiated from a midpoint along a path which traverses a RearPort. In cases where
-        the originating endpoint is unknown, it is not possible to know which corresponding FrontPort to follow.
+        Return three items: the traceable portion of a cable path, the termination points where it splits (if any), and
+        the remaining positions on the position stack (if any). Splits occur when the trace is initiated from a midpoint
+        along a path which traverses a RearPort. In cases where the originating endpoint is unknown, it is not possible
+        to know which corresponding FrontPort to follow. Remaining positions occur when tracing a path that traverses
+        a FrontPort without traversing a RearPort again.
 
         The path is a list representing a complete cable path, with each individual segment represented as a
         three-tuple:
@@ -118,26 +118,35 @@ class CableTermination(models.Model):
 
             # Map a front port to its corresponding rear port
             if isinstance(termination, FrontPort):
-                position_stack.append(termination.rear_port_position)
                 # Retrieve the corresponding RearPort from database to ensure we have an up-to-date instance
                 peer_port = RearPort.objects.get(pk=termination.rear_port.pk)
+
+                # Don't use the stack for RearPorts with a single position. Only remember the position at
+                # many-to-one points so we can select the correct FrontPort when we reach the corresponding
+                # one-to-many point.
+                if peer_port.positions > 1:
+                    position_stack.append(termination)
+
                 return peer_port
 
             # Map a rear port/position to its corresponding front port
             elif isinstance(termination, RearPort):
+                if termination.positions > 1:
+                    # Can't map to a FrontPort without a position if there are multiple options
+                    if not position_stack:
+                        raise CableTraceSplit(termination)
 
-                # Can't map to a FrontPort without a position if there are multiple options
-                if termination.positions > 1 and not position_stack:
-                    raise CableTraceSplit(termination)
+                    front_port = position_stack.pop()
+                    position = front_port.rear_port_position
 
-                # We can assume position 1 if the RearPort has only one position
-                position = position_stack.pop() if position_stack else 1
-
-                # Validate the position
-                if position not in range(1, termination.positions + 1):
-                    raise Exception("Invalid position for {} ({} positions): {})".format(
-                        termination, termination.positions, position
-                    ))
+                    # Validate the position
+                    if position not in range(1, termination.positions + 1):
+                        raise Exception("Invalid position for {} ({} positions): {})".format(
+                            termination, termination.positions, position
+                        ))
+                else:
+                    # Don't use the stack for RearPorts with a single position. The only possible position is 1.
+                    position = 1
 
                 try:
                     peer_port = FrontPort.objects.get(
@@ -168,12 +177,12 @@ class CableTermination(models.Model):
             if not endpoint.cable:
                 path.append((endpoint, None, None))
                 logger.debug("No cable connected")
-                return path, None
+                return path, None, position_stack
 
             # Check for loops
             if endpoint.cable in [segment[1] for segment in path]:
                 logger.debug("Loop detected!")
-                return path, None
+                return path, None, position_stack
 
             # Record the current segment in the path
             far_end = endpoint.get_cable_peer()
@@ -186,10 +195,10 @@ class CableTermination(models.Model):
             try:
                 endpoint = get_peer_port(far_end)
             except CableTraceSplit as e:
-                return path, e.termination.frontports.all()
+                return path, e.termination.frontports.all(), position_stack
 
             if endpoint is None:
-                return path, None
+                return path, None, position_stack
 
     def get_cable_peer(self):
         if self.cable is None:
@@ -206,7 +215,7 @@ class CableTermination(models.Model):
         endpoints = []
 
         # Get the far end of the last path segment
-        path, split_ends = self.trace()
+        path, split_ends, position_stack = self.trace()
         endpoint = path[-1][2]
         if split_ends is not None:
             for termination in split_ends:
@@ -872,7 +881,6 @@ class FrontPort(CableTermination, ComponentModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'rear_port', 'rear_port_position', 'description']
-    is_path_endpoint = False
 
     class Meta:
         ordering = ('device', '_name')
@@ -937,7 +945,6 @@ class RearPort(CableTermination, ComponentModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'positions', 'description']
-    is_path_endpoint = False
 
     class Meta:
         ordering = ('device', '_name')
