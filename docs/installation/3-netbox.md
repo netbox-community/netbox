@@ -79,7 +79,7 @@ Create a system user account named `netbox`. We'll configure the WSGI and HTTP s
 
 ```
 # groupadd --system netbox
-# adduser --system --gid netbox netbox
+# useradd --system --gid netbox netbox
 # chown --recursive netbox /opt/netbox/netbox/media/
 ```
 
