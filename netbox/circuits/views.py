@@ -99,6 +99,10 @@ class CircuitTypeEditView(ObjectEditView):
     model_form = forms.CircuitTypeForm
 
 
+class CircuitTypeDeleteView(ObjectDeleteView):
+    queryset = CircuitType.objects.all()
+
+
 class CircuitTypeBulkImportView(BulkImportView):
     queryset = CircuitType.objects.all()
     model_form = forms.CircuitTypeCSVForm

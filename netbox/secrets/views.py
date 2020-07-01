@@ -38,6 +38,10 @@ class SecretRoleEditView(ObjectEditView):
     model_form = forms.SecretRoleForm
 
 
+class SecretRoleDeleteView(ObjectDeleteView):
+    queryset = SecretRole.objects.all()
+
+
 class SecretRoleBulkImportView(BulkImportView):
     queryset = SecretRole.objects.all()
     model_form = forms.SecretRoleCSVForm

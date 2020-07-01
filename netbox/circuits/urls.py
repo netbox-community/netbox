@@ -25,6 +25,7 @@ urlpatterns = [
     path('circuit-types/import/', views.CircuitTypeBulkImportView.as_view(), name='circuittype_import'),
     path('circuit-types/delete/', views.CircuitTypeBulkDeleteView.as_view(), name='circuittype_bulk_delete'),
     path('circuit-types/<slug:slug>/edit/', views.CircuitTypeEditView.as_view(), name='circuittype_edit'),
+    path('circuit-types/<slug:slug>/delete/', views.CircuitTypeDeleteView.as_view(), name='circuittype_delete'),
     path('circuit-types/<slug:slug>/changelog/', ObjectChangeLogView.as_view(), name='circuittype_changelog', kwargs={'model': CircuitType}),
 
     # Circuits

@@ -31,6 +31,10 @@ class ClusterTypeEditView(ObjectEditView):
     model_form = forms.ClusterTypeForm
 
 
+class ClusterTypeDeleteView(ObjectDeleteView):
+    queryset = ClusterType.objects.all()
+
+
 class ClusterTypeBulkImportView(BulkImportView):
     queryset = ClusterType.objects.all()
     model_form = forms.ClusterTypeCSVForm
@@ -54,6 +58,10 @@ class ClusterGroupListView(ObjectListView):
 class ClusterGroupEditView(ObjectEditView):
     queryset = ClusterGroup.objects.all()
     model_form = forms.ClusterGroupForm
+
+
+class ClusterGroupDeleteView(ObjectDeleteView):
+    queryset = ClusterGroup.objects.all()
 
 
 class ClusterGroupBulkImportView(BulkImportView):

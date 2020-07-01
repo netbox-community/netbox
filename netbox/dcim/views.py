@@ -122,6 +122,10 @@ class RegionEditView(ObjectEditView):
     model_form = forms.RegionForm
 
 
+class RegionDeleteView(ObjectDeleteView):
+    queryset = Region.objects.all()
+
+
 class RegionBulkImportView(BulkImportView):
     queryset = Region.objects.all()
     model_form = forms.RegionCSVForm
@@ -223,6 +227,10 @@ class RackGroupEditView(ObjectEditView):
     model_form = forms.RackGroupForm
 
 
+class RackGroupDeleteView(ObjectDeleteView):
+    queryset = RackGroup.objects.all()
+
+
 class RackGroupBulkImportView(BulkImportView):
     queryset = RackGroup.objects.all()
     model_form = forms.RackGroupCSVForm
@@ -247,6 +255,10 @@ class RackRoleListView(ObjectListView):
 class RackRoleEditView(ObjectEditView):
     queryset = RackRole.objects.all()
     model_form = forms.RackRoleForm
+
+
+class RackRoleDeleteView(ObjectDeleteView):
+    queryset = RackRole.objects.all()
 
 
 class RackRoleBulkImportView(BulkImportView):
@@ -460,6 +472,10 @@ class ManufacturerListView(ObjectListView):
 class ManufacturerEditView(ObjectEditView):
     queryset = Manufacturer.objects.all()
     model_form = forms.ManufacturerForm
+
+
+class ManufacturerDeleteView(ObjectDeleteView):
+    queryset = Manufacturer.objects.all()
 
 
 class ManufacturerBulkImportView(BulkImportView):
@@ -860,6 +876,10 @@ class DeviceRoleEditView(ObjectEditView):
     model_form = forms.DeviceRoleForm
 
 
+class DeviceRoleDeleteView(ObjectDeleteView):
+    queryset = DeviceRole.objects.all()
+
+
 class DeviceRoleBulkImportView(BulkImportView):
     queryset = DeviceRole.objects.all()
     model_form = forms.DeviceRoleCSVForm
@@ -883,6 +903,10 @@ class PlatformListView(ObjectListView):
 class PlatformEditView(ObjectEditView):
     queryset = Platform.objects.all()
     model_form = forms.PlatformForm
+
+
+class PlatformDeleteView(ObjectDeleteView):
+    queryset = Platform.objects.all()
 
 
 class PlatformBulkImportView(BulkImportView):

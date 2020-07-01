@@ -32,6 +32,10 @@ class TenantGroupEditView(ObjectEditView):
     model_form = forms.TenantGroupForm
 
 
+class TenantGroupDeleteView(ObjectDeleteView):
+    queryset = TenantGroup.objects.all()
+
+
 class TenantGroupBulkImportView(BulkImportView):
     queryset = TenantGroup.objects.all()
     model_form = forms.TenantGroupCSVForm

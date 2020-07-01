@@ -160,6 +160,10 @@ class RIREditView(ObjectEditView):
     model_form = forms.RIRForm
 
 
+class RIRDeleteView(ObjectDeleteView):
+    queryset = RIR.objects.all()
+
+
 class RIRBulkImportView(BulkImportView):
     queryset = RIR.objects.all()
     model_form = forms.RIRCSVForm
@@ -288,6 +292,10 @@ class RoleListView(ObjectListView):
 class RoleEditView(ObjectEditView):
     queryset = Role.objects.all()
     model_form = forms.RoleForm
+
+
+class RoleDeleteView(ObjectDeleteView):
+    queryset = Role.objects.all()
 
 
 class RoleBulkImportView(BulkImportView):
@@ -651,6 +659,10 @@ class VLANGroupListView(ObjectListView):
 class VLANGroupEditView(ObjectEditView):
     queryset = VLANGroup.objects.all()
     model_form = forms.VLANGroupForm
+
+
+class VLANGroupDeleteView(ObjectDeleteView):
+    queryset = VLANGroup.objects.all()
 
 
 class VLANGroupBulkImportView(BulkImportView):

@@ -14,6 +14,7 @@ urlpatterns = [
     path('cluster-types/import/', views.ClusterTypeBulkImportView.as_view(), name='clustertype_import'),
     path('cluster-types/delete/', views.ClusterTypeBulkDeleteView.as_view(), name='clustertype_bulk_delete'),
     path('cluster-types/<slug:slug>/edit/', views.ClusterTypeEditView.as_view(), name='clustertype_edit'),
+    path('cluster-types/<slug:slug>/delete/', views.ClusterTypeDeleteView.as_view(), name='clustertype_delete'),
     path('cluster-types/<slug:slug>/changelog/', ObjectChangeLogView.as_view(), name='clustertype_changelog', kwargs={'model': ClusterType}),
 
     # Cluster groups
@@ -22,6 +23,7 @@ urlpatterns = [
     path('cluster-groups/import/', views.ClusterGroupBulkImportView.as_view(), name='clustergroup_import'),
     path('cluster-groups/delete/', views.ClusterGroupBulkDeleteView.as_view(), name='clustergroup_bulk_delete'),
     path('cluster-groups/<slug:slug>/edit/', views.ClusterGroupEditView.as_view(), name='clustergroup_edit'),
+    path('cluster-groups/<slug:slug>/delete/', views.ClusterGroupDeleteView.as_view(), name='clustergroup_delete'),
     path('cluster-groups/<slug:slug>/changelog/', ObjectChangeLogView.as_view(), name='clustergroup_changelog', kwargs={'model': ClusterGroup}),
 
     # Clusters

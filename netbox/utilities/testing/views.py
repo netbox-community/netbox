@@ -905,6 +905,7 @@ class ViewTestCases:
         GetObjectChangelogViewTestCase,
         CreateObjectViewTestCase,
         EditObjectViewTestCase,
+        DeleteObjectViewTestCase,
         ListObjectsViewTestCase,
         BulkImportObjectsViewTestCase,
         BulkDeleteObjectsViewTestCase,
