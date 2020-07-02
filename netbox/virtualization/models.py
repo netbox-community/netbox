@@ -9,7 +9,9 @@ from dcim.choices import InterfaceModeChoices
 from dcim.models import BaseInterface, Device
 from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
+from utilities.fields import NaturalOrderingField
 from utilities.models import ChangeLoggedModel
+from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import serialize_object
@@ -386,6 +388,15 @@ class VMInterface(BaseInterface):
         to='virtualization.VirtualMachine',
         on_delete=models.CASCADE,
         related_name='interfaces'
+    )
+    name = models.CharField(
+        max_length=64
+    )
+    _name = NaturalOrderingField(
+        target_field='name',
+        naturalize_function=naturalize_interface,
+        max_length=100,
+        blank=True
     )
     description = models.CharField(
         max_length=200,

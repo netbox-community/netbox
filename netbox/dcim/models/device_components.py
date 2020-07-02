@@ -36,6 +36,14 @@ __all__ = (
 
 
 class ComponentModel(models.Model):
+    name = models.CharField(
+        max_length=64
+    )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     label = models.CharField(
         max_length=64,
         blank=True,
@@ -243,14 +251,6 @@ class ConsolePort(CableTermination, ComponentModel):
         on_delete=models.CASCADE,
         related_name='consoleports'
     )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -303,14 +303,6 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         on_delete=models.CASCADE,
         related_name='consoleserverports'
     )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -355,14 +347,6 @@ class PowerPort(CableTermination, ComponentModel):
         to='dcim.Device',
         on_delete=models.CASCADE,
         related_name='powerports'
-    )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
     )
     type = models.CharField(
         max_length=50,
@@ -517,14 +501,6 @@ class PowerOutlet(CableTermination, ComponentModel):
         on_delete=models.CASCADE,
         related_name='poweroutlets'
     )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=PowerOutletTypeChoices,
@@ -584,15 +560,6 @@ class PowerOutlet(CableTermination, ComponentModel):
 #
 
 class BaseInterface(models.Model):
-    name = models.CharField(
-        max_length=64
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        naturalize_function=naturalize_interface,
-        max_length=100,
-        blank=True
-    )
     enabled = models.BooleanField(
         default=True
     )
@@ -627,6 +594,12 @@ class Interface(CableTermination, ComponentModel, BaseInterface):
         on_delete=models.CASCADE,
         related_name='interfaces',
         null=True,
+        blank=True
+    )
+    _name = NaturalOrderingField(
+        target_field='name',
+        naturalize_function=naturalize_interface,
+        max_length=100,
         blank=True
     )
     _connected_interface = models.OneToOneField(
@@ -839,14 +812,6 @@ class FrontPort(CableTermination, ComponentModel):
         on_delete=models.CASCADE,
         related_name='frontports'
     )
-    name = models.CharField(
-        max_length=64
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
@@ -912,14 +877,6 @@ class RearPort(CableTermination, ComponentModel):
         on_delete=models.CASCADE,
         related_name='rearports'
     )
-    name = models.CharField(
-        max_length=64
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
@@ -963,15 +920,6 @@ class DeviceBay(ComponentModel):
         to='dcim.Device',
         on_delete=models.CASCADE,
         related_name='device_bays'
-    )
-    name = models.CharField(
-        max_length=50,
-        verbose_name='Name'
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
     )
     installed_device = models.OneToOneField(
         to='dcim.Device',
@@ -1044,15 +992,6 @@ class InventoryItem(ComponentModel):
         related_name='child_items',
         blank=True,
         null=True
-    )
-    name = models.CharField(
-        max_length=50,
-        verbose_name='Name'
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
     )
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',

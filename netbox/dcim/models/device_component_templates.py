@@ -27,6 +27,14 @@ __all__ = (
 
 
 class ComponentTemplateModel(models.Model):
+    name = models.CharField(
+        max_length=64
+    )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
     label = models.CharField(
         max_length=64,
         blank=True,
@@ -78,14 +86,6 @@ class ConsolePortTemplate(ComponentTemplateModel):
         on_delete=models.CASCADE,
         related_name='consoleport_templates'
     )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -113,14 +113,6 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
         on_delete=models.CASCADE,
         related_name='consoleserverport_templates'
     )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -147,14 +139,6 @@ class PowerPortTemplate(ComponentTemplateModel):
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
         related_name='powerport_templates'
-    )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
     )
     type = models.CharField(
         max_length=50,
@@ -196,14 +180,6 @@ class PowerOutletTemplate(ComponentTemplateModel):
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
         related_name='poweroutlet_templates'
-    )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
     )
     type = models.CharField(
         max_length=50,
@@ -259,9 +235,6 @@ class InterfaceTemplate(ComponentTemplateModel):
         on_delete=models.CASCADE,
         related_name='interface_templates'
     )
-    name = models.CharField(
-        max_length=64
-    )
     _name = NaturalOrderingField(
         target_field='name',
         naturalize_function=naturalize_interface,
@@ -298,14 +271,6 @@ class FrontPortTemplate(ComponentTemplateModel):
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
         related_name='frontport_templates'
-    )
-    name = models.CharField(
-        max_length=64
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
     )
     type = models.CharField(
         max_length=50,
@@ -367,14 +332,6 @@ class RearPortTemplate(ComponentTemplateModel):
         on_delete=models.CASCADE,
         related_name='rearport_templates'
     )
-    name = models.CharField(
-        max_length=64
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
@@ -405,14 +362,6 @@ class DeviceBayTemplate(ComponentTemplateModel):
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
         related_name='device_bay_templates'
-    )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
     )
 
     class Meta:
