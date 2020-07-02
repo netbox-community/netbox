@@ -1915,7 +1915,7 @@ class CableTraceView(ObjectView):
     def get(self, request, pk):
 
         obj = get_object_or_404(self.queryset, pk=pk)
-        path, split_ends = obj.trace()
+        path, split_ends, position_stack = obj.trace()
         total_length = sum(
             [entry[1]._abs_length for entry in path if entry[1] and entry[1]._abs_length]
         )
@@ -1924,6 +1924,7 @@ class CableTraceView(ObjectView):
             'obj': obj,
             'trace': path,
             'split_ends': split_ends,
+            'position_stack': position_stack,
             'total_length': total_length,
         })
 

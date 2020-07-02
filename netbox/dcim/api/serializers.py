@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
@@ -183,10 +184,10 @@ class RackElevationDetailFilterSerializer(serializers.Serializer):
         default=RackElevationDetailRenderChoices.RENDER_JSON
     )
     unit_width = serializers.IntegerField(
-        default=RACK_ELEVATION_UNIT_WIDTH_DEFAULT
+        default=settings.RACK_ELEVATION_DEFAULT_UNIT_WIDTH
     )
     unit_height = serializers.IntegerField(
-        default=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT
+        default=settings.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT
     )
     legend_width = serializers.IntegerField(
         default=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT

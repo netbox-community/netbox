@@ -4,7 +4,7 @@ from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 
 from .choices import CableStatusChoices
-from .models import Cable, Device, VirtualChassis
+from .models import Cable, CableTermination, Device, FrontPort, RearPort, VirtualChassis
 
 
 @receiver(post_save, sender=VirtualChassis)
@@ -51,7 +51,7 @@ def update_connected_endpoints(instance, **kwargs):
     # Update any endpoints for this Cable.
     endpoints = instance.termination_a.get_path_endpoints() + instance.termination_b.get_path_endpoints()
     for endpoint in endpoints:
-        path, split_ends = endpoint.trace()
+        path, split_ends, position_stack = endpoint.trace()
         # Determine overall path status (connected or planned)
         path_status = True
         for segment in path:
@@ -60,9 +60,11 @@ def update_connected_endpoints(instance, **kwargs):
                 break
 
         endpoint_a = path[0][0]
-        endpoint_b = path[-1][2]
+        endpoint_b = path[-1][2] if not split_ends and not position_stack else None
 
-        if getattr(endpoint_a, 'is_path_endpoint', False) and getattr(endpoint_b, 'is_path_endpoint', False):
+        # Patch panel ports are not connected endpoints, all other cable terminations are
+        if isinstance(endpoint_a, CableTermination) and not isinstance(endpoint_a, (FrontPort, RearPort)) and \
+                isinstance(endpoint_b, CableTermination) and not isinstance(endpoint_b, (FrontPort, RearPort)):
             logger.debug("Updating path endpoints: {} <---> {}".format(endpoint_a, endpoint_b))
             endpoint_a.connected_endpoint = endpoint_b
             endpoint_a.connection_status = path_status

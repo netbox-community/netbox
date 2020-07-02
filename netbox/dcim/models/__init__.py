@@ -749,8 +749,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def get_elevation_svg(
             self,
             face=DeviceFaceChoices.FACE_FRONT,
-            unit_width=RACK_ELEVATION_UNIT_WIDTH_DEFAULT,
-            unit_height=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT,
+            unit_width=settings.RACK_ELEVATION_DEFAULT_UNIT_WIDTH,
+            unit_height=settings.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT,
             legend_width=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT,
             include_images=True,
             base_url=None
@@ -2175,6 +2175,7 @@ class Cable(ChangeLoggedModel):
         return reverse('dcim:cable', args=[self.pk])
 
     def clean(self):
+        from circuits.models import CircuitTermination
 
         # Validate that termination A exists
         if not hasattr(self, 'termination_a_type'):
@@ -2237,19 +2238,21 @@ class Cable(ChangeLoggedModel):
                 f"Incompatible termination types: {self.termination_a_type} and {self.termination_b_type}"
             )
 
-        # A RearPort with multiple positions must be connected to a RearPort with an equal number of positions
+        # Check that a RearPort with multiple positions isn't connected to an endpoint
+        # or a RearPort with a different number of positions.
         for term_a, term_b in [
             (self.termination_a, self.termination_b),
             (self.termination_b, self.termination_a)
         ]:
             if isinstance(term_a, RearPort) and term_a.positions > 1:
-                if not isinstance(term_b, RearPort):
+                if not isinstance(term_b, (FrontPort, RearPort, CircuitTermination)):
                     raise ValidationError(
-                        "Rear ports with multiple positions may only be connected to other rear ports"
+                        "Rear ports with multiple positions may only be connected to other pass-through ports"
                     )
-                elif term_a.positions != term_b.positions:
+                if isinstance(term_b, RearPort) and term_b.positions > 1 and term_a.positions != term_b.positions:
                     raise ValidationError(
-                        f"{term_a} has {term_a.positions} position(s) but {term_b} has {term_b.positions}. "
+                        f"{term_a} of {term_a.device} has {term_a.positions} position(s) but "
+                        f"{term_b} of {term_b.device} has {term_b.positions}. "
                         f"Both terminations must have the same number of positions."
                     )
 
