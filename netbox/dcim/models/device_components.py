@@ -36,6 +36,11 @@ __all__ = (
 
 
 class ComponentModel(models.Model):
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='%(class)ss'
+    )
     name = models.CharField(
         max_length=64
     )
@@ -246,11 +251,6 @@ class ConsolePort(CableTermination, ComponentModel):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='consoleports'
-    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -298,11 +298,6 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='consoleserverports'
-    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -343,11 +338,6 @@ class PowerPort(CableTermination, ComponentModel):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='powerports'
-    )
     type = models.CharField(
         max_length=50,
         choices=PowerPortTypeChoices,
@@ -496,11 +486,6 @@ class PowerOutlet(CableTermination, ComponentModel):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='poweroutlets'
-    )
     type = models.CharField(
         max_length=50,
         choices=PowerOutletTypeChoices,
@@ -560,6 +545,9 @@ class PowerOutlet(CableTermination, ComponentModel):
 #
 
 class BaseInterface(models.Model):
+    """
+    Abstract base class for fields shared by dcim.Interface and virtualization.VMInterface.
+    """
     enabled = models.BooleanField(
         default=True
     )
@@ -589,13 +577,7 @@ class Interface(CableTermination, ComponentModel, BaseInterface):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.
     """
-    device = models.ForeignKey(
-        to='Device',
-        on_delete=models.CASCADE,
-        related_name='interfaces',
-        null=True,
-        blank=True
-    )
+    # Override ComponentModel._name to specify naturalize_interface function
     _name = NaturalOrderingField(
         target_field='name',
         naturalize_function=naturalize_interface,
@@ -807,11 +789,6 @@ class FrontPort(CableTermination, ComponentModel):
     """
     A pass-through port on the front of a Device.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='frontports'
-    )
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
@@ -872,11 +849,6 @@ class RearPort(CableTermination, ComponentModel):
     """
     A pass-through port on the rear of a Device.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='rearports'
-    )
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
@@ -916,11 +888,6 @@ class DeviceBay(ComponentModel):
     """
     An empty space within a Device which can house a child device
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='device_bays'
-    )
     installed_device = models.OneToOneField(
         to='dcim.Device',
         on_delete=models.SET_NULL,
@@ -981,11 +948,6 @@ class InventoryItem(ComponentModel):
     An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.
     InventoryItems are used only for inventory purposes.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='inventory_items'
-    )
     parent = models.ForeignKey(
         to='self',
         on_delete=models.CASCADE,

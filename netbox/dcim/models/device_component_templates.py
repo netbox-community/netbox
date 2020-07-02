@@ -27,6 +27,11 @@ __all__ = (
 
 
 class ComponentTemplateModel(models.Model):
+    device_type = models.ForeignKey(
+        to='dcim.DeviceType',
+        on_delete=models.CASCADE,
+        related_name='%(class)ss'
+    )
     name = models.CharField(
         max_length=64
     )
@@ -81,11 +86,6 @@ class ConsolePortTemplate(ComponentTemplateModel):
     """
     A template for a ConsolePort to be created for a new Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='consoleport_templates'
-    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -108,11 +108,6 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     """
     A template for a ConsoleServerPort to be created for a new Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='consoleserverport_templates'
-    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -135,11 +130,6 @@ class PowerPortTemplate(ComponentTemplateModel):
     """
     A template for a PowerPort to be created for a new Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='powerport_templates'
-    )
     type = models.CharField(
         max_length=50,
         choices=PowerPortTypeChoices,
@@ -176,11 +166,6 @@ class PowerOutletTemplate(ComponentTemplateModel):
     """
     A template for a PowerOutlet to be created for a new Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='poweroutlet_templates'
-    )
     type = models.CharField(
         max_length=50,
         choices=PowerOutletTypeChoices,
@@ -230,11 +215,7 @@ class InterfaceTemplate(ComponentTemplateModel):
     """
     A template for a physical data interface on a new Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='interface_templates'
-    )
+    # Override ComponentTemplateModel._name to specify naturalize_interface function
     _name = NaturalOrderingField(
         target_field='name',
         naturalize_function=naturalize_interface,
@@ -267,11 +248,6 @@ class FrontPortTemplate(ComponentTemplateModel):
     """
     Template for a pass-through port on the front of a new Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='frontport_templates'
-    )
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
@@ -327,11 +303,6 @@ class RearPortTemplate(ComponentTemplateModel):
     """
     Template for a pass-through port on the rear of a new Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='rearport_templates'
-    )
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
@@ -358,12 +329,6 @@ class DeviceBayTemplate(ComponentTemplateModel):
     """
     A template for a DeviceBay to be created for a new parent Device.
     """
-    device_type = models.ForeignKey(
-        to='dcim.DeviceType',
-        on_delete=models.CASCADE,
-        related_name='device_bay_templates'
-    )
-
     class Meta:
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')

@@ -155,7 +155,7 @@
         {% plugin_right_page devicetype %}
     </div>
 </div>
-{% if devicetype.consoleport_templates.exists or devicetype.powerport_templates.exists %}
+{% if devicetype.consoleporttemplates.exists or devicetype.powerporttemplates.exists %}
     <div class="row">
         <div class="col-md-6">
             {% include 'dcim/inc/devicetype_component_table.html' with table=consoleport_table title='Console Ports' add_url='dcim:consoleporttemplate_add' edit_url='dcim:consoleporttemplate_bulk_edit' delete_url='dcim:consoleporttemplate_bulk_delete' %}
@@ -177,28 +177,28 @@
         </div>
     </div>
 {% endif %}
-{% if devicetype.consoleserverport_templates.exists %}
+{% if devicetype.consoleserverporttemplates.exists %}
     <div class="row">
         <div class="col-md-12">
             {% include 'dcim/inc/devicetype_component_table.html' with table=consoleserverport_table title='Console Server Ports' add_url='dcim:consoleserverporttemplate_add' edit_url='dcim:consoleserverporttemplate_bulk_edit' delete_url='dcim:consoleserverporttemplate_bulk_delete' %}
         </div>
     </div>
 {% endif %}
-{% if devicetype.poweroutlet_templates.exists %}
+{% if devicetype.poweroutlettemplates.exists %}
     <div class="row">
         <div class="col-md-12">
             {% include 'dcim/inc/devicetype_component_table.html' with table=poweroutlet_table title='Power Outlets' add_url='dcim:poweroutlettemplate_add' edit_url='dcim:poweroutlettemplate_bulk_edit' delete_url='dcim:poweroutlettemplate_bulk_delete' %}
         </div>
     </div>
 {% endif %}
-{% if devicetype.interface_templates.exists %}
+{% if devicetype.interfacetemplates.exists %}
     <div class="row">
         <div class="col-md-12">
             {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' add_url='dcim:interfacetemplate_add' edit_url='dcim:interfacetemplate_bulk_edit' delete_url='dcim:interfacetemplate_bulk_delete' %}
         </div>
     </div>
 {% endif %}
-{% if devicetype.frontport_templates.exists or devicetype.rearport_templates.exists %}
+{% if devicetype.frontporttemplates.exists or devicetype.rearporttemplates.exists %}
     <div class="row">
         <div class="col-md-6">
             {% include 'dcim/inc/devicetype_component_table.html' with table=front_port_table title='Front Ports' add_url='dcim:frontporttemplate_add' edit_url='dcim:frontporttemplate_bulk_edit' delete_url='dcim:frontporttemplate_bulk_delete' %}
