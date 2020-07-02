@@ -640,6 +640,10 @@ class ConsolePortTemplateBulkEditView(BulkEditView):
     form = forms.ConsolePortTemplateBulkEditForm
 
 
+class ConsolePortTemplateBulkRenameView(BulkRenameView):
+    queryset = ConsolePortTemplate.objects.all()
+
+
 class ConsolePortTemplateBulkDeleteView(BulkDeleteView):
     queryset = ConsolePortTemplate.objects.all()
     table = tables.ConsolePortTemplateTable
@@ -669,6 +673,10 @@ class ConsoleServerPortTemplateBulkEditView(BulkEditView):
     queryset = ConsoleServerPortTemplate.objects.all()
     table = tables.ConsoleServerPortTemplateTable
     form = forms.ConsoleServerPortTemplateBulkEditForm
+
+
+class ConsoleServerPortTemplateBulkRenameView(BulkRenameView):
+    queryset = ConsoleServerPortTemplate.objects.all()
 
 
 class ConsoleServerPortTemplateBulkDeleteView(BulkDeleteView):
@@ -702,6 +710,10 @@ class PowerPortTemplateBulkEditView(BulkEditView):
     form = forms.PowerPortTemplateBulkEditForm
 
 
+class PowerPortTemplateBulkRenameView(BulkRenameView):
+    queryset = PowerPortTemplate.objects.all()
+
+
 class PowerPortTemplateBulkDeleteView(BulkDeleteView):
     queryset = PowerPortTemplate.objects.all()
     table = tables.PowerPortTemplateTable
@@ -731,6 +743,10 @@ class PowerOutletTemplateBulkEditView(BulkEditView):
     queryset = PowerOutletTemplate.objects.all()
     table = tables.PowerOutletTemplateTable
     form = forms.PowerOutletTemplateBulkEditForm
+
+
+class PowerOutletTemplateBulkRenameView(BulkRenameView):
+    queryset = PowerOutletTemplate.objects.all()
 
 
 class PowerOutletTemplateBulkDeleteView(BulkDeleteView):
@@ -764,6 +780,10 @@ class InterfaceTemplateBulkEditView(BulkEditView):
     form = forms.InterfaceTemplateBulkEditForm
 
 
+class InterfaceTemplateBulkRenameView(BulkRenameView):
+    queryset = InterfaceTemplate.objects.all()
+
+
 class InterfaceTemplateBulkDeleteView(BulkDeleteView):
     queryset = InterfaceTemplate.objects.all()
     table = tables.InterfaceTemplateTable
@@ -793,6 +813,10 @@ class FrontPortTemplateBulkEditView(BulkEditView):
     queryset = FrontPortTemplate.objects.all()
     table = tables.FrontPortTemplateTable
     form = forms.FrontPortTemplateBulkEditForm
+
+
+class FrontPortTemplateBulkRenameView(BulkRenameView):
+    queryset = FrontPortTemplate.objects.all()
 
 
 class FrontPortTemplateBulkDeleteView(BulkDeleteView):
@@ -826,6 +850,10 @@ class RearPortTemplateBulkEditView(BulkEditView):
     form = forms.RearPortTemplateBulkEditForm
 
 
+class RearPortTemplateBulkRenameView(BulkRenameView):
+    queryset = RearPortTemplate.objects.all()
+
+
 class RearPortTemplateBulkDeleteView(BulkDeleteView):
     queryset = RearPortTemplate.objects.all()
     table = tables.RearPortTemplateTable
@@ -855,6 +883,10 @@ class DeviceBayTemplateBulkEditView(BulkEditView):
     queryset = DeviceBayTemplate.objects.all()
     table = tables.DeviceBayTemplateTable
     form = forms.DeviceBayTemplateBulkEditForm
+
+
+class DeviceBayTemplateBulkRenameView(BulkRenameView):
+    queryset = DeviceBayTemplate.objects.all()
 
 
 class DeviceBayTemplateBulkDeleteView(BulkDeleteView):

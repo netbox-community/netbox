@@ -158,10 +158,10 @@
 {% if devicetype.consoleporttemplates.exists or devicetype.powerporttemplates.exists %}
     <div class="row">
         <div class="col-md-6">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=consoleport_table title='Console Ports' add_url='dcim:consoleporttemplate_add' edit_url='dcim:consoleporttemplate_bulk_edit' delete_url='dcim:consoleporttemplate_bulk_delete' %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=consoleport_table title='Console Ports' %}
         </div>
         <div class="col-md-6">
-             {% include 'dcim/inc/devicetype_component_table.html' with table=powerport_table title='Power Ports' add_url='dcim:powerporttemplate_add' edit_url='dcim:powerporttemplate_bulk_edit' delete_url='dcim:powerporttemplate_bulk_delete' %}
+             {% include 'dcim/inc/devicetype_component_table.html' with table=powerport_table title='Power Ports' %}
         </div>
     </div>
 {% endif %}
@@ -173,38 +173,38 @@
 {% if devicetype.is_parent_device or devicebay_table.rows %}
     <div class="row">
         <div class="col-md-12">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=devicebay_table title='Device Bays' add_url='dcim:devicebaytemplate_add' edit_url='dcim:devicebaytemplate_bulk_edit' delete_url='dcim:devicebaytemplate_bulk_delete' %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=devicebay_table title='Device Bays' %}
         </div>
     </div>
 {% endif %}
 {% if devicetype.consoleserverporttemplates.exists %}
     <div class="row">
         <div class="col-md-12">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=consoleserverport_table title='Console Server Ports' add_url='dcim:consoleserverporttemplate_add' edit_url='dcim:consoleserverporttemplate_bulk_edit' delete_url='dcim:consoleserverporttemplate_bulk_delete' %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=consoleserverport_table title='Console Server Ports' %}
         </div>
     </div>
 {% endif %}
 {% if devicetype.poweroutlettemplates.exists %}
     <div class="row">
         <div class="col-md-12">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=poweroutlet_table title='Power Outlets' add_url='dcim:poweroutlettemplate_add' edit_url='dcim:poweroutlettemplate_bulk_edit' delete_url='dcim:poweroutlettemplate_bulk_delete' %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=poweroutlet_table title='Power Outlets' %}
         </div>
     </div>
 {% endif %}
 {% if devicetype.interfacetemplates.exists %}
     <div class="row">
         <div class="col-md-12">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' add_url='dcim:interfacetemplate_add' edit_url='dcim:interfacetemplate_bulk_edit' delete_url='dcim:interfacetemplate_bulk_delete' %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' %}
         </div>
     </div>
 {% endif %}
 {% if devicetype.frontporttemplates.exists or devicetype.rearporttemplates.exists %}
     <div class="row">
         <div class="col-md-6">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=front_port_table title='Front Ports' add_url='dcim:frontporttemplate_add' edit_url='dcim:frontporttemplate_bulk_edit' delete_url='dcim:frontporttemplate_bulk_delete' %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=front_port_table title='Front Ports' %}
         </div>
         <div class="col-md-6">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=rear_port_table title='Rear Ports' add_url='dcim:rearporttemplate_add' edit_url='dcim:rearporttemplate_bulk_edit' delete_url='dcim:rearporttemplate_bulk_delete' %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=rear_port_table title='Rear Ports' %}
         </div>
     </div>
 {% endif %}
