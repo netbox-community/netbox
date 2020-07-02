@@ -747,6 +747,7 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(label__icontains=value) |
             Q(description__icontains=value)
         )
 

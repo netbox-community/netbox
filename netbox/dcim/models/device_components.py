@@ -36,6 +36,11 @@ __all__ = (
 
 
 class ComponentModel(models.Model):
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     description = models.CharField(
         max_length=200,
         blank=True
@@ -241,11 +246,6 @@ class ConsolePort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
-    )
     _name = NaturalOrderingField(
         target_field='name',
         max_length=100,
@@ -270,7 +270,7 @@ class ConsolePort(CableTermination, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'type', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -283,6 +283,7 @@ class ConsolePort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.label,
             self.type,
             self.description,
         )
@@ -310,11 +311,6 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         max_length=100,
         blank=True
     )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
-    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -327,7 +323,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'type', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -340,6 +336,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.label,
             self.type,
             self.description,
         )
@@ -366,11 +363,6 @@ class PowerPort(CableTermination, ComponentModel):
         target_field='name',
         max_length=100,
         blank=True
-    )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
     )
     type = models.CharField(
         max_length=50,
@@ -410,7 +402,7 @@ class PowerPort(CableTermination, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'type', 'maximum_draw', 'allocated_draw', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -423,6 +415,7 @@ class PowerPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.label,
             self.get_type_display(),
             self.maximum_draw,
             self.allocated_draw,
@@ -532,11 +525,6 @@ class PowerOutlet(CableTermination, ComponentModel):
         max_length=100,
         blank=True
     )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
-    )
     type = models.CharField(
         max_length=50,
         choices=PowerOutletTypeChoices,
@@ -562,7 +550,7 @@ class PowerOutlet(CableTermination, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'type', 'power_port', 'feed_leg', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -575,6 +563,7 @@ class PowerOutlet(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.label,
             self.get_type_display(),
             self.power_port.name if self.power_port else None,
             self.get_feed_leg_display(),
@@ -640,11 +629,6 @@ class Interface(CableTermination, ComponentModel, BaseInterface):
         null=True,
         blank=True
     )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
-    )
     _connected_interface = models.OneToOneField(
         to='self',
         on_delete=models.SET_NULL,
@@ -703,7 +687,7 @@ class Interface(CableTermination, ComponentModel, BaseInterface):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'device', 'name', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only', 'description', 'mode',
+        'device', 'name', 'label', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only', 'description', 'mode',
     ]
 
     class Meta:
@@ -717,6 +701,7 @@ class Interface(CableTermination, ComponentModel, BaseInterface):
         return (
             self.device.identifier if self.device else None,
             self.name,
+            self.label,
             self.lag.name if self.lag else None,
             self.get_type_display(),
             self.enabled,
@@ -877,7 +862,7 @@ class FrontPort(CableTermination, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'type', 'rear_port', 'rear_port_position', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -886,9 +871,6 @@ class FrontPort(CableTermination, ComponentModel):
             ('rear_port', 'rear_port_position'),
         )
 
-    def __str__(self):
-        return self.name
-
     def get_absolute_url(self):
         return reverse('dcim:frontport', kwargs={'pk': self.pk})
 
@@ -896,6 +878,7 @@ class FrontPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.label,
             self.get_type_display(),
             self.rear_port.name,
             self.rear_port_position,
@@ -947,14 +930,11 @@ class RearPort(CableTermination, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'type', 'positions', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'positions', 'description']
 
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:rearport', kwargs={'pk': self.pk})
@@ -963,6 +943,7 @@ class RearPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.label,
             self.get_type_display(),
             self.positions,
             self.description,
@@ -992,11 +973,6 @@ class DeviceBay(ComponentModel):
         max_length=100,
         blank=True
     )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
-    )
     installed_device = models.OneToOneField(
         to='dcim.Device',
         on_delete=models.SET_NULL,
@@ -1006,16 +982,11 @@ class DeviceBay(ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'installed_device', 'description']
+    csv_headers = ['device', 'name', 'label', 'installed_device', 'description']
 
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        if self.label:
-            return '{} - {} ({})'.format(self.device.name, self.name, self.label)
-        return '{} - {}'.format(self.device.name, self.name)
 
     def get_absolute_url(self):
         return reverse('dcim:devicebay', kwargs={'pk': self.pk})
@@ -1024,6 +995,7 @@ class DeviceBay(ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.label,
             self.installed_device.identifier if self.installed_device else None,
             self.description,
         )
@@ -1116,15 +1088,12 @@ class InventoryItem(ComponentModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
+        'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
     ]
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')
         unique_together = ('device', 'parent', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:inventoryitem', kwargs={'pk': self.pk})
@@ -1133,6 +1102,7 @@ class InventoryItem(ComponentModel):
         return (
             self.device.name or '{{{}}}'.format(self.device.pk),
             self.name,
+            self.label,
             self.manufacturer.name if self.manufacturer else None,
             self.part_id,
             self.serial,

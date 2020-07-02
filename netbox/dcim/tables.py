@@ -784,9 +784,10 @@ class InventoryItemTable(DeviceComponentTable):
     class Meta(DeviceComponentTable.Meta):
         model = InventoryItem
         fields = (
-            'pk', 'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'discovered'
+            'pk', 'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description',
+            'discovered',
         )
-        default_columns = ('pk', 'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag')
+        default_columns = ('pk', 'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag')
 
 
 #

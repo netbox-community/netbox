@@ -27,6 +27,11 @@ __all__ = (
 
 
 class ComponentTemplateModel(models.Model):
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     description = models.CharField(
         max_length=200,
         blank=True
@@ -81,11 +86,6 @@ class ConsolePortTemplate(ComponentTemplateModel):
         max_length=100,
         blank=True
     )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
-    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -121,11 +121,6 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
         max_length=100,
         blank=True
     )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
-    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -160,11 +155,6 @@ class PowerPortTemplate(ComponentTemplateModel):
         target_field='name',
         max_length=100,
         blank=True
-    )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
     )
     type = models.CharField(
         max_length=50,
@@ -214,11 +204,6 @@ class PowerOutletTemplate(ComponentTemplateModel):
         target_field='name',
         max_length=100,
         blank=True
-    )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
     )
     type = models.CharField(
         max_length=50,
@@ -283,11 +268,6 @@ class InterfaceTemplate(ComponentTemplateModel):
         max_length=100,
         blank=True
     )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
-    )
     type = models.CharField(
         max_length=50,
         choices=InterfaceTypeChoices
@@ -347,9 +327,6 @@ class FrontPortTemplate(ComponentTemplateModel):
             ('device_type', 'name'),
             ('rear_port', 'rear_port_position'),
         )
-
-    def __str__(self):
-        return self.name
 
     def clean(self):
 
@@ -411,9 +388,6 @@ class RearPortTemplate(ComponentTemplateModel):
         ordering = ('device_type', '_name')
         unique_together = ('device_type', 'name')
 
-    def __str__(self):
-        return self.name
-
     def instantiate(self, device):
         return RearPort(
             device=device,
@@ -439,11 +413,6 @@ class DeviceBayTemplate(ComponentTemplateModel):
         target_field='name',
         max_length=100,
         blank=True
-    )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
     )
 
     class Meta:
