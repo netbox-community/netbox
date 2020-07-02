@@ -1,6 +1,6 @@
 # NetBox v2.8
 
-## v2.8.7 (FUTURE)
+## v2.8.7 (2020-07-02)
 
 ### Enhancements
 
