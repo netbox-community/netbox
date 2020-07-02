@@ -4,6 +4,7 @@ import pytz
 import yaml
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
 from django.urls import reverse
 from netaddr import EUI
 
@@ -376,6 +377,7 @@ class DeviceTypeTestCase(
             'is_full_depth': False,
         }
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_import_objects(self):
         """
         Custom import test for YAML-based imports (versus CSV)
