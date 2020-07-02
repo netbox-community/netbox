@@ -110,21 +110,6 @@ POWERPANEL_POWERFEED_COUNT = """
 """
 
 
-def get_component_template_actions(model_name):
-    return """
-        {{% if perms.dcim.change_{model_name} %}}
-            <a href="{{% url 'dcim:{model_name}_edit' pk=record.pk %}}?return_url={{{{ request.path }}}}" class="btn btn-xs btn-warning">
-                <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
-            </a>
-        {{% endif %}}
-        {{% if perms.dcim.delete_{model_name} %}}
-            <a href="{{% url 'dcim:{model_name}_delete' pk=record.pk %}}?return_url={{{{ request.path }}}}" class="btn btn-xs btn-danger">
-                <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
-            </a>
-        {{% endif %}}
-    """.format(model_name=model_name).strip()
-
-
 #
 # Regions
 #
@@ -401,10 +386,9 @@ class ComponentTemplateTable(BaseTable):
 
 
 class ConsolePortTemplateTable(ComponentTemplateTable):
-    actions = tables.TemplateColumn(
-        template_code=get_component_template_actions('consoleporttemplate'),
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
+    actions = ButtonsColumn(
+        model=ConsolePortTemplate,
+        buttons=('edit', 'delete')
     )
 
     class Meta(BaseTable.Meta):
@@ -414,10 +398,9 @@ class ConsolePortTemplateTable(ComponentTemplateTable):
 
 
 class ConsoleServerPortTemplateTable(ComponentTemplateTable):
-    actions = tables.TemplateColumn(
-        template_code=get_component_template_actions('consoleserverporttemplate'),
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
+    actions = ButtonsColumn(
+        model=ConsoleServerPortTemplate,
+        buttons=('edit', 'delete')
     )
 
     class Meta(BaseTable.Meta):
@@ -427,10 +410,9 @@ class ConsoleServerPortTemplateTable(ComponentTemplateTable):
 
 
 class PowerPortTemplateTable(ComponentTemplateTable):
-    actions = tables.TemplateColumn(
-        template_code=get_component_template_actions('powerporttemplate'),
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
+    actions = ButtonsColumn(
+        model=PowerPortTemplate,
+        buttons=('edit', 'delete')
     )
 
     class Meta(BaseTable.Meta):
@@ -440,10 +422,9 @@ class PowerPortTemplateTable(ComponentTemplateTable):
 
 
 class PowerOutletTemplateTable(ComponentTemplateTable):
-    actions = tables.TemplateColumn(
-        template_code=get_component_template_actions('poweroutlettemplate'),
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
+    actions = ButtonsColumn(
+        model=PowerOutletTemplate,
+        buttons=('edit', 'delete')
     )
 
     class Meta(BaseTable.Meta):
@@ -456,10 +437,9 @@ class InterfaceTemplateTable(ComponentTemplateTable):
     mgmt_only = BooleanColumn(
         verbose_name='Management Only'
     )
-    actions = tables.TemplateColumn(
-        template_code=get_component_template_actions('interfacetemplate'),
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
+    actions = ButtonsColumn(
+        model=InterfaceTemplate,
+        buttons=('edit', 'delete')
     )
 
     class Meta(BaseTable.Meta):
@@ -472,10 +452,9 @@ class FrontPortTemplateTable(ComponentTemplateTable):
     rear_port_position = tables.Column(
         verbose_name='Position'
     )
-    actions = tables.TemplateColumn(
-        template_code=get_component_template_actions('frontporttemplate'),
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
+    actions = ButtonsColumn(
+        model=FrontPortTemplate,
+        buttons=('edit', 'delete')
     )
 
     class Meta(BaseTable.Meta):
@@ -485,10 +464,9 @@ class FrontPortTemplateTable(ComponentTemplateTable):
 
 
 class RearPortTemplateTable(ComponentTemplateTable):
-    actions = tables.TemplateColumn(
-        template_code=get_component_template_actions('rearporttemplate'),
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
+    actions = ButtonsColumn(
+        model=RearPortTemplate,
+        buttons=('edit', 'delete')
     )
 
     class Meta(BaseTable.Meta):
@@ -498,10 +476,9 @@ class RearPortTemplateTable(ComponentTemplateTable):
 
 
 class DeviceBayTemplateTable(ComponentTemplateTable):
-    actions = tables.TemplateColumn(
-        template_code=get_component_template_actions('devicebaytemplate'),
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
+    actions = ButtonsColumn(
+        model=DeviceBayTemplate,
+        buttons=('edit', 'delete')
     )
 
     class Meta(BaseTable.Meta):
