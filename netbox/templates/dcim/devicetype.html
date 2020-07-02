@@ -63,149 +63,157 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Chassis</strong>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Chassis</strong>
+                </div>
+                <table class="table table-hover panel-body attr-table">
+                    <tr>
+                        <td>Manufacturer</td>
+                        <td><a href="{% url 'dcim:devicetype_list' %}?manufacturer={{ devicetype.manufacturer.slug }}">{{ devicetype.manufacturer }}</a></td>
+                    </tr>
+                    <tr>
+                        <td>Model Name</td>
+                        <td>
+                            {{ devicetype.model }}<br/>
+                            <small class="text-muted">{{ devicetype.slug }}</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Part Number</td>
+                        <td>{{ devicetype.part_number|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <td>Height (U)</td>
+                        <td>{{ devicetype.u_height }}</td>
+                    </tr>
+                    <tr>
+                        <td>Full Depth</td>
+                        <td>
+                            {% if devicetype.is_full_depth %}
+                                <i class="glyphicon glyphicon-ok text-success" title="Yes"></i>
+                            {% else %}
+                                <i class="glyphicon glyphicon-remove text-danger" title="No"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Parent/Child</td>
+                        <td>
+                            {{ devicetype.get_subdevice_role_display|placeholder }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Front Image</td>
+                        <td>
+                            {% if devicetype.front_image %}
+                                <a href="{{ devicetype.front_image.url }}">
+                                    <img src="{{ devicetype.front_image.url }}" alt="{{ devicetype.front_image.name }}" class="img-responsive" />
+                                </a>
+                            {% else %}
+                                <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Rear Image</td>
+                        <td>
+                            {% if devicetype.rear_image %}
+                                <a href="{{ devicetype.rear_image.url }}">
+                                    <img src="{{ devicetype.rear_image.url }}" alt="{{ devicetype.rear_image.name }}" class="img-responsive" />
+                                </a>
+                            {% else %}
+                                <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Instances</td>
+                        <td><a href="{% url 'dcim:device_list' %}?device_type_id={{ devicetype.pk }}">{{ instance_count }}</a></td>
+                    </tr>
+                </table>
             </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Manufacturer</td>
-                    <td><a href="{% url 'dcim:devicetype_list' %}?manufacturer={{ devicetype.manufacturer.slug }}">{{ devicetype.manufacturer }}</a></td>
-                </tr>
-                <tr>
-                    <td>Model Name</td>
-                    <td>
-                        {{ devicetype.model }}<br/>
-                        <small class="text-muted">{{ devicetype.slug }}</small>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Part Number</td>
-                    <td>{{ devicetype.part_number|placeholder }}</td>
-                </tr>
-                <tr>
-                    <td>Height (U)</td>
-                    <td>{{ devicetype.u_height }}</td>
-                </tr>
-                <tr>
-                    <td>Full Depth</td>
-                    <td>
-                        {% if devicetype.is_full_depth %}
-                            <i class="glyphicon glyphicon-ok text-success" title="Yes"></i>
-                        {% else %}
-                            <i class="glyphicon glyphicon-remove text-danger" title="No"></i>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Parent/Child</td>
-                    <td>
-                        {{ devicetype.get_subdevice_role_display|placeholder }}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Front Image</td>
-                    <td>
-                        {% if devicetype.front_image %}
-                            <a href="{{ devicetype.front_image.url }}">
-                                <img src="{{ devicetype.front_image.url }}" alt="{{ devicetype.front_image.name }}" class="img-responsive" />
-                            </a>
-                        {% else %}
-                            <span class="text-muted">&mdash;</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Rear Image</td>
-                    <td>
-                        {% if devicetype.rear_image %}
-                            <a href="{{ devicetype.rear_image.url }}">
-                                <img src="{{ devicetype.rear_image.url }}" alt="{{ devicetype.rear_image.name }}" class="img-responsive" />
-                            </a>
-                        {% else %}
-                            <span class="text-muted">&mdash;</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Instances</td>
-                    <td><a href="{% url 'dcim:device_list' %}?device_type_id={{ devicetype.pk }}">{{ instance_count }}</a></td>
-                </tr>
-            </table>
+            {% plugin_left_page devicetype %}
         </div>
-        {% plugin_left_page devicetype %}
-    </div>
-    <div class="col-md-6">
-        {% include 'inc/custom_fields_panel.html' with obj=devicetype %}
-        {% include 'extras/inc/tags_panel.html' with tags=devicetype.tags.all url='dcim:devicetype_list' %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Comments</strong>
+        <div class="col-md-6">
+            {% include 'inc/custom_fields_panel.html' with obj=devicetype %}
+            {% include 'extras/inc/tags_panel.html' with tags=devicetype.tags.all url='dcim:devicetype_list' %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Comments</strong>
+                </div>
+                <div class="panel-body rendered-markdown">
+                    {% if devicetype.comments %}
+                        {{ devicetype.comments|render_markdown }}
+                    {% else %}
+                        <span class="text-muted">None</span>
+                    {% endif %}
+                </div>
             </div>
-            <div class="panel-body rendered-markdown">
-                {% if devicetype.comments %}
-                    {{ devicetype.comments|render_markdown }}
-                {% else %}
-                    <span class="text-muted">None</span>
-                {% endif %}
+            {% plugin_right_page devicetype %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% plugin_full_width_page devicetype %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#interfaces" role="tab" data-toggle="tab">Interfaces {% badge interface_table.rows|length %}</a>
+                </li>
+                <li role="presentation">
+                    <a href="#frontports" role="tab" data-toggle="tab">Front Ports {% badge front_port_table_table.rows|length %}</a>
+                </li>
+                <li role="presentation">
+                    <a href="#rearports" role="tab" data-toggle="tab">Rear Ports {% badge rear_port_table.rows|length %}</a>
+                </li>
+                <li role="presentation">
+                    <a href="#consoleports" role="tab" data-toggle="tab">Console Ports {% badge consoleport_table.rows|length %}</a>
+                </li>
+                <li role="presentation">
+                    <a href="#consoleserverports" role="tab" data-toggle="tab">Console Server Ports {% badge consoleserverport_table.rows|length %}</a>
+                </li>
+                <li role="presentation">
+                    <a href="#powerports" role="tab" data-toggle="tab">Power Ports {% badge powerport_table.rows|length %}</a>
+                </li>
+                <li role="presentation">
+                    <a href="#poweroutlets" role="tab" data-toggle="tab">Power Outlets {% badge poweroutlet_table.rows|length %}</a>
+                </li>
+                <li role="presentation">
+                    <a href="#devicebays" role="tab" data-toggle="tab">Device Bays {% badge devicebay_table.rows|length %}</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="interfaces">
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' %}
+                </div>
+                <div role="tabpanel" class="tab-pane" id="frontports">
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=front_port_table title='Front Ports' %}
+                </div>
+                <div role="tabpanel" class="tab-pane" id="rearports">
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=rear_port_table title='Rear Ports' %}
+                </div>
+                <div role="tabpanel" class="tab-pane" id="consoleports">
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=consoleport_table title='Console Ports' %}
+                </div>
+                <div role="tabpanel" class="tab-pane" id="consoleserverports">
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=consoleserverport_table title='Console Server Ports' %}
+                </div>
+                <div role="tabpanel" class="tab-pane" id="powerports">
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=powerport_table title='Power Ports' %}
+                </div>
+                <div role="tabpanel" class="tab-pane" id="poweroutlets">
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=poweroutlet_table title='Power Outlets' %}
+                </div>
+                <div role="tabpanel" class="tab-pane" id="devicebays">
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=devicebay_table title='Device Bays' %}
+                </div>
             </div>
         </div>
-        {% plugin_right_page devicetype %}
     </div>
-</div>
-{% if devicetype.consoleporttemplates.exists or devicetype.powerporttemplates.exists %}
-    <div class="row">
-        <div class="col-md-6">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=consoleport_table title='Console Ports' %}
-        </div>
-        <div class="col-md-6">
-             {% include 'dcim/inc/devicetype_component_table.html' with table=powerport_table title='Power Ports' %}
-        </div>
-    </div>
-{% endif %}
-<div class="row">
-    <div class="col-md-12">
-        {% plugin_full_width_page devicetype %}
-    </div>
-</div>
-{% if devicetype.is_parent_device or devicebay_table.rows %}
-    <div class="row">
-        <div class="col-md-12">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=devicebay_table title='Device Bays' %}
-        </div>
-    </div>
-{% endif %}
-{% if devicetype.consoleserverporttemplates.exists %}
-    <div class="row">
-        <div class="col-md-12">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=consoleserverport_table title='Console Server Ports' %}
-        </div>
-    </div>
-{% endif %}
-{% if devicetype.poweroutlettemplates.exists %}
-    <div class="row">
-        <div class="col-md-12">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=poweroutlet_table title='Power Outlets' %}
-        </div>
-    </div>
-{% endif %}
-{% if devicetype.interfacetemplates.exists %}
-    <div class="row">
-        <div class="col-md-12">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' %}
-        </div>
-    </div>
-{% endif %}
-{% if devicetype.frontporttemplates.exists or devicetype.rearporttemplates.exists %}
-    <div class="row">
-        <div class="col-md-6">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=front_port_table title='Front Ports' %}
-        </div>
-        <div class="col-md-6">
-            {% include 'dcim/inc/devicetype_component_table.html' with table=rear_port_table title='Rear Ports' %}
-        </div>
-    </div>
-{% endif %}
 {% endblock %}
