@@ -50,7 +50,7 @@ class LoginView(View):
             logger.debug("Login form validation was successful")
 
             # Determine where to direct user after successful login
-            redirect_to = request.POST.get('next')
+            redirect_to = request.POST.get('next', reverse('home'))
             if redirect_to and not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
                 logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {redirect_to}")
                 redirect_to = reverse('home')

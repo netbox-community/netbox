@@ -19,21 +19,21 @@
                 {% endif %}
             </ul>
         </nav>
-        <form method="get">
-            {% for k, v_list in request.GET.lists %}
-                {% if k != 'per_page' %}
-                    {% for v in v_list %}
-                        <input type="hidden" name="{{ k }}" value="{{ v }}" />
-                    {% endfor %}
-                {% endif %}
-            {% endfor %}
-            <select name="per_page" id="per_page">
-                {% for n in settings.PER_PAGE_DEFAULTS %}
-                    <option value="{{ n }}"{% if page.paginator.per_page == n %} selected="selected"{% endif %}>{{ n }}</option>
-                {% endfor %}
-            </select> per page
-        </form>
     {% endif %}
+    <form method="get">
+        {% for k, v_list in request.GET.lists %}
+            {% if k != 'per_page' %}
+                {% for v in v_list %}
+                    <input type="hidden" name="{{ k }}" value="{{ v }}" />
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+        <select name="per_page" id="per_page">
+            {% for n in settings.PER_PAGE_DEFAULTS %}
+                <option value="{{ n }}"{% if page.paginator.per_page == n %} selected="selected"{% endif %}>{{ n }}</option>
+            {% endfor %}
+        </select> per page
+    </form>
     {% if page %}
         <div class="text-right text-muted">
             Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }}

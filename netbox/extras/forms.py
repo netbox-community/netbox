@@ -167,8 +167,14 @@ class AddRemoveTagsForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Add add/remove tags fields
-        self.fields['add_tags'] = TagField(required=False)
-        self.fields['remove_tags'] = TagField(required=False)
+        self.fields['add_tags'] = DynamicModelMultipleChoiceField(
+            queryset=Tag.objects.all(),
+            required=False
+        )
+        self.fields['remove_tags'] = DynamicModelMultipleChoiceField(
+            queryset=Tag.objects.all(),
+            required=False
+        )
 
 
 class TagFilterForm(BootstrapMixin, forms.Form):

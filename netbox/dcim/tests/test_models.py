@@ -363,6 +363,7 @@ class CableTestCase(TestCase):
         )
         self.interface1 = Interface.objects.create(device=self.device1, name='eth0')
         self.interface2 = Interface.objects.create(device=self.device2, name='eth0')
+        self.interface3 = Interface.objects.create(device=self.device2, name='eth1')
         self.cable = Cable(termination_a=self.interface1, termination_b=self.interface2)
         self.cable.save()
 
@@ -370,10 +371,27 @@ class CableTestCase(TestCase):
         self.patch_pannel = Device.objects.create(
             device_type=devicetype, device_role=devicerole, name='TestPatchPannel', site=site
         )
-        self.rear_port = RearPort.objects.create(device=self.patch_pannel, name='R1', type=1000)
-        self.front_port = FrontPort.objects.create(
-            device=self.patch_pannel, name='F1', type=1000, rear_port=self.rear_port
+        self.rear_port1 = RearPort.objects.create(device=self.patch_pannel, name='RP1', type='8p8c')
+        self.front_port1 = FrontPort.objects.create(
+            device=self.patch_pannel, name='FP1', type='8p8c', rear_port=self.rear_port1, rear_port_position=1
         )
+        self.rear_port2 = RearPort.objects.create(device=self.patch_pannel, name='RP2', type='8p8c', positions=2)
+        self.front_port2 = FrontPort.objects.create(
+            device=self.patch_pannel, name='FP2', type='8p8c', rear_port=self.rear_port2, rear_port_position=1
+        )
+        self.rear_port3 = RearPort.objects.create(device=self.patch_pannel, name='RP3', type='8p8c', positions=3)
+        self.front_port3 = FrontPort.objects.create(
+            device=self.patch_pannel, name='FP3', type='8p8c', rear_port=self.rear_port3, rear_port_position=1
+        )
+        self.rear_port4 = RearPort.objects.create(device=self.patch_pannel, name='RP4', type='8p8c', positions=3)
+        self.front_port4 = FrontPort.objects.create(
+            device=self.patch_pannel, name='FP4', type='8p8c', rear_port=self.rear_port4, rear_port_position=1
+        )
+        self.provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        self.circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+        self.circuit = Circuit.objects.create(provider=self.provider, type=self.circuittype, cid='1')
+        self.circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=site, term_side='A', port_speed=1000)
+        self.circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, site=site, term_side='Z', port_speed=1000)
 
     def test_cable_creation(self):
         """
@@ -405,7 +423,7 @@ class CableTestCase(TestCase):
         cable = Cable.objects.filter(pk=self.cable.pk).first()
         self.assertIsNone(cable)
 
-    def test_cable_validates_compatibale_types(self):
+    def test_cable_validates_compatible_types(self):
         """
         The clean method should have a check to ensure only compatible port types can be connected by a cable
         """
@@ -426,7 +444,7 @@ class CableTestCase(TestCase):
         """
         A cable cannot connect a front port to its corresponding rear port
         """
-        cable = Cable(termination_a=self.front_port, termination_b=self.rear_port)
+        cable = Cable(termination_a=self.front_port1, termination_b=self.rear_port1)
         with self.assertRaises(ValidationError):
             cable.clean()
 
@@ -439,7 +457,94 @@ class CableTestCase(TestCase):
         with self.assertRaises(ValidationError):
             cable.clean()
 
-    def test_cable_cannot_terminate_to_a_virtual_inteface(self):
+    def test_connection_via_single_position_rearport(self):
+        """
+        A RearPort with one position can be connected to anything.
+
+            [CableTermination X]---[RP(pos=1) FP]---[CableTermination Y]
+
+        is allowed anywhere
+
+            [CableTermination X]---[CableTermination Y]
+
+        is allowed.
+
+        A RearPort with multiple positions may not be directly connected to a path endpoint or another RearPort
+        with a different number of positions. RearPorts with a single position on the other hand may be connected
+        to such CableTerminations. Check that this is indeed allowed.
+        """
+        # Connecting a single-position RearPort to a multi-position RearPort is ok
+        Cable(termination_a=self.rear_port1, termination_b=self.rear_port2).full_clean()
+
+        # Connecting a single-position RearPort to an Interface is ok
+        Cable(termination_a=self.rear_port1, termination_b=self.interface3).full_clean()
+
+        # Connecting a single-position RearPort to a CircuitTermination is ok
+        Cable(termination_a=self.rear_port1, termination_b=self.circuittermination1).full_clean()
+
+    def test_connection_via_multi_position_rearport(self):
+        """
+        A RearPort with multiple positions may not be directly connected to a path endpoint or another RearPort
+        with a different number of positions.
+
+        The following scenario's are allowed (with x>1):
+
+            ~----------+   +---------~
+                       |   |
+             RP2(pos=x)|---|RP(pos=x)
+                       |   |
+            ~----------+   +---------~
+
+            ~----------+   +---------~
+                       |   |
+             RP2(pos=x)|---|RP(pos=1)
+                       |   |
+            ~----------+   +---------~
+
+            ~----------+   +------------------~
+                       |   |
+             RP2(pos=x)|---|CircuitTermination
+                       |   |
+            ~----------+   +------------------~
+
+        These scenarios are NOT allowed (with x>1):
+
+            ~----------+   +----------~
+                       |   |
+             RP2(pos=x)|---|RP(pos!=x)
+                       |   |
+            ~----------+   +----------~
+
+            ~----------+   +----------~
+                       |   |
+             RP2(pos=x)|---|Interface
+                       |   |
+            ~----------+   +----------~
+
+        These scenarios are tested in this order below.
+        """
+        # Connecting a multi-position RearPort to another RearPort with the same number of positions is ok
+        Cable(termination_a=self.rear_port3, termination_b=self.rear_port4).full_clean()
+
+        # Connecting a multi-position RearPort to a single-position RearPort is ok
+        Cable(termination_a=self.rear_port2, termination_b=self.rear_port1).full_clean()
+
+        # Connecting a multi-position RearPort to a CircuitTermination is ok
+        Cable(termination_a=self.rear_port2, termination_b=self.circuittermination1).full_clean()
+
+        with self.assertRaises(
+            ValidationError,
+                msg='Connecting a 2-position RearPort to a 3-position RearPort should fail'
+        ):
+            Cable(termination_a=self.rear_port2, termination_b=self.rear_port3).full_clean()
+
+        with self.assertRaises(
+            ValidationError,
+                msg='Connecting a multi-position RearPort to an Interface should fail'
+        ):
+            Cable(termination_a=self.rear_port2, termination_b=self.interface3).full_clean()
+
+    def test_cable_cannot_terminate_to_a_virtual_interface(self):
         """
         A cable cannot terminate to a virtual interface
         """
@@ -448,7 +553,7 @@ class CableTestCase(TestCase):
         with self.assertRaises(ValidationError):
             cable.clean()
 
-    def test_cable_cannot_terminate_to_a_wireless_inteface(self):
+    def test_cable_cannot_terminate_to_a_wireless_interface(self):
         """
         A cable cannot terminate to a wireless interface
         """
@@ -501,9 +606,13 @@ class CablePathTestCase(TestCase):
             Device(device_type=devicetype, device_role=devicerole, name='Panel 2', site=site),
             Device(device_type=devicetype, device_role=devicerole, name='Panel 3', site=site),
             Device(device_type=devicetype, device_role=devicerole, name='Panel 4', site=site),
+            Device(device_type=devicetype, device_role=devicerole, name='Panel 5', site=site),
+            Device(device_type=devicetype, device_role=devicerole, name='Panel 6', site=site),
         )
         Device.objects.bulk_create(patch_panels)
-        for patch_panel in patch_panels:
+
+        # Create patch panels with 4 positions
+        for patch_panel in patch_panels[:4]:
             rearport = RearPort.objects.create(device=patch_panel, name='Rear Port 1', positions=4, type=PortTypeChoices.TYPE_8P8C)
             FrontPort.objects.bulk_create((
                 FrontPort(device=patch_panel, name='Front Port 1', rear_port=rearport, rear_port_position=1, type=PortTypeChoices.TYPE_8P8C),
@@ -511,6 +620,11 @@ class CablePathTestCase(TestCase):
                 FrontPort(device=patch_panel, name='Front Port 3', rear_port=rearport, rear_port_position=3, type=PortTypeChoices.TYPE_8P8C),
                 FrontPort(device=patch_panel, name='Front Port 4', rear_port=rearport, rear_port_position=4, type=PortTypeChoices.TYPE_8P8C),
             ))
+
+        # Create 1-on-1 patch panels
+        for patch_panel in patch_panels[4:]:
+            rearport = RearPort.objects.create(device=patch_panel, name='Rear Port 1', positions=1, type=PortTypeChoices.TYPE_8P8C)
+            FrontPort.objects.create(device=patch_panel, name='Front Port 1', rear_port=rearport, rear_port_position=1, type=PortTypeChoices.TYPE_8P8C)
 
     def test_direct_connection(self):
         """
@@ -524,6 +638,7 @@ class CablePathTestCase(TestCase):
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
             termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
         )
+        cable.full_clean()
         cable.save()
 
         # Retrieve endpoints
@@ -551,22 +666,25 @@ class CablePathTestCase(TestCase):
 
     def test_connection_via_single_rear_port(self):
         """
-        Test a connection which passes through a single front/rear port pair.
+        Test a connection which passes through a rear port with exactly one front port.
 
                      1               2
-        [Device 1] ----- [Panel 1] ----- [Device 2]
+        [Device 1] ----- [Panel 5] ----- [Device 2]
              Iface1     FP1     RP1     Iface1
         """
-        # Create cables
+        # Create cables (FP first, RP second)
         cable1 = Cable(
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
-            termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
+            termination_b=FrontPort.objects.get(device__name='Panel 5', name='Front Port 1')
         )
+        cable1.full_clean()
         cable1.save()
         cable2 = Cable(
-            termination_b=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
-            termination_a=Interface.objects.get(device__name='Device 2', name='Interface 1')
+            termination_a=RearPort.objects.get(device__name='Panel 5', name='Rear Port 1'),
+            termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
         )
+        self.assertEqual(cable2.termination_a.positions, 1)  # Sanity check
+        cable2.full_clean()
         cable2.save()
 
         # Retrieve endpoints
@@ -592,6 +710,97 @@ class CablePathTestCase(TestCase):
         self.assertIsNone(endpoint_a.connection_status)
         self.assertIsNone(endpoint_b.connection_status)
 
+    def test_connections_via_nested_single_position_rearport(self):
+        """
+        Test a connection which passes through a single front/rear port pair between two multi-position rear ports.
+
+        Test two connections via patched rear ports:
+            Device 1 <---> Device 2
+            Device 3 <---> Device 4
+
+                        1                                           2
+        [Device 1] -----------+                               +----------- [Device 2]
+              Iface1          |                               |          Iface1
+                          FP1 |       3               4       | FP1
+                          [Panel 1] ----- [Panel 5] ----- [Panel 2]
+                          FP2 |  RP1     RP1     FP1     RP1  | FP2
+              Iface1          |                               |          Iface1
+        [Device 3] -----------+                               +----------- [Device 4]
+                        5                                           6
+        """
+        # Create cables (Panel 5 RP first, FP second)
+        cable1 = Cable(
+            termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
+            termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
+        )
+        cable1.full_clean()
+        cable1.save()
+        cable2 = Cable(
+            termination_b=FrontPort.objects.get(device__name='Panel 2', name='Front Port 1'),
+            termination_a=Interface.objects.get(device__name='Device 2', name='Interface 1')
+        )
+        cable2.full_clean()
+        cable2.save()
+        cable3 = Cable(
+            termination_b=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
+            termination_a=RearPort.objects.get(device__name='Panel 5', name='Rear Port 1')
+        )
+        cable3.full_clean()
+        cable3.save()
+        cable4 = Cable(
+            termination_b=FrontPort.objects.get(device__name='Panel 5', name='Front Port 1'),
+            termination_a=RearPort.objects.get(device__name='Panel 2', name='Rear Port 1')
+        )
+        cable4.full_clean()
+        cable4.save()
+        cable5 = Cable(
+            termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 2'),
+            termination_a=Interface.objects.get(device__name='Device 3', name='Interface 1')
+        )
+        cable5.full_clean()
+        cable5.save()
+        cable6 = Cable(
+            termination_b=FrontPort.objects.get(device__name='Panel 2', name='Front Port 2'),
+            termination_a=Interface.objects.get(device__name='Device 4', name='Interface 1')
+        )
+        cable6.full_clean()
+        cable6.save()
+
+        # Retrieve endpoints
+        endpoint_a = Interface.objects.get(device__name='Device 1', name='Interface 1')
+        endpoint_b = Interface.objects.get(device__name='Device 2', name='Interface 1')
+        endpoint_c = Interface.objects.get(device__name='Device 3', name='Interface 1')
+        endpoint_d = Interface.objects.get(device__name='Device 4', name='Interface 1')
+
+        # Validate connections
+        self.assertEqual(endpoint_a.connected_endpoint, endpoint_b)
+        self.assertEqual(endpoint_b.connected_endpoint, endpoint_a)
+        self.assertEqual(endpoint_c.connected_endpoint, endpoint_d)
+        self.assertEqual(endpoint_d.connected_endpoint, endpoint_c)
+        self.assertTrue(endpoint_a.connection_status)
+        self.assertTrue(endpoint_b.connection_status)
+        self.assertTrue(endpoint_c.connection_status)
+        self.assertTrue(endpoint_d.connection_status)
+
+        # Delete cable 3
+        cable3.delete()
+
+        # Refresh endpoints
+        endpoint_a.refresh_from_db()
+        endpoint_b.refresh_from_db()
+        endpoint_c.refresh_from_db()
+        endpoint_d.refresh_from_db()
+
+        # Check that connections have been nullified
+        self.assertIsNone(endpoint_a.connected_endpoint)
+        self.assertIsNone(endpoint_b.connected_endpoint)
+        self.assertIsNone(endpoint_c.connected_endpoint)
+        self.assertIsNone(endpoint_d.connected_endpoint)
+        self.assertIsNone(endpoint_a.connection_status)
+        self.assertIsNone(endpoint_b.connection_status)
+        self.assertIsNone(endpoint_c.connection_status)
+        self.assertIsNone(endpoint_d.connection_status)
+
     def test_connections_via_patch(self):
         """
         Test two connections via patched rear ports:
@@ -613,28 +822,33 @@ class CablePathTestCase(TestCase):
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
         )
+        cable1.full_clean()
         cable1.save()
         cable2 = Cable(
             termination_a=Interface.objects.get(device__name='Device 2', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 2', name='Front Port 1')
         )
+        cable2.full_clean()
         cable2.save()
 
         cable3 = Cable(
             termination_a=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
             termination_b=RearPort.objects.get(device__name='Panel 2', name='Rear Port 1')
         )
+        cable3.full_clean()
         cable3.save()
 
         cable4 = Cable(
             termination_a=Interface.objects.get(device__name='Device 3', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 2')
         )
+        cable4.full_clean()
         cable4.save()
         cable5 = Cable(
             termination_a=Interface.objects.get(device__name='Device 4', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 2', name='Front Port 2')
         )
+        cable5.full_clean()
         cable5.save()
 
         # Retrieve endpoints
@@ -693,43 +907,51 @@ class CablePathTestCase(TestCase):
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
         )
+        cable1.full_clean()
         cable1.save()
         cable2 = Cable(
             termination_a=FrontPort.objects.get(device__name='Panel 2', name='Front Port 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 3', name='Front Port 1')
         )
+        cable2.full_clean()
         cable2.save()
         cable3 = Cable(
             termination_a=FrontPort.objects.get(device__name='Panel 4', name='Front Port 1'),
             termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
         )
+        cable3.full_clean()
         cable3.save()
 
         cable4 = Cable(
             termination_a=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
             termination_b=RearPort.objects.get(device__name='Panel 2', name='Rear Port 1')
         )
+        cable4.full_clean()
         cable4.save()
         cable5 = Cable(
             termination_a=RearPort.objects.get(device__name='Panel 3', name='Rear Port 1'),
             termination_b=RearPort.objects.get(device__name='Panel 4', name='Rear Port 1')
         )
+        cable5.full_clean()
         cable5.save()
 
         cable6 = Cable(
             termination_a=Interface.objects.get(device__name='Device 3', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 2')
         )
+        cable6.full_clean()
         cable6.save()
         cable7 = Cable(
             termination_a=FrontPort.objects.get(device__name='Panel 2', name='Front Port 2'),
             termination_b=FrontPort.objects.get(device__name='Panel 3', name='Front Port 2')
         )
+        cable7.full_clean()
         cable7.save()
         cable8 = Cable(
             termination_a=FrontPort.objects.get(device__name='Panel 4', name='Front Port 2'),
             termination_b=Interface.objects.get(device__name='Device 4', name='Interface 1')
         )
+        cable8.full_clean()
         cable8.save()
 
         # Retrieve endpoints
@@ -789,38 +1011,45 @@ class CablePathTestCase(TestCase):
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
         )
+        cable1.full_clean()
         cable1.save()
         cable2 = Cable(
             termination_a=FrontPort.objects.get(device__name='Panel 4', name='Front Port 1'),
             termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
         )
+        cable2.full_clean()
         cable2.save()
 
         cable3 = Cable(
             termination_a=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 2', name='Front Port 1')
         )
+        cable3.full_clean()
         cable3.save()
         cable4 = Cable(
             termination_a=RearPort.objects.get(device__name='Panel 2', name='Rear Port 1'),
             termination_b=RearPort.objects.get(device__name='Panel 3', name='Rear Port 1')
         )
+        cable4.full_clean()
         cable4.save()
         cable5 = Cable(
             termination_a=FrontPort.objects.get(device__name='Panel 3', name='Front Port 1'),
             termination_b=RearPort.objects.get(device__name='Panel 4', name='Rear Port 1')
         )
+        cable5.full_clean()
         cable5.save()
 
         cable6 = Cable(
             termination_a=Interface.objects.get(device__name='Device 3', name='Interface 1'),
             termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 2')
         )
+        cable6.full_clean()
         cable6.save()
         cable7 = Cable(
             termination_a=FrontPort.objects.get(device__name='Panel 4', name='Front Port 2'),
             termination_b=Interface.objects.get(device__name='Device 4', name='Interface 1')
         )
+        cable7.full_clean()
         cable7.save()
 
         # Retrieve endpoints
@@ -870,11 +1099,13 @@ class CablePathTestCase(TestCase):
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
             termination_b=CircuitTermination.objects.get(term_side='A')
         )
+        cable1.full_clean()
         cable1.save()
         cable2 = Cable(
             termination_a=CircuitTermination.objects.get(term_side='Z'),
             termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
         )
+        cable2.full_clean()
         cable2.save()
 
         # Retrieve endpoints
@@ -903,30 +1134,34 @@ class CablePathTestCase(TestCase):
     def test_connection_via_patched_circuit(self):
         """
                      1               2               3               4
-        [Device 1] ----- [Panel 1] ----- [Circuit] ----- [Panel 2] ----- [Device 2]
+        [Device 1] ----- [Panel 5] ----- [Circuit] ----- [Panel 6] ----- [Device 2]
              Iface1     FP1     RP1     A         Z     RP1     FP1     Iface1
 
         """
         # Create cables
         cable1 = Cable(
             termination_a=Interface.objects.get(device__name='Device 1', name='Interface 1'),
-            termination_b=FrontPort.objects.get(device__name='Panel 1', name='Front Port 1')
+            termination_b=FrontPort.objects.get(device__name='Panel 5', name='Front Port 1')
         )
+        cable1.full_clean()
         cable1.save()
         cable2 = Cable(
-            termination_a=RearPort.objects.get(device__name='Panel 1', name='Rear Port 1'),
+            termination_a=RearPort.objects.get(device__name='Panel 5', name='Rear Port 1'),
             termination_b=CircuitTermination.objects.get(term_side='A')
         )
+        cable2.full_clean()
         cable2.save()
         cable3 = Cable(
             termination_a=CircuitTermination.objects.get(term_side='Z'),
-            termination_b=RearPort.objects.get(device__name='Panel 2', name='Rear Port 1')
+            termination_b=RearPort.objects.get(device__name='Panel 6', name='Rear Port 1')
         )
+        cable3.full_clean()
         cable3.save()
         cable4 = Cable(
-            termination_a=FrontPort.objects.get(device__name='Panel 2', name='Front Port 1'),
+            termination_a=FrontPort.objects.get(device__name='Panel 6', name='Front Port 1'),
             termination_b=Interface.objects.get(device__name='Device 2', name='Interface 1')
         )
+        cable4.full_clean()
         cable4.save()
 
         # Retrieve endpoints

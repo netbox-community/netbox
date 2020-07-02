@@ -44,11 +44,7 @@ If you're adding a relational field (e.g. `ForeignKey`) and intend to include th
 
 Extend the model's API serializer in `<app>.api.serializers` to include the new field. In most cases, it will not be necessary to also extend the nested serializer, which produces a minimal represenation of the model.
 
-## 6. Add choices to API view
-
-If the new field has static choices, add it to the `FieldChoicesViewSet` for the app.
-
-## 7. Add field to forms
+## 6. Add field to forms
 
 Extend any forms to include the new field as appropriate. Common forms include:
 
@@ -57,19 +53,19 @@ Extend any forms to include the new field as appropriate. Common forms include:
 * **CSV import** - The form used when bulk importing objects in CSV format
 * **Filter** - Displays the options available for filtering a list of objects (both UI and API)
 
-## 8. Extend object filter set
+## 7. Extend object filter set
 
 If the new field should be filterable, add it to the `FilterSet` for the model. If the field should be searchable, remember to reference it in the FilterSet's `search()` method.
 
-## 9. Add column to object table
+## 8. Add column to object table
 
 If the new field will be included in the object list view, add a column to the model's table. For simple fields, adding the field name to `Meta.fields` will be sufficient. More complex fields may require explicitly declaring a new column.
 
-## 10. Update the UI templates
+## 9. Update the UI templates
 
 Edit the object's view template to display the new field. There may also be a custom add/edit form template that needs to be updated.
 
-## 11. Create/extend test cases
+## 10. Create/extend test cases
 
 Create or extend the relevant test cases to verify that the new field and any accompanying validation logic perform as expected. This is especially important for relational fields. NetBox incorporates various test suites, including:
 

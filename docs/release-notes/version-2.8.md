@@ -1,5 +1,24 @@
 # NetBox v2.8
 
+## v2.8.7 (2020-07-02)
+
+### Enhancements
+
+* [#4796](https://github.com/netbox-community/netbox/issues/4796) - Introduce configuration parameters for default rack elevation size
+* [#4802](https://github.com/netbox-community/netbox/issues/4802) - Allow changing page size when displaying only a single page of results
+
+### Bug Fixes
+
+* [#4695](https://github.com/netbox-community/netbox/issues/4695) - Expose cable termination type choices in OpenAPI spec
+* [#4708](https://github.com/netbox-community/netbox/issues/4708) - Relax connection constraints for multi-position rear ports
+* [#4766](https://github.com/netbox-community/netbox/issues/4766) - Fix redirect after login when `next` is not specified
+* [#4771](https://github.com/netbox-community/netbox/issues/4771) - Fix add/remove tag population when bulk editing objects
+* [#4772](https://github.com/netbox-community/netbox/issues/4772) - Fix "brief" format for the secrets REST API endpoint
+* [#4774](https://github.com/netbox-community/netbox/issues/4774) - Fix exception when deleting a device with device bays
+* [#4775](https://github.com/netbox-community/netbox/issues/4775) - Allow selecting an alternate device type when creating component templates
+
+---
+
 ## v2.8.6 (2020-06-15)
 
 ### Enhancements
