@@ -1,12 +1,12 @@
+from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework import status
 
 from dcim.choices import InterfaceModeChoices
-from dcim.models import Interface
+from extras.models import Graph
 from ipam.models import VLAN
 from utilities.testing import APITestCase, APIViewTestCases
-from virtualization.choices import *
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 
 class AppTest(APITestCase):
@@ -163,7 +163,7 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         """
         Check that config context data is included by default in the virtual machines list.
         """
-        virtualmachine = VirtualMachine.objects.first()
+        virtualmachine = VirtualMachine.objects.unrestricted().first()
         url = '{}?id={}'.format(reverse('virtualization-api:virtualmachine-list'), virtualmachine.pk)
         self.add_permissions('virtualization.view_virtualmachine')
 
@@ -186,7 +186,7 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         """
         data = {
             'name': 'Virtual Machine 1',
-            'cluster': Cluster.objects.first().pk,
+            'cluster': Cluster.objects.unrestricted().first().pk,
         }
         url = reverse('virtualization-api:virtualmachine-list')
         self.add_permissions('virtualization.add_virtualmachine')
@@ -195,172 +195,72 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
-# TODO: Standardize InterfaceTest (pending #4721)
-class InterfaceTest(APITestCase):
+class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
+    model = VMInterface
+    brief_fields = ['id', 'name', 'url', 'virtual_machine']
 
-    def setUp(self):
-
-        super().setUp()
+    @classmethod
+    def setUpTestData(cls):
 
         clustertype = ClusterType.objects.create(name='Test Cluster Type 1', slug='test-cluster-type-1')
         cluster = Cluster.objects.create(name='Test Cluster 1', type=clustertype)
-        self.virtualmachine = VirtualMachine.objects.create(cluster=cluster, name='Test VM 1')
-        self.interface1 = Interface.objects.create(
-            virtual_machine=self.virtualmachine,
-            name='Test Interface 1',
-            type=InterfaceTypeChoices.TYPE_VIRTUAL
+        virtualmachine = VirtualMachine.objects.create(cluster=cluster, name='Test VM 1')
+
+        interfaces = (
+            VMInterface(virtual_machine=virtualmachine, name='Interface 1'),
+            VMInterface(virtual_machine=virtualmachine, name='Interface 2'),
+            VMInterface(virtual_machine=virtualmachine, name='Interface 3'),
         )
-        self.interface2 = Interface.objects.create(
-            virtual_machine=self.virtualmachine,
-            name='Test Interface 2',
-            type=InterfaceTypeChoices.TYPE_VIRTUAL
+        VMInterface.objects.bulk_create(interfaces)
+
+        vlans = (
+            VLAN(name='VLAN 1', vid=1),
+            VLAN(name='VLAN 2', vid=2),
+            VLAN(name='VLAN 3', vid=3),
         )
-        self.interface3 = Interface.objects.create(
-            virtual_machine=self.virtualmachine,
-            name='Test Interface 3',
-            type=InterfaceTypeChoices.TYPE_VIRTUAL
-        )
+        VLAN.objects.bulk_create(vlans)
 
-        self.vlan1 = VLAN.objects.create(name="Test VLAN 1", vid=1)
-        self.vlan2 = VLAN.objects.create(name="Test VLAN 2", vid=2)
-        self.vlan3 = VLAN.objects.create(name="Test VLAN 3", vid=3)
-
-    def test_get_interface(self):
-        url = reverse('virtualization-api:interface-detail', kwargs={'pk': self.interface1.pk})
-        self.add_permissions('dcim.view_interface')
-
-        response = self.client.get(url, **self.header)
-        self.assertEqual(response.data['name'], self.interface1.name)
-
-    def test_list_interfaces(self):
-        url = reverse('virtualization-api:interface-list')
-        self.add_permissions('dcim.view_interface')
-
-        response = self.client.get(url, **self.header)
-        self.assertEqual(response.data['count'], 3)
-
-    def test_list_interfaces_brief(self):
-        url = reverse('virtualization-api:interface-list')
-        self.add_permissions('dcim.view_interface')
-
-        response = self.client.get('{}?brief=1'.format(url), **self.header)
-        self.assertEqual(
-            sorted(response.data['results'][0]),
-            ['id', 'name', 'url', 'virtual_machine']
-        )
-
-    def test_create_interface(self):
-        data = {
-            'virtual_machine': self.virtualmachine.pk,
-            'name': 'Test Interface 4',
-        }
-        url = reverse('virtualization-api:interface-list')
-        self.add_permissions('dcim.add_interface')
-
-        response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Interface.objects.count(), 4)
-        interface4 = Interface.objects.get(pk=response.data['id'])
-        self.assertEqual(interface4.virtual_machine_id, data['virtual_machine'])
-        self.assertEqual(interface4.name, data['name'])
-
-    def test_create_interface_with_802_1q(self):
-        data = {
-            'virtual_machine': self.virtualmachine.pk,
-            'name': 'Test Interface 4',
-            'mode': InterfaceModeChoices.MODE_TAGGED,
-            'untagged_vlan': self.vlan3.id,
-            'tagged_vlans': [self.vlan1.id, self.vlan2.id],
-        }
-        url = reverse('virtualization-api:interface-list')
-        self.add_permissions('dcim.add_interface')
-
-        response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Interface.objects.count(), 4)
-        self.assertEqual(response.data['virtual_machine']['id'], data['virtual_machine'])
-        self.assertEqual(response.data['name'], data['name'])
-        self.assertEqual(response.data['untagged_vlan']['id'], data['untagged_vlan'])
-        self.assertEqual([v['id'] for v in response.data['tagged_vlans']], data['tagged_vlans'])
-
-    def test_create_interface_bulk(self):
-        data = [
+        cls.create_data = [
             {
-                'virtual_machine': self.virtualmachine.pk,
-                'name': 'Test Interface 4',
+                'virtual_machine': virtualmachine.pk,
+                'name': 'Interface 4',
+                'mode': InterfaceModeChoices.MODE_TAGGED,
+                'tagged_vlans': [vlans[0].pk, vlans[1].pk],
+                'untagged_vlan': vlans[2].pk,
             },
             {
-                'virtual_machine': self.virtualmachine.pk,
-                'name': 'Test Interface 5',
+                'virtual_machine': virtualmachine.pk,
+                'name': 'Interface 5',
+                'mode': InterfaceModeChoices.MODE_TAGGED,
+                'tagged_vlans': [vlans[0].pk, vlans[1].pk],
+                'untagged_vlan': vlans[2].pk,
             },
             {
-                'virtual_machine': self.virtualmachine.pk,
-                'name': 'Test Interface 6',
+                'virtual_machine': virtualmachine.pk,
+                'name': 'Interface 6',
+                'mode': InterfaceModeChoices.MODE_TAGGED,
+                'tagged_vlans': [vlans[0].pk, vlans[1].pk],
+                'untagged_vlan': vlans[2].pk,
             },
         ]
-        url = reverse('virtualization-api:interface-list')
-        self.add_permissions('dcim.add_interface')
 
-        response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Interface.objects.count(), 6)
-        self.assertEqual(response.data[0]['name'], data[0]['name'])
-        self.assertEqual(response.data[1]['name'], data[1]['name'])
-        self.assertEqual(response.data[2]['name'], data[2]['name'])
+    def test_get_interface_graphs(self):
+        """
+        Test retrieval of Graphs assigned to VM interfaces.
+        """
+        ct = ContentType.objects.get_for_model(VMInterface)
+        graphs = (
+            Graph(type=ct, name='Graph 1', source='http://example.com/graphs.py?interface={{ obj.name }}&foo=1'),
+            Graph(type=ct, name='Graph 2', source='http://example.com/graphs.py?interface={{ obj.name }}&foo=2'),
+            Graph(type=ct, name='Graph 3', source='http://example.com/graphs.py?interface={{ obj.name }}&foo=3'),
+        )
+        Graph.objects.bulk_create(graphs)
 
-    def test_create_interface_802_1q_bulk(self):
-        data = [
-            {
-                'virtual_machine': self.virtualmachine.pk,
-                'name': 'Test Interface 4',
-                'mode': InterfaceModeChoices.MODE_TAGGED,
-                'untagged_vlan': self.vlan2.id,
-                'tagged_vlans': [self.vlan1.id],
-            },
-            {
-                'virtual_machine': self.virtualmachine.pk,
-                'name': 'Test Interface 5',
-                'mode': InterfaceModeChoices.MODE_TAGGED,
-                'untagged_vlan': self.vlan2.id,
-                'tagged_vlans': [self.vlan1.id],
-            },
-            {
-                'virtual_machine': self.virtualmachine.pk,
-                'name': 'Test Interface 6',
-                'mode': InterfaceModeChoices.MODE_TAGGED,
-                'untagged_vlan': self.vlan2.id,
-                'tagged_vlans': [self.vlan1.id],
-            },
-        ]
-        url = reverse('virtualization-api:interface-list')
-        self.add_permissions('dcim.add_interface')
+        self.add_permissions('virtualization.view_vminterface')
+        url = reverse('virtualization-api:vminterface-graphs', kwargs={
+            'pk': VMInterface.objects.unrestricted().first().pk
+        })
+        response = self.client.get(url, **self.header)
 
-        response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Interface.objects.count(), 6)
-        for i in range(0, 3):
-            self.assertEqual(response.data[i]['name'], data[i]['name'])
-            self.assertEqual([v['id'] for v in response.data[i]['tagged_vlans']], data[i]['tagged_vlans'])
-            self.assertEqual(response.data[i]['untagged_vlan']['id'], data[i]['untagged_vlan'])
-
-    def test_update_interface(self):
-        data = {
-            'virtual_machine': self.virtualmachine.pk,
-            'name': 'Test Interface X',
-        }
-        url = reverse('virtualization-api:interface-detail', kwargs={'pk': self.interface1.pk})
-        self.add_permissions('dcim.change_interface')
-
-        response = self.client.put(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(Interface.objects.count(), 3)
-        interface1 = Interface.objects.get(pk=response.data['id'])
-        self.assertEqual(interface1.name, data['name'])
-
-    def test_delete_interface(self):
-        url = reverse('virtualization-api:interface-detail', kwargs={'pk': self.interface1.pk})
-        self.add_permissions('dcim.delete_interface')
-
-        response = self.client.delete(url, **self.header)
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Interface.objects.count(), 2)
+        self.assertEqual(len(response.data), 3)
+        self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?interface=Interface 1&foo=1')

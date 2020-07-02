@@ -21,7 +21,7 @@ router.register('clusters', views.ClusterViewSet)
 
 # VirtualMachines
 router.register('virtual-machines', views.VirtualMachineViewSet)
-router.register('interfaces', views.InterfaceViewSet)
+router.register('interfaces', views.VMInterfaceViewSet)
 
 app_name = 'virtualization-api'
 urlpatterns = router.urls

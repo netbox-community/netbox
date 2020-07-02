@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.shortcuts import get_object_or_404
 from django_pglocks import advisory_lock
 from drf_yasg.utils import swagger_auto_schema
@@ -233,8 +233,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
 class IPAddressViewSet(CustomFieldModelViewSet):
     queryset = IPAddress.objects.prefetch_related(
-        'vrf__tenant', 'tenant', 'nat_inside', 'interface__device__device_type', 'interface__virtual_machine',
-        'nat_outside', 'tags',
+        'vrf__tenant', 'tenant', 'nat_inside', 'nat_outside', 'tags',
     )
     serializer_class = serializers.IPAddressSerializer
     filterset_class = filters.IPAddressFilterSet
@@ -271,6 +270,9 @@ class VLANViewSet(CustomFieldModelViewSet):
 #
 
 class ServiceViewSet(ModelViewSet):
-    queryset = Service.objects.prefetch_related('device').prefetch_related('tags')
+    queryset = Service.objects.prefetch_related(
+        Prefetch('ipaddresses', queryset=IPAddress.objects.unrestricted()),
+        'device', 'virtual_machine', 'tags'
+    )
     serializer_class = serializers.ServiceSerializer
     filterset_class = filters.ServiceFilterSet

@@ -382,6 +382,22 @@ When determining the primary IP address for a device, IPv6 is preferred over IPv
 
 ---
 
+## RACK_ELEVATION_DEFAULT_UNIT_HEIGHT
+
+Default: 22
+
+Default height (in pixels) of a unit within a rack elevation. For best results, this should be approximately one tenth of `RACK_ELEVATION_DEFAULT_UNIT_WIDTH`.
+
+---
+
+## RACK_ELEVATION_DEFAULT_UNIT_WIDTH
+
+Default: 220
+
+Default width (in pixels) of a unit within a rack elevation.
+
+---
+
 ## REMOTE_AUTH_ENABLED
 
 Default: `False`

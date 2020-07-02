@@ -52,7 +52,7 @@ class APIViewTestCases:
             """
             GET a single object as an unauthenticated user.
             """
-            url = self._get_detail_url(self.model.objects.first())
+            url = self._get_detail_url(self.model.objects.unrestricted().first())
             response = self.client.get(url, **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
 
@@ -61,7 +61,7 @@ class APIViewTestCases:
             """
             GET a single object as an authenticated user without the required permission.
             """
-            url = self._get_detail_url(self.model.objects.first())
+            url = self._get_detail_url(self.model.objects.unrestricted().first())
 
             # Try GET without permission
             with disable_warnings('django.request'):
@@ -72,9 +72,9 @@ class APIViewTestCases:
             """
             GET a single object as an authenticated user with permission to view the object.
             """
-            self.assertGreaterEqual(self.model.objects.count(), 2,
+            self.assertGreaterEqual(self.model.objects.unrestricted().count(), 2,
                                     f"Test requires the creation of at least two {self.model} instances")
-            instance1, instance2 = self.model.objects.all()[:2]
+            instance1, instance2 = self.model.objects.unrestricted()[:2]
 
             # Add object-level permission
             obj_perm = ObjectPermission(
@@ -104,7 +104,7 @@ class APIViewTestCases:
             url = self._get_list_url()
             response = self.client.get(url, **self.header)
 
-            self.assertEqual(len(response.data['results']), self.model.objects.count())
+            self.assertEqual(len(response.data['results']), self.model.objects.unrestricted().count())
             self.assertHttpStatus(response, status.HTTP_200_OK)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
@@ -115,7 +115,7 @@ class APIViewTestCases:
             url = f'{self._get_list_url()}?brief=1'
             response = self.client.get(url, **self.header)
 
-            self.assertEqual(len(response.data['results']), self.model.objects.count())
+            self.assertEqual(len(response.data['results']), self.model.objects.unrestricted().count())
             self.assertEqual(sorted(response.data['results'][0]), self.brief_fields)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
@@ -134,9 +134,9 @@ class APIViewTestCases:
             """
             GET a list of objects as an authenticated user with permission to view the objects.
             """
-            self.assertGreaterEqual(self.model.objects.count(), 3,
+            self.assertGreaterEqual(self.model.objects.unrestricted().count(), 3,
                                     f"Test requires the creation of at least three {self.model} instances")
-            instance1, instance2 = self.model.objects.all()[:2]
+            instance1, instance2 = self.model.objects.unrestricted()[:2]
 
             # Add object-level permission
             obj_perm = ObjectPermission(
@@ -178,11 +178,15 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
 
-            initial_count = self.model.objects.count()
+            initial_count = self.model.objects.unrestricted().count()
             response = self.client.post(self._get_list_url(), self.create_data[0], format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
-            self.assertEqual(self.model.objects.count(), initial_count + 1)
-            self.assertInstanceEqual(self.model.objects.get(pk=response.data['id']), self.create_data[0], api=True)
+            self.assertEqual(self.model.objects.unrestricted().count(), initial_count + 1)
+            self.assertInstanceEqual(
+                self.model.objects.unrestricted().get(pk=response.data['id']),
+                self.create_data[0],
+                api=True
+            )
 
         def test_bulk_create_objects(self):
             """
@@ -196,13 +200,17 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
 
-            initial_count = self.model.objects.count()
+            initial_count = self.model.objects.unrestricted().count()
             response = self.client.post(self._get_list_url(), self.create_data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
             self.assertEqual(len(response.data), len(self.create_data))
-            self.assertEqual(self.model.objects.count(), initial_count + len(self.create_data))
+            self.assertEqual(self.model.objects.unrestricted().count(), initial_count + len(self.create_data))
             for i, obj in enumerate(response.data):
-                self.assertInstanceEqual(self.model.objects.get(pk=obj['id']), self.create_data[i], api=True)
+                self.assertInstanceEqual(
+                    self.model.objects.unrestricted().get(pk=obj['id']),
+                    self.create_data[i],
+                    api=True
+                )
 
     class UpdateObjectViewTestCase(APITestCase):
         update_data = {}
@@ -211,7 +219,7 @@ class APIViewTestCases:
             """
             PATCH a single object without permission.
             """
-            url = self._get_detail_url(self.model.objects.first())
+            url = self._get_detail_url(self.model.objects.unrestricted().first())
             update_data = self.update_data or getattr(self, 'create_data')[0]
 
             # Try PATCH without permission
@@ -223,7 +231,7 @@ class APIViewTestCases:
             """
             PATCH a single object identified by its numeric ID.
             """
-            instance = self.model.objects.first()
+            instance = self.model.objects.unrestricted().first()
             url = self._get_detail_url(instance)
             update_data = self.update_data or getattr(self, 'create_data')[0]
 
@@ -246,7 +254,7 @@ class APIViewTestCases:
             """
             DELETE a single object without permission.
             """
-            url = self._get_detail_url(self.model.objects.first())
+            url = self._get_detail_url(self.model.objects.unrestricted().first())
 
             # Try DELETE without permission
             with disable_warnings('django.request'):
@@ -257,7 +265,7 @@ class APIViewTestCases:
             """
             DELETE a single object identified by its numeric ID.
             """
-            instance = self.model.objects.first()
+            instance = self.model.objects.unrestricted().first()
             url = self._get_detail_url(instance)
 
             # Add object-level permission
@@ -270,7 +278,7 @@ class APIViewTestCases:
 
             response = self.client.delete(url, **self.header)
             self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
-            self.assertFalse(self.model.objects.filter(pk=instance.pk).exists())
+            self.assertFalse(self.model.objects.unrestricted().filter(pk=instance.pk).exists())
 
     class APIViewTestCase(
         GetObjectViewTestCase,

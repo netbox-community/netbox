@@ -173,7 +173,7 @@ class ChoiceVar(ScriptVariable):
 
 class ObjectVar(ScriptVariable):
     """
-    NetBox object representation. The provided QuerySet will determine the choices available.
+    A single object within NetBox.
     """
     form_field = DynamicModelChoiceField
 

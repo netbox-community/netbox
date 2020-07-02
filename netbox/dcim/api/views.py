@@ -29,6 +29,7 @@ from utilities.api import (
     get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, ModelViewSet, ServiceUnavailable,
 )
 from utilities.utils import get_subquery
+from utilities.metadata import ContentTypeMetadata
 from virtualization.models import VirtualMachine
 from . import serializers
 from .exceptions import MissingFilterException
@@ -43,7 +44,7 @@ class CableTraceMixin(object):
         """
         Trace a complete cable path and return each segment as a three-tuple of (termination, cable, termination).
         """
-        obj = get_object_or_404(self.queryset.model, pk=pk)
+        obj = get_object_or_404(self.queryset, pk=pk)
 
         # Initialize the path array
         path = []
@@ -103,8 +104,8 @@ class SiteViewSet(CustomFieldModelViewSet):
         """
         A convenience method for rendering graphs for a particular site.
         """
-        site = get_object_or_404(Site, pk=pk)
-        queryset = Graph.objects.filter(type__model='site')
+        site = get_object_or_404(self.queryset, pk=pk)
+        queryset = Graph.objects.restrict(request.user).filter(type__model='site')
         serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': site})
         return Response(serializer.data)
 
@@ -156,7 +157,7 @@ class RackViewSet(CustomFieldModelViewSet):
         """
         Rack elevation representing the list of rack units. Also supports rendering the elevation as an SVG.
         """
-        rack = get_object_or_404(Rack, pk=pk)
+        rack = get_object_or_404(self.queryset, pk=pk)
         serializer = serializers.RackElevationDetailFilterSerializer(data=request.GET)
         if not serializer.is_valid():
             return Response(serializer.errors, 400)
@@ -226,7 +227,7 @@ class ManufacturerViewSet(ModelViewSet):
 #
 
 class DeviceTypeViewSet(CustomFieldModelViewSet):
-    queryset = DeviceType.objects.prefetch_related('manufacturer').prefetch_related('tags').annotate(
+    queryset = DeviceType.objects.prefetch_related('manufacturer', 'tags').annotate(
         device_count=Count('instances')
     )
     serializer_class = serializers.DeviceTypeSerializer
@@ -347,8 +348,8 @@ class DeviceViewSet(CustomFieldModelViewSet):
         """
         A convenience method for rendering graphs for a particular Device.
         """
-        device = get_object_or_404(Device, pk=pk)
-        queryset = Graph.objects.filter(type__model='device')
+        device = get_object_or_404(self.queryset, pk=pk)
+        queryset = Graph.objects.restrict(request.user).filter(type__model='device')
         serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': device})
 
         return Response(serializer.data)
@@ -369,7 +370,7 @@ class DeviceViewSet(CustomFieldModelViewSet):
         """
         Execute a NAPALM method on a Device
         """
-        device = get_object_or_404(Device, pk=pk)
+        device = get_object_or_404(self.queryset, pk=pk)
         if not device.primary_ip:
             raise ServiceUnavailable("This device does not have a primary IP address configured.")
         if device.platform is None:
@@ -496,8 +497,8 @@ class InterfaceViewSet(CableTraceMixin, ModelViewSet):
         """
         A convenience method for rendering graphs for a particular interface.
         """
-        interface = get_object_or_404(Interface, pk=pk)
-        queryset = Graph.objects.filter(type__model='interface')
+        interface = get_object_or_404(self.queryset, pk=pk)
+        queryset = Graph.objects.restrict(request.user).filter(type__model='interface')
         serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': interface})
         return Response(serializer.data)
 
@@ -567,6 +568,7 @@ class InterfaceConnectionViewSet(ListModelMixin, GenericViewSet):
 #
 
 class CableViewSet(ModelViewSet):
+    metadata_class = ContentTypeMetadata
     queryset = Cable.objects.prefetch_related(
         'termination_a', 'termination_b'
     )
@@ -655,7 +657,11 @@ class ConnectedDeviceViewSet(ViewSet):
             raise MissingFilterException(detail='Request must include "peer_device" and "peer_interface" filters.')
 
         # Determine local interface from peer interface's connection
-        peer_interface = get_object_or_404(Interface, device__name=peer_device_name, name=peer_interface_name)
+        peer_interface = get_object_or_404(
+            Interface.objects.unrestricted(),
+            device__name=peer_device_name,
+            name=peer_interface_name
+        )
         local_interface = peer_interface._connected_interface
 
         if local_interface is None:

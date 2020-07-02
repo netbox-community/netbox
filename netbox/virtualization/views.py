@@ -1,19 +1,20 @@
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from dcim.models import Device, Interface
+from dcim.models import Device
 from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
-from ipam.models import Service
+from ipam.models import IPAddress, Service
+from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from utilities.views import (
-    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ObjectView,
-    ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, BulkRenameView, ComponentCreateView,
+    ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 
 #
@@ -28,20 +29,21 @@ class ClusterTypeListView(ObjectListView):
 class ClusterTypeEditView(ObjectEditView):
     queryset = ClusterType.objects.all()
     model_form = forms.ClusterTypeForm
-    default_return_url = 'virtualization:clustertype_list'
+
+
+class ClusterTypeDeleteView(ObjectDeleteView):
+    queryset = ClusterType.objects.all()
 
 
 class ClusterTypeBulkImportView(BulkImportView):
     queryset = ClusterType.objects.all()
     model_form = forms.ClusterTypeCSVForm
     table = tables.ClusterTypeTable
-    default_return_url = 'virtualization:clustertype_list'
 
 
 class ClusterTypeBulkDeleteView(BulkDeleteView):
     queryset = ClusterType.objects.annotate(cluster_count=Count('clusters'))
     table = tables.ClusterTypeTable
-    default_return_url = 'virtualization:clustertype_list'
 
 
 #
@@ -56,20 +58,21 @@ class ClusterGroupListView(ObjectListView):
 class ClusterGroupEditView(ObjectEditView):
     queryset = ClusterGroup.objects.all()
     model_form = forms.ClusterGroupForm
-    default_return_url = 'virtualization:clustergroup_list'
+
+
+class ClusterGroupDeleteView(ObjectDeleteView):
+    queryset = ClusterGroup.objects.all()
 
 
 class ClusterGroupBulkImportView(BulkImportView):
     queryset = ClusterGroup.objects.all()
     model_form = forms.ClusterGroupCSVForm
     table = tables.ClusterGroupTable
-    default_return_url = 'virtualization:clustergroup_list'
 
 
 class ClusterGroupBulkDeleteView(BulkDeleteView):
     queryset = ClusterGroup.objects.annotate(cluster_count=Count('clusters'))
     table = tables.ClusterGroupTable
-    default_return_url = 'virtualization:clustergroup_list'
 
 
 #
@@ -87,6 +90,9 @@ class ClusterView(ObjectView):
     queryset = Cluster.objects.all()
 
     def get(self, request, pk):
+        self.queryset = self.queryset.prefetch_related(
+            Prefetch('virtual_machines', queryset=VirtualMachine.objects.restrict(request.user))
+        )
 
         cluster = get_object_or_404(self.queryset, pk=pk)
         devices = Device.objects.restrict(request.user, 'view').filter(cluster=cluster).prefetch_related(
@@ -110,14 +116,12 @@ class ClusterEditView(ObjectEditView):
 
 class ClusterDeleteView(ObjectDeleteView):
     queryset = Cluster.objects.all()
-    default_return_url = 'virtualization:cluster_list'
 
 
 class ClusterBulkImportView(BulkImportView):
     queryset = Cluster.objects.all()
     model_form = forms.ClusterCSVForm
     table = tables.ClusterTable
-    default_return_url = 'virtualization:cluster_list'
 
 
 class ClusterBulkEditView(BulkEditView):
@@ -125,14 +129,12 @@ class ClusterBulkEditView(BulkEditView):
     filterset = filters.ClusterFilterSet
     table = tables.ClusterTable
     form = forms.ClusterBulkEditForm
-    default_return_url = 'virtualization:cluster_list'
 
 
 class ClusterBulkDeleteView(BulkDeleteView):
     queryset = Cluster.objects.prefetch_related('type', 'group', 'site')
     filterset = filters.ClusterFilterSet
     table = tables.ClusterTable
-    default_return_url = 'virtualization:cluster_list'
 
 
 class ClusterAddDevicesView(ObjectEditView):
@@ -235,8 +237,16 @@ class VirtualMachineView(ObjectView):
     def get(self, request, pk):
 
         virtualmachine = get_object_or_404(self.queryset, pk=pk)
-        interfaces = Interface.objects.restrict(request.user, 'view').filter(virtual_machine=virtualmachine)
-        services = Service.objects.restrict(request.user, 'view').filter(virtual_machine=virtualmachine)
+        interfaces = VMInterface.objects.restrict(request.user, 'view').filter(
+            virtual_machine=virtualmachine
+        ).prefetch_related(
+            Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user))
+        )
+        services = Service.objects.restrict(request.user, 'view').filter(
+            virtual_machine=virtualmachine
+        ).prefetch_related(
+            Prefetch('ipaddresses', queryset=IPAddress.objects.restrict(request.user))
+        )
 
         return render(request, 'virtualization/virtualmachine.html', {
             'virtualmachine': virtualmachine,
@@ -254,19 +264,16 @@ class VirtualMachineEditView(ObjectEditView):
     queryset = VirtualMachine.objects.all()
     model_form = forms.VirtualMachineForm
     template_name = 'virtualization/virtualmachine_edit.html'
-    default_return_url = 'virtualization:virtualmachine_list'
 
 
 class VirtualMachineDeleteView(ObjectDeleteView):
     queryset = VirtualMachine.objects.all()
-    default_return_url = 'virtualization:virtualmachine_list'
 
 
 class VirtualMachineBulkImportView(BulkImportView):
     queryset = VirtualMachine.objects.all()
     model_form = forms.VirtualMachineCSVForm
     table = tables.VirtualMachineTable
-    default_return_url = 'virtualization:virtualmachine_list'
 
 
 class VirtualMachineBulkEditView(BulkEditView):
@@ -274,46 +281,98 @@ class VirtualMachineBulkEditView(BulkEditView):
     filterset = filters.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
     form = forms.VirtualMachineBulkEditForm
-    default_return_url = 'virtualization:virtualmachine_list'
 
 
 class VirtualMachineBulkDeleteView(BulkDeleteView):
     queryset = VirtualMachine.objects.prefetch_related('cluster', 'tenant', 'role')
     filterset = filters.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
-    default_return_url = 'virtualization:virtualmachine_list'
 
 
 #
 # VM interfaces
 #
 
-class InterfaceCreateView(ComponentCreateView):
-    queryset = Interface.objects.all()
-    form = forms.InterfaceCreateForm
-    model_form = forms.InterfaceForm
+class VMInterfaceListView(ObjectListView):
+    queryset = VMInterface.objects.prefetch_related('virtual_machine')
+    filterset = filters.VMInterfaceFilterSet
+    filterset_form = forms.VMInterfaceFilterForm
+    table = tables.VMInterfaceTable
+    action_buttons = ('export',)
+
+
+class VMInterfaceView(ObjectView):
+    queryset = VMInterface.objects.all()
+
+    def get(self, request, pk):
+
+        vminterface = get_object_or_404(self.queryset, pk=pk)
+
+        # Get assigned IP addresses
+        ipaddress_table = InterfaceIPAddressTable(
+            data=vminterface.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant'),
+            orderable=False
+        )
+
+        # Get assigned VLANs and annotate whether each is tagged or untagged
+        vlans = []
+        if vminterface.untagged_vlan is not None:
+            vlans.append(vminterface.untagged_vlan)
+            vlans[0].tagged = False
+        for vlan in vminterface.tagged_vlans.restrict(request.user).prefetch_related('site', 'group', 'tenant', 'role'):
+            vlan.tagged = True
+            vlans.append(vlan)
+        vlan_table = InterfaceVLANTable(
+            interface=vminterface,
+            data=vlans,
+            orderable=False
+        )
+
+        return render(request, 'virtualization/vminterface.html', {
+            'vminterface': vminterface,
+            'ipaddress_table': ipaddress_table,
+            'vlan_table': vlan_table,
+        })
+
+
+# TODO: This should not use ComponentCreateView
+class VMInterfaceCreateView(ComponentCreateView):
+    queryset = VMInterface.objects.all()
+    form = forms.VMInterfaceCreateForm
+    model_form = forms.VMInterfaceForm
     template_name = 'virtualization/virtualmachine_component_add.html'
 
 
-class InterfaceEditView(ObjectEditView):
-    queryset = Interface.objects.all()
-    model_form = forms.InterfaceForm
-    template_name = 'virtualization/interface_edit.html'
+class VMInterfaceEditView(ObjectEditView):
+    queryset = VMInterface.objects.all()
+    model_form = forms.VMInterfaceForm
+    template_name = 'virtualization/vminterface_edit.html'
 
 
-class InterfaceDeleteView(ObjectDeleteView):
-    queryset = Interface.objects.all()
+class VMInterfaceDeleteView(ObjectDeleteView):
+    queryset = VMInterface.objects.all()
 
 
-class InterfaceBulkEditView(BulkEditView):
-    queryset = Interface.objects.all()
-    table = tables.InterfaceTable
-    form = forms.InterfaceBulkEditForm
+class VMInterfaceBulkImportView(BulkImportView):
+    queryset = VMInterface.objects.all()
+    model_form = forms.VMInterfaceCSVForm
+    table = tables.VMInterfaceTable
 
 
-class InterfaceBulkDeleteView(BulkDeleteView):
-    queryset = Interface.objects.all()
-    table = tables.InterfaceTable
+class VMInterfaceBulkEditView(BulkEditView):
+    queryset = VMInterface.objects.all()
+    table = tables.VMInterfaceTable
+    form = forms.VMInterfaceBulkEditForm
+
+
+class VMInterfaceBulkRenameView(BulkRenameView):
+    queryset = VMInterface.objects.all()
+    form = forms.VMInterfaceBulkRenameForm
+
+
+class VMInterfaceBulkDeleteView(BulkDeleteView):
+    queryset = VMInterface.objects.all()
+    table = tables.VMInterfaceTable
 
 
 #
@@ -323,9 +382,8 @@ class InterfaceBulkDeleteView(BulkDeleteView):
 class VirtualMachineBulkAddInterfaceView(BulkComponentCreateView):
     parent_model = VirtualMachine
     parent_field = 'virtual_machine'
-    form = forms.InterfaceBulkCreateForm
-    queryset = Interface.objects.all()
-    model_form = forms.InterfaceForm
+    form = forms.VMInterfaceBulkCreateForm
+    queryset = VMInterface.objects.all()
+    model_form = forms.VMInterfaceForm
     filterset = filters.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
-    default_return_url = 'virtualization:virtualmachine_list'

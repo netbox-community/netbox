@@ -144,6 +144,12 @@
                             <a href="{% url 'dcim:platform_list' %}">Platforms</a>
                         </li>
                         <li{% if not perms.dcim.view_virtualchassis %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_virtualchassis %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:virtualchassis_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
+                                    <a href="{% url 'dcim:virtualchassis_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
                             <a href="{% url 'dcim:virtualchassis_list' %}">Virtual Chassis</a>
                         </li>
                         <li class="divider"></li>
@@ -165,16 +171,6 @@
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:manufacturer_list' %}">Manufacturers</a>
-                        </li>
-                        <li class="divider"></li>
-                        <li class="dropdown-header">Inventory</li>
-                        <li{% if not perms.dcim.view_inventoryitem %} class="disabled"{% endif %}>
-                            {% if perms.dcim.add_inventoryitem %}
-                                <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:inventoryitem_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
-                                </div>
-                            {% endif %}
-                            <a href="{% url 'dcim:inventoryitem_list' %}">Inventory Items</a>
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Connections</li>
@@ -260,6 +256,14 @@
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:devicebay_list' %}">Device Bays</a>
+                        </li>
+                        <li{% if not perms.dcim.view_inventoryitem %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_inventoryitem %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:inventoryitem_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:inventoryitem_list' %}">Inventory Items</a>
                         </li>
                     </ul>
                 </li>
@@ -371,6 +375,14 @@
                                 </div>
                             {% endif %}
                             <a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a>
+                        </li>
+                        <li{% if not perms.virtualization.view_vminterface%} class="disabled"{% endif %}>
+                            {% if perms.virtualization.add_vminterface %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'virtualization:vminterface_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'virtualization:vminterface_list' %}">Interfaces</a>
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Clusters</li>

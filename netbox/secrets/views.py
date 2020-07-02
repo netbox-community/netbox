@@ -36,20 +36,21 @@ class SecretRoleListView(ObjectListView):
 class SecretRoleEditView(ObjectEditView):
     queryset = SecretRole.objects.all()
     model_form = forms.SecretRoleForm
-    default_return_url = 'secrets:secretrole_list'
+
+
+class SecretRoleDeleteView(ObjectDeleteView):
+    queryset = SecretRole.objects.all()
 
 
 class SecretRoleBulkImportView(BulkImportView):
     queryset = SecretRole.objects.all()
     model_form = forms.SecretRoleCSVForm
     table = tables.SecretRoleTable
-    default_return_url = 'secrets:secretrole_list'
 
 
 class SecretRoleBulkDeleteView(BulkDeleteView):
     queryset = SecretRole.objects.annotate(secret_count=Count('secrets'))
     table = tables.SecretRoleTable
-    default_return_url = 'secrets:secretrole_list'
 
 
 #
@@ -147,7 +148,6 @@ class SecretEditView(ObjectEditView):
 
 class SecretDeleteView(ObjectDeleteView):
     queryset = Secret.objects.all()
-    default_return_url = 'secrets:secret_list'
 
 
 class SecretBulkImportView(BulkImportView):
@@ -155,7 +155,6 @@ class SecretBulkImportView(BulkImportView):
     model_form = forms.SecretCSVForm
     table = tables.SecretTable
     template_name = 'secrets/secret_import.html'
-    default_return_url = 'secrets:secret_list'
     widget_attrs = {'class': 'requires-session-key'}
 
     master_key = None
@@ -203,11 +202,9 @@ class SecretBulkEditView(BulkEditView):
     filterset = filters.SecretFilterSet
     table = tables.SecretTable
     form = forms.SecretBulkEditForm
-    default_return_url = 'secrets:secret_list'
 
 
 class SecretBulkDeleteView(BulkDeleteView):
     queryset = Secret.objects.prefetch_related('role', 'device')
     filterset = filters.SecretFilterSet
     table = tables.SecretTable
-    default_return_url = 'secrets:secret_list'

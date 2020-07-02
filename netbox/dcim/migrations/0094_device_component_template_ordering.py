@@ -75,37 +75,37 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='consoleporttemplate',
             name='_name',
-            field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
+            field=utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
         ),
         migrations.AddField(
             model_name='consoleserverporttemplate',
             name='_name',
-            field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
+            field=utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
         ),
         migrations.AddField(
             model_name='devicebaytemplate',
             name='_name',
-            field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
+            field=utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
         ),
         migrations.AddField(
             model_name='frontporttemplate',
             name='_name',
-            field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
+            field=utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
         ),
         migrations.AddField(
             model_name='poweroutlettemplate',
             name='_name',
-            field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
+            field=utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
         ),
         migrations.AddField(
             model_name='powerporttemplate',
             name='_name',
-            field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
+            field=utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
         ),
         migrations.AddField(
             model_name='rearporttemplate',
             name='_name',
-            field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
+            field=utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
         ),
         migrations.RunPython(
             code=naturalize_consoleporttemplates,

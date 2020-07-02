@@ -30,20 +30,21 @@ class TenantGroupListView(ObjectListView):
 class TenantGroupEditView(ObjectEditView):
     queryset = TenantGroup.objects.all()
     model_form = forms.TenantGroupForm
-    default_return_url = 'tenancy:tenantgroup_list'
+
+
+class TenantGroupDeleteView(ObjectDeleteView):
+    queryset = TenantGroup.objects.all()
 
 
 class TenantGroupBulkImportView(BulkImportView):
     queryset = TenantGroup.objects.all()
     model_form = forms.TenantGroupCSVForm
     table = tables.TenantGroupTable
-    default_return_url = 'tenancy:tenantgroup_list'
 
 
 class TenantGroupBulkDeleteView(BulkDeleteView):
     queryset = TenantGroup.objects.annotate(tenant_count=Count('tenants'))
     table = tables.TenantGroupTable
-    default_return_url = 'tenancy:tenantgroup_list'
 
 
 #
@@ -87,19 +88,16 @@ class TenantEditView(ObjectEditView):
     queryset = Tenant.objects.all()
     model_form = forms.TenantForm
     template_name = 'tenancy/tenant_edit.html'
-    default_return_url = 'tenancy:tenant_list'
 
 
 class TenantDeleteView(ObjectDeleteView):
     queryset = Tenant.objects.all()
-    default_return_url = 'tenancy:tenant_list'
 
 
 class TenantBulkImportView(BulkImportView):
     queryset = Tenant.objects.all()
     model_form = forms.TenantCSVForm
     table = tables.TenantTable
-    default_return_url = 'tenancy:tenant_list'
 
 
 class TenantBulkEditView(BulkEditView):
@@ -107,11 +105,9 @@ class TenantBulkEditView(BulkEditView):
     filterset = filters.TenantFilterSet
     table = tables.TenantTable
     form = forms.TenantBulkEditForm
-    default_return_url = 'tenancy:tenant_list'
 
 
 class TenantBulkDeleteView(BulkDeleteView):
     queryset = Tenant.objects.prefetch_related('group')
     filterset = filters.TenantFilterSet
     table = tables.TenantTable
-    default_return_url = 'tenancy:tenant_list'

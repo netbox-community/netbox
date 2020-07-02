@@ -102,7 +102,7 @@ class TagFilter(django_filters.ModelMultipleChoiceFilter):
         kwargs.setdefault('field_name', 'tags__slug')
         kwargs.setdefault('to_field_name', 'slug')
         kwargs.setdefault('conjoined', True)
-        kwargs.setdefault('queryset', Tag.objects.all())
+        kwargs.setdefault('queryset', Tag.objects.unrestricted())
 
         super().__init__(*args, **kwargs)
 

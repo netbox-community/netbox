@@ -11,7 +11,7 @@ from utilities.filters import (
     BaseFilterSet, MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, TagFilter,
     TreeNodeMultipleChoiceFilter,
 )
-from virtualization.models import VirtualMachine
+from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
@@ -309,26 +309,37 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
         field_name='pk',
         label='Device (ID)',
     )
-    virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='interface__virtual_machine',
-        queryset=VirtualMachine.objects.unrestricted(),
-        label='Virtual machine (ID)',
-    )
-    virtual_machine = django_filters.ModelMultipleChoiceFilter(
-        field_name='interface__virtual_machine__name',
-        queryset=VirtualMachine.objects.unrestricted(),
-        to_field_name='name',
+    virtual_machine = MultiValueCharFilter(
+        method='filter_virtual_machine',
+        field_name='name',
         label='Virtual machine (name)',
+    )
+    virtual_machine_id = MultiValueNumberFilter(
+        method='filter_virtual_machine',
+        field_name='pk',
+        label='Virtual machine (ID)',
     )
     interface = django_filters.ModelMultipleChoiceFilter(
         field_name='interface__name',
         queryset=Interface.objects.unrestricted(),
         to_field_name='name',
-        label='Interface (ID)',
+        label='Interface (name)',
     )
     interface_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface',
         queryset=Interface.objects.unrestricted(),
         label='Interface (ID)',
+    )
+    vminterface = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface__name',
+        queryset=VMInterface.objects.unrestricted(),
+        to_field_name='name',
+        label='VM interface (name)',
+    )
+    vminterface_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface',
+        queryset=VMInterface.objects.unrestricted(),
+        label='VM interface (ID)',
     )
     assigned_to_interface = django_filters.BooleanFilter(
         method='_assigned_to_interface',
@@ -379,17 +390,29 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
         return queryset.filter(address__net_mask_length=value)
 
     def filter_device(self, queryset, name, value):
-        try:
-            devices = Device.objects.prefetch_related('device_type').filter(**{'{}__in'.format(name): value})
-            vc_interface_ids = []
-            for device in devices:
-                vc_interface_ids.extend([i['id'] for i in device.vc_interfaces.values('id')])
-            return queryset.filter(interface_id__in=vc_interface_ids)
-        except Device.DoesNotExist:
+        devices = Device.objects.filter(**{'{}__in'.format(name): value})
+        if not devices.exists():
             return queryset.none()
+        interface_ids = []
+        for device in devices:
+            interface_ids.extend(device.vc_interfaces.values_list('id', flat=True))
+        return queryset.filter(
+            interface__in=interface_ids
+        )
+
+    def filter_virtual_machine(self, queryset, name, value):
+        virtual_machines = VirtualMachine.objects.filter(**{'{}__in'.format(name): value})
+        if not virtual_machines.exists():
+            return queryset.none()
+        interface_ids = []
+        for vm in virtual_machines:
+            interface_ids.extend(vm.interfaces.values_list('id', flat=True))
+        return queryset.filter(
+            vminterface__in=interface_ids
+        )
 
     def _assigned_to_interface(self, queryset, name, value):
-        return queryset.exclude(interface__isnull=value)
+        return queryset.exclude(assigned_object_id__isnull=value)
 
 
 class VLANGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):

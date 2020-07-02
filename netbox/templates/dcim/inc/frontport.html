@@ -10,7 +10,8 @@
 
     {# Name #}
     <td>
-        <i class="fa fa-fw fa-square{% if not frontport.cable %}-o{% endif %}"></i> {{ frontport }}
+        <i class="fa fa-fw fa-square{% if not frontport.cable %}-o{% endif %}"></i>
+        <a href="{{ frontport.get_absolute_url }}">{{ frontport }}</a>
     </td>
 
     {# Type #}

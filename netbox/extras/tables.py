@@ -1,20 +1,8 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ToggleColumn
+from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, ColorColumn, ToggleColumn
 from .models import ConfigContext, ObjectChange, JobResult, Tag, TaggedItem
-
-TAG_ACTIONS = """
-<a href="{% url 'extras:tag_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
-{% if perms.taggit.change_tag %}
-    <a href="{% url 'extras:tag_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
-{% if perms.taggit.delete_tag %}
-    <a href="{% url 'extras:tag_delete' slug=record.slug %}" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-trash" aria-hidden="true"></i></a>
-{% endif %}
-"""
 
 TAGGED_ITEM = """
 {% if value.get_absolute_url %}
@@ -64,16 +52,8 @@ OBJECTCHANGE_REQUEST_ID = """
 
 class TagTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(
-        viewname='extras:tag',
-        args=[Accessor('slug')]
-    )
-    actions = tables.TemplateColumn(
-        template_code=TAG_ACTIONS,
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
-    )
     color = ColorColumn()
+    actions = ButtonsColumn(Tag, pk_field='slug')
 
     class Meta(BaseTable.Meta):
         model = Tag

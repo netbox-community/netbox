@@ -35,11 +35,12 @@ from .device_component_templates import (
     PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
 from .device_components import (
-    CableTermination, ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, PowerOutlet,
-    PowerPort, RearPort,
+    BaseInterface, CableTermination, ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem,
+    PowerOutlet, PowerPort, RearPort,
 )
 
 __all__ = (
+    'BaseInterface',
     'Cable',
     'CableTermination',
     'ConsolePort',
@@ -579,7 +580,11 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         if self.pk:
             # Validate that Rack is tall enough to house the installed Devices
-            top_device = Device.objects.filter(rack=self).exclude(position__isnull=True).order_by('-position').first()
+            top_device = Device.objects.unrestricted().filter(
+                rack=self
+            ).exclude(
+                position__isnull=True
+            ).order_by('-position').first()
             if top_device:
                 min_height = top_device.position + top_device.device_type.u_height - 1
                 if self.u_height < min_height:
@@ -600,13 +605,13 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         # Record the original site assignment for this rack.
         _site_id = None
         if self.pk:
-            _site_id = Rack.objects.get(pk=self.pk).site_id
+            _site_id = Rack.objects.unrestricted().get(pk=self.pk).site_id
 
         super().save(*args, **kwargs)
 
         # Update racked devices if the assigned Site has been changed.
         if _site_id is not None and self.site_id != _site_id:
-            devices = Device.objects.filter(rack=self)
+            devices = Device.objects.unrestricted().filter(rack=self)
             for device in devices:
                 device.site = self.site
                 device.save()
@@ -668,7 +673,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         # Add devices to rack units list
         if self.pk:
-            queryset = Device.objects.prefetch_related(
+            queryset = Device.objects.unrestricted().prefetch_related(
                 'device_type',
                 'device_type__manufacturer',
                 'device_role'
@@ -744,8 +749,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def get_elevation_svg(
             self,
             face=DeviceFaceChoices.FACE_FRONT,
-            unit_width=RACK_ELEVATION_UNIT_WIDTH_DEFAULT,
-            unit_height=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT,
+            unit_width=settings.RACK_ELEVATION_DEFAULT_UNIT_WIDTH,
+            unit_height=settings.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT,
             legend_width=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT,
             include_images=True,
             base_url=None
@@ -1124,7 +1129,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         # room to expand within their racks. This validation will impose a very high performance penalty when there are
         # many instances to check, but increasing the u_height of a DeviceType should be a very rare occurrence.
         if self.pk and self.u_height > self._original_u_height:
-            for d in Device.objects.filter(device_type=self, position__isnull=False):
+            for d in Device.objects.unrestricted().filter(device_type=self, position__isnull=False):
                 face_required = None if self.is_full_depth else d.face
                 u_available = d.rack.get_available_units(
                     u_height=self.u_height,
@@ -1139,7 +1144,10 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 
         # If modifying the height of an existing DeviceType to 0U, check for any instances assigned to a rack position.
         elif self.pk and self._original_u_height > 0 and self.u_height == 0:
-            racked_instance_count = Device.objects.filter(device_type=self, position__isnull=False).count()
+            racked_instance_count = Device.objects.unrestricted().filter(
+                device_type=self,
+                position__isnull=False
+            ).count()
             if racked_instance_count:
                 url = f"{reverse('dcim:device_list')}?manufactuer_id={self.manufacturer_id}&device_type_id={self.pk}"
                 raise ValidationError({
@@ -1492,7 +1500,11 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
         # of the uniqueness constraint without manual intervention.
         if self.name and self.tenant is None:
-            if Device.objects.exclude(pk=self.pk).filter(name=self.name, site=self.site, tenant__isnull=True):
+            if Device.objects.unrestricted().exclude(pk=self.pk).filter(
+                    name=self.name,
+                    site=self.site,
+                    tenant__isnull=True
+            ):
                 raise ValidationError({
                     'name': 'A device with this name already exists.'
                 })
@@ -1571,9 +1583,9 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                 raise ValidationError({
                     'primary_ip4': f"{self.primary_ip4} is not an IPv4 address."
                 })
-            if self.primary_ip4.interface in vc_interfaces:
+            if self.primary_ip4.assigned_object in vc_interfaces:
                 pass
-            elif self.primary_ip4.nat_inside is not None and self.primary_ip4.nat_inside.interface in vc_interfaces:
+            elif self.primary_ip4.nat_inside is not None and self.primary_ip4.nat_inside.assigned_object in vc_interfaces:
                 pass
             else:
                 raise ValidationError({
@@ -1584,9 +1596,9 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                 raise ValidationError({
                     'primary_ip6': f"{self.primary_ip6} is not an IPv6 address."
                 })
-            if self.primary_ip6.interface in vc_interfaces:
+            if self.primary_ip6.assigned_object in vc_interfaces:
                 pass
-            elif self.primary_ip6.nat_inside is not None and self.primary_ip6.nat_inside.interface in vc_interfaces:
+            elif self.primary_ip6.nat_inside is not None and self.primary_ip6.nat_inside.assigned_object in vc_interfaces:
                 pass
             else:
                 raise ValidationError({
@@ -1622,32 +1634,32 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # If this is a new Device, instantiate all of the related components per the DeviceType definition
         if is_new:
             ConsolePort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.consoleport_templates.all()]
+                [x.instantiate(self) for x in self.device_type.consoleport_templates.unrestricted()]
             )
             ConsoleServerPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.consoleserverport_templates.all()]
+                [x.instantiate(self) for x in self.device_type.consoleserverport_templates.unrestricted()]
             )
             PowerPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.powerport_templates.all()]
+                [x.instantiate(self) for x in self.device_type.powerport_templates.unrestricted()]
             )
             PowerOutlet.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.poweroutlet_templates.all()]
+                [x.instantiate(self) for x in self.device_type.poweroutlet_templates.unrestricted()]
             )
             Interface.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.interface_templates.all()]
+                [x.instantiate(self) for x in self.device_type.interface_templates.unrestricted()]
             )
             RearPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.rearport_templates.all()]
+                [x.instantiate(self) for x in self.device_type.rearport_templates.unrestricted()]
             )
             FrontPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.frontport_templates.all()]
+                [x.instantiate(self) for x in self.device_type.frontport_templates.unrestricted()]
             )
             DeviceBay.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.device_bay_templates.all()]
+                [x.instantiate(self) for x in self.device_type.device_bay_templates.unrestricted()]
             )
 
         # Update Site and Rack assignment for any child Devices
-        devices = Device.objects.filter(parent_bay__device=self)
+        devices = Device.objects.unrestricted().filter(parent_bay__device=self)
         for device in devices:
             device.site = self.site
             device.rack = self.rack
@@ -1738,7 +1750,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         """
         Return the set of child Devices installed in DeviceBays within this Device.
         """
-        return Device.objects.filter(parent_bay__device=self.pk)
+        return Device.objects.unrestricted().filter(parent_bay__device=self.pk)
 
     def get_status_class(self):
         return self.STATUS_CLASS_MAP.get(self.status)
@@ -1756,7 +1768,12 @@ class VirtualChassis(ChangeLoggedModel):
     master = models.OneToOneField(
         to='Device',
         on_delete=models.PROTECT,
-        related_name='vc_master_for'
+        related_name='vc_master_for',
+        blank=True,
+        null=True
+    )
+    name = models.CharField(
+        max_length=64
     )
     domain = models.CharField(
         max_length=30,
@@ -1766,14 +1783,14 @@ class VirtualChassis(ChangeLoggedModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['master', 'domain']
+    csv_headers = ['name', 'domain', 'master']
 
     class Meta:
-        ordering = ['master']
+        ordering = ['name']
         verbose_name_plural = 'virtual chassis'
 
     def __str__(self):
-        return str(self.master) if hasattr(self, 'master') else 'New Virtual Chassis'
+        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:virtualchassis', kwargs={'pk': self.pk})
@@ -1782,15 +1799,15 @@ class VirtualChassis(ChangeLoggedModel):
 
         # Verify that the selected master device has been assigned to this VirtualChassis. (Skip when creating a new
         # VirtualChassis.)
-        if self.pk and self.master not in self.members.all():
+        if self.pk and self.master and self.master not in self.members.all():
             raise ValidationError({
-                'master': "The selected master is not assigned to this virtual chassis."
+                'master': f"The selected master ({self.master}) is not assigned to this virtual chassis."
             })
 
     def delete(self, *args, **kwargs):
 
         # Check for LAG interfaces split across member chassis
-        interfaces = Interface.objects.filter(
+        interfaces = Interface.objects.unrestricted().filter(
             device__in=self.members.all(),
             lag__isnull=False
         ).exclude(
@@ -1798,8 +1815,7 @@ class VirtualChassis(ChangeLoggedModel):
         )
         if interfaces:
             raise ProtectedError(
-                "Unable to delete virtual chassis {}. There are member interfaces which form a cross-chassis "
-                "LAG".format(self),
+                f"Unable to delete virtual chassis {self}. There are member interfaces which form a cross-chassis LAG",
                 interfaces
             )
 
@@ -1807,8 +1823,9 @@ class VirtualChassis(ChangeLoggedModel):
 
     def to_csv(self):
         return (
-            self.master,
+            self.name,
             self.domain,
+            self.master.name if self.master else None,
         )
 
 
@@ -2158,12 +2175,13 @@ class Cable(ChangeLoggedModel):
         return reverse('dcim:cable', args=[self.pk])
 
     def clean(self):
+        from circuits.models import CircuitTermination
 
         # Validate that termination A exists
         if not hasattr(self, 'termination_a_type'):
             raise ValidationError('Termination A type has not been specified')
         try:
-            self.termination_a_type.model_class().objects.get(pk=self.termination_a_id)
+            self.termination_a_type.model_class().objects.unrestricted().get(pk=self.termination_a_id)
         except ObjectDoesNotExist:
             raise ValidationError({
                 'termination_a': 'Invalid ID for type {}'.format(self.termination_a_type)
@@ -2173,7 +2191,7 @@ class Cable(ChangeLoggedModel):
         if not hasattr(self, 'termination_b_type'):
             raise ValidationError('Termination B type has not been specified')
         try:
-            self.termination_b_type.model_class().objects.get(pk=self.termination_b_id)
+            self.termination_b_type.model_class().objects.unrestricted().get(pk=self.termination_b_id)
         except ObjectDoesNotExist:
             raise ValidationError({
                 'termination_b': 'Invalid ID for type {}'.format(self.termination_b_type)
@@ -2220,19 +2238,21 @@ class Cable(ChangeLoggedModel):
                 f"Incompatible termination types: {self.termination_a_type} and {self.termination_b_type}"
             )
 
-        # A RearPort with multiple positions must be connected to a RearPort with an equal number of positions
+        # Check that a RearPort with multiple positions isn't connected to an endpoint
+        # or a RearPort with a different number of positions.
         for term_a, term_b in [
             (self.termination_a, self.termination_b),
             (self.termination_b, self.termination_a)
         ]:
             if isinstance(term_a, RearPort) and term_a.positions > 1:
-                if not isinstance(term_b, RearPort):
+                if not isinstance(term_b, (FrontPort, RearPort, CircuitTermination)):
                     raise ValidationError(
-                        "Rear ports with multiple positions may only be connected to other rear ports"
+                        "Rear ports with multiple positions may only be connected to other pass-through ports"
                     )
-                elif term_a.positions != term_b.positions:
+                if isinstance(term_b, RearPort) and term_b.positions > 1 and term_a.positions != term_b.positions:
                     raise ValidationError(
-                        f"{term_a} has {term_a.positions} position(s) but {term_b} has {term_b.positions}. "
+                        f"{term_a} of {term_a.device} has {term_a.positions} position(s) but "
+                        f"{term_b} of {term_b.device} has {term_b.positions}. "
                         f"Both terminations must have the same number of positions."
                     )
 

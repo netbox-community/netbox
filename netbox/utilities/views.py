@@ -1,4 +1,5 @@
 import logging
+import re
 import sys
 from copy import deepcopy
 
@@ -15,6 +16,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 from django.utils.decorators import method_decorator
 from django.utils.html import escape
 from django.utils.http import is_safe_url
@@ -27,7 +29,7 @@ from django_tables2 import RequestConfig
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
 from utilities.exceptions import AbortTransaction
-from utilities.forms import BootstrapMixin, CSVDataField, TableConfigForm
+from utilities.forms import BootstrapMixin, BulkRenameForm, CSVDataField, TableConfigForm, restrict_form_fields
 from utilities.permissions import get_permission_for_model, resolve_permission
 from utilities.utils import csv_format, prepare_cloned_fields
 from .error_handlers import handle_protectederror
@@ -119,7 +121,7 @@ class ObjectPermissionRequiredMixin(AccessMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class GetReturnURLMixin(object):
+class GetReturnURLMixin:
     """
     Provides logic for determining where a user should be redirected after processing a form.
     """
@@ -134,12 +136,20 @@ class GetReturnURLMixin(object):
             return query_param
 
         # Next, check if the object being modified (if any) has an absolute URL.
-        elif obj is not None and obj.pk and hasattr(obj, 'get_absolute_url'):
+        if obj is not None and obj.pk and hasattr(obj, 'get_absolute_url'):
             return obj.get_absolute_url()
 
         # Fall back to the default URL (if specified) for the view.
-        elif self.default_return_url is not None:
+        if self.default_return_url is not None:
             return reverse(self.default_return_url)
+
+        # Attempt to dynamically resolve the list view for the object
+        if hasattr(self, 'queryset'):
+            model_opts = self.queryset.model._meta
+            try:
+                return reverse(f'{model_opts.app_label}:{model_opts.model_name}_list')
+            except NoReverseMatch:
+                pass
 
         # If all else fails, return home. Ideally this should never happen.
         return reverse('home')
@@ -159,6 +169,25 @@ class ObjectView(ObjectPermissionRequiredMixin, View):
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
+
+    def get_template_name(self):
+        """
+        Return self.template_name if set. Otherwise, resolve the template path by model app_label and name.
+        """
+        if hasattr(self, 'template_name'):
+            return self.template_name
+        model_opts = self.queryset.model._meta
+        return f'{model_opts.app_label}/{model_opts.model_name}.html'
+
+    def get(self, request, pk):
+        """
+        Generic GET handler for accessing an object by PK
+        """
+        instance = get_object_or_404(self.queryset, pk=pk)
+
+        return render(request, self.get_template_name(), {
+            'instance': instance,
+        })
 
 
 class ObjectListView(ObjectPermissionRequiredMixin, View):
@@ -366,6 +395,7 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
         # Parse initial data manually to avoid setting field values as lists
         initial_data = {k: request.GET[k] for k in request.GET}
         form = self.model_form(instance=obj, initial=initial_data)
+        restrict_form_fields(form, request.user)
 
         return render(request, self.template_name, {
             'obj': obj,
@@ -382,6 +412,7 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             files=request.FILES,
             instance=obj
         )
+        restrict_form_fields(form, request.user)
 
         if form.is_valid():
             logger.debug("Form validation was successful")
@@ -641,6 +672,7 @@ class ObjectImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             # Initialize model form
             data = form.cleaned_data['data']
             model_form = self.model_form(data)
+            restrict_form_fields(model_form, request.user)
 
             # Assign default values for any fields which were not specified. We have to do this manually because passing
             # 'initial=' to the form on initialization merely sets default values for the widgets. Since widgets are not
@@ -794,6 +826,7 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                     headers, records = form.cleaned_data['csv']
                     for row, data in enumerate(records, start=1):
                         obj_form = self.model_form(data, headers=headers)
+                        restrict_form_fields(obj_form, request.user)
 
                         if obj_form.is_valid():
                             obj = self._save_obj(obj_form, request)
@@ -875,6 +908,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
         if '_apply' in request.POST:
             form = self.form(model, request.POST)
+            restrict_form_fields(form, request.user)
 
             if form.is_valid():
                 logger.debug("Form validation was successful")
@@ -982,6 +1016,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 initial_data['device_type'] = request.GET.get('device_type')
 
             form = self.form(model, initial=initial_data)
+            restrict_form_fields(form, request.user)
 
         # Retrieve objects being edited
         table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
@@ -993,6 +1028,69 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
             'form': form,
             'table': table,
             'obj_type_plural': model._meta.verbose_name_plural,
+            'return_url': self.get_return_url(request),
+        })
+
+
+class BulkRenameView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
+    """
+    An extendable view for renaming objects in bulk.
+    """
+    queryset = None
+    template_name = 'utilities/obj_bulk_rename.html'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Create a new Form class from BulkRenameForm
+        class _Form(BulkRenameForm):
+            pk = ModelMultipleChoiceField(
+                queryset=self.queryset,
+                widget=MultipleHiddenInput()
+            )
+
+        self.form = _Form
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'change')
+
+    def post(self, request):
+
+        if '_preview' in request.POST or '_apply' in request.POST:
+            form = self.form(request.POST, initial={'pk': request.POST.getlist('pk')})
+            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
+
+            if form.is_valid():
+                for obj in selected_objects:
+                    find = form.cleaned_data['find']
+                    replace = form.cleaned_data['replace']
+                    if form.cleaned_data['use_regex']:
+                        try:
+                            obj.new_name = re.sub(find, replace, obj.name)
+                        # Catch regex group reference errors
+                        except re.error:
+                            obj.new_name = obj.name
+                    else:
+                        obj.new_name = obj.name.replace(find, replace)
+
+                if '_apply' in request.POST:
+                    for obj in selected_objects:
+                        obj.name = obj.new_name
+                        obj.save()
+                    messages.success(request, "Renamed {} {}".format(
+                        len(selected_objects),
+                        self.queryset.model._meta.verbose_name_plural
+                    ))
+                    return redirect(self.get_return_url(request))
+
+        else:
+            form = self.form(initial={'pk': request.POST.getlist('pk')})
+            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
+
+        return render(request, self.template_name, {
+            'form': form,
+            'obj_type_plural': self.queryset.model._meta.verbose_name_plural,
+            'selected_objects': selected_objects,
             'return_url': self.get_return_url(request),
         })
 

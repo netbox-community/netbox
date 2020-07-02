@@ -4,7 +4,7 @@ from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer,
 from ipam.choices import *
 from ipam.filters import *
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
-from virtualization.models import Cluster, ClusterType, VirtualMachine
+from virtualization.models import Cluster, ClusterType, VirtualMachine, VMInterface
 from tenancy.models import Tenant, TenantGroup
 
 
@@ -375,6 +375,13 @@ class IPAddressTestCase(TestCase):
         )
         Device.objects.bulk_create(devices)
 
+        interfaces = (
+            Interface(device=devices[0], name='Interface 1'),
+            Interface(device=devices[1], name='Interface 2'),
+            Interface(device=devices[2], name='Interface 3'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
         clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
         cluster = Cluster.objects.create(type=clustertype, name='Cluster 1')
 
@@ -385,15 +392,12 @@ class IPAddressTestCase(TestCase):
         )
         VirtualMachine.objects.bulk_create(virtual_machines)
 
-        interfaces = (
-            Interface(device=devices[0], name='Interface 1'),
-            Interface(device=devices[1], name='Interface 2'),
-            Interface(device=devices[2], name='Interface 3'),
-            Interface(virtual_machine=virtual_machines[0], name='Interface 1'),
-            Interface(virtual_machine=virtual_machines[1], name='Interface 2'),
-            Interface(virtual_machine=virtual_machines[2], name='Interface 3'),
+        vminterfaces = (
+            VMInterface(virtual_machine=virtual_machines[0], name='Interface 1'),
+            VMInterface(virtual_machine=virtual_machines[1], name='Interface 2'),
+            VMInterface(virtual_machine=virtual_machines[2], name='Interface 3'),
         )
-        Interface.objects.bulk_create(interfaces)
+        VMInterface.objects.bulk_create(vminterfaces)
 
         tenant_groups = (
             TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
@@ -411,16 +415,16 @@ class IPAddressTestCase(TestCase):
         Tenant.objects.bulk_create(tenants)
 
         ipaddresses = (
-            IPAddress(address='10.0.0.1/24', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
-            IPAddress(address='10.0.0.2/24', tenant=tenants[0], vrf=vrfs[0], interface=interfaces[0], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
-            IPAddress(address='10.0.0.3/24', tenant=tenants[1], vrf=vrfs[1], interface=interfaces[1], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
-            IPAddress(address='10.0.0.4/24', tenant=tenants[2], vrf=vrfs[2], interface=interfaces[2], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
-            IPAddress(address='10.0.0.1/25', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
-            IPAddress(address='2001:db8::1/64', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
-            IPAddress(address='2001:db8::2/64', tenant=tenants[0], vrf=vrfs[0], interface=interfaces[3], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
-            IPAddress(address='2001:db8::3/64', tenant=tenants[1], vrf=vrfs[1], interface=interfaces[4], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
-            IPAddress(address='2001:db8::4/64', tenant=tenants[2], vrf=vrfs[2], interface=interfaces[5], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
-            IPAddress(address='2001:db8::1/65', tenant=None, vrf=None, interface=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
+            IPAddress(address='10.0.0.1/24', tenant=None, vrf=None, assigned_object=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
+            IPAddress(address='10.0.0.2/24', tenant=tenants[0], vrf=vrfs[0], assigned_object=interfaces[0], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
+            IPAddress(address='10.0.0.3/24', tenant=tenants[1], vrf=vrfs[1], assigned_object=interfaces[1], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
+            IPAddress(address='10.0.0.4/24', tenant=tenants[2], vrf=vrfs[2], assigned_object=interfaces[2], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
+            IPAddress(address='10.0.0.1/25', tenant=None, vrf=None, assigned_object=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
+            IPAddress(address='2001:db8::1/64', tenant=None, vrf=None, assigned_object=None, status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-a'),
+            IPAddress(address='2001:db8::2/64', tenant=tenants[0], vrf=vrfs[0], assigned_object=vminterfaces[0], status=IPAddressStatusChoices.STATUS_ACTIVE, dns_name='ipaddress-b'),
+            IPAddress(address='2001:db8::3/64', tenant=tenants[1], vrf=vrfs[1], assigned_object=vminterfaces[1], status=IPAddressStatusChoices.STATUS_RESERVED, role=IPAddressRoleChoices.ROLE_VIP, dns_name='ipaddress-c'),
+            IPAddress(address='2001:db8::4/64', tenant=tenants[2], vrf=vrfs[2], assigned_object=vminterfaces[2], status=IPAddressStatusChoices.STATUS_DEPRECATED, role=IPAddressRoleChoices.ROLE_SECONDARY, dns_name='ipaddress-d'),
+            IPAddress(address='2001:db8::1/65', tenant=None, vrf=None, assigned_object=None, status=IPAddressStatusChoices.STATUS_ACTIVE),
         )
         IPAddress.objects.bulk_create(ipaddresses)
 
@@ -487,7 +491,14 @@ class IPAddressTestCase(TestCase):
         params = {'interface_id': [interfaces[0].pk, interfaces[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'interface': ['Interface 1', 'Interface 2']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_vminterface(self):
+        vminterfaces = VMInterface.objects.all()[:2]
+        params = {'vminterface_id': [vminterfaces[0].pk, vminterfaces[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'vminterface': ['Interface 1', 'Interface 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_assigned_to_interface(self):
         params = {'assigned_to_interface': 'true'}

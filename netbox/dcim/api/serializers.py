@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
@@ -183,10 +184,10 @@ class RackElevationDetailFilterSerializer(serializers.Serializer):
         default=RackElevationDetailRenderChoices.RENDER_JSON
     )
     unit_width = serializers.IntegerField(
-        default=RACK_ELEVATION_UNIT_WIDTH_DEFAULT
+        default=settings.RACK_ELEVATION_DEFAULT_UNIT_WIDTH
     )
     unit_height = serializers.IntegerField(
-        default=RACK_ELEVATION_UNIT_HEIGHT_DEFAULT
+        default=settings.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT
     )
     legend_width = serializers.IntegerField(
         default=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT
@@ -245,7 +246,7 @@ class ConsolePortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ConsolePortTemplate
-        fields = ['id', 'device_type', 'name', 'label', 'type']
+        fields = ['id', 'device_type', 'name', 'label', 'type', 'description']
 
 
 class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
@@ -258,7 +259,7 @@ class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ConsoleServerPortTemplate
-        fields = ['id', 'device_type', 'name', 'label', 'type']
+        fields = ['id', 'device_type', 'name', 'label', 'type', 'description']
 
 
 class PowerPortTemplateSerializer(ValidatedModelSerializer):
@@ -271,7 +272,7 @@ class PowerPortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = PowerPortTemplate
-        fields = ['id', 'device_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw']
+        fields = ['id', 'device_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description']
 
 
 class PowerOutletTemplateSerializer(ValidatedModelSerializer):
@@ -292,7 +293,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = PowerOutletTemplate
-        fields = ['id', 'device_type', 'name', 'label', 'type', 'power_port', 'feed_leg']
+        fields = ['id', 'device_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description']
 
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
@@ -301,7 +302,7 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = InterfaceTemplate
-        fields = ['id', 'device_type', 'name', 'label', 'type', 'mgmt_only']
+        fields = ['id', 'device_type', 'name', 'label', 'type', 'mgmt_only', 'description']
 
 
 class RearPortTemplateSerializer(ValidatedModelSerializer):
@@ -310,7 +311,7 @@ class RearPortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = RearPortTemplate
-        fields = ['id', 'device_type', 'name', 'type', 'positions']
+        fields = ['id', 'device_type', 'name', 'type', 'positions', 'description']
 
 
 class FrontPortTemplateSerializer(ValidatedModelSerializer):
@@ -320,7 +321,7 @@ class FrontPortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = FrontPortTemplate
-        fields = ['id', 'device_type', 'name', 'type', 'rear_port', 'rear_port_position']
+        fields = ['id', 'device_type', 'name', 'type', 'rear_port', 'rear_port_position', 'description']
 
 
 class DeviceBayTemplateSerializer(ValidatedModelSerializer):
@@ -328,7 +329,7 @@ class DeviceBayTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = DeviceBayTemplate
-        fields = ['id', 'device_type', 'name', 'label']
+        fields = ['id', 'device_type', 'name', 'label', 'description']
 
 
 #
@@ -694,12 +695,12 @@ class InterfaceConnectionSerializer(ValidatedModelSerializer):
 #
 
 class VirtualChassisSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
-    master = NestedDeviceSerializer()
+    master = NestedDeviceSerializer(required=False)
     member_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VirtualChassis
-        fields = ['id', 'master', 'domain', 'tags', 'member_count']
+        fields = ['id', 'name', 'domain', 'master', 'tags', 'member_count']
 
 
 #

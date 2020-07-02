@@ -156,9 +156,13 @@ direction = ChoiceVar(choices=CHOICES)
 
 ### ObjectVar
 
-A NetBox object. The list of available objects is defined by the queryset parameter. Each instance of this variable is limited to a single object type.
+A NetBox object of a particular type, identified by the associated queryset. Most models will utilize the REST API to retrieve available options: Note that any filtering on the queryset in this case has no effect.
 
-* `queryset` - A [Django queryset](https://docs.djangoproject.com/en/stable/topics/db/queries/)
+* `queryset` - The base [Django queryset](https://docs.djangoproject.com/en/stable/topics/db/queries/) for the model
+
+### MultiObjectVar
+
+Similar to `ObjectVar`, but allows for the selection of multiple objects.
 
 ### FileVar
 
@@ -222,10 +226,7 @@ class NewBranchScript(Script):
     )
     switch_model = ObjectVar(
         description="Access switch model",
-        queryset = DeviceType.objects.filter(
-            manufacturer__name='Cisco',
-            model__in=['Catalyst 3560X-48T', 'Catalyst 3750X-48T']
-        )
+        queryset = DeviceType.objects.all()
     )
 
     def run(self, data, commit):

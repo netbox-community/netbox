@@ -9,10 +9,10 @@
         <button type="button" class="btn btn-default" data-toggle="modal" data-target="#tableconfig" title="Configure table"><i class="fa fa-cog"></i> Configure</button>
     {% endif %}
     {% if permissions.add and 'add' in action_buttons %}
-        {% add_button content_type.model_class|url_name:"add" %}
+        {% add_button content_type.model_class|validated_viewname:"add" %}
     {% endif %}
     {% if permissions.add and 'import' in action_buttons %}
-        {% import_button content_type.model_class|url_name:"import" %}
+        {% import_button content_type.model_class|validated_viewname:"import" %}
     {% endif %}
     {% if 'export' in action_buttons %}
         {% export_button content_type %}
@@ -21,7 +21,7 @@
 <h1>{% block title %}{{ content_type.model_class|meta:"verbose_name_plural"|bettertitle }}{% endblock %}</h1>
 <div class="row">
     <div class="col-md-{% if filter_form %}9{% else %}12{% endif %}">
-        {% with bulk_edit_url=content_type.model_class|url_name:"bulk_edit" bulk_delete_url=content_type.model_class|url_name:"bulk_delete" %}
+        {% with bulk_edit_url=content_type.model_class|validated_viewname:"bulk_edit" bulk_delete_url=content_type.model_class|validated_viewname:"bulk_delete" %}
         {% if permissions.change or permissions.delete %}
             <form method="post" class="form form-horizontal">
                 {% csrf_token %}

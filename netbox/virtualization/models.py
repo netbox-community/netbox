@@ -5,11 +5,14 @@ from django.db import models
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
-from dcim.models import Device
-from extras.models import ConfigContextModel, CustomFieldModel, TaggedItem
+from dcim.choices import InterfaceModeChoices
+from dcim.models import BaseInterface, Device
+from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
 from utilities.models import ChangeLoggedModel
+from utilities.query_functions import CollateAsChar
 from utilities.querysets import RestrictedQuerySet
+from utilities.utils import serialize_object
 from .choices import *
 
 
@@ -18,6 +21,7 @@ __all__ = (
     'ClusterGroup',
     'ClusterType',
     'VirtualMachine',
+    'VMInterface',
 )
 
 
@@ -172,7 +176,7 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
 
         # If the Cluster is assigned to a Site, verify that all host Devices belong to that Site.
         if self.pk and self.site:
-            nonsite_devices = Device.objects.filter(cluster=self).exclude(site=self.site).count()
+            nonsite_devices = Device.objects.unrestricted().filter(cluster=self).exclude(site=self.site).count()
             if nonsite_devices:
                 raise ValidationError({
                     'site': "{} devices are assigned as hosts for this cluster but are not in site {}".format(
@@ -312,7 +316,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # Check for a duplicate name on a VM assigned to the same Cluster and no Tenant. This is necessary
         # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
         # of the uniqueness constraint without manual intervention.
-        if self.tenant is None and VirtualMachine.objects.exclude(pk=self.pk).filter(
+        if self.tenant is None and VirtualMachine.objects.unrestricted().exclude(pk=self.pk).filter(
                 name=self.name, tenant__isnull=True
         ):
             raise ValidationError({
@@ -370,3 +374,111 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     @property
     def site(self):
         return self.cluster.site
+
+
+#
+# Interfaces
+#
+
+@extras_features('graphs', 'export_templates', 'webhooks')
+class VMInterface(BaseInterface):
+    virtual_machine = models.ForeignKey(
+        to='virtualization.VirtualMachine',
+        on_delete=models.CASCADE,
+        related_name='interfaces'
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    untagged_vlan = models.ForeignKey(
+        to='ipam.VLAN',
+        on_delete=models.SET_NULL,
+        related_name='vminterfaces_as_untagged',
+        null=True,
+        blank=True,
+        verbose_name='Untagged VLAN'
+    )
+    tagged_vlans = models.ManyToManyField(
+        to='ipam.VLAN',
+        related_name='vminterfaces_as_tagged',
+        blank=True,
+        verbose_name='Tagged VLANs'
+    )
+    ip_addresses = GenericRelation(
+        to='ipam.IPAddress',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+        related_query_name='vminterface'
+    )
+    tags = TaggableManager(
+        through=TaggedItem,
+        related_name='vminterface'
+    )
+
+    objects = RestrictedQuerySet.as_manager()
+
+    csv_headers = [
+        'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
+    ]
+
+    class Meta:
+        verbose_name = 'interface'
+        ordering = ('virtual_machine', CollateAsChar('_name'))
+        unique_together = ('virtual_machine', 'name')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('virtualization:vminterface', kwargs={'pk': self.pk})
+
+    def to_csv(self):
+        return (
+            self.virtual_machine.name,
+            self.name,
+            self.enabled,
+            self.mac_address,
+            self.mtu,
+            self.description,
+            self.get_mode_display(),
+        )
+
+    def clean(self):
+
+        # Validate untagged VLAN
+        if self.untagged_vlan and self.untagged_vlan.site not in [self.virtual_machine.site, None]:
+            raise ValidationError({
+                'untagged_vlan': "The untagged VLAN ({}) must belong to the same site as the interface's parent "
+                                 "virtual machine, or it must be global".format(self.untagged_vlan)
+            })
+
+    def save(self, *args, **kwargs):
+
+        # Remove untagged VLAN assignment for non-802.1Q interfaces
+        if self.mode is None:
+            self.untagged_vlan = None
+
+        # Only "tagged" interfaces may have tagged VLANs assigned. ("tagged all" implies all VLANs are assigned.)
+        if self.pk and self.mode != InterfaceModeChoices.MODE_TAGGED:
+            self.tagged_vlans.clear()
+
+        return super().save(*args, **kwargs)
+
+    def to_objectchange(self, action):
+        # Annotate the parent VirtualMachine
+        return ObjectChange(
+            changed_object=self,
+            object_repr=str(self),
+            action=action,
+            related_object=self.virtual_machine,
+            object_data=serialize_object(self)
+        )
+
+    @property
+    def parent(self):
+        return self.virtual_machine
+
+    @property
+    def count_ipaddresses(self):
+        return self.ip_addresses.count()

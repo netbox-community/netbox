@@ -4,13 +4,15 @@ from django import template
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count, Q
+from django.db.models import Count, Prefetch, Q
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 from django_tables2 import RequestConfig
 
+from dcim.models import DeviceRole, Platform, Region, Site
+from tenancy.models import Tenant, TenantGroup
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.utils import copy_safe_request, shallow_compare_dict
@@ -18,6 +20,7 @@ from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
     ContentTypePermissionRequiredMixin,
 )
+from virtualization.models import Cluster, ClusterGroup
 from . import filters, forms, tables
 from .choices import JobResultStatusChoices
 from .models import ConfigContext, ImageAttachment, ObjectChange, Report, JobResult, Script, Tag, TaggedItem
@@ -30,7 +33,7 @@ from .scripts import get_scripts, run_script
 #
 
 class TagListView(ObjectListView):
-    queryset = Tag.restricted.annotate(
+    queryset = Tag.objects.annotate(
         items=Count('extras_taggeditem_items', distinct=True)
     ).order_by(
         'name'
@@ -40,71 +43,39 @@ class TagListView(ObjectListView):
     table = tables.TagTable
 
 
-class TagView(ObjectView):
-    queryset = Tag.restricted.all()
-
-    def get(self, request, slug):
-
-        tag = get_object_or_404(self.queryset, slug=slug)
-        tagged_items = TaggedItem.objects.filter(
-            tag=tag
-        ).prefetch_related(
-            'content_type', 'content_object'
-        )
-
-        # Generate a table of all items tagged with this Tag
-        items_table = tables.TaggedItemTable(tagged_items)
-        paginate = {
-            'paginator_class': EnhancedPaginator,
-            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
-        }
-        RequestConfig(request, paginate).configure(items_table)
-
-        return render(request, 'extras/tag.html', {
-            'tag': tag,
-            'items_count': tagged_items.count(),
-            'items_table': items_table,
-        })
-
-
 class TagEditView(ObjectEditView):
-    queryset = Tag.restricted.all()
+    queryset = Tag.objects.all()
     model_form = forms.TagForm
-    default_return_url = 'extras:tag_list'
     template_name = 'extras/tag_edit.html'
 
 
 class TagDeleteView(ObjectDeleteView):
-    queryset = Tag.restricted.all()
-    default_return_url = 'extras:tag_list'
+    queryset = Tag.objects.all()
 
 
 class TagBulkImportView(BulkImportView):
-    queryset = Tag.restricted.all()
+    queryset = Tag.objects.all()
     model_form = forms.TagCSVForm
     table = tables.TagTable
-    default_return_url = 'extras:tag_list'
 
 
 class TagBulkEditView(BulkEditView):
-    queryset = Tag.restricted.annotate(
+    queryset = Tag.objects.annotate(
         items=Count('extras_taggeditem_items', distinct=True)
     ).order_by(
         'name'
     )
     table = tables.TagTable
     form = forms.TagBulkEditForm
-    default_return_url = 'extras:tag_list'
 
 
 class TagBulkDeleteView(BulkDeleteView):
-    queryset = Tag.restricted.annotate(
+    queryset = Tag.objects.annotate(
         items=Count('extras_taggeditem_items')
     ).order_by(
         'name'
     )
     table = tables.TagTable
-    default_return_url = 'extras:tag_list'
 
 
 #
@@ -123,6 +94,18 @@ class ConfigContextView(ObjectView):
     queryset = ConfigContext.objects.all()
 
     def get(self, request, pk):
+        # Extend queryset to prefetch related objects
+        self.queryset = self.queryset.prefetch_related(
+            Prefetch('regions', queryset=Region.objects.restrict(request.user)),
+            Prefetch('sites', queryset=Site.objects.restrict(request.user)),
+            Prefetch('roles', queryset=DeviceRole.objects.restrict(request.user)),
+            Prefetch('platforms', queryset=Platform.objects.restrict(request.user)),
+            Prefetch('clusters', queryset=Cluster.objects.restrict(request.user)),
+            Prefetch('cluster_groups', queryset=ClusterGroup.objects.restrict(request.user)),
+            Prefetch('tenants', queryset=Tenant.objects.restrict(request.user)),
+            Prefetch('tenant_groups', queryset=TenantGroup.objects.restrict(request.user)),
+        )
+
         configcontext = get_object_or_404(self.queryset, pk=pk)
 
         # Determine user's preferred output format
@@ -144,7 +127,6 @@ class ConfigContextView(ObjectView):
 class ConfigContextEditView(ObjectEditView):
     queryset = ConfigContext.objects.all()
     model_form = forms.ConfigContextForm
-    default_return_url = 'extras:configcontext_list'
     template_name = 'extras/configcontext_edit.html'
 
 
@@ -153,18 +135,15 @@ class ConfigContextBulkEditView(BulkEditView):
     filterset = filters.ConfigContextFilterSet
     table = tables.ConfigContextTable
     form = forms.ConfigContextBulkEditForm
-    default_return_url = 'extras:configcontext_list'
 
 
 class ConfigContextDeleteView(ObjectDeleteView):
     queryset = ConfigContext.objects.all()
-    default_return_url = 'extras:configcontext_list'
 
 
 class ConfigContextBulkDeleteView(BulkDeleteView):
     queryset = ConfigContext.objects.all()
     table = tables.ConfigContextTable
-    default_return_url = 'extras:configcontext_list'
 
 
 class ObjectConfigContextView(ObjectView):
@@ -264,9 +243,11 @@ class ObjectChangeLogView(View):
 
     def get(self, request, model, **kwargs):
 
-        # Get object my model and kwargs (e.g. slug='foo')
-        queryset = model.objects.restrict(request.user, 'view')
-        obj = get_object_or_404(queryset, **kwargs)
+        # Handle QuerySet restriction of parent object if needed
+        if hasattr(model.objects, 'restrict'):
+            obj = get_object_or_404(model.objects.restrict(request.user, 'view'), **kwargs)
+        else:
+            obj = get_object_or_404(model, **kwargs)
 
         # Gather all changes for this object (and its related objects)
         content_type = ContentType.objects.get_for_model(model)
@@ -299,6 +280,7 @@ class ObjectChangeLogView(View):
 
         return render(request, 'extras/object_changelog.html', {
             object_var: obj,
+            'instance': obj,  # We'll eventually standardize on 'instance` for the object variable name
             'table': objectchanges_table,
             'base_template': base_template,
             'active_tab': 'changelog',

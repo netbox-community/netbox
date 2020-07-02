@@ -813,14 +813,7 @@ class RearPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase
         }
 
 
-# TODO: Change base class to DeviceComponentTemplateViewTestCase
-# Blocked by absence of bulk edit view for DeviceBays
-class DeviceBayTemplateTestCase(
-    ViewTestCases.EditObjectViewTestCase,
-    ViewTestCases.DeleteObjectViewTestCase,
-    ViewTestCases.BulkCreateObjectsViewTestCase,
-    ViewTestCases.BulkDeleteObjectsViewTestCase
-):
+class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = DeviceBayTemplate
 
     @classmethod
@@ -846,6 +839,10 @@ class DeviceBayTemplateTestCase(
         cls.bulk_create_data = {
             'device_type': devicetypes[1].pk,
             'name_pattern': 'Device Bay Template [4-6]',
+        }
+
+        cls.bulk_edit_data = {
+            'description': 'Foo bar',
         }
 
 
@@ -1194,10 +1191,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
 
 
-class InterfaceTestCase(
-    ViewTestCases.GetObjectViewTestCase,
-    ViewTestCases.DeviceComponentViewTestCase,
-):
+class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = Interface
 
     @classmethod
@@ -1563,16 +1557,7 @@ class CableTestCase(
         }
 
 
-# TODO: Change base class to PrimaryObjectViewTestCase
-# Blocked by standard creation, bulk creation views for VirtualChassis (member devices must be selected in bulk)
-class VirtualChassisTestCase(
-    ViewTestCases.GetObjectViewTestCase,
-    ViewTestCases.EditObjectViewTestCase,
-    ViewTestCases.DeleteObjectViewTestCase,
-    ViewTestCases.ListObjectsViewTestCase,
-    ViewTestCases.BulkEditObjectsViewTestCase,
-    ViewTestCases.BulkDeleteObjectsViewTestCase
-):
+class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VirtualChassis
 
     @classmethod
@@ -1587,7 +1572,6 @@ class VirtualChassisTestCase(
             name='Device Role', slug='device-role-1'
         )
 
-        # Create 9 member Devices
         devices = (
             Device(device_type=device_type, device_role=device_role, name='Device 1', site=site),
             Device(device_type=device_type, device_role=device_role, name='Device 2', site=site),
@@ -1598,29 +1582,42 @@ class VirtualChassisTestCase(
             Device(device_type=device_type, device_role=device_role, name='Device 7', site=site),
             Device(device_type=device_type, device_role=device_role, name='Device 8', site=site),
             Device(device_type=device_type, device_role=device_role, name='Device 9', site=site),
+            Device(device_type=device_type, device_role=device_role, name='Device 10', site=site),
+            Device(device_type=device_type, device_role=device_role, name='Device 11', site=site),
+            Device(device_type=device_type, device_role=device_role, name='Device 12', site=site),
         )
         Device.objects.bulk_create(devices)
 
-        # Create three VirtualChassis with two members each
-        vc1 = VirtualChassis.objects.create(master=devices[0], domain='domain-1')
+        # Create three VirtualChassis with three members each
+        vc1 = VirtualChassis.objects.create(name='VC1', master=devices[0], domain='domain-1')
+        Device.objects.filter(pk=devices[0].pk).update(virtual_chassis=vc1, vc_position=1)
         Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=vc1, vc_position=2)
         Device.objects.filter(pk=devices[2].pk).update(virtual_chassis=vc1, vc_position=3)
-        vc2 = VirtualChassis.objects.create(master=devices[3], domain='domain-2')
+        vc2 = VirtualChassis.objects.create(name='VC2', master=devices[3], domain='domain-2')
+        Device.objects.filter(pk=devices[3].pk).update(virtual_chassis=vc2, vc_position=1)
         Device.objects.filter(pk=devices[4].pk).update(virtual_chassis=vc2, vc_position=2)
         Device.objects.filter(pk=devices[5].pk).update(virtual_chassis=vc2, vc_position=3)
-        vc3 = VirtualChassis.objects.create(master=devices[6], domain='domain-3')
+        vc3 = VirtualChassis.objects.create(name='VC3', master=devices[6], domain='domain-3')
+        Device.objects.filter(pk=devices[6].pk).update(virtual_chassis=vc3, vc_position=1)
         Device.objects.filter(pk=devices[7].pk).update(virtual_chassis=vc3, vc_position=2)
         Device.objects.filter(pk=devices[8].pk).update(virtual_chassis=vc3, vc_position=3)
 
         cls.form_data = {
-            'master': devices[1].pk,
-            'domain': 'domain-x',
+            'name': 'VC4',
+            'domain': 'domain-4',
             # Management form data for VC members
             'form-TOTAL_FORMS': 0,
             'form-INITIAL_FORMS': 3,
             'form-MIN_NUM_FORMS': 0,
             'form-MAX_NUM_FORMS': 1000,
         }
+
+        cls.csv_data = (
+            "name,domain,master",
+            "VC4,Domain 4,Device 10",
+            "VC5,Domain 5,Device 11",
+            "VC6,Domain 6,Device 12",
+        )
 
         cls.bulk_edit_data = {
             'domain': 'domain-x',

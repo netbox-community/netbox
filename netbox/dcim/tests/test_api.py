@@ -28,6 +28,43 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class Mixins:
+
+    class ComponentTraceMixin(APITestCase):
+        peer_termination_type = None
+
+        def test_trace(self):
+            """
+            Test tracing a device component's attached cable.
+            """
+            obj = self.model.objects.unrestricted().first()
+            peer_device = Device.objects.create(
+                site=Site.objects.unrestricted().first(),
+                device_type=DeviceType.objects.unrestricted().first(),
+                device_role=DeviceRole.objects.unrestricted().first(),
+                name='Peer Device'
+            )
+            if self.peer_termination_type is None:
+                raise NotImplementedError("Test case must set peer_termination_type")
+            peer_obj = self.peer_termination_type.objects.create(
+                device=peer_device,
+                name='Peer Termination'
+            )
+            cable = Cable(termination_a=obj, termination_b=peer_obj, label='Cable 1')
+            cable.save()
+
+            self.add_permissions(f'dcim.view_{self.model._meta.model_name}')
+            url = reverse(f'dcim-api:{self.model._meta.model_name}-trace', kwargs={'pk': obj.pk})
+            response = self.client.get(url, **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            self.assertEqual(len(response.data), 1)
+            segment1 = response.data[0]
+            self.assertEqual(segment1[0]['name'], obj.name)
+            self.assertEqual(segment1[1]['label'], cable.label)
+            self.assertEqual(segment1[2]['name'], peer_obj.name)
+
+
 class RegionTest(APIViewTestCases.APIViewTestCase):
     model = Region
     brief_fields = ['id', 'name', 'site_count', 'slug', 'url']
@@ -107,7 +144,7 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
         Graph.objects.bulk_create(graphs)
 
         self.add_permissions('dcim.view_site')
-        url = reverse('dcim-api:site-graphs', kwargs={'pk': Site.objects.first().pk})
+        url = reverse('dcim-api:site-graphs', kwargs={'pk': Site.objects.unrestricted().unrestricted().first().pk})
         response = self.client.get(url, **self.header)
 
         self.assertEqual(len(response.data), 3)
@@ -246,7 +283,7 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         """
         GET a single rack elevation.
         """
-        rack = Rack.objects.first()
+        rack = Rack.objects.unrestricted().first()
         self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk})
 
@@ -266,7 +303,7 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         """
         GET a single rack elevation in SVG format.
         """
-        rack = Rack.objects.first()
+        rack = Rack.objects.unrestricted().first()
         self.add_permissions('dcim.view_rack')
         url = '{}?render=svg'.format(reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk}))
 
@@ -281,9 +318,7 @@ class RackReservationTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         user = User.objects.create(username='user1', is_active=True)
-
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
 
         cls.racks = (
@@ -878,7 +913,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         Graph.objects.bulk_create(graphs)
 
         self.add_permissions('dcim.view_device')
-        url = reverse('dcim-api:device-graphs', kwargs={'pk': Device.objects.first().pk})
+        url = reverse('dcim-api:device-graphs', kwargs={'pk': Device.objects.unrestricted().first().pk})
         response = self.client.get(url, **self.header)
 
         self.assertEqual(len(response.data), 3)
@@ -908,7 +943,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         """
         Check that creating a device with a duplicate name within a site fails.
         """
-        device = Device.objects.first()
+        device = Device.objects.unrestricted().first()
         data = {
             'device_type': device.device_type.pk,
             'device_role': device.device_role.pk,
@@ -923,9 +958,10 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
-class ConsolePortTest(APIViewTestCases.APIViewTestCase):
+class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsolePort
     brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
+    peer_termination_type = ConsoleServerPort
 
     @classmethod
     def setUpTestData(cls):
@@ -957,39 +993,11 @@ class ConsolePortTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
-    def test_trace_consoleport(self):
-        """
-        Test tracing a ConsolePort cable.
-        """
-        consoleport = ConsolePort.objects.first()
-        peer_device = Device.objects.create(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            device_role=DeviceRole.objects.first(),
-            name='Peer Device'
-        )
-        consoleserverport = ConsoleServerPort.objects.create(
-            device=peer_device,
-            name='Console Server Port 1'
-        )
-        cable = Cable(termination_a=consoleport, termination_b=consoleserverport, label='Cable 1')
-        cable.save()
 
-        self.add_permissions('dcim.view_consoleport')
-        url = reverse('dcim-api:consoleport-trace', kwargs={'pk': consoleport.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        segment1 = response.data[0]
-        self.assertEqual(segment1[0]['name'], consoleport.name)
-        self.assertEqual(segment1[1]['label'], cable.label)
-        self.assertEqual(segment1[2]['name'], consoleserverport.name)
-
-
-class ConsoleServerPortTest(APIViewTestCases.APIViewTestCase):
+class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsoleServerPort
     brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
+    peer_termination_type = ConsolePort
 
     @classmethod
     def setUpTestData(cls):
@@ -1021,39 +1029,11 @@ class ConsoleServerPortTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
-    def test_trace_consoleserverport(self):
-        """
-        Test tracing a ConsoleServerPort cable.
-        """
-        consoleserverport = ConsoleServerPort.objects.first()
-        peer_device = Device.objects.create(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            device_role=DeviceRole.objects.first(),
-            name='Peer Device'
-        )
-        consoleport = ConsolePort.objects.create(
-            device=peer_device,
-            name='Console Port 1'
-        )
-        cable = Cable(termination_a=consoleserverport, termination_b=consoleport, label='Cable 1')
-        cable.save()
 
-        self.add_permissions('dcim.view_consoleserverport')
-        url = reverse('dcim-api:consoleserverport-trace', kwargs={'pk': consoleserverport.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        segment1 = response.data[0]
-        self.assertEqual(segment1[0]['name'], consoleserverport.name)
-        self.assertEqual(segment1[1]['label'], cable.label)
-        self.assertEqual(segment1[2]['name'], consoleport.name)
-
-
-class PowerPortTest(APIViewTestCases.APIViewTestCase):
+class PowerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerPort
     brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
+    peer_termination_type = PowerOutlet
 
     @classmethod
     def setUpTestData(cls):
@@ -1085,39 +1065,11 @@ class PowerPortTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
-    def test_trace_powerport(self):
-        """
-        Test tracing a PowerPort cable.
-        """
-        powerport = PowerPort.objects.first()
-        peer_device = Device.objects.create(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            device_role=DeviceRole.objects.first(),
-            name='Peer Device'
-        )
-        poweroutlet = PowerOutlet.objects.create(
-            device=peer_device,
-            name='Power Outlet 1'
-        )
-        cable = Cable(termination_a=powerport, termination_b=poweroutlet, label='Cable 1')
-        cable.save()
 
-        self.add_permissions('dcim.view_powerport')
-        url = reverse('dcim-api:powerport-trace', kwargs={'pk': powerport.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        segment1 = response.data[0]
-        self.assertEqual(segment1[0]['name'], powerport.name)
-        self.assertEqual(segment1[1]['label'], cable.label)
-        self.assertEqual(segment1[2]['name'], poweroutlet.name)
-
-
-class PowerOutletTest(APIViewTestCases.APIViewTestCase):
+class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerOutlet
     brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
+    peer_termination_type = PowerPort
 
     @classmethod
     def setUpTestData(cls):
@@ -1149,39 +1101,11 @@ class PowerOutletTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
-    def test_trace_poweroutlet(self):
-        """
-        Test tracing a PowerOutlet cable.
-        """
-        poweroutlet = PowerOutlet.objects.first()
-        peer_device = Device.objects.create(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            device_role=DeviceRole.objects.first(),
-            name='Peer Device'
-        )
-        powerport = PowerPort.objects.create(
-            device=peer_device,
-            name='Power Port 1'
-        )
-        cable = Cable(termination_a=poweroutlet, termination_b=powerport, label='Cable 1')
-        cable.save()
 
-        self.add_permissions('dcim.view_poweroutlet')
-        url = reverse('dcim-api:poweroutlet-trace', kwargs={'pk': poweroutlet.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        segment1 = response.data[0]
-        self.assertEqual(segment1[0]['name'], poweroutlet.name)
-        self.assertEqual(segment1[1]['label'], cable.label)
-        self.assertEqual(segment1[2]['name'], powerport.name)
-
-
-class InterfaceTest(APIViewTestCases.APIViewTestCase):
+class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = Interface
     brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
+    peer_termination_type = Interface
 
     @classmethod
     def setUpTestData(cls):
@@ -1245,45 +1169,17 @@ class InterfaceTest(APIViewTestCases.APIViewTestCase):
         Graph.objects.bulk_create(graphs)
 
         self.add_permissions('dcim.view_interface')
-        url = reverse('dcim-api:interface-graphs', kwargs={'pk': Interface.objects.first().pk})
+        url = reverse('dcim-api:interface-graphs', kwargs={'pk': Interface.objects.unrestricted().first().pk})
         response = self.client.get(url, **self.header)
 
         self.assertEqual(len(response.data), 3)
         self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?interface=Interface 1&foo=1')
 
-    def test_trace_interface(self):
-        """
-        Test tracing an Interface cable.
-        """
-        interface_a = Interface.objects.first()
-        peer_device = Device.objects.create(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            device_role=DeviceRole.objects.first(),
-            name='Peer Device'
-        )
-        interface_b = Interface.objects.create(
-            device=peer_device,
-            name='Interface X'
-        )
-        cable = Cable(termination_a=interface_a, termination_b=interface_b, label='Cable 1')
-        cable.save()
 
-        self.add_permissions('dcim.view_interface')
-        url = reverse('dcim-api:interface-trace', kwargs={'pk': interface_a.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        segment1 = response.data[0]
-        self.assertEqual(segment1[0]['name'], interface_a.name)
-        self.assertEqual(segment1[1]['label'], cable.label)
-        self.assertEqual(segment1[2]['name'], interface_b.name)
-
-
-class FrontPortTest(APIViewTestCases.APIViewTestCase):
+class FrontPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = FrontPort
     brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    peer_termination_type = Interface
 
     @classmethod
     def setUpTestData(cls):
@@ -1334,39 +1230,11 @@ class FrontPortTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
-    def test_trace_frontport(self):
-        """
-        Test tracing a FrontPort cable.
-        """
-        frontport = FrontPort.objects.first()
-        peer_device = Device.objects.create(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            device_role=DeviceRole.objects.first(),
-            name='Peer Device'
-        )
-        interface = Interface.objects.create(
-            device=peer_device,
-            name='Interface X'
-        )
-        cable = Cable(termination_a=frontport, termination_b=interface, label='Cable 1')
-        cable.save()
 
-        self.add_permissions('dcim.view_frontport')
-        url = reverse('dcim-api:frontport-trace', kwargs={'pk': frontport.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        segment1 = response.data[0]
-        self.assertEqual(segment1[0]['name'], frontport.name)
-        self.assertEqual(segment1[1]['label'], cable.label)
-        self.assertEqual(segment1[2]['name'], interface.name)
-
-
-class RearPortTest(APIViewTestCases.APIViewTestCase):
+class RearPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = RearPort
     brief_fields = ['cable', 'device', 'id', 'name', 'url']
+    peer_termination_type = Interface
 
     @classmethod
     def setUpTestData(cls):
@@ -1400,35 +1268,6 @@ class RearPortTest(APIViewTestCases.APIViewTestCase):
                 'type': PortTypeChoices.TYPE_8P8C,
             },
         ]
-
-    def test_trace_rearport(self):
-        """
-        Test tracing a RearPort cable.
-        """
-        rearport = RearPort.objects.first()
-        peer_device = Device.objects.create(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            device_role=DeviceRole.objects.first(),
-            name='Peer Device'
-        )
-        interface = Interface.objects.create(
-            device=peer_device,
-            name='Interface X'
-        )
-        cable = Cable(termination_a=rearport, termination_b=interface, label='Cable 1')
-        cable.save()
-
-        self.add_permissions('dcim.view_rearport')
-        url = reverse('dcim-api:rearport-trace', kwargs={'pk': rearport.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        segment1 = response.data[0]
-        self.assertEqual(segment1[0]['name'], rearport.name)
-        self.assertEqual(segment1[1]['label'], cable.label)
-        self.assertEqual(segment1[2]['name'], interface.name)
 
 
 class DeviceBayTest(APIViewTestCases.APIViewTestCase):
@@ -1640,11 +1479,11 @@ class ConnectionTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Cable.objects.count(), 1)
+        self.assertEqual(Cable.objects.unrestricted().count(), 1)
 
-        cable = Cable.objects.get(pk=response.data['id'])
-        consoleport1 = ConsolePort.objects.get(pk=consoleport1.pk)
-        consoleserverport1 = ConsoleServerPort.objects.get(pk=consoleserverport1.pk)
+        cable = Cable.objects.unrestricted().get(pk=response.data['id'])
+        consoleport1 = ConsolePort.objects.unrestricted().get(pk=consoleport1.pk)
+        consoleserverport1 = ConsoleServerPort.objects.unrestricted().get(pk=consoleserverport1.pk)
 
         self.assertEqual(cable.termination_a, consoleport1)
         self.assertEqual(cable.termination_b, consoleserverport1)
@@ -1705,12 +1544,12 @@ class ConnectionTest(APITestCase):
             response = self.client.post(url, data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
 
-            cable = Cable.objects.get(pk=response.data['id'])
+            cable = Cable.objects.unrestricted().get(pk=response.data['id'])
             self.assertEqual(cable.termination_a.cable, cable)
             self.assertEqual(cable.termination_b.cable, cable)
 
-        consoleport1 = ConsolePort.objects.get(pk=consoleport1.pk)
-        consoleserverport1 = ConsoleServerPort.objects.get(pk=consoleserverport1.pk)
+        consoleport1 = ConsolePort.objects.unrestricted().get(pk=consoleport1.pk)
+        consoleserverport1 = ConsoleServerPort.objects.unrestricted().get(pk=consoleserverport1.pk)
         self.assertEqual(consoleport1.connected_endpoint, consoleserverport1)
         self.assertEqual(consoleserverport1.connected_endpoint, consoleport1)
 
@@ -1735,11 +1574,11 @@ class ConnectionTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Cable.objects.count(), 1)
+        self.assertEqual(Cable.objects.unrestricted().count(), 1)
 
-        cable = Cable.objects.get(pk=response.data['id'])
-        powerport1 = PowerPort.objects.get(pk=powerport1.pk)
-        poweroutlet1 = PowerOutlet.objects.get(pk=poweroutlet1.pk)
+        cable = Cable.objects.unrestricted().get(pk=response.data['id'])
+        powerport1 = PowerPort.objects.unrestricted().get(pk=powerport1.pk)
+        poweroutlet1 = PowerOutlet.objects.unrestricted().get(pk=poweroutlet1.pk)
 
         self.assertEqual(cable.termination_a, powerport1)
         self.assertEqual(cable.termination_b, poweroutlet1)
@@ -1771,11 +1610,11 @@ class ConnectionTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Cable.objects.count(), 1)
+        self.assertEqual(Cable.objects.unrestricted().count(), 1)
 
-        cable = Cable.objects.get(pk=response.data['id'])
-        interface1 = Interface.objects.get(pk=interface1.pk)
-        interface2 = Interface.objects.get(pk=interface2.pk)
+        cable = Cable.objects.unrestricted().get(pk=response.data['id'])
+        interface1 = Interface.objects.unrestricted().get(pk=interface1.pk)
+        interface2 = Interface.objects.unrestricted().get(pk=interface2.pk)
 
         self.assertEqual(cable.termination_a, interface1)
         self.assertEqual(cable.termination_b, interface2)
@@ -1836,12 +1675,12 @@ class ConnectionTest(APITestCase):
             response = self.client.post(url, data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
 
-            cable = Cable.objects.get(pk=response.data['id'])
+            cable = Cable.objects.unrestricted().get(pk=response.data['id'])
             self.assertEqual(cable.termination_a.cable, cable)
             self.assertEqual(cable.termination_b.cable, cable)
 
-        interface1 = Interface.objects.get(pk=interface1.pk)
-        interface2 = Interface.objects.get(pk=interface2.pk)
+        interface1 = Interface.objects.unrestricted().get(pk=interface1.pk)
+        interface2 = Interface.objects.unrestricted().get(pk=interface2.pk)
         self.assertEqual(interface1.connected_endpoint, interface2)
         self.assertEqual(interface2.connected_endpoint, interface1)
 
@@ -1875,11 +1714,11 @@ class ConnectionTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Cable.objects.count(), 1)
+        self.assertEqual(Cable.objects.unrestricted().count(), 1)
 
-        cable = Cable.objects.get(pk=response.data['id'])
-        interface1 = Interface.objects.get(pk=interface1.pk)
-        circuittermination1 = CircuitTermination.objects.get(pk=circuittermination1.pk)
+        cable = Cable.objects.unrestricted().get(pk=response.data['id'])
+        interface1 = Interface.objects.unrestricted().get(pk=interface1.pk)
+        circuittermination1 = CircuitTermination.objects.unrestricted().get(pk=circuittermination1.pk)
 
         self.assertEqual(cable.termination_a, interface1)
         self.assertEqual(cable.termination_b, circuittermination1)
@@ -1949,12 +1788,12 @@ class ConnectionTest(APITestCase):
             response = self.client.post(url, data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
 
-            cable = Cable.objects.get(pk=response.data['id'])
+            cable = Cable.objects.unrestricted().get(pk=response.data['id'])
             self.assertEqual(cable.termination_a.cable, cable)
             self.assertEqual(cable.termination_b.cable, cable)
 
-        interface1 = Interface.objects.get(pk=interface1.pk)
-        circuittermination1 = CircuitTermination.objects.get(pk=circuittermination1.pk)
+        interface1 = Interface.objects.unrestricted().get(pk=interface1.pk)
+        circuittermination1 = CircuitTermination.objects.unrestricted().get(pk=circuittermination1.pk)
         self.assertEqual(interface1.connected_endpoint, circuittermination1)
         self.assertEqual(circuittermination1.connected_endpoint, interface1)
 
@@ -2003,7 +1842,7 @@ class ConnectedDeviceTest(APITestCase):
 
 class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
     model = VirtualChassis
-    brief_fields = ['id', 'master', 'member_count', 'url']
+    brief_fields = ['id', 'master', 'member_count', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):
@@ -2040,34 +1879,35 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
 
         # Create three VirtualChassis with three members each
         virtual_chassis = (
-            VirtualChassis(master=devices[0], domain='domain-1'),
-            VirtualChassis(master=devices[3], domain='domain-2'),
-            VirtualChassis(master=devices[6], domain='domain-3'),
+            VirtualChassis(name='Virtual Chassis 1', master=devices[0], domain='domain-1'),
+            VirtualChassis(name='Virtual Chassis 2', master=devices[3], domain='domain-2'),
+            VirtualChassis(name='Virtual Chassis 3', master=devices[6], domain='domain-3'),
         )
         VirtualChassis.objects.bulk_create(virtual_chassis)
-        Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis[0], vc_position=2)
-        Device.objects.filter(pk=devices[2].pk).update(virtual_chassis=virtual_chassis[0], vc_position=3)
-        Device.objects.filter(pk=devices[4].pk).update(virtual_chassis=virtual_chassis[1], vc_position=2)
-        Device.objects.filter(pk=devices[5].pk).update(virtual_chassis=virtual_chassis[1], vc_position=3)
-        Device.objects.filter(pk=devices[7].pk).update(virtual_chassis=virtual_chassis[2], vc_position=2)
-        Device.objects.filter(pk=devices[8].pk).update(virtual_chassis=virtual_chassis[2], vc_position=3)
+        Device.objects.unrestricted().filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis[0], vc_position=2)
+        Device.objects.unrestricted().filter(pk=devices[2].pk).update(virtual_chassis=virtual_chassis[0], vc_position=3)
+        Device.objects.unrestricted().filter(pk=devices[4].pk).update(virtual_chassis=virtual_chassis[1], vc_position=2)
+        Device.objects.unrestricted().filter(pk=devices[5].pk).update(virtual_chassis=virtual_chassis[1], vc_position=3)
+        Device.objects.unrestricted().filter(pk=devices[7].pk).update(virtual_chassis=virtual_chassis[2], vc_position=2)
+        Device.objects.unrestricted().filter(pk=devices[8].pk).update(virtual_chassis=virtual_chassis[2], vc_position=3)
 
         cls.update_data = {
-            'master': devices[1].pk,
+            'name': 'Virtual Chassis X',
             'domain': 'domain-x',
+            'master': devices[1].pk,
         }
 
         cls.create_data = [
             {
-                'master': devices[9].pk,
+                'name': 'Virtual Chassis 4',
                 'domain': 'domain-4',
             },
             {
-                'master': devices[10].pk,
+                'name': 'Virtual Chassis 5',
                 'domain': 'domain-5',
             },
             {
-                'master': devices[11].pk,
+                'name': 'Virtual Chassis 6',
                 'domain': 'domain-6',
             },
         ]

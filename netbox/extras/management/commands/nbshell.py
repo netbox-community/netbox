@@ -6,6 +6,7 @@ from django import get_version
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 
 APPS = ['circuits', 'dcim', 'extras', 'ipam', 'secrets', 'tenancy', 'users', 'virtualization']
@@ -52,6 +53,7 @@ class Command(BaseCommand):
                 pass
 
         # Additional objects to include
+        namespace['ContentType'] = ContentType
         namespace['User'] = User
 
         # Load convenience commands

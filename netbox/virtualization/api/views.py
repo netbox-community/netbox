@@ -1,11 +1,17 @@
-from django.db.models import Count
+from django.db.models import Count, Prefetch
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
-from dcim.models import Device, Interface
+from dcim.models import Device
+from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
+from extras.models import Graph
+from ipam.models import VLAN
 from utilities.api import ModelViewSet
 from utilities.utils import get_subquery
 from virtualization import filters
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from . import serializers
 
 
@@ -71,18 +77,22 @@ class VirtualMachineViewSet(CustomFieldModelViewSet):
         return serializers.VirtualMachineWithConfigContextSerializer
 
 
-class InterfaceViewSet(ModelViewSet):
-    queryset = Interface.objects.filter(
+class VMInterfaceViewSet(ModelViewSet):
+    queryset = VMInterface.objects.filter(
         virtual_machine__isnull=False
     ).prefetch_related(
+        Prefetch('tagged_vlans', queryset=VLAN.objects.unrestricted()),
         'virtual_machine', 'tags'
     )
-    serializer_class = serializers.InterfaceSerializer
-    filterset_class = filters.InterfaceFilterSet
+    serializer_class = serializers.VMInterfaceSerializer
+    filterset_class = filters.VMInterfaceFilterSet
 
-    def get_serializer_class(self):
-        request = self.get_serializer_context()['request']
-        if request.query_params.get('brief', False):
-            # Override get_serializer_for_model(), which will return the DCIM NestedInterfaceSerializer
-            return serializers.NestedInterfaceSerializer
-        return serializers.InterfaceSerializer
+    @action(detail=True)
+    def graphs(self, request, pk):
+        """
+        A convenience method for rendering graphs for a particular VM interface.
+        """
+        vminterface = get_object_or_404(self.queryset, pk=pk)
+        queryset = Graph.objects.restrict(request.user).filter(type__model='vminterface')
+        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': vminterface})
+        return Response(serializer.data)

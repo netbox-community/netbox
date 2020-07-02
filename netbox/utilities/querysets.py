@@ -59,13 +59,13 @@ class RestrictedQuerySet(QuerySet):
         self.allow_evaluation = True
         return self
 
-    def restrict(self, user, action):
+    def restrict(self, user, action='view'):
         """
         Filter the QuerySet to return only objects on which the specified user has been granted the specified
         permission.
 
         :param user: User instance
-        :param action: The action which must be permitted (e.g. "view" for "dcim.view_site")
+        :param action: The action which must be permitted (e.g. "view" for "dcim.view_site"); default is 'view'
         """
         # Resolve the full name of the required permission
         app_label = self.model._meta.app_label
