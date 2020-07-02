@@ -51,8 +51,8 @@ def replicate_interfaces(apps, schema_editor):
     # Verify that all interfaces have been replicated
     assert replicated_count == original_interfaces.count(), "Replicated interfaces count does not match original count!"
 
-    # Delete original VM interfaces
-    original_interfaces.delete()
+    # Delete all interfaces not assigned to a Device
+    Interface.objects.filter(device__isnull=True).delete()
 
 
 class Migration(migrations.Migration):
