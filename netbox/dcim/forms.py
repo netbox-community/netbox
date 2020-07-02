@@ -2978,13 +2978,12 @@ class InterfaceCSVForm(CSVModelForm):
         super().__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces belonging to this device (or VC master)
+        device = None
         if self.is_bound and 'device' in self.data:
             try:
                 device = self.fields['device'].to_python(self.data['device'])
             except forms.ValidationError:
-                device = None
-        else:
-            device = self.instance.device
+                pass
 
         if device:
             self.fields['lag'].queryset = Interface.objects.filter(
