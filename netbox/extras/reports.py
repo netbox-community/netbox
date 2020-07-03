@@ -14,6 +14,9 @@ from .constants import *
 from .models import JobResult
 
 
+logger = logging.getLogger(__name__)
+
+
 def is_report(obj):
     """
     Returns True if the given object is a Report.
@@ -71,13 +74,18 @@ def run_report(job_result, *args, **kwargs):
     """
     module_name, report_name = job_result.name.split('.', 1)
     report = get_report(module_name, report_name)
-    report.run(job_result)
+
+    try:
+        report.run(job_result)
+    except Exception:
+        job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
+        logging.error(f"Error during execution of report {job_result.name}")
 
     # Delete any previous terminal state results
     JobResult.objects.filter(
         obj_type=job_result.obj_type,
         name=job_result.name,
-        status=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+        status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
     ).exclude(
         pk=job_result.pk
     ).delete()

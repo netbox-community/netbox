@@ -399,10 +399,6 @@ def run_script(data, request, commit=True, *args, **kwargs):
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
     exists outside of the Script class to ensure it cannot be overridden by a script author.
     """
-    output = None
-    start_time = None
-    end_time = None
-
     job_result = kwargs.pop('job_result')
     module, script_name = job_result.name.split('.', 1)
 
@@ -463,7 +459,7 @@ def run_script(data, request, commit=True, *args, **kwargs):
     JobResult.objects.filter(
         obj_type=job_result.obj_type,
         name=job_result.name,
-        status=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+        status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
     ).exclude(
         pk=job_result.pk
     ).delete()

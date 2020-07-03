@@ -8,9 +8,9 @@ from rest_framework import status
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, RackGroup, RackRole, Site
 from extras.api.views import ScriptViewSet
 from extras.models import ConfigContext, Graph, ExportTemplate, Tag
+from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
-from utilities.utils import copy_safe_request
 
 
 class AppTest(APITestCase):
@@ -206,6 +206,37 @@ class ConfigContextTest(APIViewTestCases.APIViewTestCase):
         configcontext6.sites.add(site2)
         rendered_context = device.get_config_context()
         self.assertEqual(rendered_context['bar'], 456)
+
+
+class ReportTest(APITestCase):
+
+    class TestReport(Report):
+        pass  # The report is not actually run, we are testing that the view enqueues the job
+
+    def get_test_report(self, *args):
+        return self.TestReport
+
+    def setUp(self):
+
+        super().setUp()
+
+        # Monkey-patch the API viewset's _get_script method to return our test script above
+        ReportViewSet._get_report = self.get_test_report
+
+    def test_get_report(self):
+
+        url = reverse('extras-api:report-detail', kwargs={'pk': None})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.TestReport.__name__)
+
+    def test_run_report(self):
+
+        url = reverse('extras-api:report-detail', kwargs={'pk': None})
+        response = self.client.post(url, {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['result']['status']['value'], 'pending')
 
 
 class ScriptTest(APITestCase):

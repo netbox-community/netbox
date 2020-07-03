@@ -16,36 +16,35 @@
     </div>
     {% if perms.extras.add_reportresult %}
         <div class="pull-right noprint">
-            <form action="{% url 'extras:report_run' name=report.full_name %}" method="post">
+            <form action="{% url 'extras:report' module=report.module name=report.name %}" method="post">
                 {% csrf_token %}
                 {{ run_form }}
                 <button type="submit" name="_run" class="btn btn-primary"><i class="fa fa-play"></i> Run Report</button>
             </form>
         </div>
     {% endif %}
-    <h1>{{ report.name }}{% include 'extras/inc/job_label.html' with result=report.result %}</h1>
+    <h1>{{ report.name }}</h1>
     <div class="row">
         <div class="col-md-12">
             {% if report.description %}
                 <p class="lead">{{ report.description }}</p>
             {% endif %}
-            {% if report.result %}
-                <p>Last run: <strong>{{ report.result.created }}</strong> {% if report.result.completed %} Duration: <strong>{{ report.result.duration }}</strong>{% endif %}</p>
-            {% endif %}
-            {% if report.pending_result %}
-                <p>
-                    Pending run: <strong>{{ report.pending_result.created }}</strong>
-                    <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=report.pending_result %}</span>
+            <p>
+                Run: <strong>{{ result.created }}</strong>
+                {% if result.completed %}
+                    Duration: <strong>{{ result.duration }}</strong>
+                {% else %}
                     <img id="pending-result-loader" src="{% static 'img/ajax-loader.gif' %}" />
-                </p>
-            {% endif %}
-            {% if report.result %}
+                {% endif %}
+                <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=result %}</span>
+            </p>
+            {% if result.completed %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <strong>Report Methods</strong>
                     </div>
                     <table class="table table-hover panel-body">
-                        {% for method, data in report.result.data.items %}
+                        {% for method, data in result.data.items %}
                             <tr>
                                 <td><code><a href="#{{ method }}">{{ method }}</a></code></td>
                                 <td class="text-right report-stats">
@@ -72,7 +71,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for method, data in report.result.data.items %}
+                            {% for method, data in result.data.items %}
                                 <tr>
                                     <th colspan="4" style="font-family: monospace">
                                         <a name="{{ method }}"></a>{{ method }}
@@ -99,11 +98,7 @@
                     </table>
                 </div>
             {% else %}
-                <div class="well">No results are available for this report. Please run the report first.</div>
-            {% endif %}
-        </div>
-        <div class="col-md-3">
-            {% if report.result %}
+                <div class="well">Pending results</div>
             {% endif %}
         </div>
     </div>
@@ -111,19 +106,14 @@
 
 {% block javascript %}
 <script type="text/javascript">
-{% if report.pending_result %}
-var pending_result_id = {{ report.pending_result.pk }};
+{% if not result.completed %}
+var pending_result_id = {{ result.pk }};
 {% else %}
 var pending_result_id = null;
 {% endif %}
 
 function jobTerminatedAction(){
-    $('#pending-result-loader').hide();
-    var refreshButton = document.createElement('button');
-    refreshButton.className = 'btn btn-xs btn-primary';
-    refreshButton.onclick = refreshWindow;
-    refreshButton.innerHTML = '<i class="fa fa-refresh"></i> Refresh';
-    $('#pending-result-loader').parents('p').append(refreshButton)
+    refreshWindow();
 }
 
 </script>

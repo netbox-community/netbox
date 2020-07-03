@@ -12,6 +12,7 @@ from django.db import models
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework.utils.encoders import JSONEncoder
 
 from utilities.querysets import RestrictedQuerySet
@@ -649,6 +650,18 @@ class JobResult(models.Model):
         minutes, seconds = divmod(duration.total_seconds(), 60)
 
         return f"{int(minutes)} minutes, {seconds:.2f} seconds"
+
+    def set_status(self, status):
+        """
+        Helper method to change the status of the job result and save. If the target status is terminal, the
+        completion time is also set.
+        """
+        self.status = status
+        if status in JobResultStatusChoices.TERMINAL_STATE_CHOICES:
+            self.completed = timezone.now()
+
+        self.save()
+
 
     @classmethod
     def enqueue_job(cls, func, name, obj_type, user, *args, **kwargs):

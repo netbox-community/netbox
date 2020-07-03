@@ -14,7 +14,7 @@ from extras.choices import JobResultStatusChoices
 from extras.models import (
     ConfigContext, CustomFieldChoice, ExportTemplate, Graph, ImageAttachment, ObjectChange, JobResult, Tag,
 )
-from extras.reports import get_report, get_reports
+from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
 from utilities.api import IsAuthenticatedOrLoginNotRequired, ModelViewSet
 from utilities.utils import copy_safe_request

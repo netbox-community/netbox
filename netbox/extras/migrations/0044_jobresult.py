@@ -13,15 +13,11 @@ def convert_job_results(apps, schema_editor):
     """
     Convert ReportResult objects to JobResult objects
     """
-    from django.contrib.contenttypes.management import create_contenttypes
     from extras.choices import JobResultStatusChoices
 
     ReportResult = apps.get_model('extras', 'ReportResult')
     JobResult = apps.get_model('extras', 'JobResult')
     ContentType = apps.get_model('contenttypes', 'ContentType')
-    app_config = apps.get_app_config('extras')
-    app_config.models_module = app_config.models_module or True
-    create_contenttypes(app_config)
     report_content_type = ContentType.objects.get(app_label='extras', model='report')
 
     job_results = []
@@ -50,19 +46,10 @@ class Migration(migrations.Migration):
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('extras', '0042_customfield_manager'),
+        ('extras', '0043_report_model'),
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='Report',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False)),
-            ],
-            options={
-                'managed': False,
-            },
-        ),
         migrations.CreateModel(
             name='JobResult',
             fields=[

@@ -270,9 +270,8 @@ class NetBoxFakeRequest:
     A fake request object which is explicitly defined at the module level so it is able to be pickled. It simply
     takes what is passed to it as kwargs on init and sets them as instance variables.
     """
-    def __init__(self, *args, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self, k, v)
+    def __init__(self, _dict):
+        self.__dict__ = _dict
 
 
 def copy_safe_request(request):
@@ -285,7 +284,7 @@ def copy_safe_request(request):
         for k in HTTP_REQUEST_META_SAFE_COPY
         if k in request.META and isinstance(request.META[k], str)
     }
-    return NetBoxFakeRequest(**{
+    return NetBoxFakeRequest({
         'META': meta,
         'POST': request.POST,
         'GET': request.GET,

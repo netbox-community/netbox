@@ -11,7 +11,7 @@
         <div class="col-md-12">
             <ol class="breadcrumb">
                 <li><a href="{% url 'extras:script_list' %}">Scripts</a></li>
-                <li><a href="{% url 'extras:script_list' %}#module.{{ module }}">{{ module|bettertitle }}</a></li>
+                <li><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
                 <li><a href="{% url 'extras:script' module=script.module name=class_name %}">{{ script }}</a></li>
                 <li>{{ result.created }}</li>
             </ol>
@@ -36,9 +36,9 @@
             {% if result.completed %}
                 Duration: <strong>{{ result.duration }}</strong>
             {% else %}
-                <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=result %}</span>
                 <img id="pending-result-loader" src="{% static 'img/ajax-loader.gif' %}" />
             {% endif %}
+            <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=result %}</span>
         </p>
         <div role="tabpanel" class="tab-pane active" id="log">
             {% if result.completed %}
@@ -74,6 +74,12 @@
                                 </div>
                             {% endif %}
                         </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="well">Pending results</div>
                     </div>
                 </div>
             {% endif %}

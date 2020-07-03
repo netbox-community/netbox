@@ -258,11 +258,7 @@ class JobResultSerializer(serializers.ModelSerializer):
 #
 
 class ReportSerializer(serializers.Serializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='extras-api:report-detail',
-        lookup_field='full_name',
-        lookup_url_kwarg='pk'
-    )
+    id = serializers.CharField(read_only=True, source="full_name")
     module = serializers.CharField(max_length=255)
     name = serializers.CharField(max_length=255)
     description = serializers.CharField(max_length=255, required=False)
@@ -279,12 +275,8 @@ class ReportDetailSerializer(ReportSerializer):
 #
 
 class ScriptSerializer(serializers.Serializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='extras-api:script-detail',
-        lookup_field='full_name',
-        lookup_url_kwarg='pk'
-    )
     id = serializers.CharField(read_only=True, source="full_name")
+    module = serializers.CharField(max_length=255)
     name = serializers.CharField(read_only=True)
     description = serializers.CharField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
