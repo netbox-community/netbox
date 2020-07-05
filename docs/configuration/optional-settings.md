@@ -72,18 +72,18 @@ The number of days to retain logged changes (object creations, updates, and dele
 
 Default: False
 
-If True, cross-origin resource sharing (CORS) requests will be accepted from all origins. If False, a whitelist will be used (see below).
+If True, cross-origin resource sharing (CORS) requests will be accepted from all origins. If False, an allowlist will be used (see below).
 
 ---
 
-## CORS_ORIGIN_WHITELIST
+## CORS_ORIGIN_ALLOWLIST
 
-## CORS_ORIGIN_REGEX_WHITELIST
+## CORS_ORIGIN_REGEX_ALLOWLIST
 
-These settings specify a list of origins that are authorized to make cross-site API requests. Use `CORS_ORIGIN_WHITELIST` to define a list of exact hostnames, or `CORS_ORIGIN_REGEX_WHITELIST` to define a set of regular expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is True.) For example:
+These settings specify a list of origins that are authorized to make cross-site API requests. Use `CORS_ORIGIN_ALLOWLIST` to define a list of exact hostnames, or `CORS_ORIGIN_REGEX_ALLOWLIST` to define a set of regular expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is True.) For example:
 
 ```
-CORS_ORIGIN_WHITELIST = [
+CORS_ORIGIN_ALLOWLIST = [
     'https://example.com',
 ]
 ```
