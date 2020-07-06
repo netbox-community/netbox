@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 
 from utilities.forms import LaxURLField
-from .models import CustomField, CustomFieldChoice, CustomLink, Graph, ExportTemplate, ReportResult, Webhook
+from .models import CustomField, CustomFieldChoice, CustomLink, Graph, ExportTemplate, JobResult, Webhook
 from .reports import get_report
 
 
@@ -228,27 +228,18 @@ class ExportTemplateAdmin(admin.ModelAdmin):
 # Reports
 #
 
-@admin.register(ReportResult)
-class ReportResultAdmin(admin.ModelAdmin):
+@admin.register(JobResult)
+class JobResultAdmin(admin.ModelAdmin):
     list_display = [
-        'report', 'active', 'created', 'user', 'passing',
+        'obj_type', 'name', 'created', 'completed', 'user', 'status',
     ]
     fields = [
-        'report', 'user', 'passing', 'data',
+        'obj_type', 'name', 'created', 'completed', 'user', 'status', 'data', 'job_id'
     ]
     list_filter = [
-        'failed',
+        'status',
     ]
     readonly_fields = fields
 
     def has_add_permission(self, request):
         return False
-
-    def active(self, obj):
-        module, report_name = obj.report.split('.')
-        return True if get_report(module, report_name) else False
-    active.boolean = True
-
-    def passing(self, obj):
-        return not obj.failed
-    passing.boolean = True

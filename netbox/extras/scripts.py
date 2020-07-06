@@ -12,12 +12,17 @@ from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
+from django.utils import timezone
+from django.utils.decorators import classproperty
+from django_rq import job
 from mptt.forms import TreeNodeChoiceField, TreeNodeMultipleChoiceField
 from mptt.models import MPTTModel
 
+from extras.api.serializers import ScriptOutputSerializer
+from extras.choices import JobResultStatusChoices, LogLevelChoices
+from extras.models import JobResult
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
-from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
 from utilities.exceptions import AbortTransaction
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .forms import ScriptForm
@@ -267,7 +272,19 @@ class BaseScript:
         self.source = inspect.getsource(self.__class__)
 
     def __str__(self):
+        return self.name
+
+    @classproperty
+    def name(self):
         return getattr(self.Meta, 'name', self.__class__.__name__)
+
+    @classproperty
+    def full_name(self):
+        return '.'.join([self.__module__, self.__name__])
+
+    @classproperty
+    def description(self):
+        return getattr(self.Meta, 'description', '')
 
     @classmethod
     def module(cls):
@@ -306,23 +323,23 @@ class BaseScript:
 
     def log_debug(self, message):
         self.logger.log(logging.DEBUG, message)
-        self.log.append((LOG_DEFAULT, message))
+        self.log.append((LogLevelChoices.LOG_DEFAULT, message))
 
     def log_success(self, message):
         self.logger.log(logging.INFO, message)  # No syslog equivalent for SUCCESS
-        self.log.append((LOG_SUCCESS, message))
+        self.log.append((LogLevelChoices.LOG_SUCCESS, message))
 
     def log_info(self, message):
         self.logger.log(logging.INFO, message)
-        self.log.append((LOG_INFO, message))
+        self.log.append((LogLevelChoices.LOG_INFO, message))
 
     def log_warning(self, message):
         self.logger.log(logging.WARNING, message)
-        self.log.append((LOG_WARNING, message))
+        self.log.append((LogLevelChoices.LOG_WARNING, message))
 
     def log_failure(self, message):
         self.logger.log(logging.ERROR, message)
-        self.log.append((LOG_FAILURE, message))
+        self.log.append((LogLevelChoices.LOG_FAILURE, message))
 
     # Convenience functions
 
@@ -375,17 +392,21 @@ def is_variable(obj):
     return isinstance(obj, ScriptVariable)
 
 
-def run_script(script, data, request, commit=True):
+@job('default')
+def run_script(data, request, commit=True, *args, **kwargs):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
     exists outside of the Script class to ensure it cannot be overridden by a script author.
     """
-    output = None
-    start_time = None
-    end_time = None
+    job_result = kwargs.pop('job_result')
+    module, script_name = job_result.name.split('.', 1)
 
-    script_name = script.__class__.__name__
-    logger = logging.getLogger(f"netbox.scripts.{script.module()}.{script_name}")
+    script = get_script(module, script_name)()
+
+    job_result.status = JobResultStatusChoices.STATUS_RUNNING
+    job_result.save()
+
+    logger = logging.getLogger(f"netbox.scripts.{module}.{script_name}")
     logger.info(f"Running script (commit={commit})")
 
     # Add files to form data
@@ -405,13 +426,16 @@ def run_script(script, data, request, commit=True):
 
     try:
         with transaction.atomic():
-            start_time = time.time()
-            output = script.run(**kwargs)
-            end_time = time.time()
+            script.output = script.run(**kwargs)
+            job_result.data = ScriptOutputSerializer(script).data
+            job_result.set_status(JobResultStatusChoices.STATUS_COMPLETED)
+
             if not commit:
                 raise AbortTransaction()
+
     except AbortTransaction:
         pass
+
     except Exception as e:
         stacktrace = traceback.format_exc()
         script.log_failure(
@@ -419,6 +443,8 @@ def run_script(script, data, request, commit=True):
         )
         logger.error(f"Exception raised during script execution: {e}")
         commit = False
+        job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
+
     finally:
         if not commit:
             # Delete all pending changelog entries
@@ -427,14 +453,16 @@ def run_script(script, data, request, commit=True):
                 "Database changes have been reverted automatically."
             )
 
-    # Calculate execution time
-    if end_time is not None:
-        execution_time = end_time - start_time
-        logger.info(f"Script completed in {execution_time:.4f} seconds")
-    else:
-        execution_time = None
+    logger.info(f"Script completed in {job_result.duration}")
 
-    return output, execution_time
+    # Delete any previous terminal state results
+    JobResult.objects.filter(
+        obj_type=job_result.obj_type,
+        name=job_result.name,
+        status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+    ).exclude(
+        pk=job_result.pk
+    ).delete()
 
 
 def get_scripts(use_names=False):

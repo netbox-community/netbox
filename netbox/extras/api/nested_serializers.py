@@ -1,13 +1,14 @@
 from rest_framework import serializers
 
-from extras import models
-from utilities.api import WritableNestedSerializer
+from extras import choices, models
+from users.api.nested_serializers import NestedUserSerializer
+from utilities.api import ChoiceField, WritableNestedSerializer
 
 __all__ = [
     'NestedConfigContextSerializer',
     'NestedExportTemplateSerializer',
     'NestedGraphSerializer',
-    'NestedReportResultSerializer',
+    'NestedJobResultSerializer',
     'NestedTagSerializer',
 ]
 
@@ -44,13 +45,13 @@ class NestedTagSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'name', 'slug', 'color']
 
 
-class NestedReportResultSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='extras-api:report-detail',
-        lookup_field='report',
-        lookup_url_kwarg='pk'
+class NestedJobResultSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:jobresult-detail')
+    status = ChoiceField(choices=choices.JobResultStatusChoices)
+    user = NestedUserSerializer(
+        read_only=True
     )
 
     class Meta:
-        model = models.ReportResult
-        fields = ['url', 'created', 'user', 'failed']
+        model = models.JobResult
+        fields = ['url', 'created', 'completed', 'user', 'status']

@@ -5,10 +5,12 @@ from collections import OrderedDict
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
 from django.http import QueryDict
+from django.http.request import HttpRequest
 from jinja2 import Environment
 
 from dcim.choices import CableLengthUnitChoices
 from extras.utils import is_taggable
+from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 
 
 def csv_format(data):
@@ -257,3 +259,36 @@ def flatten_dict(d, prefix='', separator='.'):
         else:
             ret[key] = v
     return ret
+
+
+#
+# Fake request object
+#
+
+class NetBoxFakeRequest:
+    """
+    A fake request object which is explicitly defined at the module level so it is able to be pickled. It simply
+    takes what is passed to it as kwargs on init and sets them as instance variables.
+    """
+    def __init__(self, _dict):
+        self.__dict__ = _dict
+
+
+def copy_safe_request(request):
+    """
+    Copy selected attributes from a request object into a new fake request object. This is needed in places where
+    thread safe pickling of the useful request data is needed.
+    """
+    meta = {
+        k: request.META[k]
+        for k in HTTP_REQUEST_META_SAFE_COPY
+        if k in request.META and isinstance(request.META[k], str)
+    }
+    return NetBoxFakeRequest({
+        'META': meta,
+        'POST': request.POST,
+        'GET': request.GET,
+        'FILES': request.FILES,
+        'user': request.user,
+        'path': request.path
+    })

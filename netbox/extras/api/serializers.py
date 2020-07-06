@@ -11,7 +11,7 @@ from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
 from extras.choices import *
 from extras.constants import *
 from extras.models import (
-    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, Tag,
+    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, JobResult, Tag,
 )
 from extras.utils import FeatureQuery
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
@@ -233,26 +233,41 @@ class ConfigContextSerializer(ValidatedModelSerializer):
 
 
 #
+# Job Results
+#
+
+class JobResultSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:jobresult-detail')
+    user = NestedUserSerializer(
+        read_only=True
+    )
+    status = ChoiceField(choices=JobResultStatusChoices, read_only=True)
+    obj_type = ContentTypeField(
+        read_only=True
+    )
+
+    class Meta:
+        model = JobResult
+        fields = [
+            'id', 'url', 'created', 'completed', 'name', 'obj_type', 'status', 'user', 'data', 'job_id',
+        ]
+
+
+#
 # Reports
 #
 
-class ReportResultSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = ReportResult
-        fields = ['created', 'user', 'failed', 'data']
-
-
 class ReportSerializer(serializers.Serializer):
+    id = serializers.CharField(read_only=True, source="full_name")
     module = serializers.CharField(max_length=255)
     name = serializers.CharField(max_length=255)
     description = serializers.CharField(max_length=255, required=False)
     test_methods = serializers.ListField(child=serializers.CharField(max_length=255))
-    result = NestedReportResultSerializer()
+    result = NestedJobResultSerializer()
 
 
 class ReportDetailSerializer(ReportSerializer):
-    result = ReportResultSerializer()
+    result = JobResultSerializer()
 
 
 #
@@ -260,24 +275,21 @@ class ReportDetailSerializer(ReportSerializer):
 #
 
 class ScriptSerializer(serializers.Serializer):
-    id = serializers.SerializerMethodField(read_only=True)
-    name = serializers.SerializerMethodField(read_only=True)
-    description = serializers.SerializerMethodField(read_only=True)
+    id = serializers.CharField(read_only=True, source="full_name")
+    module = serializers.CharField(max_length=255)
+    name = serializers.CharField(read_only=True)
+    description = serializers.CharField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
-
-    def get_id(self, instance):
-        return '{}.{}'.format(instance.__module__, instance.__name__)
-
-    def get_name(self, instance):
-        return getattr(instance.Meta, 'name', instance.__name__)
-
-    def get_description(self, instance):
-        return getattr(instance.Meta, 'description', '')
+    result = NestedJobResultSerializer()
 
     def get_vars(self, instance):
         return {
             k: v.__class__.__name__ for k, v in instance._get_vars().items()
         }
+
+
+class ScriptDetailSerializer(ScriptSerializer):
+    result = JobResultSerializer()
 
 
 class ScriptInputSerializer(serializers.Serializer):
@@ -290,7 +302,7 @@ class ScriptLogMessageSerializer(serializers.Serializer):
     message = serializers.SerializerMethodField(read_only=True)
 
     def get_status(self, instance):
-        return LOG_LEVEL_CODES.get(instance[0])
+        return instance[0]
 
     def get_message(self, instance):
         return instance[1]

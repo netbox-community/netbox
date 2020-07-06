@@ -6,8 +6,9 @@ from django.utils import timezone
 from rest_framework import status
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, RackGroup, RackRole, Site
-from extras.api.views import ScriptViewSet
+from extras.api.views import ReportViewSet, ScriptViewSet
 from extras.models import ConfigContext, Graph, ExportTemplate, Tag
+from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
 
@@ -207,6 +208,38 @@ class ConfigContextTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(rendered_context['bar'], 456)
 
 
+class ReportTest(APITestCase):
+
+    class TestReport(Report):
+
+        def test_foo(self):
+            self.log_success(None, "Report completed")
+
+    def get_test_report(self, *args):
+        return self.TestReport()
+
+    def setUp(self):
+        super().setUp()
+
+        # Monkey-patch the API viewset's _get_script method to return our test script above
+        ReportViewSet._retrieve_report = self.get_test_report
+
+    def test_get_report(self):
+        url = reverse('extras-api:report-detail', kwargs={'pk': None})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.TestReport.__name__)
+
+    def test_run_report(self):
+        self.add_permissions('extras.run_script')
+
+        url = reverse('extras-api:report-run', kwargs={'pk': None})
+        response = self.client.post(url, {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['result']['status']['value'], 'pending')
+
+
 class ScriptTest(APITestCase):
 
     class TestScript(Script):
@@ -263,13 +296,7 @@ class ScriptTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
-        self.assertEqual(response.data['log'][0]['status'], 'info')
-        self.assertEqual(response.data['log'][0]['message'], script_data['var1'])
-        self.assertEqual(response.data['log'][1]['status'], 'success')
-        self.assertEqual(response.data['log'][1]['message'], script_data['var2'])
-        self.assertEqual(response.data['log'][2]['status'], 'failure')
-        self.assertEqual(response.data['log'][2]['message'], script_data['var3'])
-        self.assertEqual(response.data['output'], 'Script complete')
+        self.assertEqual(response.data['result']['status']['value'], 'pending')
 
 
 class CreatedUpdatedFilterTest(APITestCase):
