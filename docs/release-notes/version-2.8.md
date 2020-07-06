@@ -1,5 +1,13 @@
 # NetBox v2.8
 
+## v2.8.7 (FUTURE)
+
+### Bug Fixes
+
+* [#4821](https://github.com/netbox-community/netbox/issues/4821) - Restrict group options by selected site when bulk editing VLANs
+
+---
+
 ## v2.8.7 (2020-07-02)
 
 ### Enhancements
