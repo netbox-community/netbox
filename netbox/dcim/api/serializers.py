@@ -311,7 +311,7 @@ class RearPortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = RearPortTemplate
-        fields = ['id', 'device_type', 'name', 'type', 'positions', 'description']
+        fields = ['id', 'device_type', 'name', 'label', 'type', 'positions', 'description']
 
 
 class FrontPortTemplateSerializer(ValidatedModelSerializer):
@@ -321,7 +321,7 @@ class FrontPortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = FrontPortTemplate
-        fields = ['id', 'device_type', 'name', 'type', 'rear_port', 'rear_port_position', 'description']
+        fields = ['id', 'device_type', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description']
 
 
 class DeviceBayTemplateSerializer(ValidatedModelSerializer):
@@ -559,7 +559,7 @@ class RearPortSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
 
     class Meta:
         model = RearPort
-        fields = ['id', 'device', 'name', 'type', 'positions', 'description', 'cable', 'tags']
+        fields = ['id', 'device', 'name', 'label', 'type', 'positions', 'description', 'cable', 'tags']
 
 
 class FrontPortRearPortSerializer(WritableNestedSerializer):
@@ -570,7 +570,7 @@ class FrontPortRearPortSerializer(WritableNestedSerializer):
 
     class Meta:
         model = RearPort
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'name', 'label']
 
 
 class FrontPortSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
@@ -581,7 +581,9 @@ class FrontPortSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
 
     class Meta:
         model = FrontPort
-        fields = ['id', 'device', 'name', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'tags']
+        fields = [
+            'id', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'tags',
+        ]
 
 
 class DeviceBaySerializer(TaggedObjectSerializer, ValidatedModelSerializer):

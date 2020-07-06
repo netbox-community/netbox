@@ -678,7 +678,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
                 'device_type__manufacturer',
                 'device_role'
             ).annotate(
-                devicebay_count=Count('device_bays')
+                devicebay_count=Count('devicebays')
             ).exclude(
                 pk=exclude
             ).filter(
@@ -1049,23 +1049,23 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         ))
 
         # Component templates
-        if self.consoleport_templates.exists():
+        if self.consoleporttemplates.exists():
             data['console-ports'] = [
                 {
                     'name': c.name,
                     'type': c.type,
                 }
-                for c in self.consoleport_templates.all()
+                for c in self.consoleporttemplates.all()
             ]
-        if self.consoleserverport_templates.exists():
+        if self.consoleserverporttemplates.exists():
             data['console-server-ports'] = [
                 {
                     'name': c.name,
                     'type': c.type,
                 }
-                for c in self.consoleserverport_templates.all()
+                for c in self.consoleserverporttemplates.all()
             ]
-        if self.powerport_templates.exists():
+        if self.powerporttemplates.exists():
             data['power-ports'] = [
                 {
                     'name': c.name,
@@ -1073,9 +1073,9 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
                     'maximum_draw': c.maximum_draw,
                     'allocated_draw': c.allocated_draw,
                 }
-                for c in self.powerport_templates.all()
+                for c in self.powerporttemplates.all()
             ]
-        if self.poweroutlet_templates.exists():
+        if self.poweroutlettemplates.exists():
             data['power-outlets'] = [
                 {
                     'name': c.name,
@@ -1083,18 +1083,18 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
                     'power_port': c.power_port.name if c.power_port else None,
                     'feed_leg': c.feed_leg,
                 }
-                for c in self.poweroutlet_templates.all()
+                for c in self.poweroutlettemplates.all()
             ]
-        if self.interface_templates.exists():
+        if self.interfacetemplates.exists():
             data['interfaces'] = [
                 {
                     'name': c.name,
                     'type': c.type,
                     'mgmt_only': c.mgmt_only,
                 }
-                for c in self.interface_templates.all()
+                for c in self.interfacetemplates.all()
             ]
-        if self.frontport_templates.exists():
+        if self.frontporttemplates.exists():
             data['front-ports'] = [
                 {
                     'name': c.name,
@@ -1102,23 +1102,23 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
                     'rear_port': c.rear_port.name,
                     'rear_port_position': c.rear_port_position,
                 }
-                for c in self.frontport_templates.all()
+                for c in self.frontporttemplates.all()
             ]
-        if self.rearport_templates.exists():
+        if self.rearporttemplates.exists():
             data['rear-ports'] = [
                 {
                     'name': c.name,
                     'type': c.type,
                     'positions': c.positions,
                 }
-                for c in self.rearport_templates.all()
+                for c in self.rearporttemplates.all()
             ]
-        if self.device_bay_templates.exists():
+        if self.devicebaytemplates.exists():
             data['device-bays'] = [
                 {
                     'name': c.name,
                 }
-                for c in self.device_bay_templates.all()
+                for c in self.devicebaytemplates.all()
             ]
 
         return yaml.dump(dict(data), sort_keys=False)
@@ -1159,7 +1159,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 
         if (
                 self.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT
-        ) and self.device_bay_templates.count():
+        ) and self.devicebaytemplates.count():
             raise ValidationError({
                 'subdevice_role': "Must delete all device bay templates associated with this device before "
                                   "declassifying it as a parent device."
@@ -1634,28 +1634,28 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # If this is a new Device, instantiate all of the related components per the DeviceType definition
         if is_new:
             ConsolePort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.consoleport_templates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.consoleporttemplates.unrestricted()]
             )
             ConsoleServerPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.consoleserverport_templates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.consoleserverporttemplates.unrestricted()]
             )
             PowerPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.powerport_templates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.powerporttemplates.unrestricted()]
             )
             PowerOutlet.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.poweroutlet_templates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.poweroutlettemplates.unrestricted()]
             )
             Interface.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.interface_templates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.interfacetemplates.unrestricted()]
             )
             RearPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.rearport_templates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.rearporttemplates.unrestricted()]
             )
             FrontPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.frontport_templates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.frontporttemplates.unrestricted()]
             )
             DeviceBay.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.device_bay_templates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.devicebaytemplates.unrestricted()]
             )
 
         # Update Site and Rack assignment for any child Devices

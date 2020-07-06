@@ -1,5 +1,6 @@
 import base64
 
+from django.test import override_settings
 from django.urls import reverse
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
@@ -96,6 +97,7 @@ class SecretTestCase(
         self.session_key = SessionKey(userkey=userkey)
         self.session_key.save(master_key)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_import_objects(self):
         self.add_permissions('secrets.add_secret')
 

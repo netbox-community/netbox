@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
 from django.urls import reverse
 
 from circuits.choices import *
@@ -45,6 +46,7 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
         )
         Provider.objects.bulk_create(providers)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_get_provider_graphs(self):
         """
         Test retrieval of Graphs assigned to Providers.

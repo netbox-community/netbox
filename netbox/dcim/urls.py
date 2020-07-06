@@ -98,6 +98,7 @@ urlpatterns = [
     # Console port templates
     path('console-port-templates/add/', views.ConsolePortTemplateCreateView.as_view(), name='consoleporttemplate_add'),
     path('console-port-templates/edit/', views.ConsolePortTemplateBulkEditView.as_view(), name='consoleporttemplate_bulk_edit'),
+    path('console-port-templates/rename/', views.ConsolePortTemplateBulkRenameView.as_view(), name='consoleporttemplate_bulk_rename'),
     path('console-port-templates/delete/', views.ConsolePortTemplateBulkDeleteView.as_view(), name='consoleporttemplate_bulk_delete'),
     path('console-port-templates/<int:pk>/edit/', views.ConsolePortTemplateEditView.as_view(), name='consoleporttemplate_edit'),
     path('console-port-templates/<int:pk>/delete/', views.ConsolePortTemplateDeleteView.as_view(), name='consoleporttemplate_delete'),
@@ -105,6 +106,7 @@ urlpatterns = [
     # Console server port templates
     path('console-server-port-templates/add/', views.ConsoleServerPortTemplateCreateView.as_view(), name='consoleserverporttemplate_add'),
     path('console-server-port-templates/edit/', views.ConsoleServerPortTemplateBulkEditView.as_view(), name='consoleserverporttemplate_bulk_edit'),
+    path('console-server-port-templates/rename/', views.ConsoleServerPortTemplateBulkRenameView.as_view(), name='consoleserverporttemplate_bulk_rename'),
     path('console-server-port-templates/delete/', views.ConsoleServerPortTemplateBulkDeleteView.as_view(), name='consoleserverporttemplate_bulk_delete'),
     path('console-server-port-templates/<int:pk>/edit/', views.ConsoleServerPortTemplateEditView.as_view(), name='consoleserverporttemplate_edit'),
     path('console-server-port-templates/<int:pk>/delete/', views.ConsoleServerPortTemplateDeleteView.as_view(), name='consoleserverporttemplate_delete'),
@@ -112,6 +114,7 @@ urlpatterns = [
     # Power port templates
     path('power-port-templates/add/', views.PowerPortTemplateCreateView.as_view(), name='powerporttemplate_add'),
     path('power-port-templates/edit/', views.PowerPortTemplateBulkEditView.as_view(), name='powerporttemplate_bulk_edit'),
+    path('power-port-templates/rename/', views.PowerPortTemplateBulkRenameView.as_view(), name='powerporttemplate_bulk_rename'),
     path('power-port-templates/delete/', views.PowerPortTemplateBulkDeleteView.as_view(), name='powerporttemplate_bulk_delete'),
     path('power-port-templates/<int:pk>/edit/', views.PowerPortTemplateEditView.as_view(), name='powerporttemplate_edit'),
     path('power-port-templates/<int:pk>/delete/', views.PowerPortTemplateDeleteView.as_view(), name='powerporttemplate_delete'),
@@ -119,6 +122,7 @@ urlpatterns = [
     # Power outlet templates
     path('power-outlet-templates/add/', views.PowerOutletTemplateCreateView.as_view(), name='poweroutlettemplate_add'),
     path('power-outlet-templates/edit/', views.PowerOutletTemplateBulkEditView.as_view(), name='poweroutlettemplate_bulk_edit'),
+    path('power-outlet-templates/rename/', views.PowerOutletTemplateBulkRenameView.as_view(), name='poweroutlettemplate_bulk_rename'),
     path('power-outlet-templates/delete/', views.PowerOutletTemplateBulkDeleteView.as_view(), name='poweroutlettemplate_bulk_delete'),
     path('power-outlet-templates/<int:pk>/edit/', views.PowerOutletTemplateEditView.as_view(), name='poweroutlettemplate_edit'),
     path('power-outlet-templates/<int:pk>/delete/', views.PowerOutletTemplateDeleteView.as_view(), name='poweroutlettemplate_delete'),
@@ -126,6 +130,7 @@ urlpatterns = [
     # Interface templates
     path('interface-templates/add/', views.InterfaceTemplateCreateView.as_view(), name='interfacetemplate_add'),
     path('interface-templates/edit/', views.InterfaceTemplateBulkEditView.as_view(), name='interfacetemplate_bulk_edit'),
+    path('interface-templates/rename/', views.InterfaceTemplateBulkRenameView.as_view(), name='interfacetemplate_bulk_rename'),
     path('interface-templates/delete/', views.InterfaceTemplateBulkDeleteView.as_view(), name='interfacetemplate_bulk_delete'),
     path('interface-templates/<int:pk>/edit/', views.InterfaceTemplateEditView.as_view(), name='interfacetemplate_edit'),
     path('interface-templates/<int:pk>/delete/', views.InterfaceTemplateDeleteView.as_view(), name='interfacetemplate_delete'),
@@ -133,6 +138,7 @@ urlpatterns = [
     # Front port templates
     path('front-port-templates/add/', views.FrontPortTemplateCreateView.as_view(), name='frontporttemplate_add'),
     path('front-port-templates/edit/', views.FrontPortTemplateBulkEditView.as_view(), name='frontporttemplate_bulk_edit'),
+    path('front-port-templates/rename/', views.FrontPortTemplateBulkRenameView.as_view(), name='frontporttemplate_bulk_rename'),
     path('front-port-templates/delete/', views.FrontPortTemplateBulkDeleteView.as_view(), name='frontporttemplate_bulk_delete'),
     path('front-port-templates/<int:pk>/edit/', views.FrontPortTemplateEditView.as_view(), name='frontporttemplate_edit'),
     path('front-port-templates/<int:pk>/delete/', views.FrontPortTemplateDeleteView.as_view(), name='frontporttemplate_delete'),
@@ -140,6 +146,7 @@ urlpatterns = [
     # Rear port templates
     path('rear-port-templates/add/', views.RearPortTemplateCreateView.as_view(), name='rearporttemplate_add'),
     path('rear-port-templates/edit/', views.RearPortTemplateBulkEditView.as_view(), name='rearporttemplate_bulk_edit'),
+    path('rear-port-templates/rename/', views.RearPortTemplateBulkRenameView.as_view(), name='rearporttemplate_bulk_rename'),
     path('rear-port-templates/delete/', views.RearPortTemplateBulkDeleteView.as_view(), name='rearporttemplate_bulk_delete'),
     path('rear-port-templates/<int:pk>/edit/', views.RearPortTemplateEditView.as_view(), name='rearporttemplate_edit'),
     path('rear-port-templates/<int:pk>/delete/', views.RearPortTemplateDeleteView.as_view(), name='rearporttemplate_delete'),
@@ -147,6 +154,7 @@ urlpatterns = [
     # Device bay templates
     path('device-bay-templates/add/', views.DeviceBayTemplateCreateView.as_view(), name='devicebaytemplate_add'),
     path('device-bay-templates/edit/', views.DeviceBayTemplateBulkEditView.as_view(), name='devicebaytemplate_bulk_edit'),
+    path('device-bay-templates/rename/', views.DeviceBayTemplateBulkRenameView.as_view(), name='devicebaytemplate_bulk_rename'),
     path('device-bay-templates/delete/', views.DeviceBayTemplateBulkDeleteView.as_view(), name='devicebaytemplate_bulk_delete'),
     path('device-bay-templates/<int:pk>/edit/', views.DeviceBayTemplateEditView.as_view(), name='devicebaytemplate_edit'),
     path('device-bay-templates/<int:pk>/delete/', views.DeviceBayTemplateDeleteView.as_view(), name='devicebaytemplate_delete'),

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 
@@ -131,6 +132,7 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_get_site_graphs(self):
         """
         Test retrieval of Graphs assigned to Sites.
@@ -900,6 +902,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_get_device_graphs(self):
         """
         Test retrieval of Graphs assigned to Devices.
@@ -1156,6 +1159,7 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
             },
         ]
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_get_interface_graphs(self):
         """
         Test retrieval of Graphs assigned to Devices.

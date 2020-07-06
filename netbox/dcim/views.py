@@ -640,6 +640,10 @@ class ConsolePortTemplateBulkEditView(BulkEditView):
     form = forms.ConsolePortTemplateBulkEditForm
 
 
+class ConsolePortTemplateBulkRenameView(BulkRenameView):
+    queryset = ConsolePortTemplate.objects.all()
+
+
 class ConsolePortTemplateBulkDeleteView(BulkDeleteView):
     queryset = ConsolePortTemplate.objects.all()
     table = tables.ConsolePortTemplateTable
@@ -669,6 +673,10 @@ class ConsoleServerPortTemplateBulkEditView(BulkEditView):
     queryset = ConsoleServerPortTemplate.objects.all()
     table = tables.ConsoleServerPortTemplateTable
     form = forms.ConsoleServerPortTemplateBulkEditForm
+
+
+class ConsoleServerPortTemplateBulkRenameView(BulkRenameView):
+    queryset = ConsoleServerPortTemplate.objects.all()
 
 
 class ConsoleServerPortTemplateBulkDeleteView(BulkDeleteView):
@@ -702,6 +710,10 @@ class PowerPortTemplateBulkEditView(BulkEditView):
     form = forms.PowerPortTemplateBulkEditForm
 
 
+class PowerPortTemplateBulkRenameView(BulkRenameView):
+    queryset = PowerPortTemplate.objects.all()
+
+
 class PowerPortTemplateBulkDeleteView(BulkDeleteView):
     queryset = PowerPortTemplate.objects.all()
     table = tables.PowerPortTemplateTable
@@ -731,6 +743,10 @@ class PowerOutletTemplateBulkEditView(BulkEditView):
     queryset = PowerOutletTemplate.objects.all()
     table = tables.PowerOutletTemplateTable
     form = forms.PowerOutletTemplateBulkEditForm
+
+
+class PowerOutletTemplateBulkRenameView(BulkRenameView):
+    queryset = PowerOutletTemplate.objects.all()
 
 
 class PowerOutletTemplateBulkDeleteView(BulkDeleteView):
@@ -764,6 +780,10 @@ class InterfaceTemplateBulkEditView(BulkEditView):
     form = forms.InterfaceTemplateBulkEditForm
 
 
+class InterfaceTemplateBulkRenameView(BulkRenameView):
+    queryset = InterfaceTemplate.objects.all()
+
+
 class InterfaceTemplateBulkDeleteView(BulkDeleteView):
     queryset = InterfaceTemplate.objects.all()
     table = tables.InterfaceTemplateTable
@@ -793,6 +813,10 @@ class FrontPortTemplateBulkEditView(BulkEditView):
     queryset = FrontPortTemplate.objects.all()
     table = tables.FrontPortTemplateTable
     form = forms.FrontPortTemplateBulkEditForm
+
+
+class FrontPortTemplateBulkRenameView(BulkRenameView):
+    queryset = FrontPortTemplate.objects.all()
 
 
 class FrontPortTemplateBulkDeleteView(BulkDeleteView):
@@ -826,6 +850,10 @@ class RearPortTemplateBulkEditView(BulkEditView):
     form = forms.RearPortTemplateBulkEditForm
 
 
+class RearPortTemplateBulkRenameView(BulkRenameView):
+    queryset = RearPortTemplate.objects.all()
+
+
 class RearPortTemplateBulkDeleteView(BulkDeleteView):
     queryset = RearPortTemplate.objects.all()
     table = tables.RearPortTemplateTable
@@ -855,6 +883,10 @@ class DeviceBayTemplateBulkEditView(BulkEditView):
     queryset = DeviceBayTemplate.objects.all()
     table = tables.DeviceBayTemplateTable
     form = forms.DeviceBayTemplateBulkEditForm
+
+
+class DeviceBayTemplateBulkRenameView(BulkRenameView):
+    queryset = DeviceBayTemplate.objects.all()
 
 
 class DeviceBayTemplateBulkDeleteView(BulkDeleteView):
@@ -952,7 +984,7 @@ class DeviceView(ObjectView):
             vc_members = []
 
         # Console ports
-        console_ports = ConsolePort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
+        consoleports = ConsolePort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
             'connected_endpoint__device', 'cable',
         )
 
@@ -964,7 +996,7 @@ class DeviceView(ObjectView):
         )
 
         # Power ports
-        power_ports = PowerPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
+        powerports = PowerPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
             '_connected_poweroutlet__device', 'cable',
         )
 
@@ -982,15 +1014,15 @@ class DeviceView(ObjectView):
         )
 
         # Front ports
-        front_ports = FrontPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
+        frontports = FrontPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
             'rear_port', 'cable',
         )
 
         # Rear ports
-        rear_ports = RearPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related('cable')
+        rearports = RearPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related('cable')
 
         # Device bays
-        device_bays = DeviceBay.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
+        devicebays = DeviceBay.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
             'installed_device__device_type__manufacturer',
         )
 
@@ -1011,14 +1043,14 @@ class DeviceView(ObjectView):
 
         return render(request, 'dcim/device.html', {
             'device': device,
-            'console_ports': console_ports,
+            'consoleports': consoleports,
             'consoleserverports': consoleserverports,
-            'power_ports': power_ports,
+            'powerports': powerports,
             'poweroutlets': poweroutlets,
             'interfaces': interfaces,
-            'device_bays': device_bays,
-            'front_ports': front_ports,
-            'rear_ports': rear_ports,
+            'devicebays': devicebays,
+            'frontports': frontports,
+            'rearports': rearports,
             'services': services,
             'secrets': secrets,
             'vc_members': vc_members,

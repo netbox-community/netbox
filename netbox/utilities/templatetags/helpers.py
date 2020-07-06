@@ -242,3 +242,14 @@ def tag(tag, url_name=None):
         'tag': tag,
         'url_name': url_name,
     }
+
+
+@register.inclusion_tag('utilities/templatetags/badge.html')
+def badge(value, show_empty=False):
+    """
+    Display the specified number as a badge.
+    """
+    return {
+        'value': value,
+        'show_empty': show_empty,
+    }

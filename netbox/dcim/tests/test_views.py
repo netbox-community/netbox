@@ -4,6 +4,7 @@ import pytz
 import yaml
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
 from django.urls import reverse
 from netaddr import EUI
 
@@ -376,6 +377,7 @@ class DeviceTypeTestCase(
             'is_full_depth': False,
         }
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_import_objects(self):
         """
         Custom import test for YAML-based imports (versus CSV)
@@ -479,45 +481,45 @@ device-bays:
         self.assertEqual(dt.comments, 'test comment')
 
         # Verify all of the components were created
-        self.assertEqual(dt.consoleport_templates.count(), 3)
+        self.assertEqual(dt.consoleporttemplates.count(), 3)
         cp1 = ConsolePortTemplate.objects.first()
         self.assertEqual(cp1.name, 'Console Port 1')
         self.assertEqual(cp1.type, ConsolePortTypeChoices.TYPE_DE9)
 
-        self.assertEqual(dt.consoleserverport_templates.count(), 3)
+        self.assertEqual(dt.consoleserverporttemplates.count(), 3)
         csp1 = ConsoleServerPortTemplate.objects.first()
         self.assertEqual(csp1.name, 'Console Server Port 1')
         self.assertEqual(csp1.type, ConsolePortTypeChoices.TYPE_RJ45)
 
-        self.assertEqual(dt.powerport_templates.count(), 3)
+        self.assertEqual(dt.powerporttemplates.count(), 3)
         pp1 = PowerPortTemplate.objects.first()
         self.assertEqual(pp1.name, 'Power Port 1')
         self.assertEqual(pp1.type, PowerPortTypeChoices.TYPE_IEC_C14)
 
-        self.assertEqual(dt.poweroutlet_templates.count(), 3)
+        self.assertEqual(dt.poweroutlettemplates.count(), 3)
         po1 = PowerOutletTemplate.objects.first()
         self.assertEqual(po1.name, 'Power Outlet 1')
         self.assertEqual(po1.type, PowerOutletTypeChoices.TYPE_IEC_C13)
         self.assertEqual(po1.power_port, pp1)
         self.assertEqual(po1.feed_leg, PowerOutletFeedLegChoices.FEED_LEG_A)
 
-        self.assertEqual(dt.interface_templates.count(), 3)
+        self.assertEqual(dt.interfacetemplates.count(), 3)
         iface1 = InterfaceTemplate.objects.first()
         self.assertEqual(iface1.name, 'Interface 1')
         self.assertEqual(iface1.type, InterfaceTypeChoices.TYPE_1GE_FIXED)
         self.assertTrue(iface1.mgmt_only)
 
-        self.assertEqual(dt.rearport_templates.count(), 3)
+        self.assertEqual(dt.rearporttemplates.count(), 3)
         rp1 = RearPortTemplate.objects.first()
         self.assertEqual(rp1.name, 'Rear Port 1')
 
-        self.assertEqual(dt.frontport_templates.count(), 3)
+        self.assertEqual(dt.frontporttemplates.count(), 3)
         fp1 = FrontPortTemplate.objects.first()
         self.assertEqual(fp1.name, 'Front Port 1')
         self.assertEqual(fp1.rear_port, rp1)
         self.assertEqual(fp1.rear_port_position, 1)
 
-        self.assertEqual(dt.device_bay_templates.count(), 3)
+        self.assertEqual(dt.devicebaytemplates.count(), 3)
         db1 = DeviceBayTemplate.objects.first()
         self.assertEqual(db1.name, 'Device Bay 1')
 

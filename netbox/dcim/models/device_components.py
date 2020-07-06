@@ -36,6 +36,24 @@ __all__ = (
 
 
 class ComponentModel(models.Model):
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='%(class)ss'
+    )
+    name = models.CharField(
+        max_length=64
+    )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
+    label = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Physical label"
+    )
     description = models.CharField(
         max_length=200,
         blank=True
@@ -233,24 +251,6 @@ class ConsolePort(CableTermination, ComponentModel):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='consoleports'
-    )
-    name = models.CharField(
-        max_length=50
-    )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -270,7 +270,7 @@ class ConsolePort(CableTermination, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'type', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -283,6 +283,7 @@ class ConsolePort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.label,
             self.type,
             self.description,
         )
@@ -297,24 +298,6 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='consoleserverports'
-    )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
-    )
     type = models.CharField(
         max_length=50,
         choices=ConsolePortTypeChoices,
@@ -327,7 +310,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'type', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -340,6 +323,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.label,
             self.type,
             self.description,
         )
@@ -354,24 +338,6 @@ class PowerPort(CableTermination, ComponentModel):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='powerports'
-    )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
-    )
     type = models.CharField(
         max_length=50,
         choices=PowerPortTypeChoices,
@@ -410,7 +376,7 @@ class PowerPort(CableTermination, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'type', 'maximum_draw', 'allocated_draw', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -423,6 +389,7 @@ class PowerPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.label,
             self.get_type_display(),
             self.maximum_draw,
             self.allocated_draw,
@@ -519,24 +486,6 @@ class PowerOutlet(CableTermination, ComponentModel):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='poweroutlets'
-    )
-    name = models.CharField(
-        max_length=50
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
-    )
     type = models.CharField(
         max_length=50,
         choices=PowerOutletTypeChoices,
@@ -562,7 +511,7 @@ class PowerOutlet(CableTermination, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'type', 'power_port', 'feed_leg', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -575,6 +524,7 @@ class PowerOutlet(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.label,
             self.get_type_display(),
             self.power_port.name if self.power_port else None,
             self.get_feed_leg_display(),
@@ -595,15 +545,9 @@ class PowerOutlet(CableTermination, ComponentModel):
 #
 
 class BaseInterface(models.Model):
-    name = models.CharField(
-        max_length=64
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        naturalize_function=naturalize_interface,
-        max_length=100,
-        blank=True
-    )
+    """
+    Abstract base class for fields shared by dcim.Interface and virtualization.VMInterface.
+    """
     enabled = models.BooleanField(
         default=True
     )
@@ -633,17 +577,12 @@ class Interface(CableTermination, ComponentModel, BaseInterface):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.
     """
-    device = models.ForeignKey(
-        to='Device',
-        on_delete=models.CASCADE,
-        related_name='interfaces',
-        null=True,
+    # Override ComponentModel._name to specify naturalize_interface function
+    _name = NaturalOrderingField(
+        target_field='name',
+        naturalize_function=naturalize_interface,
+        max_length=100,
         blank=True
-    )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
     )
     _connected_interface = models.OneToOneField(
         to='self',
@@ -703,7 +642,7 @@ class Interface(CableTermination, ComponentModel, BaseInterface):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'device', 'name', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only', 'description', 'mode',
+        'device', 'name', 'label', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only', 'description', 'mode',
     ]
 
     class Meta:
@@ -717,6 +656,7 @@ class Interface(CableTermination, ComponentModel, BaseInterface):
         return (
             self.device.identifier if self.device else None,
             self.name,
+            self.label,
             self.lag.name if self.lag else None,
             self.get_type_display(),
             self.enabled,
@@ -849,19 +789,6 @@ class FrontPort(CableTermination, ComponentModel):
     """
     A pass-through port on the front of a Device.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='frontports'
-    )
-    name = models.CharField(
-        max_length=64
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
@@ -877,7 +804,7 @@ class FrontPort(CableTermination, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'type', 'rear_port', 'rear_port_position', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description']
 
     class Meta:
         ordering = ('device', '_name')
@@ -886,9 +813,6 @@ class FrontPort(CableTermination, ComponentModel):
             ('rear_port', 'rear_port_position'),
         )
 
-    def __str__(self):
-        return self.name
-
     def get_absolute_url(self):
         return reverse('dcim:frontport', kwargs={'pk': self.pk})
 
@@ -896,6 +820,7 @@ class FrontPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.label,
             self.get_type_display(),
             self.rear_port.name,
             self.rear_port_position,
@@ -924,19 +849,6 @@ class RearPort(CableTermination, ComponentModel):
     """
     A pass-through port on the rear of a Device.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='rearports'
-    )
-    name = models.CharField(
-        max_length=64
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
     type = models.CharField(
         max_length=50,
         choices=PortTypeChoices
@@ -947,14 +859,11 @@ class RearPort(CableTermination, ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'type', 'positions', 'description']
+    csv_headers = ['device', 'name', 'label', 'type', 'positions', 'description']
 
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:rearport', kwargs={'pk': self.pk})
@@ -963,6 +872,7 @@ class RearPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.label,
             self.get_type_display(),
             self.positions,
             self.description,
@@ -978,25 +888,6 @@ class DeviceBay(ComponentModel):
     """
     An empty space within a Device which can house a child device
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='device_bays'
-    )
-    name = models.CharField(
-        max_length=50,
-        verbose_name='Name'
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
-    label = models.CharField(
-        max_length=64,
-        blank=True,
-        help_text="Physical label"
-    )
     installed_device = models.OneToOneField(
         to='dcim.Device',
         on_delete=models.SET_NULL,
@@ -1006,16 +897,11 @@ class DeviceBay(ComponentModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'installed_device', 'description']
+    csv_headers = ['device', 'name', 'label', 'installed_device', 'description']
 
     class Meta:
         ordering = ('device', '_name')
         unique_together = ('device', 'name')
-
-    def __str__(self):
-        if self.label:
-            return '{} - {} ({})'.format(self.device.name, self.name, self.label)
-        return '{} - {}'.format(self.device.name, self.name)
 
     def get_absolute_url(self):
         return reverse('dcim:devicebay', kwargs={'pk': self.pk})
@@ -1024,6 +910,7 @@ class DeviceBay(ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.label,
             self.installed_device.identifier if self.installed_device else None,
             self.description,
         )
@@ -1061,26 +948,12 @@ class InventoryItem(ComponentModel):
     An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.
     InventoryItems are used only for inventory purposes.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='inventory_items'
-    )
     parent = models.ForeignKey(
         to='self',
         on_delete=models.CASCADE,
         related_name='child_items',
         blank=True,
         null=True
-    )
-    name = models.CharField(
-        max_length=50,
-        verbose_name='Name'
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
     )
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',
@@ -1116,15 +989,12 @@ class InventoryItem(ComponentModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
+        'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
     ]
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')
         unique_together = ('device', 'parent', 'name')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('dcim:inventoryitem', kwargs={'pk': self.pk})
@@ -1133,6 +1003,7 @@ class InventoryItem(ComponentModel):
         return (
             self.device.name or '{{{}}}'.format(self.device.pk),
             self.name,
+            self.label,
             self.manufacturer.name if self.manufacturer else None,
             self.part_id,
             self.serial,
