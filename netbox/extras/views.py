@@ -431,6 +431,7 @@ class ReportResultView(ContentTypePermissionRequiredMixin, GetReportMixin, View)
             'run_form': ConfirmationForm(),
         })
 
+
 #
 # Scripts
 #

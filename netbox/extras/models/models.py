@@ -662,7 +662,6 @@ class JobResult(models.Model):
 
         self.save()
 
-
     @classmethod
     def enqueue_job(cls, func, name, obj_type, user, *args, **kwargs):
         """
