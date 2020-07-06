@@ -1,6 +1,6 @@
 from django import template
 
-from extras.constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
+from extras.choices import LogLevelChoices
 
 
 register = template.Library()
@@ -11,28 +11,7 @@ def log_level(level):
     """
     Display a label indicating a syslog severity (e.g. info, warning, etc.).
     """
-    # TODO: we should convert this to a choices class
-    levels = {
-        'default': {
-            'name': 'Default',
-            'class': 'default'
-        },
-        'success': {
-            'name': 'Success',
-            'class': 'success',
-        },
-        'info': {
-            'name': 'Info',
-            'class': 'info'
-        },
-        'warning': {
-            'name': 'Warning',
-            'class': 'warning'
-        },
-        'failure': {
-            'name': 'Failure',
-            'class': 'danger'
-        }
+    return {
+        'name': LogLevelChoices.as_dict()[level],
+        'class': dict(LogLevelChoices.CLASS_MAP)[level]
     }
-
-    return levels[level]

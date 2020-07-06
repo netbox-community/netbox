@@ -9,8 +9,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django_rq import job
 
-from .choices import JobResultStatusChoices
-from .constants import *
+from .choices import JobResultStatusChoices, LogLevelChoices
 from .models import JobResult
 
 
@@ -77,7 +76,8 @@ def run_report(job_result, *args, **kwargs):
 
     try:
         report.run(job_result)
-    except Exception:
+    except Exception as e:
+        print(e)
         job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
         logging.error(f"Error during execution of report {job_result.name}")
 
@@ -153,15 +153,15 @@ class Report(object):
     def full_name(self):
         return '.'.join([self.__module__, self.__class__.__name__])
 
-    def _log(self, obj, message, level=LOG_DEFAULT):
+    def _log(self, obj, message, level=LogLevelChoices.LOG_DEFAULT):
         """
         Log a message from a test method. Do not call this method directly; use one of the log_* wrappers below.
         """
-        if level not in LOG_LEVEL_CODES:
+        if level not in LogLevelChoices.as_dict():
             raise Exception("Unknown logging level: {}".format(level))
         self._results[self.active_test]['log'].append((
             timezone.now().isoformat(),
-            LOG_LEVEL_CODES.get(level),
+            level,
             str(obj) if obj else None,
             obj.get_absolute_url() if getattr(obj, 'get_absolute_url', None) else None,
             message,
@@ -171,7 +171,7 @@ class Report(object):
         """
         Log a message which is not associated with a particular object.
         """
-        self._log(None, message, level=LOG_DEFAULT)
+        self._log(None, message, level=LogLevelChoices.LOG_DEFAULT)
         self.logger.info(message)
 
     def log_success(self, obj, message=None):
@@ -179,7 +179,7 @@ class Report(object):
         Record a successful test against an object. Logging a message is optional.
         """
         if message:
-            self._log(obj, message, level=LOG_SUCCESS)
+            self._log(obj, message, level=LogLevelChoices.LOG_SUCCESS)
         self._results[self.active_test]['success'] += 1
         self.logger.info(f"Success | {obj}: {message}")
 
@@ -187,7 +187,7 @@ class Report(object):
         """
         Log an informational message.
         """
-        self._log(obj, message, level=LOG_INFO)
+        self._log(obj, message, level=LogLevelChoices.LOG_INFO)
         self._results[self.active_test]['info'] += 1
         self.logger.info(f"Info | {obj}: {message}")
 
@@ -195,7 +195,7 @@ class Report(object):
         """
         Log a warning.
         """
-        self._log(obj, message, level=LOG_WARNING)
+        self._log(obj, message, level=LogLevelChoices.LOG_WARNING)
         self._results[self.active_test]['warning'] += 1
         self.logger.info(f"Warning | {obj}: {message}")
 
@@ -203,7 +203,7 @@ class Report(object):
         """
         Log a failure. Calling this method will automatically mark the report as failed.
         """
-        self._log(obj, message, level=LOG_FAILURE)
+        self._log(obj, message, level=LogLevelChoices.LOG_FAILURE)
         self._results[self.active_test]['failure'] += 1
         self.logger.info(f"Failure | {obj}: {message}")
         self.failed = True

@@ -41,7 +41,7 @@
             <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=result %}</span>
         </p>
         <div role="tabpanel" class="tab-pane active" id="log">
-            {% if result.completed %}
+            {% if result.completed and result.status != 'errored' %}
                 <div class="row">
                     <div class="col-md-12">
                         <div class="panel panel-default">
@@ -74,6 +74,12 @@
                                 </div>
                             {% endif %}
                         </div>
+                    </div>
+                </div>
+            {% elif result.stats == 'errored' %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="well">Error during script execution</div>
                     </div>
                 </div>
             {% else %}

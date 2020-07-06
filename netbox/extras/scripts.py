@@ -19,11 +19,10 @@ from mptt.forms import TreeNodeChoiceField, TreeNodeMultipleChoiceField
 from mptt.models import MPTTModel
 
 from extras.api.serializers import ScriptOutputSerializer
-from extras.choices import JobResultStatusChoices
+from extras.choices import JobResultStatusChoices, LogLevelChoices
 from extras.models import JobResult
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
-from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
 from utilities.exceptions import AbortTransaction
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .forms import ScriptForm
@@ -324,23 +323,23 @@ class BaseScript:
 
     def log_debug(self, message):
         self.logger.log(logging.DEBUG, message)
-        self.log.append((LOG_DEFAULT, message))
+        self.log.append((LogLevelChoices.LOG_DEFAULT, message))
 
     def log_success(self, message):
         self.logger.log(logging.INFO, message)  # No syslog equivalent for SUCCESS
-        self.log.append((LOG_SUCCESS, message))
+        self.log.append((LogLevelChoices.LOG_SUCCESS, message))
 
     def log_info(self, message):
         self.logger.log(logging.INFO, message)
-        self.log.append((LOG_INFO, message))
+        self.log.append((LogLevelChoices.LOG_INFO, message))
 
     def log_warning(self, message):
         self.logger.log(logging.WARNING, message)
-        self.log.append((LOG_WARNING, message))
+        self.log.append((LogLevelChoices.LOG_WARNING, message))
 
     def log_failure(self, message):
         self.logger.log(logging.ERROR, message)
-        self.log.append((LOG_FAILURE, message))
+        self.log.append((LogLevelChoices.LOG_FAILURE, message))
 
     # Convenience functions
 
@@ -428,11 +427,15 @@ def run_script(data, request, commit=True, *args, **kwargs):
     try:
         with transaction.atomic():
             script.output = script.run(**kwargs)
-            job_result.status = JobResultStatusChoices.STATUS_COMPLETED
+            job_result.data = ScriptOutputSerializer(script).data
+            job_result.set_status(JobResultStatusChoices.STATUS_COMPLETED)
+
             if not commit:
                 raise AbortTransaction()
+
     except AbortTransaction:
         pass
+
     except Exception as e:
         stacktrace = traceback.format_exc()
         script.log_failure(
@@ -440,7 +443,8 @@ def run_script(data, request, commit=True, *args, **kwargs):
         )
         logger.error(f"Exception raised during script execution: {e}")
         commit = False
-        job_result.status = JobResultStatusChoices.STATUS_FAILED
+        job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
+
     finally:
         if not commit:
             # Delete all pending changelog entries
@@ -448,10 +452,6 @@ def run_script(data, request, commit=True, *args, **kwargs):
             script.log_info(
                 "Database changes have been reverted automatically."
             )
-
-    job_result.data = ScriptOutputSerializer(script).data
-    job_result.completed = timezone.now()
-    job_result.save()
 
     logger.info(f"Script completed in {job_result.duration}")
 

@@ -3,10 +3,8 @@ var timeout = 1000;
 
 function updatePendingStatusLabel(status){
     var labelClass;
-    if (status.value === 'failed'){
+    if (status.value === 'failed' || status.value === 'errored'){
         labelClass = 'danger';
-    } else if (status.value === 'pending'){
-        labelClass = 'default';
     } else if (status.value === 'running'){
         labelClass = 'warning';
     } else if (status.value === 'completed'){
@@ -33,7 +31,7 @@ $(document).ready(function(){
                 context: this,
                 success: function(data) {
                     updatePendingStatusLabel(data.status);
-                    if (data.status.value === 'completed' || data.status.value === 'failed'){
+                    if (data.status.value === 'completed' || data.status.value === 'failed' || data.status.value === 'errored'){
                         jobTerminatedAction()
                     } else {
                         setTimeout(checkPendingResult, timeout);

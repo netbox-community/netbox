@@ -38,7 +38,7 @@
                 {% endif %}
                 <span id="pending-result-label">{% include 'extras/inc/job_label.html' with result=result %}</span>
             </p>
-            {% if result.completed %}
+            {% if result.completed and result.status != 'errored' %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <strong>Report Methods</strong>
@@ -97,8 +97,10 @@
                         </tbody>
                     </table>
                 </div>
+            {% elif result.status == 'errored' %}
+                <div class="well">Error during report execution</div>
             {% else %}
-                <div class="well">Pending results</div>
+            <div class="well">Pending results</div>
             {% endif %}
         </div>
     </div>

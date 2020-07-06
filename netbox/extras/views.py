@@ -453,8 +453,22 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
 
     def get(self, request):
 
+        scripts = get_scripts(use_names=True)
+        script_content_type = ContentType.objects.get(app_label='extras', model='script')
+        results = {
+            r.name: r
+            for r in JobResult.objects.filter(
+                obj_type=script_content_type,
+                status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+            ).defer('data')
+        }
+
+        for _scripts in scripts.values():
+            for script in _scripts.values():
+                script.result = results.get(script.full_name)
+
         return render(request, 'extras/script_list.html', {
-            'scripts': get_scripts(use_names=True),
+            'scripts': scripts,
         })
 
 

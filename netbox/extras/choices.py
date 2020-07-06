@@ -121,6 +121,43 @@ class TemplateLanguageChoices(ChoiceSet):
 
 
 #
+# Log Levels for Reports and Scripts
+#
+
+class LogLevelChoices(ChoiceSet):
+
+    LOG_DEFAULT = 'default'
+    LOG_SUCCESS = 'sucess'
+    LOG_INFO = 'info'
+    LOG_WARNING = 'warning'
+    LOG_FAILURE = 'failure'
+
+    CHOICES = (
+        (LOG_DEFAULT, 'Default'),
+        (LOG_SUCCESS, 'Success'),
+        (LOG_INFO, 'Info'),
+        (LOG_WARNING, 'Warning'),
+        (LOG_FAILURE, 'Failure'),
+    )
+
+    CLASS_MAP = (
+        (LOG_DEFAULT, 'default'),
+        (LOG_SUCCESS, 'success'),
+        (LOG_INFO, 'info'),
+        (LOG_WARNING, 'warning'),
+        (LOG_FAILURE, 'danger'),
+    )
+
+    LEGACY_MAP = (
+        (LOG_DEFAULT, 0),
+        (LOG_SUCCESS, 10),
+        (LOG_INFO, 20),
+        (LOG_WARNING, 30),
+        (LOG_FAILURE, 40),
+    )
+
+
+#
 # Job results
 #
 
