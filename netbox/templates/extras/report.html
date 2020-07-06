@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load helpers %}
+
+{% block title %}{{ report.name }}{% endblock %}
+
+{% block content %}
+    <div class="row noprint">
+        <div class="col-md-12">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'extras:report_list' %}">Reports</a></li>
+                <li><a href="{% url 'extras:report_list' %}#module.{{ report.module }}">{{ report.module|bettertitle }}</a></li>
+                <li>{{ report.name }}</li>
+            </ol>
+        </div>
+    </div>
+    {% if perms.extras.run_report %}
+        <div class="pull-right noprint">
+            <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
+                {% csrf_token %}
+                {{ run_form }}
+                <button type="submit" name="_run" class="btn btn-primary"><i class="fa fa-play"></i> Run Report</button>
+            </form>
+        </div>
+    {% endif %}
+    <h1>{{ report.name }}</h1>
+    <div class="row">
+        <div class="col-md-12">
+            {% if report.description %}
+                <p class="lead">{{ report.description }}</p>
+            {% endif %}
+            {% if report.result %}
+                <p>Last run: <a href="{% url 'extras:report_result' job_result_pk=report.result.pk %}">
+                    <strong>{{ report.result.created }}</strong>
+                </a></p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

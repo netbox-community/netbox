@@ -14,7 +14,7 @@
             </ol>
         </div>
     </div>
-    {% if perms.extras.add_reportresult %}
+    {% if perms.extras.run_report %}
         <div class="pull-right noprint">
             <form action="{% url 'extras:report' module=report.module name=report.name %}" method="post">
                 {% csrf_token %}

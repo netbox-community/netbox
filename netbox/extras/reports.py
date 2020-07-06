@@ -146,12 +146,19 @@ class Report(object):
         return self.__module__
 
     @property
-    def name(self):
+    def class_name(self):
         return self.__class__.__name__
 
     @property
+    def name(self):
+        """
+        Override this attribute to set a custom display name.
+        """
+        return self.class_name
+
+    @property
     def full_name(self):
-        return '.'.join([self.__module__, self.__class__.__name__])
+        return f'{self.module}.{self.class_name}'
 
     def _log(self, obj, message, level=LogLevelChoices.LOG_DEFAULT):
         """
