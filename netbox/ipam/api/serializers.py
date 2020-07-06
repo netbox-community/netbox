@@ -210,29 +210,6 @@ class AvailablePrefixSerializer(serializers.Serializer):
 # IP addresses
 #
 
-class IPAddressInterfaceSerializer(WritableNestedSerializer):
-    """
-    Nested representation of an Interface which may belong to a Device *or* a VirtualMachine.
-    """
-    url = serializers.SerializerMethodField()  # We're imitating a HyperlinkedIdentityField here
-    device = NestedDeviceSerializer(read_only=True)
-    virtual_machine = NestedVirtualMachineSerializer(read_only=True)
-
-    class Meta:
-        model = Interface
-        fields = [
-            'id', 'url', 'device', 'virtual_machine', 'name',
-        ]
-
-    def get_url(self, obj):
-        """
-        Return a link to the Interface via either the DCIM API if the parent is a Device, or via the virtualization API
-        if the parent is a VirtualMachine.
-        """
-        url_name = 'dcim-api:interface-detail' if obj.device else 'virtualization-api:interface-detail'
-        return reverse(url_name, kwargs={'pk': obj.pk}, request=self.context['request'])
-
-
 class IPAddressSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:ipaddress-detail')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
