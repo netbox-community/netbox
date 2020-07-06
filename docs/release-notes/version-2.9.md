@@ -8,6 +8,10 @@
 
 NetBox v2.9 replaces Django's built-in permissions framework with one that supports object-based assignment of permissions using arbitrary constraints. When granting a user or group to perform a certain action on one or more types of objects, an administrator can optionally specify a set of constraints. The permission will apply only to objects which match the specified constraints. For example, assigning permission to modify devices with the constraint `{"tenant__group__name": "Customers"}` would grant the permission only for devices assigned to a tenant belonging to the "Customers" group.
 
+#### Background Script & Report Execution ([#2006](https://github.com/netbox-community/netbox/issues/2006))
+
+When running a report or custom script, the task is now queued for background processing and a response is immediately returned to the user. This prevents long-running scripts from blocking the response, and avoids WSGI timeout errors. Once the task has completed, the page will automatically refresh to display its results. Both scripts and reports now store their output in the new JobResult model. (The ReportResult model has been removed.)
+
 ### Enhancements
 
 * [#2018](https://github.com/netbox-community/netbox/issues/2018) - Add `name` field to virtual chassis model
@@ -44,6 +48,8 @@ NetBox v2.9 replaces Django's built-in permissions framework with one that suppo
 * The serialized representation of a virtual machine interface now includes only relevant fields: `type`, `lag`, `mgmt_only`, `connected_endpoint_type`, `connected_endpoint`, and `cable` are no longer included.
 * dcim.VirtualChassis: Added a mandatory `name` field
 * An optional `description` field has been added to all device component templates
+* extras.Report: The `failed` field has been removed. The `completed` (boolean) and `status` (string) fields have been introduced to convey the status of a report's most recent execution. Additionally, the `result` field now conveys the nested representation of a JobResult.
+* extras.Script: Added `module` and `result` fields. The `result` field now conveys the nested representation of a JobResult.
 
 ### Other Changes
 
