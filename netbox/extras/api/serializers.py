@@ -302,7 +302,7 @@ class ScriptLogMessageSerializer(serializers.Serializer):
     message = serializers.SerializerMethodField(read_only=True)
 
     def get_status(self, instance):
-        return LOG_LEVEL_CODES.get(instance[0])
+        return instance[0]
 
     def get_message(self, instance):
         return instance[1]
