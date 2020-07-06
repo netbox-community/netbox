@@ -13,14 +13,16 @@ from .nested_serializers import *
 #
 
 class SecretRoleSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='secrets-api:secretrole-detail')
     secret_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = SecretRole
-        fields = ['id', 'name', 'slug', 'description', 'secret_count']
+        fields = ['id', 'url', 'name', 'slug', 'description', 'secret_count']
 
 
 class SecretSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='secrets-api:secret-detail')
     device = NestedDeviceSerializer()
     role = NestedSecretRoleSerializer()
     plaintext = serializers.CharField()
@@ -28,7 +30,8 @@ class SecretSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     class Meta:
         model = Secret
         fields = [
-            'id', 'device', 'role', 'name', 'plaintext', 'hash', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'device', 'role', 'name', 'plaintext', 'hash', 'tags', 'custom_fields', 'created',
+            'last_updated',
         ]
         validators = []
 

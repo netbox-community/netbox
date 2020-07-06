@@ -22,6 +22,7 @@ When running a report or custom script, the task is now queued for background pr
 * [#4792](https://github.com/netbox-community/netbox/issues/4792) - Add bulk rename capability for console and power ports
 * [#4793](https://github.com/netbox-community/netbox/issues/4793) - Add `description` field to device component templates
 * [#4795](https://github.com/netbox-community/netbox/issues/4795) - Add bulk disconnect capability for console and power ports
+* [#4806](https://github.com/netbox-community/netbox/issues/4806) - Add a `url` field to all API serializers
 * [#4807](https://github.com/netbox-community/netbox/issues/4807) - Add bulk edit ability for device bay templates
 * [#4817](https://github.com/netbox-community/netbox/issues/4817) - Standardize device/VM component `name` field to 64 characters
 
@@ -50,6 +51,7 @@ When running a report or custom script, the task is now queued for background pr
 * An optional `description` field has been added to all device component templates
 * extras.Report: The `failed` field has been removed. The `completed` (boolean) and `status` (string) fields have been introduced to convey the status of a report's most recent execution. Additionally, the `result` field now conveys the nested representation of a JobResult.
 * extras.Script: Added `module` and `result` fields. The `result` field now conveys the nested representation of a JobResult.
+* A `url` field is now included on all object representations, identifying the unique REST API URL for each object.
 
 ### Other Changes
 
