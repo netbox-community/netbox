@@ -6,7 +6,7 @@ from django.utils import timezone
 from rest_framework import status
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, RackGroup, RackRole, Site
-from extras.api.views import ScriptViewSet
+from extras.api.views import ReportViewSet, ScriptViewSet
 from extras.models import ConfigContext, Graph, ExportTemplate, Tag
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
@@ -211,28 +211,29 @@ class ConfigContextTest(APIViewTestCases.APIViewTestCase):
 class ReportTest(APITestCase):
 
     class TestReport(Report):
-        pass  # The report is not actually run, we are testing that the view enqueues the job
+
+        def test_foo(self):
+            self.log_success(None, "Report completed")
 
     def get_test_report(self, *args):
-        return self.TestReport
+        return self.TestReport()
 
     def setUp(self):
-
         super().setUp()
 
         # Monkey-patch the API viewset's _get_script method to return our test script above
-        ReportViewSet._get_report = self.get_test_report
+        ReportViewSet._retrieve_report = self.get_test_report
 
     def test_get_report(self):
-
         url = reverse('extras-api:report-detail', kwargs={'pk': None})
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['name'], self.TestReport.__name__)
 
     def test_run_report(self):
+        self.add_permissions('extras.run_script')
 
-        url = reverse('extras-api:report-detail', kwargs={'pk': None})
+        url = reverse('extras-api:report-run', kwargs={'pk': None})
         response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 

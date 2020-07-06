@@ -217,7 +217,7 @@ class ReportViewSet(ViewSet):
         """
 
         # Check that the user has permission to run reports.
-        if not request.user.has_perm('extras.add_reportresult'):
+        if not request.user.has_perm('extras.run_script'):
             raise PermissionDenied("This user does not have permission to run reports.")
 
         # Retrieve and run the Report. This will create a new JobResult.
@@ -231,7 +231,7 @@ class ReportViewSet(ViewSet):
         )
         report.result = job_result
 
-        serializer = serializers.ReportDetailSerializer(report)
+        serializer = serializers.ReportDetailSerializer(report, context={'request': request})
 
         return Response(serializer.data)
 
