@@ -596,7 +596,7 @@ class TagFilterField(forms.MultipleChoiceField):
 
     def __init__(self, model, *args, **kwargs):
         def get_choices():
-            tags = model.tags.all().unrestricted().annotate(
+            tags = model.tags.annotate(
                 count=Count('extras_taggeditem_items')
             ).order_by('name')
             return [

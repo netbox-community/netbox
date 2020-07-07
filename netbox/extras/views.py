@@ -2,12 +2,10 @@ import time
 
 from django import template
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Prefetch, Q
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.safestring import mark_safe
 from django.views.generic import View
 from django_tables2 import RequestConfig
 
@@ -33,7 +31,7 @@ from .scripts import get_scripts, run_script
 #
 
 class TagListView(ObjectListView):
-    queryset = Tag.objects.annotate(
+    queryset = Tag.restricted_objects.annotate(
         items=Count('extras_taggeditem_items', distinct=True)
     ).order_by(
         'name'
@@ -44,23 +42,23 @@ class TagListView(ObjectListView):
 
 
 class TagEditView(ObjectEditView):
-    queryset = Tag.objects.all()
+    queryset = Tag.restricted_objects.all()
     model_form = forms.TagForm
     template_name = 'extras/tag_edit.html'
 
 
 class TagDeleteView(ObjectDeleteView):
-    queryset = Tag.objects.all()
+    queryset = Tag.restricted_objects.all()
 
 
 class TagBulkImportView(BulkImportView):
-    queryset = Tag.objects.all()
+    queryset = Tag.restricted_objects.all()
     model_form = forms.TagCSVForm
     table = tables.TagTable
 
 
 class TagBulkEditView(BulkEditView):
-    queryset = Tag.objects.annotate(
+    queryset = Tag.restricted_objects.annotate(
         items=Count('extras_taggeditem_items', distinct=True)
     ).order_by(
         'name'
@@ -70,7 +68,7 @@ class TagBulkEditView(BulkEditView):
 
 
 class TagBulkDeleteView(BulkDeleteView):
-    queryset = Tag.objects.annotate(
+    queryset = Tag.restricted_objects.annotate(
         items=Count('extras_taggeditem_items')
     ).order_by(
         'name'

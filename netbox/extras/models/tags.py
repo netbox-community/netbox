@@ -1,5 +1,4 @@
 from django.db import models
-from django.urls import reverse
 from django.utils.text import slugify
 from taggit.models import TagBase, GenericTaggedItemBase
 
@@ -22,7 +21,8 @@ class Tag(TagBase, ChangeLoggedModel):
         blank=True,
     )
 
-    objects = RestrictedQuerySet.as_manager()
+    objects = models.Manager()
+    restricted_objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'color', 'description']
 
