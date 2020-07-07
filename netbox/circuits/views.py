@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Count, OuterRef
+from django.db.models import Count, Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2 import RequestConfig
 
@@ -119,9 +119,9 @@ class CircuitTypeBulkDeleteView(BulkDeleteView):
 #
 
 class CircuitListView(ObjectListView):
-    _terminations = CircuitTermination.objects.filter(circuit=OuterRef('pk'))
     queryset = Circuit.objects.prefetch_related(
-        'provider', 'type', 'tenant', 'terminations__site'
+        Prefetch('terminations', CircuitTermination.objects.unrestricted()),
+        'provider', 'type', 'tenant'
     ).annotate_sites()
     filterset = filters.CircuitFilterSet
     filterset_form = forms.CircuitFilterForm
@@ -174,14 +174,20 @@ class CircuitBulkImportView(BulkImportView):
 
 
 class CircuitBulkEditView(BulkEditView):
-    queryset = Circuit.objects.prefetch_related('provider', 'type', 'tenant').prefetch_related('terminations__site')
+    queryset = Circuit.objects.prefetch_related(
+        Prefetch('terminations', CircuitTermination.objects.unrestricted()),
+        'provider', 'type', 'tenant'
+    )
     filterset = filters.CircuitFilterSet
     table = tables.CircuitTable
     form = forms.CircuitBulkEditForm
 
 
 class CircuitBulkDeleteView(BulkDeleteView):
-    queryset = Circuit.objects.prefetch_related('provider', 'type', 'tenant').prefetch_related('terminations__site')
+    queryset = Circuit.objects.prefetch_related(
+        Prefetch('terminations', CircuitTermination.objects.unrestricted()),
+        'provider', 'type', 'tenant'
+    )
     filterset = filters.CircuitFilterSet
     table = tables.CircuitTable
 
