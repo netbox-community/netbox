@@ -18,6 +18,7 @@ from .utils import disable_warnings, post_data
 
 __all__ = (
     'TestCase',
+    'ModelTestCase',
     'ModelViewTestCase',
     'ViewTestCases',
 )
@@ -149,21 +150,11 @@ class TestCase(_TestCase):
         return tags
 
 
-#
-# UI Tests
-#
-
-class ModelViewTestCase(TestCase):
+class ModelTestCase(TestCase):
     """
-    Base TestCase for model views. Subclass to test individual views.
+    Parent class for TestCases which deal with models.
     """
     model = None
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if self.model is None:
-            raise Exception("Test case requires model to be defined")
 
     def _get_queryset(self):
         """
@@ -172,6 +163,16 @@ class ModelViewTestCase(TestCase):
         if hasattr(self.model.objects, 'restrict'):
             return self.model.objects.unrestricted()
         return self.model.objects.all()
+
+
+#
+# UI Tests
+#
+
+class ModelViewTestCase(ModelTestCase):
+    """
+    Base TestCase for model views. Subclass to test individual views.
+    """
 
     def _get_base_url(self):
         """
