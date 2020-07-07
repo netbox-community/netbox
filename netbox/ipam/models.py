@@ -471,7 +471,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         return self.STATUS_CLASS_MAP.get(self.status)
 
     def get_duplicates(self):
-        return Prefix.objects.filter(vrf=self.vrf, prefix=str(self.prefix)).exclude(pk=self.pk)
+        return Prefix.objects.unrestricted().filter(vrf=self.vrf, prefix=str(self.prefix)).exclude(pk=self.pk)
 
     def get_child_prefixes(self):
         """
@@ -479,9 +479,9 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         Prefixes belonging to any VRF.
         """
         if self.vrf is None and self.status == PrefixStatusChoices.STATUS_CONTAINER:
-            return Prefix.objects.filter(prefix__net_contained=str(self.prefix))
+            return Prefix.objects.unrestricted().filter(prefix__net_contained=str(self.prefix))
         else:
-            return Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
+            return Prefix.objects.unrestricted().filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
 
     def get_child_ips(self):
         """
@@ -489,9 +489,9 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         child IPAddresses belonging to any VRF.
         """
         if self.vrf is None and self.status == PrefixStatusChoices.STATUS_CONTAINER:
-            return IPAddress.objects.filter(address__net_host_contained=str(self.prefix))
+            return IPAddress.objects.unrestricted().filter(address__net_host_contained=str(self.prefix))
         else:
-            return IPAddress.objects.filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
+            return IPAddress.objects.unrestricted().filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
 
     def get_available_prefixes(self):
         """
@@ -695,7 +695,10 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         return reverse('ipam:ipaddress', args=[self.pk])
 
     def get_duplicates(self):
-        return IPAddress.objects.filter(vrf=self.vrf, address__net_host=str(self.address.ip)).exclude(pk=self.pk)
+        return IPAddress.objects.unrestricted().filter(
+            vrf=self.vrf,
+            address__net_host=str(self.address.ip)
+        ).exclude(pk=self.pk)
 
     def clean(self):
 
@@ -992,7 +995,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
 
     def get_members(self):
         # Return all interfaces assigned to this VLAN
-        return Interface.objects.filter(
+        return Interface.objects.unrestricted().filter(
             Q(untagged_vlan_id=self.pk) |
             Q(tagged_vlans=self.pk)
         ).distinct()

@@ -390,7 +390,7 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
         return queryset.filter(address__net_mask_length=value)
 
     def filter_device(self, queryset, name, value):
-        devices = Device.objects.filter(**{'{}__in'.format(name): value})
+        devices = Device.objects.unrestricted().filter(**{'{}__in'.format(name): value})
         if not devices.exists():
             return queryset.none()
         interface_ids = []
@@ -401,12 +401,12 @@ class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, 
         )
 
     def filter_virtual_machine(self, queryset, name, value):
-        virtual_machines = VirtualMachine.objects.filter(**{'{}__in'.format(name): value})
+        virtual_machines = VirtualMachine.objects.unrestricted().filter(**{'{}__in'.format(name): value})
         if not virtual_machines.exists():
             return queryset.none()
         interface_ids = []
         for vm in virtual_machines:
-            interface_ids.extend(vm.interfaces.values_list('id', flat=True))
+            interface_ids.extend(vm.interfaces.unrestricted().values_list('id', flat=True))
         return queryset.filter(
             vminterface__in=interface_ids
         )
