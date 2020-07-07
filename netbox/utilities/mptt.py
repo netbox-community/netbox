@@ -16,4 +16,8 @@ class TreeManager(Manager.from_queryset(TreeQuerySet), TreeManager_):
     """
     Extend django-mptt's TreeManager to incorporate RestrictedQuerySet().
     """
-    pass
+    def db_manager(self, using=None, hints=None):
+        manager = super().db_manager(using, hints)
+
+        # Return an unrestricted QuerySet for use by MPTT
+        return manager.unrestricted()
