@@ -11,7 +11,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 
 class GraphTestCase(TestCase):
-    queryset = Graph.objects.all()
+    queryset = Graph.objects.unrestricted()
     filterset = GraphFilterSet
 
     @classmethod
@@ -46,7 +46,7 @@ class GraphTestCase(TestCase):
 
 
 class ExportTemplateTestCase(TestCase):
-    queryset = ExportTemplate.objects.all()
+    queryset = ExportTemplate.objects.unrestricted()
     filterset = ExportTemplateFilterSet
 
     @classmethod
@@ -79,7 +79,7 @@ class ExportTemplateTestCase(TestCase):
 
 
 class ConfigContextTestCase(TestCase):
-    queryset = ConfigContext.objects.all()
+    queryset = ConfigContext.objects.unrestricted()
     filterset = ConfigContextFilterSet
 
     @classmethod
@@ -176,54 +176,54 @@ class ConfigContextTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
-        regions = Region.objects.all()[:2]
+        regions = Region.objects.unrestricted()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
-        sites = Site.objects.all()[:2]
+        sites = Site.objects.unrestricted()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_role(self):
-        device_roles = DeviceRole.objects.all()[:2]
+        device_roles = DeviceRole.objects.unrestricted()[:2]
         params = {'role_id': [device_roles[0].pk, device_roles[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'role': [device_roles[0].slug, device_roles[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_platform(self):
-        platforms = Platform.objects.all()[:2]
+        platforms = Platform.objects.unrestricted()[:2]
         params = {'platform_id': [platforms[0].pk, platforms[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'platform': [platforms[0].slug, platforms[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cluster_group(self):
-        cluster_groups = ClusterGroup.objects.all()[:2]
+        cluster_groups = ClusterGroup.objects.unrestricted()[:2]
         params = {'cluster_group_id': [cluster_groups[0].pk, cluster_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'cluster_group': [cluster_groups[0].slug, cluster_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cluster(self):
-        clusters = Cluster.objects.all()[:2]
+        clusters = Cluster.objects.unrestricted()[:2]
         params = {'cluster_id': [clusters[0].pk, clusters[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_tenant_group(self):
-        tenant_groups = TenantGroup.objects.all()[:2]
+        tenant_groups = TenantGroup.objects.unrestricted()[:2]
         params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_tenant_(self):
-        tenants = Tenant.objects.all()[:2]
+        tenants = Tenant.objects.unrestricted()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'tenant': [tenants[0].slug, tenants[1].slug]}

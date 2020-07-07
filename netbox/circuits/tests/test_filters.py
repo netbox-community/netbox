@@ -8,7 +8,7 @@ from tenancy.models import Tenant, TenantGroup
 
 
 class ProviderTestCase(TestCase):
-    queryset = Provider.objects.all()
+    queryset = Provider.objects.unrestricted()
     filterset = ProviderFilterSet
 
     @classmethod
@@ -75,14 +75,14 @@ class ProviderTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
-        sites = Site.objects.all()[:2]
+        sites = Site.objects.unrestricted()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
-        regions = Region.objects.all()[:2]
+        regions = Region.objects.unrestricted()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
@@ -90,7 +90,7 @@ class ProviderTestCase(TestCase):
 
 
 class CircuitTypeTestCase(TestCase):
-    queryset = CircuitType.objects.all()
+    queryset = CircuitType.objects.unrestricted()
     filterset = CircuitTypeFilterSet
 
     @classmethod
@@ -116,7 +116,7 @@ class CircuitTypeTestCase(TestCase):
 
 
 class CircuitTestCase(TestCase):
-    queryset = Circuit.objects.all()
+    queryset = Circuit.objects.unrestricted()
     filterset = CircuitFilterSet
 
     @classmethod
@@ -199,14 +199,14 @@ class CircuitTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_provider(self):
-        provider = Provider.objects.first()
+        provider = Provider.objects.unrestricted().first()
         params = {'provider_id': [provider.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'provider': [provider.slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_type(self):
-        circuit_type = CircuitType.objects.first()
+        circuit_type = CircuitType.objects.unrestricted().first()
         params = {'type_id': [circuit_type.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'type': [circuit_type.slug]}
@@ -217,28 +217,28 @@ class CircuitTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_region(self):
-        regions = Region.objects.all()[:2]
+        regions = Region.objects.unrestricted()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
-        sites = Site.objects.all()[:2]
+        sites = Site.objects.unrestricted()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_tenant(self):
-        tenants = Tenant.objects.all()[:2]
+        tenants = Tenant.objects.unrestricted()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant': [tenants[0].slug, tenants[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_tenant_group(self):
-        tenant_groups = TenantGroup.objects.all()[:2]
+        tenant_groups = TenantGroup.objects.unrestricted()[:2]
         params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
@@ -246,7 +246,7 @@ class CircuitTestCase(TestCase):
 
 
 class CircuitTerminationTestCase(TestCase):
-    queryset = CircuitTermination.objects.all()
+    queryset = CircuitTermination.objects.unrestricted()
     filterset = CircuitTerminationFilterSet
 
     @classmethod
@@ -303,12 +303,12 @@ class CircuitTerminationTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_circuit_id(self):
-        circuits = Circuit.objects.all()[:2]
+        circuits = Circuit.objects.unrestricted()[:2]
         params = {'circuit_id': [circuits[0].pk, circuits[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_site(self):
-        sites = Site.objects.all()[:2]
+        sites = Site.objects.unrestricted()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'site': [sites[0].slug, sites[1].slug]}

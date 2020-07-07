@@ -5,7 +5,7 @@ from tenancy.models import Tenant, TenantGroup
 
 
 class TenantGroupTestCase(TestCase):
-    queryset = TenantGroup.objects.all()
+    queryset = TenantGroup.objects.unrestricted()
     filterset = TenantGroupFilterSet
 
     @classmethod
@@ -52,7 +52,7 @@ class TenantGroupTestCase(TestCase):
 
 
 class TenantTestCase(TestCase):
-    queryset = Tenant.objects.all()
+    queryset = Tenant.objects.unrestricted()
     filterset = TenantFilterSet
 
     @classmethod
@@ -86,7 +86,7 @@ class TenantTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_group(self):
-        group = TenantGroup.objects.all()[:2]
+        group = TenantGroup.objects.unrestricted()[:2]
         params = {'group_id': [group[0].pk, group[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'group': [group[0].slug, group[1].slug]}
