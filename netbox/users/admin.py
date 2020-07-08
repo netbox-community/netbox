@@ -171,6 +171,7 @@ class ObjectPermissionForm(forms.ModelForm):
 
 @admin.register(ObjectPermission)
 class ObjectPermissionAdmin(admin.ModelAdmin):
+    actions = ('enable', 'disable')
     fieldsets = (
         (None, {
             'fields': ('name', 'enabled')
@@ -215,3 +216,15 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
     def list_groups(self, obj):
         return ', '.join([g.name for g in obj.groups.all()])
     list_groups.short_description = 'Groups'
+
+    #
+    # Admin actions
+    #
+
+    def enable(self, request, queryset):
+        updated = queryset.update(enabled=True)
+        self.message_user(request, f"Enabled {updated} permissions")
+
+    def disable(self, request, queryset):
+        updated = queryset.update(enabled=False)
+        self.message_user(request, f"Disabled {updated} permissions")
