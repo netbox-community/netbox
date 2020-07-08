@@ -1,5 +1,6 @@
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
+from rest_framework import serializers
 
 from users.models import ObjectPermission
 from utilities.api import ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer
@@ -7,6 +8,7 @@ from .nested_serializers import *
 
 
 class ObjectPermissionSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='users-api:objectpermission-detail')
     object_types = ContentTypeField(
         queryset=ContentType.objects.all(),
         many=True
@@ -26,4 +28,4 @@ class ObjectPermissionSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ObjectPermission
-        fields = ('id', 'name', 'enabled', 'object_types', 'groups', 'users', 'actions', 'constraints')
+        fields = ('id', 'url', 'name', 'enabled', 'object_types', 'groups', 'users', 'actions', 'constraints')
