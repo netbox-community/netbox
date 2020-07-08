@@ -235,6 +235,13 @@ class ObjectPermission(models.Model):
     A mapping of view, add, change, and/or delete permission for users and/or groups to an arbitrary set of objects
     identified by ORM query parameters.
     """
+    name = models.CharField(
+        max_length=100,
+        blank=True
+    )
+    enabled = models.BooleanField(
+        default=True
+    )
     object_types = models.ManyToManyField(
         to=ContentType,
         limit_choices_to={
@@ -270,6 +277,8 @@ class ObjectPermission(models.Model):
         verbose_name = "Permission"
 
     def __str__(self):
+        if self.name:
+            return self.name
         return '{}: {}'.format(
             ', '.join(self.object_types.values_list('model', flat=True)),
             ', '.join(self.actions)

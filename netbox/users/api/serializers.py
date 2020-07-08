@@ -26,4 +26,4 @@ class ObjectPermissionSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ObjectPermission
-        fields = ('id', 'object_types', 'groups', 'users', 'actions', 'constraints')
+        fields = ('id', 'name', 'enabled', 'object_types', 'groups', 'users', 'actions', 'constraints')

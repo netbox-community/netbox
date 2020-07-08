@@ -18,7 +18,7 @@ class AppTest(APITestCase):
 
 class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
     model = ObjectPermission
-    brief_fields = ['actions', 'groups', 'id', 'object_types', 'users']
+    brief_fields = ['actions', 'enabled', 'groups', 'id', 'name', 'object_types', 'users']
 
     @classmethod
     def setUpTestData(cls):

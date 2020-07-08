@@ -36,7 +36,7 @@ class NestedObjectPermissionSerializer(WritableNestedSerializer):
 
     class Meta:
         model = ObjectPermission
-        fields = ['id', 'object_types', 'groups', 'users', 'actions']
+        fields = ['id', 'name', 'enabled', 'object_types', 'groups', 'users', 'actions']
 
     def get_groups(self, obj):
         return [g.name for g in obj.groups.all()]

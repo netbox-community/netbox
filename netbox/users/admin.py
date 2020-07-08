@@ -172,14 +172,17 @@ class ObjectPermissionForm(forms.ModelForm):
 @admin.register(ObjectPermission)
 class ObjectPermissionAdmin(admin.ModelAdmin):
     fieldsets = (
+        (None, {
+            'fields': ('name', 'enabled')
+        }),
+        ('Actions', {
+            'fields': (('can_view', 'can_add', 'can_change', 'can_delete'), 'actions')
+        }),
         ('Objects', {
             'fields': ('object_types',)
         }),
         ('Assignment', {
             'fields': ('groups', 'users')
-        }),
-        ('Actions', {
-            'fields': (('can_view', 'can_add', 'can_change', 'can_delete'), 'actions')
         }),
         ('Constraints', {
             'fields': ('constraints',)
@@ -188,7 +191,7 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
     filter_horizontal = ('object_types', 'groups', 'users')
     form = ObjectPermissionForm
     list_display = [
-        'list_models', 'list_users', 'list_groups', 'actions', 'constraints',
+        'get_name', 'enabled', 'list_models', 'list_users', 'list_groups', 'actions', 'constraints',
     ]
     list_filter = [
         'groups', 'users'
@@ -196,6 +199,10 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('object_types', 'users', 'groups')
+
+    def get_name(self, obj):
+        return obj.name or f'Permission #{obj.pk}'
+    get_name.short_description = 'Name'
 
     def list_models(self, obj):
         return ', '.join([f"{ct}" for ct in obj.object_types.all()])

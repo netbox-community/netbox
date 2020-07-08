@@ -23,10 +23,10 @@ class ObjectPermissionBackend(ModelBackend):
         """
         Return all permissions granted to the user by an ObjectPermission.
         """
-        # Retrieve all assigned ObjectPermissions
+        # Retrieve all assigned and enabled ObjectPermissions
         object_permissions = ObjectPermission.objects.unrestricted().filter(
-            Q(users=user_obj) |
-            Q(groups__user=user_obj)
+            Q(users=user_obj) | Q(groups__user=user_obj),
+            enabled=True
         ).prefetch_related('object_types')
 
         # Create a dictionary mapping permissions to their constraints
