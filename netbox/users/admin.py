@@ -2,6 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as UserAdmin_
 from django.contrib.auth.models import Group, User
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldError, ValidationError
 
 from extras.admin import order_content_types
@@ -169,6 +170,39 @@ class ObjectPermissionForm(forms.ModelForm):
                     })
 
 
+class ActionListFilter(admin.SimpleListFilter):
+    title = 'action'
+    parameter_name = 'action'
+
+    def lookups(self, request, model_admin):
+        options = set()
+        for action_list in ObjectPermission.objects.unrestricted().values_list('actions', flat=True).distinct():
+            options.update(action_list)
+        return [
+            (action, action) for action in sorted(options)
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(actions=[self.value()])
+
+
+class ObjectTypeListFilter(admin.SimpleListFilter):
+    title = 'object type'
+    parameter_name = 'object_type'
+
+    def lookups(self, request, model_admin):
+        object_types = ObjectPermission.objects.unrestricted().values_list('id', flat=True).distinct()
+        content_types = ContentType.objects.filter(pk__in=object_types).order_by('app_label', 'model')
+        return [
+            (ct.pk, ct) for ct in content_types
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(object_types=self.value())
+
+
 @admin.register(ObjectPermission)
 class ObjectPermissionAdmin(admin.ModelAdmin):
     actions = ('enable', 'disable')
@@ -195,7 +229,7 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
         'get_name', 'enabled', 'list_models', 'list_users', 'list_groups', 'actions', 'constraints',
     ]
     list_filter = [
-        'groups', 'users'
+        'enabled', ActionListFilter, ObjectTypeListFilter, 'groups', 'users'
     ]
 
     def get_queryset(self, request):
