@@ -199,7 +199,7 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
     ]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('object_types', 'users', 'groups')
+        return super().get_queryset(request).unrestricted().prefetch_related('object_types', 'users', 'groups')
 
     def get_name(self, obj):
         return obj.name or f'Permission #{obj.pk}'
