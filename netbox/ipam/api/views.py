@@ -163,7 +163,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
         The advisory lock decorator uses a PostgreSQL advisory lock to prevent this API from being
         invoked in parallel, which results in a race condition where multiple insertions can occur.
         """
-        prefix = get_object_or_404(Prefix, pk=pk)
+        prefix = get_object_or_404(Prefix.objects.restrict(request.user), pk=pk)
 
         # Create the next available IP within the prefix
         if request.method == 'POST':
