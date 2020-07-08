@@ -4,8 +4,6 @@ from collections import OrderedDict
 
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
-from django.http import QueryDict
-from django.http.request import HttpRequest
 from jinja2 import Environment
 
 from dcim.choices import CableLengthUnitChoices
@@ -220,7 +218,7 @@ def prepare_cloned_fields(instance):
     Compile an object's `clone_fields` list into a string of URL query parameters. Tags are automatically cloned where
     applicable.
     """
-    params = {}
+    params = []
     for field_name in getattr(instance, 'clone_fields', []):
         field = instance._meta.get_field(field_name)
         field_value = field.value_from_object(instance)
@@ -231,16 +229,15 @@ def prepare_cloned_fields(instance):
 
         # Omit empty values
         if field_value not in (None, ''):
-            params[field_name] = field_value
+            params.append((field_name, field_value))
 
     # Copy tags
     if is_taggable(instance):
-        params['tags'] = ','.join([t.name for t in instance.tags.all()])
+        for tag in instance.tags.all():
+            params.append(('tags', tag.pk))
 
     # Concatenate parameters into a URL query string
-    param_string = '&'.join(
-        ['{}={}'.format(k, v) for k, v in params.items()]
-    )
+    param_string = '&'.join([f'{k}={v}' for k, v in params])
 
     return param_string
 
