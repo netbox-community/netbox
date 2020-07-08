@@ -220,7 +220,8 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
             'fields': ('groups', 'users')
         }),
         ('Constraints', {
-            'fields': ('constraints',)
+            'fields': ('constraints',),
+            'classes': ('monospace',)
         }),
     )
     filter_horizontal = ('object_types', 'groups', 'users')
