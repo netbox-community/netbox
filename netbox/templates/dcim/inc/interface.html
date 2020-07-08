@@ -31,7 +31,7 @@
         {% if iface.description %}
             {{ iface.description }}<br/>
         {% endif %}
-        {% for tag in iface.tags.all.unrestricted %}
+        {% for tag in iface.tags.all %}
             {% tag tag %}
         {% empty %}
             {% if not iface.description %}&mdash;{% endif %}
