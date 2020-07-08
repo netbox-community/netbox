@@ -31,7 +31,7 @@ from extras.querysets import CustomFieldQueryset
 from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, BulkRenameForm, CSVDataField, TableConfigForm, restrict_form_fields
 from utilities.permissions import get_permission_for_model, resolve_permission
-from utilities.utils import csv_format, prepare_cloned_fields
+from utilities.utils import csv_format, normalize_querydict, prepare_cloned_fields
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm, ImportForm
 from .paginator import EnhancedPaginator, get_paginate_count
@@ -392,8 +392,7 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         obj = self.alter_obj(self.get_object(kwargs), request, args, kwargs)
 
-        # Parse initial data manually to avoid setting field values as lists
-        initial_data = {k: request.GET[k] for k in request.GET}
+        initial_data = normalize_querydict(request.GET)
         form = self.model_form(instance=obj, initial=initial_data)
         restrict_form_fields(form, request.user)
 
