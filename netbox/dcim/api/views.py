@@ -376,7 +376,7 @@ class DeviceViewSet(CustomFieldModelViewSet):
         if device.platform is None:
             raise ServiceUnavailable("No platform is configured for this device.")
         if not device.platform.napalm_driver:
-            raise ServiceUnavailable("No NAPALM driver is configured for this device's platform ().".format(
+            raise ServiceUnavailable("No NAPALM driver is configured for this device's platform {}.".format(
                 device.platform
             ))
 

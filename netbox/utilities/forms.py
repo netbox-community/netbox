@@ -611,16 +611,6 @@ class DynamicModelChoiceMixin:
     filter = django_filters.ModelChoiceFilter
     widget = APISelect
 
-    def filter_queryset(self, data):
-        field_name = getattr(self, 'to_field_name') or 'pk'
-        # If multiple values have been provided, use only the last.
-        if type(data) in (list, tuple):
-            data = data[-1]
-        filter = self.filter(
-            field_name=field_name
-        )
-        return filter.filter(self.queryset, data)
-
     def get_bound_field(self, form, field_name):
         bound_field = BoundField(form, self, field_name)
 
@@ -628,7 +618,13 @@ class DynamicModelChoiceMixin:
         # will be populated on-demand via the APISelect widget.
         data = bound_field.value()
         if data:
-            self.queryset = self.filter_queryset(data)
+            field_name = getattr(self, 'to_field_name') or 'pk'
+            filter = self.filter(field_name=field_name)
+            try:
+                self.queryset = filter.filter(self.queryset, data)
+            except TypeError:
+                # Catch any error caused by invalid initial data passed from the user
+                self.queryset = self.queryset.none()
         else:
             self.queryset = self.queryset.none()
 
@@ -657,17 +653,6 @@ class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultip
     """
     filter = django_filters.ModelMultipleChoiceFilter
     widget = APISelectMultiple
-
-    def filter_queryset(self, data):
-        field_name = getattr(self, 'to_field_name') or 'pk'
-        # Normalize data to a list
-        if type(data) not in (list, tuple):
-            data = [data]
-        filter = self.filter(
-            field_name=field_name,
-            lookup_expr='in'
-        )
-        return filter.filter(self.queryset, data)
 
 
 class LaxURLField(forms.URLField):
