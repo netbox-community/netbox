@@ -86,7 +86,7 @@ class PrefixOrderingTestCase(OrderingTestBase):
         Prefix.objects.bulk_create(prefixes)
 
         # Test
-        self._compare(Prefix.objects.all(), prefixes)
+        self._compare(Prefix.objects.unrestricted(), prefixes)
 
     def test_prefix_complex_ordering(self):
         """
@@ -122,7 +122,7 @@ class PrefixOrderingTestCase(OrderingTestBase):
         Prefix.objects.bulk_create(prefixes)
 
         # Test
-        self._compare(Prefix.objects.all(), prefixes)
+        self._compare(Prefix.objects.unrestricted(), prefixes)
 
 
 class IPAddressOrderingTestCase(OrderingTestBase):
@@ -173,4 +173,4 @@ class IPAddressOrderingTestCase(OrderingTestBase):
         IPAddress.objects.bulk_create(addresses)
 
         # Test
-        self._compare(IPAddress.objects.all(), addresses)
+        self._compare(IPAddress.objects.unrestricted(), addresses)

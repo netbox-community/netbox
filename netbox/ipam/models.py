@@ -868,9 +868,9 @@ class VLANGroup(ChangeLoggedModel):
         """
         Return the first available VLAN ID (1-4094) in the group.
         """
-        vids = [vlan['vid'] for vlan in self.vlans.order_by('vid').values('vid')]
+        vlan_ids = VLAN.objects.unrestricted().filter(group=self).values_list('vid', flat=True)
         for i in range(1, 4095):
-            if i not in vids:
+            if i not in vlan_ids:
                 return i
         return None
 

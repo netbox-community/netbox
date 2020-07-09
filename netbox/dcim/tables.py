@@ -495,13 +495,13 @@ class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
     device_count = tables.TemplateColumn(
         template_code=DEVICEROLE_DEVICE_COUNT,
-        accessor=Accessor('devices.count'),
+        accessor=Accessor('devices.unrestricted.count'),
         orderable=False,
         verbose_name='Devices'
     )
     vm_count = tables.TemplateColumn(
         template_code=DEVICEROLE_VM_COUNT,
-        accessor=Accessor('virtual_machines.count'),
+        accessor=Accessor('virtual_machines.unrestricted.count'),
         orderable=False,
         verbose_name='VMs'
     )

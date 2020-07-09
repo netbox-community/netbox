@@ -103,7 +103,7 @@ VLAN_LINK = """
 """
 
 VLAN_PREFIXES = """
-{% for prefix in record.prefixes.all %}
+{% for prefix in record.prefixes.unrestricted %}
     <a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a>{% if not forloop.last %}<br />{% endif %}
 {% empty %}
     &mdash;
@@ -283,13 +283,13 @@ class AggregateDetailTable(AggregateTable):
 class RoleTable(BaseTable):
     pk = ToggleColumn()
     prefix_count = tables.TemplateColumn(
-        accessor=Accessor('prefixes.count'),
+        accessor=Accessor('prefixes.unrestricted.count'),
         template_code=ROLE_PREFIX_COUNT,
         orderable=False,
         verbose_name='Prefixes'
     )
     vlan_count = tables.TemplateColumn(
-        accessor=Accessor('vlans.count'),
+        accessor=Accessor('vlans.unrestricted.count'),
         template_code=ROLE_VLAN_COUNT,
         orderable=False,
         verbose_name='VLANs'

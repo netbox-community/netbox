@@ -1729,7 +1729,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         filter = Q(device=self)
         if self.virtual_chassis and self.virtual_chassis.master == self:
             filter |= Q(device__virtual_chassis=self.virtual_chassis, mgmt_only=False)
-        return Interface.objects.filter(filter)
+        return Interface.objects.unrestricted().filter(filter)
 
     def get_cables(self, pk_list=False):
         """

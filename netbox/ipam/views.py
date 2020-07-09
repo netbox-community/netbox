@@ -827,9 +827,15 @@ class ServiceEditView(ObjectEditView):
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
         if 'device' in url_kwargs:
-            obj.device = get_object_or_404(Device, pk=url_kwargs['device'])
+            obj.device = get_object_or_404(
+                Device.objects.restrict(request.user),
+                pk=url_kwargs['device']
+            )
         elif 'virtualmachine' in url_kwargs:
-            obj.virtual_machine = get_object_or_404(VirtualMachine, pk=url_kwargs['virtualmachine'])
+            obj.virtual_machine = get_object_or_404(
+                VirtualMachine.objects.restrict(request.user),
+                pk=url_kwargs['virtualmachine']
+            )
         return obj
 
     def get_return_url(self, request, service):
