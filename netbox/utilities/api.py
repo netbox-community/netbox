@@ -8,14 +8,13 @@ from django.core.exceptions import FieldError, MultipleObjectsReturned, ObjectDo
 from django.db import transaction
 from django.db.models import ManyToManyField, ProtectedError
 from django.urls import reverse
-from rest_framework.exceptions import APIException
+from rest_framework import serializers
+from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.permissions import BasePermission
 from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
 from rest_framework.response import Response
-from rest_framework.serializers import Field, ModelSerializer, ValidationError
 from rest_framework.viewsets import ModelViewSet as _ModelViewSet
 
-from netbox.api import TokenPermissions
 from .utils import dict_to_filter_params, dynamic_import
 
 
@@ -70,7 +69,7 @@ class IsAuthenticatedOrLoginNotRequired(BasePermission):
 # Fields
 #
 
-class ChoiceField(Field):
+class ChoiceField(serializers.Field):
     """
     Represent a ChoiceField as {'value': <DB value>, 'label': <string>}. Accepts a single value on write.
 
@@ -177,7 +176,7 @@ class ContentTypeField(RelatedField):
         return "{}.{}".format(obj.app_label, obj.model)
 
 
-class TimeZoneField(Field):
+class TimeZoneField(serializers.Field):
     """
     Represent a pytz time zone.
     """
@@ -212,7 +211,7 @@ class SerializedPKRelatedField(PrimaryKeyRelatedField):
 
 # TODO: We should probably take a fresh look at exactly what we're doing with this. There might be a more elegant
 # way to enforce model validation on the serializer.
-class ValidatedModelSerializer(ModelSerializer):
+class ValidatedModelSerializer(serializers.ModelSerializer):
     """
     Extends the built-in ModelSerializer to enforce calling clean() on the associated model during validation.
     """
@@ -241,7 +240,7 @@ class ValidatedModelSerializer(ModelSerializer):
         return data
 
 
-class WritableNestedSerializer(ModelSerializer):
+class WritableNestedSerializer(serializers.ModelSerializer):
     """
     Returns a nested representation of an object on read, but accepts only a primary key on write.
     """
