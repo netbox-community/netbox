@@ -7,10 +7,9 @@ from taggit.managers import TaggableManager
 
 from dcim.choices import InterfaceModeChoices
 from dcim.models import BaseInterface, Device
-from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
+from extras.models import ChangeLoggedModel, ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
 from utilities.fields import NaturalOrderingField
-from utilities.models import ChangeLoggedModel
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
 from utilities.querysets import RestrictedQuerySet

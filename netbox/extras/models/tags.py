@@ -2,9 +2,9 @@ from django.db import models
 from django.utils.text import slugify
 from taggit.models import TagBase, GenericTaggedItemBase
 
+from extras.models import ChangeLoggedModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField
-from utilities.models import ChangeLoggedModel
 from utilities.querysets import RestrictedQuerySet
 
 

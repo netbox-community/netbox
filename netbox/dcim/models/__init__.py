@@ -21,12 +21,11 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import ASNField
 from dcim.elevations import RackElevationSVG
-from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
+from extras.models import ChangeLoggedModel, ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
-from utilities.models import ChangeLoggedModel
 from utilities.mptt import TreeManager
 from utilities.utils import serialize_object, to_meters
 from utilities.validators import ExclusionValidator

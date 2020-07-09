@@ -4,9 +4,8 @@ from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 
-from extras.models import CustomFieldModel, ObjectChange, TaggedItem
+from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
-from utilities.models import ChangeLoggedModel
 from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import serialize_object

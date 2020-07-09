@@ -14,9 +14,8 @@ from django.utils.encoding import force_bytes
 from taggit.managers import TaggableManager
 
 from dcim.models import Device
-from extras.models import CustomFieldModel, TaggedItem
+from extras.models import ChangeLoggedModel, CustomFieldModel, TaggedItem
 from extras.utils import extras_features
-from utilities.models import ChangeLoggedModel
 from utilities.querysets import RestrictedQuerySet
 from .exceptions import InvalidKey
 from .hashers import SecretValidationHasher

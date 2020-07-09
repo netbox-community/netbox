@@ -10,9 +10,8 @@ from django.urls import reverse
 from taggit.managers import TaggableManager
 
 from dcim.models import Device, Interface
-from extras.models import CustomFieldModel, ObjectChange, TaggedItem
+from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
-from utilities.models import ChangeLoggedModel
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import serialize_object
 from virtualization.models import VirtualMachine, VMInterface
