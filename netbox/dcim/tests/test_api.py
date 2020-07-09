@@ -68,7 +68,7 @@ class Mixins:
 
 class RegionTest(APIViewTestCases.APIViewTestCase):
     model = Region
-    brief_fields = ['id', 'name', 'site_count', 'slug', 'url']
+    brief_fields = ['_depth', 'id', 'name', 'site_count', 'slug', 'url']
     create_data = [
         {
             'name': 'Region 4',
@@ -155,7 +155,7 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
 
 class RackGroupTest(APIViewTestCases.APIViewTestCase):
     model = RackGroup
-    brief_fields = ['id', 'name', 'rack_count', 'slug', 'url']
+    brief_fields = ['_depth', 'id', 'name', 'rack_count', 'slug', 'url']
 
     @classmethod
     def setUpTestData(cls):
