@@ -1,6 +1,6 @@
 # NetBox v2.8
 
-## v2.8.7 (FUTURE)
+## v2.8.8 (FUTURE)
 
 ### Bug Fixes
 
