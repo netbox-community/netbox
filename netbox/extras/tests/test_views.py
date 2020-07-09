@@ -45,6 +45,7 @@ class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 # Blocked by absence of standard create/edit, bulk create views
 class ConfigContextTestCase(
     ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
     ViewTestCases.ListObjectsViewTestCase,
     ViewTestCases.BulkEditObjectsViewTestCase,

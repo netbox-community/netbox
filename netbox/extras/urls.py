@@ -1,7 +1,7 @@
 from django.urls import path
 
 from extras import views
-from extras.models import Tag
+from extras.models import ConfigContext, Tag
 
 
 app_name = 'extras'
@@ -25,6 +25,7 @@ urlpatterns = [
     path('config-contexts/<int:pk>/', views.ConfigContextView.as_view(), name='configcontext'),
     path('config-contexts/<int:pk>/edit/', views.ConfigContextEditView.as_view(), name='configcontext_edit'),
     path('config-contexts/<int:pk>/delete/', views.ConfigContextDeleteView.as_view(), name='configcontext_delete'),
+    path('config-contexts/<int:pk>/changelog/', views.ObjectChangeLogView.as_view(), name='configcontext_changelog', kwargs={'model': ConfigContext}),
 
     # Image attachments
     path('image-attachments/<int:pk>/edit/', views.ImageAttachmentEditView.as_view(), name='imageattachment_edit'),

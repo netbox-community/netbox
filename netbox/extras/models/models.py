@@ -434,7 +434,7 @@ class ImageAttachment(models.Model):
 # Config contexts
 #
 
-class ConfigContext(models.Model):
+class ConfigContext(ChangeLoggedModel):
     """
     A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
     qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B

@@ -26,6 +26,7 @@ When running a report or custom script, the task is now queued for background pr
 * [#4807](https://github.com/netbox-community/netbox/issues/4807) - Add bulk edit ability for device bay templates
 * [#4817](https://github.com/netbox-community/netbox/issues/4817) - Standardize device/VM component `name` field to 64 characters
 * [#4837](https://github.com/netbox-community/netbox/issues/4837) - Use dynamic form widget for relationships to MPTT objects (e.g. regions)
+* [#4840](https://github.com/netbox-community/netbox/issues/4840) - Enable change logging for config contexts
 
 ### Configuration Changes
 
