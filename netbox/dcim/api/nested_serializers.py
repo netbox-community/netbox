@@ -47,10 +47,11 @@ __all__ = [
 class NestedRegionSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:region-detail')
     site_count = serializers.IntegerField(read_only=True)
+    _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
         model = models.Region
-        fields = ['id', 'url', 'name', 'slug', 'site_count']
+        fields = ['id', 'url', 'name', 'slug', 'site_count', '_depth']
 
 
 class NestedSiteSerializer(WritableNestedSerializer):
@@ -68,10 +69,11 @@ class NestedSiteSerializer(WritableNestedSerializer):
 class NestedRackGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackgroup-detail')
     rack_count = serializers.IntegerField(read_only=True)
+    _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
         model = models.RackGroup
-        fields = ['id', 'url', 'name', 'slug', 'rack_count']
+        fields = ['id', 'url', 'name', 'slug', 'rack_count', '_depth']
 
 
 class NestedRackRoleSerializer(WritableNestedSerializer):

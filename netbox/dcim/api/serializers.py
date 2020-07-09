@@ -63,10 +63,11 @@ class RegionSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:region-detail')
     parent = NestedRegionSerializer(required=False, allow_null=True)
     site_count = serializers.IntegerField(read_only=True)
+    _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
         model = Region
-        fields = ['id', 'url', 'name', 'slug', 'parent', 'description', 'site_count']
+        fields = ['id', 'url', 'name', 'slug', 'parent', 'description', 'site_count', '_depth']
 
 
 class SiteSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
@@ -101,10 +102,11 @@ class RackGroupSerializer(ValidatedModelSerializer):
     site = NestedSiteSerializer()
     parent = NestedRackGroupSerializer(required=False, allow_null=True)
     rack_count = serializers.IntegerField(read_only=True)
+    _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
         model = RackGroup
-        fields = ['id', 'url', 'name', 'slug', 'site', 'parent', 'description', 'rack_count']
+        fields = ['id', 'url', 'name', 'slug', 'site', 'parent', 'description', 'rack_count', '_depth']
 
 
 class RackRoleSerializer(ValidatedModelSerializer):

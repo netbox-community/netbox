@@ -6,7 +6,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
-from mptt.forms import TreeNodeChoiceField
 from netaddr import EUI
 from netaddr.core import AddrFormatError
 from timezone_field import TimeZoneFormField
@@ -179,10 +178,9 @@ class MACAddressField(forms.Field):
 #
 
 class RegionForm(BootstrapMixin, forms.ModelForm):
-    parent = TreeNodeChoiceField(
+    parent = DynamicModelChoiceField(
         queryset=Region.objects.all(),
-        required=False,
-        widget=StaticSelect2()
+        required=False
     )
     slug = SlugField()
 
@@ -219,10 +217,9 @@ class RegionFilterForm(BootstrapMixin, forms.Form):
 #
 
 class SiteForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
-    region = TreeNodeChoiceField(
+    region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
-        required=False,
-        widget=StaticSelect2()
+        required=False
     )
     slug = SlugField()
     comments = CommentField()
@@ -305,10 +302,9 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         initial='',
         widget=StaticSelect2()
     )
-    region = TreeNodeChoiceField(
+    region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
-        required=False,
-        widget=StaticSelect2()
+        required=False
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),

@@ -3,7 +3,6 @@ import json
 import logging
 import os
 import pkgutil
-import time
 import traceback
 from collections import OrderedDict
 
@@ -12,11 +11,8 @@ from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
-from django.utils import timezone
 from django.utils.decorators import classproperty
 from django_rq import job
-from mptt.forms import TreeNodeChoiceField, TreeNodeMultipleChoiceField
-from mptt.models import MPTTModel
 
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import JobResultStatusChoices, LogLevelChoices
@@ -182,10 +178,6 @@ class ObjectVar(ScriptVariable):
         # Queryset for field choices
         self.field_attrs['queryset'] = queryset
 
-        # Update form field for MPTT (nested) objects
-        if issubclass(queryset.model, MPTTModel):
-            self.form_field = TreeNodeChoiceField
-
 
 class MultiObjectVar(ScriptVariable):
     """
@@ -198,10 +190,6 @@ class MultiObjectVar(ScriptVariable):
 
         # Queryset for field choices
         self.field_attrs['queryset'] = queryset
-
-        # Update form field for MPTT (nested) objects
-        if issubclass(queryset.model, MPTTModel):
-            self.form_field = TreeNodeMultipleChoiceField
 
 
 class FileVar(ScriptVariable):

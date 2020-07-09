@@ -222,6 +222,10 @@ $(document).ready(function() {
 
                 results = results.reduce((results,record,idx) => {
                     record.text = record[element.getAttribute('display-field')] || record.name;
+                    if (record._depth) {
+                        // Annotate hierarchical depth for MPTT objects
+                        record.text = '--'.repeat(record._depth) + ' ' + record.text;
+                    }
                     record.id = record[element.getAttribute('value-field')] || record.id;
                     if(element.getAttribute('disabled-indicator') && record[element.getAttribute('disabled-indicator')]) {
                         // The disabled-indicator equated to true, so we disable this option

@@ -18,10 +18,7 @@ from .models import Tenant, TenantGroup
 class TenantGroupForm(BootstrapMixin, forms.ModelForm):
     parent = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
-        required=False,
-        widget=APISelect(
-            api_url="/api/tenancy/tenant-groups/"
-        )
+        required=False
     )
     slug = SlugField()
 
