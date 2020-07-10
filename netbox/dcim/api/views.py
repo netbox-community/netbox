@@ -398,21 +398,22 @@ class DeviceViewSet(CustomFieldModelViewSet):
         if not request.user.has_perm('dcim.napalm_read'):
             return HttpResponseForbidden()
 
-        # Connect to the device
-        napalm_methods = request.GET.getlist('method')
-        response = OrderedDict([(m, None) for m in napalm_methods])
-
         # Check for primary IP address from NetBox object
         if device.primary_ip:
             host = str(device.primary_ip.address.ip)
         else:
-            # Attempt to complete a DNS name resolution if no primary_ip is set
+            # Raise exception for no IP address and no Name if device.name does not exist
+            if not device.name:
+                raise ServiceUnavailable("This device does not have a primary IP address or device name to lookup configured.")
             try:
+                # Attempt to complete a DNS name resolution if no primary_ip is set
                 host = socket.gethostbyname(device.name)
             except socket.gaierror:
                 # Name lookup failure
                 raise ServiceUnavailable(f"Name lookup failure, unable to resolve IP address for {device.name}. Please set Primary IP or setup name resolution.")
 
+        napalm_methods = request.GET.getlist('method')
+        response = OrderedDict([(m, None) for m in napalm_methods])
         username = settings.NAPALM_USERNAME
         password = settings.NAPALM_PASSWORD
         optional_args = settings.NAPALM_ARGS.copy()
@@ -432,6 +433,7 @@ class DeviceViewSet(CustomFieldModelViewSet):
             elif key:
                 optional_args[key.lower()] = request.headers[header]
 
+        # Connect to the device
         d = driver(
             hostname=host,
             username=username,
