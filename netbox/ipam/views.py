@@ -809,7 +809,9 @@ class ServiceListView(ObjectListView):
 
 
 class ServiceView(ObjectView):
-    queryset = Service.objects.all()
+    queryset = Service.objects.prefetch_related(
+        Prefetch('ipaddresses', IPAddress.objects.unrestricted())
+    )
 
     def get(self, request, pk):
 
@@ -821,7 +823,9 @@ class ServiceView(ObjectView):
 
 
 class ServiceEditView(ObjectEditView):
-    queryset = Service.objects.all()
+    queryset = Service.objects.prefetch_related(
+        Prefetch('ipaddresses', IPAddress.objects.unrestricted())
+    )
     model_form = forms.ServiceForm
     template_name = 'ipam/service_edit.html'
 
