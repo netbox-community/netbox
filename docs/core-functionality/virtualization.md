@@ -7,3 +7,4 @@
 ---
 
 {!docs/models/virtualization/virtualmachine.md!}
+{!docs/models/virtualization/vminterface.md!}
