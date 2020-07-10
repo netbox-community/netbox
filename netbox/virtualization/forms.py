@@ -747,6 +747,8 @@ class VMInterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     )
     virtual_machine = forms.ModelChoiceField(
         queryset=VirtualMachine.objects.all(),
+        required=False,
+        disabled=True,
         widget=forms.HiddenInput()
     )
     enabled = forms.NullBooleanField(

@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, ButtonsColumn, ColoredLabelColumn, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, ColoredLabelColumn, TagColumn, ToggleColumn
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 VIRTUALMACHINE_STATUS = """
@@ -147,6 +147,8 @@ class VirtualMachineDetailTable(VirtualMachineTable):
 #
 
 class VMInterfaceTable(BaseTable):
+    pk = ToggleColumn()
+    enabled = BooleanColumn()
     virtual_machine = tables.LinkColumn()
     name = tables.Column(
         linkify=True
@@ -154,4 +156,5 @@ class VMInterfaceTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VMInterface
-        fields = ('virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description')
+        fields = ('pk', 'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description')
+        default_columns = ('pk', 'virtual_machine', 'name', 'enabled', 'description')
