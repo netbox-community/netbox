@@ -1,3 +1,4 @@
+import socket
 from collections import OrderedDict
 
 from django.conf import settings
@@ -371,8 +372,6 @@ class DeviceViewSet(CustomFieldModelViewSet):
         Execute a NAPALM method on a Device
         """
         device = get_object_or_404(Device, pk=pk)
-        if not device.primary_ip:
-            raise ServiceUnavailable("This device does not have a primary IP address configured.")
         if device.platform is None:
             raise ServiceUnavailable("No platform is configured for this device.")
         if not device.platform.napalm_driver:
@@ -402,7 +401,18 @@ class DeviceViewSet(CustomFieldModelViewSet):
         # Connect to the device
         napalm_methods = request.GET.getlist('method')
         response = OrderedDict([(m, None) for m in napalm_methods])
-        ip_address = str(device.primary_ip.address.ip)
+
+        # Check for primary IP address from NetBox object
+        if device.primary_ip:
+            host = str(device.primary_ip.address.ip)
+        else:
+            # Attempt to complete a DNS name resolution if no primary_ip is set
+            try:
+                host = socket.gethostbyname(device.name)
+            except socket.gaierror:
+                # Name lookup failure
+                raise ServiceUnavailable(f"Name lookup failure, unable to resolve IP address for {device.name}. Please set Primary IP or setup name resolution.")
+
         username = settings.NAPALM_USERNAME
         password = settings.NAPALM_PASSWORD
         optional_args = settings.NAPALM_ARGS.copy()
@@ -423,7 +433,7 @@ class DeviceViewSet(CustomFieldModelViewSet):
                 optional_args[key.lower()] = request.headers[header]
 
         d = driver(
-            hostname=ip_address,
+            hostname=host,
             username=username,
             password=password,
             timeout=settings.NAPALM_TIMEOUT,
@@ -432,7 +442,7 @@ class DeviceViewSet(CustomFieldModelViewSet):
         try:
             d.open()
         except Exception as e:
-            raise ServiceUnavailable("Error connecting to the device at {}: {}".format(ip_address, e))
+            raise ServiceUnavailable("Error connecting to the device at {}: {}".format(host, e))
 
         # Validate and execute each specified NAPALM method
         for method in napalm_methods:
