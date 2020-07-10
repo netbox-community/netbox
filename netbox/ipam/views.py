@@ -720,7 +720,10 @@ class VLANGroupVLANsView(ObjectView):
 #
 
 class VLANListView(ObjectListView):
-    queryset = VLAN.objects.prefetch_related('site', 'group', 'tenant', 'role').prefetch_related('prefixes')
+    queryset = VLAN.objects.prefetch_related(
+        Prefetch('prefixes', Prefix.objects.unrestricted()),
+        'site', 'group', 'tenant', 'role'
+    )
     filterset = filters.VLANFilterSet
     filterset_form = forms.VLANFilterForm
     table = tables.VLANDetailTable
