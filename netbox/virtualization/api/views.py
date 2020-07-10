@@ -78,9 +78,7 @@ class VirtualMachineViewSet(CustomFieldModelViewSet):
 
 
 class VMInterfaceViewSet(ModelViewSet):
-    queryset = VMInterface.objects.filter(
-        virtual_machine__isnull=False
-    ).prefetch_related(
+    queryset = VMInterface.objects.prefetch_related(
         Prefetch('tagged_vlans', queryset=VLAN.objects.unrestricted()),
         'virtual_machine', 'tags'
     )
