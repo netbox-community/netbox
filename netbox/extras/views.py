@@ -1,13 +1,14 @@
-import time
-
 from django import template
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Prefetch, Q
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
+from django_rq.queues import get_connection
 from django_tables2 import RequestConfig
+from rq import Worker
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
@@ -21,7 +22,7 @@ from utilities.views import (
 from virtualization.models import Cluster, ClusterGroup
 from . import filters, forms, tables
 from .choices import JobResultStatusChoices
-from .models import ConfigContext, ImageAttachment, ObjectChange, Report, JobResult, Script, Tag, TaggedItem
+from .models import ConfigContext, ImageAttachment, ObjectChange, JobResult, Tag
 from .reports import get_report, get_reports, run_report
 from .scripts import get_scripts, run_script
 
@@ -388,9 +389,13 @@ class ReportView(GetReportMixin, ContentTypePermissionRequiredMixin, View):
             return HttpResponseForbidden()
 
         report = self._get_report(name, module)
-
         form = ConfirmationForm(request.POST)
-        if form.is_valid():
+
+        # Allow execution only if RQ worker process is running
+        if not Worker.count(get_connection('default')):
+            messages.error(request, "Unable to run report: RQ worker process not running.")
+
+        elif form.is_valid():
 
             # Run the Report. A new JobResult is created.
             report_content_type = ContentType.objects.get(app_label='extras', model='report')
@@ -504,7 +509,11 @@ class ScriptView(ContentTypePermissionRequiredMixin, GetScriptMixin, View):
         script = self._get_script(name, module)
         form = script.as_form(request.POST, request.FILES)
 
-        if form.is_valid():
+        # Allow execution only if RQ worker process is running
+        if not Worker.count(get_connection('default')):
+            messages.error(request, "Unable to run script: RQ worker process not running.")
+
+        elif form.is_valid():
             commit = form.cleaned_data.pop('_commit')
 
             script_content_type = ContentType.objects.get(app_label='extras', model='script')

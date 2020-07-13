@@ -3,11 +3,13 @@ from collections import OrderedDict
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count
 from django.http import Http404
+from django_rq.queues import get_connection
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
+from rq import Worker
 
 from extras import filters
 from extras.choices import JobResultStatusChoices
@@ -17,6 +19,7 @@ from extras.models import (
 from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
 from utilities.api import IsAuthenticatedOrLoginNotRequired, ModelViewSet
+from utilities.exceptions import RQWorkerNotRunningException
 from utilities.metadata import ContentTypeMetadata
 from utilities.utils import copy_safe_request
 from . import serializers
@@ -219,10 +222,13 @@ class ReportViewSet(ViewSet):
         """
         Run a Report identified as "<module>.<script>" and return the pending JobResult as the result
         """
-
         # Check that the user has permission to run reports.
         if not request.user.has_perm('extras.run_script'):
             raise PermissionDenied("This user does not have permission to run reports.")
+
+        # Check that at least one RQ worker is running
+        if not Worker.count(get_connection('default')):
+            raise RQWorkerNotRunningException()
 
         # Retrieve and run the Report. This will create a new JobResult.
         report = self._retrieve_report(pk)
@@ -298,6 +304,10 @@ class ScriptViewSet(ViewSet):
         """
         script = self._get_script(pk)()
         input_serializer = serializers.ScriptInputSerializer(data=request.data)
+
+        # Check that at least one RQ worker is running
+        if not Worker.count(get_connection('default')):
+            raise RQWorkerNotRunningException()
 
         if input_serializer.is_valid():
             data = input_serializer.data['data']
