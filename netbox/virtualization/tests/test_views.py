@@ -255,7 +255,6 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'virtual_machine': virtualmachines[1].pk,
             'enabled': False,
             'mtu': 2000,
             'description': 'New description',
