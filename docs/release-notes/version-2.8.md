@@ -2,6 +2,11 @@
 
 ## v2.8.8 (FUTURE)
 
+### Enhancements
+
+* [#4829](https://github.com/netbox-community/netbox/issues/4829) - Add NEMA 15 power port and outlet types
+* [#4831](https://github.com/netbox-community/netbox/issues/4831) - Allow NAPALM to resolve device name when primary IP is not set
+
 ### Bug Fixes
 
 * [#4821](https://github.com/netbox-community/netbox/issues/4821) - Restrict group options by selected site when bulk editing VLANs
