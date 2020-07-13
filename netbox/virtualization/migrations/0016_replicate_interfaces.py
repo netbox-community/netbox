@@ -4,6 +4,8 @@ from django.db import migrations
 
 
 def replicate_interfaces(apps, schema_editor):
+    show_output = 'test' not in sys.argv
+
     ContentType = apps.get_model('contenttypes', 'ContentType')
     TaggedItem = apps.get_model('extras', 'TaggedItem')
     Interface = apps.get_model('dcim', 'Interface')
@@ -15,7 +17,9 @@ def replicate_interfaces(apps, schema_editor):
 
     # Replicate dcim.Interface instances assigned to VirtualMachines
     original_interfaces = Interface.objects.filter(virtual_machine__isnull=False)
-    for interface in original_interfaces:
+    if show_output:
+        print(f"\n    Replicating {len(original_interfaces)} VM interfaces...", flush=True)
+    for i, interface in enumerate(original_interfaces, start=1):
         vminterface = VMInterface(
             virtual_machine=interface.virtual_machine,
             name=interface.name,
@@ -44,12 +48,16 @@ def replicate_interfaces(apps, schema_editor):
             assigned_object_id=vminterface.pk
         )
 
-    replicated_count = VMInterface.objects.count()
-    if 'test' not in sys.argv:
-        print(f"\n    Replicated {replicated_count} interfaces ", end='', flush=True)
+        # Progress counter
+        if show_output and not i % 250:
+            percentage = int(i / len(original_interfaces) * 100)
+            print(f"    {i}/{len(original_interfaces)} ({percentage}%)", flush=True)
 
     # Verify that all interfaces have been replicated
+    replicated_count = VMInterface.objects.count()
     assert replicated_count == original_interfaces.count(), "Replicated interfaces count does not match original count!"
+    if show_output:
+        print(f"\n    Replicated {replicated_count} interfaces ", end='', flush=True)
 
     # Delete all interfaces not assigned to a Device
     Interface.objects.filter(device__isnull=True).delete()
