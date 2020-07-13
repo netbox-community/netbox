@@ -1,6 +1,7 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
+from dcim.tables import BaseInterfaceTable
 from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, ColoredLabelColumn, TagColumn, ToggleColumn
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -146,9 +147,8 @@ class VirtualMachineDetailTable(VirtualMachineTable):
 # VM components
 #
 
-class VMInterfaceTable(BaseTable):
+class VMInterfaceTable(BaseInterfaceTable):
     pk = ToggleColumn()
-    enabled = BooleanColumn()
     virtual_machine = tables.LinkColumn()
     name = tables.Column(
         linkify=True
@@ -156,5 +156,8 @@ class VMInterfaceTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VMInterface
-        fields = ('pk', 'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description')
+        fields = (
+            'pk', 'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description', 'ip_addresses',
+            'untagged_vlan', 'tagged_vlans',
+        )
         default_columns = ('pk', 'virtual_machine', 'name', 'enabled', 'description')

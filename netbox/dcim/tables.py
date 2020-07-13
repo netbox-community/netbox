@@ -109,6 +109,18 @@ POWERPANEL_POWERFEED_COUNT = """
 <a href="{% url 'dcim:powerfeed_list' %}?power_panel_id={{ record.pk }}">{{ value }}</a>
 """
 
+INTERFACE_IPADDRESSES = """
+{% for ip in record.ip_addresses.unrestricted %}
+    <a href="{{ ip.get_absolute_url }}">{{ ip }}</a><br />
+{% endfor %}
+"""
+
+INTERFACE_TAGGED_VLANS = """
+{% for vlan in record.tagged_vlans.unrestricted %}
+    <a href="{{ vlan.get_absolute_url }}">{{ vlan }}</a><br />
+{% endfor %}
+"""
+
 
 #
 # Regions
@@ -711,13 +723,28 @@ class PowerOutletTable(DeviceComponentTable):
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description')
 
 
-class InterfaceTable(DeviceComponentTable):
+class BaseInterfaceTable(BaseTable):
     enabled = BooleanColumn()
+    ip_addresses = tables.TemplateColumn(
+        template_code=INTERFACE_IPADDRESSES,
+        orderable=False,
+        verbose_name='IP Addresses'
+    )
+    untagged_vlan = tables.Column(linkify=True)
+    tagged_vlans = tables.TemplateColumn(
+        template_code=INTERFACE_TAGGED_VLANS,
+        orderable=False,
+        verbose_name='Tagged VLANs'
+    )
+
+
+class InterfaceTable(DeviceComponentTable, BaseInterfaceTable):
 
     class Meta(DeviceComponentTable.Meta):
         model = Interface
         fields = (
             'pk', 'device', 'name', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'description', 'cable',
+            'ip_addresses', 'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'enabled', 'type', 'description')
 
