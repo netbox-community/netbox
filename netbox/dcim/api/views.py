@@ -379,6 +379,22 @@ class DeviceViewSet(CustomFieldModelViewSet):
                 device.platform
             ))
 
+        # Check for primary IP address from NetBox object
+        if device.primary_ip:
+            host = str(device.primary_ip.address.ip)
+        else:
+            # Raise exception for no IP address and no Name if device.name does not exist
+            if not device.name:
+                raise ServiceUnavailable(
+                    "This device does not have a primary IP address or device name to lookup configured.")
+            try:
+                # Attempt to complete a DNS name resolution if no primary_ip is set
+                host = socket.gethostbyname(device.name)
+            except socket.gaierror:
+                # Name lookup failure
+                raise ServiceUnavailable(
+                    f"Name lookup failure, unable to resolve IP address for {device.name}. Please set Primary IP or setup name resolution.")
+
         # Check that NAPALM is installed
         try:
             import napalm
@@ -397,20 +413,6 @@ class DeviceViewSet(CustomFieldModelViewSet):
         # Verify user permission
         if not request.user.has_perm('dcim.napalm_read'):
             return HttpResponseForbidden()
-
-        # Check for primary IP address from NetBox object
-        if device.primary_ip:
-            host = str(device.primary_ip.address.ip)
-        else:
-            # Raise exception for no IP address and no Name if device.name does not exist
-            if not device.name:
-                raise ServiceUnavailable("This device does not have a primary IP address or device name to lookup configured.")
-            try:
-                # Attempt to complete a DNS name resolution if no primary_ip is set
-                host = socket.gethostbyname(device.name)
-            except socket.gaierror:
-                # Name lookup failure
-                raise ServiceUnavailable(f"Name lookup failure, unable to resolve IP address for {device.name}. Please set Primary IP or setup name resolution.")
 
         napalm_methods = request.GET.getlist('method')
         response = OrderedDict([(m, None) for m in napalm_methods])
