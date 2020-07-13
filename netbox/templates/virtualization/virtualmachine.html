@@ -29,6 +29,11 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% if perms.virtualization.add_vminterface %}
+            <a href="{% url 'virtualization:vminterface_add' %}?virtual_machine={{ virtualmachine.pk }}&return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-primary">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Interfaces
+            </a>
+        {% endif %}
         {% plugin_buttons virtualmachine %}
         {% if perms.virtualization.add_virtualmachine %}
             {% clone_button virtualmachine %}
