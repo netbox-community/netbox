@@ -206,6 +206,17 @@ class VMInterfaceFilterSet(BaseFilterSet):
         method='search',
         label='Search',
     )
+    cluster_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='virtual_machine__cluster',
+        queryset=Cluster.objects.unrestricted(),
+        label='Cluster (ID)',
+    )
+    cluster = django_filters.ModelMultipleChoiceFilter(
+        field_name='virtual_machine__cluster__name',
+        queryset=Cluster.objects.unrestricted(),
+        to_field_name='name',
+        label='Cluster',
+    )
     virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine',
         queryset=VirtualMachine.objects.unrestricted(),

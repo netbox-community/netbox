@@ -821,6 +821,21 @@ class VMInterfaceBulkRenameForm(BulkRenameForm):
 
 class VMInterfaceFilterForm(forms.Form):
     model = VMInterface
+    cluster_id = DynamicModelMultipleChoiceField(
+        queryset=Cluster.objects.all(),
+        required=False,
+        label='Cluster',
+        widget=APISelectMultiple(
+            filter_for={
+                'virtual_machine_id': 'cluster_id'
+            }
+        )
+    )
+    virtual_machine_id = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        label='Virtual machine'
+    )
     enabled = forms.NullBooleanField(
         required=False,
         widget=StaticSelect2(
