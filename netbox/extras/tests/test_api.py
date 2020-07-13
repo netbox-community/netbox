@@ -1,9 +1,12 @@
 import datetime
+from unittest import skipIf
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils import timezone
+from django_rq.queues import get_connection
 from rest_framework import status
+from rq import Worker
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, RackGroup, RackRole, Site
 from extras.api.views import ReportViewSet, ScriptViewSet
@@ -11,6 +14,9 @@ from extras.models import ConfigContext, Graph, ExportTemplate, Tag
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
+
+
+rq_worker_running = Worker.count(get_connection('default'))
 
 
 class AppTest(APITestCase):
@@ -230,6 +236,7 @@ class ReportTest(APITestCase):
 
         self.assertEqual(response.data['name'], self.TestReport.__name__)
 
+    @skipIf(not rq_worker_running, "RQ worker not running")
     def test_run_report(self):
         self.add_permissions('extras.run_script')
 
@@ -279,6 +286,7 @@ class ScriptTest(APITestCase):
         self.assertEqual(response.data['vars']['var2'], 'IntegerVar')
         self.assertEqual(response.data['vars']['var3'], 'BooleanVar')
 
+    @skipIf(not rq_worker_running, "RQ worker not running")
     def test_run_script(self):
 
         script_data = {
