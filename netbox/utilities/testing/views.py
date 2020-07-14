@@ -886,6 +886,87 @@ class ViewTestCases:
             self.assertHttpStatus(self.client.post(self._get_url('bulk_delete'), data), 302)
             self.assertEqual(self._get_queryset().count(), 0)
 
+    class BulkRenameObjectsViewTestCase(ModelViewTestCase):
+        """
+        Rename multiple instances.
+        """
+        rename_data = {
+            'find': '(.*)',
+            'replace': '\\1X',  # Append an X to the original value
+            'use_regex': True,
+        }
+
+        def test_bulk_rename_objects_without_permission(self):
+            pk_list = self._get_queryset().values_list('pk', flat=True)[:3]
+            data = {
+                'pk': pk_list,
+                '_apply': True,  # Form button
+            }
+            data.update(self.rename_data)
+
+            # Test GET without permission
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.get(self._get_url('bulk_rename')), 403)
+
+            # Try POST without permission
+            with disable_warnings('django.request'):
+                self.assertHttpStatus(self.client.post(self._get_url('bulk_rename'), data), 403)
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_bulk_rename_objects_with_permission(self):
+            objects = self._get_queryset().all()[:3]
+            pk_list = [obj.pk for obj in objects]
+            data = {
+                'pk': pk_list,
+                '_apply': True,  # Form button
+            }
+            data.update(self.rename_data)
+
+            # Assign model-level permission
+            obj_perm = ObjectPermission(
+                actions=['change']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+
+            # Try POST with model-level permission
+            self.assertHttpStatus(self.client.post(self._get_url('bulk_rename'), data), 302)
+            for i, instance in enumerate(self._get_queryset().filter(pk__in=pk_list)):
+                self.assertEqual(instance.name, f'{objects[i].name}X')
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_bulk_rename_objects_with_constrained_permission(self):
+            objects = self._get_queryset().all()[:3]
+            pk_list = [obj.pk for obj in objects]
+            data = {
+                'pk': pk_list,
+                '_apply': True,  # Form button
+            }
+            data.update(self.rename_data)
+
+            # Assign constrained permission
+            obj_perm = ObjectPermission(
+                constraints={'name__regex': '[^X]$'},
+                actions=['change']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+
+            # Attempt to bulk edit permitted objects into a non-permitted state
+            response = self.client.post(self._get_url('bulk_rename'), data)
+            self.assertHttpStatus(response, 200)
+
+            # Update permission constraints
+            obj_perm.constraints = {'pk__gt': 0}
+            obj_perm.save()
+
+            # Bulk rename permitted objects
+            self.assertHttpStatus(self.client.post(self._get_url('bulk_rename'), data), 302)
+            for i, instance in enumerate(self._get_queryset().filter(pk__in=pk_list)):
+                self.assertEqual(instance.name, f'{objects[i].name}X')
+
     class PrimaryObjectViewTestCase(
         GetObjectViewTestCase,
         GetObjectChangelogViewTestCase,
@@ -921,6 +1002,7 @@ class ViewTestCases:
         DeleteObjectViewTestCase,
         CreateMultipleObjectsViewTestCase,
         BulkEditObjectsViewTestCase,
+        BulkRenameObjectsViewTestCase,
         BulkDeleteObjectsViewTestCase,
     ):
         """
@@ -937,6 +1019,7 @@ class ViewTestCases:
         CreateMultipleObjectsViewTestCase,
         BulkImportObjectsViewTestCase,
         BulkEditObjectsViewTestCase,
+        BulkRenameObjectsViewTestCase,
         BulkDeleteObjectsViewTestCase,
     ):
         """
