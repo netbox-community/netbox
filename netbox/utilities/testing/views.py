@@ -577,7 +577,7 @@ class ViewTestCases:
                 self.assertIn(instance1.get_absolute_url(), content)
                 self.assertNotIn(instance2.get_absolute_url(), content)
 
-    class BulkCreateObjectsViewTestCase(ModelViewTestCase):
+    class CreateMultipleObjectsViewTestCase(ModelViewTestCase):
         """
         Create multiple instances using a single form. Expects the creation of three new instances by default.
 
@@ -588,7 +588,7 @@ class ViewTestCases:
         bulk_create_data = {}
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-        def test_bulk_create_objects_without_permission(self):
+        def test_create_multiple_objects_without_permission(self):
             request = {
                 'path': self._get_url('add'),
                 'data': post_data(self.bulk_create_data),
@@ -599,7 +599,7 @@ class ViewTestCases:
                 self.assertHttpStatus(self.client.post(**request), 403)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-        def test_bulk_create_objects_with_permission(self):
+        def test_create_multiple_objects_with_permission(self):
             initial_count = self._get_queryset().count()
             request = {
                 'path': self._get_url('add'),
@@ -622,7 +622,7 @@ class ViewTestCases:
                 self.assertInstanceEqual(instance, self.bulk_create_data)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
-        def test_bulk_create_objects_with_constrained_permission(self):
+        def test_create_multiple_objects_with_constrained_permission(self):
             initial_count = self._get_queryset().count()
             request = {
                 'path': self._get_url('add'),
@@ -919,7 +919,7 @@ class ViewTestCases:
     class DeviceComponentTemplateViewTestCase(
         EditObjectViewTestCase,
         DeleteObjectViewTestCase,
-        BulkCreateObjectsViewTestCase,
+        CreateMultipleObjectsViewTestCase,
         BulkEditObjectsViewTestCase,
         BulkDeleteObjectsViewTestCase,
     ):
@@ -934,7 +934,7 @@ class ViewTestCases:
         EditObjectViewTestCase,
         DeleteObjectViewTestCase,
         ListObjectsViewTestCase,
-        BulkCreateObjectsViewTestCase,
+        CreateMultipleObjectsViewTestCase,
         BulkImportObjectsViewTestCase,
         BulkEditObjectsViewTestCase,
         BulkDeleteObjectsViewTestCase,
