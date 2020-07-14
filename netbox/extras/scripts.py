@@ -415,8 +415,6 @@ def run_script(data, request, commit=True, *args, **kwargs):
     try:
         with transaction.atomic():
             script.output = script.run(**kwargs)
-            job_result.data = ScriptOutputSerializer(script).data
-            job_result.set_status(JobResultStatusChoices.STATUS_COMPLETED)
 
             if not commit:
                 raise AbortTransaction()
@@ -434,6 +432,10 @@ def run_script(data, request, commit=True, *args, **kwargs):
         job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
 
     finally:
+        if job_result.status != JobResultStatusChoices.STATUS_ERRORED:
+            job_result.data = ScriptOutputSerializer(script).data
+            job_result.set_status(JobResultStatusChoices.STATUS_COMPLETED)
+
         if not commit:
             # Delete all pending changelog entries
             purge_changelog.send(Script)
