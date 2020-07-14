@@ -127,7 +127,7 @@ class TemplateLanguageChoices(ChoiceSet):
 class LogLevelChoices(ChoiceSet):
 
     LOG_DEFAULT = 'default'
-    LOG_SUCCESS = 'sucess'
+    LOG_SUCCESS = 'success'
     LOG_INFO = 'info'
     LOG_WARNING = 'warning'
     LOG_FAILURE = 'failure'
