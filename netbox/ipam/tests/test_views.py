@@ -353,6 +353,7 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 # Blocked by absence of standard creation view
 class ServiceTestCase(
     ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
     ViewTestCases.EditObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
     ViewTestCases.ListObjectsViewTestCase,

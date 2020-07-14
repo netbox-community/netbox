@@ -333,6 +333,7 @@ class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 # Blocked by absence of bulk import view for DeviceTypes
 class DeviceTypeTestCase(
     ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
     ViewTestCases.CreateObjectViewTestCase,
     ViewTestCases.EditObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
@@ -1479,6 +1480,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
 # Blocked by lack of common creation view for cables (termination A must be initialized)
 class CableTestCase(
     ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
     ViewTestCases.EditObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
     ViewTestCases.ListObjectsViewTestCase,

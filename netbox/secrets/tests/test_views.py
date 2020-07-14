@@ -40,6 +40,7 @@ class SecretRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 # TODO: Change base class to PrimaryObjectViewTestCase
 class SecretTestCase(
     ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
     ViewTestCases.ListObjectsViewTestCase,
     ViewTestCases.BulkEditObjectsViewTestCase,
