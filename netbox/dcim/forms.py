@@ -135,7 +135,8 @@ class ComponentForm(BootstrapMixin, forms.Form):
     )
     label_pattern = ExpandableNameField(
         label='Label',
-        required=False
+        required=False,
+        help_text='Alphanumeric ranges are supported. (Must match the number of names being created.)'
     )
 
     def clean(self):
@@ -1034,7 +1035,7 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
 
 class ComponentTemplateCreateForm(ComponentForm):
     """
-    Base form for the creation of device component templates.
+    Base form for the creation of device component templates (subclassed from ComponentTemplateModel).
     """
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
@@ -1073,6 +1074,7 @@ class ConsolePortTemplateCreateForm(ComponentTemplateCreateForm):
         choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect2()
     )
+    field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'description')
 
 
 class ConsolePortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -1111,6 +1113,7 @@ class ConsoleServerPortTemplateCreateForm(ComponentTemplateCreateForm):
         choices=add_blank_choice(ConsolePortTypeChoices),
         widget=StaticSelect2()
     )
+    field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'description')
 
 
 class ConsoleServerPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -1161,6 +1164,10 @@ class PowerPortTemplateCreateForm(ComponentTemplateCreateForm):
         min_value=1,
         required=False,
         help_text="Allocated power draw (watts)"
+    )
+    field_order = (
+        'manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'maximum_draw', 'allocated_draw',
+        'description',
     )
 
 
@@ -1231,6 +1238,10 @@ class PowerOutletTemplateCreateForm(ComponentTemplateCreateForm):
         choices=add_blank_choice(PowerOutletFeedLegChoices),
         required=False,
         widget=StaticSelect2()
+    )
+    field_order = (
+        'manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'power_port', 'feed_leg',
+        'description',
     )
 
     def __init__(self, *args, **kwargs):
@@ -1315,6 +1326,7 @@ class InterfaceTemplateCreateForm(ComponentTemplateCreateForm):
         required=False,
         label='Management only'
     )
+    field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'mgmt_only', 'description')
 
 
 class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -1376,6 +1388,9 @@ class FrontPortTemplateCreateForm(ComponentTemplateCreateForm):
         choices=[],
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.',
+    )
+    field_order = (
+        'manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'rear_port_set', 'description',
     )
 
     def __init__(self, *args, **kwargs):
@@ -1470,6 +1485,7 @@ class RearPortTemplateCreateForm(ComponentTemplateCreateForm):
         initial=1,
         help_text='The number of front ports which may be mapped to each rear port'
     )
+    field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'type', 'positions', 'description')
 
 
 class RearPortTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -1507,9 +1523,7 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
 
 
 class DeviceBayTemplateCreateForm(ComponentTemplateCreateForm):
-    description = forms.CharField(
-        required=False
-    )
+    field_order = ('manufacturer', 'device_type', 'name_pattern', 'label_pattern', 'description')
 
 
 class DeviceBayTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -2257,10 +2271,14 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
 
 class ComponentCreateForm(ComponentForm):
     """
-    Base form for the creation of device components.
+    Base form for the creation of device components (models subclassed from ComponentModel).
     """
     device = DynamicModelChoiceField(
         queryset=Device.objects.all()
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -2272,6 +2290,10 @@ class DeviceBulkAddComponentForm(ComponentForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -2316,21 +2338,14 @@ class ConsolePortCreateForm(ComponentCreateForm):
         required=False,
         widget=StaticSelect2()
     )
-    description = forms.CharField(
-        max_length=100,
-        required=False
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
+    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'description', 'tags')
 
 
 class ConsolePortBulkCreateForm(
-    form_from_model(ConsolePort, ['label', 'type', 'description', 'tags']),
+    form_from_model(ConsolePort, ['type']),
     DeviceBulkAddComponentForm
 ):
-    pass
+    field_order = ('name_pattern', 'label_pattern', 'type', 'description', 'tags')
 
 
 class ConsolePortBulkEditForm(
@@ -2396,21 +2411,14 @@ class ConsoleServerPortCreateForm(ComponentCreateForm):
         required=False,
         widget=StaticSelect2()
     )
-    description = forms.CharField(
-        max_length=100,
-        required=False
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
+    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'description', 'tags')
 
 
 class ConsoleServerPortBulkCreateForm(
-    form_from_model(ConsoleServerPort, ['label', 'type', 'description', 'tags']),
+    form_from_model(ConsoleServerPort, ['type']),
     DeviceBulkAddComponentForm
 ):
-    pass
+    field_order = ('name_pattern', 'label_pattern', 'type', 'description', 'tags')
 
 
 class ConsoleServerPortBulkEditForm(
@@ -2486,21 +2494,16 @@ class PowerPortCreateForm(ComponentCreateForm):
         required=False,
         help_text="Allocated draw in watts"
     )
-    description = forms.CharField(
-        max_length=100,
-        required=False
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
+    field_order = (
+        'device', 'name_pattern', 'label_pattern', 'type', 'maximum_draw', 'allocated_draw', 'description', 'tags',
     )
 
 
 class PowerPortBulkCreateForm(
-    form_from_model(PowerPort, ['label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'tags']),
+    form_from_model(PowerPort, ['type', 'maximum_draw', 'allocated_draw']),
     DeviceBulkAddComponentForm
 ):
-    pass
+    field_order = ('name_pattern', 'label_pattern', 'type', 'maximum_draw', 'allocated_draw', 'description', 'tags')
 
 
 class PowerPortBulkEditForm(
@@ -2587,14 +2590,7 @@ class PowerOutletCreateForm(ComponentCreateForm):
         choices=add_blank_choice(PowerOutletFeedLegChoices),
         required=False
     )
-    description = forms.CharField(
-        max_length=100,
-        required=False
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
+    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'power_port', 'feed_leg', 'description', 'tags')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2607,10 +2603,10 @@ class PowerOutletCreateForm(ComponentCreateForm):
 
 
 class PowerOutletBulkCreateForm(
-    form_from_model(PowerOutlet, ['label', 'type', 'feed_leg', 'description', 'tags']),
+    form_from_model(PowerOutlet, ['type', 'feed_leg']),
     DeviceBulkAddComponentForm
 ):
-    pass
+    field_order = ('name_pattern', 'label_pattern', 'type', 'feed_leg', 'description', 'tags')
 
 
 class PowerOutletBulkEditForm(
@@ -2808,18 +2804,10 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
         label='Management only',
         help_text='This interface is used only for out-of-band management'
     )
-    description = forms.CharField(
-        max_length=100,
-        required=False
-    )
     mode = forms.ChoiceField(
         choices=add_blank_choice(InterfaceModeChoices),
         required=False,
         widget=StaticSelect2(),
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -2843,6 +2831,10 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
             },
         )
     )
+    field_order = (
+        'device', 'name_pattern', 'label_pattern', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'description',
+        'mgmt_only', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags'
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2862,10 +2854,10 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
 
 
 class InterfaceBulkCreateForm(
-    form_from_model(Interface, ['label', 'type', 'enabled', 'mtu', 'mgmt_only', 'description']),
+    form_from_model(Interface, ['type', 'enabled', 'mtu', 'mgmt_only']),
     DeviceBulkAddComponentForm
 ):
-    pass
+    field_order = ('name_pattern', 'label_pattern', 'type', 'enabled', 'mtu', 'mgmt_only', 'description', 'tags')
 
 
 class InterfaceBulkEditForm(
@@ -3048,9 +3040,7 @@ class FrontPortCreateForm(ComponentCreateForm):
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.',
     )
-    description = forms.CharField(
-        required=False
-    )
+    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'rear_port_set', 'description', 'tags')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -3208,16 +3198,14 @@ class RearPortCreateForm(ComponentCreateForm):
         initial=1,
         help_text='The number of front ports which may be mapped to each rear port'
     )
-    description = forms.CharField(
-        required=False
-    )
+    field_order = ('device', 'name_pattern', 'label_pattern', 'type', 'positions', 'description', 'tags')
 
 
 class RearPortBulkCreateForm(
-    form_from_model(RearPort, ['label', 'type', 'positions', 'description', 'tags']),
+    form_from_model(RearPort, ['type', 'positions']),
     DeviceBulkAddComponentForm
 ):
-    pass
+    field_order = ('name_pattern', 'label_pattern', 'type', 'positions', 'description', 'tags')
 
 
 class RearPortBulkEditForm(
@@ -3279,7 +3267,7 @@ class DeviceBayForm(BootstrapMixin, forms.ModelForm):
 
 
 class DeviceBayCreateForm(ComponentCreateForm):
-    pass
+    field_order = ('device', 'name_pattern', 'label_pattern', 'description', 'tags')
 
 
 class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
@@ -3303,14 +3291,8 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
         ).exclude(pk=device_bay.device.pk)
 
 
-class DeviceBayBulkCreateForm(
-    form_from_model(DeviceBay, ['label', 'description', 'tags']),
-    DeviceBulkAddComponentForm
-):
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
+class DeviceBayBulkCreateForm(DeviceBulkAddComponentForm):
+    field_order = ('name_pattern', 'label_pattern', 'description', 'tags')
 
 
 class DeviceBayBulkEditForm(
@@ -3416,9 +3398,9 @@ class InventoryItemCreateForm(ComponentCreateForm):
         max_length=50,
         required=False,
     )
-    description = forms.CharField(
-        max_length=100,
-        required=False
+    field_order = (
+        'device', 'name_pattern', 'label_pattern', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description',
+        'tags',
     )
 
 
@@ -3439,12 +3421,12 @@ class InventoryItemCSVForm(CSVModelForm):
 
 
 class InventoryItemBulkCreateForm(
-    form_from_model(InventoryItem, ['label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'tags']),
+    form_from_model(InventoryItem, ['manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered']),
     DeviceBulkAddComponentForm
 ):
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
+    field_order = (
+        'name_pattern', 'label_pattern', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
+        'tags',
     )
 
 
