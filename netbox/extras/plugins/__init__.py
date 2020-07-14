@@ -1,7 +1,5 @@
 import collections
-import importlib
 import inspect
-import sys
 from packaging import version
 
 from django.apps import AppConfig
@@ -11,6 +9,8 @@ from django.template.loader import get_template
 
 from extras.registry import registry
 from utilities.choices import ButtonColorChoices
+
+from extras.plugins.utils import import_object
 
 
 # Initialize plugin registry stores
@@ -61,26 +61,14 @@ class PluginConfig(AppConfig):
     def ready(self):
 
         # Register template content
-        module, attr = f"{self.__module__}.{self.template_extensions}".rsplit('.', 1)
-        spec = importlib.util.find_spec(module)
-        if spec is not None:
-            template_content = importlib.util.module_from_spec(spec)
-            sys.modules[module] = template_content
-            spec.loader.exec_module(template_content)
-            if hasattr(template_content, attr):
-                template_extensions = getattr(template_content, attr)
-                register_template_extensions(template_extensions)
+        template_extensions = import_object(f"{self.__module__}.{self.template_extensions}")
+        if template_extensions is not None:
+            register_template_extensions(template_extensions)
 
         # Register navigation menu items (if defined)
-        module, attr = f"{self.__module__}.{self.menu_items}".rsplit('.', 1)
-        spec = importlib.util.find_spec(module)
-        if spec is not None:
-            navigation = importlib.util.module_from_spec(spec)
-            sys.modules[module] = navigation
-            spec.loader.exec_module(navigation)
-            if hasattr(navigation, attr):
-                menu_items = getattr(navigation, attr)
-                register_menu_items(self.verbose_name, menu_items)
+        menu_items = import_object(f"{self.__module__}.{self.menu_items}")
+        if menu_items is not None:
+            register_menu_items(self.verbose_name, menu_items)
 
     @classmethod
     def validate(cls, user_config):
