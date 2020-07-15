@@ -22,9 +22,3 @@ class VirtualMachineStatusChoices(ChoiceSet):
         (STATUS_FAILED, 'Failed'),
         (STATUS_DECOMMISSIONING, 'Decommissioning'),
     )
-
-    LEGACY_MAP = {
-        STATUS_OFFLINE: 0,
-        STATUS_ACTIVE: 1,
-        STATUS_STAGED: 3,
-    }

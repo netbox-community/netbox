@@ -55,6 +55,7 @@ When running a report or custom script, the task is now queued for background pr
 * extras.Script: Added `module` and `result` fields. The `result` field now conveys the nested representation of a JobResult.
 * A `url` field is now included on all object representations, identifying the unique REST API URL for each object.
 * A `_depth` field has been added to all objects which feature a self-recursive hierarchy (namely regions, rack groups, and tenant groups).
+* Legacy numeric values for choice fields are no longer conveyed or accepted.
 
 ### Other Changes
 
