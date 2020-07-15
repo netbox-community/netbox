@@ -103,17 +103,10 @@ class ChoiceField(serializers.Field):
     def to_representation(self, obj):
         if obj is '':
             return None
-        data = OrderedDict([
+        return OrderedDict([
             ('value', obj),
             ('label', self._choices[obj])
         ])
-
-        # TODO: Remove in v2.8
-        # Include legacy numeric ID (where applicable)
-        if hasattr(self.choiceset, 'LEGACY_MAP') and obj in self.choiceset.LEGACY_MAP:
-            data['id'] = self.choiceset.LEGACY_MAP.get(obj)
-
-        return data
 
     def to_internal_value(self, data):
         if data is '':
@@ -140,14 +133,10 @@ class ChoiceField(serializers.Field):
         try:
             if data in self._choices:
                 return data
-            # Check if data is a legacy numeric ID
-            slug = self.choiceset.id_to_slug(data)
-            if slug is not None:
-                return slug
         except TypeError:  # Input is an unhashable type
             pass
 
-        raise ValidationError("{} is not a valid choice.".format(data))
+        raise ValidationError(f"{data} is not a valid choice.")
 
     @property
     def choices(self):

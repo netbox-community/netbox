@@ -23,15 +23,6 @@ class CustomFieldTypeChoices(ChoiceSet):
         (TYPE_SELECT, 'Selection'),
     )
 
-    LEGACY_MAP = {
-        TYPE_TEXT: 100,
-        TYPE_INTEGER: 200,
-        TYPE_BOOLEAN: 300,
-        TYPE_DATE: 400,
-        TYPE_URL: 500,
-        TYPE_SELECT: 600,
-    }
-
 
 class CustomFieldFilterLogicChoices(ChoiceSet):
 
@@ -44,12 +35,6 @@ class CustomFieldFilterLogicChoices(ChoiceSet):
         (FILTER_LOOSE, 'Loose'),
         (FILTER_EXACT, 'Exact'),
     )
-
-    LEGACY_MAP = {
-        FILTER_DISABLED: 0,
-        FILTER_LOOSE: 1,
-        FILTER_EXACT: 2,
-    }
 
 
 #
@@ -93,12 +78,6 @@ class ObjectChangeActionChoices(ChoiceSet):
         (ACTION_DELETE, 'Deleted'),
     )
 
-    LEGACY_MAP = {
-        ACTION_CREATE: 1,
-        ACTION_UPDATE: 2,
-        ACTION_DELETE: 3,
-    }
-
 
 #
 # ExportTemplates
@@ -113,11 +92,6 @@ class TemplateLanguageChoices(ChoiceSet):
         (LANGUAGE_DJANGO, 'Django'),
         (LANGUAGE_JINJA2, 'Jinja2'),
     )
-
-    LEGACY_MAP = {
-        LANGUAGE_DJANGO: 10,
-        LANGUAGE_JINJA2: 20,
-    }
 
 
 #
@@ -146,14 +120,6 @@ class LogLevelChoices(ChoiceSet):
         (LOG_INFO, 'info'),
         (LOG_WARNING, 'warning'),
         (LOG_FAILURE, 'danger'),
-    )
-
-    LEGACY_MAP = (
-        (LOG_DEFAULT, 0),
-        (LOG_SUCCESS, 10),
-        (LOG_INFO, 20),
-        (LOG_WARNING, 30),
-        (LOG_FAILURE, 40),
     )
 
 
