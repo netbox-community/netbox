@@ -68,10 +68,10 @@
                                         <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span> Connect
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right">
-                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='interface' %}?return_url={{ device.get_absolute_url }}">Interface</a></li>
-                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='front-port' %}?return_url={{ device.get_absolute_url }}">Front Port</a></li>
-                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='rear-port' %}?return_url={{ device.get_absolute_url }}">Rear Port</a></li>
-                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='circuit-termination' %}?return_url={{ device.get_absolute_url }}">Circuit Termination</a></li>
+                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='interface' %}?termination_b_site={{ termination.site.pk }}&return_url={{ circuit.get_absolute_url }}">Interface</a></li>
+                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='front-port' %}?termination_b_site={{ termination.site.pk }}&return_url={{ circuit.get_absolute_url }}">Front Port</a></li>
+                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='rear-port' %}?termination_b_site={{ termination.site.pk }}&return_url={{ circuit.get_absolute_url }}">Rear Port</a></li>
+                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='circuit-termination' %}?termination_b_site={{ termination.site.pk }}&return_url={{ circuit.get_absolute_url }}">Circuit Termination</a></li>
                                     </ul>
                                 </span>
                             </div>

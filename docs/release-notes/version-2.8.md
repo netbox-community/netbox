@@ -17,6 +17,7 @@
 * [#4835](https://github.com/netbox-community/netbox/issues/4835) - Support passing multiple initial values for multiple choice fields
 * [#4838](https://github.com/netbox-community/netbox/issues/4838) - Fix rack power utilization display for racks without devices
 * [#4851](https://github.com/netbox-community/netbox/issues/4851) - Show locally connected peer on circuit terminations
+* [#4856](https://github.com/netbox-community/netbox/issues/4856) - Redirect user back to circuit after connecting a termination
 
 ---
 
