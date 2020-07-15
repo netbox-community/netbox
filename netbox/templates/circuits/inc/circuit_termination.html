@@ -51,10 +51,15 @@
                         <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary btn-xs" title="Trace">
                             <i class="fa fa-share-alt" aria-hidden="true"></i>
                         </a>
-                        {% if termination.connected_endpoint %}
-                            to <a href="{% url 'dcim:device' pk=termination.connected_endpoint.device.pk %}">{{ termination.connected_endpoint.device }}</a>
-                            <i class="fa fa-angle-right"></i> {{ termination.connected_endpoint }}
-                        {% endif %}
+                        {% with peer=termination.get_cable_peer %}
+                            to
+                            {% if peer.device %}
+                                <a href="{{ peer.device.get_absolute_url }}">{{ peer.device }}</a>
+                            {% elif peer.circuit %}
+                                <a href="{{ peer.circuit.get_absolute_url }}">{{ peer.circuit }}</a>
+                            {% endif %}
+                            ({{ peer }})
+                        {% endwith %}
                     {% else %}
                         {% if perms.dcim.add_cable %}
                             <div class="pull-right">

@@ -16,6 +16,7 @@
 * [#4821](https://github.com/netbox-community/netbox/issues/4821) - Restrict group options by selected site when bulk editing VLANs
 * [#4835](https://github.com/netbox-community/netbox/issues/4835) - Support passing multiple initial values for multiple choice fields
 * [#4838](https://github.com/netbox-community/netbox/issues/4838) - Fix rack power utilization display for racks without devices
+* [#4851](https://github.com/netbox-community/netbox/issues/4851) - Show locally connected peer on circuit terminations
 
 ---
 
