@@ -7,6 +7,7 @@
 * [#4805](https://github.com/netbox-community/netbox/issues/4805) - Improve handling of plugin loading errors
 * [#4829](https://github.com/netbox-community/netbox/issues/4829) - Add NEMA 15 power port and outlet types
 * [#4831](https://github.com/netbox-community/netbox/issues/4831) - Allow NAPALM to resolve device name when primary IP is not set
+* [#4854](https://github.com/netbox-community/netbox/issues/4854) - Add staging and decommissioning statuses for sites
 
 ### Bug Fixes
 
