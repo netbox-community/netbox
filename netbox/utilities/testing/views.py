@@ -891,7 +891,7 @@ class ViewTestCases:
         Rename multiple instances.
         """
         rename_data = {
-            'find': '(.*)',
+            'find': '^(.*)$',
             'replace': '\\1X',  # Append an X to the original value
             'use_regex': True,
         }
