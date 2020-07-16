@@ -8,7 +8,7 @@ import yaml
 from django import forms
 from django.conf import settings
 from django.contrib.postgres.forms import SimpleArrayField
-from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
+from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Count
 from django.forms import BoundField
