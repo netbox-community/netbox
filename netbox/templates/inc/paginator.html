@@ -9,7 +9,7 @@
                 {% endif %}
                 {% for p in page.smart_pages %}
                     {% if p %}
-                        <li{% ifequal page.number p %} class="active"{% endifequal %}><a href="{% querystring request page=p %}">{{ p }}</a></li>
+                        <li{% if page.number == p %} class="active"{% endif %}><a href="{% querystring request page=p %}">{{ p }}</a></li>
                     {% else %}
                         <li class="disabled"><span>&hellip;</span></li>
                     {% endif %}
