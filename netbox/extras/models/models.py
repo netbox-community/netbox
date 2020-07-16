@@ -5,7 +5,6 @@ from collections import OrderedDict
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import JSONField
 from django.core.validators import ValidationError
 from django.db import models
 from django.http import HttpResponse
@@ -499,7 +498,7 @@ class ConfigContext(ChangeLoggedModel):
         related_name='+',
         blank=True
     )
-    data = JSONField()
+    data = models.JSONField()
 
     objects = ConfigContextQuerySet.as_manager()
 
@@ -526,7 +525,7 @@ class ConfigContextModel(models.Model):
     A model which includes local configuration context data. This local data will override any inherited data from
     ConfigContexts.
     """
-    local_context_data = JSONField(
+    local_context_data = models.JSONField(
         blank=True,
         null=True,
     )
@@ -627,7 +626,7 @@ class JobResult(models.Model):
         choices=JobResultStatusChoices,
         default=JobResultStatusChoices.STATUS_PENDING
     )
-    data = JSONField(
+    data = models.JSONField(
         null=True,
         blank=True
     )

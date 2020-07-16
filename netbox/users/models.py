@@ -3,7 +3,7 @@ import os
 
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.db.models.signals import post_save
@@ -56,7 +56,7 @@ class UserConfig(models.Model):
         on_delete=models.CASCADE,
         related_name='config'
     )
-    data = JSONField(
+    data = models.JSONField(
         default=dict
     )
 
@@ -265,7 +265,7 @@ class ObjectPermission(models.Model):
         base_field=models.CharField(max_length=30),
         help_text="The list of actions granted by this permission"
     )
-    constraints = JSONField(
+    constraints = models.JSONField(
         blank=True,
         null=True,
         help_text="Queryset filter matching the applicable objects of the selected type(s)"
