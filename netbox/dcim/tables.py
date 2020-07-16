@@ -187,7 +187,7 @@ class RackGroupTable(BaseTable):
     )
     site = tables.LinkColumn(
         viewname='dcim:site',
-        args=[Accessor('site.slug')],
+        args=[Accessor('site__slug')],
         verbose_name='Site'
     )
     rack_count = tables.Column(
@@ -231,7 +231,7 @@ class RackTable(BaseTable):
     )
     site = tables.LinkColumn(
         viewname='dcim:site',
-        args=[Accessor('site.slug')]
+        args=[Accessor('site__slug')]
     )
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
@@ -290,22 +290,19 @@ class RackDetailTable(RackTable):
 
 class RackReservationTable(BaseTable):
     pk = ToggleColumn()
-    reservation = tables.LinkColumn(
-        viewname='dcim:rackreservation',
-        args=[Accessor('pk')],
-        accessor='pk'
+    reservation = tables.Column(
+        accessor='pk',
+        linkify=True
     )
-    site = tables.LinkColumn(
-        viewname='dcim:site',
-        accessor=Accessor('rack.site'),
-        args=[Accessor('rack.site.slug')],
+    site = tables.Column(
+        accessor=Accessor('rack__site'),
+        linkify=True
     )
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )
-    rack = tables.LinkColumn(
-        viewname='dcim:rack',
-        args=[Accessor('rack.pk')]
+    rack = tables.Column(
+        linkify=True
     )
     unit_list = tables.Column(
         orderable=False,
@@ -359,9 +356,8 @@ class ManufacturerTable(BaseTable):
 
 class DeviceTypeTable(BaseTable):
     pk = ToggleColumn()
-    model = tables.LinkColumn(
-        viewname='dcim:devicetype',
-        args=[Accessor('pk')],
+    model = tables.Column(
+        linkify=True,
         verbose_name='Device Type'
     )
     is_full_depth = BooleanColumn(
@@ -577,20 +573,18 @@ class DeviceTable(BaseTable):
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )
-    site = tables.LinkColumn(
-        viewname='dcim:site',
-        args=[Accessor('site.slug')]
+    site = tables.Column(
+        linkify=True
     )
-    rack = tables.LinkColumn(
-        viewname='dcim:rack',
-        args=[Accessor('rack.pk')]
+    rack = tables.Column(
+        linkify=True
     )
     device_role = ColoredLabelColumn(
         verbose_name='Role'
     )
     device_type = tables.LinkColumn(
         viewname='dcim:devicetype',
-        args=[Accessor('device_type.pk')],
+        args=[Accessor('device_type__pk')],
         verbose_name='Type',
         text=lambda record: record.device_type.display_name
     )
@@ -599,23 +593,21 @@ class DeviceTable(BaseTable):
         orderable=False,
         verbose_name='IP Address'
     )
-    primary_ip4 = tables.LinkColumn(
-        viewname='ipam:ipaddress',
-        args=[Accessor('primary_ip4.pk')],
+    primary_ip4 = tables.Column(
+        linkify=True,
         verbose_name='IPv4 Address'
     )
-    primary_ip6 = tables.LinkColumn(
-        viewname='ipam:ipaddress',
-        args=[Accessor('primary_ip6.pk')],
+    primary_ip6 = tables.Column(
+        linkify=True,
         verbose_name='IPv6 Address'
     )
     cluster = tables.LinkColumn(
         viewname='virtualization:cluster',
-        args=[Accessor('cluster.pk')]
+        args=[Accessor('cluster__pk')]
     )
     virtual_chassis = tables.LinkColumn(
         viewname='dcim:virtualchassis',
-        args=[Accessor('virtual_chassis.pk')]
+        args=[Accessor('virtual_chassis__pk')]
     )
     vc_position = tables.Column(
         verbose_name='VC Position'
@@ -649,13 +641,11 @@ class DeviceImportTable(BaseTable):
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )
-    site = tables.LinkColumn(
-        viewname='dcim:site',
-        args=[Accessor('site.slug')]
+    site = tables.Column(
+        linkify=True
     )
-    rack = tables.LinkColumn(
-        viewname='dcim:rack',
-        args=[Accessor('rack.pk')]
+    rack = tables.Column(
+        linkify=True
     )
     device_role = tables.Column(
         verbose_name='Role'
@@ -800,9 +790,8 @@ class InventoryItemTable(DeviceComponentTable):
 
 class CableTable(BaseTable):
     pk = ToggleColumn()
-    id = tables.LinkColumn(
-        viewname='dcim:cable',
-        args=[Accessor('pk')],
+    id = tables.Column(
+        linkify=True,
         verbose_name='ID'
     )
     termination_a_parent = tables.TemplateColumn(
@@ -858,20 +847,20 @@ class CableTable(BaseTable):
 class ConsoleConnectionTable(BaseTable):
     console_server = tables.LinkColumn(
         viewname='dcim:device',
-        accessor=Accessor('connected_endpoint.device'),
-        args=[Accessor('connected_endpoint.device.pk')],
+        accessor=Accessor('connected_endpoint__device'),
+        args=[Accessor('connected_endpoint__device__pk')],
         verbose_name='Console Server'
     )
     connected_endpoint = tables.Column(
         verbose_name='Port'
     )
-    device = tables.LinkColumn(
-        viewname='dcim:device',
-        args=[Accessor('device.pk')]
+    device = tables.Column(
+        linkify=True
     )
     name = tables.Column(
         verbose_name='Console Port'
     )
+    connection_status = BooleanColumn()
 
     class Meta(BaseTable.Meta):
         model = ConsolePort
@@ -881,8 +870,8 @@ class ConsoleConnectionTable(BaseTable):
 class PowerConnectionTable(BaseTable):
     pdu = tables.LinkColumn(
         viewname='dcim:device',
-        accessor=Accessor('connected_endpoint.device'),
-        args=[Accessor('connected_endpoint.device.pk')],
+        accessor=Accessor('connected_endpoint__device'),
+        args=[Accessor('connected_endpoint__device__pk')],
         order_by='_connected_poweroutlet__device',
         verbose_name='PDU'
     )
@@ -890,9 +879,8 @@ class PowerConnectionTable(BaseTable):
         accessor=Accessor('_connected_poweroutlet'),
         verbose_name='Outlet'
     )
-    device = tables.LinkColumn(
-        viewname='dcim:device',
-        args=[Accessor('device.pk')]
+    device = tables.Column(
+        linkify=True
     )
     name = tables.Column(
         verbose_name='Power Port'
@@ -907,7 +895,7 @@ class InterfaceConnectionTable(BaseTable):
     device_a = tables.LinkColumn(
         viewname='dcim:device',
         accessor=Accessor('device'),
-        args=[Accessor('device.pk')],
+        args=[Accessor('device__pk')],
         verbose_name='Device A'
     )
     interface_a = tables.LinkColumn(
@@ -918,14 +906,14 @@ class InterfaceConnectionTable(BaseTable):
     )
     device_b = tables.LinkColumn(
         viewname='dcim:device',
-        accessor=Accessor('_connected_interface.device'),
-        args=[Accessor('_connected_interface.device.pk')],
+        accessor=Accessor('_connected_interface__device'),
+        args=[Accessor('_connected_interface__device__pk')],
         verbose_name='Device B'
     )
     interface_b = tables.LinkColumn(
         viewname='dcim:interface',
         accessor=Accessor('_connected_interface'),
-        args=[Accessor('_connected_interface.pk')],
+        args=[Accessor('_connected_interface__pk')],
         verbose_name='Interface B'
     )
 
@@ -970,7 +958,7 @@ class PowerPanelTable(BaseTable):
     name = tables.LinkColumn()
     site = tables.LinkColumn(
         viewname='dcim:site',
-        args=[Accessor('site.slug')]
+        args=[Accessor('site__slug')]
     )
     powerfeed_count = tables.TemplateColumn(
         template_code=POWERPANEL_POWERFEED_COUNT,
@@ -993,13 +981,11 @@ class PowerPanelTable(BaseTable):
 class PowerFeedTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    power_panel = tables.LinkColumn(
-        viewname='dcim:powerpanel',
-        args=[Accessor('power_panel.pk')],
+    power_panel = tables.Column(
+        linkify=True
     )
-    rack = tables.LinkColumn(
-        viewname='dcim:rack',
-        args=[Accessor('rack.pk')]
+    rack = tables.Column(
+        linkify=True
     )
     status = tables.TemplateColumn(
         template_code=STATUS_LABEL

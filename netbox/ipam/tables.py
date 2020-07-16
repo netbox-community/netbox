@@ -322,13 +322,11 @@ class PrefixTable(BaseTable):
     tenant = tables.TemplateColumn(
         template_code=TENANT_LINK
     )
-    site = tables.LinkColumn(
-        viewname='dcim:site',
-        args=[Accessor('site.slug')]
+    site = tables.Column(
+        linkify=True
     )
-    vlan = tables.LinkColumn(
-        viewname='ipam:vlan',
-        args=[Accessor('vlan.pk')],
+    vlan = tables.Column(
+        linkify=True,
         verbose_name='VLAN'
     )
     role = tables.TemplateColumn(
@@ -392,7 +390,8 @@ class IPAddressTable(BaseTable):
         template_code=TENANT_LINK
     )
     assigned = tables.BooleanColumn(
-        accessor='assigned_object_id'
+        accessor='assigned_object_id',
+        verbose_name='Assigned'
     )
 
     class Meta(BaseTable.Meta):
@@ -406,9 +405,8 @@ class IPAddressTable(BaseTable):
 
 
 class IPAddressDetailTable(IPAddressTable):
-    nat_inside = tables.LinkColumn(
-        viewname='ipam:ipaddress',
-        args=[Accessor('nat_inside.pk')],
+    nat_inside = tables.Column(
+        linkify=True,
         orderable=False,
         verbose_name='NAT (Inside)'
     )
@@ -479,7 +477,7 @@ class VLANGroupTable(BaseTable):
     name = tables.LinkColumn()
     site = tables.LinkColumn(
         viewname='dcim:site',
-        args=[Accessor('site.slug')]
+        args=[Accessor('site__slug')]
     )
     vlan_count = tables.Column(
         verbose_name='VLANs'
@@ -507,11 +505,11 @@ class VLANTable(BaseTable):
     )
     site = tables.LinkColumn(
         viewname='dcim:site',
-        args=[Accessor('site.slug')]
+        args=[Accessor('site__slug')]
     )
     group = tables.LinkColumn(
         viewname='ipam:vlangroup_vlans',
-        args=[Accessor('group.pk')]
+        args=[Accessor('group__pk')]
     )
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
@@ -581,12 +579,11 @@ class InterfaceVLANTable(BaseTable):
         verbose_name='ID'
     )
     tagged = BooleanColumn()
-    site = tables.LinkColumn(
-        viewname='dcim:site',
-        args=[Accessor('site.slug')]
+    site = tables.Column(
+        linkify=True
     )
     group = tables.Column(
-        accessor=Accessor('group.name'),
+        accessor=Accessor('group__name'),
         verbose_name='Group'
     )
     tenant = tables.TemplateColumn(
@@ -614,9 +611,8 @@ class InterfaceVLANTable(BaseTable):
 
 class ServiceTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(
-        viewname='ipam:service',
-        args=[Accessor('pk')]
+    name = tables.Column(
+        linkify=True
     )
     parent = tables.LinkColumn(
         order_by=('device', 'virtual_machine')
