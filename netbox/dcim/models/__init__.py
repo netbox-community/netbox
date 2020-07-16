@@ -1905,9 +1905,10 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         blank=True,
         null=True
     )
-    connection_status = models.NullBooleanField(
+    connection_status = models.BooleanField(
         choices=CONNECTION_STATUS_CHOICES,
-        blank=True
+        blank=True,
+        null=True
     )
     name = models.CharField(
         max_length=50
