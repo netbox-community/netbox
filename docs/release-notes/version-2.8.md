@@ -12,6 +12,7 @@
 ### Bug Fixes
 
 * [#3240](https://github.com/netbox-community/netbox/issues/3240) - Correct OpenAPI definition for available-prefixes endpoint
+* [#4595](https://github.com/netbox-community/netbox/issues/4595) - Ensure consistent display of non-racked and child devices on rack view
 * [#4803](https://github.com/netbox-community/netbox/issues/4803) - Return IP family (4 or 6) as integer rather than string
 * [#4821](https://github.com/netbox-community/netbox/issues/4821) - Restrict group options by selected site when bulk editing VLANs
 * [#4835](https://github.com/netbox-community/netbox/issues/4835) - Support passing multiple initial values for multiple choice fields
