@@ -21,7 +21,7 @@ from .models import Circuit, CircuitTermination, CircuitType, Provider
 #
 
 class ProviderListView(ObjectListView):
-    queryset = Provider.objects.annotate(count_circuits=Count('circuits'))
+    queryset = Provider.objects.annotate(count_circuits=Count('circuits')).order_by(*Provider._meta.ordering)
     filterset = filters.ProviderFilterSet
     filterset_form = forms.ProviderFilterForm
     table = tables.ProviderTable
@@ -73,14 +73,14 @@ class ProviderBulkImportView(BulkImportView):
 
 
 class ProviderBulkEditView(BulkEditView):
-    queryset = Provider.objects.annotate(count_circuits=Count('circuits'))
+    queryset = Provider.objects.annotate(count_circuits=Count('circuits')).order_by(*Provider._meta.ordering)
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
     form = forms.ProviderBulkEditForm
 
 
 class ProviderBulkDeleteView(BulkDeleteView):
-    queryset = Provider.objects.annotate(count_circuits=Count('circuits'))
+    queryset = Provider.objects.annotate(count_circuits=Count('circuits')).order_by(*Provider._meta.ordering)
     filterset = filters.ProviderFilterSet
     table = tables.ProviderTable
 
@@ -90,7 +90,7 @@ class ProviderBulkDeleteView(BulkDeleteView):
 #
 
 class CircuitTypeListView(ObjectListView):
-    queryset = CircuitType.objects.annotate(circuit_count=Count('circuits'))
+    queryset = CircuitType.objects.annotate(circuit_count=Count('circuits')).order_by(*CircuitType._meta.ordering)
     table = tables.CircuitTypeTable
 
 
@@ -110,7 +110,7 @@ class CircuitTypeBulkImportView(BulkImportView):
 
 
 class CircuitTypeBulkDeleteView(BulkDeleteView):
-    queryset = CircuitType.objects.annotate(circuit_count=Count('circuits'))
+    queryset = CircuitType.objects.annotate(circuit_count=Count('circuits')).order_by(*CircuitType._meta.ordering)
     table = tables.CircuitTypeTable
 
 

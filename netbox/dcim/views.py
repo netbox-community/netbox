@@ -133,7 +133,13 @@ class RegionBulkImportView(BulkImportView):
 
 
 class RegionBulkDeleteView(BulkDeleteView):
-    queryset = Region.objects.all()
+    queryset = Region.objects.add_related_count(
+        Region.objects.all(),
+        Site,
+        'region',
+        'site_count',
+        cumulative=True
+    )
     filterset = filters.RegionFilterSet
     table = tables.RegionTable
 
@@ -238,7 +244,13 @@ class RackGroupBulkImportView(BulkImportView):
 
 
 class RackGroupBulkDeleteView(BulkDeleteView):
-    queryset = RackGroup.objects.prefetch_related('site').annotate(rack_count=Count('racks'))
+    queryset = RackGroup.objects.add_related_count(
+        RackGroup.objects.all(),
+        Rack,
+        'group',
+        'rack_count',
+        cumulative=True
+    ).prefetch_related('site')
     filterset = filters.RackGroupFilterSet
     table = tables.RackGroupTable
 
@@ -248,7 +260,7 @@ class RackGroupBulkDeleteView(BulkDeleteView):
 #
 
 class RackRoleListView(ObjectListView):
-    queryset = RackRole.objects.annotate(rack_count=Count('racks'))
+    queryset = RackRole.objects.annotate(rack_count=Count('racks')).order_by(*RackRole._meta.ordering)
     table = tables.RackRoleTable
 
 
@@ -268,7 +280,7 @@ class RackRoleBulkImportView(BulkImportView):
 
 
 class RackRoleBulkDeleteView(BulkDeleteView):
-    queryset = RackRole.objects.annotate(rack_count=Count('racks'))
+    queryset = RackRole.objects.annotate(rack_count=Count('racks')).order_by(*RackRole._meta.ordering)
     table = tables.RackRoleTable
 
 
@@ -281,7 +293,7 @@ class RackListView(ObjectListView):
         'site', 'group', 'tenant', 'role', 'devices__device_type'
     ).annotate(
         device_count=Count('devices')
-    )
+    ).order_by(*Rack._meta.ordering)
     filterset = filters.RackFilterSet
     filterset_form = forms.RackFilterForm
     table = tables.RackDetailTable
@@ -465,7 +477,7 @@ class ManufacturerListView(ObjectListView):
         devicetype_count=Count('device_types', distinct=True),
         inventoryitem_count=Count('inventory_items', distinct=True),
         platform_count=Count('platforms', distinct=True),
-    )
+    ).order_by(*Manufacturer._meta.ordering)
     table = tables.ManufacturerTable
 
 
@@ -485,7 +497,9 @@ class ManufacturerBulkImportView(BulkImportView):
 
 
 class ManufacturerBulkDeleteView(BulkDeleteView):
-    queryset = Manufacturer.objects.annotate(devicetype_count=Count('device_types'))
+    queryset = Manufacturer.objects.annotate(
+        devicetype_count=Count('device_types')
+    ).order_by(*Manufacturer._meta.ordering)
     table = tables.ManufacturerTable
 
 
@@ -494,7 +508,9 @@ class ManufacturerBulkDeleteView(BulkDeleteView):
 #
 
 class DeviceTypeListView(ObjectListView):
-    queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances'))
+    queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
+        instance_count=Count('instances')
+    ).order_by(*DeviceType._meta.ordering)
     filterset = filters.DeviceTypeFilterSet
     filterset_form = forms.DeviceTypeFilterForm
     table = tables.DeviceTypeTable
@@ -602,14 +618,18 @@ class DeviceTypeImportView(ObjectImportView):
 
 
 class DeviceTypeBulkEditView(BulkEditView):
-    queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances'))
+    queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
+        instance_count=Count('instances')
+    ).order_by(*DeviceType._meta.ordering)
     filterset = filters.DeviceTypeFilterSet
     table = tables.DeviceTypeTable
     form = forms.DeviceTypeBulkEditForm
 
 
 class DeviceTypeBulkDeleteView(BulkDeleteView):
-    queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances'))
+    queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
+        instance_count=Count('instances')
+    ).order_by(*DeviceType._meta.ordering)
     filterset = filters.DeviceTypeFilterSet
     table = tables.DeviceTypeTable
 
@@ -2152,7 +2172,9 @@ class InterfaceConnectionsListView(ObjectListView):
 #
 
 class VirtualChassisListView(ObjectListView):
-    queryset = VirtualChassis.objects.prefetch_related('master').annotate(member_count=Count('members'))
+    queryset = VirtualChassis.objects.prefetch_related('master').annotate(
+        member_count=Count('members')
+    ).order_by(*VirtualChassis._meta.ordering)
     table = tables.VirtualChassisTable
     filterset = filters.VirtualChassisFilterSet
     filterset_form = forms.VirtualChassisFilterForm
@@ -2385,7 +2407,7 @@ class PowerPanelListView(ObjectListView):
         'site', 'rack_group'
     ).annotate(
         powerfeed_count=Count('powerfeeds')
-    )
+    ).order_by(*PowerPanel._meta.ordering)
     filterset = filters.PowerPanelFilterSet
     filterset_form = forms.PowerPanelFilterForm
     table = tables.PowerPanelTable
@@ -2437,7 +2459,7 @@ class PowerPanelBulkDeleteView(BulkDeleteView):
         'site', 'rack_group'
     ).annotate(
         rack_count=Count('powerfeeds')
-    )
+    ).order_by(*PowerPanel._meta.ordering)
     filterset = filters.PowerPanelFilterSet
     table = tables.PowerPanelTable
 

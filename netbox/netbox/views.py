@@ -46,7 +46,9 @@ SEARCH_MAX_RESULTS = 15
 SEARCH_TYPES = OrderedDict((
     # Circuits
     ('provider', {
-        'queryset': Provider.objects.annotate(count_circuits=Count('circuits')),
+        'queryset': Provider.objects.annotate(
+            count_circuits=Count('circuits')
+        ).order_by(*Provider._meta.ordering),
         'filterset': ProviderFilterSet,
         'table': ProviderTable,
         'url': 'circuits:provider_list',
@@ -73,13 +75,17 @@ SEARCH_TYPES = OrderedDict((
         'url': 'dcim:rack_list',
     }),
     ('rackgroup', {
-        'queryset': RackGroup.objects.prefetch_related('site').annotate(rack_count=Count('racks')),
+        'queryset': RackGroup.objects.prefetch_related('site').annotate(
+            rack_count=Count('racks')
+        ).order_by(*RackGroup._meta.ordering),
         'filterset': RackGroupFilterSet,
         'table': RackGroupTable,
         'url': 'dcim:rackgroup_list',
     }),
     ('devicetype', {
-        'queryset': DeviceType.objects.prefetch_related('manufacturer').annotate(instance_count=Count('instances')),
+        'queryset': DeviceType.objects.prefetch_related('manufacturer').annotate(
+            instance_count=Count('instances')
+        ).order_by(*DeviceType._meta.ordering),
         'filterset': DeviceTypeFilterSet,
         'table': DeviceTypeTable,
         'url': 'dcim:devicetype_list',
@@ -93,7 +99,9 @@ SEARCH_TYPES = OrderedDict((
         'url': 'dcim:device_list',
     }),
     ('virtualchassis', {
-        'queryset': VirtualChassis.objects.prefetch_related('master').annotate(member_count=Count('members')),
+        'queryset': VirtualChassis.objects.prefetch_related('master').annotate(
+            member_count=Count('members')
+        ).order_by(*VirtualChassis._meta.ordering),
         'filterset': VirtualChassisFilterSet,
         'table': VirtualChassisTable,
         'url': 'dcim:virtualchassis_list',

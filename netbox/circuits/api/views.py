@@ -19,7 +19,7 @@ from . import serializers
 class ProviderViewSet(CustomFieldModelViewSet):
     queryset = Provider.objects.prefetch_related('tags').annotate(
         circuit_count=Count('circuits')
-    )
+    ).order_by(*Provider._meta.ordering)
     serializer_class = serializers.ProviderSerializer
     filterset_class = filters.ProviderFilterSet
 
@@ -41,7 +41,7 @@ class ProviderViewSet(CustomFieldModelViewSet):
 class CircuitTypeViewSet(ModelViewSet):
     queryset = CircuitType.objects.annotate(
         circuit_count=Count('circuits')
-    )
+    ).order_by(*CircuitType._meta.ordering)
     serializer_class = serializers.CircuitTypeSerializer
     filterset_class = filters.CircuitTypeFilterSet
 
