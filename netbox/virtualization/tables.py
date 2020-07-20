@@ -3,7 +3,7 @@ from django_tables2.utils import Accessor
 
 from dcim.tables import BaseInterfaceTable
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, ColoredLabelColumn, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, ButtonsColumn, ColoredLabelColumn, TagColumn, ToggleColumn
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 VIRTUALMACHINE_STATUS = """
@@ -60,13 +60,11 @@ class ClusterGroupTable(BaseTable):
 class ClusterTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    tenant = tables.LinkColumn(
-        viewname='tenancy:tenant',
-        args=[Accessor('tenant.slug')]
+    tenant = tables.Column(
+        linkify=True
     )
-    site = tables.LinkColumn(
-        viewname='dcim:site',
-        args=[Accessor('site.slug')]
+    site = tables.Column(
+        linkify=True
     )
     device_count = tables.Column(
         accessor=Accessor('devices.count'),
@@ -98,9 +96,8 @@ class VirtualMachineTable(BaseTable):
     status = tables.TemplateColumn(
         template_code=VIRTUALMACHINE_STATUS
     )
-    cluster = tables.LinkColumn(
-        viewname='virtualization:cluster',
-        args=[Accessor('cluster.pk')]
+    cluster = tables.Column(
+        linkify=True
     )
     role = ColoredLabelColumn()
     tenant = tables.TemplateColumn(
@@ -113,14 +110,12 @@ class VirtualMachineTable(BaseTable):
 
 
 class VirtualMachineDetailTable(VirtualMachineTable):
-    primary_ip4 = tables.LinkColumn(
-        viewname='ipam:ipaddress',
-        args=[Accessor('primary_ip4.pk')],
+    primary_ip4 = tables.Column(
+        linkify=True,
         verbose_name='IPv4 Address'
     )
-    primary_ip6 = tables.LinkColumn(
-        viewname='ipam:ipaddress',
-        args=[Accessor('primary_ip6.pk')],
+    primary_ip6 = tables.Column(
+        linkify=True,
         verbose_name='IPv6 Address'
     )
     primary_ip = tables.TemplateColumn(

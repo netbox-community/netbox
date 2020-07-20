@@ -62,7 +62,7 @@ class CircuitTable(BaseTable):
     )
     provider = tables.LinkColumn(
         viewname='circuits:provider',
-        args=[Accessor('provider.slug')]
+        args=[Accessor('provider__slug')]
     )
     status = tables.TemplateColumn(
         template_code=STATUS_LABEL

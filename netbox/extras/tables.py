@@ -1,5 +1,4 @@
 import django_tables2 as tables
-from django_tables2.utils import Accessor
 
 from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, ColorColumn, ToggleColumn
 from .models import ConfigContext, ObjectChange, Tag, TaggedItem
