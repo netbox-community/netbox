@@ -22,7 +22,7 @@ from . import serializers
 class ClusterTypeViewSet(ModelViewSet):
     queryset = ClusterType.objects.annotate(
         cluster_count=Count('clusters')
-    )
+    ).order_by(*ClusterType._meta.ordering)
     serializer_class = serializers.ClusterTypeSerializer
     filterset_class = filters.ClusterTypeFilterSet
 
@@ -30,7 +30,7 @@ class ClusterTypeViewSet(ModelViewSet):
 class ClusterGroupViewSet(ModelViewSet):
     queryset = ClusterGroup.objects.annotate(
         cluster_count=Count('clusters')
-    )
+    ).order_by(*ClusterGroup._meta.ordering)
     serializer_class = serializers.ClusterGroupSerializer
     filterset_class = filters.ClusterGroupFilterSet
 
@@ -41,7 +41,7 @@ class ClusterViewSet(CustomFieldModelViewSet):
     ).annotate(
         device_count=get_subquery(Device, 'cluster'),
         virtualmachine_count=get_subquery(VirtualMachine, 'cluster')
-    )
+    ).order_by(*Cluster._meta.ordering)
     serializer_class = serializers.ClusterSerializer
     filterset_class = filters.ClusterFilterSet
 

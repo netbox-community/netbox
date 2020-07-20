@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -1280,7 +1280,7 @@ class Platform(ChangeLoggedModel):
         verbose_name='NAPALM driver',
         help_text='The name of the NAPALM driver to use when interacting with devices'
     )
-    napalm_args = JSONField(
+    napalm_args = models.JSONField(
         blank=True,
         null=True,
         verbose_name='NAPALM arguments',
@@ -1905,9 +1905,10 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         blank=True,
         null=True
     )
-    connection_status = models.NullBooleanField(
+    connection_status = models.BooleanField(
         choices=CONNECTION_STATUS_CHOICES,
-        blank=True
+        blank=True,
+        null=True
     )
     name = models.CharField(
         max_length=50

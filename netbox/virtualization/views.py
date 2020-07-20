@@ -22,7 +22,7 @@ from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterf
 #
 
 class ClusterTypeListView(ObjectListView):
-    queryset = ClusterType.objects.annotate(cluster_count=Count('clusters'))
+    queryset = ClusterType.objects.annotate(cluster_count=Count('clusters')).order_by(*ClusterType._meta.ordering)
     table = tables.ClusterTypeTable
 
 
@@ -42,7 +42,7 @@ class ClusterTypeBulkImportView(BulkImportView):
 
 
 class ClusterTypeBulkDeleteView(BulkDeleteView):
-    queryset = ClusterType.objects.annotate(cluster_count=Count('clusters'))
+    queryset = ClusterType.objects.annotate(cluster_count=Count('clusters')).order_by(*ClusterType._meta.ordering)
     table = tables.ClusterTypeTable
 
 
@@ -51,7 +51,7 @@ class ClusterTypeBulkDeleteView(BulkDeleteView):
 #
 
 class ClusterGroupListView(ObjectListView):
-    queryset = ClusterGroup.objects.annotate(cluster_count=Count('clusters'))
+    queryset = ClusterGroup.objects.annotate(cluster_count=Count('clusters')).order_by(*ClusterGroup._meta.ordering)
     table = tables.ClusterGroupTable
 
 
@@ -71,7 +71,7 @@ class ClusterGroupBulkImportView(BulkImportView):
 
 
 class ClusterGroupBulkDeleteView(BulkDeleteView):
-    queryset = ClusterGroup.objects.annotate(cluster_count=Count('clusters'))
+    queryset = ClusterGroup.objects.annotate(cluster_count=Count('clusters')).order_by(*ClusterGroup._meta.ordering)
     table = tables.ClusterGroupTable
 
 

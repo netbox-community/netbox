@@ -78,7 +78,7 @@ class VRFBulkDeleteView(BulkDeleteView):
 #
 
 class RIRListView(ObjectListView):
-    queryset = RIR.objects.annotate(aggregate_count=Count('aggregates'))
+    queryset = RIR.objects.annotate(aggregate_count=Count('aggregates')).order_by(*RIR._meta.ordering)
     filterset = filters.RIRFilterSet
     filterset_form = forms.RIRFilterForm
     table = tables.RIRDetailTable
@@ -171,7 +171,7 @@ class RIRBulkImportView(BulkImportView):
 
 
 class RIRBulkDeleteView(BulkDeleteView):
-    queryset = RIR.objects.annotate(aggregate_count=Count('aggregates'))
+    queryset = RIR.objects.annotate(aggregate_count=Count('aggregates')).order_by(*RIR._meta.ordering)
     filterset = filters.RIRFilterSet
     table = tables.RIRTable
 
@@ -183,7 +183,7 @@ class RIRBulkDeleteView(BulkDeleteView):
 class AggregateListView(ObjectListView):
     queryset = Aggregate.objects.prefetch_related('rir').annotate(
         child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
-    )
+    ).order_by(*Aggregate._meta.ordering)
     filterset = filters.AggregateFilterSet
     filterset_form = forms.AggregateFilterForm
     table = tables.AggregateDetailTable
@@ -650,7 +650,9 @@ class IPAddressBulkDeleteView(BulkDeleteView):
 #
 
 class VLANGroupListView(ObjectListView):
-    queryset = VLANGroup.objects.prefetch_related('site').annotate(vlan_count=Count('vlans'))
+    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+        vlan_count=Count('vlans')
+    ).order_by(*VLANGroup._meta.ordering)
     filterset = filters.VLANGroupFilterSet
     filterset_form = forms.VLANGroupFilterForm
     table = tables.VLANGroupTable
@@ -672,7 +674,9 @@ class VLANGroupBulkImportView(BulkImportView):
 
 
 class VLANGroupBulkDeleteView(BulkDeleteView):
-    queryset = VLANGroup.objects.prefetch_related('site').annotate(vlan_count=Count('vlans'))
+    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+        vlan_count=Count('vlans')
+    ).order_by(*VLANGroup._meta.ordering)
     filterset = filters.VLANGroupFilterSet
     table = tables.VLANGroupTable
 

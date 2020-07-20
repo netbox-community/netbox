@@ -27,7 +27,7 @@ ERR_PRIVKEY_INVALID = "Invalid private key."
 class SecretRoleViewSet(ModelViewSet):
     queryset = SecretRole.objects.annotate(
         secret_count=Count('secrets')
-    )
+    ).order_by(*SecretRole._meta.ordering)
     serializer_class = serializers.SecretRoleSerializer
     filterset_class = filters.SecretRoleFilterSet
 

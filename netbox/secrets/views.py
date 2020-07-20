@@ -29,7 +29,7 @@ def get_session_key(request):
 #
 
 class SecretRoleListView(ObjectListView):
-    queryset = SecretRole.objects.annotate(secret_count=Count('secrets'))
+    queryset = SecretRole.objects.annotate(secret_count=Count('secrets')).order_by(*SecretRole._meta.ordering)
     table = tables.SecretRoleTable
 
 
@@ -49,7 +49,7 @@ class SecretRoleBulkImportView(BulkImportView):
 
 
 class SecretRoleBulkDeleteView(BulkDeleteView):
-    queryset = SecretRole.objects.annotate(secret_count=Count('secrets'))
+    queryset = SecretRole.objects.annotate(secret_count=Count('secrets')).order_by(*SecretRole._meta.ordering)
     table = tables.SecretRoleTable
 
 

@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.urls import reverse
 
@@ -104,7 +103,7 @@ class ObjectChange(models.Model):
         max_length=200,
         editable=False
     )
-    object_data = JSONField(
+    object_data = models.JSONField(
         editable=False
     )
 

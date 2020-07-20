@@ -24,7 +24,7 @@ class VRFViewSet(CustomFieldModelViewSet):
     queryset = VRF.objects.prefetch_related('tenant').prefetch_related('tags').annotate(
         ipaddress_count=get_subquery(IPAddress, 'vrf'),
         prefix_count=get_subquery(Prefix, 'vrf')
-    )
+    ).order_by(*VRF._meta.ordering)
     serializer_class = serializers.VRFSerializer
     filterset_class = filters.VRFFilterSet
 
@@ -36,7 +36,7 @@ class VRFViewSet(CustomFieldModelViewSet):
 class RIRViewSet(ModelViewSet):
     queryset = RIR.objects.annotate(
         aggregate_count=Count('aggregates')
-    )
+    ).order_by(*RIR._meta.ordering)
     serializer_class = serializers.RIRSerializer
     filterset_class = filters.RIRFilterSet
 
@@ -59,7 +59,7 @@ class RoleViewSet(ModelViewSet):
     queryset = Role.objects.annotate(
         prefix_count=get_subquery(Prefix, 'role'),
         vlan_count=get_subquery(VLAN, 'role')
-    )
+    ).order_by(*Role._meta.ordering)
     serializer_class = serializers.RoleSerializer
     filterset_class = filters.RoleFilterSet
 
@@ -246,7 +246,7 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 class VLANGroupViewSet(ModelViewSet):
     queryset = VLANGroup.objects.prefetch_related('site').annotate(
         vlan_count=Count('vlans')
-    )
+    ).order_by(*VLANGroup._meta.ordering)
     serializer_class = serializers.VLANGroupSerializer
     filterset_class = filters.VLANGroupFilterSet
 
@@ -260,7 +260,7 @@ class VLANViewSet(CustomFieldModelViewSet):
         'site', 'group', 'tenant', 'role', 'tags'
     ).annotate(
         prefix_count=get_subquery(Prefix, 'vlan')
-    )
+    ).order_by(*VLAN._meta.ordering)
     serializer_class = serializers.VLANSerializer
     filterset_class = filters.VLANFilterSet
 

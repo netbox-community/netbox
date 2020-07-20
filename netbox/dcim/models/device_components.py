@@ -264,9 +264,10 @@ class ConsolePort(CableTermination, ComponentModel):
         blank=True,
         null=True
     )
-    connection_status = models.NullBooleanField(
+    connection_status = models.BooleanField(
         choices=CONNECTION_STATUS_CHOICES,
-        blank=True
+        blank=True,
+        null=True
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -304,9 +305,10 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         blank=True,
         help_text='Physical port type'
     )
-    connection_status = models.NullBooleanField(
+    connection_status = models.BooleanField(
         choices=CONNECTION_STATUS_CHOICES,
-        blank=True
+        blank=True,
+        null=True
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -370,9 +372,10 @@ class PowerPort(CableTermination, ComponentModel):
         blank=True,
         null=True
     )
-    connection_status = models.NullBooleanField(
+    connection_status = models.BooleanField(
         choices=CONNECTION_STATUS_CHOICES,
-        blank=True
+        blank=True,
+        null=True
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -505,9 +508,10 @@ class PowerOutlet(CableTermination, ComponentModel):
         blank=True,
         help_text="Phase (for three-phase feeds)"
     )
-    connection_status = models.NullBooleanField(
+    connection_status = models.BooleanField(
         choices=CONNECTION_STATUS_CHOICES,
-        blank=True
+        blank=True,
+        null=True
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -598,9 +602,10 @@ class Interface(CableTermination, ComponentModel, BaseInterface):
         blank=True,
         null=True
     )
-    connection_status = models.NullBooleanField(
+    connection_status = models.BooleanField(
         choices=CONNECTION_STATUS_CHOICES,
-        blank=True
+        blank=True,
+        null=True
     )
     lag = models.ForeignKey(
         to='self',

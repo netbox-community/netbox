@@ -15,8 +15,12 @@ from . import serializers
 #
 
 class TenantGroupViewSet(ModelViewSet):
-    queryset = TenantGroup.objects.annotate(
-        tenant_count=get_subquery(Tenant, 'group')
+    queryset = TenantGroup.objects.add_related_count(
+        TenantGroup.objects.all(),
+        Tenant,
+        'group',
+        'tenant_count',
+        cumulative=True
     )
     serializer_class = serializers.TenantGroupSerializer
     filterset_class = filters.TenantGroupFilterSet

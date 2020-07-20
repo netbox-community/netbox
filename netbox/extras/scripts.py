@@ -11,7 +11,7 @@ from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
-from django.utils.decorators import classproperty
+from django.utils.functional import classproperty
 from django_rq import job
 
 from extras.api.serializers import ScriptOutputSerializer
