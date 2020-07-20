@@ -503,13 +503,13 @@ class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
     device_count = tables.TemplateColumn(
         template_code=DEVICEROLE_DEVICE_COUNT,
-        accessor=Accessor('devices.unrestricted.count'),
+        accessor=Accessor('devices__unrestricted__count'),
         orderable=False,
         verbose_name='Devices'
     )
     vm_count = tables.TemplateColumn(
         template_code=DEVICEROLE_VM_COUNT,
-        accessor=Accessor('virtual_machines.unrestricted.count'),
+        accessor=Accessor('virtual_machines__unrestricted__count'),
         orderable=False,
         verbose_name='VMs'
     )
@@ -534,13 +534,13 @@ class PlatformTable(BaseTable):
     pk = ToggleColumn()
     device_count = tables.TemplateColumn(
         template_code=PLATFORM_DEVICE_COUNT,
-        accessor=Accessor('devices.count'),
+        accessor=Accessor('devices__unrestricted__count'),
         orderable=False,
         verbose_name='Devices'
     )
     vm_count = tables.TemplateColumn(
         template_code=PLATFORM_VM_COUNT,
-        accessor=Accessor('virtual_machines.count'),
+        accessor=Accessor('virtual_machines__unrestricted__count'),
         orderable=False,
         verbose_name='VMs'
     )

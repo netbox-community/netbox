@@ -283,13 +283,13 @@ class AggregateDetailTable(AggregateTable):
 class RoleTable(BaseTable):
     pk = ToggleColumn()
     prefix_count = tables.TemplateColumn(
-        accessor=Accessor('prefixes.unrestricted.count'),
+        accessor=Accessor('prefixes__unrestricted__count'),
         template_code=ROLE_PREFIX_COUNT,
         orderable=False,
         verbose_name='Prefixes'
     )
     vlan_count = tables.TemplateColumn(
-        accessor=Accessor('vlans.unrestricted.count'),
+        accessor=Accessor('vlans__unrestricted__count'),
         template_code=ROLE_VLAN_COUNT,
         orderable=False,
         verbose_name='VLANs'

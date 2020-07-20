@@ -67,12 +67,12 @@ class ClusterTable(BaseTable):
         linkify=True
     )
     device_count = tables.Column(
-        accessor=Accessor('devices.count'),
+        accessor=Accessor('devices__unrestricted__count'),
         orderable=False,
         verbose_name='Devices'
     )
     vm_count = tables.Column(
-        accessor=Accessor('virtual_machines.count'),
+        accessor=Accessor('virtual_machines__unrestricted__count'),
         orderable=False,
         verbose_name='VMs'
     )
