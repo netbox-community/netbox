@@ -103,14 +103,15 @@ class APIViewTestCases:
             url = self._get_list_url()
             response = self.client.get(url, **self.header)
 
-            self.assertEqual(len(response.data['results']), self._get_queryset().count())
             self.assertHttpStatus(response, status.HTTP_200_OK)
+            self.assertEqual(len(response.data['results']), self._get_queryset().count())
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects_brief(self):
             """
-            GET a list of objects using the "brief" parameter as an unauthenticated user.
+            GET a list of objects using the "brief" parameter.
             """
+            self.add_permissions(f'{self.model._meta.app_label}.view_{self.model._meta.model_name}')
             url = f'{self._get_list_url()}?brief=1'
             response = self.client.get(url, **self.header)
 

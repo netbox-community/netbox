@@ -172,6 +172,9 @@ To exempt _all_ models from view permission enforcement, set the following. (Not
 EXEMPT_VIEW_PERMISSIONS = ['*']
 ```
 
+!!! note
+    Using a wildcard will not affect certain potentially sensitive models, such as user permissions. If there is a need to exempt these models, they must be specified individually.
+
 ---
 
 ## ENFORCE_GLOBAL_UNIQUE

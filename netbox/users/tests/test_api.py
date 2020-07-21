@@ -1,9 +1,11 @@
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
 from django.urls import reverse
+from rest_framework import status
 
 from users.models import ObjectPermission
-from utilities.testing import APIViewTestCases, APITestCase
+from utilities.testing import APIViewTestCases, APITestCase, disable_warnings
 
 
 class AppTest(APITestCase):
@@ -72,3 +74,17 @@ class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
                 'constraints': {'name': 'TEST6'},
             },
         ]
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_list_objects_anonymous(self):
+        # Endpoint should never be exposed via EXEMPT_VIEW_PERMISSIONS
+        url = self._get_list_url()
+        with disable_warnings('django.request'):
+            self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_403_FORBIDDEN)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_get_object_anonymous(self):
+        # Endpoint should never be exposed via EXEMPT_VIEW_PERMISSIONS
+        url = self._get_detail_url(self._get_queryset().first())
+        with disable_warnings('django.request'):
+            self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_403_FORBIDDEN)
