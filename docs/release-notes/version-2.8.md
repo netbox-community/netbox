@@ -19,6 +19,7 @@
 * [#4838](https://github.com/netbox-community/netbox/issues/4838) - Fix rack power utilization display for racks without devices
 * [#4851](https://github.com/netbox-community/netbox/issues/4851) - Show locally connected peer on circuit terminations
 * [#4856](https://github.com/netbox-community/netbox/issues/4856) - Redirect user back to circuit after connecting a termination
+* [#4872](https://github.com/netbox-community/netbox/issues/4872) - Enable filtering virtual machine interfaces by tag
 
 ---
 
