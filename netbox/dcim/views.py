@@ -22,7 +22,7 @@ from secrets.models import Secret
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.permissions import get_permission_for_model
-from utilities.utils import csv_format
+from utilities.utils import csv_format, get_subquery
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, BulkRenameView, ComponentCreateView,
     GetReturnURLMixin, ObjectView, ObjectImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -341,13 +341,14 @@ class RackView(ObjectView):
     def get(self, request, pk):
         rack = get_object_or_404(self.queryset, pk=pk)
 
-        nonracked_devices = Device.objects.restrict(request.user, 'view').filter(
+        # Get 0U and child devices located within the rack
+        nonracked_devices = Device.objects.filter(
             rack=rack,
-            position__isnull=True,
-            parent_bay__isnull=True
+            position__isnull=True
         ).prefetch_related('device_type__manufacturer')
 
         peer_racks = Rack.objects.restrict(request.user, 'view').filter(site=rack.site)
+
         if rack.group:
             peer_racks = peer_racks.filter(group=rack.group)
         else:
@@ -474,10 +475,10 @@ class RackReservationBulkDeleteView(BulkDeleteView):
 
 class ManufacturerListView(ObjectListView):
     queryset = Manufacturer.objects.annotate(
-        devicetype_count=Count('device_types', distinct=True),
-        inventoryitem_count=Count('inventory_items', distinct=True),
-        platform_count=Count('platforms', distinct=True),
-    ).order_by(*Manufacturer._meta.ordering)
+        devicetype_count=get_subquery(DeviceType, 'manufacturer'),
+        inventoryitem_count=get_subquery(InventoryItem, 'manufacturer'),
+        platform_count=get_subquery(Platform, 'manufacturer')
+    )
     table = tables.ManufacturerTable
 
 
@@ -919,7 +920,10 @@ class DeviceBayTemplateBulkDeleteView(BulkDeleteView):
 #
 
 class DeviceRoleListView(ObjectListView):
-    queryset = DeviceRole.objects.all()
+    queryset = DeviceRole.objects.annotate(
+        device_count=get_subquery(Device, 'device_role'),
+        vm_count=get_subquery(VirtualMachine, 'role')
+    )
     table = tables.DeviceRoleTable
 
 
@@ -948,7 +952,10 @@ class DeviceRoleBulkDeleteView(BulkDeleteView):
 #
 
 class PlatformListView(ObjectListView):
-    queryset = Platform.objects.all()
+    queryset = Platform.objects.annotate(
+        device_count=get_subquery(Device, 'device_role'),
+        vm_count=get_subquery(VirtualMachine, 'role')
+    )
     table = tables.PlatformTable
 
 

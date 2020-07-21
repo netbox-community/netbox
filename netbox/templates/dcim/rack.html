@@ -337,7 +337,7 @@
                         <th>Name</th>
                         <th>Role</th>
                         <th>Type</th>
-                        <th>Parent</th>
+                        <th colspan="2">Parent Device</th>
                     </tr>
                     {% for device in nonracked_devices %}
                         <tr{% if device.device_type.u_height %} class="warning"{% endif %}>
@@ -346,13 +346,12 @@
                             </td>
                             <td>{{ device.device_role }}</td>
                             <td>{{ device.device_type.display_name }}</td>
-                            <td>
-                                {% if device.parent_bay %}
-                                    <a href="{{ device.parent_bay.device.get_absolute_url }}">{{ device.parent_bay }}</a>
-                                {% else %}
-                                    <span class="text-muted">&mdash;</span>
-                                {% endif %}
-                            </td>
+                            {% if device.parent_bay %}
+                                <td><a href="{{ device.parent_bay.device.get_absolute_url }}">{{ device.parent_bay.device }}</a></td>
+                                <td>{{ device.parent_bay }}</td>
+                            {% else %}
+                                <td colspan="2" class="text-muted">&mdash;</td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                 </table>

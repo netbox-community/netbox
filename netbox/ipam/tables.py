@@ -31,11 +31,11 @@ UTILIZATION_GRAPH = """
 """
 
 ROLE_PREFIX_COUNT = """
-<a href="{% url 'ipam:prefix_list' %}?role={{ record.slug }}">{{ value }}</a>
+<a href="{% url 'ipam:prefix_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
 """
 
 ROLE_VLAN_COUNT = """
-<a href="{% url 'ipam:vlan_list' %}?role={{ record.slug }}">{{ value }}</a>
+<a href="{% url 'ipam:vlan_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
 """
 
 PREFIX_LINK = """
@@ -283,15 +283,11 @@ class AggregateDetailTable(AggregateTable):
 class RoleTable(BaseTable):
     pk = ToggleColumn()
     prefix_count = tables.TemplateColumn(
-        accessor=Accessor('prefixes__unrestricted__count'),
         template_code=ROLE_PREFIX_COUNT,
-        orderable=False,
         verbose_name='Prefixes'
     )
     vlan_count = tables.TemplateColumn(
-        accessor=Accessor('vlans__unrestricted__count'),
         template_code=ROLE_VLAN_COUNT,
-        orderable=False,
         verbose_name='VLANs'
     )
     actions = ButtonsColumn(Role, pk_field='slug')
@@ -474,7 +470,7 @@ class InterfaceIPAddressTable(BaseTable):
 
 class VLANGroupTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.Column(linkify=True)
     site = tables.LinkColumn(
         viewname='dcim:site',
         args=[Accessor('site__slug')]

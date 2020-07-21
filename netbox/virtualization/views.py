@@ -9,6 +9,7 @@ from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
 from ipam.models import IPAddress, Service
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
+from utilities.utils import get_subquery
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, BulkRenameView, ComponentCreateView,
     ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -80,7 +81,11 @@ class ClusterGroupBulkDeleteView(BulkDeleteView):
 #
 
 class ClusterListView(ObjectListView):
-    queryset = Cluster.objects.prefetch_related('type', 'group', 'site', 'tenant')
+    permission_required = 'virtualization.view_cluster'
+    queryset = Cluster.objects.prefetch_related('type', 'group', 'site', 'tenant').annotate(
+        device_count=get_subquery(Device, 'cluster'),
+        vm_count=get_subquery(VirtualMachine, 'cluster')
+    )
     table = tables.ClusterTable
     filterset = filters.ClusterFilterSet
     filterset_form = forms.ClusterFilterForm

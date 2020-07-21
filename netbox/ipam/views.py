@@ -7,6 +7,7 @@ from django_tables2 import RequestConfig
 
 from dcim.models import Device, Interface
 from utilities.paginator import EnhancedPaginator
+from utilities.utils import get_subquery
 from utilities.views import (
     BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView,
     ObjectListView,
@@ -285,7 +286,10 @@ class AggregateBulkDeleteView(BulkDeleteView):
 #
 
 class RoleListView(ObjectListView):
-    queryset = Role.objects.all()
+    queryset = Role.objects.annotate(
+        prefix_count=get_subquery(Prefix, 'role'),
+        vlan_count=get_subquery(VLAN, 'role')
+    )
     table = tables.RoleTable
 
 
