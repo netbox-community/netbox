@@ -594,21 +594,20 @@ class DynamicModelChoiceMixin:
     filter = django_filters.ModelChoiceFilter
     widget = APISelect
 
-    def _get_initial_value(self, initial_data, field_name):
-        return initial_data.get(field_name)
-
     def get_bound_field(self, form, field_name):
         bound_field = BoundField(form, self, field_name)
-
-        # Override initial() to allow passing multiple values
-        bound_field.initial = self._get_initial_value(form.initial, field_name)
 
         # Modify the QuerySet of the field before we return it. Limit choices to any data already bound: Options
         # will be populated on-demand via the APISelect widget.
         data = bound_field.value()
         if data:
-            filter = self.filter(field_name=self.to_field_name or 'pk', queryset=self.queryset)
-            self.queryset = filter.filter(self.queryset, data)
+            field_name = getattr(self, 'to_field_name') or 'pk'
+            filter = self.filter(field_name=field_name)
+            try:
+                self.queryset = filter.filter(self.queryset, data)
+            except TypeError:
+                # Catch any error caused by invalid initial data passed from the user
+                self.queryset = self.queryset.none()
         else:
             self.queryset = self.queryset.none()
 
@@ -637,12 +636,6 @@ class DynamicModelMultipleChoiceField(DynamicModelChoiceMixin, forms.ModelMultip
     """
     filter = django_filters.ModelMultipleChoiceFilter
     widget = APISelectMultiple
-
-    def _get_initial_value(self, initial_data, field_name):
-        # If a QueryDict has been passed as initial form data, get *all* listed values
-        if hasattr(initial_data, 'getlist'):
-            return initial_data.getlist(field_name)
-        return initial_data.get(field_name)
 
 
 class LaxURLField(forms.URLField):

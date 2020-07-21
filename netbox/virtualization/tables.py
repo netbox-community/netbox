@@ -34,6 +34,14 @@ VIRTUALMACHINE_PRIMARY_IP = """
 {{ record.primary_ip4.address.ip|default:"" }}
 """
 
+CLUSTER_DEVICE_COUNT = """
+<a href="{% url 'dcim:device_list' %}?cluster_id={{ record.pk }}">{{ value|default:0 }}</a>
+"""
+
+CLUSTER_VM_COUNT = """
+<a href="{% url 'virtualization:virtualmachine_list' %}?cluster_id={{ record.pk }}">{{ value|default:0 }}</a>
+"""
+
 
 #
 # Cluster types
@@ -94,14 +102,12 @@ class ClusterTable(BaseTable):
         viewname='dcim:site',
         args=[Accessor('site.slug')]
     )
-    device_count = tables.Column(
-        accessor=Accessor('devices.count'),
-        orderable=False,
+    device_count = tables.TemplateColumn(
+        template_code=CLUSTER_DEVICE_COUNT,
         verbose_name='Devices'
     )
-    vm_count = tables.Column(
-        accessor=Accessor('virtual_machines.count'),
-        orderable=False,
+    vm_count = tables.TemplateColumn(
+        template_code=CLUSTER_VM_COUNT,
         verbose_name='VMs'
     )
     tags = TagColumn(

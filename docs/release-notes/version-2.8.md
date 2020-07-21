@@ -1,5 +1,28 @@
 # NetBox v2.8
 
+## v2.8.8 (2020-07-21)
+
+### Enhancements
+
+* [#4805](https://github.com/netbox-community/netbox/issues/4805) - Improve handling of plugin loading errors
+* [#4829](https://github.com/netbox-community/netbox/issues/4829) - Add NEMA 15 power port and outlet types
+* [#4831](https://github.com/netbox-community/netbox/issues/4831) - Allow NAPALM to resolve device name when primary IP is not set
+* [#4854](https://github.com/netbox-community/netbox/issues/4854) - Add staging and decommissioning statuses for sites
+
+### Bug Fixes
+
+* [#3240](https://github.com/netbox-community/netbox/issues/3240) - Correct OpenAPI definition for available-prefixes endpoint
+* [#4595](https://github.com/netbox-community/netbox/issues/4595) - Ensure consistent display of non-racked and child devices on rack view
+* [#4803](https://github.com/netbox-community/netbox/issues/4803) - Return IP family (4 or 6) as integer rather than string
+* [#4821](https://github.com/netbox-community/netbox/issues/4821) - Restrict group options by selected site when bulk editing VLANs
+* [#4835](https://github.com/netbox-community/netbox/issues/4835) - Support passing multiple initial values for multiple choice fields
+* [#4838](https://github.com/netbox-community/netbox/issues/4838) - Fix rack power utilization display for racks without devices
+* [#4851](https://github.com/netbox-community/netbox/issues/4851) - Show locally connected peer on circuit terminations
+* [#4856](https://github.com/netbox-community/netbox/issues/4856) - Redirect user back to circuit after connecting a termination
+* [#4872](https://github.com/netbox-community/netbox/issues/4872) - Enable filtering virtual machine interfaces by tag
+
+---
+
 ## v2.8.7 (2020-07-02)
 
 ### Enhancements

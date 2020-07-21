@@ -16,6 +16,7 @@ from extras.models import (
 from extras.reports import get_report, get_reports
 from extras.scripts import get_script, get_scripts, run_script
 from utilities.api import IsAuthenticatedOrLoginNotRequired, ModelViewSet
+from utilities.metadata import ContentTypeMetadata
 from . import serializers
 
 
@@ -88,6 +89,7 @@ class CustomFieldModelViewSet(ModelViewSet):
 #
 
 class GraphViewSet(ModelViewSet):
+    metadata_class = ContentTypeMetadata
     queryset = Graph.objects.all()
     serializer_class = serializers.GraphSerializer
     filterset_class = filters.GraphFilterSet
@@ -98,6 +100,7 @@ class GraphViewSet(ModelViewSet):
 #
 
 class ExportTemplateViewSet(ModelViewSet):
+    metadata_class = ContentTypeMetadata
     queryset = ExportTemplate.objects.all()
     serializer_class = serializers.ExportTemplateSerializer
     filterset_class = filters.ExportTemplateFilterSet
@@ -120,6 +123,7 @@ class TagViewSet(ModelViewSet):
 #
 
 class ImageAttachmentViewSet(ModelViewSet):
+    metadata_class = ContentTypeMetadata
     queryset = ImageAttachment.objects.all()
     serializer_class = serializers.ImageAttachmentSerializer
 
@@ -271,6 +275,7 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     """
     Retrieve a list of recent changes.
     """
+    metadata_class = ContentTypeMetadata
     queryset = ObjectChange.objects.prefetch_related('user')
     serializer_class = serializers.ObjectChangeSerializer
     filterset_class = filters.ObjectChangeFilterSet

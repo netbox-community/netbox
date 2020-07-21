@@ -23,7 +23,7 @@ from ipam.models import Prefix, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
-from utilities.utils import csv_format
+from utilities.utils import csv_format, get_subquery
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, GetReturnURLMixin,
     ObjectImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -399,11 +399,12 @@ class RackView(PermissionRequiredMixin, View):
 
         rack = get_object_or_404(Rack.objects.prefetch_related('site__region', 'tenant__group', 'group', 'role'), pk=pk)
 
+        # Get 0U and child devices located within the rack
         nonracked_devices = Device.objects.filter(
             rack=rack,
-            position__isnull=True,
-            parent_bay__isnull=True
+            position__isnull=True
         ).prefetch_related('device_type__manufacturer')
+
         if rack.group:
             peer_racks = Rack.objects.filter(site=rack.site, group=rack.group)
         else:
@@ -557,9 +558,9 @@ class RackReservationBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class ManufacturerListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_manufacturer'
     queryset = Manufacturer.objects.annotate(
-        devicetype_count=Count('device_types', distinct=True),
-        inventoryitem_count=Count('inventory_items', distinct=True),
-        platform_count=Count('platforms', distinct=True),
+        devicetype_count=get_subquery(DeviceType, 'manufacturer'),
+        inventoryitem_count=get_subquery(InventoryItem, 'manufacturer'),
+        platform_count=get_subquery(Platform, 'manufacturer')
     )
     table = tables.ManufacturerTable
 
@@ -1020,7 +1021,10 @@ class DeviceBayTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class DeviceRoleListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_devicerole'
-    queryset = DeviceRole.objects.all()
+    queryset = DeviceRole.objects.annotate(
+        device_count=get_subquery(Device, 'device_role'),
+        vm_count=get_subquery(VirtualMachine, 'role')
+    )
     table = tables.DeviceRoleTable
 
 
@@ -1055,7 +1059,10 @@ class DeviceRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class PlatformListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'dcim.view_platform'
-    queryset = Platform.objects.all()
+    queryset = Platform.objects.annotate(
+        device_count=get_subquery(Device, 'device_role'),
+        vm_count=get_subquery(VirtualMachine, 'role')
+    )
     table = tables.PlatformTable
 
 

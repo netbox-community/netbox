@@ -7,13 +7,17 @@ from utilities.choices import ChoiceSet
 
 class SiteStatusChoices(ChoiceSet):
 
-    STATUS_ACTIVE = 'active'
     STATUS_PLANNED = 'planned'
+    STATUS_STAGING = 'staging'
+    STATUS_ACTIVE = 'active'
+    STATUS_DECOMMISSIONING = 'decommissioning'
     STATUS_RETIRED = 'retired'
 
     CHOICES = (
-        (STATUS_ACTIVE, 'Active'),
         (STATUS_PLANNED, 'Planned'),
+        (STATUS_STAGING, 'Staging'),
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_DECOMMISSIONING, 'Decommissioning'),
         (STATUS_RETIRED, 'Retired'),
     )
 
@@ -275,6 +279,11 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_NEMA_1430P = 'nema-14-30p'
     TYPE_NEMA_1450P = 'nema-14-50p'
     TYPE_NEMA_1460P = 'nema-14-60p'
+    TYPE_NEMA_1515P = 'nema-15-15p'
+    TYPE_NEMA_1520P = 'nema-15-20p'
+    TYPE_NEMA_1530P = 'nema-15-30p'
+    TYPE_NEMA_1550P = 'nema-15-50p'
+    TYPE_NEMA_1560P = 'nema-15-60p'
     # NEMA locking
     TYPE_NEMA_L115P = 'nema-l1-15p'
     TYPE_NEMA_L515P = 'nema-l5-15p'
@@ -290,6 +299,10 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_NEMA_L1430P = 'nema-l14-30p'
     TYPE_NEMA_L1450P = 'nema-l14-50p'
     TYPE_NEMA_L1460P = 'nema-l14-60p'
+    TYPE_NEMA_L1520P = 'nema-l15-20p'
+    TYPE_NEMA_L1530P = 'nema-l15-30p'
+    TYPE_NEMA_L1550P = 'nema-l15-50p'
+    TYPE_NEMA_L1560P = 'nema-l15-60p'
     TYPE_NEMA_L2120P = 'nema-l21-20p'
     TYPE_NEMA_L2130P = 'nema-l21-30p'
     # California style
@@ -351,6 +364,11 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_NEMA_1430P, 'NEMA 14-30P'),
             (TYPE_NEMA_1450P, 'NEMA 14-50P'),
             (TYPE_NEMA_1460P, 'NEMA 14-60P'),
+            (TYPE_NEMA_1515P, 'NEMA 15-15P'),
+            (TYPE_NEMA_1520P, 'NEMA 15-20P'),
+            (TYPE_NEMA_1530P, 'NEMA 15-30P'),
+            (TYPE_NEMA_1550P, 'NEMA 15-50P'),
+            (TYPE_NEMA_1560P, 'NEMA 15-60P'),
         )),
         ('NEMA (Locking)', (
             (TYPE_NEMA_L115P, 'NEMA L1-15P'),
@@ -367,6 +385,10 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_NEMA_L1430P, 'NEMA L14-30P'),
             (TYPE_NEMA_L1450P, 'NEMA L14-50P'),
             (TYPE_NEMA_L1460P, 'NEMA L14-60P'),
+            (TYPE_NEMA_L1520P, 'NEMA L15-20P'),
+            (TYPE_NEMA_L1530P, 'NEMA L15-30P'),
+            (TYPE_NEMA_L1550P, 'NEMA L15-50P'),
+            (TYPE_NEMA_L1560P, 'NEMA L15-60P'),
             (TYPE_NEMA_L2120P, 'NEMA L21-20P'),
             (TYPE_NEMA_L2130P, 'NEMA L21-30P'),
         )),
@@ -436,6 +458,11 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_NEMA_1430R = 'nema-14-30r'
     TYPE_NEMA_1450R = 'nema-14-50r'
     TYPE_NEMA_1460R = 'nema-14-60r'
+    TYPE_NEMA_1515R = 'nema-15-15r'
+    TYPE_NEMA_1520R = 'nema-15-20r'
+    TYPE_NEMA_1530R = 'nema-15-30r'
+    TYPE_NEMA_1550R = 'nema-15-50r'
+    TYPE_NEMA_1560R = 'nema-15-60r'
     # NEMA locking
     TYPE_NEMA_L115R = 'nema-l1-15r'
     TYPE_NEMA_L515R = 'nema-l5-15r'
@@ -451,6 +478,10 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_NEMA_L1430R = 'nema-l14-30r'
     TYPE_NEMA_L1450R = 'nema-l14-50r'
     TYPE_NEMA_L1460R = 'nema-l14-60r'
+    TYPE_NEMA_L1520R = 'nema-l15-20r'
+    TYPE_NEMA_L1530R = 'nema-l15-30r'
+    TYPE_NEMA_L1550R = 'nema-l15-50r'
+    TYPE_NEMA_L1560R = 'nema-l15-60r'
     TYPE_NEMA_L2120R = 'nema-l21-20r'
     TYPE_NEMA_L2130R = 'nema-l21-30r'
     # California style
@@ -513,6 +544,11 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_NEMA_1430R, 'NEMA 14-30R'),
             (TYPE_NEMA_1450R, 'NEMA 14-50R'),
             (TYPE_NEMA_1460R, 'NEMA 14-60R'),
+            (TYPE_NEMA_1515R, 'NEMA 15-15R'),
+            (TYPE_NEMA_1520R, 'NEMA 15-20R'),
+            (TYPE_NEMA_1530R, 'NEMA 15-30R'),
+            (TYPE_NEMA_1550R, 'NEMA 15-50R'),
+            (TYPE_NEMA_1560R, 'NEMA 15-60R'),
         )),
         ('NEMA (Locking)', (
             (TYPE_NEMA_L115R, 'NEMA L1-15R'),
@@ -529,6 +565,10 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_NEMA_L1430R, 'NEMA L14-30R'),
             (TYPE_NEMA_L1450R, 'NEMA L14-50R'),
             (TYPE_NEMA_L1460R, 'NEMA L14-60R'),
+            (TYPE_NEMA_L1520R, 'NEMA L15-20R'),
+            (TYPE_NEMA_L1530R, 'NEMA L15-30R'),
+            (TYPE_NEMA_L1550R, 'NEMA L15-50R'),
+            (TYPE_NEMA_L1560R, 'NEMA L15-60R'),
             (TYPE_NEMA_L2120R, 'NEMA L21-20R'),
             (TYPE_NEMA_L2130R, 'NEMA L21-30R'),
         )),

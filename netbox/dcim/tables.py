@@ -103,20 +103,12 @@ DEVICEROLE_ACTIONS = """
 {% endif %}
 """
 
-DEVICEROLE_DEVICE_COUNT = """
-<a href="{% url 'dcim:device_list' %}?role={{ record.slug }}">{{ value }}</a>
+DEVICE_COUNT = """
+<a href="{% url 'dcim:device_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
 """
 
-DEVICEROLE_VM_COUNT = """
-<a href="{% url 'virtualization:virtualmachine_list' %}?role={{ record.slug }}">{{ value }}</a>
-"""
-
-PLATFORM_DEVICE_COUNT = """
-<a href="{% url 'dcim:device_list' %}?platform={{ record.slug }}">{{ value }}</a>
-"""
-
-PLATFORM_VM_COUNT = """
-<a href="{% url 'virtualization:virtualmachine_list' %}?platform={{ record.slug }}">{{ value }}</a>
+VM_COUNT = """
+<a href="{% url 'virtualization:virtualmachine_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
 """
 
 PLATFORM_ACTIONS = """
@@ -278,6 +270,7 @@ class RackGroupTable(BaseTable):
 
 class RackRoleTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.Column(linkify=True)
     rack_count = tables.Column(verbose_name='Racks')
     color = tables.TemplateColumn(COLOR_LABEL)
     actions = tables.TemplateColumn(
@@ -704,21 +697,18 @@ class DeviceBayTemplateTable(BaseTable):
 class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
     device_count = tables.TemplateColumn(
-        template_code=DEVICEROLE_DEVICE_COUNT,
-        accessor=Accessor('devices.count'),
-        orderable=False,
+        template_code=DEVICE_COUNT,
         verbose_name='Devices'
     )
     vm_count = tables.TemplateColumn(
-        template_code=DEVICEROLE_VM_COUNT,
-        accessor=Accessor('virtual_machines.count'),
-        orderable=False,
+        template_code=VM_COUNT,
         verbose_name='VMs'
     )
     color = tables.TemplateColumn(
         template_code=COLOR_LABEL,
         verbose_name='Label'
     )
+    vm_role = BooleanColumn()
     actions = tables.TemplateColumn(
         template_code=DEVICEROLE_ACTIONS,
         attrs={'td': {'class': 'text-right noprint'}},
@@ -738,15 +728,11 @@ class DeviceRoleTable(BaseTable):
 class PlatformTable(BaseTable):
     pk = ToggleColumn()
     device_count = tables.TemplateColumn(
-        template_code=PLATFORM_DEVICE_COUNT,
-        accessor=Accessor('devices.count'),
-        orderable=False,
+        template_code=DEVICE_COUNT,
         verbose_name='Devices'
     )
     vm_count = tables.TemplateColumn(
-        template_code=PLATFORM_VM_COUNT,
-        accessor=Accessor('virtual_machines.count'),
-        orderable=False,
+        template_code=VM_COUNT,
         verbose_name='VMs'
     )
     actions = tables.TemplateColumn(

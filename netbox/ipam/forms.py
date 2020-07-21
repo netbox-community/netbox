@@ -1068,7 +1068,12 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            filter_for={
+                'group': 'site_id'
+            }
+        )
     )
     group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
