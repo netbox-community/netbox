@@ -128,17 +128,3 @@ class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
                 'constraints': {'name': 'TEST6'},
             },
         ]
-
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
-    def test_list_objects_anonymous(self):
-        # Endpoint should never be exposed via EXEMPT_VIEW_PERMISSIONS
-        url = self._get_list_url()
-        with disable_warnings('django.request'):
-            self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_403_FORBIDDEN)
-
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
-    def test_get_object_anonymous(self):
-        # Endpoint should never be exposed via EXEMPT_VIEW_PERMISSIONS
-        url = self._get_detail_url(self._get_queryset().first())
-        with disable_warnings('django.request'):
-            self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_403_FORBIDDEN)

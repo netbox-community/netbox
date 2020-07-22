@@ -382,6 +382,14 @@ LOGIN_URL = '/{}login/'.format(BASE_PATH)
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
+# Exclude potentially sensitive models from wildcard view exemption. These may still be exempted
+# by specifying the model individually in the EXEMPT_VIEW_PERMISSIONS configuration parameter.
+EXEMPT_EXCLUDE_MODELS = (
+    ('auth', 'group'),
+    ('auth', 'user'),
+    ('users', 'objectpermission'),
+)
+
 #
 # Caching
 #

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
@@ -62,8 +63,13 @@ class APIViewTestCases:
             GET a single object as an unauthenticated user.
             """
             url = self._get_detail_url(self._get_queryset().first())
-            response = self.client.get(url, **self.header)
-            self.assertHttpStatus(response, status.HTTP_200_OK)
+            if (self.model._meta.app_label, self.model._meta.model_name) in settings.EXEMPT_EXCLUDE_MODELS:
+                # Models listed in EXEMPT_EXCLUDE_MODELS should not be accessible to anonymous users
+                with disable_warnings('django.request'):
+                    self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_403_FORBIDDEN)
+            else:
+                response = self.client.get(url, **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_get_object_without_permission(self):
@@ -111,10 +117,14 @@ class APIViewTestCases:
             GET a list of objects as an unauthenticated user.
             """
             url = self._get_list_url()
-            response = self.client.get(url, **self.header)
-
-            self.assertHttpStatus(response, status.HTTP_200_OK)
-            self.assertEqual(len(response.data['results']), self._get_queryset().count())
+            if (self.model._meta.app_label, self.model._meta.model_name) in settings.EXEMPT_EXCLUDE_MODELS:
+                # Models listed in EXEMPT_EXCLUDE_MODELS should not be accessible to anonymous users
+                with disable_warnings('django.request'):
+                    self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_403_FORBIDDEN)
+            else:
+                response = self.client.get(url, **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                self.assertEqual(len(response.data['results']), self._get_queryset().count())
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects_brief(self):
