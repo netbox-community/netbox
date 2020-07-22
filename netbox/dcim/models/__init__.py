@@ -260,8 +260,10 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     ]
 
     STATUS_CLASS_MAP = {
-        SiteStatusChoices.STATUS_ACTIVE: 'success',
         SiteStatusChoices.STATUS_PLANNED: 'info',
+        SiteStatusChoices.STATUS_STAGING: 'primary',
+        SiteStatusChoices.STATUS_ACTIVE: 'success',
+        SiteStatusChoices.STATUS_DECOMMISSIONING: 'warning',
         SiteStatusChoices.STATUS_RETIRED: 'danger',
     }
 
