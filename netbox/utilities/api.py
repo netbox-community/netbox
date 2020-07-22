@@ -32,9 +32,10 @@ def get_serializer_for_model(model, prefix=''):
     Dynamically resolve and return the appropriate serializer for a model.
     """
     app_name, model_name = model._meta.label.split('.')
-    serializer_name = '{}.api.serializers.{}{}Serializer'.format(
-        app_name, prefix, model_name
-    )
+    # Serializers for Django's auth models are in the users app
+    if app_name == 'auth':
+        app_name = 'users'
+    serializer_name = f'{app_name}.api.serializers.{prefix}{model_name}Serializer'
     try:
         return dynamic_import(serializer_name)
     except AttributeError:

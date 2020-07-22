@@ -7,6 +7,32 @@ from utilities.api import ContentTypeField, SerializedPKRelatedField, ValidatedM
 from .nested_serializers import *
 
 
+class UserSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='users-api:user-detail')
+    groups = SerializedPKRelatedField(
+        queryset=Group.objects.all(),
+        serializer=NestedGroupSerializer,
+        required=False,
+        many=True
+    )
+
+    class Meta:
+        model = User
+        fields = (
+            'id', 'url', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'date_joined',
+            'groups',
+        )
+
+
+class GroupSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='users-api:group-detail')
+    user_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Group
+        fields = ('id', 'url', 'name', 'user_count')
+
+
 class ObjectPermissionSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='users-api:objectpermission-detail')
     object_types = ContentTypeField(

@@ -1,12 +1,6 @@
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
-# Exclude potentially sensitive models from wild view exemption. These may still be exempted
-# by specifying the model individually in the EXEMPT_VIEW_PERMISSIONS configuration parameter.
-EXEMPT_EXCLUDE_MODELS = (
-    ('users', 'objectpermission'),
-)
-
 
 def get_permission_for_model(model, action):
     """
@@ -70,7 +64,7 @@ def permission_is_exempt(name):
     if action == 'view':
         if (
             # All models (excluding those in EXEMPT_EXCLUDE_MODELS) are exempt from view permission enforcement
-            '*' in settings.EXEMPT_VIEW_PERMISSIONS and (app_label, model_name) not in EXEMPT_EXCLUDE_MODELS
+            '*' in settings.EXEMPT_VIEW_PERMISSIONS and (app_label, model_name) not in settings.EXEMPT_EXCLUDE_MODELS
         ) or (
             # This specific model is exempt from view permission enforcement
             f'{app_label}.{model_name}' in settings.EXEMPT_VIEW_PERMISSIONS

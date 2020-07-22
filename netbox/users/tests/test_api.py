@@ -18,9 +18,63 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class UserTest(APIViewTestCases.APIViewTestCase):
+    model = User
+    view_namespace = 'users'
+    brief_fields = ['id', 'url', 'username']
+    create_data = [
+        {
+            'username': 'User_4',
+        },
+        {
+            'username': 'User_5',
+        },
+        {
+            'username': 'User_6',
+        },
+    ]
+
+    @classmethod
+    def setUpTestData(cls):
+
+        users = (
+            User(username='User_1'),
+            User(username='User_2'),
+            User(username='User_3'),
+        )
+        User.objects.bulk_create(users)
+
+
+class GroupTest(APIViewTestCases.APIViewTestCase):
+    model = Group
+    view_namespace = 'users'
+    brief_fields = ['id', 'name', 'url']
+    create_data = [
+        {
+            'name': 'Group 4',
+        },
+        {
+            'name': 'Group 5',
+        },
+        {
+            'name': 'Group 6',
+        },
+    ]
+
+    @classmethod
+    def setUpTestData(cls):
+
+        users = (
+            Group(name='Group 1'),
+            Group(name='Group 2'),
+            Group(name='Group 3'),
+        )
+        Group.objects.bulk_create(users)
+
+
 class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
     model = ObjectPermission
-    brief_fields = ['actions', 'enabled', 'groups', 'id', 'name', 'object_types', 'users']
+    brief_fields = ['actions', 'enabled', 'groups', 'id', 'name', 'object_types', 'url', 'users']
 
     @classmethod
     def setUpTestData(cls):
@@ -74,17 +128,3 @@ class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
                 'constraints': {'name': 'TEST6'},
             },
         ]
-
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
-    def test_list_objects_anonymous(self):
-        # Endpoint should never be exposed via EXEMPT_VIEW_PERMISSIONS
-        url = self._get_list_url()
-        with disable_warnings('django.request'):
-            self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_403_FORBIDDEN)
-
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
-    def test_get_object_anonymous(self):
-        # Endpoint should never be exposed via EXEMPT_VIEW_PERMISSIONS
-        url = self._get_detail_url(self._get_queryset().first())
-        with disable_warnings('django.request'):
-            self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_403_FORBIDDEN)
