@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#4875](https://github.com/netbox-community/netbox/issues/4875) - Fix documentation for image attachments
 * [#4876](https://github.com/netbox-community/netbox/issues/4876) - Fix labels for sites in staging or decommissioning status
 
 ---
