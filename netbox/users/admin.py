@@ -42,6 +42,7 @@ class ObjectPermissionInline(admin.TabularInline):
     readonly_fields = fields
     extra = 0
     verbose_name = 'Permission'
+    verbose_name_plural = 'Permissions'
 
     def object_types(self, instance):
         return ', '.join(instance.objectpermission.object_types.values_list('model', flat=True))
@@ -65,7 +66,7 @@ class UserAdmin(UserAdmin_):
     fieldsets = (
         (None, {'fields': ('username', 'password', 'first_name', 'last_name', 'email')}),
         ('Groups', {'fields': ('groups',)}),
-        ('Permissions', {
+        ('Status', {
             'fields': ('is_active', 'is_staff', 'is_superuser'),
         }),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
@@ -119,6 +120,9 @@ class ObjectPermissionForm(forms.ModelForm):
         }
         labels = {
             'actions': 'Additional actions'
+        }
+        widgets = {
+            'constraints': forms.Textarea(attrs={'class': 'vLargeTextField'})
         }
 
     def __init__(self, *args, **kwargs):
