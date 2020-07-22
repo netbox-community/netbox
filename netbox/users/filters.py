@@ -5,12 +5,12 @@ from django.db.models import Q
 from utilities.filters import BaseFilterSet
 
 __all__ = (
-    'GroupFitlerSet',
-    'UserFitlerSet',
+    'GroupFilterSet',
+    'UserFilterSet',
 )
 
 
-class GroupFitlerSet(BaseFilterSet):
+class GroupFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -26,7 +26,7 @@ class GroupFitlerSet(BaseFilterSet):
         return queryset.filter(name__icontains=value)
 
 
-class UserFitlerSet(BaseFilterSet):
+class UserFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
