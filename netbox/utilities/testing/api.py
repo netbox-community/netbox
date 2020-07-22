@@ -21,7 +21,14 @@ __all__ = (
 #
 
 class APITestCase(ModelTestCase):
+    """
+    Base test case for API requests.
+
+    client_class: Test client class
+    view_namespace: Namespace for API views. If None, the model's app_label will be used.
+    """
     client_class = APIClient
+    view_namespace = None
 
     def setUp(self):
         """
@@ -33,12 +40,15 @@ class APITestCase(ModelTestCase):
         self.token = Token.objects.create(user=self.user)
         self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(self.token.key)}
 
+    def _get_view_namespace(self):
+        return f'{self.view_namespace or self.model._meta.app_label}-api'
+
     def _get_detail_url(self, instance):
-        viewname = f'{instance._meta.app_label}-api:{instance._meta.model_name}-detail'
+        viewname = f'{self._get_view_namespace()}:{instance._meta.model_name}-detail'
         return reverse(viewname, kwargs={'pk': instance.pk})
 
     def _get_list_url(self):
-        viewname = f'{self.model._meta.app_label}-api:{self.model._meta.model_name}-list'
+        viewname = f'{self._get_view_namespace()}:{self.model._meta.model_name}-list'
         return reverse(viewname)
 
 
