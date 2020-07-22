@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinLengthValidator
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -244,11 +245,11 @@ class ObjectPermission(models.Model):
     )
     object_types = models.ManyToManyField(
         to=ContentType,
-        limit_choices_to={
-            'app_label__in': [
-                'circuits', 'dcim', 'extras', 'ipam', 'secrets', 'tenancy', 'virtualization',
-            ],
-        },
+        limit_choices_to=Q(
+            ~Q(app_label__in=['admin', 'auth', 'contenttypes', 'sessions', 'taggit', 'users']) |
+            Q(app_label='auth', model__in=['group', 'user']) |
+            Q(app_label='users', model__in=['objectpermission', 'token'])
+        ),
         related_name='object_permissions'
     )
     groups = models.ManyToManyField(
@@ -274,7 +275,7 @@ class ObjectPermission(models.Model):
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:
-        verbose_name = "Permission"
+        verbose_name = "permission"
 
     def __str__(self):
         if self.name:

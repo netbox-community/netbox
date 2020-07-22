@@ -22,12 +22,12 @@ class Migration(migrations.Migration):
                 ('enabled', models.BooleanField(default=True)),
                 ('constraints', django.contrib.postgres.fields.jsonb.JSONField(blank=True, null=True)),
                 ('actions', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=30), size=None)),
-                ('object_types', models.ManyToManyField(limit_choices_to={'app_label__in': ['circuits', 'dcim', 'extras', 'ipam', 'secrets', 'tenancy', 'virtualization']}, related_name='object_permissions', to='contenttypes.ContentType')),
+                ('object_types', models.ManyToManyField(limit_choices_to=models.Q(models.Q(models.Q(_negated=True, app_label__in=['admin', 'auth', 'contenttypes', 'sessions', 'taggit', 'users']), models.Q(('app_label', 'auth'), ('model__in', ['group', 'user'])), models.Q(('app_label', 'users'), ('model__in', ['objectpermission', 'token'])), _connector='OR')), related_name='object_permissions', to='contenttypes.ContentType')),
                 ('groups', models.ManyToManyField(blank=True, related_name='object_permissions', to='auth.Group')),
                 ('users', models.ManyToManyField(blank=True, related_name='object_permissions', to=settings.AUTH_USER_MODEL)),
             ],
             options={
-                'verbose_name': 'Permission',
+                'verbose_name': 'permission',
             },
         ),
     ]
