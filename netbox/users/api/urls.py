@@ -14,6 +14,10 @@ class UsersRootView(routers.APIRootView):
 router = routers.DefaultRouter()
 router.APIRootView = UsersRootView
 
+# Users and groups
+router.register('users', views.UserViewSet)
+router.register('groups', views.GroupViewSet)
+
 # Permissions
 router.register('permissions', views.ObjectPermissionViewSet)
 
