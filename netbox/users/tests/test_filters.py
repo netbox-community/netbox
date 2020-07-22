@@ -1,7 +1,9 @@
 from django.contrib.auth.models import Group, User
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from users.filters import GroupFilterSet, UserFilterSet
+from users.filters import GroupFilterSet, ObjectPermissionFilterSet, UserFilterSet
+from users.models import ObjectPermission
 
 
 class UserTestCase(TestCase):
@@ -113,4 +115,78 @@ class GroupTestCase(TestCase):
 
     def test_name(self):
         params = {'name': ['Group 1', 'Group 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class ObjectPermissionTestCase(TestCase):
+    queryset = ObjectPermission.objects.all()
+    filterset = ObjectPermissionFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        groups = (
+            Group(name='Group 1'),
+            Group(name='Group 2'),
+            Group(name='Group 3'),
+        )
+        Group.objects.bulk_create(groups)
+
+        users = (
+            User(username='User1'),
+            User(username='User2'),
+            User(username='User3'),
+        )
+        User.objects.bulk_create(users)
+
+        object_types = (
+            ContentType.objects.get(app_label='dcim', model='site'),
+            ContentType.objects.get(app_label='dcim', model='rack'),
+            ContentType.objects.get(app_label='dcim', model='device'),
+        )
+
+        permissions = (
+            ObjectPermission(name='Permission 1', actions=['view', 'add', 'change', 'delete']),
+            ObjectPermission(name='Permission 2', actions=['view', 'add', 'change', 'delete']),
+            ObjectPermission(name='Permission 3', actions=['view', 'add', 'change', 'delete']),
+            ObjectPermission(name='Permission 4', actions=['view'], enabled=False),
+            ObjectPermission(name='Permission 5', actions=['add'], enabled=False),
+            ObjectPermission(name='Permission 6', actions=['change'], enabled=False),
+            ObjectPermission(name='Permission 7', actions=['delete'], enabled=False),
+        )
+        ObjectPermission.objects.bulk_create(permissions)
+        for i in range(0, 3):
+            permissions[i].groups.set([groups[i]])
+            permissions[i].users.set([users[i]])
+            permissions[i].object_types.set([object_types[i]])
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Permission 1', 'Permission 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_enabled(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_group(self):
+        groups = Group.objects.filter(name__in=['Group 1', 'Group 2'])
+        params = {'group_id': [groups[0].pk, groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'group': [groups[0].name, groups[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_user(self):
+        users = User.objects.filter(username__in=['User1', 'User2'])
+        params = {'user_id': [users[0].pk, users[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'user': [users[0].username, users[1].username]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_object_types(self):
+        object_types = ContentType.objects.filter(model__in=['site', 'rack'])
+        params = {'object_types': [object_types[0].pk, object_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

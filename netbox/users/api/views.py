@@ -31,4 +31,4 @@ class GroupViewSet(ModelViewSet):
 class ObjectPermissionViewSet(ModelViewSet):
     queryset = ObjectPermission.objects.prefetch_related('object_types', 'groups', 'users')
     serializer_class = serializers.ObjectPermissionSerializer
-    # filterset_class = filters.ObjectPermissionFilterSet
+    filterset_class = filters.ObjectPermissionFilterSet

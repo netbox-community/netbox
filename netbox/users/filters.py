@@ -2,10 +2,12 @@ import django_filters
 from django.contrib.auth.models import Group, User
 from django.db.models import Q
 
+from users.models import ObjectPermission
 from utilities.filters import BaseFilterSet
 
 __all__ = (
     'GroupFilterSet',
+    'ObjectPermissionFilterSet',
     'UserFilterSet',
 )
 
@@ -56,3 +58,32 @@ class UserFilterSet(BaseFilterSet):
             Q(last_name__icontains=value) |
             Q(email__icontains=value)
         )
+
+
+class ObjectPermissionFilterSet(BaseFilterSet):
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='users',
+        queryset=User.objects.all(),
+        label='User',
+    )
+    user = django_filters.ModelMultipleChoiceFilter(
+        field_name='users__username',
+        queryset=User.objects.all(),
+        to_field_name='username',
+        label='User (name)',
+    )
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='groups',
+        queryset=Group.objects.all(),
+        label='Group',
+    )
+    group = django_filters.ModelMultipleChoiceFilter(
+        field_name='groups__name',
+        queryset=Group.objects.all(),
+        to_field_name='name',
+        label='Group (name)',
+    )
+
+    class Meta:
+        model = ObjectPermission
+        fields = ['id', 'name', 'enabled', 'object_types']
