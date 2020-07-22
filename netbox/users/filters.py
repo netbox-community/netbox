@@ -45,7 +45,7 @@ class UserFilterSet(BaseFilterSet):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'date_joined']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active']
 
     def search(self, queryset, name, value):
         if not value.strip():
