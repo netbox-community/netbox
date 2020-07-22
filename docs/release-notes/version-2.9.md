@@ -27,6 +27,7 @@ When running a report or custom script, its execution is now queued for backgrou
 * [#4817](https://github.com/netbox-community/netbox/issues/4817) - Standardize device/VM component `name` field to 64 characters
 * [#4837](https://github.com/netbox-community/netbox/issues/4837) - Use dynamic form widget for relationships to MPTT objects (e.g. regions)
 * [#4840](https://github.com/netbox-community/netbox/issues/4840) - Enable change logging for config contexts
+* [#4877](https://github.com/netbox-community/netbox/issues/4877) - Add REST API endpoints for users and groups
 
 ### Configuration Changes
 
@@ -35,6 +36,7 @@ When running a report or custom script, its execution is now queued for backgrou
 
 ### REST API Changes
 
+* Added new endpoints for users, groups, and permissions under `/api/users/`.
 * A `url` field is now included on all object representations, identifying the unique REST API URL for each object.
 * The `tags` field of an object now includes a more complete representation of each tag, rather than just its name.
 * The assignment of tags to an object is now achieved in the same manner as specifying any other related device. The `tags` field accepts a list of JSON objects each matching a desired tag. (Alternatively, a list of numeric primary keys corresponding to tags may be passed instead.) For example:
