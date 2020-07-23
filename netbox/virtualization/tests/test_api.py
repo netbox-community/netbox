@@ -164,7 +164,7 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         """
         Check that config context data is included by default in the virtual machines list.
         """
-        virtualmachine = VirtualMachine.objects.unrestricted().first()
+        virtualmachine = VirtualMachine.objects.first()
         url = '{}?id={}'.format(reverse('virtualization-api:virtualmachine-list'), virtualmachine.pk)
         self.add_permissions('virtualization.view_virtualmachine')
 
@@ -187,7 +187,7 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         """
         data = {
             'name': 'Virtual Machine 1',
-            'cluster': Cluster.objects.unrestricted().first().pk,
+            'cluster': Cluster.objects.first().pk,
         }
         url = reverse('virtualization-api:virtualmachine-list')
         self.add_permissions('virtualization.add_virtualmachine')
@@ -260,7 +260,7 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
 
         self.add_permissions('virtualization.view_vminterface')
         url = reverse('virtualization-api:vminterface-graphs', kwargs={
-            'pk': VMInterface.objects.unrestricted().first().pk
+            'pk': VMInterface.objects.first().pk
         })
         response = self.client.get(url, **self.header)
 

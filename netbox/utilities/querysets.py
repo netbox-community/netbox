@@ -1,5 +1,3 @@
-import logging
-
 from django.db.models import Q, QuerySet
 
 from utilities.permissions import permission_is_exempt
@@ -20,44 +18,6 @@ class DummyQuerySet:
 
 
 class RestrictedQuerySet(QuerySet):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Initialize the allow_evaluation flag to False. This indicates that the QuerySet has not yet been restricted.
-        self.allow_evaluation = False
-
-    def _check_restriction(self):
-        # Raise a warning if the QuerySet is evaluated without first calling restrict() or unrestricted().
-        if not getattr(self, 'allow_evaluation', False):
-            logger = logging.getLogger('netbox.RestrictedQuerySet')
-            logger.warning(
-                f'Evaluation of RestrictedQuerySet prior to calling restrict() or unrestricted(): {self.model}'
-            )
-
-    def _clone(self):
-
-        # Persist the allow_evaluation flag when cloning the QuerySet.
-        c = super()._clone()
-        c.allow_evaluation = self.allow_evaluation
-
-        return c
-
-    def _fetch_all(self):
-        self._check_restriction()
-        return super()._fetch_all()
-
-    def count(self):
-        self._check_restriction()
-        return super().count()
-
-    def unrestricted(self):
-        """
-        Bypass restriction for the QuerySet. This is necessary in cases where we are not interacting with the objects
-        directly (e.g. when filtering by related object).
-        """
-        self.allow_evaluation = True
-        return self
 
     def restrict(self, user, action='view'):
         """
@@ -87,8 +47,5 @@ class RestrictedQuerySet(QuerySet):
                 if perm_attrs:
                     attrs |= Q(**perm_attrs)
             qs = self.filter(attrs)
-
-        # Allow QuerySet evaluation
-        qs.allow_evaluation = True
 
         return qs

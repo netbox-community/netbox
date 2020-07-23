@@ -8,7 +8,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMac
 
 
 class ClusterTypeTestCase(TestCase):
-    queryset = ClusterType.objects.unrestricted()
+    queryset = ClusterType.objects.all()
     filterset = ClusterTypeFilterSet
 
     @classmethod
@@ -39,7 +39,7 @@ class ClusterTypeTestCase(TestCase):
 
 
 class ClusterGroupTestCase(TestCase):
-    queryset = ClusterGroup.objects.unrestricted()
+    queryset = ClusterGroup.objects.all()
     filterset = ClusterGroupFilterSet
 
     @classmethod
@@ -70,7 +70,7 @@ class ClusterGroupTestCase(TestCase):
 
 
 class ClusterTestCase(TestCase):
-    queryset = Cluster.objects.unrestricted()
+    queryset = Cluster.objects.all()
     filterset = ClusterFilterSet
 
     @classmethod
@@ -137,42 +137,42 @@ class ClusterTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
-        regions = Region.objects.unrestricted()[:2]
+        regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
-        sites = Site.objects.unrestricted()[:2]
+        sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_group(self):
-        groups = ClusterGroup.objects.unrestricted()[:2]
+        groups = ClusterGroup.objects.all()[:2]
         params = {'group_id': [groups[0].pk, groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'group': [groups[0].slug, groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
-        types = ClusterType.objects.unrestricted()[:2]
+        types = ClusterType.objects.all()[:2]
         params = {'type_id': [types[0].pk, types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'type': [types[0].slug, types[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_tenant(self):
-        tenants = Tenant.objects.unrestricted()[:2]
+        tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'tenant': [tenants[0].slug, tenants[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_tenant_group(self):
-        tenant_groups = TenantGroup.objects.unrestricted()[:2]
+        tenant_groups = TenantGroup.objects.all()[:2]
         params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
@@ -180,7 +180,7 @@ class ClusterTestCase(TestCase):
 
 
 class VirtualMachineTestCase(TestCase):
-    queryset = VirtualMachine.objects.unrestricted()
+    queryset = VirtualMachine.objects.all()
     filterset = VirtualMachineFilterSet
 
     @classmethod
@@ -291,21 +291,21 @@ class VirtualMachineTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cluster_group(self):
-        groups = ClusterGroup.objects.unrestricted()[:2]
+        groups = ClusterGroup.objects.all()[:2]
         params = {'cluster_group_id': [groups[0].pk, groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'cluster_group': [groups[0].slug, groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cluster_type(self):
-        types = ClusterType.objects.unrestricted()[:2]
+        types = ClusterType.objects.all()[:2]
         params = {'cluster_type_id': [types[0].pk, types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'cluster_type': [types[0].slug, types[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cluster(self):
-        clusters = Cluster.objects.unrestricted()[:2]
+        clusters = Cluster.objects.all()[:2]
         params = {'cluster_id': [clusters[0].pk, clusters[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         # TODO: 'cluster' should match on name
@@ -313,28 +313,28 @@ class VirtualMachineTestCase(TestCase):
         # self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
-        regions = Region.objects.unrestricted()[:2]
+        regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
-        sites = Site.objects.unrestricted()[:2]
+        sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_role(self):
-        roles = DeviceRole.objects.unrestricted()[:2]
+        roles = DeviceRole.objects.all()[:2]
         params = {'role_id': [roles[0].pk, roles[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'role': [roles[0].slug, roles[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_platform(self):
-        platforms = Platform.objects.unrestricted()[:2]
+        platforms = Platform.objects.all()[:2]
         params = {'platform_id': [platforms[0].pk, platforms[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'platform': [platforms[0].slug, platforms[1].slug]}
@@ -351,14 +351,14 @@ class VirtualMachineTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_tenant(self):
-        tenants = Tenant.objects.unrestricted()[:2]
+        tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'tenant': [tenants[0].slug, tenants[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_tenant_group(self):
-        tenant_groups = TenantGroup.objects.unrestricted()[:2]
+        tenant_groups = TenantGroup.objects.all()[:2]
         params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
@@ -366,7 +366,7 @@ class VirtualMachineTestCase(TestCase):
 
 
 class VMInterfaceTestCase(TestCase):
-    queryset = VMInterface.objects.unrestricted()
+    queryset = VMInterface.objects.all()
     filterset = VMInterfaceFilterSet
 
     @classmethod
@@ -420,7 +420,7 @@ class VMInterfaceTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_virtual_machine(self):
-        vms = VirtualMachine.objects.unrestricted()[:2]
+        vms = VirtualMachine.objects.all()[:2]
         params = {'virtual_machine_id': [vms[0].pk, vms[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'virtual_machine': [vms[0].name, vms[1].name]}

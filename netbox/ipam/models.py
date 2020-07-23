@@ -215,7 +215,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
                 })
 
             # Ensure that the aggregate being added is not covered by an existing aggregate
-            covering_aggregates = Aggregate.objects.unrestricted().filter(
+            covering_aggregates = Aggregate.objects.filter(
                 prefix__net_contains_or_equals=str(self.prefix)
             )
             if self.pk:
@@ -228,7 +228,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
                 })
 
             # Ensure that the aggregate being added does not cover an existing aggregate
-            covered_aggregates = Aggregate.objects.unrestricted().filter(prefix__net_contained=str(self.prefix))
+            covered_aggregates = Aggregate.objects.filter(prefix__net_contained=str(self.prefix))
             if self.pk:
                 covered_aggregates = covered_aggregates.exclude(pk=self.pk)
             if covered_aggregates:
@@ -256,7 +256,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         """
         Determine the prefix utilization of the aggregate and return it as a percentage.
         """
-        queryset = Prefix.objects.unrestricted().filter(prefix__net_contained_or_equal=str(self.prefix))
+        queryset = Prefix.objects.filter(prefix__net_contained_or_equal=str(self.prefix))
         child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
         return int(float(child_prefixes.size) / self.prefix.size * 100)
 
@@ -470,7 +470,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         return self.STATUS_CLASS_MAP.get(self.status)
 
     def get_duplicates(self):
-        return Prefix.objects.unrestricted().filter(vrf=self.vrf, prefix=str(self.prefix)).exclude(pk=self.pk)
+        return Prefix.objects.filter(vrf=self.vrf, prefix=str(self.prefix)).exclude(pk=self.pk)
 
     def get_child_prefixes(self):
         """
@@ -478,9 +478,9 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         Prefixes belonging to any VRF.
         """
         if self.vrf is None and self.status == PrefixStatusChoices.STATUS_CONTAINER:
-            return Prefix.objects.unrestricted().filter(prefix__net_contained=str(self.prefix))
+            return Prefix.objects.filter(prefix__net_contained=str(self.prefix))
         else:
-            return Prefix.objects.unrestricted().filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
+            return Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
 
     def get_child_ips(self):
         """
@@ -488,9 +488,9 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         child IPAddresses belonging to any VRF.
         """
         if self.vrf is None and self.status == PrefixStatusChoices.STATUS_CONTAINER:
-            return IPAddress.objects.unrestricted().filter(address__net_host_contained=str(self.prefix))
+            return IPAddress.objects.filter(address__net_host_contained=str(self.prefix))
         else:
-            return IPAddress.objects.unrestricted().filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
+            return IPAddress.objects.filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
 
     def get_available_prefixes(self):
         """
@@ -554,7 +554,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         "container", calculate utilization based on child prefixes. For all others, count child IP addresses.
         """
         if self.status == PrefixStatusChoices.STATUS_CONTAINER:
-            queryset = Prefix.objects.unrestricted().filter(
+            queryset = Prefix.objects.filter(
                 prefix__net_contained=str(self.prefix),
                 vrf=self.vrf
             )
@@ -694,7 +694,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         return reverse('ipam:ipaddress', args=[self.pk])
 
     def get_duplicates(self):
-        return IPAddress.objects.unrestricted().filter(
+        return IPAddress.objects.filter(
             vrf=self.vrf,
             address__net_host=str(self.address.ip)
         ).exclude(pk=self.pk)
@@ -726,7 +726,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
 
         # Check for primary IP assignment that doesn't match the assigned device/VM
         if self.pk and type(self.assigned_object) is Interface:
-            device = Device.objects.unrestricted().filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
+            device = Device.objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
             if device:
                 if self.assigned_object is None:
                     raise ValidationError({
@@ -738,7 +738,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
                                      f"{self.assigned_object.device} ({self.assigned_object})"
                     })
         elif self.pk and type(self.assigned_object) is VMInterface:
-            vm = VirtualMachine.unrestricted().objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
+            vm = VirtualMachine.objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
             if vm:
                 if self.assigned_object is None:
                     raise ValidationError({
@@ -867,7 +867,7 @@ class VLANGroup(ChangeLoggedModel):
         """
         Return the first available VLAN ID (1-4094) in the group.
         """
-        vlan_ids = VLAN.objects.unrestricted().filter(group=self).values_list('vid', flat=True)
+        vlan_ids = VLAN.objects.filter(group=self).values_list('vid', flat=True)
         for i in range(1, 4095):
             if i not in vlan_ids:
                 return i
@@ -994,7 +994,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
 
     def get_members(self):
         # Return all interfaces assigned to this VLAN
-        return Interface.objects.unrestricted().filter(
+        return Interface.objects.filter(
             Q(untagged_vlan_id=self.pk) |
             Q(tagged_vlans=self.pk)
         ).distinct()

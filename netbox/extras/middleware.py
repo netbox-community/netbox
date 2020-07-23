@@ -145,7 +145,7 @@ class ObjectChangeMiddleware(object):
         # one or more changes being logged.
         if settings.CHANGELOG_RETENTION and random.randint(1, 100) == 1:
             cutoff = timezone.now() - timedelta(days=settings.CHANGELOG_RETENTION)
-            purged_count, _ = ObjectChange.objects.unrestricted().filter(
+            purged_count, _ = ObjectChange.objects.filter(
                 time__lt=cutoff
             ).delete()
 

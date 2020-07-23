@@ -158,10 +158,8 @@ class ModelTestCase(TestCase):
 
     def _get_queryset(self):
         """
-        Return a base queryset suitable for use in test methods. Call unrestricted() if RestrictedQuerySet is in use.
+        Return a base queryset suitable for use in test methods.
         """
-        if hasattr(self.model.objects, 'restrict'):
-            return self.model.objects.unrestricted()
         return self.model.objects.all()
 
 

@@ -177,7 +177,7 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
 
         # If the Cluster is assigned to a Site, verify that all host Devices belong to that Site.
         if self.pk and self.site:
-            nonsite_devices = Device.objects.unrestricted().filter(cluster=self).exclude(site=self.site).count()
+            nonsite_devices = Device.objects.filter(cluster=self).exclude(site=self.site).count()
             if nonsite_devices:
                 raise ValidationError({
                     'site': "{} devices are assigned as hosts for this cluster but are not in site {}".format(
@@ -317,7 +317,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # Check for a duplicate name on a VM assigned to the same Cluster and no Tenant. This is necessary
         # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
         # of the uniqueness constraint without manual intervention.
-        if self.tenant is None and VirtualMachine.objects.unrestricted().exclude(pk=self.pk).filter(
+        if self.tenant is None and VirtualMachine.objects.exclude(pk=self.pk).filter(
                 name=self.name, tenant__isnull=True
         ):
             raise ValidationError({

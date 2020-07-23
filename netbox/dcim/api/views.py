@@ -682,7 +682,7 @@ class ConnectedDeviceViewSet(ViewSet):
 
         # Determine local interface from peer interface's connection
         peer_interface = get_object_or_404(
-            Interface.objects.unrestricted(),
+            Interface.objects.all(),
             device__name=peer_device_name,
             name=peer_interface_name
         )

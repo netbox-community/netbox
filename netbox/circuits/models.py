@@ -238,7 +238,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         return self.STATUS_CLASS_MAP.get(self.status)
 
     def _get_termination(self, side):
-        for ct in self.terminations.unrestricted():
+        for ct in self.terminations.all():
             if ct.term_side == side:
                 return ct
         return None
@@ -336,7 +336,7 @@ class CircuitTermination(CableTermination):
     def get_peer_termination(self):
         peer_side = 'Z' if self.term_side == 'A' else 'A'
         try:
-            return CircuitTermination.objects.unrestricted().prefetch_related('site').get(
+            return CircuitTermination.objects.prefetch_related('site').get(
                 circuit=self.circuit,
                 term_side=peer_side
             )

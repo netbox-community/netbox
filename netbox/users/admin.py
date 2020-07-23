@@ -180,7 +180,7 @@ class ActionListFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         options = set()
-        for action_list in ObjectPermission.objects.unrestricted().values_list('actions', flat=True).distinct():
+        for action_list in ObjectPermission.objects.values_list('actions', flat=True).distinct():
             options.update(action_list)
         return [
             (action, action) for action in sorted(options)
@@ -196,7 +196,7 @@ class ObjectTypeListFilter(admin.SimpleListFilter):
     parameter_name = 'object_type'
 
     def lookups(self, request, model_admin):
-        object_types = ObjectPermission.objects.unrestricted().values_list('id', flat=True).distinct()
+        object_types = ObjectPermission.objects.values_list('id', flat=True).distinct()
         content_types = ContentType.objects.filter(pk__in=object_types).order_by('app_label', 'model')
         return [
             (ct.pk, ct) for ct in content_types
@@ -238,7 +238,7 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
     ]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).unrestricted().prefetch_related('object_types', 'users', 'groups')
+        return super().get_queryset(request).prefetch_related('object_types', 'users', 'groups')
 
     def get_name(self, obj):
         return obj.name or f'Permission #{obj.pk}'

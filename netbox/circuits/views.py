@@ -120,8 +120,7 @@ class CircuitTypeBulkDeleteView(BulkDeleteView):
 
 class CircuitListView(ObjectListView):
     queryset = Circuit.objects.prefetch_related(
-        Prefetch('terminations', CircuitTermination.objects.unrestricted()),
-        'provider', 'type', 'tenant'
+        'provider', 'type', 'tenant', 'terminations'
     ).annotate_sites()
     filterset = filters.CircuitFilterSet
     filterset_form = forms.CircuitFilterForm
@@ -175,8 +174,7 @@ class CircuitBulkImportView(BulkImportView):
 
 class CircuitBulkEditView(BulkEditView):
     queryset = Circuit.objects.prefetch_related(
-        Prefetch('terminations', CircuitTermination.objects.unrestricted()),
-        'provider', 'type', 'tenant'
+        'provider', 'type', 'tenant', 'terminations'
     )
     filterset = filters.CircuitFilterSet
     table = tables.CircuitTable
@@ -185,8 +183,7 @@ class CircuitBulkEditView(BulkEditView):
 
 class CircuitBulkDeleteView(BulkDeleteView):
     queryset = Circuit.objects.prefetch_related(
-        Prefetch('terminations', CircuitTermination.objects.unrestricted()),
-        'provider', 'type', 'tenant'
+        'provider', 'type', 'tenant', 'terminations'
     )
     filterset = filters.CircuitFilterSet
     table = tables.CircuitTable

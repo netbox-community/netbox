@@ -51,7 +51,7 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
         """
         Test retrieval of Graphs assigned to Providers.
         """
-        provider = self.model.objects.unrestricted().first()
+        provider = self.model.objects.first()
         ct = ContentType.objects.get(app_label='circuits', model='provider')
         graphs = (
             Graph(type=ct, name='Graph 1', source='http://example.com/graphs.py?provider={{ obj.slug }}&foo=1'),

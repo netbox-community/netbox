@@ -244,8 +244,6 @@ class WritableNestedSerializer(serializers.ModelSerializer):
         if isinstance(data, dict):
             params = dict_to_filter_params(data)
             queryset = self.Meta.model.objects
-            if hasattr(queryset, 'restrict'):
-                queryset = queryset.unrestricted()
             try:
                 return queryset.get(**params)
             except ObjectDoesNotExist:
@@ -274,8 +272,6 @@ class WritableNestedSerializer(serializers.ModelSerializer):
 
         # Look up object by PK
         queryset = self.Meta.model.objects
-        if hasattr(queryset, 'restrict'):
-            queryset = queryset.unrestricted()
         try:
             return queryset.get(pk=int(data))
         except ObjectDoesNotExist:

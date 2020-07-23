@@ -9,7 +9,7 @@ from tenancy.models import Tenant, TenantGroup
 
 
 class VRFTestCase(TestCase):
-    queryset = VRF.objects.unrestricted()
+    queryset = VRF.objects.all()
     filterset = VRFFilterSet
 
     @classmethod
@@ -59,14 +59,14 @@ class VRFTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_tenant(self):
-        tenants = Tenant.objects.unrestricted()[:2]
+        tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant': [tenants[0].slug, tenants[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_tenant_group(self):
-        tenant_groups = TenantGroup.objects.unrestricted()[:2]
+        tenant_groups = TenantGroup.objects.all()[:2]
         params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
@@ -74,7 +74,7 @@ class VRFTestCase(TestCase):
 
 
 class RIRTestCase(TestCase):
-    queryset = RIR.objects.unrestricted()
+    queryset = RIR.objects.all()
     filterset = RIRFilterSet
 
     @classmethod
@@ -114,7 +114,7 @@ class RIRTestCase(TestCase):
 
 
 class AggregateTestCase(TestCase):
-    queryset = Aggregate.objects.unrestricted()
+    queryset = Aggregate.objects.all()
     filterset = AggregateFilterSet
 
     @classmethod
@@ -155,7 +155,7 @@ class AggregateTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_rir(self):
-        rirs = RIR.objects.unrestricted()[:2]
+        rirs = RIR.objects.all()[:2]
         params = {'rir_id': [rirs[0].pk, rirs[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'rir': [rirs[0].slug, rirs[1].slug]}
@@ -163,7 +163,7 @@ class AggregateTestCase(TestCase):
 
 
 class RoleTestCase(TestCase):
-    queryset = Role.objects.unrestricted()
+    queryset = Role.objects.all()
     filterset = RoleFilterSet
 
     @classmethod
@@ -190,7 +190,7 @@ class RoleTestCase(TestCase):
 
 
 class PrefixTestCase(TestCase):
-    queryset = Prefix.objects.unrestricted()
+    queryset = Prefix.objects.all()
     filterset = PrefixFilterSet
 
     @classmethod
@@ -295,28 +295,28 @@ class PrefixTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_vrf(self):
-        vrfs = VRF.objects.unrestricted()[:2]
+        vrfs = VRF.objects.all()[:2]
         params = {'vrf_id': [vrfs[0].pk, vrfs[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'vrf': [vrfs[0].rd, vrfs[1].rd]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_region(self):
-        regions = Region.objects.unrestricted()[:2]
+        regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_site(self):
-        sites = Site.objects.unrestricted()[:2]
+        sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_vlan(self):
-        vlans = VLAN.objects.unrestricted()[:2]
+        vlans = VLAN.objects.all()[:2]
         params = {'vlan_id': [vlans[0].pk, vlans[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         # TODO: Test for multiple values
@@ -324,7 +324,7 @@ class PrefixTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_role(self):
-        roles = Role.objects.unrestricted()[:2]
+        roles = Role.objects.all()[:2]
         params = {'role_id': [roles[0].pk, roles[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'role': [roles[0].slug, roles[1].slug]}
@@ -335,14 +335,14 @@ class PrefixTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_tenant(self):
-        tenants = Tenant.objects.unrestricted()[:2]
+        tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant': [tenants[0].slug, tenants[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_tenant_group(self):
-        tenant_groups = TenantGroup.objects.unrestricted()[:2]
+        tenant_groups = TenantGroup.objects.all()[:2]
         params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
@@ -350,7 +350,7 @@ class PrefixTestCase(TestCase):
 
 
 class IPAddressTestCase(TestCase):
-    queryset = IPAddress.objects.unrestricted()
+    queryset = IPAddress.objects.all()
     filterset = IPAddressFilterSet
 
     @classmethod
@@ -466,35 +466,35 @@ class IPAddressTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_vrf(self):
-        vrfs = VRF.objects.unrestricted()[:2]
+        vrfs = VRF.objects.all()[:2]
         params = {'vrf_id': [vrfs[0].pk, vrfs[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'vrf': [vrfs[0].rd, vrfs[1].rd]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_device(self):
-        devices = Device.objects.unrestricted()[:2]
+        devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_virtual_machine(self):
-        vms = VirtualMachine.objects.unrestricted()[:2]
+        vms = VirtualMachine.objects.all()[:2]
         params = {'virtual_machine_id': [vms[0].pk, vms[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'virtual_machine': [vms[0].name, vms[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_interface(self):
-        interfaces = Interface.objects.unrestricted()[:2]
+        interfaces = Interface.objects.all()[:2]
         params = {'interface_id': [interfaces[0].pk, interfaces[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'interface': ['Interface 1', 'Interface 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_vminterface(self):
-        vminterfaces = VMInterface.objects.unrestricted()[:2]
+        vminterfaces = VMInterface.objects.all()[:2]
         params = {'vminterface_id': [vminterfaces[0].pk, vminterfaces[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'vminterface': ['Interface 1', 'Interface 2']}
@@ -515,14 +515,14 @@ class IPAddressTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_tenant(self):
-        tenants = Tenant.objects.unrestricted()[:2]
+        tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant': [tenants[0].slug, tenants[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_tenant_group(self):
-        tenant_groups = TenantGroup.objects.unrestricted()[:2]
+        tenant_groups = TenantGroup.objects.all()[:2]
         params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
@@ -530,7 +530,7 @@ class IPAddressTestCase(TestCase):
 
 
 class VLANGroupTestCase(TestCase):
-    queryset = VLANGroup.objects.unrestricted()
+    queryset = VLANGroup.objects.all()
     filterset = VLANGroupFilterSet
 
     @classmethod
@@ -577,14 +577,14 @@ class VLANGroupTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
-        regions = Region.objects.unrestricted()[:2]
+        regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
-        sites = Site.objects.unrestricted()[:2]
+        sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
@@ -592,7 +592,7 @@ class VLANGroupTestCase(TestCase):
 
 
 class VLANTestCase(TestCase):
-    queryset = VLAN.objects.unrestricted()
+    queryset = VLAN.objects.all()
     filterset = VLANFilterSet
 
     @classmethod
@@ -666,28 +666,28 @@ class VLANTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_region(self):
-        regions = Region.objects.unrestricted()[:2]
+        regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'region': [regions[0].slug, regions[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_site(self):
-        sites = Site.objects.unrestricted()[:2]
+        sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_group(self):
-        groups = VLANGroup.objects.unrestricted()[:2]
+        groups = VLANGroup.objects.all()[:2]
         params = {'group_id': [groups[0].pk, groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'group': [groups[0].slug, groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_role(self):
-        roles = Role.objects.unrestricted()[:2]
+        roles = Role.objects.all()[:2]
         params = {'role_id': [roles[0].pk, roles[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'role': [roles[0].slug, roles[1].slug]}
@@ -698,14 +698,14 @@ class VLANTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_tenant(self):
-        tenants = Tenant.objects.unrestricted()[:2]
+        tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant': [tenants[0].slug, tenants[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_tenant_group(self):
-        tenant_groups = TenantGroup.objects.unrestricted()[:2]
+        tenant_groups = TenantGroup.objects.all()[:2]
         params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
@@ -713,7 +713,7 @@ class VLANTestCase(TestCase):
 
 
 class ServiceTestCase(TestCase):
-    queryset = Service.objects.unrestricted()
+    queryset = Service.objects.all()
     filterset = ServiceFilterSet
 
     @classmethod
@@ -768,14 +768,14 @@ class ServiceTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_device(self):
-        devices = Device.objects.unrestricted()[:2]
+        devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_virtual_machine(self):
-        vms = VirtualMachine.objects.unrestricted()[:2]
+        vms = VirtualMachine.objects.all()[:2]
         params = {'virtual_machine_id': [vms[0].pk, vms[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'virtual_machine': [vms[0].name, vms[1].name]}

@@ -52,7 +52,7 @@ class CircuitTypeViewSet(ModelViewSet):
 
 class CircuitViewSet(CustomFieldModelViewSet):
     queryset = Circuit.objects.prefetch_related(
-        Prefetch('terminations', queryset=CircuitTermination.objects.unrestricted().prefetch_related(
+        Prefetch('terminations', queryset=CircuitTermination.objects.prefetch_related(
             'site', 'connected_endpoint__device'
         )),
         'type', 'tenant', 'provider',

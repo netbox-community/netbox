@@ -130,83 +130,83 @@ class ConfigContextFilterSet(BaseFilterSet):
     )
     region_id = django_filters.ModelMultipleChoiceFilter(
         field_name='regions',
-        queryset=Region.objects.unrestricted(),
+        queryset=Region.objects.all(),
         label='Region',
     )
     region = django_filters.ModelMultipleChoiceFilter(
         field_name='regions__slug',
-        queryset=Region.objects.unrestricted(),
+        queryset=Region.objects.all(),
         to_field_name='slug',
         label='Region (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='sites',
-        queryset=Site.objects.unrestricted(),
+        queryset=Site.objects.all(),
         label='Site',
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='sites__slug',
-        queryset=Site.objects.unrestricted(),
+        queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         field_name='roles',
-        queryset=DeviceRole.objects.unrestricted(),
+        queryset=DeviceRole.objects.all(),
         label='Role',
     )
     role = django_filters.ModelMultipleChoiceFilter(
         field_name='roles__slug',
-        queryset=DeviceRole.objects.unrestricted(),
+        queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
     )
     platform_id = django_filters.ModelMultipleChoiceFilter(
         field_name='platforms',
-        queryset=Platform.objects.unrestricted(),
+        queryset=Platform.objects.all(),
         label='Platform',
     )
     platform = django_filters.ModelMultipleChoiceFilter(
         field_name='platforms__slug',
-        queryset=Platform.objects.unrestricted(),
+        queryset=Platform.objects.all(),
         to_field_name='slug',
         label='Platform (slug)',
     )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster_groups',
-        queryset=ClusterGroup.objects.unrestricted(),
+        queryset=ClusterGroup.objects.all(),
         label='Cluster group',
     )
     cluster_group = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster_groups__slug',
-        queryset=ClusterGroup.objects.unrestricted(),
+        queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
         label='Cluster group (slug)',
     )
     cluster_id = django_filters.ModelMultipleChoiceFilter(
         field_name='clusters',
-        queryset=Cluster.objects.unrestricted(),
+        queryset=Cluster.objects.all(),
         label='Cluster',
     )
     tenant_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='tenant_groups',
-        queryset=TenantGroup.objects.unrestricted(),
+        queryset=TenantGroup.objects.all(),
         label='Tenant group',
     )
     tenant_group = django_filters.ModelMultipleChoiceFilter(
         field_name='tenant_groups__slug',
-        queryset=TenantGroup.objects.unrestricted(),
+        queryset=TenantGroup.objects.all(),
         to_field_name='slug',
         label='Tenant group (slug)',
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         field_name='tenants',
-        queryset=Tenant.objects.unrestricted(),
+        queryset=Tenant.objects.all(),
         label='Tenant',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
         field_name='tenants__slug',
-        queryset=Tenant.objects.unrestricted(),
+        queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
     )

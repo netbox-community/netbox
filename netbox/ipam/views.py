@@ -729,8 +729,7 @@ class VLANGroupVLANsView(ObjectView):
 
 class VLANListView(ObjectListView):
     queryset = VLAN.objects.prefetch_related(
-        Prefetch('prefixes', Prefix.objects.unrestricted()),
-        'site', 'group', 'tenant', 'role'
+        'site', 'group', 'tenant', 'role', 'prefixes'
     )
     filterset = filters.VLANFilterSet
     filterset_form = forms.VLANFilterForm
@@ -820,9 +819,7 @@ class ServiceListView(ObjectListView):
 
 
 class ServiceView(ObjectView):
-    queryset = Service.objects.prefetch_related(
-        Prefetch('ipaddresses', IPAddress.objects.unrestricted())
-    )
+    queryset = Service.objects.prefetch_related('ipaddresses')
 
     def get(self, request, pk):
 
@@ -834,9 +831,7 @@ class ServiceView(ObjectView):
 
 
 class ServiceEditView(ObjectEditView):
-    queryset = Service.objects.prefetch_related(
-        Prefetch('ipaddresses', IPAddress.objects.unrestricted())
-    )
+    queryset = Service.objects.prefetch_related('ipaddresses')
     model_form = forms.ServiceForm
     template_name = 'ipam/service_edit.html'
 

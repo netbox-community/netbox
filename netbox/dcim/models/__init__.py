@@ -581,7 +581,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         if self.pk:
             # Validate that Rack is tall enough to house the installed Devices
-            top_device = Device.objects.unrestricted().filter(
+            top_device = Device.objects.filter(
                 rack=self
             ).exclude(
                 position__isnull=True
@@ -606,13 +606,13 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         # Record the original site assignment for this rack.
         _site_id = None
         if self.pk:
-            _site_id = Rack.objects.unrestricted().get(pk=self.pk).site_id
+            _site_id = Rack.objects.get(pk=self.pk).site_id
 
         super().save(*args, **kwargs)
 
         # Update racked devices if the assigned Site has been changed.
         if _site_id is not None and self.site_id != _site_id:
-            devices = Device.objects.unrestricted().filter(rack=self)
+            devices = Device.objects.filter(rack=self)
             for device in devices:
                 device.site = self.site
                 device.save()
@@ -674,7 +674,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         # Add devices to rack units list
         if self.pk:
-            queryset = Device.objects.unrestricted().prefetch_related(
+            queryset = Device.objects.prefetch_related(
                 'device_type',
                 'device_type__manufacturer',
                 'device_role'
@@ -712,7 +712,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         :param exclude: List of devices IDs to exclude (useful when moving a device within a rack)
         """
         # Gather all devices which consume U space within the rack
-        devices = self.devices.unrestricted().prefetch_related('device_type').filter(position__gte=1)
+        devices = self.devices.prefetch_related('device_type').filter(position__gte=1)
         if exclude is not None:
             devices = devices.exclude(pk__in=exclude)
 
@@ -742,7 +742,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         Return a dictionary mapping all reserved units within the rack to their reservation.
         """
         reserved_units = {}
-        for r in self.reservations.unrestricted():
+        for r in self.reservations.all():
             for u in r.units:
                 reserved_units[u] = r
         return reserved_units
@@ -796,7 +796,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         """
         Determine the utilization rate of power in the rack and return it as a percentage.
         """
-        power_stats = PowerFeed.objects.unrestricted().filter(
+        power_stats = PowerFeed.objects.filter(
             rack=self
         ).annotate(
             allocated_draw_total=Sum('connected_endpoint__poweroutlets__connected_endpoint__allocated_draw'),
@@ -1130,7 +1130,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         # room to expand within their racks. This validation will impose a very high performance penalty when there are
         # many instances to check, but increasing the u_height of a DeviceType should be a very rare occurrence.
         if self.pk and self.u_height > self._original_u_height:
-            for d in Device.objects.unrestricted().filter(device_type=self, position__isnull=False):
+            for d in Device.objects.filter(device_type=self, position__isnull=False):
                 face_required = None if self.is_full_depth else d.face
                 u_available = d.rack.get_available_units(
                     u_height=self.u_height,
@@ -1145,7 +1145,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 
         # If modifying the height of an existing DeviceType to 0U, check for any instances assigned to a rack position.
         elif self.pk and self._original_u_height > 0 and self.u_height == 0:
-            racked_instance_count = Device.objects.unrestricted().filter(
+            racked_instance_count = Device.objects.filter(
                 device_type=self,
                 position__isnull=False
             ).count()
@@ -1501,7 +1501,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
         # of the uniqueness constraint without manual intervention.
         if self.name and self.tenant is None:
-            if Device.objects.unrestricted().exclude(pk=self.pk).filter(
+            if Device.objects.exclude(pk=self.pk).filter(
                     name=self.name,
                     site=self.site,
                     tenant__isnull=True
@@ -1635,32 +1635,32 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # If this is a new Device, instantiate all of the related components per the DeviceType definition
         if is_new:
             ConsolePort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.consoleporttemplates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.consoleporttemplates.all()]
             )
             ConsoleServerPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.consoleserverporttemplates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.consoleserverporttemplates.all()]
             )
             PowerPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.powerporttemplates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.powerporttemplates.all()]
             )
             PowerOutlet.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.poweroutlettemplates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.poweroutlettemplates.all()]
             )
             Interface.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.interfacetemplates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.interfacetemplates.all()]
             )
             RearPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.rearporttemplates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.rearporttemplates.all()]
             )
             FrontPort.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.frontporttemplates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.frontporttemplates.all()]
             )
             DeviceBay.objects.bulk_create(
-                [x.instantiate(self) for x in self.device_type.devicebaytemplates.unrestricted()]
+                [x.instantiate(self) for x in self.device_type.devicebaytemplates.all()]
             )
 
         # Update Site and Rack assignment for any child Devices
-        devices = Device.objects.unrestricted().filter(parent_bay__device=self)
+        devices = Device.objects.filter(parent_bay__device=self)
         for device in devices:
             device.site = self.site
             device.rack = self.rack
@@ -1730,7 +1730,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         filter = Q(device=self)
         if self.virtual_chassis and self.virtual_chassis.master == self:
             filter |= Q(device__virtual_chassis=self.virtual_chassis, mgmt_only=False)
-        return Interface.objects.unrestricted().filter(filter)
+        return Interface.objects.filter(filter)
 
     def get_cables(self, pk_list=False):
         """
@@ -1751,7 +1751,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         """
         Return the set of child Devices installed in DeviceBays within this Device.
         """
-        return Device.objects.unrestricted().filter(parent_bay__device=self.pk)
+        return Device.objects.filter(parent_bay__device=self.pk)
 
     def get_status_class(self):
         return self.STATUS_CLASS_MAP.get(self.status)
@@ -1808,7 +1808,7 @@ class VirtualChassis(ChangeLoggedModel):
     def delete(self, *args, **kwargs):
 
         # Check for LAG interfaces split across member chassis
-        interfaces = Interface.objects.unrestricted().filter(
+        interfaces = Interface.objects.filter(
             device__in=self.members.all(),
             lag__isnull=False
         ).exclude(
@@ -2183,7 +2183,7 @@ class Cable(ChangeLoggedModel):
         if not hasattr(self, 'termination_a_type'):
             raise ValidationError('Termination A type has not been specified')
         try:
-            self.termination_a_type.model_class().objects.unrestricted().get(pk=self.termination_a_id)
+            self.termination_a_type.model_class().objects.get(pk=self.termination_a_id)
         except ObjectDoesNotExist:
             raise ValidationError({
                 'termination_a': 'Invalid ID for type {}'.format(self.termination_a_type)
@@ -2193,7 +2193,7 @@ class Cable(ChangeLoggedModel):
         if not hasattr(self, 'termination_b_type'):
             raise ValidationError('Termination B type has not been specified')
         try:
-            self.termination_b_type.model_class().objects.unrestricted().get(pk=self.termination_b_id)
+            self.termination_b_type.model_class().objects.get(pk=self.termination_b_id)
         except ObjectDoesNotExist:
             raise ValidationError({
                 'termination_b': 'Invalid ID for type {}'.format(self.termination_b_type)

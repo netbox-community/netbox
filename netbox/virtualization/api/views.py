@@ -79,8 +79,7 @@ class VirtualMachineViewSet(CustomFieldModelViewSet):
 
 class VMInterfaceViewSet(ModelViewSet):
     queryset = VMInterface.objects.prefetch_related(
-        Prefetch('tagged_vlans', queryset=VLAN.objects.unrestricted()),
-        'virtual_machine', 'tags'
+        'virtual_machine', 'tags', 'tagged_vlans'
     )
     serializer_class = serializers.VMInterfaceSerializer
     filterset_class = filters.VMInterfaceFilterSet
