@@ -1068,7 +1068,8 @@ class VirtualChassisFilterSet(BaseFilterSet):
         if not value.strip():
             return queryset
         qs_filter = (
-            Q(master__name__icontains=value) |
+            Q(name__icontains=value) |
+            Q(members__name__icontains=value) |
             Q(domain__icontains=value)
         )
         return queryset.filter(qs_filter)
