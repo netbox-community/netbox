@@ -1,6 +1,8 @@
 # NetBox v2.9
 
-## v2.9.0 (FUTURE)
+## v2.9-beta1 (2020-07-23)
+
+**WARNING:** This is a beta release and is not suitable for production use. It is intended for development and evaluation purposes only. No upgrade path to the final v2.9 release will be provided from this beta, and users should assume that all data entered into the application will be lost. Please reference [the v2.9 beta documentation](https://netbox.readthedocs.io/en/develop-2.9/) for further information regarding this release.
 
 ### New Features
 
