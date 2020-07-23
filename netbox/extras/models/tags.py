@@ -25,6 +25,9 @@ class Tag(TagBase, ChangeLoggedModel):
 
     csv_headers = ['name', 'slug', 'color', 'description']
 
+    class Meta:
+        ordering = ['name']
+
     def slugify(self, tag, i=None):
         # Allow Unicode in Tag slugs (avoids empty slugs for Tags with all-Unicode names)
         slug = slugify(tag, allow_unicode=True)

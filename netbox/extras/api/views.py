@@ -116,9 +116,9 @@ class ExportTemplateViewSet(ModelViewSet):
 #
 
 class TagViewSet(ModelViewSet):
-    queryset = Tag.restricted_objects.annotate(
-        tagged_items=Count('extras_taggeditem_items', distinct=True)
-    )
+    queryset = Tag.objects.annotate(
+        tagged_items=Count('extras_taggeditem_items')
+    ).order_by(*Tag._meta.ordering)
     serializer_class = serializers.TagSerializer
     filterset_class = filters.TagFilterSet
 

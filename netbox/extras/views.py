@@ -33,10 +33,8 @@ from .scripts import get_scripts, run_script
 
 class TagListView(ObjectListView):
     queryset = Tag.objects.annotate(
-        items=Count('extras_taggeditem_items', distinct=True)
-    ).order_by(
-        'name'
-    )
+        items=Count('extras_taggeditem_items')
+    ).order_by(*Tag._meta.ordering)
     filterset = filters.TagFilterSet
     filterset_form = forms.TagFilterForm
     table = tables.TagTable
@@ -60,10 +58,8 @@ class TagBulkImportView(BulkImportView):
 
 class TagBulkEditView(BulkEditView):
     queryset = Tag.objects.annotate(
-        items=Count('extras_taggeditem_items', distinct=True)
-    ).order_by(
-        'name'
-    )
+        items=Count('extras_taggeditem_items')
+    ).order_by(*Tag._meta.ordering)
     table = tables.TagTable
     form = forms.TagBulkEditForm
 
@@ -71,9 +67,7 @@ class TagBulkEditView(BulkEditView):
 class TagBulkDeleteView(BulkDeleteView):
     queryset = Tag.objects.annotate(
         items=Count('extras_taggeditem_items')
-    ).order_by(
-        'name'
-    )
+    ).order_by(*Tag._meta.ordering)
     table = tables.TagTable
 
 
