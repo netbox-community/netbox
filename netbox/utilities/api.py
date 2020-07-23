@@ -17,6 +17,16 @@ from rest_framework.viewsets import ModelViewSet as _ModelViewSet
 
 from .utils import dict_to_filter_params, dynamic_import
 
+HTTP_ACTIONS = {
+    'GET': 'view',
+    'OPTIONS': None,
+    'HEAD': 'view',
+    'POST': 'add',
+    'PUT': 'change',
+    'PATCH': 'change',
+    'DELETE': 'delete',
+}
+
 
 class ServiceUnavailable(APIException):
     status_code = 503
@@ -321,18 +331,8 @@ class ModelViewSet(_ModelViewSet):
         if not request.user.is_authenticated:
             return
 
-        # TODO: Reconcile this with TokenPermissions.perms_map
-        action = {
-            'GET': 'view',
-            'OPTIONS': None,
-            'HEAD': 'view',
-            'POST': 'add',
-            'PUT': 'change',
-            'PATCH': 'change',
-            'DELETE': 'delete',
-        }[request.method]
-
         # Restrict the view's QuerySet to allow only the permitted objects
+        action = HTTP_ACTIONS[request.method]
         if action:
             self.queryset = self.queryset.restrict(request.user, action)
 
