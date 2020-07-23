@@ -6,6 +6,7 @@
 
 * [#4875](https://github.com/netbox-community/netbox/issues/4875) - Fix documentation for image attachments
 * [#4876](https://github.com/netbox-community/netbox/issues/4876) - Fix labels for sites in staging or decommissioning status
+* [#4880](https://github.com/netbox-community/netbox/issues/4880) - Fix remove tagged vlans if not assigned in bulk interface editting
 
 ---
 
