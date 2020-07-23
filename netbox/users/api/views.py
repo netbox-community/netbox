@@ -13,13 +13,13 @@ from . import serializers
 #
 
 class UserViewSet(ModelViewSet):
-    queryset = RestrictedQuerySet(model=User).prefetch_related('groups')
+    queryset = RestrictedQuerySet(model=User).prefetch_related('groups').order_by('username')
     serializer_class = serializers.UserSerializer
     filterset_class = filters.UserFilterSet
 
 
 class GroupViewSet(ModelViewSet):
-    queryset = RestrictedQuerySet(model=Group).annotate(user_count=Count('user'))
+    queryset = RestrictedQuerySet(model=Group).annotate(user_count=Count('user')).order_by('name')
     serializer_class = serializers.GroupSerializer
     filterset_class = filters.GroupFilterSet
 
