@@ -113,7 +113,7 @@ class ObjectChangeTestCase(TestCase):
 
         url = reverse('extras:objectchange_list')
         params = {
-            "user": User.objects.first(),
+            "user": User.objects.first().pk,
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
