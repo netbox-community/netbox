@@ -4,12 +4,13 @@ from django.apps import apps
 from django.conf import settings
 from django.shortcuts import render
 from django.urls.exceptions import NoReverseMatch
-from django.utils.module_loading import import_string
 from django.views.generic import View
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
+
+from extras.plugins.utils import import_object
 
 
 class InstalledPluginsAdminView(View):
@@ -60,9 +61,9 @@ class PluginsAPIRootView(APIView):
 
     @staticmethod
     def _get_plugin_entry(plugin, app_config, request, format):
-        try:
-            api_app_name = import_string(f"{plugin}.api.urls.app_name")
-        except (ImportError, ModuleNotFoundError):
+        # Check if the plugin specifies any API URLs
+        api_app_name = import_object(f"{plugin}.api.urls.app_name")
+        if api_app_name is None:
             # Plugin does not expose an API
             return None
 
@@ -73,7 +74,7 @@ class PluginsAPIRootView(APIView):
                 format=format
             ))
         except NoReverseMatch:
-            # The plugin does not include an api-root
+            # The plugin does not include an api-root url
             entry = None
 
         return entry

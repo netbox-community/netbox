@@ -220,6 +220,7 @@ class InterfaceFilterSet(BaseFilterSet):
     mac_address = MultiValueMACAddressFilter(
         label='MAC address',
     )
+    tag = TagFilter()
 
     class Meta:
         model = Interface

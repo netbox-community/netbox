@@ -399,11 +399,12 @@ class RackView(PermissionRequiredMixin, View):
 
         rack = get_object_or_404(Rack.objects.prefetch_related('site__region', 'tenant__group', 'group', 'role'), pk=pk)
 
+        # Get 0U and child devices located within the rack
         nonracked_devices = Device.objects.filter(
             rack=rack,
-            position__isnull=True,
-            parent_bay__isnull=True
+            position__isnull=True
         ).prefetch_related('device_type__manufacturer')
+
         if rack.group:
             peer_racks = Rack.objects.filter(site=rack.site, group=rack.group)
         else:

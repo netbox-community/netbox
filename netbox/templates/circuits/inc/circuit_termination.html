@@ -51,10 +51,15 @@
                         <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary btn-xs" title="Trace">
                             <i class="fa fa-share-alt" aria-hidden="true"></i>
                         </a>
-                        {% if termination.connected_endpoint %}
-                            to <a href="{% url 'dcim:device' pk=termination.connected_endpoint.device.pk %}">{{ termination.connected_endpoint.device }}</a>
-                            <i class="fa fa-angle-right"></i> {{ termination.connected_endpoint }}
-                        {% endif %}
+                        {% with peer=termination.get_cable_peer %}
+                            to
+                            {% if peer.device %}
+                                <a href="{{ peer.device.get_absolute_url }}">{{ peer.device }}</a>
+                            {% elif peer.circuit %}
+                                <a href="{{ peer.circuit.get_absolute_url }}">{{ peer.circuit }}</a>
+                            {% endif %}
+                            ({{ peer }})
+                        {% endwith %}
                     {% else %}
                         {% if perms.dcim.add_cable %}
                             <div class="pull-right">
@@ -63,10 +68,10 @@
                                         <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span> Connect
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right">
-                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='interface' %}?return_url={{ device.get_absolute_url }}">Interface</a></li>
-                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='front-port' %}?return_url={{ device.get_absolute_url }}">Front Port</a></li>
-                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='rear-port' %}?return_url={{ device.get_absolute_url }}">Rear Port</a></li>
-                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='circuit-termination' %}?return_url={{ device.get_absolute_url }}">Circuit Termination</a></li>
+                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='interface' %}?termination_b_site={{ termination.site.pk }}&return_url={{ circuit.get_absolute_url }}">Interface</a></li>
+                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='front-port' %}?termination_b_site={{ termination.site.pk }}&return_url={{ circuit.get_absolute_url }}">Front Port</a></li>
+                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='rear-port' %}?termination_b_site={{ termination.site.pk }}&return_url={{ circuit.get_absolute_url }}">Rear Port</a></li>
+                                        <li><a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk termination_b_type='circuit-termination' %}?termination_b_site={{ termination.site.pk }}&return_url={{ circuit.get_absolute_url }}">Circuit Termination</a></li>
                                     </ul>
                                 </span>
                             </div>
