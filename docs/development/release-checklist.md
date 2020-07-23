@@ -41,7 +41,14 @@ Create a file at `/docs/release-notes/X.Y.md` to establish the release notes for
 
 ### Manually Perform a New Install
 
-Create a new installation of NetBox by following [the current documentation](http://netbox.readthedocs.io/en/latest/). This should be a manual process, so that issues with the documentation can be identified and corrected.
+Install `mkdocs` in your local environment, then start the documentation server:
+
+```no-highlight
+$ pip install -r docs/requirements.txt
+$ mkdocs serve
+```
+
+Follow these instructions to perform a new installation of NetBox. This process must _not_ be automated: The goal of this step is to catch any errors or omissions in the documentation, and ensure that it is kept up-to-date for each release. Make any necessary changes to the documentation before proceeding with the release.
 
 ### Close the Release Milestone
 

@@ -111,8 +111,6 @@
                 {% include 'dcim/inc/device_napalm_tabs.html' with disabled_message='No platform assigned to this device' %}
             {% elif not device.platform.napalm_driver %}
                 {% include 'dcim/inc/device_napalm_tabs.html' with disabled_message='No NAPALM driver assigned for this platform' %}
-            {% elif not device.primary_ip %}
-                {% include 'dcim/inc/device_napalm_tabs.html' with disabled_message='No primary IP address assigned to this device' %}
             {% else %}
                 {% include 'dcim/inc/device_napalm_tabs.html' %}
             {% endif %}
