@@ -410,11 +410,13 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         required=False,
         widget=StaticSelect2()
     )
-    # TODO: Convert to DynamicModelMultipleChoiceField once we have an API endpoint for users
-    user = forms.ModelChoiceField(
-        queryset=User.objects.order_by('username'),
+    user = DynamicModelMultipleChoiceField(
+        queryset=User.objects.all(),
         required=False,
-        widget=StaticSelect2()
+        widget=APISelectMultiple(
+            api_url='/api/users/users/',
+            display_field='username'
+        )
     )
     changed_object_type = forms.ModelChoiceField(
         queryset=ContentType.objects.order_by('model'),
