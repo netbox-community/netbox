@@ -18,7 +18,7 @@ def replicate_interfaces(apps, schema_editor):
     # Replicate dcim.Interface instances assigned to VirtualMachines
     original_interfaces = Interface.objects.filter(virtual_machine__isnull=False)
     if show_output:
-        print(f"\n    Replicating {len(original_interfaces)} VM interfaces...", flush=True)
+        print(f"\n    Replicating {len(original_interfaces)} VM interfaces...", end='', flush=True)
     for i, interface in enumerate(original_interfaces, start=1):
         vminterface = VMInterface(
             virtual_machine=interface.virtual_machine,
@@ -56,8 +56,6 @@ def replicate_interfaces(apps, schema_editor):
     # Verify that all interfaces have been replicated
     replicated_count = VMInterface.objects.count()
     assert replicated_count == original_interfaces.count(), "Replicated interfaces count does not match original count!"
-    if show_output:
-        print(f"\n    Replicated {replicated_count} interfaces ", end='', flush=True)
 
     # Delete all interfaces not assigned to a Device
     Interface.objects.filter(device__isnull=True).delete()
