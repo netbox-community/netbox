@@ -14,7 +14,6 @@ exemptLabels:
   - "status: accepted"
   - "status: blocked"
   - "status: needs milestone"
-  - "status: under review"
 
 # Label to use when marking an issue as stale
 staleLabel: "pending closure"
