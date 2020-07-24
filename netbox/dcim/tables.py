@@ -958,8 +958,8 @@ class InterfaceDetailTable(DeviceComponentDetailTable):
 
     class Meta(InterfaceTable.Meta):
         order_by = ('parent', 'name')
-        fields = ('pk', 'parent', 'name', 'enabled', 'type', 'description', 'cable')
-        sequence = ('pk', 'parent', 'name', 'enabled', 'type', 'description', 'cable')
+        fields = ('pk', 'parent', 'name', 'enabled', 'type', 'mac_address', 'description', 'cable')
+        default_columns = ('pk', 'parent', 'name', 'enabled', 'type', 'description', 'cable')
 
 
 class FrontPortTable(BaseTable):

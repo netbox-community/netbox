@@ -2,6 +2,10 @@
 
 ## v2.8.9 (FUTURE)
 
+### Enhancements
+
+* [#4899](https://github.com/netbox-community/netbox/issues/4899) - Add MAC address column to interfaces table
+
 ### Bug Fixes
 
 * [#4875](https://github.com/netbox-community/netbox/issues/4875) - Fix documentation for image attachments
