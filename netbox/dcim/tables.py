@@ -94,6 +94,14 @@ MANUFACTURER_ACTIONS = """
 {% endif %}
 """
 
+DEVICEROLE_DEVICE_COUNT = """
+<a href="{% url 'dcim:device_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
+"""
+
+DEVICEROLE_VM_COUNT = """
+<a href="{% url 'virtualization:virtualmachine_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
+"""
+
 DEVICEROLE_ACTIONS = """
 <a href="{% url 'dcim:devicerole_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
@@ -103,12 +111,12 @@ DEVICEROLE_ACTIONS = """
 {% endif %}
 """
 
-DEVICE_COUNT = """
-<a href="{% url 'dcim:device_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
+PLATFORM_DEVICE_COUNT = """
+<a href="{% url 'dcim:device_list' %}?platform={{ record.slug }}">{{ value|default:0 }}</a>
 """
 
-VM_COUNT = """
-<a href="{% url 'virtualization:virtualmachine_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
+PLATFORM_VM_COUNT = """
+<a href="{% url 'virtualization:virtualmachine_list' %}?platform={{ record.slug }}">{{ value|default:0 }}</a>
 """
 
 PLATFORM_ACTIONS = """
@@ -697,11 +705,11 @@ class DeviceBayTemplateTable(BaseTable):
 class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
     device_count = tables.TemplateColumn(
-        template_code=DEVICE_COUNT,
+        template_code=DEVICEROLE_DEVICE_COUNT,
         verbose_name='Devices'
     )
     vm_count = tables.TemplateColumn(
-        template_code=VM_COUNT,
+        template_code=DEVICEROLE_VM_COUNT,
         verbose_name='VMs'
     )
     color = tables.TemplateColumn(
@@ -728,11 +736,11 @@ class DeviceRoleTable(BaseTable):
 class PlatformTable(BaseTable):
     pk = ToggleColumn()
     device_count = tables.TemplateColumn(
-        template_code=DEVICE_COUNT,
+        template_code=PLATFORM_DEVICE_COUNT,
         verbose_name='Devices'
     )
     vm_count = tables.TemplateColumn(
-        template_code=VM_COUNT,
+        template_code=PLATFORM_VM_COUNT,
         verbose_name='VMs'
     )
     actions = tables.TemplateColumn(
