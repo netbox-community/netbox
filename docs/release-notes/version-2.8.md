@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#4898](https://github.com/netbox-community/netbox/issues/4898) - Add MAC address search field to interfaces list
 * [#4899](https://github.com/netbox-community/netbox/issues/4899) - Add MAC address column to interfaces table
 
 ### Bug Fixes
