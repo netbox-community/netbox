@@ -15,6 +15,7 @@
 * [#4887](https://github.com/netbox-community/netbox/issues/4887) - Don't disable NAPALM tabs when device has no primary IP
 * [#4894](https://github.com/netbox-community/netbox/issues/4894) - Fix display of device/VM counts on platforms list
 * [#4895](https://github.com/netbox-community/netbox/issues/4895) - Force UTF-8 encoding when embedding model documentation
+* [#4910](https://github.com/netbox-community/netbox/issues/4910) - Unpin redis dependency to fix exception in RQ worker
 
 ---
 
