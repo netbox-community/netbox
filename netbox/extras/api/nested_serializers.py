@@ -8,6 +8,7 @@ __all__ = [
     'NestedConfigContextSerializer',
     'NestedExportTemplateSerializer',
     'NestedGraphSerializer',
+    'NestedImageAttachmentSerializer',
     'NestedJobResultSerializer',
     'NestedTagSerializer',
 ]
@@ -35,6 +36,14 @@ class NestedGraphSerializer(WritableNestedSerializer):
     class Meta:
         model = models.Graph
         fields = ['id', 'url', 'name']
+
+
+class NestedImageAttachmentSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:imageattachment-detail')
+
+    class Meta:
+        model = models.ImageAttachment
+        fields = ['id', 'url', 'name', 'image']
 
 
 class NestedTagSerializer(WritableNestedSerializer):

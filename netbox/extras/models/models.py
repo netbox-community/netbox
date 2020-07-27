@@ -387,6 +387,8 @@ class ImageAttachment(models.Model):
         auto_now_add=True
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     class Meta:
         ordering = ('name', 'pk')  # name may be non-unique
 

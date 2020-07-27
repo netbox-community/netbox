@@ -10,7 +10,7 @@ from rq import Worker
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, RackGroup, RackRole, Site
 from extras.api.views import ReportViewSet, ScriptViewSet
-from extras.models import ConfigContext, Graph, ExportTemplate, Tag
+from extras.models import ConfigContext, ExportTemplate, Graph, ImageAttachment, Tag
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
@@ -134,6 +134,50 @@ class TagTest(APIViewTestCases.APIViewTestCase):
             Tag(name='Tag 3', slug='tag-3'),
         )
         Tag.objects.bulk_create(tags)
+
+
+# TODO: Standardize to APIViewTestCase (needs create & update tests)
+class ImageAttachmentTest(
+    APIViewTestCases.GetObjectViewTestCase,
+    APIViewTestCases.ListObjectsViewTestCase,
+    APIViewTestCases.DeleteObjectViewTestCase
+):
+    model = ImageAttachment
+    brief_fields = ['id', 'image', 'name', 'url']
+
+    @classmethod
+    def setUpTestData(cls):
+        ct = ContentType.objects.get_for_model(Site)
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        image_attachments = (
+            ImageAttachment(
+                content_type=ct,
+                object_id=site.pk,
+                name='Image Attachment 1',
+                image='http://example.com/image1.png',
+                image_height=100,
+                image_width=100
+            ),
+            ImageAttachment(
+                content_type=ct,
+                object_id=site.pk,
+                name='Image Attachment 2',
+                image='http://example.com/image2.png',
+                image_height=100,
+                image_width=100
+            ),
+            ImageAttachment(
+                content_type=ct,
+                object_id=site.pk,
+                name='Image Attachment 3',
+                image='http://example.com/image3.png',
+                image_height=100,
+                image_width=100
+            )
+        )
+        ImageAttachment.objects.bulk_create(image_attachments)
 
 
 class ConfigContextTest(APIViewTestCases.APIViewTestCase):

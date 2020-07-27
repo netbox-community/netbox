@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#4905](https://github.com/netbox-community/netbox/issues/4905) - Fix front port count on device type view
+* [#4912](https://github.com/netbox-community/netbox/issues/4912) - Fix image attachment API endpoint
 
 ---
 
