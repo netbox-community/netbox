@@ -17,16 +17,12 @@ from dcim.filters import (
     CableFilterSet, DeviceFilterSet, DeviceTypeFilterSet, PowerFeedFilterSet, RackFilterSet, RackGroupFilterSet,
     SiteFilterSet, VirtualChassisFilterSet,
 )
-from dcim.models import (
-    Cable, ConsolePort, Device, DeviceType, Interface, PowerPanel, PowerFeed, PowerPort, Rack, RackGroup, Site,
-    VirtualChassis,
-)
-from dcim.tables import (
-    CableTable, DeviceTable, DeviceTypeTable, PowerFeedTable, RackTable, RackGroupTable, SiteTable,
-    VirtualChassisTable,
-)
+from dcim.models import (Cable, ConsolePort, Device, DeviceType, Interface, PowerFeed, PowerPanel, PowerPort, Rack,
+                         RackGroup, Site, VirtualChassis)
+from dcim.tables import (CableTable, DeviceTable, DeviceTypeTable, PowerFeedTable, RackGroupTable, RackTable, SiteTable,
+                         VirtualChassisTable)
 from extras.choices import JobResultStatusChoices
-from extras.models import ObjectChange, JobResult
+from extras.models import JobResult, ObjectChange
 from ipam.filters import AggregateFilterSet, IPAddressFilterSet, PrefixFilterSet, VLANFilterSet, VRFFilterSet
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from ipam.tables import AggregateTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
@@ -47,7 +43,7 @@ SEARCH_TYPES = OrderedDict((
     # Circuits
     ('provider', {
         'queryset': Provider.objects.annotate(
-            count_circuits=Count('circuits')
+            count_circuits=Count('circuits', distinct=True)
         ).order_by(*Provider._meta.ordering),
         'filterset': ProviderFilterSet,
         'table': ProviderTable,
@@ -76,7 +72,7 @@ SEARCH_TYPES = OrderedDict((
     }),
     ('rackgroup', {
         'queryset': RackGroup.objects.prefetch_related('site').annotate(
-            rack_count=Count('racks')
+            rack_count=Count('racks', distinct=True)
         ).order_by(*RackGroup._meta.ordering),
         'filterset': RackGroupFilterSet,
         'table': RackGroupTable,
@@ -84,7 +80,7 @@ SEARCH_TYPES = OrderedDict((
     }),
     ('devicetype', {
         'queryset': DeviceType.objects.prefetch_related('manufacturer').annotate(
-            instance_count=Count('instances')
+            instance_count=Count('instances', distinct=True)
         ).order_by(*DeviceType._meta.ordering),
         'filterset': DeviceTypeFilterSet,
         'table': DeviceTypeTable,
@@ -100,7 +96,7 @@ SEARCH_TYPES = OrderedDict((
     }),
     ('virtualchassis', {
         'queryset': VirtualChassis.objects.prefetch_related('master').annotate(
-            member_count=Count('members')
+            member_count=Count('members', distinct=True)
         ).order_by(*VirtualChassis._meta.ordering),
         'filterset': VirtualChassisFilterSet,
         'table': VirtualChassisTable,
