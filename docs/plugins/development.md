@@ -110,6 +110,8 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `template_extensions` | The dotted path to the list of template extension classes (default: `template_content.template_extensions`) |
 | `menu_items` | The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`) |
 
+All required settings must be configured by the user. If a configuration parameter is listed in both `required_settings` and `default_settings`, the default setting will be ignored.
+
 ### Install the Plugin for Development
 
 To ease development, it is recommended to go ahead and install the plugin at this point using setuptools' `develop` mode. This will create symbolic links within your Python environment to the plugin development directory. Call `setup.py` from the plugin's root directory with the `develop` argument (instead of `install`):
