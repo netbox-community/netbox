@@ -279,6 +279,10 @@ http://localhost:8000/api/ipam/prefixes/ | jq ".actions.POST.status.choices"
 
 For most fields, when a filter is passed multiple times, objects matching _any_ of the provided values will be returned. For example, `GET /api/dcim/sites/?name=Foo&name=Bar` will return all sites named "Foo" _or_ "Bar". The exception to this rule is ManyToManyFields which may have multiple values assigned. Tags are the most common example of a ManyToManyField. For example, `GET /api/dcim/sites/?tag=foo&tag=bar` will return only sites tagged with both "foo" _and_ "bar".
 
+### Excluding Config Contexts
+
+The rendered config context for devices and VMs is included by default in all API results (list and detail views). Users with large amounts of context data will most likely observe a performance drop when returning multiple objects, particularly with page sizes in the high hundreds or more. To combat this, in cases where the rendered config context is not needed, the query parameter `?exclude=config_context` may be appended to the request URL to exclude the config context data from the API response.
+
 ### Custom Fields
 
 To filter on a custom field, prepend `cf_` to the field name. For example, the following query will return only sites where a custom field named `foo` is equal to 123:
