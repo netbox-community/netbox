@@ -975,7 +975,7 @@ function toggleConnection(elem) {
                 xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
             },
             data: {
-                'status': 'False'
+                'status': 'planned'
             },
             context: this,
             success: function() {
@@ -994,7 +994,7 @@ function toggleConnection(elem) {
                 xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
             },
             data: {
-                'status': 'True'
+                'status': 'connected'
             },
             context: this,
             success: function() {
