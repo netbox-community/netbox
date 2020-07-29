@@ -750,6 +750,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def get_elevation_svg(
             self,
             face=DeviceFaceChoices.FACE_FRONT,
+            user=None,
             unit_width=settings.RACK_ELEVATION_DEFAULT_UNIT_WIDTH,
             unit_height=settings.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT,
             legend_width=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT,
@@ -760,6 +761,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         Return an SVG of the rack elevation
 
         :param face: Enum of [front, rear] representing the desired side of the rack elevation to render
+        :param user: User instance to be used for evaluating device view permissions. If None, all devices
+            will be included.
         :param unit_width: Width in pixels for the rendered drawing
         :param unit_height: Height of each rack unit for the rendered drawing. Note this is not the total
             height of the elevation
@@ -767,7 +770,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         :param include_images: Embed front/rear device images where available
         :param base_url: Base URL for links and images. If none, URLs will be relative.
         """
-        elevation = RackElevationSVG(self, include_images=include_images, base_url=base_url)
+        elevation = RackElevationSVG(self, user=user, include_images=include_images, base_url=base_url)
 
         return elevation.render(face, unit_width, unit_height, legend_width)
 
