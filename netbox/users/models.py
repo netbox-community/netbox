@@ -16,6 +16,8 @@ from utilities.utils import flatten_dict
 
 
 __all__ = (
+    'AdminGroup',
+    'AdminUser',
     'ObjectPermission',
     'Token',
     'UserConfig',
@@ -278,9 +280,4 @@ class ObjectPermission(models.Model):
         verbose_name = "permission"
 
     def __str__(self):
-        if self.name:
-            return self.name
-        return '{}: {}'.format(
-            ', '.join(self.object_types.values_list('model', flat=True)),
-            ', '.join(self.actions)
-        )
+        return self.name or f'Permission #{self.pk}'

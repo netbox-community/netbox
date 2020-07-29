@@ -2,6 +2,10 @@
 
 ## v2.9.0 (FUTURE)
 
+### Enhancements
+
+* [#4919](https://github.com/netbox-community/netbox/issues/4919) - Allow adding/changing assigned permissions within group and user admin views
+
 ### Bug Fixes
 
 * [#4905](https://github.com/netbox-community/netbox/issues/4905) - Fix front port count on device type view
