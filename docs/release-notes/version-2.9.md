@@ -13,6 +13,7 @@
 * [#4914](https://github.com/netbox-community/netbox/issues/4914) - Fix toggling cable status under device view
 * [#4921](https://github.com/netbox-community/netbox/issues/4921) - Render non-viewable devices as unavailable space in rack elevations
 * [#4930](https://github.com/netbox-community/netbox/issues/4930) - Replicate label values when instantiating device type components
+* [#4931](https://github.com/netbox-community/netbox/issues/4931) - Fix DoesNotExist exception when deleting devices
 
 ---
 

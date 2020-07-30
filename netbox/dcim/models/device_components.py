@@ -71,11 +71,16 @@ class ComponentModel(models.Model):
 
     def to_objectchange(self, action):
         # Annotate the parent Device
+        try:
+            device = self.device
+        except ObjectDoesNotExist:
+            # The parent Device has already been deleted
+            device = None
         return ObjectChange(
             changed_object=self,
             object_repr=str(self),
             action=action,
-            related_object=self.device,
+            related_object=device,
             object_data=serialize_object(self)
         )
 
