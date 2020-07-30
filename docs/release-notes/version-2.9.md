@@ -12,6 +12,7 @@
 * [#4912](https://github.com/netbox-community/netbox/issues/4912) - Fix image attachment API endpoint
 * [#4914](https://github.com/netbox-community/netbox/issues/4914) - Fix toggling cable status under device view
 * [#4921](https://github.com/netbox-community/netbox/issues/4921) - Render non-viewable devices as unavailable space in rack elevations
+* [#4930](https://github.com/netbox-community/netbox/issues/4930) - Replicate label values when instantiating device type components
 
 ---
 

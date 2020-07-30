@@ -100,6 +100,7 @@ class ConsolePortTemplate(ComponentTemplateModel):
         return ConsolePort(
             device=device,
             name=self.name,
+            label=self.label,
             type=self.type
         )
 
@@ -122,6 +123,7 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
         return ConsoleServerPort(
             device=device,
             name=self.name,
+            label=self.label,
             type=self.type
         )
 
@@ -156,6 +158,7 @@ class PowerPortTemplate(ComponentTemplateModel):
         return PowerPort(
             device=device,
             name=self.name,
+            label=self.label,
             type=self.type,
             maximum_draw=self.maximum_draw,
             allocated_draw=self.allocated_draw
@@ -205,6 +208,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
         return PowerOutlet(
             device=device,
             name=self.name,
+            label=self.label,
             type=self.type,
             power_port=power_port,
             feed_leg=self.feed_leg
@@ -239,6 +243,7 @@ class InterfaceTemplate(ComponentTemplateModel):
         return Interface(
             device=device,
             name=self.name,
+            label=self.label,
             type=self.type,
             mgmt_only=self.mgmt_only
         )
@@ -293,6 +298,7 @@ class FrontPortTemplate(ComponentTemplateModel):
         return FrontPort(
             device=device,
             name=self.name,
+            label=self.label,
             type=self.type,
             rear_port=rear_port,
             rear_port_position=self.rear_port_position
@@ -320,6 +326,7 @@ class RearPortTemplate(ComponentTemplateModel):
         return RearPort(
             device=device,
             name=self.name,
+            label=self.label,
             type=self.type,
             positions=self.positions
         )
@@ -336,5 +343,6 @@ class DeviceBayTemplate(ComponentTemplateModel):
     def instantiate(self, device):
         return DeviceBay(
             device=device,
-            name=self.name
+            name=self.name,
+            label=self.label
         )
