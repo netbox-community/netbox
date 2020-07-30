@@ -40,7 +40,7 @@ nav:
         - Circuits: 'core-functionality/circuits.md'
         - Power Tracking: 'core-functionality/power.md'
         - Secrets: 'core-functionality/secrets.md'
-        - Tenancy Assignment: 'core-functionality/tenancy.md'
+        - Tenancy: 'core-functionality/tenancy.md'
     - Additional Features:
         - Caching: 'additional-features/caching.md'
         - Change Logging: 'additional-features/change-logging.md'
