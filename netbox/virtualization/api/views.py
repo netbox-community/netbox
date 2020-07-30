@@ -3,6 +3,7 @@ from django.db.models import Count
 from dcim.models import Device, Interface
 from extras.api.views import CustomFieldModelViewSet
 from utilities.api import ModelViewSet
+from utilities.query_functions import CollateAsChar
 from utilities.utils import get_subquery
 from virtualization import filters
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -74,7 +75,7 @@ class VirtualMachineViewSet(CustomFieldModelViewSet):
 class InterfaceViewSet(ModelViewSet):
     queryset = Interface.objects.filter(
         virtual_machine__isnull=False
-    ).prefetch_related(
+    ).order_by('virtual_machine', CollateAsChar('_name')).prefetch_related(
         'virtual_machine', 'tags'
     )
     serializer_class = serializers.InterfaceSerializer
