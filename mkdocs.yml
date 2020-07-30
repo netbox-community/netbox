@@ -44,7 +44,7 @@ nav:
     - Additional Features:
         - Caching: 'additional-features/caching.md'
         - Change Logging: 'additional-features/change-logging.md'
-        - Context Data: 'additional-features/context-data.md'
+        - Context Data: 'models/extras/configcontext.md'
         - Custom Fields: 'additional-features/custom-fields.md'
         - Custom Links: 'additional-features/custom-links.md'
         - Custom Scripts: 'additional-features/custom-scripts.md'
@@ -53,7 +53,7 @@ nav:
         - NAPALM: 'additional-features/napalm.md'
         - Prometheus Metrics: 'additional-features/prometheus-metrics.md'
         - Reports: 'additional-features/reports.md'
-        - Tags: 'additional-features/tags.md'
+        - Tags: 'models/extras/tag.md'
         - Webhooks: 'additional-features/webhooks.md'
     - Plugins:
         - Using Plugins: 'plugins/index.md'
