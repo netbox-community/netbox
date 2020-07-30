@@ -1,4 +1,4 @@
-# Virtual Machines and Clusters
+# Virtualization
 
 {!docs/models/virtualization/cluster.md!}
 {!docs/models/virtualization/clustertype.md!}
