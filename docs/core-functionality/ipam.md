@@ -6,6 +6,7 @@
 ---
 
 {!docs/models/ipam/prefix.md!}
+{!docs/models/ipam/role.md!}
 
 ---
 
