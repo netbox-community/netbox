@@ -741,13 +741,14 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
     )
     tag = TagFilter()
 
-    def search(self, queryset, name, value):
+    def search(self, queryset, name, value, additional_fields):
         if not value.strip():
             return queryset
-        return queryset.filter(
-            Q(name__icontains=value) |
-            Q(description__icontains=value)
-        )
+        fields = ['name__icontains', 'description__icontains']
+        if additional_fields:
+            fields.extend(additional_fields)
+        query_fields = {field: value for field in fields}
+        return queryset.filter(Q(**query_fields, _connector=Q.OR))
 
 
 class ConsolePortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
@@ -910,6 +911,10 @@ class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet):
             'virtual': queryset.filter(type__in=VIRTUAL_IFACE_TYPES),
             'wireless': queryset.filter(type__in=WIRELESS_IFACE_TYPES),
         }.get(value, queryset.none())
+
+    def search(self, queryset, name, value):
+        additional_fields = ['mac_address__icontains']
+        return super().search(queryset=queryset, name=name, value=value, additional_fields=additional_fields)
 
 
 class FrontPortFilterSet(BaseFilterSet, DeviceComponentFilterSet):

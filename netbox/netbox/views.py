@@ -13,14 +13,14 @@ from circuits.filters import CircuitFilterSet, ProviderFilterSet
 from circuits.models import Circuit, Provider
 from circuits.tables import CircuitTable, ProviderTable
 from dcim.filters import (
-    CableFilterSet, DeviceFilterSet, DeviceTypeFilterSet, PowerFeedFilterSet, RackFilterSet, RackGroupFilterSet, SiteFilterSet,
+    CableFilterSet, DeviceFilterSet, DeviceTypeFilterSet, InterfaceFilterSet, PowerFeedFilterSet, RackFilterSet, RackGroupFilterSet, SiteFilterSet,
     VirtualChassisFilterSet,
 )
 from dcim.models import (
     Cable, ConsolePort, Device, DeviceType, Interface, PowerPanel, PowerFeed, PowerPort, Rack, RackGroup, Site, VirtualChassis
 )
 from dcim.tables import (
-    CableTable, DeviceTable, DeviceTypeTable, PowerFeedTable, RackTable, RackGroupTable, SiteTable,
+    CableTable, DeviceTable, DeviceTypeTable, InterfaceDetailTable, PowerFeedTable, RackTable, RackGroupTable, SiteTable,
     VirtualChassisTable,
 )
 from extras.models import ObjectChange, ReportResult
@@ -95,6 +95,15 @@ SEARCH_TYPES = OrderedDict((
         'filterset': DeviceFilterSet,
         'table': DeviceTable,
         'url': 'dcim:device_list',
+    }),
+    ('interface', {
+        'permission': 'dcim.view_interface',
+        'queryset': Interface.objects.prefetch_related(
+            'device', 'virtual_machine',
+        ),
+        'filterset': InterfaceFilterSet,
+        'table': InterfaceDetailTable,
+        'url': 'dcim:interface_list',
     }),
     ('virtualchassis', {
         'permission': 'dcim.view_virtualchassis',
