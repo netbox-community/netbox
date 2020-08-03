@@ -97,6 +97,7 @@ class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
 
         for i in range(0, 3):
             objectpermission = ObjectPermission(
+                name=f'Permission {i+1}',
                 actions=['view', 'add', 'change', 'delete'],
                 constraints={'name': f'TEST{i+1}'}
             )
@@ -107,6 +108,7 @@ class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
 
         cls.create_data = [
             {
+                'name': 'Permission 4',
                 'object_types': ['dcim.site'],
                 'groups': [groups[0].pk],
                 'users': [users[0].pk],
@@ -114,6 +116,7 @@ class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
                 'constraints': {'name': 'TEST4'},
             },
             {
+                'name': 'Permission 5',
                 'object_types': ['dcim.site'],
                 'groups': [groups[1].pk],
                 'users': [users[1].pk],
@@ -121,6 +124,7 @@ class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
                 'constraints': {'name': 'TEST5'},
             },
             {
+                'name': 'Permission 6',
                 'object_types': ['dcim.site'],
                 'groups': [groups[2].pk],
                 'users': [users[2].pk],

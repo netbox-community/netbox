@@ -241,6 +241,10 @@ class ObjectPermission(models.Model):
     name = models.CharField(
         max_length=100
     )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
     enabled = models.BooleanField(
         default=True
     )

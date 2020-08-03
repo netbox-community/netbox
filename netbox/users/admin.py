@@ -232,7 +232,7 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
     actions = ('enable', 'disable')
     fieldsets = (
         (None, {
-            'fields': ('name', 'enabled')
+            'fields': ('name', 'description', 'enabled')
         }),
         ('Actions', {
             'fields': (('can_view', 'can_add', 'can_change', 'can_delete'), 'actions')
@@ -251,11 +251,12 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
     filter_horizontal = ('object_types', 'groups', 'users')
     form = ObjectPermissionForm
     list_display = [
-        'name', 'enabled', 'list_models', 'list_users', 'list_groups', 'actions', 'constraints',
+        'name', 'enabled', 'list_models', 'list_users', 'list_groups', 'actions', 'constraints', 'description',
     ]
     list_filter = [
         'enabled', ActionListFilter, ObjectTypeListFilter, 'groups', 'users'
     ]
+    search_fields = ['actions', 'constraints', 'description', 'name']
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('object_types', 'users', 'groups')

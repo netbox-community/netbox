@@ -19,6 +19,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100)),
+                ('description', models.CharField(blank=True, max_length=200)),
                 ('enabled', models.BooleanField(default=True)),
                 ('constraints', django.contrib.postgres.fields.jsonb.JSONField(blank=True, null=True)),
                 ('actions', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=30), size=None)),

@@ -22,6 +22,7 @@
 
 * [#4940](https://github.com/netbox-community/netbox/issues/4940) - Add an `occupied` field to rack unit representations for rack elevation views
 * [#4942](https://github.com/netbox-community/netbox/issues/4942) - Make ObjectPermission's `name` field required
+* [#4943](https://github.com/netbox-community/netbox/issues/4943) - Add a `description` field to ObjectPermission
 
 ---
 
