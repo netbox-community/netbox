@@ -251,7 +251,7 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
     filter_horizontal = ('object_types', 'groups', 'users')
     form = ObjectPermissionForm
     list_display = [
-        'get_name', 'enabled', 'list_models', 'list_users', 'list_groups', 'actions', 'constraints',
+        'name', 'enabled', 'list_models', 'list_users', 'list_groups', 'actions', 'constraints',
     ]
     list_filter = [
         'enabled', ActionListFilter, ObjectTypeListFilter, 'groups', 'users'
@@ -259,13 +259,6 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('object_types', 'users', 'groups')
-
-    def get_name(self, obj):
-        return '{}: {}'.format(
-            ', '.join([ot.name for ot in obj.object_types.all()]),
-            ', '.join(obj.actions)
-        )
-    get_name.short_description = 'Name'
 
     def list_models(self, obj):
         return ', '.join([f"{ct}" for ct in obj.object_types.all()])

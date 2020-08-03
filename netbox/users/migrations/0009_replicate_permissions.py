@@ -13,7 +13,7 @@ def replicate_permissions(apps, schema_editor):
 
     # TODO: Optimize this iteration so that ObjectPermissions with identical sets of users and groups
     # are combined into a single ObjectPermission instance.
-    for perm in Permission.objects.all():
+    for perm in Permission.objects.select_related('content_type'):
         if perm.codename.split('_')[0] in ACTIONS:
             action = perm.codename.split('_')[0]
         elif perm.codename == 'activate_userkey':
@@ -24,7 +24,11 @@ def replicate_permissions(apps, schema_editor):
             action = perm.codename
 
         if perm.group_set.exists() or perm.user_set.exists():
-            obj_perm = ObjectPermission(actions=[action])
+            obj_perm = ObjectPermission(
+                # Copy name from original Permission object
+                name=f'{perm.content_type.app_label}.{perm.codename}'[:100],
+                actions=[action]
+            )
             obj_perm.save()
             obj_perm.object_types.add(perm.content_type)
             if perm.group_set.exists():

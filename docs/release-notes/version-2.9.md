@@ -1,6 +1,6 @@
 # NetBox v2.9
 
-## v2.9.0 (FUTURE)
+## v2.9-beta2 (FUTURE)
 
 ### Enhancements
 
@@ -17,6 +17,11 @@
 * [#4931](https://github.com/netbox-community/netbox/issues/4931) - Fix DoesNotExist exception when deleting devices
 * [#4938](https://github.com/netbox-community/netbox/issues/4938) - Show add, import buttons on virtual chassis list view
 * [#4939](https://github.com/netbox-community/netbox/issues/4939) - Fix linking to LAG interfaces on other VC members
+
+### Other Changes
+
+* [#4940](https://github.com/netbox-community/netbox/issues/4940) - Add an `occupied` field to rack unit representations for rack elevation views
+* [#4942](https://github.com/netbox-community/netbox/issues/4942) - Make ObjectPermission's `name` field required
 
 ---
 

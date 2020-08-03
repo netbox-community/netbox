@@ -239,8 +239,7 @@ class ObjectPermission(models.Model):
     identified by ORM query parameters.
     """
     name = models.CharField(
-        max_length=100,
-        blank=True
+        max_length=100
     )
     enabled = models.BooleanField(
         default=True
@@ -277,7 +276,8 @@ class ObjectPermission(models.Model):
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:
+        ordering = ['name']
         verbose_name = "permission"
 
     def __str__(self):
-        return self.name or f'Permission #{self.pk}'
+        return self.name
