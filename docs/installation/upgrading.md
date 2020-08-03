@@ -30,6 +30,12 @@ Copy the 'configuration.py' you created when first installing to the new version
 # cp netbox-X.Y.Z/netbox/netbox/configuration.py netbox/netbox/netbox/configuration.py
 ```
 
+Copy your local requirements file if used:
+
+```no-highlight
+# cp netbox-X.Y.Z/local_requirements.txt netbox/local_requirements.txt
+```
+
 Also copy the LDAP configuration if using LDAP:
 
 ```no-highlight
