@@ -2185,7 +2185,6 @@ class VirtualChassisListView(ObjectListView):
     table = tables.VirtualChassisTable
     filterset = filters.VirtualChassisFilterSet
     filterset_form = forms.VirtualChassisFilterForm
-    action_buttons = ('export',)
 
 
 class VirtualChassisView(ObjectView):
