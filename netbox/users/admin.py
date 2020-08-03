@@ -87,8 +87,12 @@ class UserAdmin(UserAdmin_):
         }),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
-    inlines = [UserObjectPermissionInline, UserConfigInline]
     filter_horizontal = ('groups',)
+
+    def get_inlines(self, request, obj):
+        if obj is not None:
+            return (UserObjectPermissionInline, UserConfigInline)
+        return ()
 
 
 #
