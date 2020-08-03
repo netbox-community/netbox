@@ -1,10 +1,10 @@
 # Object Permissions
 
-Assigning a permission in NetBox entails defining a relationship among several components:
+A permission in NetBox represents a relationship shared by several components:
 
 * Object type(s) - One or more types of object in NetBox
-* User(s) - One or more users or groups of users
-* Actions - The actions that can be performed (view, add, change, and/or delete)
+* User(s)/Group(s) - One or more users or groups of users
+* Action(s) - The action(s) that can be performed on an object
 * Constraints - An arbitrary filter used to limit the granted action(s) to a specific subset of objects
 
 At a minimum, a permission assignment must specify one object type, one user or group, and one action. The specification of constraints is optional: A permission without any constraints specified will apply to all instances of the selected model(s).
@@ -13,18 +13,21 @@ At a minimum, a permission assignment must specify one object type, one user or 
 
 There are four core actions that can be permitted for each type of object within NetBox, roughly analogous to the CRUD convention (create, read, update, and delete):
 
-* View - Retrieve an object from the database
-* Add - Create a new object
-* Change - Modify an existing object
-* Delete - Delete an existing object
+* **View** - Retrieve an object from the database
+* **Add** - Create a new object
+* **Change** - Modify an existing object
+* **Delete** - Delete an existing object
 
-Some models introduce additional permissions that can be granted to allow other actions. For example, the `napalm_read` permission on the device model allows a user to execute NAPALM queries on a device via NetBox's REST API. These can be specified when granting a permission in the "additional actions" field.
+In addition to these, permissions can also grant custom actions that may be required by a specific model or plugin. For example, the `napalm_read` permission on the device model allows a user to execute NAPALM queries on a device via NetBox's REST API. These can be specified when granting a permission in the "additional actions" field.
+
+!!! note
+    Internally, all actions granted by a permission (both built-in and custom) are stored as strings in an array field named `actions`.
 
 ## Constraints
 
-Constraints are defined as a JSON object representing a [Django query filter](https://docs.djangoproject.com/en/stable/ref/models/querysets/#field-lookups). This is the same syntax that you would pass to the QuerySet `filter()` method when performing a query using the Django ORM. As with query filters, double underscores can be used to traverse related objects or invoke lookup expressions. Some example queries and their corresponding definitions are shown below.
+Constraints are expressed as a JSON object representing a [Django query filter](https://docs.djangoproject.com/en/stable/ref/models/querysets/#field-lookups). This is the same syntax that you would pass to the QuerySet `filter()` method when performing a query using the Django ORM. As with query filters, double underscores can be used to traverse related objects or invoke lookup expressions. Some example queries and their corresponding definitions are shown below.
 
-All constraints defined on a permission are applied with a logic AND. For example, suppose you assign a permission for the site model with the following constraints.
+All constraints defined on a permission are applied with a logical AND. For example, suppose you assign a permission for the site model with the following constraints.
 
 ```json
 {
