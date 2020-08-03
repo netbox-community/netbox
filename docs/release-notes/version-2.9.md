@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#4919](https://github.com/netbox-community/netbox/issues/4919) - Allow adding/changing assigned permissions within group and user admin views
+* [#4940](https://github.com/netbox-community/netbox/issues/4940) - Added an `occupied` field to rack unit representations for rack elevation views
 
 ### Bug Fixes
 
@@ -86,6 +87,7 @@ When running a report or custom script, its execution is now queued for backgrou
 * dcim.PowerPortTemplate: Added `description` and `label` fields
 * dcim.PowerOutlet: Added `label` field
 * dcim.PowerOutletTemplate: Added `description` and `label` fields
+* dcim.Rack: Added an `occupied` field to rack unit representations for rack elevation views
 * dcim.RackGroup: Added a `_depth` attribute indicating an object's position in the tree.
 * dcim.RackReservation: Added `tags` field
 * dcim.RearPort: Added `label` field

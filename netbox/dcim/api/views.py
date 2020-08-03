@@ -189,6 +189,7 @@ class RackViewSet(CustomFieldModelViewSet):
             # Return a JSON representation of the rack units in the elevation
             elevation = rack.get_rack_units(
                 face=data['face'],
+                user=request.user,
                 exclude=data['exclude'],
                 expand_devices=data['expand_devices']
             )

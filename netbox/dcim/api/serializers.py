@@ -165,6 +165,7 @@ class RackUnitSerializer(serializers.Serializer):
     name = serializers.CharField(read_only=True)
     face = ChoiceField(choices=DeviceFaceChoices, read_only=True)
     device = NestedDeviceSerializer(read_only=True)
+    occupied = serializers.BooleanField(read_only=True)
 
 
 class RackReservationSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
