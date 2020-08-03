@@ -15,6 +15,7 @@
 * [#4930](https://github.com/netbox-community/netbox/issues/4930) - Replicate label values when instantiating device type components
 * [#4931](https://github.com/netbox-community/netbox/issues/4931) - Fix DoesNotExist exception when deleting devices
 * [#4938](https://github.com/netbox-community/netbox/issues/4938) - Show add, import buttons on virtual chassis list view
+* [#4939](https://github.com/netbox-community/netbox/issues/4939) - Fix linking to LAG interfaces on other VC members
 
 ---
 
