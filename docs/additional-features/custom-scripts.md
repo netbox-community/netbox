@@ -37,7 +37,7 @@ The `run()` method should accept two arguments:
 * `commit` - A boolean indicating whether database changes will be committed.
 
 !!! note
-    The `commit` argument was introduced in NetBox v2.7.8. Backward compatibility is maintained for scripts which accept only the `data` argument, however moving forward scripts should accept both arguments.
+    The `commit` argument was introduced in NetBox v2.7.8. Backward compatibility is maintained for scripts which accept only the `data` argument, however beginning with v2.10 NetBox will require the `run()` method of every script to accept both arguments. (Either argument may still be ignored within the method.)
 
 Defining variables is optional: You may create a script with only a `run()` method if no user input is needed.
 
