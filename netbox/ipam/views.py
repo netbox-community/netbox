@@ -327,6 +327,8 @@ class AggregateView(PermissionRequiredMixin, View):
             prefix__net_contained_or_equal=str(aggregate.prefix)
         ).prefetch_related(
             'site', 'role'
+        ).order_by(
+            'prefix'
         ).annotate_depth(
             limit=0
         )
