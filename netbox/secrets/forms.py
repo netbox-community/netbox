@@ -120,7 +120,7 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
             device=self.cleaned_data['device'],
             role=self.cleaned_data['role'],
             name=self.cleaned_data['name']
-        ).exists():
+        ).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError(
                 "Each secret assigned to a device must have a unique combination of role and name"
             )

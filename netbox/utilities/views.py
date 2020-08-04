@@ -267,9 +267,10 @@ class ObjectEditView(GetReturnURLMixin, View):
         if form.is_valid():
             logger.debug("Form validation was successful")
 
+            object_created = form.instance.pk is None
             obj = form.save()
             msg = '{} {}'.format(
-                'Created' if not form.instance.pk else 'Modified',
+                'Created' if object_created else 'Modified',
                 self.model._meta.verbose_name
             )
             logger.info(f"{msg} {obj} (PK: {obj.pk})")
@@ -721,8 +722,8 @@ class BulkEditView(GetReturnURLMixin, View):
 
                                 # ManyToManyFields
                                 elif isinstance(model_field, ManyToManyField):
-                                    getattr(obj, name).set(form.cleaned_data[name])
-
+                                    if form.cleaned_data[name].count() > 0:
+                                        getattr(obj, name).set(form.cleaned_data[name])
                                 # Normal fields
                                 elif form.cleaned_data[name] not in (None, ''):
                                     setattr(obj, name, form.cleaned_data[name])

@@ -74,12 +74,18 @@ Checking connectivity... done.
 
 Create a system user account named `netbox`. We'll configure the WSGI and HTTP services to run under this account. We'll also assign this user ownership of the media directory. This ensures that NetBox will be able to save local files.
 
-!!! note
-    CentOS users may need to create the `netbox` group first.
+#### Ubuntu
+
+```
+# adduser --system --group netbox
+# chown --recursive netbox /opt/netbox/netbox/media/
+```
+
+#### CentOS
 
 ```
 # groupadd --system netbox
-# adduser --system --gid netbox netbox
+# adduser --system -g netbox netbox
 # chown --recursive netbox /opt/netbox/netbox/media/
 ```
 
