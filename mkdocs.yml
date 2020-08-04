@@ -62,12 +62,12 @@ nav:
         - Permissions: 'administration/permissions.md'
         - Replicating NetBox: 'administration/replicating-netbox.md'
         - NetBox Shell: 'administration/netbox-shell.md'
-    - API:
-        - Overview: 'api/overview.md'
-        - Filtering: 'api/filtering.md'
-        - Authentication: 'api/authentication.md'
-        - Working with Secrets: 'api/working-with-secrets.md'
-        - Examples: 'api/examples.md'
+    - REST API:
+        - Overview: 'rest-api/overview.md'
+        - Filtering: 'rest-api/filtering.md'
+        - Authentication: 'rest-api/authentication.md'
+        - Working with Secrets: 'rest-api/working-with-secrets.md'
+        - Examples: 'rest-api/examples.md'
     - Development:
         - Introduction: 'development/index.md'
         - Style Guide: 'development/style-guide.md'
