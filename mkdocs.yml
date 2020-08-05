@@ -67,7 +67,6 @@ nav:
         - Filtering: 'rest-api/filtering.md'
         - Authentication: 'rest-api/authentication.md'
         - Working with Secrets: 'rest-api/working-with-secrets.md'
-        - Examples: 'rest-api/examples.md'
     - Development:
         - Introduction: 'development/index.md'
         - Style Guide: 'development/style-guide.md'

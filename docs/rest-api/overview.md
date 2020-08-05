@@ -13,8 +13,11 @@ Additionally, the `OPTIONS` verb can be used to inspect a particular REST API en
 
 One of the primary benefits of a REST API is its human-friendliness. Because it utilizes HTTP and JSON, it's very easy to interact with NetBox data on the command line using common tools. For example, we can request an IP address from NetBox and output the JSON using `curl` and `jq`. The following command makes an HTTP `GET` request for information about a particular IP address, identified by its primary key, and uses `jq` to present the raw JSON data returned in a more human-friendly format. (Piping the output through `jq` isn't strictly required but makes it much easier to read.)
 
+```no-highlight
+curl -s http://netbox/api/ipam/ip-addresses/2954/ | jq '.'
 ```
-$ curl -s http://netbox/api/ipam/ip-addresses/2954/ | jq '.'
+
+```json
 {
   "id": 2954,
   "url": "http://netbox/api/ipam/ip-addresses/2954/",
@@ -94,7 +97,7 @@ See the [filtering documentation](filtering.md) for more details.
 
 The REST API employs two types of serializers to represent model data: base serializers and nested serializers. The base serializer is used to present the complete view of a model. This includes all database table fields which comprise the model, and may include additional metadata. A base serializer includes relationships to parent objects, but **does not** include child objects. For example, the `VLANSerializer` includes a nested representation its parent VLANGroup (if any), but does not include any assigned Prefixes.
 
-```
+```json
 {
     "id": 1048,
     "site": {
@@ -134,7 +137,7 @@ Related objects (e.g. `ForeignKey` fields) are represented using nested serializ
 
 For example, when creating a new device, its rack can be specified by NetBox ID (PK):
 
-```
+```json
 {
     "name": "MyNewDevice",
     "rack": 123,
@@ -144,7 +147,7 @@ For example, when creating a new device, its rack can be specified by NetBox ID 
 
 Or by a set of nested attributes which uniquely identify the rack:
 
-```
+```json
 {
     "name": "MyNewDevice",
     "rack": {
@@ -158,6 +161,53 @@ Or by a set of nested attributes which uniquely identify the rack:
 ```
 
 Note that if the provided parameters do not return exactly one object, a validation error is raised.
+
+### Generic Relations
+
+Some objects within NetBox have attributes which can reference an object of multiple types, known as _generic relations_. For example, an IP address can be assigned to either a device interface _or_ a virtual machine interface. When making this assignment via the REST API, we must specify two attributes:
+
+* `assigned_object_type` - The content type of the assigned object, defined as `<app>.<model>`
+* `assigned_object_id` - The assigned object's unique numeric ID
+
+Together, these values identify a unique object in NetBox. The assigned object (if any) is represented by the `assigned_object` attribute on the IP address model.
+
+```no-highlight
+curl -X POST \
+-H "Authorization: Token $TOKEN" \
+-H "Content-Type: application/json" \
+-H "Accept: application/json; indent=4" \
+http://netbox/api/ipam/ip-addresses/ \
+--data '{
+    "address": "192.0.2.1/24",
+    "assigned_object_type": "dcim.interface",
+    "assigned_object_id": 69023
+}'
+```
+
+```json
+{
+    "id": 56296,
+    "url": "http://netbox/api/ipam/ip-addresses/56296/",
+    "assigned_object_type": "dcim.interface",
+    "assigned_object_id": 69000,
+    "assigned_object": {
+        "id": 69000,
+        "url": "http://netbox/api/dcim/interfaces/69023/",
+        "device": {
+            "id": 2174,
+            "url": "http://netbox/api/dcim/devices/2174/",
+            "name": "device105",
+            "display_name": "device105"
+        },
+        "name": "ge-0/0/0",
+        "cable": null,
+        "connection_status": null
+    },
+    ...
+}
+```
+
+If we wanted to assign this IP address to a virtual machine interface instead, we would have set `assigned_object_type` to `virtualization.vminterface` and updated the object ID appropriately.
 
 ### Brief Format
 
@@ -262,7 +312,7 @@ http://netbox/api/dcim/devices/?limit=100
 
 The response will return devices 1 through 100. The URL provided in the `next` attribute of the response will return devices 101 through 200:
 
-```
+```json
 {
     "count": 2861,
     "next": "http://netbox/api/dcim/devices/?limit=100&offset=100",
@@ -283,7 +333,7 @@ The maximum number of objects that can be returned is limited by the [`MAX_PAGE_
 To query NetBox for a list of objects, make a `GET` request to the model's _list_ endpoint. Objects are listed under the response object's `results` parameter.
 
 ```no-highlight
-$ curl -s -X GET http://netbox/api/ipam/ip-addresses/ | jq '.'
+curl -s -X GET http://netbox/api/ipam/ip-addresses/ | jq '.'
 ```
 
 ```json
@@ -320,7 +370,7 @@ To query NetBox for a single object, make a `GET` request to the model's _detail
     Note that the trailing slash is required. Omitting this will return a 302 redirect.
 
 ```no-highlight
-$ curl -s -X GET http://netbox/api/ipam/ip-addresses/5618/ | jq '.'
+curl -s -X GET http://netbox/api/ipam/ip-addresses/5618/ | jq '.'
 ```
 
 ```json
@@ -333,7 +383,7 @@ $ curl -s -X GET http://netbox/api/ipam/ip-addresses/5618/ | jq '.'
 
 ### Creating a New Object
 
-To create a new object, make a `POST` request to the model's _list_ endpoint with JSON data pertaining to the object being created. Note that a REST API token is required for all write operations; see the [authentication documentation](../authentication.md) for more information. Also be sure to set the `Content-Type` HTTP header to `application/json`.
+To create a new object, make a `POST` request to the model's _list_ endpoint with JSON data pertaining to the object being created. Note that a REST API token is required for all write operations; see the [authentication documentation](../authentication/) for more information. Also be sure to set the `Content-Type` HTTP header to `application/json`.
 
 ```no-highlight
 curl -s -X POST \
@@ -375,12 +425,51 @@ http://netbox/api/ipam/prefixes/ \
 }
 ```
 
-### Modifying an Object
+### Creating Multiple Objects
 
-To modify an object which has already been created, make a `PATCH` request to the model's `detail` endpoint specifying its unique numeric ID. Include any data which you wish to update on the object. As with object creation, the `Authorization` and `Content-Type` headers must also be specified.
+To create multiple instances of a model using a single request, make a `POST` request to the model's _list_ endpoint with a list of JSON objects representing each instance to be created. If successful, the response will contain a list of the newly created instances. The example below illustrates the creation of three new sites.
 
 ```no-highlight
-$ curl -s -X PATCH \
+curl -X POST -H "Authorization: Token $TOKEN" \
+-H "Content-Type: application/json" \
+-H "Accept: application/json; indent=4" \
+http://netbox/api/dcim/sites/ \
+--data '[
+{"name": "Site 1", "slug": "site-1", "region": {"name": "United States"}},
+{"name": "Site 2", "slug": "site-2", "region": {"name": "United States"}},
+{"name": "Site 3", "slug": "site-3", "region": {"name": "United States"}}
+]'
+```
+
+```json
+[
+    {
+        "id": 21,
+        "url": "http://netbox/api/dcim/sites/21/",
+        "name": "Site 1",
+        ...
+    },
+    {
+        "id": 22,
+        "url": "http://netbox/api/dcim/sites/22/",
+        "name": "Site 2",
+        ...
+    },
+    {
+        "id": 23,
+        "url": "http://netbox/api/dcim/sites/23/",
+        "name": "Site 3",
+        ...
+    }
+]
+```
+
+### Modifying an Object
+
+To modify an object which has already been created, make a `PATCH` request to the model's _detail_ endpoint specifying its unique numeric ID. Include any data which you wish to update on the object. As with object creation, the `Authorization` and `Content-Type` headers must also be specified.
+
+```no-highlight
+curl -s -X PATCH \
 > -H "Authorization: Token 98dbec0b912e5f3ddec7183c48e73b38fa9ca793" \
 > -H "Content-Type: application/json" \
 > http://netbox/api/ipam/prefixes/18691/ \
@@ -418,6 +507,9 @@ $ curl -s -X PATCH \
   "last_updated": "2020-08-04T20:14:55.709430Z"
 }
 ```
+
+!!! note "PUT versus PATCH"
+    The NetBox REST API support the use of either `PUT` or `PATCH` to modify an existing object. The difference is that a `PUT` request requires the user to specify a _complete_ representation of the object being modified, whereas a `PATCH` request need include only the attributes that are being updated. For most purposes, using `PATCH` is recommended.
 
 ### Deleting an Object
 
