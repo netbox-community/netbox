@@ -474,7 +474,7 @@ To modify an object which has already been created, make a `PATCH` request to th
 
 ```no-highlight
 curl -s -X PATCH \
-> -H "Authorization: Token 98dbec0b912e5f3ddec7183c48e73b38fa9ca793" \
+> -H "Authorization: Token $TOKEN" \
 > -H "Content-Type: application/json" \
 > http://netbox/api/ipam/prefixes/18691/ \
 > --data '{"status": "reserved"}' | jq '.'
