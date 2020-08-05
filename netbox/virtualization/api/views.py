@@ -1,4 +1,4 @@
-from django.db.models import Count, Prefetch
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -7,7 +7,6 @@ from dcim.models import Device
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
 from extras.models import Graph
-from ipam.models import VLAN
 from utilities.api import ModelViewSet
 from utilities.utils import get_subquery
 from virtualization import filters

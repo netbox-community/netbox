@@ -99,6 +99,10 @@ help prevent wasting time on something that might we might not be able to
 implement. When suggesting a new feature, also make sure it won't conflict with
 any work that's already in progress.
 
+* Once you've opened or identified an issue you'd like to work on, ask that it
+be assigned to you so that others are aware it's being worked on. A maintainer
+will then mark the issue as "accepted."
+
 * Any pull request which does _not_ relate to an accepted issue will be closed.
 
 * All major new functionality must include relevant tests where applicable.
@@ -132,18 +136,17 @@ accumulating a large backlog of work.
 The core maintainers group has chosen to make use of GitHub's [Stale bot](https://github.com/apps/stale)
 to aid in issue management.
 
-* Issues will be marked as stale after 14 days of no activity.
-* Then after 7 more days of inactivity, the issue will be closed.
+* Issues will be marked as stale after 45 days of no activity.
+* Then after 15 more days of inactivity, the issue will be closed.
 * Any issue bearing one of the following labels will be exempt from all Stale
   bot actions:
   * `status: accepted`
-  * `status: gathering feedback`
   * `status: blocked`
+  * `status: needs milestone`
 
-It is natural that some new issues get more attention than others. Often this
-is a metric of an issues's overall value to the project. In other cases in
-which issues merely get lost in the shuffle, notifications from Stale bot can
-bring renewed attention to potentially meaningful issues.
+It is natural that some new issues get more attention than others. Stale bot
+helps bring renewed attention to potentially valuable issues that may have been
+overlooked.
 
 ## Maintainer Guidance
 

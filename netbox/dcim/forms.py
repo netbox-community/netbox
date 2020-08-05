@@ -2703,6 +2703,10 @@ class InterfaceFilterForm(DeviceComponentFilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    mac_address = forms.CharField(
+        required=False,
+        label='MAC address'
+    )
     tag = TagFilterField(model)
 
 

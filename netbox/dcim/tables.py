@@ -56,8 +56,47 @@ DEVICE_COUNT = """
 <a href="{% url 'dcim:device_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
 """
 
-VM_COUNT = """
+RACKRESERVATION_ACTIONS = """
+<a href="{% url 'dcim:rackreservation_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
+    <i class="fa fa-history"></i>
+</a>
+{% if perms.dcim.change_rackreservation %}
+    <a href="{% url 'dcim:rackreservation_edit' pk=record.pk %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+{% endif %}
+"""
+
+MANUFACTURER_ACTIONS = """
+<a href="{% url 'dcim:manufacturer_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
+    <i class="fa fa-history"></i>
+</a>
+{% if perms.dcim.change_manufacturer %}
+    <a href="{% url 'dcim:manufacturer_edit' slug=record.slug %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+{% endif %}
+"""
+
+DEVICEROLE_DEVICE_COUNT = """
+<a href="{% url 'dcim:device_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
+"""
+
+DEVICEROLE_VM_COUNT = """
 <a href="{% url 'virtualization:virtualmachine_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
+"""
+
+DEVICEROLE_ACTIONS = """
+<a href="{% url 'dcim:devicerole_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
+    <i class="fa fa-history"></i>
+</a>
+{% if perms.dcim.change_devicerole %}
+    <a href="{% url 'dcim:devicerole_edit' slug=record.slug %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+{% endif %}
+"""
+
+PLATFORM_DEVICE_COUNT = """
+<a href="{% url 'dcim:device_list' %}?platform={{ record.slug }}">{{ value|default:0 }}</a>
+"""
+
+PLATFORM_VM_COUNT = """
+<a href="{% url 'virtualization:virtualmachine_list' %}?platform={{ record.slug }}">{{ value|default:0 }}</a>
 """
 
 STATUS_LABEL = """
@@ -495,11 +534,11 @@ class DeviceBayTemplateTable(ComponentTemplateTable):
 class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
     device_count = tables.TemplateColumn(
-        template_code=DEVICE_COUNT,
+        template_code=DEVICEROLE_DEVICE_COUNT,
         verbose_name='Devices'
     )
     vm_count = tables.TemplateColumn(
-        template_code=VM_COUNT,
+        template_code=DEVICEROLE_VM_COUNT,
         verbose_name='VMs'
     )
     color = tables.TemplateColumn(
@@ -522,11 +561,11 @@ class DeviceRoleTable(BaseTable):
 class PlatformTable(BaseTable):
     pk = ToggleColumn()
     device_count = tables.TemplateColumn(
-        template_code=DEVICE_COUNT,
+        template_code=PLATFORM_DEVICE_COUNT,
         verbose_name='Devices'
     )
     vm_count = tables.TemplateColumn(
-        template_code=VM_COUNT,
+        template_code=PLATFORM_VM_COUNT,
         verbose_name='VMs'
     )
     actions = ButtonsColumn(Platform, pk_field='slug')
@@ -718,8 +757,8 @@ class InterfaceTable(DeviceComponentTable, BaseInterfaceTable):
     class Meta(DeviceComponentTable.Meta):
         model = Interface
         fields = (
-            'pk', 'device', 'name', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'description', 'cable',
-            'ip_addresses', 'untagged_vlan', 'tagged_vlans',
+            'pk', 'device', 'name', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address',
+            'description', 'cable', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'enabled', 'type', 'description')
 

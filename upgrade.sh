@@ -40,11 +40,12 @@ echo "Installing core dependencies ($COMMAND)..."
 eval $COMMAND || exit 1
 
 # Install optional packages (if any)
-if [ -f "local_requirements.txt" ]
-then
+if [ -s "local_requirements.txt" ]; then
   COMMAND="pip3 install -r local_requirements.txt"
   echo "Installing local dependencies ($COMMAND)..."
   eval $COMMAND || exit 1
+elif [ -f "local_requirements.txt" ]; then
+  echo "Skipping local dependencies (local_requirements.txt is empty)"
 else
   echo "Skipping local dependencies (local_requirements.txt not found)"
 fi
