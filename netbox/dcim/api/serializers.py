@@ -640,8 +640,8 @@ class InventoryItemSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
     class Meta:
         model = InventoryItem
         fields = [
-            'id', 'url', 'device', 'parent', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered',
-            'description', 'tags',
+            'id', 'url', 'device', 'parent', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag',
+            'discovered', 'description', 'tags',
         ]
 
 
