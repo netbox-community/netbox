@@ -39,10 +39,10 @@ ROLE_VLAN_COUNT = """
 """
 
 PREFIX_LINK = """
-{% if record.has_children %}
-    <span class="text-nowrap" style="padding-left: {{ record.depth }}0px "><i class="fa fa-caret-right"></i></a>
+{% if record.children %}
+    <span class="text-nowrap" style="padding-left: {{ record.parents }}0px "><i class="fa fa-caret-right"></i></a>
 {% else %}
-    <span class="text-nowrap" style="padding-left: {{ record.depth }}9px">
+    <span class="text-nowrap" style="padding-left: {{ record.parents }}9px">
 {% endif %}
     <a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if parent.vrf %}&vrf={{ parent.vrf.pk }}{% endif %}{% if parent.site %}&site={{ parent.site.pk }}{% endif %}{% if parent.tenant %}&tenant_group={{ parent.tenant.group.pk }}&tenant={{ parent.tenant.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
 </span>
@@ -336,8 +336,10 @@ class PrefixTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Prefix
-        fields = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'is_pool', 'description')
-        default_columns = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'description')
+        fields = (
+            'pk', 'prefix', 'children', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'is_pool', 'description',
+        )
+        default_columns = ('pk', 'prefix', 'children', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'description')
         row_attrs = {
             'class': lambda record: 'success' if not record.pk else '',
         }

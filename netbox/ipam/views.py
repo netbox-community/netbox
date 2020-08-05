@@ -318,7 +318,7 @@ class RoleBulkDeleteView(BulkDeleteView):
 #
 
 class PrefixListView(ObjectListView):
-    queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
+    queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role').annotate_tree()
     filterset = filters.PrefixFilterSet
     filterset_form = forms.PrefixFilterForm
     table = tables.PrefixDetailTable

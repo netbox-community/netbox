@@ -511,10 +511,6 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
-    expand = forms.BooleanField(
-        required=False,
-        label='Expand prefix hierarchy'
-    )
     tag = TagFilterField(model)
 
 

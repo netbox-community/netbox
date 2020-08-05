@@ -199,6 +199,14 @@ def has_perms(user, permissions_list):
     return user.has_perms(permissions_list)
 
 
+@register.filter()
+def split(string, sep=','):
+    """
+    Split a string by the given value (default: comma)
+    """
+    return string.split(sep)
+
+
 #
 # Tags
 #
