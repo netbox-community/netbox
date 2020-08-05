@@ -144,8 +144,16 @@ class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Cre
         label='Prefixes which contain this prefix or IP',
     )
     mask_length = django_filters.NumberFilter(
-        method='filter_mask_length',
-        label='Mask length',
+        field_name='prefix',
+        lookup_expr='net_mask_length'
+    )
+    mask_length__gte = django_filters.NumberFilter(
+        field_name='prefix',
+        lookup_expr='net_mask_length__gte'
+    )
+    mask_length__lte = django_filters.NumberFilter(
+        field_name='prefix',
+        lookup_expr='net_mask_length__lte'
     )
     vrf_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VRF.objects.all(),
@@ -261,11 +269,6 @@ class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Cre
                 return queryset.filter(prefix__net_contains=str(netaddr.IPAddress(value)))
         except (AddrFormatError, ValueError):
             return queryset.none()
-
-    def filter_mask_length(self, queryset, name, value):
-        if not value:
-            return queryset
-        return queryset.filter(prefix__net_mask_length=value)
 
 
 class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
