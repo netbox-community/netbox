@@ -656,12 +656,14 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def get_status_class(self):
         return self.STATUS_CLASS_MAP.get(self.status)
 
-    def get_rack_units(self, face=DeviceFaceChoices.FACE_FRONT, exclude=None, expand_devices=True):
+    def get_rack_units(self, user=None, face=DeviceFaceChoices.FACE_FRONT, exclude=None, expand_devices=True):
         """
         Return a list of rack units as dictionaries. Example: {'device': None, 'face': 0, 'id': 48, 'name': 'U48'}
         Each key 'device' is either a Device or None. By default, multi-U devices are repeated for each U they occupy.
 
         :param face: Rack face (front or rear)
+        :param user: User instance to be used for evaluating device view permissions. If None, all devices
+            will be included.
         :param exclude: PK of a Device to exclude (optional); helpful when relocating a Device within a Rack
         :param expand_devices: When True, all units that a device occupies will be listed with each containing a
             reference to the device. When False, only the bottom most unit for a device is included and that unit
@@ -670,10 +672,18 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
         elevation = OrderedDict()
         for u in self.units:
-            elevation[u] = {'id': u, 'name': 'U{}'.format(u), 'face': face, 'device': None}
+            elevation[u] = {
+                'id': u,
+                'name': f'U{u}',
+                'face': face,
+                'device': None,
+                'occupied': False
+            }
 
         # Add devices to rack units list
         if self.pk:
+
+            # Retrieve all devices installed within the rack
             queryset = Device.objects.prefetch_related(
                 'device_type',
                 'device_type__manufacturer',
@@ -689,12 +699,22 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
             ).filter(
                 Q(face=face) | Q(device_type__is_full_depth=True)
             )
+
+            # Determine which devices the user has permission to view
+            permitted_device_ids = []
+            if user is not None:
+                permitted_device_ids = self.devices.restrict(user, 'view').values_list('pk', flat=True)
+
             for device in queryset:
                 if expand_devices:
                     for u in range(device.position, device.position + device.device_type.u_height):
-                        elevation[u]['device'] = device
+                        if user is None or device.pk in permitted_device_ids:
+                            elevation[u]['device'] = device
+                        elevation[u]['occupied'] = True
                 else:
-                    elevation[device.position]['device'] = device
+                    if user is None or device.pk in permitted_device_ids:
+                        elevation[device.position]['device'] = device
+                    elevation[device.position]['occupied'] = True
                     elevation[device.position]['height'] = device.device_type.u_height
                     for u in range(device.position + 1, device.position + device.device_type.u_height):
                         elevation.pop(u, None)
@@ -750,6 +770,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def get_elevation_svg(
             self,
             face=DeviceFaceChoices.FACE_FRONT,
+            user=None,
             unit_width=settings.RACK_ELEVATION_DEFAULT_UNIT_WIDTH,
             unit_height=settings.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT,
             legend_width=RACK_ELEVATION_LEGEND_WIDTH_DEFAULT,
@@ -760,6 +781,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         Return an SVG of the rack elevation
 
         :param face: Enum of [front, rear] representing the desired side of the rack elevation to render
+        :param user: User instance to be used for evaluating device view permissions. If None, all devices
+            will be included.
         :param unit_width: Width in pixels for the rendered drawing
         :param unit_height: Height of each rack unit for the rendered drawing. Note this is not the total
             height of the elevation
@@ -767,7 +790,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         :param include_images: Embed front/rear device images where available
         :param base_url: Base URL for links and images. If none, URLs will be relative.
         """
-        elevation = RackElevationSVG(self, include_images=include_images, base_url=base_url)
+        elevation = RackElevationSVG(self, user=user, include_images=include_images, base_url=base_url)
 
         return elevation.render(face, unit_width, unit_height, legend_width)
 

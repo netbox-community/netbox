@@ -1,11 +1,31 @@
 # NetBox v2.9
 
-## v2.9.0 (FUTURE)
+## v2.9-beta2 (FUTURE)
+
+### Enhancements
+
+* [#4919](https://github.com/netbox-community/netbox/issues/4919) - Allow adding/changing assigned permissions within group and user admin views
+* [#4940](https://github.com/netbox-community/netbox/issues/4940) - Add an `occupied` field to rack unit representations for rack elevation views
+* [#4945](https://github.com/netbox-community/netbox/issues/4945) - Add a user-friendly 403 error page
 
 ### Bug Fixes
 
 * [#4905](https://github.com/netbox-community/netbox/issues/4905) - Fix front port count on device type view
 * [#4912](https://github.com/netbox-community/netbox/issues/4912) - Fix image attachment API endpoint
+* [#4914](https://github.com/netbox-community/netbox/issues/4914) - Fix toggling cable status under device view
+* [#4921](https://github.com/netbox-community/netbox/issues/4921) - Render non-viewable devices as unavailable space in rack elevations
+* [#4930](https://github.com/netbox-community/netbox/issues/4930) - Replicate label values when instantiating device type components
+* [#4931](https://github.com/netbox-community/netbox/issues/4931) - Fix DoesNotExist exception when deleting devices
+* [#4938](https://github.com/netbox-community/netbox/issues/4938) - Show add, import buttons on virtual chassis list view
+* [#4939](https://github.com/netbox-community/netbox/issues/4939) - Fix linking to LAG interfaces on other VC members
+* [#4950](https://github.com/netbox-community/netbox/issues/4950) - Include inventory item label in API serializer, UI view
+* [#4952](https://github.com/netbox-community/netbox/issues/4952) - Default to VM tab when creating/editing an IP address for a VM
+
+### Other Changes
+
+* [#4940](https://github.com/netbox-community/netbox/issues/4940) - Add an `occupied` field to rack unit representations for rack elevation views
+* [#4942](https://github.com/netbox-community/netbox/issues/4942) - Make ObjectPermission's `name` field required
+* [#4943](https://github.com/netbox-community/netbox/issues/4943) - Add a `description` field to ObjectPermission
 
 ---
 
@@ -76,6 +96,7 @@ When running a report or custom script, its execution is now queued for backgrou
 * dcim.PowerPortTemplate: Added `description` and `label` fields
 * dcim.PowerOutlet: Added `label` field
 * dcim.PowerOutletTemplate: Added `description` and `label` fields
+* dcim.Rack: Added an `occupied` field to rack unit representations for rack elevation views
 * dcim.RackGroup: Added a `_depth` attribute indicating an object's position in the tree.
 * dcim.RackReservation: Added `tags` field
 * dcim.RearPort: Added `label` field

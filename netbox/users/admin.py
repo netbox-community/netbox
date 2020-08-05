@@ -10,6 +10,49 @@ from .models import AdminGroup, AdminUser, ObjectPermission, Token, UserConfig
 
 
 #
+# Inline models
+#
+
+class ObjectPermissionInline(admin.TabularInline):
+    exclude = None
+    extra = 3
+    readonly_fields = ['object_types', 'actions', 'constraints']
+    verbose_name = 'Permission'
+    verbose_name_plural = 'Permissions'
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('objectpermission__object_types')
+
+    @staticmethod
+    def object_types(instance):
+        # Don't call .values_list() here because we want to reference the pre-fetched object_types
+        return ', '.join([ot.name for ot in instance.objectpermission.object_types.all()])
+
+    @staticmethod
+    def actions(instance):
+        return ', '.join(instance.objectpermission.actions)
+
+    @staticmethod
+    def constraints(instance):
+        return instance.objectpermission.constraints
+
+
+class GroupObjectPermissionInline(ObjectPermissionInline):
+    model = AdminGroup.object_permissions.through
+
+
+class UserObjectPermissionInline(ObjectPermissionInline):
+    model = AdminUser.object_permissions.through
+
+
+class UserConfigInline(admin.TabularInline):
+    model = UserConfig
+    readonly_fields = ('data',)
+    can_delete = False
+    verbose_name = 'Preferences'
+
+
+#
 # Users & groups
 #
 
@@ -24,38 +67,11 @@ class GroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'user_count')
     ordering = ('name',)
     search_fields = ('name',)
+    inlines = [GroupObjectPermissionInline]
 
-    def user_count(self, obj):
+    @staticmethod
+    def user_count(obj):
         return obj.user_set.count()
-
-
-class UserConfigInline(admin.TabularInline):
-    model = UserConfig
-    readonly_fields = ('data',)
-    can_delete = False
-    verbose_name = 'Preferences'
-
-
-class ObjectPermissionInline(admin.TabularInline):
-    model = AdminUser.object_permissions.through
-    fields = ['object_types', 'actions', 'constraints']
-    readonly_fields = fields
-    extra = 0
-    verbose_name = 'Permission'
-    verbose_name_plural = 'Permissions'
-
-    def object_types(self, instance):
-        return ', '.join(instance.objectpermission.object_types.values_list('model', flat=True))
-
-    def actions(self, instance):
-        return ', '.join(instance.objectpermission.actions)
-
-    def constraints(self, instance):
-        return instance.objectpermission.constraints
-
-    def has_add_permission(self, request, obj):
-        # Don't allow the creation of new ObjectPermission assignments via this form
-        return False
 
 
 @admin.register(AdminUser)
@@ -71,8 +87,12 @@ class UserAdmin(UserAdmin_):
         }),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
-    inlines = [ObjectPermissionInline, UserConfigInline]
     filter_horizontal = ('groups',)
+
+    def get_inlines(self, request, obj):
+        if obj is not None:
+            return (UserObjectPermissionInline, UserConfigInline)
+        return ()
 
 
 #
@@ -212,7 +232,7 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
     actions = ('enable', 'disable')
     fieldsets = (
         (None, {
-            'fields': ('name', 'enabled')
+            'fields': ('name', 'description', 'enabled')
         }),
         ('Actions', {
             'fields': (('can_view', 'can_add', 'can_change', 'can_delete'), 'actions')
@@ -231,18 +251,15 @@ class ObjectPermissionAdmin(admin.ModelAdmin):
     filter_horizontal = ('object_types', 'groups', 'users')
     form = ObjectPermissionForm
     list_display = [
-        'get_name', 'enabled', 'list_models', 'list_users', 'list_groups', 'actions', 'constraints',
+        'name', 'enabled', 'list_models', 'list_users', 'list_groups', 'actions', 'constraints', 'description',
     ]
     list_filter = [
         'enabled', ActionListFilter, ObjectTypeListFilter, 'groups', 'users'
     ]
+    search_fields = ['actions', 'constraints', 'description', 'name']
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('object_types', 'users', 'groups')
-
-    def get_name(self, obj):
-        return obj.name or f'Permission #{obj.pk}'
-    get_name.short_description = 'Name'
 
     def list_models(self, obj):
         return ', '.join([f"{ct}" for ct in obj.object_types.all()])

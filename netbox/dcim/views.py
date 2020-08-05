@@ -953,8 +953,8 @@ class DeviceRoleBulkDeleteView(BulkDeleteView):
 
 class PlatformListView(ObjectListView):
     queryset = Platform.objects.annotate(
-        device_count=get_subquery(Device, 'device_role'),
-        vm_count=get_subquery(VirtualMachine, 'role')
+        device_count=get_subquery(Device, 'platform'),
+        vm_count=get_subquery(VirtualMachine, 'platform')
     )
     table = tables.PlatformTable
 
@@ -2185,7 +2185,6 @@ class VirtualChassisListView(ObjectListView):
     table = tables.VirtualChassisTable
     filterset = filters.VirtualChassisFilterSet
     filterset_form = forms.VirtualChassisFilterForm
-    action_buttons = ('export',)
 
 
 class VirtualChassisView(ObjectView):

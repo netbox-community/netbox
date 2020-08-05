@@ -85,12 +85,12 @@ class ObjectChangeActionChoices(ChoiceSet):
 
 class TemplateLanguageChoices(ChoiceSet):
 
-    LANGUAGE_DJANGO = 'django'
     LANGUAGE_JINJA2 = 'jinja2'
+    LANGUAGE_DJANGO = 'django'
 
     CHOICES = (
-        (LANGUAGE_DJANGO, 'Django'),
         (LANGUAGE_JINJA2, 'Jinja2'),
+        (LANGUAGE_DJANGO, 'Django (Legacy)'),
     )
 
 

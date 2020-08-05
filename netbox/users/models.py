@@ -16,6 +16,8 @@ from utilities.utils import flatten_dict
 
 
 __all__ = (
+    'AdminGroup',
+    'AdminUser',
     'ObjectPermission',
     'Token',
     'UserConfig',
@@ -237,7 +239,10 @@ class ObjectPermission(models.Model):
     identified by ORM query parameters.
     """
     name = models.CharField(
-        max_length=100,
+        max_length=100
+    )
+    description = models.CharField(
+        max_length=200,
         blank=True
     )
     enabled = models.BooleanField(
@@ -275,12 +280,8 @@ class ObjectPermission(models.Model):
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:
+        ordering = ['name']
         verbose_name = "permission"
 
     def __str__(self):
-        if self.name:
-            return self.name
-        return '{}: {}'.format(
-            ', '.join(self.object_types.values_list('model', flat=True)),
-            ', '.join(self.actions)
-        )
+        return self.name

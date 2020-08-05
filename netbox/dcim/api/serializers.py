@@ -165,6 +165,7 @@ class RackUnitSerializer(serializers.Serializer):
     name = serializers.CharField(read_only=True)
     face = ChoiceField(choices=DeviceFaceChoices, read_only=True)
     device = NestedDeviceSerializer(read_only=True)
+    occupied = serializers.BooleanField(read_only=True)
 
 
 class RackReservationSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
@@ -639,8 +640,8 @@ class InventoryItemSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
     class Meta:
         model = InventoryItem
         fields = [
-            'id', 'url', 'device', 'parent', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered',
-            'description', 'tags',
+            'id', 'url', 'device', 'parent', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag',
+            'discovered', 'description', 'tags',
         ]
 
 

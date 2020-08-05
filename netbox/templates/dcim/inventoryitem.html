@@ -31,6 +31,10 @@
                         <td>{{ instance.name }}</td>
                     </tr>
                     <tr>
+                        <td>Label</td>
+                        <td>{{ instance.label|placeholder }}</td>
+                    </tr>
+                    <tr>
                         <td>Manufacturer</td>
                         <td>
                             {% if instance.manufacturer %}

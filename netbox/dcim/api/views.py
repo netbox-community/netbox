@@ -176,6 +176,7 @@ class RackViewSet(CustomFieldModelViewSet):
             # Render and return the elevation as an SVG drawing with the correct content type
             drawing = rack.get_elevation_svg(
                 face=data['face'],
+                user=request.user,
                 unit_width=data['unit_width'],
                 unit_height=data['unit_height'],
                 legend_width=data['legend_width'],
@@ -188,6 +189,7 @@ class RackViewSet(CustomFieldModelViewSet):
             # Return a JSON representation of the rack units in the elevation
             elevation = rack.get_rack_units(
                 face=data['face'],
+                user=request.user,
                 exclude=data['exclude'],
                 expand_devices=data['expand_devices']
             )

@@ -1,13 +1,25 @@
 # NetBox v2.8
 
-## v2.8.9 (FUTURE)
+## v2.8.9 (2020-08-04)
+
+### Enhancements
+
+* [#4898](https://github.com/netbox-community/netbox/issues/4898) - Add MAC address search field to interfaces list
+* [#4899](https://github.com/netbox-community/netbox/issues/4899) - Add MAC address column to interfaces table
 
 ### Bug Fixes
 
+* [#4455](https://github.com/netbox-community/netbox/issues/4455) - Fix ordering of prefixes beneath aggregate when available space is hidden
 * [#4875](https://github.com/netbox-community/netbox/issues/4875) - Fix documentation for image attachments
 * [#4876](https://github.com/netbox-community/netbox/issues/4876) - Fix labels for sites in staging or decommissioning status
-* [#4880](https://github.com/netbox-community/netbox/issues/4880) - Fix remove tagged vlans if not assigned in bulk interface editting
+* [#4880](https://github.com/netbox-community/netbox/issues/4880) - Fix removal of tagged VLANs if not assigned in bulk interface editing
 * [#4887](https://github.com/netbox-community/netbox/issues/4887) - Don't disable NAPALM tabs when device has no primary IP
+* [#4894](https://github.com/netbox-community/netbox/issues/4894) - Fix display of device/VM counts on platforms list
+* [#4895](https://github.com/netbox-community/netbox/issues/4895) - Force UTF-8 encoding when embedding model documentation
+* [#4910](https://github.com/netbox-community/netbox/issues/4910) - Unpin redis dependency to fix exception in RQ worker
+* [#4926](https://github.com/netbox-community/netbox/issues/4926) - Fix ordering of VM interfaces in REST API endpoint
+* [#4927](https://github.com/netbox-community/netbox/issues/4927) - Fix validation error when updating an existing secret
+* [#4929](https://github.com/netbox-community/netbox/issues/4929) - Correct log message when creating a new object
 
 ---
 

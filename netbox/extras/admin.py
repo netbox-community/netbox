@@ -3,7 +3,6 @@ from django.contrib import admin
 
 from utilities.forms import LaxURLField
 from .models import CustomField, CustomFieldChoice, CustomLink, Graph, ExportTemplate, JobResult, Webhook
-from .reports import get_report
 
 
 def order_content_types(field):
@@ -160,6 +159,10 @@ class GraphForm(forms.ModelForm):
     class Meta:
         model = Graph
         exclude = ()
+        help_texts = {
+            'template_language': "<a href=\"https://jinja.palletsprojects.com\">Jinja2</a> is strongly recommended for "
+                                 "new graphs."
+        }
         widgets = {
             'source': forms.Textarea,
             'link': forms.Textarea,
@@ -195,6 +198,11 @@ class ExportTemplateForm(forms.ModelForm):
     class Meta:
         model = ExportTemplate
         exclude = []
+        help_texts = {
+            'template_language': "<strong>Warning:</strong> Support for Django templating will be dropped in NetBox "
+                                 "v2.10. <a href=\"https://jinja.palletsprojects.com\">Jinja2</a> is strongly "
+                                 "recommended."
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

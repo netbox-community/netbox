@@ -418,13 +418,14 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
             try:
                 with transaction.atomic():
+                    object_created = form.instance.pk is None
                     obj = form.save()
 
                     # Check that the new object conforms with any assigned object-level permissions
                     self.queryset.get(pk=obj.pk)
 
                 msg = '{} {}'.format(
-                    'Created' if not form.instance.pk else 'Modified',
+                    'Created' if object_created else 'Modified',
                     self.queryset.model._meta.verbose_name
                 )
                 logger.info(f"{msg} {obj} (PK: {obj.pk})")

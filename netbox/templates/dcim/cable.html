@@ -49,11 +49,13 @@
                 <table class="table table-hover panel-body attr-table">
                     <tr>
                         <td>Type</td>
-                        <td>{{ cable.get_type_display }}</td>
+                        <td>{{ cable.get_type_display|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>Status</td>
-                        <td>{{ cable.get_status_display }}</td>
+                        <td>
+                            <span class="label label-{{ cable.get_status_class }}">{{ cable.get_status_display }}</span>
+                        </td>
                     </tr>
                     <tr>
                         <td>Label</td>

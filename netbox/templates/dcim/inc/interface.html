@@ -22,7 +22,7 @@
     {# LAG #}
     <td>
         {% if iface.lag %}
-            <a href="#interface_{{ iface.lag }}" class="label label-primary" title="{{ iface.lag.description }}">{{ iface.lag }}</a>
+            <a href="{{ iface.lag.device.get_absolute_url }}#interface_{{ iface.lag }}" class="label label-primary" title="{{ iface.lag.description }}">{{ iface.lag }}</a>
         {% endif %}
     </td>
 

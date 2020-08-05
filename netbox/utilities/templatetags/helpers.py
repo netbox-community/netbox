@@ -178,7 +178,7 @@ def get_docs(model):
         model._meta.model_name
     )
     try:
-        with open(path) as docfile:
+        with open(path, encoding='utf-8') as docfile:
             content = docfile.read()
     except FileNotFoundError:
         return "Unable to load documentation, file not found: {}".format(path)
