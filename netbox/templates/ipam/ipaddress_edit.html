@@ -33,7 +33,7 @@
             <strong>Interface Assignment</strong>
         </div>
         <div class="panel-body">
-            {% with vm_tab_active=obj.vminterface.exists %}
+            {% with vm_tab_active=form.initial.vminterface %}
                 <ul class="nav nav-tabs" role="tablist">
                     <li role="presentation"{% if not vm_tab_active %} class="active"{% endif %}><a href="#device" role="tab" data-toggle="tab">Device</a></li>
                     <li role="presentation"{% if vm_tab_active %} class="active"{% endif %}><a href="#virtualmachine" role="tab" data-toggle="tab">Virtual Machine</a></li>
