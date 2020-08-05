@@ -40,11 +40,11 @@ nav:
         - Circuits: 'core-functionality/circuits.md'
         - Power Tracking: 'core-functionality/power.md'
         - Secrets: 'core-functionality/secrets.md'
-        - Tenancy Assignment: 'core-functionality/tenancy.md'
+        - Tenancy: 'core-functionality/tenancy.md'
     - Additional Features:
         - Caching: 'additional-features/caching.md'
         - Change Logging: 'additional-features/change-logging.md'
-        - Context Data: 'additional-features/context-data.md'
+        - Context Data: 'models/extras/configcontext.md'
         - Custom Fields: 'additional-features/custom-fields.md'
         - Custom Links: 'additional-features/custom-links.md'
         - Custom Scripts: 'additional-features/custom-scripts.md'
@@ -53,7 +53,7 @@ nav:
         - NAPALM: 'additional-features/napalm.md'
         - Prometheus Metrics: 'additional-features/prometheus-metrics.md'
         - Reports: 'additional-features/reports.md'
-        - Tags: 'additional-features/tags.md'
+        - Tags: 'models/extras/tag.md'
         - Webhooks: 'additional-features/webhooks.md'
     - Plugins:
         - Using Plugins: 'plugins/index.md'
@@ -62,12 +62,11 @@ nav:
         - Permissions: 'administration/permissions.md'
         - Replicating NetBox: 'administration/replicating-netbox.md'
         - NetBox Shell: 'administration/netbox-shell.md'
-    - API:
-        - Overview: 'api/overview.md'
-        - Filtering: 'api/filtering.md'
-        - Authentication: 'api/authentication.md'
-        - Working with Secrets: 'api/working-with-secrets.md'
-        - Examples: 'api/examples.md'
+    - REST API:
+        - Overview: 'rest-api/overview.md'
+        - Filtering: 'rest-api/filtering.md'
+        - Authentication: 'rest-api/authentication.md'
+        - Working with Secrets: 'rest-api/working-with-secrets.md'
     - Development:
         - Introduction: 'development/index.md'
         - Style Guide: 'development/style-guide.md'
