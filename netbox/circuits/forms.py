@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from dcim.models import Region, Site
 from extras.forms import (
@@ -64,30 +65,30 @@ class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdi
     )
     asn = forms.IntegerField(
         required=False,
-        label='ASN'
+        label=_('ASN')
     )
     account = forms.CharField(
         max_length=30,
         required=False,
-        label='Account number'
+        label=_('Account number')
     )
     portal_url = forms.URLField(
         required=False,
-        label='Portal'
+        label=_('Portal')
     )
     noc_contact = forms.CharField(
         required=False,
         widget=SmallTextarea,
-        label='NOC contact'
+        label=_('NOC contact')
     )
     admin_contact = forms.CharField(
         required=False,
         widget=SmallTextarea,
-        label='Admin contact'
+        label=_('Admin contact')
     )
     comments = CommentField(
         widget=SmallTextarea,
-        label='Comments'
+        label=_('Comments')
     )
 
     class Meta:
@@ -100,7 +101,7 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Provider
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -123,7 +124,7 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
     )
     asn = forms.IntegerField(
         required=False,
-        label='ASN'
+        label=_('ASN')
     )
     tag = TagFilterField(model)
 
@@ -149,7 +150,7 @@ class CircuitTypeCSVForm(CSVModelForm):
         model = CircuitType
         fields = CircuitType.csv_headers
         help_texts = {
-            'name': 'Name of circuit type',
+            'name': _('Name of circuit type'),
         }
 
 
@@ -189,23 +190,23 @@ class CircuitCSVForm(CustomFieldModelCSVForm):
     provider = CSVModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',
-        help_text='Assigned provider'
+        help_text=_('Assigned provider')
     )
     type = CSVModelChoiceField(
         queryset=CircuitType.objects.all(),
         to_field_name='name',
-        help_text='Type of circuit'
+        help_text=_('Type of circuit')
     )
     status = CSVChoiceField(
         choices=CircuitStatusChoices,
         required=False,
-        help_text='Operational status'
+        help_text=_('Operational status')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
 
     class Meta:
@@ -240,7 +241,7 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
     )
     commit_rate = forms.IntegerField(
         required=False,
-        label='Commit rate (Kbps)'
+        label=_('Commit rate (Kbps)')
     )
     description = forms.CharField(
         max_length=100,
@@ -248,7 +249,7 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
     )
     comments = CommentField(
         widget=SmallTextarea,
-        label='Comments'
+        label=_('Comments')
     )
 
     class Meta:
@@ -264,7 +265,7 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
     ]
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
     type = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
@@ -309,7 +310,7 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
     commit_rate = forms.IntegerField(
         required=False,
         min_value=0,
-        label='Commit rate (Kbps)'
+        label=_('Commit rate (Kbps)')
     )
     tag = TagFilterField(model)
 

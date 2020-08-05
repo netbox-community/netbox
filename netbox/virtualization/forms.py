@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
@@ -98,25 +99,25 @@ class ClusterCSVForm(CustomFieldModelCSVForm):
     type = CSVModelChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='name',
-        help_text='Type of cluster'
+        help_text=_('Type of cluster')
     )
     group = CSVModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned cluster group'
+        help_text=_('Assigned cluster group')
     )
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned site'
+        help_text=_('Assigned site')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
 
     class Meta:
@@ -147,7 +148,7 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
     )
     comments = CommentField(
         widget=SmallTextarea,
-        label='Comments'
+        label=_('Comments')
     )
 
     class Meta:
@@ -387,12 +388,12 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
     status = CSVChoiceField(
         choices=VirtualMachineStatusChoices,
         required=False,
-        help_text='Operational status of device'
+        help_text=_('Operational status of device')
     )
     cluster = CSVModelChoiceField(
         queryset=Cluster.objects.all(),
         to_field_name='name',
-        help_text='Assigned cluster'
+        help_text=_('Assigned cluster')
     )
     role = CSVModelChoiceField(
         queryset=DeviceRole.objects.filter(
@@ -400,19 +401,19 @@ class VirtualMachineCSVForm(CustomFieldModelCSVForm):
         ),
         required=False,
         to_field_name='name',
-        help_text='Functional role'
+        help_text=_('Functional role')
     )
     tenant = CSVModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
     platform = CSVModelChoiceField(
         queryset=Platform.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned platform'
+        help_text=_('Assigned platform')
     )
 
     class Meta:
@@ -456,19 +457,19 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
     )
     vcpus = forms.IntegerField(
         required=False,
-        label='vCPUs'
+        label=_('vCPUs')
     )
     memory = forms.IntegerField(
         required=False,
-        label='Memory (MB)'
+        label=_('Memory (MB)')
     )
     disk = forms.IntegerField(
         required=False,
-        label='Disk (GB)'
+        label=_('Disk (GB)')
     )
     comments = CommentField(
         widget=SmallTextarea,
-        label='Comments'
+        label=_('Comments')
     )
 
     class Meta:
@@ -485,7 +486,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
     ]
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
     cluster_group = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
@@ -508,7 +509,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
-        label='Cluster'
+        label=_('Cluster')
     )
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -558,7 +559,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
     )
     mac_address = forms.CharField(
         required=False,
-        label='MAC address'
+        label=_('MAC address')
     )
     tag = TagFilterField(model)
 
@@ -606,7 +607,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
             'mode': StaticSelect2()
         }
         labels = {
-            'mode': '802.1Q Mode',
+            'mode': _('802.1Q Mode'),
         }
         help_texts = {
             'mode': INTERFACE_MODE_HELP_TEXT,
@@ -645,7 +646,7 @@ class InterfaceCreateForm(BootstrapMixin, forms.Form):
         widget=forms.HiddenInput()
     )
     name_pattern = ExpandableNameField(
-        label='Name'
+        label=_('Name')
     )
     type = forms.ChoiceField(
         choices=VMInterfaceTypeChoices,
@@ -660,11 +661,11 @@ class InterfaceCreateForm(BootstrapMixin, forms.Form):
         required=False,
         min_value=INTERFACE_MTU_MIN,
         max_value=INTERFACE_MTU_MAX,
-        label='MTU'
+        label=_('MTU')
     )
     mac_address = forms.CharField(
         required=False,
-        label='MAC Address'
+        label=_('MAC Address')
     )
     description = forms.CharField(
         max_length=100,
@@ -732,7 +733,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False,
         min_value=INTERFACE_MTU_MIN,
         max_value=INTERFACE_MTU_MAX,
-        label='MTU'
+        label=_('MTU')
     )
     description = forms.CharField(
         max_length=100,
@@ -795,7 +796,7 @@ class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
         widget=forms.MultipleHiddenInput()
     )
     name_pattern = ExpandableNameField(
-        label='Name'
+        label=_('Name')
     )
 
     def clean_tags(self):

@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext as _
 from mptt.forms import TreeNodeMultipleChoiceField
 from taggit.forms import TagField as TagField_
 
@@ -181,7 +182,7 @@ class TagFilterForm(BootstrapMixin, forms.Form):
     model = Tag
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
 
 
@@ -285,7 +286,7 @@ class ConfigContextBulkEditForm(BootstrapMixin, BulkEditForm):
 class ConfigContextFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -330,7 +331,7 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
-        label='Cluster'
+        label=_('Cluster')
     )
     tenant_group = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
@@ -365,7 +366,7 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
 class LocalConfigContextFilterForm(forms.Form):
     local_context_data = forms.NullBooleanField(
         required=False,
-        label='Has local config context data',
+        label=_('Has local config context data'),
         widget=StaticSelect2(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -393,15 +394,15 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     model = ObjectChange
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
     time_after = forms.DateTimeField(
-        label='After',
+        label=_('After'),
         required=False,
         widget=DateTimePicker()
     )
     time_before = forms.DateTimeField(
-        label='Before',
+        label=_('Before'),
         required=False,
         widget=DateTimePicker()
     )
@@ -420,7 +421,7 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         queryset=ContentType.objects.order_by('model'),
         required=False,
         widget=ContentTypeSelect(),
-        label='Object Type'
+        label=_('Object Type')
     )
 
 
@@ -432,8 +433,8 @@ class ScriptForm(BootstrapMixin, forms.Form):
     _commit = forms.BooleanField(
         required=False,
         initial=True,
-        label="Commit changes",
-        help_text="Commit changes to the database (uncheck for a dry-run)"
+        label=_('Commit changes'),
+        help_text=_('Commit changes to the database (uncheck for a dry-run)')
     )
 
     def __init__(self, *args, **kwargs):

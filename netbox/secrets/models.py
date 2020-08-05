@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.encoding import force_bytes
+from django.utils.translation import gettext as _
 from taggit.managers import TaggableManager
 
 from dcim.models import Device
@@ -51,7 +52,7 @@ class UserKey(models.Model):
         editable=False
     )
     public_key = models.TextField(
-        verbose_name='RSA public key'
+        verbose_name=_('RSA public key')
     )
     master_key_cipher = models.BinaryField(
         max_length=512,

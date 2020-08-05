@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 from django.views.generic import View
 
 from circuits.models import Circuit
@@ -74,7 +75,7 @@ class BulkRenameView(GetReturnURLMixin, View):
                     for obj in selected_objects:
                         obj.name = obj.new_name
                         obj.save()
-                    messages.success(request, "Renamed {} {}".format(
+                    messages.success(request, _('Renamed {} {}').format(
                         len(selected_objects),
                         model._meta.verbose_name_plural
                     ))
@@ -119,7 +120,7 @@ class BulkDisconnectView(GetReturnURLMixin, View):
                         obj.cable.delete()
                         count += 1
 
-                messages.success(request, "Disconnected {} {}".format(
+                messages.success(request, _('Disconnected {} {}').format(
                     count, self.model._meta.verbose_name_plural
                 ))
 
@@ -1853,7 +1854,7 @@ class DeviceBayPopulateView(PermissionRequiredMixin, View):
 
             device_bay.installed_device = form.cleaned_data['installed_device']
             device_bay.save()
-            messages.success(request, "Added {} to {}.".format(device_bay.installed_device, device_bay))
+            messages.success(request, _('Added {} to {}.').format(device_bay.installed_device, device_bay))
 
             return redirect('dcim:device', pk=device_bay.device.pk)
 
@@ -1888,7 +1889,7 @@ class DeviceBayDepopulateView(PermissionRequiredMixin, View):
             removed_device = device_bay.installed_device
             device_bay.installed_device = None
             device_bay.save()
-            messages.success(request, "{} has been removed from {}.".format(removed_device, device_bay))
+            messages.success(request, _('{} has been removed from {}.').format(removed_device, device_bay))
 
             return redirect('dcim:device', pk=device_bay.device.pk)
 

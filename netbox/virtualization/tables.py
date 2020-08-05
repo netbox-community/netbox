@@ -1,5 +1,6 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
+from django.utils.translation import gettext as _
 
 from dcim.models import Interface
 from tenancy.tables import COL_TENANT
@@ -51,7 +52,7 @@ class ClusterTypeTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
     cluster_count = tables.Column(
-        verbose_name='Clusters'
+        verbose_name=_('Clusters')
     )
     actions = tables.TemplateColumn(
         template_code=CLUSTERTYPE_ACTIONS,
@@ -73,7 +74,7 @@ class ClusterGroupTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
     cluster_count = tables.Column(
-        verbose_name='Clusters'
+        verbose_name=_('Clusters')
     )
     actions = tables.TemplateColumn(
         template_code=CLUSTERGROUP_ACTIONS,
@@ -104,11 +105,11 @@ class ClusterTable(BaseTable):
     )
     device_count = tables.TemplateColumn(
         template_code=CLUSTER_DEVICE_COUNT,
-        verbose_name='Devices'
+        verbose_name=_('Devices')
     )
     vm_count = tables.TemplateColumn(
         template_code=CLUSTER_VM_COUNT,
-        verbose_name='VMs'
+        verbose_name=_('VMs')
     )
     tags = TagColumn(
         url_name='virtualization:cluster_list'
@@ -148,16 +149,16 @@ class VirtualMachineDetailTable(VirtualMachineTable):
     primary_ip4 = tables.LinkColumn(
         viewname='ipam:ipaddress',
         args=[Accessor('primary_ip4.pk')],
-        verbose_name='IPv4 Address'
+        verbose_name=_('IPv4 Address')
     )
     primary_ip6 = tables.LinkColumn(
         viewname='ipam:ipaddress',
         args=[Accessor('primary_ip6.pk')],
-        verbose_name='IPv6 Address'
+        verbose_name=_('IPv6 Address')
     )
     primary_ip = tables.TemplateColumn(
         orderable=False,
-        verbose_name='IP Address',
+        verbose_name=_('IP Address'),
         template_code=VIRTUALMACHINE_PRIMARY_IP
     )
     tags = TagColumn(

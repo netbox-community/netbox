@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import transaction
 from django.db.models import Count, OuterRef, Subquery
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 from django.views.generic import View
 from django_tables2 import RequestConfig
 
@@ -250,7 +251,7 @@ def circuit_terminations_swap(request, pk):
             else:
                 termination_z.term_side = 'A'
                 termination_z.save()
-            messages.success(request, "Swapped terminations for circuit {}.".format(circuit))
+            messages.success(request, _('Swapped terminations for circuit {}.').format(circuit))
             return redirect('circuits:circuit', pk=circuit.pk)
 
     else:

@@ -5,6 +5,7 @@ from django import forms
 from django.conf import settings
 from django.db import models
 from django_filters.utils import get_model_field, resolve_field
+from django.utils.translation import gettext as _
 
 from extras.models import Tag
 from utilities.constants import (
@@ -274,7 +275,7 @@ class NameSlugSearchFilterSet(django_filters.FilterSet):
     """
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
 
     def search(self, queryset, name, value):

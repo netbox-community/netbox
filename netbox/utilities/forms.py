@@ -14,6 +14,7 @@ from django.db.models import Count
 from django.forms import BoundField
 from django.forms.models import fields_for_model
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from .choices import ColorChoices, unpack_grouped_choices
 from .validators import EnhancedURLValidator
@@ -587,7 +588,7 @@ class TagFilterField(forms.MultipleChoiceField):
             return [(str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags]
 
         # Choices are fetched each time the form is initialized
-        super().__init__(label='Tags', choices=get_choices, required=False, *args, **kwargs)
+        super().__init__(label=_('Tags'), choices=get_choices, required=False, *args, **kwargs)
 
 
 class DynamicModelChoiceMixin:
@@ -740,7 +741,7 @@ class ImportForm(BootstrapMixin, forms.Form):
     """
     data = forms.CharField(
         widget=forms.Textarea,
-        help_text="Enter object data in JSON or YAML format. Note: Only a single object/document is supported."
+        help_text=_('Enter object data in JSON or YAML format. Note: Only a single object/document is supported.')
     )
     format = forms.ChoiceField(
         choices=(
@@ -791,7 +792,7 @@ class TableConfigForm(BootstrapMixin, forms.Form):
         widget=forms.SelectMultiple(
             attrs={'size': 10}
         ),
-        help_text="Use the buttons below to arrange columns in the desired order, then select all columns to display."
+        help_text=_('Use the buttons below to arrange columns in the desired order, then select all columns to display.')
     )
 
     def __init__(self, table, *args, **kwargs):

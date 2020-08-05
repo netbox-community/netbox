@@ -4,6 +4,7 @@ from django.db import transaction
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from django.views.generic import View
 
 from dcim.models import Device, Interface
@@ -195,7 +196,7 @@ class ClusterAddDevicesView(PermissionRequiredMixin, View):
                     device.cluster = cluster
                     device.save()
 
-            messages.success(request, "Added {} devices to cluster {}".format(
+            messages.success(request, _('Added {} devices to cluster {}').format(
                 len(device_pks), cluster
             ))
             return redirect(cluster.get_absolute_url())
@@ -228,7 +229,7 @@ class ClusterRemoveDevicesView(PermissionRequiredMixin, View):
                         device.cluster = None
                         device.save()
 
-                messages.success(request, "Removed {} devices from cluster {}".format(
+                messages.success(request, _('Removed {} devices from cluster {}').format(
                     len(device_pks), cluster
                 ))
                 return redirect(cluster.get_absolute_url())

@@ -10,6 +10,7 @@ from django.db import models
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from rest_framework.utils.encoders import JSONEncoder
 
 from utilities.utils import deepmerge, render_jinja2
@@ -32,9 +33,9 @@ class Webhook(models.Model):
     obj_type = models.ManyToManyField(
         to=ContentType,
         related_name='webhooks',
-        verbose_name='Object types',
+        verbose_name=_('Object types'),
         limit_choices_to=FeatureQuery('webhooks'),
-        help_text="The object(s) to which this Webhook applies."
+        help_text=_('The object(s) to which this Webhook applies.')
     )
     name = models.CharField(
         max_length=150,
@@ -42,20 +43,20 @@ class Webhook(models.Model):
     )
     type_create = models.BooleanField(
         default=False,
-        help_text="Call this webhook when a matching object is created."
+        help_text=_('Call this webhook when a matching object is created.')
     )
     type_update = models.BooleanField(
         default=False,
-        help_text="Call this webhook when a matching object is updated."
+        help_text=_('Call this webhook when a matching object is updated.')
     )
     type_delete = models.BooleanField(
         default=False,
-        help_text="Call this webhook when a matching object is deleted."
+        help_text=_('Call this webhook when a matching object is deleted.')
     )
     payload_url = models.CharField(
         max_length=500,
-        verbose_name='URL',
-        help_text="A POST will be sent to this URL when the webhook is called."
+        verbose_name=_('URL'),
+        help_text=_('A POST will be sent to this URL when the webhook is called.')
     )
     enabled = models.BooleanField(
         default=True
@@ -64,47 +65,47 @@ class Webhook(models.Model):
         max_length=30,
         choices=WebhookHttpMethodChoices,
         default=WebhookHttpMethodChoices.METHOD_POST,
-        verbose_name='HTTP method'
+        verbose_name=_('HTTP method')
     )
     http_content_type = models.CharField(
         max_length=100,
         default=HTTP_CONTENT_TYPE_JSON,
-        verbose_name='HTTP content type',
-        help_text='The complete list of official content types is available '
-                  '<a href="https://www.iana.org/assignments/media-types/media-types.xhtml">here</a>.'
+        verbose_name=_('HTTP content type'),
+        help_text=_('The complete list of official content types is available '
+                  '<a href="https://www.iana.org/assignments/media-types/media-types.xhtml">here</a>.')
     )
     additional_headers = models.TextField(
         blank=True,
-        help_text="User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. "
+        help_text=_("User-supplied HTTP headers to be sent with the request in addition to the HTTP content type."
                   "Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is "
-                  "support with the same context as the request body (below)."
+                  "support with the same context as the request body (below).")
     )
     body_template = models.TextField(
         blank=True,
-        help_text='Jinja2 template for a custom request body. If blank, a JSON object representing the change will be '
+        help_text=_('Jinja2 template for a custom request body. If blank, a JSON object representing the change will be '
                   'included. Available context data includes: <code>event</code>, <code>model</code>, '
-                  '<code>timestamp</code>, <code>username</code>, <code>request_id</code>, and <code>data</code>.'
+                  '<code>timestamp</code>, <code>username</code>, <code>request_id</code>, and <code>data</code>.')
     )
     secret = models.CharField(
         max_length=255,
         blank=True,
-        help_text="When provided, the request will include a 'X-Hook-Signature' "
+        help_text=_("When provided, the request will include a 'X-Hook-Signature' "
                   "header containing a HMAC hex digest of the payload body using "
                   "the secret as the key. The secret is not transmitted in "
-                  "the request."
+                  "the request.")
     )
     ssl_verification = models.BooleanField(
         default=True,
-        verbose_name='SSL verification',
-        help_text="Enable SSL certificate verification. Disable with caution!"
+        verbose_name=_('SSL verification'),
+        help_text=_('Enable SSL certificate verification. Disable with caution!')
     )
     ca_file_path = models.CharField(
         max_length=4096,
         null=True,
         blank=True,
-        verbose_name='CA File Path',
-        help_text='The specific CA certificate file to use for SSL verification. '
-                  'Leave blank to use the system defaults.'
+        verbose_name=_('CA File Path'),
+        help_text=_('The specific CA certificate file to use for SSL verification. '
+                  'Leave blank to use the system defaults.')
     )
 
     class Meta:
@@ -168,12 +169,12 @@ class CustomLink(models.Model):
     )
     text = models.CharField(
         max_length=500,
-        help_text="Jinja2 template code for link text"
+        help_text=_('Jinja2 template code for link text')
     )
     url = models.CharField(
         max_length=500,
-        verbose_name='URL',
-        help_text="Jinja2 template code for link URL"
+        verbose_name=_('URL'),
+        help_text=_('Jinja2 template code for link URL')
     )
     weight = models.PositiveSmallIntegerField(
         default=100
@@ -181,16 +182,16 @@ class CustomLink(models.Model):
     group_name = models.CharField(
         max_length=50,
         blank=True,
-        help_text="Links with the same group will appear as a dropdown menu"
+        help_text=_('Links with the same group will appear as a dropdown menu')
     )
     button_class = models.CharField(
         max_length=30,
         choices=CustomLinkButtonClassChoices,
         default=CustomLinkButtonClassChoices.CLASS_DEFAULT,
-        help_text="The class of the first link in a group will be used for the dropdown button"
+        help_text=_('The class of the first link in a group will be used for the dropdown button')
     )
     new_window = models.BooleanField(
-        help_text="Force link to open in a new window"
+        help_text=_('Force link to open in a new window')
     )
 
     class Meta:
@@ -215,7 +216,7 @@ class Graph(models.Model):
     )
     name = models.CharField(
         max_length=100,
-        verbose_name='Name'
+        verbose_name=_('Name')
     )
     template_language = models.CharField(
         max_length=50,
@@ -224,11 +225,11 @@ class Graph(models.Model):
     )
     source = models.CharField(
         max_length=500,
-        verbose_name='Source URL'
+        verbose_name=_('Source URL')
     )
     link = models.URLField(
         blank=True,
-        verbose_name='Link URL'
+        verbose_name=_('Link URL')
     )
 
     class Meta:
@@ -284,18 +285,18 @@ class ExportTemplate(models.Model):
         default=TemplateLanguageChoices.LANGUAGE_JINJA2
     )
     template_code = models.TextField(
-        help_text='The list of objects being exported is passed as a context variable named <code>queryset</code>.'
+        help_text=_('The list of objects being exported is passed as a context variable named <code>queryset</code>.')
     )
     mime_type = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name='MIME type',
-        help_text='Defaults to <code>text/plain</code>'
+        verbose_name=_('MIME type'),
+        help_text=_('Defaults to <code>text/plain</code>')
     )
     file_extension = models.CharField(
         max_length=15,
         blank=True,
-        help_text='Extension to append to the rendered filename'
+        help_text=_('Extension to append to the rendered filename')
     )
 
     class Meta:

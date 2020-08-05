@@ -2,6 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as UserAdmin_
 from django.contrib.auth.models import User
+from django.utils.translation import gettext as _
 
 from .models import Token, UserConfig
 
@@ -13,7 +14,7 @@ class UserConfigInline(admin.TabularInline):
     model = UserConfig
     readonly_fields = ('data',)
     can_delete = False
-    verbose_name = 'Preferences'
+    verbose_name = _('Preferences')
 
 
 @admin.register(User)
@@ -27,7 +28,7 @@ class UserAdmin(UserAdmin_):
 class TokenAdminForm(forms.ModelForm):
     key = forms.CharField(
         required=False,
-        help_text="If no key is provided, one will be generated automatically."
+        help_text=_('If no key is provided, one will be generated automatically.')
     )
 
     class Meta:

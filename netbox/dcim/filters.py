@@ -1,5 +1,6 @@
 import django_filters
 from django.contrib.auth.models import User
+from django.utils.translation import gettext as _
 
 from extras.filters import CustomFieldFilterSet, LocalConfigContextFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
@@ -63,13 +64,13 @@ __all__ = (
 class RegionFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        label='Parent region (ID)',
+        label=_('Parent region (ID)'),
     )
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=Region.objects.all(),
         to_field_name='slug',
-        label='Parent region (slug)',
+        label=_('Parent region (slug)'),
     )
 
     class Meta:
@@ -80,7 +81,7 @@ class RegionFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 class SiteFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=SiteStatusChoices,
@@ -90,14 +91,14 @@ class SiteFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Creat
         queryset=Region.objects.all(),
         field_name='region',
         lookup_expr='in',
-        label='Region (ID)',
+        label=_('Region (ID)'),
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='region',
         lookup_expr='in',
         to_field_name='slug',
-        label='Region (slug)',
+        label=_('Region (slug)'),
     )
     tag = TagFilter()
 
@@ -134,34 +135,34 @@ class RackGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
         queryset=Region.objects.all(),
         field_name='site__region',
         lookup_expr='in',
-        label='Region (ID)',
+        label=_('Region (ID)'),
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
         lookup_expr='in',
         to_field_name='slug',
-        label='Region (slug)',
+        label=_('Region (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
-        label='Site (ID)',
+        label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
-        label='Site (slug)',
+        label=_('Site (slug)'),
     )
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=RackGroup.objects.all(),
-        label='Rack group (ID)',
+        label=_('Rack group (ID)'),
     )
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=RackGroup.objects.all(),
         to_field_name='slug',
-        label='Rack group (slug)',
+        label=_('Rack group (slug)'),
     )
 
     class Meta:
@@ -179,43 +180,43 @@ class RackRoleFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
         lookup_expr='in',
-        label='Region (ID)',
+        label=_('Region (ID)'),
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
         lookup_expr='in',
         to_field_name='slug',
-        label='Region (slug)',
+        label=_('Region (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
-        label='Site (ID)',
+        label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
-        label='Site (slug)',
+        label=_('Site (slug)'),
     )
     group_id = TreeNodeMultipleChoiceFilter(
         queryset=RackGroup.objects.all(),
         field_name='group',
         lookup_expr='in',
-        label='Rack group (ID)',
+        label=_('Rack group (ID)'),
     )
     group = TreeNodeMultipleChoiceFilter(
         queryset=RackGroup.objects.all(),
         field_name='group',
         lookup_expr='in',
         to_field_name='slug',
-        label='Rack group (slug)',
+        label=_('Rack group (slug)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=RackStatusChoices,
@@ -223,13 +224,13 @@ class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Creat
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=RackRole.objects.all(),
-        label='Role (ID)',
+        label=_('Role (ID)'),
     )
     role = django_filters.ModelMultipleChoiceFilter(
         field_name='role__slug',
         queryset=RackRole.objects.all(),
         to_field_name='slug',
-        label='Role (slug)',
+        label=_('Role (slug)'),
     )
     serial = django_filters.CharFilter(
         lookup_expr='iexact'
@@ -258,45 +259,45 @@ class RackFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Creat
 class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     rack_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Rack.objects.all(),
-        label='Rack (ID)',
+        label=_('Rack (ID)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='rack__site',
         queryset=Site.objects.all(),
-        label='Site (ID)',
+        label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='rack__site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
-        label='Site (slug)',
+        label=_('Site (slug)'),
     )
     group_id = TreeNodeMultipleChoiceFilter(
         queryset=RackGroup.objects.all(),
         field_name='rack__group',
         lookup_expr='in',
-        label='Rack group (ID)',
+        label=_('Rack group (ID)'),
     )
     group = TreeNodeMultipleChoiceFilter(
         queryset=RackGroup.objects.all(),
         field_name='rack__group',
         lookup_expr='in',
         to_field_name='slug',
-        label='Rack group (slug)',
+        label=_('Rack group (slug)'),
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
-        label='User (ID)',
+        label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user',
         queryset=User.objects.all(),
         to_field_name='username',
-        label='User (name)',
+        label=_('User (name)'),
     )
 
     class Meta:
@@ -324,45 +325,45 @@ class ManufacturerFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 class DeviceTypeFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
-        label='Manufacturer (ID)',
+        label=_('Manufacturer (ID)'),
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer__slug',
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
-        label='Manufacturer (slug)',
+        label=_('Manufacturer (slug)'),
     )
     console_ports = django_filters.BooleanFilter(
         method='_console_ports',
-        label='Has console ports',
+        label=_('Has console ports'),
     )
     console_server_ports = django_filters.BooleanFilter(
         method='_console_server_ports',
-        label='Has console server ports',
+        label=_('Has console server ports'),
     )
     power_ports = django_filters.BooleanFilter(
         method='_power_ports',
-        label='Has power ports',
+        label=_('Has power ports'),
     )
     power_outlets = django_filters.BooleanFilter(
         method='_power_outlets',
-        label='Has power outlets',
+        label=_('Has power outlets'),
     )
     interfaces = django_filters.BooleanFilter(
         method='_interfaces',
-        label='Has interfaces',
+        label=_('Has interfaces'),
     )
     pass_through_ports = django_filters.BooleanFilter(
         method='_pass_through_ports',
-        label='Has pass-through ports',
+        label=_('Has pass-through ports'),
     )
     device_bays = django_filters.BooleanFilter(
         method='_device_bays',
-        label='Has device bays',
+        label=_('Has device bays'),
     )
     tag = TagFilter()
 
@@ -411,7 +412,7 @@ class DeviceTypeComponentFilterSet(NameSlugSearchFilterSet):
     devicetype_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
         field_name='device_type_id',
-        label='Device type (ID)',
+        label=_('Device type (ID)'),
     )
 
 
@@ -482,13 +483,13 @@ class PlatformFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer',
         queryset=Manufacturer.objects.all(),
-        label='Manufacturer (ID)',
+        label=_('Manufacturer (ID)'),
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer__slug',
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
-        label='Manufacturer (slug)',
+        label=_('Manufacturer (slug)'),
     )
 
     class Meta:
@@ -505,87 +506,87 @@ class DeviceFilterSet(
 ):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device_type__manufacturer',
         queryset=Manufacturer.objects.all(),
-        label='Manufacturer (ID)',
+        label=_('Manufacturer (ID)'),
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
         field_name='device_type__manufacturer__slug',
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
-        label='Manufacturer (slug)',
+        label=_('Manufacturer (slug)'),
     )
     device_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
-        label='Device type (ID)',
+        label=_('Device type (ID)'),
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device_role_id',
         queryset=DeviceRole.objects.all(),
-        label='Role (ID)',
+        label=_('Role (ID)'),
     )
     role = django_filters.ModelMultipleChoiceFilter(
         field_name='device_role__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
-        label='Role (slug)',
+        label=_('Role (slug)'),
     )
     platform_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Platform.objects.all(),
-        label='Platform (ID)',
+        label=_('Platform (ID)'),
     )
     platform = django_filters.ModelMultipleChoiceFilter(
         field_name='platform__slug',
         queryset=Platform.objects.all(),
         to_field_name='slug',
-        label='Platform (slug)',
+        label=_('Platform (slug)'),
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
         lookup_expr='in',
-        label='Region (ID)',
+        label=_('Region (ID)'),
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
         lookup_expr='in',
         to_field_name='slug',
-        label='Region (slug)',
+        label=_('Region (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
-        label='Site (ID)',
+        label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
-        label='Site name (slug)',
+        label=_('Site name (slug)'),
     )
     rack_group_id = TreeNodeMultipleChoiceFilter(
         queryset=RackGroup.objects.all(),
         field_name='rack__group',
         lookup_expr='in',
-        label='Rack group (ID)',
+        label=_('Rack group (ID)'),
     )
     rack_id = django_filters.ModelMultipleChoiceFilter(
         field_name='rack',
         queryset=Rack.objects.all(),
-        label='Rack (ID)',
+        label=_('Rack (ID)'),
     )
     cluster_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Cluster.objects.all(),
-        label='VM cluster (ID)',
+        label=_('VM cluster (ID)'),
     )
     model = django_filters.ModelMultipleChoiceFilter(
         field_name='device_type__slug',
         queryset=DeviceType.objects.all(),
         to_field_name='slug',
-        label='Device model (slug)',
+        label=_('Device model (slug)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=DeviceStatusChoices,
@@ -593,55 +594,55 @@ class DeviceFilterSet(
     )
     is_full_depth = django_filters.BooleanFilter(
         field_name='device_type__is_full_depth',
-        label='Is full depth',
+        label=_('Is full depth'),
     )
     mac_address = MultiValueMACAddressFilter(
         field_name='interfaces__mac_address',
-        label='MAC address',
+        label=_('MAC address'),
     )
     serial = django_filters.CharFilter(
         lookup_expr='iexact'
     )
     has_primary_ip = django_filters.BooleanFilter(
         method='_has_primary_ip',
-        label='Has a primary IP',
+        label=_('Has a primary IP'),
     )
     virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_chassis',
         queryset=VirtualChassis.objects.all(),
-        label='Virtual chassis (ID)',
+        label=_('Virtual chassis (ID)'),
     )
     virtual_chassis_member = django_filters.BooleanFilter(
         method='_virtual_chassis_member',
-        label='Is a virtual chassis member'
+        label=_('Is a virtual chassis member')
     )
     console_ports = django_filters.BooleanFilter(
         method='_console_ports',
-        label='Has console ports',
+        label=_('Has console ports'),
     )
     console_server_ports = django_filters.BooleanFilter(
         method='_console_server_ports',
-        label='Has console server ports',
+        label=_('Has console server ports'),
     )
     power_ports = django_filters.BooleanFilter(
         method='_power_ports',
-        label='Has power ports',
+        label=_('Has power ports'),
     )
     power_outlets = django_filters.BooleanFilter(
         method='_power_outlets',
-        label='Has power outlets',
+        label=_('Has power outlets'),
     )
     interfaces = django_filters.BooleanFilter(
         method='_interfaces',
-        label='Has interfaces',
+        label=_('Has interfaces'),
     )
     pass_through_ports = django_filters.BooleanFilter(
         method='_pass_through_ports',
-        label='Has pass-through ports',
+        label=_('Has pass-through ports'),
     )
     device_bays = django_filters.BooleanFilter(
         method='_device_bays',
-        label='Has device bays',
+        label=_('Has device bays'),
     )
     tag = TagFilter()
 
@@ -703,41 +704,41 @@ class DeviceFilterSet(
 class DeviceComponentFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='device__site__region',
         lookup_expr='in',
-        label='Region (ID)',
+        label=_('Region (ID)'),
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='device__site__region',
         lookup_expr='in',
         to_field_name='slug',
-        label='Region (slug)',
+        label=_('Region (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__site',
         queryset=Site.objects.all(),
-        label='Site (ID)',
+        label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='device__site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
-        label='Site name (slug)',
+        label=_('Site name (slug)'),
     )
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
-        label='Device (ID)',
+        label=_('Device (ID)'),
     )
     device = django_filters.ModelMultipleChoiceFilter(
         field_name='device__name',
         queryset=Device.objects.all(),
         to_field_name='name',
-        label='Device (name)',
+        label=_('Device (name)'),
     )
     tag = TagFilter()
 
@@ -817,19 +818,19 @@ class PowerOutletFilterSet(BaseFilterSet, DeviceComponentFilterSet):
 class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     # Override device and device_id filters from DeviceComponentFilterSet to match against any peer virtual chassis
     # members
     device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',
-        label='Device',
+        label=_('Device'),
     )
     device_id = MultiValueNumberFilter(
         method='filter_device_id',
         field_name='pk',
-        label='Device (ID)',
+        label=_('Device (ID)'),
     )
     cabled = django_filters.BooleanFilter(
         field_name='cable',
@@ -838,22 +839,22 @@ class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet):
     )
     kind = django_filters.CharFilter(
         method='filter_kind',
-        label='Kind of interface',
+        label=_('Kind of interface'),
     )
     lag_id = django_filters.ModelMultipleChoiceFilter(
         field_name='lag',
         queryset=Interface.objects.all(),
-        label='LAG interface (ID)',
+        label=_('LAG interface (ID)'),
     )
     mac_address = MultiValueMACAddressFilter()
     tag = TagFilter()
     vlan_id = django_filters.CharFilter(
         method='filter_vlan_id',
-        label='Assigned VLAN'
+        label=_('Assigned VLAN')
     )
     vlan = django_filters.CharFilter(
         method='filter_vlan',
-        label='Assigned VID'
+        label=_('Assigned VID')
     )
     type = django_filters.MultipleChoiceFilter(
         choices=InterfaceTypeChoices,
@@ -946,54 +947,54 @@ class DeviceBayFilterSet(BaseFilterSet, DeviceComponentFilterSet):
 class InventoryItemFilterSet(BaseFilterSet, DeviceComponentFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='device__site__region',
         lookup_expr='in',
-        label='Region (ID)',
+        label=_('Region (ID)'),
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='device__site__region',
         lookup_expr='in',
         to_field_name='slug',
-        label='Region (slug)',
+        label=_('Region (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__site',
         queryset=Site.objects.all(),
-        label='Site (ID)',
+        label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='device__site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
-        label='Site name (slug)',
+        label=_('Site name (slug)'),
     )
     device_id = django_filters.ModelChoiceFilter(
         queryset=Device.objects.all(),
-        label='Device (ID)',
+        label=_('Device (ID)'),
     )
     device = django_filters.ModelChoiceFilter(
         queryset=Device.objects.all(),
         to_field_name='name',
-        label='Device (name)',
+        label=_('Device (name)'),
     )
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InventoryItem.objects.all(),
-        label='Parent inventory item (ID)',
+        label=_('Parent inventory item (ID)'),
     )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
-        label='Manufacturer (ID)',
+        label=_('Manufacturer (ID)'),
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer__slug',
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
-        label='Manufacturer (slug)',
+        label=_('Manufacturer (slug)'),
     )
     serial = django_filters.CharFilter(
         lookup_expr='iexact'
@@ -1019,42 +1020,42 @@ class InventoryItemFilterSet(BaseFilterSet, DeviceComponentFilterSet):
 class VirtualChassisFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='master__site__region',
         lookup_expr='in',
-        label='Region (ID)',
+        label=_('Region (ID)'),
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='master__site__region',
         lookup_expr='in',
         to_field_name='slug',
-        label='Region (slug)',
+        label=_('Region (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='master__site',
         queryset=Site.objects.all(),
-        label='Site (ID)',
+        label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='master__site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
-        label='Site name (slug)',
+        label=_('Site name (slug)'),
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         field_name='master__tenant',
         queryset=Tenant.objects.all(),
-        label='Tenant (ID)',
+        label=_('Tenant (ID)'),
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
         field_name='master__tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
-        label='Tenant (slug)',
+        label=_('Tenant (slug)'),
     )
     tag = TagFilter()
 
@@ -1075,7 +1076,7 @@ class VirtualChassisFilterSet(BaseFilterSet):
 class CableFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     type = django_filters.MultipleChoiceFilter(
         choices=CableTypeChoices
@@ -1138,7 +1139,7 @@ class CableFilterSet(BaseFilterSet):
 class ConsoleConnectionFilterSet(BaseFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
-        label='Site (slug)',
+        label=_('Site (slug)'),
     )
     device_id = MultiValueNumberFilter(
         method='filter_device'
@@ -1169,7 +1170,7 @@ class ConsoleConnectionFilterSet(BaseFilterSet):
 class PowerConnectionFilterSet(BaseFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
-        label='Site (slug)',
+        label=_('Site (slug)'),
     )
     device_id = MultiValueNumberFilter(
         method='filter_device'
@@ -1200,7 +1201,7 @@ class PowerConnectionFilterSet(BaseFilterSet):
 class InterfaceConnectionFilterSet(BaseFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
-        label='Site (slug)',
+        label=_('Site (slug)'),
     )
     device_id = MultiValueNumberFilter(
         method='filter_device'
@@ -1234,36 +1235,36 @@ class InterfaceConnectionFilterSet(BaseFilterSet):
 class PowerPanelFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
         lookup_expr='in',
-        label='Region (ID)',
+        label=_('Region (ID)'),
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
         lookup_expr='in',
         to_field_name='slug',
-        label='Region (slug)',
+        label=_('Region (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
-        label='Site (ID)',
+        label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
-        label='Site name (slug)',
+        label=_('Site name (slug)'),
     )
     rack_group_id = TreeNodeMultipleChoiceFilter(
         queryset=RackGroup.objects.all(),
         field_name='rack_group',
         lookup_expr='in',
-        label='Rack group (ID)',
+        label=_('Rack group (ID)'),
     )
 
     class Meta:
@@ -1282,40 +1283,40 @@ class PowerPanelFilterSet(BaseFilterSet):
 class PowerFeedFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='power_panel__site__region',
         lookup_expr='in',
-        label='Region (ID)',
+        label=_('Region (ID)'),
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='power_panel__site__region',
         lookup_expr='in',
         to_field_name='slug',
-        label='Region (slug)',
+        label=_('Region (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='power_panel__site',
         queryset=Site.objects.all(),
-        label='Site (ID)',
+        label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='power_panel__site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
-        label='Site name (slug)',
+        label=_('Site name (slug)'),
     )
     power_panel_id = django_filters.ModelMultipleChoiceFilter(
         queryset=PowerPanel.objects.all(),
-        label='Power panel (ID)',
+        label=_('Power panel (ID)'),
     )
     rack_id = django_filters.ModelMultipleChoiceFilter(
         field_name='rack',
         queryset=Rack.objects.all(),
-        label='Rack (ID)',
+        label=_('Rack (ID)'),
     )
     tag = TagFilter()
 

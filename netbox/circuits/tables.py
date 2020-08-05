@@ -1,5 +1,6 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
+from django.utils.translation import gettext as _
 
 from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, TagColumn, ToggleColumn
@@ -29,7 +30,7 @@ class ProviderTable(BaseTable):
     name = tables.LinkColumn()
     circuit_count = tables.Column(
         accessor=Accessor('count_circuits'),
-        verbose_name='Circuits'
+        verbose_name=_('Circuits')
     )
     tags = TagColumn(
         url_name='circuits:provider_list'
@@ -51,7 +52,7 @@ class CircuitTypeTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
     circuit_count = tables.Column(
-        verbose_name='Circuits'
+        verbose_name=_('Circuits')
     )
     actions = tables.TemplateColumn(
         template_code=CIRCUITTYPE_ACTIONS,
@@ -72,7 +73,7 @@ class CircuitTypeTable(BaseTable):
 class CircuitTable(BaseTable):
     pk = ToggleColumn()
     cid = tables.LinkColumn(
-        verbose_name='ID'
+        verbose_name=_('ID')
     )
     provider = tables.LinkColumn(
         viewname='circuits:provider',
@@ -85,10 +86,10 @@ class CircuitTable(BaseTable):
         template_code=COL_TENANT
     )
     a_side = tables.Column(
-        verbose_name='A Side'
+        verbose_name=_('A Side')
     )
     z_side = tables.Column(
-        verbose_name='Z Side'
+        verbose_name=_('Z Side')
     )
     tags = TagColumn(
         url_name='circuits:circuit_list'

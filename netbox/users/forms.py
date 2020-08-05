@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as DjangoPasswordChangeForm
+from django.utils.translation import gettext as _
 
 from utilities.forms import BootstrapMixin, DateTimePicker
 from .models import Token
@@ -21,7 +22,7 @@ class PasswordChangeForm(BootstrapMixin, DjangoPasswordChangeForm):
 class TokenForm(BootstrapMixin, forms.ModelForm):
     key = forms.CharField(
         required=False,
-        help_text="If no key is provided, one will be generated automatically."
+        help_text=_('If no key is provided, one will be generated automatically.')
     )
 
     class Meta:

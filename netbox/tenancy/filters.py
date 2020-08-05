@@ -1,5 +1,6 @@
 import django_filters
 from django.db.models import Q
+from django.utils.translation import gettext as _
 
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
 from utilities.filters import BaseFilterSet, NameSlugSearchFilterSet, TagFilter, TreeNodeMultipleChoiceFilter
@@ -16,13 +17,13 @@ __all__ = (
 class TenantGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
-        label='Tenant group (ID)',
+        label=_('Tenant group (ID)'),
     )
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
-        label='Tenant group group (slug)',
+        label=_('Tenant group group (slug)'),
     )
 
     class Meta:
@@ -33,20 +34,20 @@ class TenantGroupFilterSet(BaseFilterSet, NameSlugSearchFilterSet):
 class TenantFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     group_id = TreeNodeMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
         field_name='group',
         lookup_expr='in',
-        label='Tenant group (ID)',
+        label=_('Tenant group (ID)'),
     )
     group = TreeNodeMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
         field_name='group',
         lookup_expr='in',
         to_field_name='slug',
-        label='Tenant group (slug)',
+        label=_('Tenant group (slug)'),
     )
     tag = TagFilter()
 
@@ -73,22 +74,22 @@ class TenancyFilterSet(django_filters.FilterSet):
         queryset=TenantGroup.objects.all(),
         field_name='tenant__group',
         lookup_expr='in',
-        label='Tenant Group (ID)',
+        label=_('Tenant Group (ID)'),
     )
     tenant_group = TreeNodeMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
         field_name='tenant__group',
         to_field_name='slug',
         lookup_expr='in',
-        label='Tenant Group (slug)',
+        label=_('Tenant Group (slug)'),
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),
-        label='Tenant (ID)',
+        label=_('Tenant (ID)'),
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),
         field_name='tenant__slug',
         to_field_name='slug',
-        label='Tenant (slug)',
+        label=_('Tenant (slug)'),
     )

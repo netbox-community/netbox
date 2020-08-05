@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin
+from django.utils.translation import gettext as _
 
 from utilities.forms import LaxURLField
 from .models import CustomField, CustomFieldChoice, CustomLink, Graph, ExportTemplate, ReportResult, Webhook
@@ -20,7 +21,7 @@ def order_content_types(field):
 
 class WebhookForm(forms.ModelForm):
     payload_url = LaxURLField(
-        label='URL'
+        label=_('URL')
     )
 
     class Meta:
@@ -116,11 +117,11 @@ class CustomLinkForm(forms.ModelForm):
             'url': forms.Textarea,
         }
         help_texts = {
-            'weight': 'A numeric weight to influence the ordering of this link among its peers. Lower weights appear '
-                      'first in a list.',
-            'text': 'Jinja2 template code for the link text. Reference the object as <code>{{ obj }}</code>. Links '
-                    'which render as empty text will not be displayed.',
-            'url': 'Jinja2 template code for the link URL. Reference the object as <code>{{ obj }}</code>.',
+            'weight': _('A numeric weight to influence the ordering of this link among its peers. Lower weights appear '
+                      'first in a list.'),
+            'text': _('Jinja2 template code for the link text. Reference the object as <code>{{ obj }}</code>. Links '
+                    'which render as empty text will not be displayed.'),
+            'url': _('Jinja2 template code for the link URL. Reference the object as <code>{{ obj }}</code>.'),
         }
 
     def __init__(self, *args, **kwargs):

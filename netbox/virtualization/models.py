@@ -3,6 +3,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from taggit.managers import TaggableManager
 
 from dcim.models import Device
@@ -220,7 +221,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         max_length=50,
         choices=VirtualMachineStatusChoices,
         default=VirtualMachineStatusChoices.STATUS_ACTIVE,
-        verbose_name='Status'
+        verbose_name=_('Status')
     )
     role = models.ForeignKey(
         to='dcim.DeviceRole',
@@ -236,7 +237,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         related_name='+',
         blank=True,
         null=True,
-        verbose_name='Primary IPv4'
+        verbose_name=_('Primary IPv4')
     )
     primary_ip6 = models.OneToOneField(
         to='ipam.IPAddress',
@@ -244,22 +245,22 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         related_name='+',
         blank=True,
         null=True,
-        verbose_name='Primary IPv6'
+        verbose_name=_('Primary IPv6')
     )
     vcpus = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
-        verbose_name='vCPUs'
+        verbose_name=_('vCPUs')
     )
     memory = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name='Memory (MB)'
+        verbose_name=_('Memory (MB)')
     )
     disk = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name='Disk (GB)'
+        verbose_name=_('Disk (GB)')
     )
     comments = models.TextField(
         blank=True

@@ -13,6 +13,7 @@ from django.db import models
 from django.db.models import Count, F, ProtectedError, Sum
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
@@ -182,13 +183,13 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     facility = models.CharField(
         max_length=50,
         blank=True,
-        help_text='Local facility ID or description'
+        help_text=_('Local facility ID or description')
     )
     asn = ASNField(
         blank=True,
         null=True,
-        verbose_name='ASN',
-        help_text='32-bit autonomous system number'
+        verbose_name=_('ASN'),
+        help_text=_('32-bit autonomous system number')
     )
     time_zone = TimeZoneField(
         blank=True
@@ -210,14 +211,14 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         decimal_places=6,
         blank=True,
         null=True,
-        help_text='GPS coordinate (latitude)'
+        help_text=_('GPS coordinate (latitude)')
     )
     longitude = models.DecimalField(
         max_digits=9,
         decimal_places=6,
         blank=True,
         null=True,
-        help_text='GPS coordinate (longitude)'
+        help_text=_('GPS coordinate (longitude)')
     )
     contact_name = models.CharField(
         max_length=50,
@@ -229,7 +230,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     )
     contact_email = models.EmailField(
         blank=True,
-        verbose_name='Contact E-mail'
+        verbose_name=_('Contact E-mail')
     )
     comments = models.TextField(
         blank=True
@@ -428,8 +429,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         max_length=50,
         blank=True,
         null=True,
-        verbose_name='Facility ID',
-        help_text='Locally-assigned identifier'
+        verbose_name=_('Facility ID'),
+        help_text=_('Locally-assigned identifier')
     )
     site = models.ForeignKey(
         to='dcim.Site',
@@ -442,7 +443,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         related_name='racks',
         blank=True,
         null=True,
-        help_text='Assigned group'
+        help_text=_('Assigned group')
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -462,53 +463,53 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         related_name='racks',
         blank=True,
         null=True,
-        help_text='Functional role'
+        help_text=_('Functional role')
     )
     serial = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name='Serial number'
+        verbose_name=_('Serial number')
     )
     asset_tag = models.CharField(
         max_length=50,
         blank=True,
         null=True,
         unique=True,
-        verbose_name='Asset tag',
-        help_text='A unique tag used to identify this rack'
+        verbose_name=_('Asset tag'),
+        help_text=_('A unique tag used to identify this rack')
     )
     type = models.CharField(
         choices=RackTypeChoices,
         max_length=50,
         blank=True,
-        verbose_name='Type'
+        verbose_name=_('Type')
     )
     width = models.PositiveSmallIntegerField(
         choices=RackWidthChoices,
         default=RackWidthChoices.WIDTH_19IN,
-        verbose_name='Width',
-        help_text='Rail-to-rail width'
+        verbose_name=_('Width'),
+        help_text=_('Rail-to-rail width')
     )
     u_height = models.PositiveSmallIntegerField(
         default=RACK_U_HEIGHT_DEFAULT,
-        verbose_name='Height (U)',
+        verbose_name=_('Height (U)'),
         validators=[MinValueValidator(1), MaxValueValidator(100)],
-        help_text='Height in rack units'
+        help_text=_('Height in rack units')
     )
     desc_units = models.BooleanField(
         default=False,
-        verbose_name='Descending units',
-        help_text='Units are numbered top-to-bottom'
+        verbose_name=_('Descending units'),
+        help_text=_('Units are numbered top-to-bottom')
     )
     outer_width = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
-        help_text='Outer dimension of rack (width)'
+        help_text=_('Outer dimension of rack (width)')
     )
     outer_depth = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
-        help_text='Outer dimension of rack (depth)'
+        help_text=_('Outer dimension of rack (depth)')
     )
     outer_unit = models.CharField(
         max_length=50,
@@ -949,24 +950,24 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
     part_number = models.CharField(
         max_length=50,
         blank=True,
-        help_text='Discrete part number (optional)'
+        help_text=_('Discrete part number (optional)')
     )
     u_height = models.PositiveSmallIntegerField(
         default=1,
-        verbose_name='Height (U)'
+        verbose_name=_('Height (U)')
     )
     is_full_depth = models.BooleanField(
         default=True,
-        verbose_name='Is full depth',
-        help_text='Device consumes both front and rear rack faces'
+        verbose_name=_('Is full depth'),
+        help_text=_('Device consumes both front and rear rack faces')
     )
     subdevice_role = models.CharField(
         max_length=50,
         choices=SubdeviceRoleChoices,
         blank=True,
-        verbose_name='Parent/child status',
-        help_text='Parent devices house child devices in device bays. Leave blank '
-                  'if this device type is neither a parent nor a child.'
+        verbose_name=_('Parent/child status'),
+        help_text=_('Parent devices house child devices in device bays. Leave blank '
+                  'if this device type is neither a parent nor a child.')
     )
     front_image = models.ImageField(
         upload_to='devicetype-images',
@@ -1200,8 +1201,8 @@ class DeviceRole(ChangeLoggedModel):
     )
     vm_role = models.BooleanField(
         default=True,
-        verbose_name='VM Role',
-        help_text='Virtual machines may be assigned to this role'
+        verbose_name=_('VM Role'),
+        help_text=_('Virtual machines may be assigned to this role')
     )
     description = models.CharField(
         max_length=200,
@@ -1246,19 +1247,19 @@ class Platform(ChangeLoggedModel):
         related_name='platforms',
         blank=True,
         null=True,
-        help_text='Optionally limit this platform to devices of a certain manufacturer'
+        help_text=_('Optionally limit this platform to devices of a certain manufacturer')
     )
     napalm_driver = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name='NAPALM driver',
-        help_text='The name of the NAPALM driver to use when interacting with devices'
+        verbose_name=_('NAPALM driver'),
+        help_text=_('The name of the NAPALM driver to use when interacting with devices')
     )
     napalm_args = JSONField(
         blank=True,
         null=True,
-        verbose_name='NAPALM arguments',
-        help_text='Additional arguments to pass when initiating the NAPALM driver (JSON format)'
+        verbose_name=_('NAPALM arguments'),
+        help_text=_('Additional arguments to pass when initiating the NAPALM driver (JSON format)')
     )
     description = models.CharField(
         max_length=200,
@@ -1338,15 +1339,15 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     serial = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name='Serial number'
+        verbose_name=_('Serial number')
     )
     asset_tag = models.CharField(
         max_length=50,
         blank=True,
         null=True,
         unique=True,
-        verbose_name='Asset tag',
-        help_text='A unique tag used to identify this device'
+        verbose_name=_('Asset tag'),
+        help_text=_('A unique tag used to identify this device')
     )
     site = models.ForeignKey(
         to='dcim.Site',
@@ -1364,14 +1365,14 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        verbose_name='Position (U)',
-        help_text='The lowest-numbered unit occupied by the device'
+        verbose_name=_('Position (U)'),
+        help_text=_('The lowest-numbered unit occupied by the device')
     )
     face = models.CharField(
         max_length=50,
         blank=True,
         choices=DeviceFaceChoices,
-        verbose_name='Rack face'
+        verbose_name=_('Rack face')
     )
     status = models.CharField(
         max_length=50,
@@ -1384,7 +1385,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         related_name='primary_ip4_for',
         blank=True,
         null=True,
-        verbose_name='Primary IPv4'
+        verbose_name=_('Primary IPv4')
     )
     primary_ip6 = models.OneToOneField(
         to='ipam.IPAddress',
@@ -1392,7 +1393,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         related_name='primary_ip6_for',
         blank=True,
         null=True,
-        verbose_name='Primary IPv6'
+        verbose_name=_('Primary IPv6')
     )
     cluster = models.ForeignKey(
         to='virtualization.Cluster',
@@ -1904,7 +1905,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     max_utilization = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)],
         default=POWERFEED_MAX_UTILIZATION_DEFAULT,
-        help_text="Maximum permissible draw (percentage)"
+        help_text=_('Maximum permissible draw (percentage)')
     )
     available_power = models.PositiveIntegerField(
         default=0,

@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.translation import gettext as _
 
 from dcim.choices import *
 from dcim.constants import *
@@ -154,13 +155,13 @@ class PowerPortTemplate(ComponentTemplateModel):
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Maximum power draw (watts)"
+        help_text=_('Maximum power draw (watts)')
     )
     allocated_draw = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Allocated power draw (watts)"
+        help_text=_('Allocated power draw (watts)')
     )
 
     class Meta:
@@ -213,7 +214,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
         max_length=50,
         choices=PowerOutletFeedLegChoices,
         blank=True,
-        help_text="Phase (for three-phase feeds)"
+        help_text=_('Phase (for three-phase feeds)')
     )
 
     class Meta:
@@ -269,7 +270,7 @@ class InterfaceTemplate(ComponentTemplateModel):
     )
     mgmt_only = models.BooleanField(
         default=False,
-        verbose_name='Management only'
+        verbose_name=_('Management only')
     )
 
     class Meta:

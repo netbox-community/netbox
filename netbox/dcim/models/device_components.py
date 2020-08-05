@@ -6,6 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from taggit.managers import TaggableManager
 
 from dcim.choices import *
@@ -252,7 +253,7 @@ class ConsolePort(CableTermination, ComponentModel):
         max_length=50,
         choices=ConsolePortTypeChoices,
         blank=True,
-        help_text='Physical port type'
+        help_text=_('Physical port type')
     )
     connected_endpoint = models.OneToOneField(
         to='dcim.ConsoleServerPort',
@@ -311,7 +312,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         max_length=50,
         choices=ConsolePortTypeChoices,
         blank=True,
-        help_text='Physical port type'
+        help_text=_('Physical port type')
     )
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,
@@ -363,19 +364,19 @@ class PowerPort(CableTermination, ComponentModel):
         max_length=50,
         choices=PowerPortTypeChoices,
         blank=True,
-        help_text='Physical port type'
+        help_text=_('Physical port type')
     )
     maximum_draw = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Maximum power draw (watts)"
+        help_text=_('Maximum power draw (watts)')
     )
     allocated_draw = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
-        help_text="Allocated power draw (watts)"
+        help_text=_('Allocated power draw (watts)')
     )
     _connected_poweroutlet = models.OneToOneField(
         to='dcim.PowerOutlet',
@@ -523,7 +524,7 @@ class PowerOutlet(CableTermination, ComponentModel):
         max_length=50,
         choices=PowerOutletTypeChoices,
         blank=True,
-        help_text='Physical port type'
+        help_text=_('Physical port type')
     )
     power_port = models.ForeignKey(
         to='dcim.PowerPort',
@@ -536,7 +537,7 @@ class PowerOutlet(CableTermination, ComponentModel):
         max_length=50,
         choices=PowerOutletFeedLegChoices,
         blank=True,
-        help_text="Phase (for three-phase feeds)"
+        help_text=_('Phase (for three-phase feeds)')
     )
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,
@@ -629,7 +630,7 @@ class Interface(CableTermination, ComponentModel):
         related_name='member_interfaces',
         null=True,
         blank=True,
-        verbose_name='Parent LAG'
+        verbose_name=_('Parent LAG')
     )
     type = models.CharField(
         max_length=50,
@@ -641,18 +642,18 @@ class Interface(CableTermination, ComponentModel):
     mac_address = MACAddressField(
         null=True,
         blank=True,
-        verbose_name='MAC Address'
+        verbose_name=_('MAC Address')
     )
     mtu = models.PositiveIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1), MaxValueValidator(65536)],
-        verbose_name='MTU'
+        verbose_name=_('MTU')
     )
     mgmt_only = models.BooleanField(
         default=False,
-        verbose_name='OOB Management',
-        help_text='This interface is used only for out-of-band management'
+        verbose_name=_('OOB Management'),
+        help_text=_('This interface is used only for out-of-band management')
     )
     mode = models.CharField(
         max_length=50,
@@ -665,13 +666,13 @@ class Interface(CableTermination, ComponentModel):
         related_name='interfaces_as_untagged',
         null=True,
         blank=True,
-        verbose_name='Untagged VLAN'
+        verbose_name=_('Untagged VLAN')
     )
     tagged_vlans = models.ManyToManyField(
         to='ipam.VLAN',
         related_name='interfaces_as_tagged',
         blank=True,
-        verbose_name='Tagged VLANs'
+        verbose_name=_('Tagged VLANs')
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -976,7 +977,7 @@ class DeviceBay(ComponentModel):
     )
     name = models.CharField(
         max_length=50,
-        verbose_name='Name'
+        verbose_name=_('Name')
     )
     _name = NaturalOrderingField(
         target_field='name',
@@ -1056,7 +1057,7 @@ class InventoryItem(ComponentModel):
     )
     name = models.CharField(
         max_length=50,
-        verbose_name='Name'
+        verbose_name=_('Name')
     )
     _name = NaturalOrderingField(
         target_field='name',
@@ -1072,13 +1073,13 @@ class InventoryItem(ComponentModel):
     )
     part_id = models.CharField(
         max_length=50,
-        verbose_name='Part ID',
+        verbose_name=_('Part ID'),
         blank=True,
-        help_text='Manufacturer-assigned part identifier'
+        help_text=_('Manufacturer-assigned part identifier')
     )
     serial = models.CharField(
         max_length=50,
-        verbose_name='Serial number',
+        verbose_name=_('Serial number'),
         blank=True
     )
     asset_tag = models.CharField(
@@ -1086,12 +1087,12 @@ class InventoryItem(ComponentModel):
         unique=True,
         blank=True,
         null=True,
-        verbose_name='Asset tag',
-        help_text='A unique tag used to identify this item'
+        verbose_name=_('Asset tag'),
+        help_text=_('A unique tag used to identify this item')
     )
     discovered = models.BooleanField(
         default=False,
-        help_text='This item was automatically discovered'
+        help_text=_('This item was automatically discovered')
     )
 
     tags = TaggableManager(through=TaggedItem)

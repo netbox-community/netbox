@@ -1,5 +1,6 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
+from django.utils.translation import gettext as _
 
 from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ColoredLabelColumn, TagColumn, ToggleColumn
@@ -196,7 +197,7 @@ class RegionTable(BaseTable):
         orderable=False
     )
     site_count = tables.Column(
-        verbose_name='Sites'
+        verbose_name=_('Sites')
     )
     actions = tables.TemplateColumn(
         template_code=REGION_ACTIONS,
@@ -255,10 +256,10 @@ class RackGroupTable(BaseTable):
     site = tables.LinkColumn(
         viewname='dcim:site',
         args=[Accessor('site.slug')],
-        verbose_name='Site'
+        verbose_name=_('Site')
     )
     rack_count = tables.Column(
-        verbose_name='Racks'
+        verbose_name=_('Racks')
     )
     actions = tables.TemplateColumn(
         template_code=RACKGROUP_ACTIONS,
@@ -315,7 +316,7 @@ class RackTable(BaseTable):
     role = ColoredLabelColumn()
     u_height = tables.TemplateColumn(
         template_code="{{ record.u_height }}U",
-        verbose_name='Height'
+        verbose_name=_('Height')
     )
 
     class Meta(BaseTable.Meta):
@@ -330,17 +331,17 @@ class RackTable(BaseTable):
 class RackDetailTable(RackTable):
     device_count = tables.TemplateColumn(
         template_code=RACK_DEVICE_COUNT,
-        verbose_name='Devices'
+        verbose_name=_('Devices')
     )
     get_utilization = tables.TemplateColumn(
         template_code=UTILIZATION_GRAPH,
         orderable=False,
-        verbose_name='Space'
+        verbose_name=_('Space')
     )
     get_power_utilization = tables.TemplateColumn(
         template_code=UTILIZATION_GRAPH,
         orderable=False,
-        verbose_name='Power'
+        verbose_name=_('Power')
     )
     tags = TagColumn(
         url_name='dcim:rack_list'
@@ -382,7 +383,7 @@ class RackReservationTable(BaseTable):
     )
     unit_list = tables.Column(
         orderable=False,
-        verbose_name='Units'
+        verbose_name=_('Units')
     )
     actions = tables.TemplateColumn(
         template_code=RACKRESERVATION_ACTIONS,
@@ -408,13 +409,13 @@ class ManufacturerTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
     devicetype_count = tables.Column(
-        verbose_name='Device Types'
+        verbose_name=_('Device Types')
     )
     inventoryitem_count = tables.Column(
-        verbose_name='Inventory Items'
+        verbose_name=_('Inventory Items')
     )
     platform_count = tables.Column(
-        verbose_name='Platforms'
+        verbose_name=_('Platforms')
     )
     slug = tables.Column()
     actions = tables.TemplateColumn(
@@ -439,14 +440,14 @@ class DeviceTypeTable(BaseTable):
     model = tables.LinkColumn(
         viewname='dcim:devicetype',
         args=[Accessor('pk')],
-        verbose_name='Device Type'
+        verbose_name=_('Device Type')
     )
     is_full_depth = BooleanColumn(
-        verbose_name='Full Depth'
+        verbose_name=_('Full Depth')
     )
     instance_count = tables.TemplateColumn(
         template_code=DEVICETYPE_INSTANCES_TEMPLATE,
-        verbose_name='Instances'
+        verbose_name=_('Instances')
     )
     tags = TagColumn(
         url_name='dcim:devicetype_list'
@@ -608,7 +609,7 @@ class InterfaceImportTable(BaseTable):
     virtual_machine = tables.LinkColumn(
         viewname='virtualization:virtualmachine',
         args=[Accessor('virtual_machine.pk')],
-        verbose_name='Virtual Machine'
+        verbose_name=_('Virtual Machine')
     )
 
     class Meta(BaseTable.Meta):
@@ -626,7 +627,7 @@ class FrontPortTemplateTable(BaseTable):
         order_by=('_name',)
     )
     rear_port_position = tables.Column(
-        verbose_name='Position'
+        verbose_name=_('Position')
     )
     actions = tables.TemplateColumn(
         template_code=get_component_template_actions('frontporttemplate'),
@@ -706,15 +707,15 @@ class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
     device_count = tables.TemplateColumn(
         template_code=DEVICEROLE_DEVICE_COUNT,
-        verbose_name='Devices'
+        verbose_name=_('Devices')
     )
     vm_count = tables.TemplateColumn(
         template_code=DEVICEROLE_VM_COUNT,
-        verbose_name='VMs'
+        verbose_name=_('VMs')
     )
     color = tables.TemplateColumn(
         template_code=COLOR_LABEL,
-        verbose_name='Label'
+        verbose_name=_('Label')
     )
     vm_role = BooleanColumn()
     actions = tables.TemplateColumn(
@@ -737,11 +738,11 @@ class PlatformTable(BaseTable):
     pk = ToggleColumn()
     device_count = tables.TemplateColumn(
         template_code=PLATFORM_DEVICE_COUNT,
-        verbose_name='Devices'
+        verbose_name=_('Devices')
     )
     vm_count = tables.TemplateColumn(
         template_code=PLATFORM_VM_COUNT,
-        verbose_name='VMs'
+        verbose_name=_('VMs')
     )
     actions = tables.TemplateColumn(
         template_code=PLATFORM_ACTIONS,
@@ -785,28 +786,28 @@ class DeviceTable(BaseTable):
         args=[Accessor('rack.pk')]
     )
     device_role = ColoredLabelColumn(
-        verbose_name='Role'
+        verbose_name=_('Role')
     )
     device_type = tables.LinkColumn(
         viewname='dcim:devicetype',
         args=[Accessor('device_type.pk')],
-        verbose_name='Type',
+        verbose_name=_('Type'),
         text=lambda record: record.device_type.display_name
     )
     primary_ip = tables.TemplateColumn(
         template_code=DEVICE_PRIMARY_IP,
         orderable=False,
-        verbose_name='IP Address'
+        verbose_name=_('IP Address')
     )
     primary_ip4 = tables.LinkColumn(
         viewname='ipam:ipaddress',
         args=[Accessor('primary_ip4.pk')],
-        verbose_name='IPv4 Address'
+        verbose_name=_('IPv4 Address')
     )
     primary_ip6 = tables.LinkColumn(
         viewname='ipam:ipaddress',
         args=[Accessor('primary_ip6.pk')],
-        verbose_name='IPv6 Address'
+        verbose_name=_('IPv6 Address')
     )
     cluster = tables.LinkColumn(
         viewname='virtualization:cluster',
@@ -817,10 +818,10 @@ class DeviceTable(BaseTable):
         args=[Accessor('virtual_chassis.pk')]
     )
     vc_position = tables.Column(
-        verbose_name='VC Position'
+        verbose_name=_('VC Position')
     )
     vc_priority = tables.Column(
-        verbose_name='VC Priority'
+        verbose_name=_('VC Priority')
     )
     tags = TagColumn(
         url_name='dcim:device_list'
@@ -857,10 +858,10 @@ class DeviceImportTable(BaseTable):
         args=[Accessor('rack.pk')]
     )
     device_role = tables.Column(
-        verbose_name='Role'
+        verbose_name=_('Role')
     )
     device_type = tables.Column(
-        verbose_name='Type'
+        verbose_name=_('Type')
     )
 
     class Meta(BaseTable.Meta):
@@ -1031,29 +1032,29 @@ class CableTable(BaseTable):
     id = tables.LinkColumn(
         viewname='dcim:cable',
         args=[Accessor('pk')],
-        verbose_name='ID'
+        verbose_name=_('ID')
     )
     termination_a_parent = tables.TemplateColumn(
         template_code=CABLE_TERMINATION_PARENT,
         accessor=Accessor('termination_a'),
         orderable=False,
-        verbose_name='Side A'
+        verbose_name=_('Side A')
     )
     termination_a = tables.LinkColumn(
         accessor=Accessor('termination_a'),
         orderable=False,
-        verbose_name='Termination A'
+        verbose_name=_('Termination A')
     )
     termination_b_parent = tables.TemplateColumn(
         template_code=CABLE_TERMINATION_PARENT,
         accessor=Accessor('termination_b'),
         orderable=False,
-        verbose_name='Side B'
+        verbose_name=_('Side B')
     )
     termination_b = tables.LinkColumn(
         accessor=Accessor('termination_b'),
         orderable=False,
-        verbose_name='Termination B'
+        verbose_name=_('Termination B')
     )
     status = tables.TemplateColumn(
         template_code=STATUS_LABEL
@@ -1085,17 +1086,17 @@ class ConsoleConnectionTable(BaseTable):
         viewname='dcim:device',
         accessor=Accessor('connected_endpoint.device'),
         args=[Accessor('connected_endpoint.device.pk')],
-        verbose_name='Console Server'
+        verbose_name=_('Console Server')
     )
     connected_endpoint = tables.Column(
-        verbose_name='Port'
+        verbose_name=_('Port')
     )
     device = tables.LinkColumn(
         viewname='dcim:device',
         args=[Accessor('device.pk')]
     )
     name = tables.Column(
-        verbose_name='Console Port'
+        verbose_name=_('Console Port')
     )
 
     class Meta(BaseTable.Meta):
@@ -1109,18 +1110,18 @@ class PowerConnectionTable(BaseTable):
         accessor=Accessor('connected_endpoint.device'),
         args=[Accessor('connected_endpoint.device.pk')],
         order_by='_connected_poweroutlet__device',
-        verbose_name='PDU'
+        verbose_name=_('PDU')
     )
     outlet = tables.Column(
         accessor=Accessor('_connected_poweroutlet'),
-        verbose_name='Outlet'
+        verbose_name=_('Outlet')
     )
     device = tables.LinkColumn(
         viewname='dcim:device',
         args=[Accessor('device.pk')]
     )
     name = tables.Column(
-        verbose_name='Power Port'
+        verbose_name=_('Power Port')
     )
 
     class Meta(BaseTable.Meta):
@@ -1133,25 +1134,25 @@ class InterfaceConnectionTable(BaseTable):
         viewname='dcim:device',
         accessor=Accessor('device'),
         args=[Accessor('device.pk')],
-        verbose_name='Device A'
+        verbose_name=_('Device A')
     )
     interface_a = tables.LinkColumn(
         viewname='dcim:interface',
         accessor=Accessor('name'),
         args=[Accessor('pk')],
-        verbose_name='Interface A'
+        verbose_name=_('Interface A')
     )
     device_b = tables.LinkColumn(
         viewname='dcim:device',
         accessor=Accessor('_connected_interface.device'),
         args=[Accessor('_connected_interface.device.pk')],
-        verbose_name='Device B'
+        verbose_name=_('Device B')
     )
     interface_b = tables.LinkColumn(
         viewname='dcim:interface',
         accessor=Accessor('_connected_interface'),
         args=[Accessor('_connected_interface.pk')],
-        verbose_name='Interface B'
+        verbose_name=_('Interface B')
     )
 
     class Meta(BaseTable.Meta):
@@ -1195,7 +1196,7 @@ class VirtualChassisTable(BaseTable):
         linkify=True
     )
     member_count = tables.Column(
-        verbose_name='Members'
+        verbose_name=_('Members')
     )
     tags = TagColumn(
         url_name='dcim:virtualchassis_list'
@@ -1220,7 +1221,7 @@ class PowerPanelTable(BaseTable):
     )
     powerfeed_count = tables.TemplateColumn(
         template_code=POWERPANEL_POWERFEED_COUNT,
-        verbose_name='Feeds'
+        verbose_name=_('Feeds')
     )
 
     class Meta(BaseTable.Meta):
@@ -1254,7 +1255,7 @@ class PowerFeedTable(BaseTable):
         template_code="{{ value }}%"
     )
     available_power = tables.Column(
-        verbose_name='Available power (VA)'
+        verbose_name=_('Available power (VA)')
     )
     tags = TagColumn(
         url_name='dcim:powerfeed_list'

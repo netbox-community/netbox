@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from django.views.generic import View
 
 from utilities.views import (
@@ -117,7 +118,7 @@ def secret_add(request):
                     secret.save()
                     form.save_m2m()
 
-                    messages.success(request, "Added new secret: {}.".format(secret))
+                    messages.success(request, _("Added new secret: {}.").format(secret))
                     if '_addanother' in request.POST:
                         return redirect('secrets:secret_add')
                     else:
@@ -164,7 +165,7 @@ def secret_edit(request, pk):
                     secret.plaintext = form.cleaned_data['plaintext']
                     secret.encrypt(master_key)
                     secret.save()
-                    messages.success(request, "Modified secret {}.".format(secret))
+                    messages.success(request, _("Modified secret {}.").format(secret))
                     return redirect('secrets:secret', pk=secret.pk)
                 else:
                     form.add_error(None, "Invalid session key. Unable to encrypt secret data.")

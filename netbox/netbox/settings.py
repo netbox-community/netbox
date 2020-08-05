@@ -681,3 +681,12 @@ for plugin_name in PLUGINS:
     CACHEOPS.update({
         "{}.{}".format(plugin_name, key): value for key, value in plugin_config.caching_config.items()
     })
+
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
+
+LANGUAGES = (
+    ('en', 'English'),
+    ('zh-Hans', '中文简体'),
+)

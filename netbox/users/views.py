@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
+from django.utils.translation import gettext as _
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 
@@ -64,7 +65,7 @@ class LoginView(View):
             # Authenticate user
             auth_login(request, form.get_user())
             logger.info(f"User {request.user} successfully authenticated")
-            messages.info(request, "Logged in as {}.".format(request.user))
+            messages.info(request, _("Logged in as {}.").format(request.user))
 
             logger.debug(f"Redirecting user to {redirect_to}")
             return HttpResponseRedirect(redirect_to)
@@ -88,7 +89,7 @@ class LogoutView(View):
         username = request.user
         auth_logout(request)
         logger.info(f"User {username} has logged out")
-        messages.info(request, "You have logged out.")
+        messages.info(request, _('You have logged out.'))
 
         # Delete session key cookie (if set) upon logout
         response = HttpResponseRedirect(reverse('home'))
@@ -130,7 +131,7 @@ class UserConfigView(LoginRequiredMixin, View):
             if key in data:
                 userconfig.clear(key)
         userconfig.save()
-        messages.success(request, "Your preferences have been updated.")
+        messages.success(request, _('Your preferences have been updated.'))
 
         return redirect('user:preferences')
 
@@ -156,7 +157,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)
-            messages.success(request, "Your password has been changed successfully.")
+            messages.success(request, _('Your password has been changed successfully.'))
             return redirect('user:profile')
 
         return render(request, self.template_name, {
@@ -206,7 +207,7 @@ class UserKeyEditView(LoginRequiredMixin, View):
             uk = form.save(commit=False)
             uk.user = request.user
             uk.save()
-            messages.success(request, "Your user key has been saved.")
+            messages.success(request, _('Your user key has been saved.'))
             return redirect('user:userkey')
 
         return render(request, self.template_name, {
@@ -237,7 +238,7 @@ class SessionKeyDeleteView(LoginRequiredMixin, View):
 
             # Delete session key
             sessionkey.delete()
-            messages.success(request, "Session key deleted")
+            messages.success(request, _('Session key deleted'))
 
             # Delete cookie
             response = redirect('user:userkey')
@@ -304,7 +305,7 @@ class TokenEditView(LoginRequiredMixin, View):
             token.user = request.user
             token.save()
 
-            msg = "Modified token {}".format(token) if pk else "Created token {}".format(token)
+            msg = _("Modified token {}").format(token) if pk else _("Created token {}").format(token)
             messages.success(request, msg)
 
             if '_addanother' in request.POST:
@@ -344,7 +345,7 @@ class TokenDeleteView(PermissionRequiredMixin, View):
         form = ConfirmationForm(request.POST)
         if form.is_valid():
             token.delete()
-            messages.success(request, "Token deleted")
+            messages.success(request, _('Token deleted'))
             return redirect('user:token_list')
 
         return render(request, 'utilities/obj_delete.html', {

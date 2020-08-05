@@ -1,6 +1,7 @@
 import django_filters
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from django.utils.translation import gettext as _
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
@@ -107,7 +108,7 @@ class ExportTemplateFilterSet(BaseFilterSet):
 class TagFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
 
     class Meta:
@@ -126,95 +127,95 @@ class TagFilterSet(BaseFilterSet):
 class ConfigContextFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     region_id = django_filters.ModelMultipleChoiceFilter(
         field_name='regions',
         queryset=Region.objects.all(),
-        label='Region',
+        label=_('Region'),
     )
     region = django_filters.ModelMultipleChoiceFilter(
         field_name='regions__slug',
         queryset=Region.objects.all(),
         to_field_name='slug',
-        label='Region (slug)',
+        label=_('Region (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='sites',
         queryset=Site.objects.all(),
-        label='Site',
+        label=_('Site'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='sites__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
-        label='Site (slug)',
+        label=_('Site (slug)'),
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         field_name='roles',
         queryset=DeviceRole.objects.all(),
-        label='Role',
+        label=_('Role'),
     )
     role = django_filters.ModelMultipleChoiceFilter(
         field_name='roles__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
-        label='Role (slug)',
+        label=_('Role (slug)'),
     )
     platform_id = django_filters.ModelMultipleChoiceFilter(
         field_name='platforms',
         queryset=Platform.objects.all(),
-        label='Platform',
+        label=_('Platform'),
     )
     platform = django_filters.ModelMultipleChoiceFilter(
         field_name='platforms__slug',
         queryset=Platform.objects.all(),
         to_field_name='slug',
-        label='Platform (slug)',
+        label=_('Platform (slug)'),
     )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster_groups',
         queryset=ClusterGroup.objects.all(),
-        label='Cluster group',
+        label=_('Cluster group'),
     )
     cluster_group = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster_groups__slug',
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
-        label='Cluster group (slug)',
+        label=_('Cluster group (slug)'),
     )
     cluster_id = django_filters.ModelMultipleChoiceFilter(
         field_name='clusters',
         queryset=Cluster.objects.all(),
-        label='Cluster',
+        label=_('Cluster'),
     )
     tenant_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='tenant_groups',
         queryset=TenantGroup.objects.all(),
-        label='Tenant group',
+        label=_('Tenant group'),
     )
     tenant_group = django_filters.ModelMultipleChoiceFilter(
         field_name='tenant_groups__slug',
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
-        label='Tenant group (slug)',
+        label=_('Tenant group (slug)'),
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         field_name='tenants',
         queryset=Tenant.objects.all(),
-        label='Tenant',
+        label=_('Tenant'),
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
         field_name='tenants__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
-        label='Tenant (slug)',
+        label=_('Tenant (slug)'),
     )
     tag = django_filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         queryset=Tag.objects.all(),
         to_field_name='slug',
-        label='Tag (slug)',
+        label=_('Tag (slug)'),
     )
 
     class Meta:
@@ -238,7 +239,7 @@ class ConfigContextFilterSet(BaseFilterSet):
 class LocalConfigContextFilterSet(django_filters.FilterSet):
     local_context_data = django_filters.BooleanFilter(
         method='_local_context_data',
-        label='Has local config context data',
+        label=_('Has local config context data'),
     )
 
     def _local_context_data(self, queryset, name, value):
@@ -248,7 +249,7 @@ class LocalConfigContextFilterSet(django_filters.FilterSet):
 class ObjectChangeFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
-        label='Search',
+        label=_('Search'),
     )
     time = django_filters.DateTimeFromToRangeFilter()
 

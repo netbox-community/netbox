@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.utils.translation import gettext as _
 
 from utilities.tables import BaseTable, TagColumn, ToggleColumn
 from .models import SecretRole, Secret
@@ -21,7 +22,7 @@ class SecretRoleTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
     secret_count = tables.Column(
-        verbose_name='Secrets'
+        verbose_name=_('Secrets')
     )
     actions = tables.TemplateColumn(
         template_code=SECRETROLE_ACTIONS,

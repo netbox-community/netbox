@@ -7,6 +7,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
+from django.utils.translation import gettext as _
 
 from utilities.forms import CSVChoiceField, DatePicker, LaxURLField, StaticSelect2, add_blank_choice
 from extras.choices import *
@@ -70,9 +71,9 @@ class CustomField(models.Model):
     obj_type = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
-        verbose_name='Object(s)',
+        verbose_name=_('Object(s)'),
         limit_choices_to=FeatureQuery('custom_fields'),
-        help_text='The object(s) to which this field applies.'
+        help_text=_('The object(s) to which this field applies.')
     )
     type = models.CharField(
         max_length=50,
@@ -86,8 +87,8 @@ class CustomField(models.Model):
     label = models.CharField(
         max_length=50,
         blank=True,
-        help_text='Name of the field as displayed to users (if not provided, '
-                  'the field\'s name will be used)'
+        help_text=_('Name of the field as displayed to users (if not provided, '
+                  'the field\'s name will be used)')
     )
     description = models.CharField(
         max_length=200,
@@ -95,24 +96,24 @@ class CustomField(models.Model):
     )
     required = models.BooleanField(
         default=False,
-        help_text='If true, this field is required when creating new objects '
-                  'or editing an existing object.'
+        help_text=_('If true, this field is required when creating new objects '
+                  'or editing an existing object.')
     )
     filter_logic = models.CharField(
         max_length=50,
         choices=CustomFieldFilterLogicChoices,
         default=CustomFieldFilterLogicChoices.FILTER_LOOSE,
-        help_text='Loose matches any instance of a given string; exact '
-                  'matches the entire field.'
+        help_text=_('Loose matches any instance of a given string; exact '
+                  'matches the entire field.')
     )
     default = models.CharField(
         max_length=100,
         blank=True,
-        help_text='Default value for the field. Use "true" or "false" for booleans.'
+        help_text=_('Default value for the field. Use "true" or "false" for booleans.')
     )
     weight = models.PositiveSmallIntegerField(
         default=100,
-        help_text='Fields with higher weights appear lower in a form.'
+        help_text=_('Fields with higher weights appear lower in a form.')
     )
 
     objects = CustomFieldManager()
@@ -284,7 +285,7 @@ class CustomFieldChoice(models.Model):
     )
     weight = models.PositiveSmallIntegerField(
         default=100,
-        help_text='Higher weights appear lower in the list'
+        help_text=_('Higher weights appear lower in the list')
     )
 
     class Meta:

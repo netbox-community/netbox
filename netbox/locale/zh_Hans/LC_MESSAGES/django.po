@@ -1,0 +1,1968 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-05 19:22+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: circuits/apps.py:7 circuits/tables.py:33 circuits/tables.py:55
+#: netbox/forms.py:8 netbox/forms.py:10
+msgid "Circuits"
+msgstr ""
+
+#: circuits/filters.py:25 circuits/filters.py:79 circuits/filters.py:151
+#: circuits/forms.py:104 circuits/forms.py:268 dcim/filters.py:84
+#: dcim/filters.py:183 dcim/filters.py:262 dcim/filters.py:328
+#: dcim/filters.py:509 dcim/filters.py:707 dcim/filters.py:821
+#: dcim/filters.py:950 dcim/filters.py:1023 dcim/filters.py:1079
+#: dcim/filters.py:1238 dcim/filters.py:1286 dcim/forms.py:69 dcim/forms.py:213
+#: dcim/forms.py:343 dcim/forms.py:659 dcim/forms.py:857 dcim/forms.py:966
+#: dcim/forms.py:2042 dcim/forms.py:3825 dcim/forms.py:4046 dcim/forms.py:4232
+#: dcim/forms.py:4357 dcim/forms.py:4575 extras/filters.py:111
+#: extras/filters.py:130 extras/filters.py:252 extras/forms.py:185
+#: extras/forms.py:289 extras/forms.py:397 ipam/filters.py:36
+#: ipam/filters.py:64 ipam/filters.py:114 ipam/filters.py:125
+#: ipam/filters.py:275 ipam/filters.py:429 ipam/filters.py:498 ipam/forms.py:97
+#: ipam/forms.py:206 ipam/forms.py:437 ipam/forms.py:854 ipam/forms.py:866
+#: ipam/forms.py:1112 ipam/forms.py:1208 netbox/forms.py:44
+#: secrets/filters.py:28 secrets/forms.py:183 tenancy/filters.py:37
+#: tenancy/forms.py:106 utilities/filters.py:278 virtualization/filters.py:41
+#: virtualization/filters.py:110 virtualization/filters.py:208
+#: virtualization/forms.py:489
+msgid "Search"
+msgstr ""
+
+#: circuits/filters.py:31 circuits/filters.py:120 dcim/filters.py:94
+#: dcim/filters.py:138 dcim/filters.py:189 dcim/filters.py:551
+#: dcim/filters.py:713 dcim/filters.py:956 dcim/filters.py:1029
+#: dcim/filters.py:1244 dcim/filters.py:1292 ipam/filters.py:165
+#: ipam/filters.py:401 ipam/filters.py:435 virtualization/filters.py:47
+#: virtualization/filters.py:146
+msgid "Region (ID)"
+msgstr ""
+
+#: circuits/filters.py:38 circuits/filters.py:127 dcim/filters.py:101
+#: dcim/filters.py:145 dcim/filters.py:196 dcim/filters.py:558
+#: dcim/filters.py:720 dcim/filters.py:963 dcim/filters.py:1036
+#: dcim/filters.py:1251 dcim/filters.py:1299 extras/filters.py:141
+#: ipam/filters.py:172 ipam/filters.py:408 ipam/filters.py:442
+#: virtualization/filters.py:54 virtualization/filters.py:153
+msgid "Region (slug)"
+msgstr ""
+
+#: circuits/filters.py:43 dcim/forms.py:3412 dcim/forms.py:3545
+#: dcim/forms.py:3584 dcim/tables.py:259 extras/filters.py:146
+#: ipam/forms.py:533
+msgid "Site"
+msgstr ""
+
+#: circuits/filters.py:49 circuits/filters.py:114 circuits/filters.py:165
+#: dcim/filters.py:155 dcim/filters.py:206 dcim/filters.py:277
+#: dcim/filters.py:1142 dcim/filters.py:1173 dcim/filters.py:1204
+#: extras/filters.py:152 ipam/filters.py:182 ipam/filters.py:418
+#: ipam/filters.py:452 virtualization/filters.py:64
+#: virtualization/filters.py:164
+msgid "Site (slug)"
+msgstr ""
+
+#: circuits/filters.py:83
+msgid "Provider (ID)"
+msgstr ""
+
+#: circuits/filters.py:89
+msgid "Provider (slug)"
+msgstr ""
+
+#: circuits/filters.py:93
+msgid "Circuit type (ID)"
+msgstr ""
+
+#: circuits/filters.py:99
+msgid "Circuit type (slug)"
+msgstr ""
+
+#: circuits/filters.py:108 circuits/filters.py:159 dcim/filters.py:149
+#: dcim/filters.py:200 dcim/filters.py:271 dcim/filters.py:562
+#: dcim/filters.py:725 dcim/filters.py:968 dcim/filters.py:1041
+#: dcim/filters.py:1255 dcim/filters.py:1304 ipam/filters.py:176
+#: ipam/filters.py:412 ipam/filters.py:446 virtualization/filters.py:58
+#: virtualization/filters.py:158
+msgid "Site (ID)"
+msgstr ""
+
+#: circuits/filters.py:155 dcim/forms.py:3555
+msgid "Circuit"
+msgstr ""
+
+#: circuits/forms.py:68 circuits/forms.py:127 circuits/models.py:42
+#: dcim/forms.py:320 dcim/models/__init__.py:191
+msgid "ASN"
+msgstr ""
+
+#: circuits/forms.py:73 circuits/models.py:48
+msgid "Account number"
+msgstr ""
+
+#: circuits/forms.py:77
+msgid "Portal"
+msgstr ""
+
+#: circuits/forms.py:82 circuits/models.py:56
+msgid "NOC contact"
+msgstr ""
+
+#: circuits/forms.py:87 circuits/models.py:60
+msgid "Admin contact"
+msgstr ""
+
+#: circuits/forms.py:91 circuits/forms.py:252 dcim/forms.py:645
+#: dcim/forms.py:4562 virtualization/forms.py:151 virtualization/forms.py:472
+msgid "Comments"
+msgstr ""
+
+#: circuits/forms.py:153
+msgid "Name of circuit type"
+msgstr ""
+
+#: circuits/forms.py:193
+msgid "Assigned provider"
+msgstr ""
+
+#: circuits/forms.py:198
+msgid "Type of circuit"
+msgstr ""
+
+#: circuits/forms.py:203 dcim/forms.py:271 dcim/forms.py:533 dcim/forms.py:1881
+#: dcim/forms.py:4466 ipam/forms.py:355 ipam/forms.py:719 ipam/forms.py:1038
+msgid "Operational status"
+msgstr ""
+
+#: circuits/forms.py:209 dcim/forms.py:283 dcim/forms.py:804 dcim/forms.py:1861
+#: ipam/forms.py:59 ipam/forms.py:333 ipam/forms.py:715 ipam/forms.py:1034
+#: virtualization/forms.py:120 virtualization/forms.py:410
+msgid "Assigned tenant"
+msgstr ""
+
+#: circuits/forms.py:244 circuits/forms.py:313
+msgid "Commit rate (Kbps)"
+msgstr ""
+
+#: circuits/models.py:43 dcim/models/__init__.py:192
+msgid "32-bit autonomous system number"
+msgstr ""
+
+#: circuits/models.py:52
+msgid "Portal URL"
+msgstr ""
+
+#: circuits/models.py:147
+msgid "Circuit ID"
+msgstr ""
+
+#: circuits/models.py:174
+msgid "Date installed"
+msgstr ""
+
+#: circuits/models.py:262
+msgid "Termination"
+msgstr ""
+
+#: circuits/models.py:281
+msgid "Port speed (Kbps)"
+msgstr ""
+
+#: circuits/models.py:286
+msgid "Upstream speed (Kbps)"
+msgstr ""
+
+#: circuits/models.py:287
+msgid "Upstream speed, if different from port speed"
+msgstr ""
+
+#: circuits/models.py:292
+msgid "Cross-connect ID"
+msgstr ""
+
+#: circuits/models.py:297
+msgid "Patch panel/port(s)"
+msgstr ""
+
+#: circuits/tables.py:76 dcim/tables.py:1035 ipam/models.py:893
+#: ipam/tables.py:552 ipam/tables.py:627
+msgid "ID"
+msgstr ""
+
+#: circuits/tables.py:89
+msgid "A Side"
+msgstr ""
+
+#: circuits/tables.py:92
+msgid "Z Side"
+msgstr ""
+
+#: circuits/views.py:254
+msgid "Swapped terminations for circuit {}."
+msgstr ""
+
+#: dcim/apps.py:6 netbox/forms.py:12
+msgid "DCIM"
+msgstr ""
+
+#: dcim/filters.py:67
+msgid "Parent region (ID)"
+msgstr ""
+
+#: dcim/filters.py:73
+msgid "Parent region (slug)"
+msgstr ""
+
+#: dcim/filters.py:159 dcim/filters.py:212 dcim/filters.py:283
+#: dcim/filters.py:574 dcim/filters.py:1267 dcim/forms.py:4384
+msgid "Rack group (ID)"
+msgstr ""
+
+#: dcim/filters.py:165 dcim/filters.py:219 dcim/filters.py:290
+msgid "Rack group (slug)"
+msgstr ""
+
+#: dcim/filters.py:227 dcim/filters.py:529 ipam/filters.py:194
+#: ipam/filters.py:466 secrets/filters.py:32 virtualization/filters.py:168
+msgid "Role (ID)"
+msgstr ""
+
+#: dcim/filters.py:233 dcim/filters.py:535 extras/filters.py:163
+#: ipam/filters.py:200 ipam/filters.py:472 secrets/filters.py:38
+#: virtualization/filters.py:174
+msgid "Role (slug)"
+msgstr ""
+
+#: dcim/filters.py:266 dcim/filters.py:579 dcim/filters.py:1319
+msgid "Rack (ID)"
+msgstr ""
+
+#: dcim/filters.py:294
+msgid "User (ID)"
+msgstr ""
+
+#: dcim/filters.py:300
+msgid "User (name)"
+msgstr ""
+
+#: dcim/filters.py:332 dcim/filters.py:486 dcim/filters.py:514
+#: dcim/filters.py:991
+msgid "Manufacturer (ID)"
+msgstr ""
+
+#: dcim/filters.py:338 dcim/filters.py:492 dcim/filters.py:520
+#: dcim/filters.py:997
+msgid "Manufacturer (slug)"
+msgstr ""
+
+#: dcim/filters.py:342 dcim/filters.py:621 dcim/forms.py:983 dcim/forms.py:2145
+msgid "Has console ports"
+msgstr ""
+
+#: dcim/filters.py:346 dcim/filters.py:625 dcim/forms.py:990 dcim/forms.py:2152
+msgid "Has console server ports"
+msgstr ""
+
+#: dcim/filters.py:350 dcim/filters.py:629 dcim/forms.py:997 dcim/forms.py:2159
+msgid "Has power ports"
+msgstr ""
+
+#: dcim/filters.py:354 dcim/filters.py:633 dcim/forms.py:1004
+#: dcim/forms.py:2166
+msgid "Has power outlets"
+msgstr ""
+
+#: dcim/filters.py:358 dcim/filters.py:637 dcim/forms.py:1011
+#: dcim/forms.py:2173
+msgid "Has interfaces"
+msgstr ""
+
+#: dcim/filters.py:362 dcim/filters.py:641 dcim/forms.py:1018
+#: dcim/forms.py:2180
+msgid "Has pass-through ports"
+msgstr ""
+
+#: dcim/filters.py:366 dcim/filters.py:645
+msgid "Has device bays"
+msgstr ""
+
+#: dcim/filters.py:415 dcim/filters.py:524
+msgid "Device type (ID)"
+msgstr ""
+
+#: dcim/filters.py:539 virtualization/filters.py:178
+msgid "Platform (ID)"
+msgstr ""
+
+#: dcim/filters.py:545 extras/filters.py:174 virtualization/filters.py:184
+msgid "Platform (slug)"
+msgstr ""
+
+#: dcim/filters.py:568 dcim/filters.py:731 dcim/filters.py:974
+#: dcim/filters.py:1047 dcim/filters.py:1261 dcim/filters.py:1310
+msgid "Site name (slug)"
+msgstr ""
+
+#: dcim/filters.py:583
+msgid "VM cluster (ID)"
+msgstr ""
+
+#: dcim/filters.py:589
+msgid "Device model (slug)"
+msgstr ""
+
+#: dcim/filters.py:597 dcim/forms.py:955 dcim/models/__init__.py:961
+msgid "Is full depth"
+msgstr ""
+
+#: dcim/filters.py:601 dcim/forms.py:2127 dcim/forms.py:2677
+#: virtualization/filters.py:188 virtualization/filters.py:222
+#: virtualization/forms.py:562
+msgid "MAC address"
+msgstr ""
+
+#: dcim/filters.py:608 dcim/forms.py:2131
+msgid "Has a primary IP"
+msgstr ""
+
+#: dcim/filters.py:613
+msgid "Virtual chassis (ID)"
+msgstr ""
+
+#: dcim/filters.py:617
+msgid "Is a virtual chassis member"
+msgstr ""
+
+#: dcim/filters.py:735 dcim/filters.py:833 dcim/filters.py:978
+#: ipam/filters.py:311 ipam/filters.py:502 secrets/filters.py:42
+msgid "Device (ID)"
+msgstr ""
+
+#: dcim/filters.py:741 dcim/filters.py:983 ipam/filters.py:306
+#: ipam/filters.py:508 secrets/filters.py:48
+msgid "Device (name)"
+msgstr ""
+
+#: dcim/filters.py:828 dcim/forms.py:96 dcim/forms.py:3436 dcim/forms.py:3879
+#: dcim/forms.py:3902 dcim/forms.py:3921 dcim/forms.py:3940 dcim/forms.py:4073
+#: ipam/forms.py:558
+msgid "Device"
+msgstr ""
+
+#: dcim/filters.py:842
+msgid "Kind of interface"
+msgstr ""
+
+#: dcim/filters.py:847
+msgid "LAG interface (ID)"
+msgstr ""
+
+#: dcim/filters.py:853 ipam/forms.py:351
+msgid "Assigned VLAN"
+msgstr ""
+
+#: dcim/filters.py:857
+msgid "Assigned VID"
+msgstr ""
+
+#: dcim/filters.py:987
+msgid "Parent inventory item (ID)"
+msgstr ""
+
+#: dcim/filters.py:1052 tenancy/filters.py:88
+msgid "Tenant (ID)"
+msgstr ""
+
+#: dcim/filters.py:1058 extras/filters.py:212 tenancy/filters.py:94
+msgid "Tenant (slug)"
+msgstr ""
+
+#: dcim/filters.py:1314
+msgid "Power panel (ID)"
+msgstr ""
+
+#: dcim/forms.py:140
+msgid "Use regular expressions"
+msgstr ""
+
+#: dcim/forms.py:201
+msgid "Name of parent region"
+msgstr ""
+
+#: dcim/forms.py:277
+msgid "Assigned region"
+msgstr ""
+
+#: dcim/forms.py:391 dcim/forms.py:1908 dcim/forms.py:4444 ipam/forms.py:339
+#: ipam/forms.py:940 ipam/forms.py:1022 virtualization/forms.py:114
+msgid "Assigned site"
+msgstr ""
+
+#: dcim/forms.py:397
+msgid "Parent rack group"
+msgstr ""
+
+#: dcim/forms.py:399
+msgid "Rack group not found."
+msgstr ""
+
+#: dcim/forms.py:528
+msgid "Name of assigned tenant"
+msgstr ""
+
+#: dcim/forms.py:539
+msgid "Name of assigned role"
+msgstr ""
+
+#: dcim/forms.py:544
+msgid "Rack type"
+msgstr ""
+
+#: dcim/forms.py:548
+msgid "Rail-to-rail width (in inches)"
+msgstr ""
+
+#: dcim/forms.py:553
+msgid "Unit for outer dimensions"
+msgstr ""
+
+#: dcim/forms.py:605 dcim/forms.py:2025
+msgid "Serial Number"
+msgstr ""
+
+#: dcim/forms.py:623 dcim/models/__init__.py:495 dcim/models/__init__.py:957
+msgid "Height (U)"
+msgstr ""
+
+#: dcim/forms.py:628 dcim/models/__init__.py:501
+msgid "Descending units"
+msgstr ""
+
+#: dcim/forms.py:688 dcim/forms.py:870 dcim/forms.py:2070
+msgid "Rack group"
+msgstr ""
+
+#: dcim/forms.py:718 dcim/forms.py:793 dcim/forms.py:2080 dcim/forms.py:3423
+#: dcim/forms.py:3853 dcim/forms.py:4461 dcim/forms.py:4611 ipam/forms.py:544
+msgid "Rack"
+msgstr ""
+
+#: dcim/forms.py:762
+msgid ""
+"Comma-separated list of numeric unit IDs. A range may be specified using a "
+"hyphen."
+msgstr ""
+
+#: dcim/forms.py:782
+msgid "Parent site"
+msgstr ""
+
+#: dcim/forms.py:788 dcim/forms.py:1914 dcim/forms.py:4455
+msgid "Rack's group (if any)"
+msgstr ""
+
+#: dcim/forms.py:798
+msgid "Comma-separated list of individual unit numbers"
+msgstr ""
+
+#: dcim/forms.py:1050 dcim/forms.py:2200 dcim/forms.py:2210 dcim/forms.py:3461
+#: dcim/forms.py:3471 dcim/forms.py:3481 dcim/forms.py:3491 dcim/forms.py:3501
+#: dcim/forms.py:3514 dcim/forms.py:3524 dcim/forms.py:3616 dcim/forms.py:3972
+#: dcim/models/device_components.py:980 dcim/models/device_components.py:1060
+#: extras/models/models.py:219 virtualization/forms.py:649
+#: virtualization/forms.py:799
+msgid "Name"
+msgstr ""
+
+#: dcim/forms.py:1142 dcim/forms.py:1164
+#: dcim/models/device_component_templates.py:158
+#: dcim/models/device_components.py:373
+msgid "Maximum power draw (watts)"
+msgstr ""
+
+#: dcim/forms.py:1147 dcim/forms.py:1169
+#: dcim/models/device_component_templates.py:164
+#: dcim/models/device_components.py:379
+msgid "Allocated power draw (watts)"
+msgstr ""
+
+#: dcim/forms.py:1286 dcim/forms.py:1303 dcim/forms.py:2776
+#: dcim/models/device_component_templates.py:273
+msgid "Management only"
+msgstr ""
+
+#: dcim/forms.py:1340 dcim/forms.py:3033
+msgid "Rear ports"
+msgstr ""
+
+#: dcim/forms.py:1341 dcim/forms.py:3034
+msgid "Select one rear port assignment for each front port being created."
+msgstr ""
+
+#: dcim/forms.py:1427 dcim/forms.py:3209
+msgid "The number of front ports which may be mapped to each rear port"
+msgstr ""
+
+#: dcim/forms.py:1645
+msgid "Limit platform assignments to this manufacturer"
+msgstr ""
+
+#: dcim/forms.py:1676 dcim/models/__init__.py:1369
+msgid "The lowest-numbered unit occupied by the device"
+msgstr ""
+
+#: dcim/forms.py:1855 secrets/forms.py:139
+msgid "Assigned role"
+msgstr ""
+
+#: dcim/forms.py:1866
+msgid "Device type manufacturer"
+msgstr ""
+
+#: dcim/forms.py:1871
+msgid "Device type model"
+msgstr ""
+
+#: dcim/forms.py:1877 virtualization/forms.py:416
+msgid "Assigned platform"
+msgstr ""
+
+#: dcim/forms.py:1887
+msgid "Virtualization cluster"
+msgstr ""
+
+#: dcim/forms.py:1920
+msgid "Assigned rack"
+msgstr ""
+
+#: dcim/forms.py:1925
+msgid "Mounted rack face"
+msgstr ""
+
+#: dcim/forms.py:1955
+msgid "Parent device"
+msgstr ""
+
+#: dcim/forms.py:1960
+msgid "Device bay in which this device is installed"
+msgstr ""
+
+#: dcim/forms.py:2096
+msgid "Manufacturer"
+msgstr ""
+
+#: dcim/forms.py:2106
+msgid "Model"
+msgstr ""
+
+#: dcim/forms.py:2138
+msgid "Virtual chassis member"
+msgstr ""
+
+#: dcim/forms.py:2432
+msgid "Maximum draw in watts"
+msgstr ""
+
+#: dcim/forms.py:2437
+msgid "Allocated draw in watts"
+msgstr ""
+
+#: dcim/forms.py:2622
+msgid "Local power port which feeds this outlet"
+msgstr ""
+
+#: dcim/forms.py:2627
+msgid "Electrical phase (for three-phase circuits)"
+msgstr ""
+
+#: dcim/forms.py:2686 dcim/models/device_components.py:669
+msgid "Untagged VLAN"
+msgstr ""
+
+#: dcim/forms.py:2698 dcim/models/device_components.py:675
+msgid "Tagged VLANs"
+msgstr ""
+
+#: dcim/forms.py:2724 virtualization/forms.py:610
+msgid "802.1Q Mode"
+msgstr ""
+
+#: dcim/forms.py:2761 dcim/models/device_components.py:633
+msgid "Parent LAG"
+msgstr ""
+
+#: dcim/forms.py:2768 dcim/models/device_components.py:651
+#: virtualization/forms.py:664 virtualization/forms.py:736
+msgid "MTU"
+msgstr ""
+
+#: dcim/forms.py:2772 dcim/models/device_components.py:645
+#: virtualization/forms.py:668
+msgid "MAC Address"
+msgstr ""
+
+#: dcim/forms.py:2777 dcim/models/device_components.py:656
+msgid "This interface is used only for out-of-band management"
+msgstr ""
+
+#: dcim/forms.py:2942
+msgid "Parent LAG interface"
+msgstr ""
+
+#: dcim/forms.py:2946
+msgid "Physical medium"
+msgstr ""
+
+#: dcim/forms.py:2951
+msgid "IEEE 802.1Q operational mode (for L2 interfaces)"
+msgstr ""
+
+#: dcim/forms.py:3133
+msgid "Corresponding rear port"
+msgstr ""
+
+#: dcim/forms.py:3137 dcim/forms.py:3260 dcim/forms.py:3691
+msgid "Physical medium classification"
+msgstr ""
+
+#: dcim/forms.py:3144
+msgid "Mapped position on corresponding rear port"
+msgstr ""
+
+#: dcim/forms.py:3268
+msgid "Number of front ports which may be mapped"
+msgstr ""
+
+#: dcim/forms.py:3305
+msgid "Child Device"
+msgstr ""
+
+#: dcim/forms.py:3306
+msgid ""
+"Child devices must first be created and assigned to the site/rack of the "
+"parent device."
+msgstr ""
+
+#: dcim/forms.py:3365
+msgid "Child device installed within this bay"
+msgstr ""
+
+#: dcim/forms.py:3367
+msgid "Child device not found."
+msgstr ""
+
+#: dcim/forms.py:3535
+msgid "Provider"
+msgstr ""
+
+#: dcim/forms.py:3564
+msgid "Side"
+msgstr ""
+
+#: dcim/forms.py:3596
+msgid "Rack Group"
+msgstr ""
+
+#: dcim/forms.py:3607
+msgid "Power Panel"
+msgstr ""
+
+#: dcim/forms.py:3644
+msgid "Maximum length is 32767 (any unit)"
+msgstr ""
+
+#: dcim/forms.py:3654
+msgid "Side A device"
+msgstr ""
+
+#: dcim/forms.py:3660
+msgid "Side A type"
+msgstr ""
+
+#: dcim/forms.py:3663
+msgid "Side A component name"
+msgstr ""
+
+#: dcim/forms.py:3670
+msgid "Side B device"
+msgstr ""
+
+#: dcim/forms.py:3676
+msgid "Side B type"
+msgstr ""
+
+#: dcim/forms.py:3679
+msgid "Side B component name"
+msgstr ""
+
+#: dcim/forms.py:3686
+msgid "Connection status"
+msgstr ""
+
+#: dcim/forms.py:3696
+msgid "Length unit"
+msgstr ""
+
+#: dcim/forms.py:3981 dcim/forms.py:4029 dcim/models/device_components.py:1076
+msgid "Part ID"
+msgstr ""
+
+#: dcim/forms.py:4142 dcim/tables.py:630
+msgid "Position"
+msgstr ""
+
+#: dcim/forms.py:4143
+msgid "Priority"
+msgstr ""
+
+#: dcim/forms.py:4306
+msgid "Name of parent site"
+msgstr ""
+
+#: dcim/forms.py:4449
+msgid "Upstream power panel"
+msgstr ""
+
+#: dcim/forms.py:4471
+msgid "Primary or redundant"
+msgstr ""
+
+#: dcim/forms.py:4476
+msgid "Supply type (AC/DC)"
+msgstr ""
+
+#: dcim/forms.py:4481
+msgid "Single or three-phase"
+msgstr ""
+
+#: dcim/forms.py:4603
+msgid "Power panel"
+msgstr ""
+
+#: dcim/models/__init__.py:186
+msgid "Local facility ID or description"
+msgstr ""
+
+#: dcim/models/__init__.py:214
+msgid "GPS coordinate (latitude)"
+msgstr ""
+
+#: dcim/models/__init__.py:221
+msgid "GPS coordinate (longitude)"
+msgstr ""
+
+#: dcim/models/__init__.py:233
+msgid "Contact E-mail"
+msgstr ""
+
+#: dcim/models/__init__.py:432
+msgid "Facility ID"
+msgstr ""
+
+#: dcim/models/__init__.py:433
+msgid "Locally-assigned identifier"
+msgstr ""
+
+#: dcim/models/__init__.py:446 tenancy/forms.py:78
+msgid "Assigned group"
+msgstr ""
+
+#: dcim/models/__init__.py:466 ipam/forms.py:361 ipam/forms.py:724
+#: ipam/forms.py:1044 virtualization/forms.py:404
+msgid "Functional role"
+msgstr ""
+
+#: dcim/models/__init__.py:471 dcim/models/__init__.py:1342
+#: dcim/models/device_components.py:1082
+msgid "Serial number"
+msgstr ""
+
+#: dcim/models/__init__.py:478 dcim/models/__init__.py:1349
+#: dcim/models/device_components.py:1090
+msgid "Asset tag"
+msgstr ""
+
+#: dcim/models/__init__.py:479
+msgid "A unique tag used to identify this rack"
+msgstr ""
+
+#: dcim/models/__init__.py:485 dcim/tables.py:794 dcim/tables.py:864
+#: extras/tables.py:91 extras/tables.py:123 netbox/forms.py:47
+msgid "Type"
+msgstr ""
+
+#: dcim/models/__init__.py:490
+msgid "Width"
+msgstr ""
+
+#: dcim/models/__init__.py:491
+msgid "Rail-to-rail width"
+msgstr ""
+
+#: dcim/models/__init__.py:497
+msgid "Height in rack units"
+msgstr ""
+
+#: dcim/models/__init__.py:502
+msgid "Units are numbered top-to-bottom"
+msgstr ""
+
+#: dcim/models/__init__.py:507
+msgid "Outer dimension of rack (width)"
+msgstr ""
+
+#: dcim/models/__init__.py:512
+msgid "Outer dimension of rack (depth)"
+msgstr ""
+
+#: dcim/models/__init__.py:953
+msgid "Discrete part number (optional)"
+msgstr ""
+
+#: dcim/models/__init__.py:962
+msgid "Device consumes both front and rear rack faces"
+msgstr ""
+
+#: dcim/models/__init__.py:968
+msgid "Parent/child status"
+msgstr ""
+
+#: dcim/models/__init__.py:969
+msgid ""
+"Parent devices house child devices in device bays. Leave blank if this "
+"device type is neither a parent nor a child."
+msgstr ""
+
+#: dcim/models/__init__.py:1204
+msgid "VM Role"
+msgstr ""
+
+#: dcim/models/__init__.py:1205
+msgid "Virtual machines may be assigned to this role"
+msgstr ""
+
+#: dcim/models/__init__.py:1250
+msgid "Optionally limit this platform to devices of a certain manufacturer"
+msgstr ""
+
+#: dcim/models/__init__.py:1255
+msgid "NAPALM driver"
+msgstr ""
+
+#: dcim/models/__init__.py:1256
+msgid "The name of the NAPALM driver to use when interacting with devices"
+msgstr ""
+
+#: dcim/models/__init__.py:1261
+msgid "NAPALM arguments"
+msgstr ""
+
+#: dcim/models/__init__.py:1262
+msgid ""
+"Additional arguments to pass when initiating the NAPALM driver (JSON format)"
+msgstr ""
+
+#: dcim/models/__init__.py:1350
+msgid "A unique tag used to identify this device"
+msgstr ""
+
+#: dcim/models/__init__.py:1368
+msgid "Position (U)"
+msgstr ""
+
+#: dcim/models/__init__.py:1375
+msgid "Rack face"
+msgstr ""
+
+#: dcim/models/__init__.py:1388 virtualization/models.py:240
+msgid "Primary IPv4"
+msgstr ""
+
+#: dcim/models/__init__.py:1396 virtualization/models.py:248
+msgid "Primary IPv6"
+msgstr ""
+
+#: dcim/models/__init__.py:1908
+msgid "Maximum permissible draw (percentage)"
+msgstr ""
+
+#: dcim/models/device_component_templates.py:217
+#: dcim/models/device_components.py:540
+msgid "Phase (for three-phase feeds)"
+msgstr ""
+
+#: dcim/models/device_components.py:256 dcim/models/device_components.py:315
+#: dcim/models/device_components.py:367 dcim/models/device_components.py:527
+msgid "Physical port type"
+msgstr ""
+
+#: dcim/models/device_components.py:655
+msgid "OOB Management"
+msgstr ""
+
+#: dcim/models/device_components.py:1078
+msgid "Manufacturer-assigned part identifier"
+msgstr ""
+
+#: dcim/models/device_components.py:1091
+msgid "A unique tag used to identify this item"
+msgstr ""
+
+#: dcim/models/device_components.py:1095
+msgid "This item was automatically discovered"
+msgstr ""
+
+#: dcim/tables.py:200 netbox/forms.py:13
+msgid "Sites"
+msgstr ""
+
+#: dcim/tables.py:262 netbox/forms.py:14
+msgid "Racks"
+msgstr ""
+
+#: dcim/tables.py:319
+msgid "Height"
+msgstr ""
+
+#: dcim/tables.py:334 dcim/tables.py:710 dcim/tables.py:741 netbox/forms.py:17
+#: virtualization/tables.py:108
+msgid "Devices"
+msgstr ""
+
+#: dcim/tables.py:339
+msgid "Space"
+msgstr ""
+
+#: dcim/tables.py:344
+msgid "Power"
+msgstr ""
+
+#: dcim/tables.py:386
+msgid "Units"
+msgstr ""
+
+#: dcim/tables.py:412
+msgid "Device Types"
+msgstr ""
+
+#: dcim/tables.py:415
+msgid "Inventory Items"
+msgstr ""
+
+#: dcim/tables.py:418
+msgid "Platforms"
+msgstr ""
+
+#: dcim/tables.py:443
+msgid "Device Type"
+msgstr ""
+
+#: dcim/tables.py:446
+msgid "Full Depth"
+msgstr ""
+
+#: dcim/tables.py:450
+msgid "Instances"
+msgstr ""
+
+#: dcim/tables.py:612
+msgid "Virtual Machine"
+msgstr ""
+
+#: dcim/tables.py:714 dcim/tables.py:745 virtualization/tables.py:112
+msgid "VMs"
+msgstr ""
+
+#: dcim/tables.py:718
+msgid "Label"
+msgstr ""
+
+#: dcim/tables.py:789 dcim/tables.py:861 extras/filters.py:157
+msgid "Role"
+msgstr ""
+
+#: dcim/tables.py:800 ipam/forms.py:579 ipam/tables.py:419 ipam/tables.py:476
+#: ipam/tables.py:500 virtualization/tables.py:161
+msgid "IP Address"
+msgstr ""
+
+#: dcim/tables.py:805 virtualization/tables.py:152
+msgid "IPv4 Address"
+msgstr ""
+
+#: dcim/tables.py:810 virtualization/tables.py:157
+msgid "IPv6 Address"
+msgstr ""
+
+#: dcim/tables.py:821
+msgid "VC Position"
+msgstr ""
+
+#: dcim/tables.py:824
+msgid "VC Priority"
+msgstr ""
+
+#: dcim/tables.py:1041
+msgid "Side A"
+msgstr ""
+
+#: dcim/tables.py:1046
+msgid "Termination A"
+msgstr ""
+
+#: dcim/tables.py:1052
+msgid "Side B"
+msgstr ""
+
+#: dcim/tables.py:1057
+msgid "Termination B"
+msgstr ""
+
+#: dcim/tables.py:1089
+msgid "Console Server"
+msgstr ""
+
+#: dcim/tables.py:1092
+msgid "Port"
+msgstr ""
+
+#: dcim/tables.py:1099
+msgid "Console Port"
+msgstr ""
+
+#: dcim/tables.py:1113
+msgid "PDU"
+msgstr ""
+
+#: dcim/tables.py:1117
+msgid "Outlet"
+msgstr ""
+
+#: dcim/tables.py:1124
+msgid "Power Port"
+msgstr ""
+
+#: dcim/tables.py:1137
+msgid "Device A"
+msgstr ""
+
+#: dcim/tables.py:1143
+msgid "Interface A"
+msgstr ""
+
+#: dcim/tables.py:1149
+msgid "Device B"
+msgstr ""
+
+#: dcim/tables.py:1155
+msgid "Interface B"
+msgstr ""
+
+#: dcim/tables.py:1199
+msgid "Members"
+msgstr ""
+
+#: dcim/tables.py:1224
+msgid "Feeds"
+msgstr ""
+
+#: dcim/tables.py:1258
+msgid "Available power (VA)"
+msgstr ""
+
+#: dcim/views.py:78
+msgid "Renamed {} {}"
+msgstr ""
+
+#: dcim/views.py:123
+msgid "Disconnected {} {}"
+msgstr ""
+
+#: dcim/views.py:1857
+msgid "Added {} to {}."
+msgstr ""
+
+#: dcim/views.py:1892
+msgid "{} has been removed from {}."
+msgstr ""
+
+#: extras/admin.py:24 extras/models/models.py:58 extras/models/models.py:176
+msgid "URL"
+msgstr ""
+
+#: extras/admin.py:120
+msgid ""
+"A numeric weight to influence the ordering of this link among its peers. "
+"Lower weights appear first in a list."
+msgstr ""
+
+#: extras/admin.py:122
+msgid ""
+"Jinja2 template code for the link text. Reference the object as "
+"<code>{{ obj }}</code>. Links which render as empty text will not be "
+"displayed."
+msgstr ""
+
+#: extras/admin.py:124
+msgid ""
+"Jinja2 template code for the link URL. Reference the object as "
+"<code>{{ obj }}</code>."
+msgstr ""
+
+#: extras/filters.py:135
+msgid "Region"
+msgstr ""
+
+#: extras/filters.py:168
+msgid "Platform"
+msgstr ""
+
+#: extras/filters.py:179
+msgid "Cluster group"
+msgstr ""
+
+#: extras/filters.py:185 virtualization/filters.py:125
+msgid "Cluster group (slug)"
+msgstr ""
+
+#: extras/filters.py:190 extras/forms.py:334 virtualization/forms.py:512
+msgid "Cluster"
+msgstr ""
+
+#: extras/filters.py:195
+msgid "Tenant group"
+msgstr ""
+
+#: extras/filters.py:201 tenancy/filters.py:50
+msgid "Tenant group (slug)"
+msgstr ""
+
+#: extras/filters.py:206
+msgid "Tenant"
+msgstr ""
+
+#: extras/filters.py:218
+msgid "Tag (slug)"
+msgstr ""
+
+#: extras/filters.py:242 extras/forms.py:369
+msgid "Has local config context data"
+msgstr ""
+
+#: extras/forms.py:400
+msgid "After"
+msgstr ""
+
+#: extras/forms.py:405
+msgid "Before"
+msgstr ""
+
+#: extras/forms.py:424
+msgid "Object Type"
+msgstr ""
+
+#: extras/forms.py:436
+msgid "Commit changes"
+msgstr ""
+
+#: extras/forms.py:437
+msgid "Commit changes to the database (uncheck for a dry-run)"
+msgstr ""
+
+#: extras/models/customfields.py:74
+msgid "Object(s)"
+msgstr ""
+
+#: extras/models/customfields.py:76
+msgid "The object(s) to which this field applies."
+msgstr ""
+
+#: extras/models/customfields.py:90
+msgid ""
+"Name of the field as displayed to users (if not provided, the field's name "
+"will be used)"
+msgstr ""
+
+#: extras/models/customfields.py:99
+msgid ""
+"If true, this field is required when creating new objects or editing an "
+"existing object."
+msgstr ""
+
+#: extras/models/customfields.py:106
+msgid ""
+"Loose matches any instance of a given string; exact matches the entire field."
+msgstr ""
+
+#: extras/models/customfields.py:112
+msgid "Default value for the field. Use \"true\" or \"false\" for booleans."
+msgstr ""
+
+#: extras/models/customfields.py:116
+msgid "Fields with higher weights appear lower in a form."
+msgstr ""
+
+#: extras/models/customfields.py:288
+msgid "Higher weights appear lower in the list"
+msgstr ""
+
+#: extras/models/models.py:36
+msgid "Object types"
+msgstr ""
+
+#: extras/models/models.py:38
+msgid "The object(s) to which this Webhook applies."
+msgstr ""
+
+#: extras/models/models.py:46
+msgid "Call this webhook when a matching object is created."
+msgstr ""
+
+#: extras/models/models.py:50
+msgid "Call this webhook when a matching object is updated."
+msgstr ""
+
+#: extras/models/models.py:54
+msgid "Call this webhook when a matching object is deleted."
+msgstr ""
+
+#: extras/models/models.py:59
+msgid "A POST will be sent to this URL when the webhook is called."
+msgstr ""
+
+#: extras/models/models.py:68
+msgid "HTTP method"
+msgstr ""
+
+#: extras/models/models.py:73
+msgid "HTTP content type"
+msgstr ""
+
+#: extras/models/models.py:74
+msgid ""
+"The complete list of official content types is available <a href=\"https://"
+"www.iana.org/assignments/media-types/media-types.xhtml\">here</a>."
+msgstr ""
+
+#: extras/models/models.py:79
+msgid ""
+"User-supplied HTTP headers to be sent with the request in addition to the "
+"HTTP content type.Headers should be defined in the format <code>Name: Value</"
+"code>. Jinja2 template processing is support with the same context as the "
+"request body (below)."
+msgstr ""
+
+#: extras/models/models.py:85
+msgid ""
+"Jinja2 template for a custom request body. If blank, a JSON object "
+"representing the change will be included. Available context data includes: "
+"<code>event</code>, <code>model</code>, <code>timestamp</code>, "
+"<code>username</code>, <code>request_id</code>, and <code>data</code>."
+msgstr ""
+
+#: extras/models/models.py:92
+msgid ""
+"When provided, the request will include a 'X-Hook-Signature' header "
+"containing a HMAC hex digest of the payload body using the secret as the "
+"key. The secret is not transmitted in the request."
+msgstr ""
+
+#: extras/models/models.py:99
+msgid "SSL verification"
+msgstr ""
+
+#: extras/models/models.py:100
+msgid "Enable SSL certificate verification. Disable with caution!"
+msgstr ""
+
+#: extras/models/models.py:106
+msgid "CA File Path"
+msgstr ""
+
+#: extras/models/models.py:107
+msgid ""
+"The specific CA certificate file to use for SSL verification. Leave blank to "
+"use the system defaults."
+msgstr ""
+
+#: extras/models/models.py:172
+msgid "Jinja2 template code for link text"
+msgstr ""
+
+#: extras/models/models.py:177
+msgid "Jinja2 template code for link URL"
+msgstr ""
+
+#: extras/models/models.py:185
+msgid "Links with the same group will appear as a dropdown menu"
+msgstr ""
+
+#: extras/models/models.py:191
+msgid ""
+"The class of the first link in a group will be used for the dropdown button"
+msgstr ""
+
+#: extras/models/models.py:194
+msgid "Force link to open in a new window"
+msgstr ""
+
+#: extras/models/models.py:228
+msgid "Source URL"
+msgstr ""
+
+#: extras/models/models.py:232
+msgid "Link URL"
+msgstr ""
+
+#: extras/models/models.py:288
+msgid ""
+"The list of objects being exported is passed as a context variable named "
+"<code>queryset</code>."
+msgstr ""
+
+#: extras/models/models.py:293
+msgid "MIME type"
+msgstr ""
+
+#: extras/models/models.py:294
+msgid "Defaults to <code>text/plain</code>"
+msgstr ""
+
+#: extras/models/models.py:299
+msgid "Extension to append to the rendered filename"
+msgstr ""
+
+#: extras/tables.py:88 extras/tables.py:127
+msgid "Object"
+msgstr ""
+
+#: extras/tables.py:103 ipam/tables.py:246
+msgid "Active"
+msgstr ""
+
+#: extras/tables.py:131
+msgid "Request ID"
+msgstr ""
+
+#: ipam/apps.py:7 netbox/forms.py:22
+msgid "IPAM"
+msgstr ""
+
+#: ipam/filters.py:72 ipam/filters.py:133
+msgid "Prefix"
+msgstr ""
+
+#: ipam/filters.py:76
+msgid "RIR (ID)"
+msgstr ""
+
+#: ipam/filters.py:82
+msgid "RIR (slug)"
+msgstr ""
+
+#: ipam/filters.py:137
+msgid "Within prefix"
+msgstr ""
+
+#: ipam/filters.py:141
+msgid "Within and including prefix"
+msgstr ""
+
+#: ipam/filters.py:145
+msgid "Prefixes which contain this prefix or IP"
+msgstr ""
+
+#: ipam/filters.py:149 ipam/filters.py:291 ipam/forms.py:457 ipam/forms.py:886
+msgid "Mask length"
+msgstr ""
+
+#: ipam/filters.py:153 ipam/filters.py:295 ipam/forms.py:256 ipam/forms.py:393
+#: ipam/forms.py:463 ipam/forms.py:528 ipam/forms.py:569 ipam/forms.py:683
+#: ipam/forms.py:809 ipam/forms.py:849 ipam/forms.py:892 ipam/models.py:88
+#: ipam/models.py:318 ipam/models.py:582 ipam/tables.py:357 ipam/tables.py:423
+#: ipam/tables.py:504
+msgid "VRF"
+msgstr ""
+
+#: ipam/filters.py:159 ipam/filters.py:301
+msgid "VRF (RD)"
+msgstr ""
+
+#: ipam/filters.py:186
+msgid "VLAN (ID)"
+msgstr ""
+
+#: ipam/filters.py:190
+msgid "VLAN number (1-4095)"
+msgstr ""
+
+#: ipam/filters.py:283
+msgid "Parent prefix"
+msgstr ""
+
+#: ipam/filters.py:287
+msgid "Address"
+msgstr ""
+
+#: ipam/filters.py:316 ipam/filters.py:512 virtualization/filters.py:213
+msgid "Virtual machine (ID)"
+msgstr ""
+
+#: ipam/filters.py:322 ipam/filters.py:518
+msgid "Virtual machine (name)"
+msgstr ""
+
+#: ipam/filters.py:328 ipam/filters.py:332
+msgid "Interface (ID)"
+msgstr ""
+
+#: ipam/filters.py:336
+msgid "Is assigned to an interface"
+msgstr ""
+
+#: ipam/filters.py:456
+msgid "Group (ID)"
+msgstr ""
+
+#: ipam/filters.py:462 ipam/tables.py:636
+msgid "Group"
+msgstr ""
+
+#: ipam/forms.py:79 ipam/models.py:66
+msgid "Enforce unique space"
+msgstr ""
+
+#: ipam/forms.py:123
+msgid "RIR name"
+msgstr ""
+
+#: ipam/forms.py:130 ipam/models.py:127 ipam/tables.py:221
+msgid "Private"
+msgstr ""
+
+#: ipam/forms.py:167
+msgid "Assigned RIR"
+msgstr ""
+
+#: ipam/forms.py:183 ipam/forms.py:218 ipam/models.py:139 ipam/models.py:168
+msgid "RIR"
+msgstr ""
+
+#: ipam/forms.py:211 ipam/forms.py:451 ipam/forms.py:880
+msgid "Address family"
+msgstr ""
+
+#: ipam/forms.py:274 ipam/forms.py:1138 ipam/models.py:840
+msgid "VLAN group"
+msgstr ""
+
+#: ipam/forms.py:287 ipam/models.py:333 ipam/models.py:947 ipam/tables.py:369
+msgid "VLAN"
+msgstr ""
+
+#: ipam/forms.py:327 ipam/forms.py:709
+msgid "Assigned VRF"
+msgstr ""
+
+#: ipam/forms.py:345
+msgid "VLAN's group (if any)"
+msgstr ""
+
+#: ipam/forms.py:416 ipam/forms.py:504 ipam/models.py:351
+msgid "Is a pool"
+msgstr ""
+
+#: ipam/forms.py:446
+msgid "Search within"
+msgstr ""
+
+#: ipam/forms.py:511
+msgid "Expand prefix hierarchy"
+msgstr ""
+
+#: ipam/forms.py:586
+msgid "Make this the primary IP for the device/VM"
+msgstr ""
+
+#: ipam/forms.py:675
+msgid "Address pattern"
+msgstr ""
+
+#: ipam/forms.py:730
+msgid "Parent device of assigned interface (if any)"
+msgstr ""
+
+#: ipam/forms.py:736
+msgid "Parent VM of assigned interface (if any)"
+msgstr ""
+
+#: ipam/forms.py:742
+msgid "Assigned interface"
+msgstr ""
+
+#: ipam/forms.py:745
+msgid "Make this the primary IP for the assigned device"
+msgstr ""
+
+#: ipam/forms.py:783
+msgid "No device or virtual machine specified; cannot set as primary IP"
+msgstr ""
+
+#: ipam/forms.py:875
+msgid "Parent Prefix"
+msgstr ""
+
+#: ipam/forms.py:909
+msgid "Assigned to an interface"
+msgstr ""
+
+#: ipam/forms.py:1028
+msgid "Assigned VLAN group"
+msgstr ""
+
+#: ipam/forms.py:1051
+msgid "Numeric VLAN ID (1-4095)"
+msgstr ""
+
+#: ipam/forms.py:1052
+msgid "VLAN name"
+msgstr ""
+
+#: ipam/forms.py:1226
+msgid "Required if not assigned to a VM"
+msgstr ""
+
+#: ipam/forms.py:1232
+msgid "Required if not assigned to a device"
+msgstr ""
+
+#: ipam/forms.py:1236
+msgid "IP protocol"
+msgstr ""
+
+#: ipam/models.py:54
+msgid "Route distinguisher"
+msgstr ""
+
+#: ipam/models.py:55
+msgid "Unique route distinguisher (as defined in RFC 4364)"
+msgstr ""
+
+#: ipam/models.py:67
+msgid "Prevent duplicate prefixes/IP addresses within this VRF"
+msgstr ""
+
+#: ipam/models.py:128
+msgid "IP space managed by this RIR is considered private"
+msgstr ""
+
+#: ipam/models.py:303
+msgid "IPv4 or IPv6 network with mask"
+msgstr ""
+
+#: ipam/models.py:339 virtualization/models.py:224
+msgid "Status"
+msgstr ""
+
+#: ipam/models.py:340
+msgid "Operational status of this prefix"
+msgstr ""
+
+#: ipam/models.py:348
+msgid "The primary function of this prefix"
+msgstr ""
+
+#: ipam/models.py:353
+msgid "All IP addresses within this prefix are considered usable"
+msgstr ""
+
+#: ipam/models.py:574
+msgid "IPv4 or IPv6 address (with mask)"
+msgstr ""
+
+#: ipam/models.py:595
+msgid "The operational status of this IP"
+msgstr ""
+
+#: ipam/models.py:601
+msgid "The functional role of this IP"
+msgstr ""
+
+#: ipam/models.py:616 ipam/tables.py:454
+msgid "NAT (Inside)"
+msgstr ""
+
+#: ipam/models.py:617
+msgid "The IP for which this address is the \"outside\" IP"
+msgstr ""
+
+#: ipam/models.py:623
+msgid "DNS Name"
+msgstr ""
+
+#: ipam/models.py:624
+msgid "Hostname or FQDN (not case-sensitive)"
+msgstr ""
+
+#: ipam/models.py:667
+msgid "IP address"
+msgstr ""
+
+#: ipam/models.py:1003
+msgid "device"
+msgstr ""
+
+#: ipam/models.py:1026
+msgid "Port number"
+msgstr ""
+
+#: ipam/models.py:1032 netbox/forms.py:26
+msgid "IP addresses"
+msgstr ""
+
+#: ipam/tables.py:195
+msgid "RD"
+msgstr ""
+
+#: ipam/tables.py:201
+msgid "Unique"
+msgstr ""
+
+#: ipam/tables.py:224 netbox/forms.py:24
+msgid "Aggregates"
+msgstr ""
+
+#: ipam/tables.py:241
+msgid "Total"
+msgstr ""
+
+#: ipam/tables.py:251
+msgid "Reserved"
+msgstr ""
+
+#: ipam/tables.py:256
+msgid "Deprecated"
+msgstr ""
+
+#: ipam/tables.py:261
+msgid "Available"
+msgstr ""
+
+#: ipam/tables.py:266
+msgid "Utilization"
+msgstr ""
+
+#: ipam/tables.py:287
+msgid "Aggregate"
+msgstr ""
+
+#: ipam/tables.py:291
+msgid "Added"
+msgstr ""
+
+#: ipam/tables.py:301 ipam/tables.py:324 ipam/tables.py:584 netbox/forms.py:25
+msgid "Prefixes"
+msgstr ""
+
+#: ipam/tables.py:328 ipam/tables.py:530 netbox/forms.py:27
+msgid "VLANs"
+msgstr ""
+
+#: ipam/tables.py:375
+msgid "Pool"
+msgstr ""
+
+#: ipam/tables.py:603
+msgid "Interface"
+msgstr ""
+
+#: netbox/forms.py:7
+msgid "All Objects"
+msgstr ""
+
+#: netbox/forms.py:9
+msgid "Providers"
+msgstr ""
+
+#: netbox/forms.py:15
+msgid "Rack Groups"
+msgstr ""
+
+#: netbox/forms.py:16
+msgid "Device types"
+msgstr ""
+
+#: netbox/forms.py:18
+msgid "Virtual Chassis"
+msgstr ""
+
+#: netbox/forms.py:19
+msgid "Cables"
+msgstr ""
+
+#: netbox/forms.py:20
+msgid "Power Feeds"
+msgstr ""
+
+#: netbox/forms.py:23
+msgid "VRFs"
+msgstr ""
+
+#: netbox/forms.py:29 netbox/forms.py:30 secrets/tables.py:25
+msgid "Secrets"
+msgstr ""
+
+#: netbox/forms.py:32
+msgid "Tenancy"
+msgstr ""
+
+#: netbox/forms.py:33 tenancy/tables.py:46
+msgid "Tenants"
+msgstr ""
+
+#: netbox/forms.py:35
+msgid "Virtualization"
+msgstr ""
+
+#: netbox/forms.py:36 virtualization/tables.py:55 virtualization/tables.py:77
+msgid "Clusters"
+msgstr ""
+
+#: netbox/forms.py:37
+msgid "Virtual machines"
+msgstr ""
+
+#: secrets/forms.py:24
+msgid ""
+"OpenSSH line format is not supported. Please ensure that your public is in "
+"PEM (base64) format."
+msgstr ""
+
+#: secrets/forms.py:28
+msgid "Invalid RSA key. Please ensure that your key is in PEM (base64) format."
+msgstr ""
+
+#: secrets/forms.py:32
+msgid "This looks like a public key. Please provide your private RSA key."
+msgstr ""
+
+#: secrets/forms.py:34
+msgid "This looks like a private key. Please provide your public RSA key."
+msgstr ""
+
+#: secrets/forms.py:38
+msgid ""
+"Error validating RSA key. Please ensure that your key supports PKCS#1 OAEP."
+msgstr ""
+
+#: secrets/forms.py:78
+msgid "Plaintext"
+msgstr ""
+
+#: secrets/forms.py:88
+msgid "Plaintext (verify)"
+msgstr ""
+
+#: secrets/forms.py:134
+msgid "Assigned device"
+msgstr ""
+
+#: secrets/forms.py:142
+msgid "Plaintext secret data"
+msgstr ""
+
+#: secrets/forms.py:149
+msgid "Name or username"
+msgstr ""
+
+#: secrets/forms.py:225
+msgid "User Keys"
+msgstr ""
+
+#: secrets/forms.py:233
+msgid "Your private key"
+msgstr ""
+
+#: secrets/models.py:55
+msgid "RSA public key"
+msgstr ""
+
+#: secrets/views.py:121
+msgid "Added new secret: {}."
+msgstr ""
+
+#: secrets/views.py:168
+msgid "Modified secret {}."
+msgstr ""
+
+#: tenancy/filters.py:20 tenancy/filters.py:43
+msgid "Tenant group (ID)"
+msgstr ""
+
+#: tenancy/filters.py:26
+msgid "Tenant group group (slug)"
+msgstr ""
+
+#: tenancy/filters.py:77
+msgid "Tenant Group (ID)"
+msgstr ""
+
+#: tenancy/filters.py:84
+msgid "Tenant Group (slug)"
+msgstr ""
+
+#: tenancy/forms.py:41
+msgid "Parent group"
+msgstr ""
+
+#: users/admin.py:17
+msgid "Preferences"
+msgstr ""
+
+#: users/admin.py:31 users/forms.py:25
+msgid "If no key is provided, one will be generated automatically."
+msgstr ""
+
+#: users/models.py:166
+msgid "Permit create/update/delete operations using this key"
+msgstr ""
+
+#: users/views.py:68
+msgid "Logged in as {}."
+msgstr ""
+
+#: users/views.py:92
+msgid "You have logged out."
+msgstr ""
+
+#: users/views.py:134 utilities/views.py:210
+msgid "Your preferences have been updated."
+msgstr ""
+
+#: users/views.py:160
+msgid "Your password has been changed successfully."
+msgstr ""
+
+#: users/views.py:210
+msgid "Your user key has been saved."
+msgstr ""
+
+#: users/views.py:241
+msgid "Session key deleted"
+msgstr ""
+
+#: users/views.py:308
+msgid "Modified token {}"
+msgstr ""
+
+#: users/views.py:308
+msgid "Created token {}"
+msgstr ""
+
+#: users/views.py:348
+msgid "Token deleted"
+msgstr ""
+
+#: utilities/forms.py:591
+msgid "Tags"
+msgstr ""
+
+#: utilities/forms.py:744
+msgid ""
+"Enter object data in JSON or YAML format. Note: Only a single object/"
+"document is supported."
+msgstr ""
+
+#: utilities/forms.py:795
+msgid ""
+"Use the buttons below to arrange columns in the desired order, then select "
+"all columns to display."
+msgstr ""
+
+#: utilities/views.py:536
+msgid "Imported object: <a href=\"{}\">{}</a>"
+msgstr ""
+
+#: utilities/views.py:950
+msgid "Added {} {}"
+msgstr ""
+
+#: virtualization/filters.py:68
+msgid "Parent group (ID)"
+msgstr ""
+
+#: virtualization/filters.py:74
+msgid "Parent group (slug)"
+msgstr ""
+
+#: virtualization/filters.py:78 virtualization/filters.py:130
+msgid "Cluster type (ID)"
+msgstr ""
+
+#: virtualization/filters.py:84 virtualization/filters.py:136
+msgid "Cluster type (slug)"
+msgstr ""
+
+#: virtualization/filters.py:119
+msgid "Cluster group (ID)"
+msgstr ""
+
+#: virtualization/filters.py:140
+msgid "Cluster (ID)"
+msgstr ""
+
+#: virtualization/filters.py:219
+msgid "Virtual machine"
+msgstr ""
+
+#: virtualization/forms.py:102
+msgid "Type of cluster"
+msgstr ""
+
+#: virtualization/forms.py:108
+msgid "Assigned cluster group"
+msgstr ""
+
+#: virtualization/forms.py:391
+msgid "Operational status of device"
+msgstr ""
+
+#: virtualization/forms.py:396
+msgid "Assigned cluster"
+msgstr ""
+
+#: virtualization/forms.py:460 virtualization/models.py:253
+msgid "vCPUs"
+msgstr ""
+
+#: virtualization/forms.py:464 virtualization/models.py:258
+msgid "Memory (MB)"
+msgstr ""
+
+#: virtualization/forms.py:468 virtualization/models.py:263
+msgid "Disk (GB)"
+msgstr ""
+
+#: virtualization/views.py:199
+msgid "Added {} devices to cluster {}"
+msgstr ""
+
+#: virtualization/views.py:232
+msgid "Removed {} devices from cluster {}"
+msgstr ""

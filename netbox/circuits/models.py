@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from taggit.managers import TaggableManager
 
 from dcim.constants import CONNECTION_STATUS_CHOICES
@@ -38,25 +39,25 @@ class Provider(ChangeLoggedModel, CustomFieldModel):
     asn = ASNField(
         blank=True,
         null=True,
-        verbose_name='ASN',
-        help_text='32-bit autonomous system number'
+        verbose_name=_('ASN'),
+        help_text=_('32-bit autonomous system number')
     )
     account = models.CharField(
         max_length=30,
         blank=True,
-        verbose_name='Account number'
+        verbose_name=_('Account number')
     )
     portal_url = models.URLField(
         blank=True,
-        verbose_name='Portal URL'
+        verbose_name=_('Portal URL')
     )
     noc_contact = models.TextField(
         blank=True,
-        verbose_name='NOC contact'
+        verbose_name=_('NOC contact')
     )
     admin_contact = models.TextField(
         blank=True,
-        verbose_name='Admin contact'
+        verbose_name=_('Admin contact')
     )
     comments = models.TextField(
         blank=True
@@ -143,7 +144,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
     """
     cid = models.CharField(
         max_length=50,
-        verbose_name='Circuit ID'
+        verbose_name=_('Circuit ID')
     )
     provider = models.ForeignKey(
         to='circuits.Provider',
@@ -170,7 +171,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
     install_date = models.DateField(
         blank=True,
         null=True,
-        verbose_name='Date installed'
+        verbose_name=_('Date installed')
     )
     commit_rate = models.PositiveIntegerField(
         blank=True,
@@ -258,7 +259,7 @@ class CircuitTermination(CableTermination):
     term_side = models.CharField(
         max_length=1,
         choices=CircuitTerminationSideChoices,
-        verbose_name='Termination'
+        verbose_name=_('Termination')
     )
     site = models.ForeignKey(
         to='dcim.Site',
@@ -277,23 +278,23 @@ class CircuitTermination(CableTermination):
         blank=True
     )
     port_speed = models.PositiveIntegerField(
-        verbose_name='Port speed (Kbps)'
+        verbose_name=_('Port speed (Kbps)')
     )
     upstream_speed = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name='Upstream speed (Kbps)',
-        help_text='Upstream speed, if different from port speed'
+        verbose_name=_('Upstream speed (Kbps)'),
+        help_text=_('Upstream speed, if different from port speed')
     )
     xconnect_id = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name='Cross-connect ID'
+        verbose_name=_('Cross-connect ID')
     )
     pp_info = models.CharField(
         max_length=100,
         blank=True,
-        verbose_name='Patch panel/port(s)'
+        verbose_name=_('Patch panel/port(s)')
     )
     description = models.CharField(
         max_length=200,

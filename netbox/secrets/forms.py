@@ -1,6 +1,7 @@
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from django import forms
+from django.utils.translation import gettext as _
 
 from dcim.models import Device
 from extras.forms import (
@@ -20,21 +21,21 @@ def validate_rsa_key(key, is_secret=True):
     Validate the format and type of an RSA key.
     """
     if key.startswith('ssh-rsa '):
-        raise forms.ValidationError("OpenSSH line format is not supported. Please ensure that your public is in PEM (base64) format.")
+        raise forms.ValidationError(_('OpenSSH line format is not supported. Please ensure that your public is in PEM (base64) format.'))
     try:
         key = RSA.importKey(key)
     except ValueError:
-        raise forms.ValidationError("Invalid RSA key. Please ensure that your key is in PEM (base64) format.")
+        raise forms.ValidationError(_('Invalid RSA key. Please ensure that your key is in PEM (base64) format.'))
     except Exception as e:
         raise forms.ValidationError("Invalid key detected: {}".format(e))
     if is_secret and not key.has_private():
-        raise forms.ValidationError("This looks like a public key. Please provide your private RSA key.")
+        raise forms.ValidationError(_('This looks like a public key. Please provide your private RSA key.'))
     elif not is_secret and key.has_private():
-        raise forms.ValidationError("This looks like a private key. Please provide your public RSA key.")
+        raise forms.ValidationError(_('This looks like a private key. Please provide your public RSA key.'))
     try:
         PKCS1_OAEP.new(key)
     except Exception:
-        raise forms.ValidationError("Error validating RSA key. Please ensure that your key supports PKCS#1 OAEP.")
+        raise forms.ValidationError(_('Error validating RSA key. Please ensure that your key supports PKCS#1 OAEP.'))
 
 
 #
@@ -74,7 +75,7 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
     plaintext = forms.CharField(
         max_length=SECRET_PLAINTEXT_MAX_LENGTH,
         required=False,
-        label='Plaintext',
+        label=_('Plaintext'),
         widget=forms.PasswordInput(
             attrs={
                 'class': 'requires-session-key',
@@ -84,7 +85,7 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
     plaintext2 = forms.CharField(
         max_length=SECRET_PLAINTEXT_MAX_LENGTH,
         required=False,
-        label='Plaintext (verify)',
+        label=_('Plaintext (verify)'),
         widget=forms.PasswordInput()
     )
     role = DynamicModelChoiceField(
@@ -130,22 +131,22 @@ class SecretCSVForm(CustomFieldModelCSVForm):
     device = CSVModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Assigned device'
+        help_text=_('Assigned device')
     )
     role = CSVModelChoiceField(
         queryset=SecretRole.objects.all(),
         to_field_name='name',
-        help_text='Assigned role'
+        help_text=_('Assigned role')
     )
     plaintext = forms.CharField(
-        help_text='Plaintext secret data'
+        help_text=_('Plaintext secret data')
     )
 
     class Meta:
         model = Secret
         fields = Secret.csv_headers
         help_texts = {
-            'name': 'Name or username',
+            'name': _('Name or username'),
         }
 
     def save(self, *args, **kwargs):
@@ -154,7 +155,8 @@ class SecretCSVForm(CustomFieldModelCSVForm):
         return s
 
 
-class SecretBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+class SecretBulkEditForm(
+     BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Secret.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -178,7 +180,7 @@ class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Secret
     q = forms.CharField(
         required=False,
-        label='Search'
+        label=_('Search')
     )
     role = DynamicModelMultipleChoiceField(
         queryset=SecretRole.objects.all(),
@@ -220,7 +222,7 @@ class UserKeyForm(BootstrapMixin, forms.ModelForm):
 class ActivateUserKeyForm(forms.Form):
     _selected_action = forms.ModelMultipleChoiceField(
         queryset=UserKey.objects.all(),
-        label='User Keys'
+        label=_('User Keys')
     )
     secret_key = forms.CharField(
         widget=forms.Textarea(
@@ -228,5 +230,5 @@ class ActivateUserKeyForm(forms.Form):
                 'class': 'vLargeTextField',
             }
         ),
-        label='Your private key'
+        label=_('Your private key')
     )

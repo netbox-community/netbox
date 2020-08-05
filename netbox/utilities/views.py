@@ -18,6 +18,7 @@ from django.utils.decorators import method_decorator
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME
 from django.views.generic import View
@@ -206,7 +207,7 @@ class ObjectListView(View):
                 request.user.config.set(preference_name, form.cleaned_data['columns'], commit=True)
             elif 'clear' in request.POST:
                 request.user.config.clear(preference_name, commit=True)
-            messages.success(request, "Your preferences have been updated.")
+            messages.success(request, _('Your preferences have been updated.'))
 
         return redirect(request.get_full_path())
 
@@ -532,7 +533,7 @@ class ObjectImportView(GetReturnURLMixin, View):
 
             if not model_form.errors:
                 logger.info(f"Import object {obj} (PK: {obj.pk})")
-                messages.success(request, mark_safe('Imported object: <a href="{}">{}</a>'.format(
+                messages.success(request, mark_safe(_('Imported object: <a href="{}">{}</a>').format(
                     obj.get_absolute_url(), obj
                 )))
 
@@ -946,7 +947,7 @@ class ComponentCreateView(GetReturnURLMixin, View):
                 for component_form in new_components:
                     component_form.save()
 
-                messages.success(request, "Added {} {}".format(
+                messages.success(request, _('Added {} {}').format(
                     len(new_components), self.model._meta.verbose_name_plural
                 ))
                 if '_addanother' in request.POST:

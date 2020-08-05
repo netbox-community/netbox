@@ -1,5 +1,6 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
+from django.utils.translation import gettext as _
 
 from dcim.models import Interface
 from tenancy.tables import COL_TENANT
@@ -191,13 +192,13 @@ class VRFTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
     rd = tables.Column(
-        verbose_name='RD'
+        verbose_name=_('RD')
     )
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )
     enforce_unique = BooleanColumn(
-        verbose_name='Unique'
+        verbose_name=_('Unique')
     )
     tags = TagColumn(
         url_name='ipam:vrf_list'
@@ -217,10 +218,10 @@ class RIRTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
     is_private = BooleanColumn(
-        verbose_name='Private'
+        verbose_name=_('Private')
     )
     aggregate_count = tables.Column(
-        verbose_name='Aggregates'
+        verbose_name=_('Aggregates')
     )
     actions = tables.TemplateColumn(
         template_code=RIR_ACTIONS,
@@ -237,32 +238,32 @@ class RIRTable(BaseTable):
 class RIRDetailTable(RIRTable):
     stats_total = tables.Column(
         accessor='stats.total',
-        verbose_name='Total',
+        verbose_name=_('Total'),
         footer=lambda table: sum(r.stats['total'] for r in table.data)
     )
     stats_active = tables.Column(
         accessor='stats.active',
-        verbose_name='Active',
+        verbose_name=_('Active'),
         footer=lambda table: sum(r.stats['active'] for r in table.data)
     )
     stats_reserved = tables.Column(
         accessor='stats.reserved',
-        verbose_name='Reserved',
+        verbose_name=_('Reserved'),
         footer=lambda table: sum(r.stats['reserved'] for r in table.data)
     )
     stats_deprecated = tables.Column(
         accessor='stats.deprecated',
-        verbose_name='Deprecated',
+        verbose_name=_('Deprecated'),
         footer=lambda table: sum(r.stats['deprecated'] for r in table.data)
     )
     stats_available = tables.Column(
         accessor='stats.available',
-        verbose_name='Available',
+        verbose_name=_('Available'),
         footer=lambda table: sum(r.stats['available'] for r in table.data)
     )
     utilization = tables.TemplateColumn(
         template_code=RIR_UTILIZATION,
-        verbose_name='Utilization'
+        verbose_name=_('Utilization')
     )
 
     class Meta(RIRTable.Meta):
@@ -283,11 +284,11 @@ class RIRDetailTable(RIRTable):
 class AggregateTable(BaseTable):
     pk = ToggleColumn()
     prefix = tables.LinkColumn(
-        verbose_name='Aggregate'
+        verbose_name=_('Aggregate')
     )
     date_added = tables.DateColumn(
         format="Y-m-d",
-        verbose_name='Added'
+        verbose_name=_('Added')
     )
 
     class Meta(BaseTable.Meta):
@@ -297,7 +298,7 @@ class AggregateTable(BaseTable):
 
 class AggregateDetailTable(AggregateTable):
     child_count = tables.Column(
-        verbose_name='Prefixes'
+        verbose_name=_('Prefixes')
     )
     utilization = tables.TemplateColumn(
         template_code=UTILIZATION_GRAPH,
@@ -320,11 +321,11 @@ class RoleTable(BaseTable):
     pk = ToggleColumn()
     prefix_count = tables.TemplateColumn(
         template_code=ROLE_PREFIX_COUNT,
-        verbose_name='Prefixes'
+        verbose_name=_('Prefixes')
     )
     vlan_count = tables.TemplateColumn(
         template_code=ROLE_VLAN_COUNT,
-        verbose_name='VLANs'
+        verbose_name=_('VLANs')
     )
     actions = tables.TemplateColumn(
         template_code=ROLE_ACTIONS,
@@ -353,7 +354,7 @@ class PrefixTable(BaseTable):
     )
     vrf = tables.TemplateColumn(
         template_code=VRF_LINK,
-        verbose_name='VRF'
+        verbose_name=_('VRF')
     )
     tenant = tables.TemplateColumn(
         template_code=TENANT_LINK
@@ -365,13 +366,13 @@ class PrefixTable(BaseTable):
     vlan = tables.LinkColumn(
         viewname='ipam:vlan',
         args=[Accessor('vlan.pk')],
-        verbose_name='VLAN'
+        verbose_name=_('VLAN')
     )
     role = tables.TemplateColumn(
         template_code=PREFIX_ROLE_LINK
     )
     is_pool = BooleanColumn(
-        verbose_name='Pool'
+        verbose_name=_('Pool')
     )
 
     add_prefetch = False
@@ -415,11 +416,11 @@ class IPAddressTable(BaseTable):
     pk = ToggleColumn()
     address = tables.TemplateColumn(
         template_code=IPADDRESS_LINK,
-        verbose_name='IP Address'
+        verbose_name=_('IP Address')
     )
     vrf = tables.TemplateColumn(
         template_code=VRF_LINK,
-        verbose_name='VRF'
+        verbose_name=_('VRF')
     )
     status = tables.TemplateColumn(
         template_code=STATUS_LABEL
@@ -450,7 +451,7 @@ class IPAddressDetailTable(IPAddressTable):
         viewname='ipam:ipaddress',
         args=[Accessor('nat_inside.pk')],
         orderable=False,
-        verbose_name='NAT (Inside)'
+        verbose_name=_('NAT (Inside)')
     )
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
@@ -472,7 +473,7 @@ class IPAddressDetailTable(IPAddressTable):
 class IPAddressAssignTable(BaseTable):
     address = tables.TemplateColumn(
         template_code=IPADDRESS_ASSIGN_LINK,
-        verbose_name='IP Address'
+        verbose_name=_('IP Address')
     )
     status = tables.TemplateColumn(
         template_code=STATUS_LABEL
@@ -496,11 +497,11 @@ class InterfaceIPAddressTable(BaseTable):
     List IP addresses assigned to a specific Interface.
     """
     address = tables.LinkColumn(
-        verbose_name='IP Address'
+        verbose_name=_('IP Address')
     )
     vrf = tables.TemplateColumn(
         template_code=VRF_LINK,
-        verbose_name='VRF'
+        verbose_name=_('VRF')
     )
     status = tables.TemplateColumn(
         template_code=STATUS_LABEL
@@ -526,7 +527,7 @@ class VLANGroupTable(BaseTable):
         args=[Accessor('site.slug')]
     )
     vlan_count = tables.Column(
-        verbose_name='VLANs'
+        verbose_name=_('VLANs')
     )
     actions = tables.TemplateColumn(
         template_code=VLANGROUP_ACTIONS,
@@ -548,7 +549,7 @@ class VLANTable(BaseTable):
     pk = ToggleColumn()
     vid = tables.TemplateColumn(
         template_code=VLAN_LINK,
-        verbose_name='ID'
+        verbose_name=_('ID')
     )
     site = tables.LinkColumn(
         viewname='dcim:site',
@@ -580,7 +581,7 @@ class VLANDetailTable(VLANTable):
     prefixes = tables.TemplateColumn(
         template_code=VLAN_PREFIXES,
         orderable=False,
-        verbose_name='Prefixes'
+        verbose_name=_('Prefixes')
     )
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
@@ -599,7 +600,7 @@ class VLANMemberTable(BaseTable):
         order_by=['device', 'virtual_machine']
     )
     name = tables.LinkColumn(
-        verbose_name='Interface'
+        verbose_name=_('Interface')
     )
     untagged = tables.TemplateColumn(
         template_code=VLAN_MEMBER_UNTAGGED,
@@ -623,7 +624,7 @@ class InterfaceVLANTable(BaseTable):
     vid = tables.LinkColumn(
         viewname='ipam:vlan',
         args=[Accessor('pk')],
-        verbose_name='ID'
+        verbose_name=_('ID')
     )
     tagged = BooleanColumn()
     site = tables.LinkColumn(
@@ -632,7 +633,7 @@ class InterfaceVLANTable(BaseTable):
     )
     group = tables.Column(
         accessor=Accessor('group.name'),
-        verbose_name='Group'
+        verbose_name=_('Group')
     )
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT

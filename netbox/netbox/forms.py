@@ -1,47 +1,48 @@
 from django import forms
+from django.utils.translation import gettext as _
 
 from utilities.forms import BootstrapMixin
 
 OBJ_TYPE_CHOICES = (
-    ('', 'All Objects'),
-    ('Circuits', (
-        ('provider', 'Providers'),
-        ('circuit', 'Circuits'),
+    ('', _('All Objects')),
+    (_('Circuits'), (
+        ('provider', _('Providers')),
+        ('circuit', _('Circuits')),
     )),
-    ('DCIM', (
-        ('site', 'Sites'),
-        ('rack', 'Racks'),
-        ('rackgroup', 'Rack Groups'),
-        ('devicetype', 'Device types'),
-        ('device', 'Devices'),
-        ('virtualchassis', 'Virtual Chassis'),
-        ('cable', 'Cables'),
-        ('powerfeed', 'Power Feeds'),
+    (_('DCIM'), (
+        ('site', _('Sites')),
+        ('rack', _('Racks')),
+        ('rackgroup', _('Rack Groups')),
+        ('devicetype', _('Device types')),
+        ('device', _('Devices')),
+        ('virtualchassis', _('Virtual Chassis')),
+        ('cable', _('Cables')),
+        ('powerfeed', _('Power Feeds')),
     )),
-    ('IPAM', (
-        ('vrf', 'VRFs'),
-        ('aggregate', 'Aggregates'),
-        ('prefix', 'Prefixes'),
-        ('ipaddress', 'IP addresses'),
-        ('vlan', 'VLANs'),
+    (_('IPAM'), (
+        ('vrf', _('VRFs')),
+        ('aggregate', _('Aggregates')),
+        ('prefix', _('Prefixes')),
+        ('ipaddress', _('IP addresses')),
+        ('vlan', _('VLANs')),
     )),
-    ('Secrets', (
-        ('secret', 'Secrets'),
+    (_('Secrets'), (
+        ('secret', _('Secrets')),
     )),
-    ('Tenancy', (
-        ('tenant', 'Tenants'),
+    (_('Tenancy'), (
+        ('tenant', _('Tenants')),
     )),
-    ('Virtualization', (
-        ('cluster', 'Clusters'),
-        ('virtualmachine', 'Virtual machines'),
+    (_('Virtualization'), (
+        ('cluster', _('Clusters')),
+        ('virtualmachine', _('Virtual machines')),
     )),
 )
 
 
 class SearchForm(BootstrapMixin, forms.Form):
     q = forms.CharField(
-        label='Search'
+        label=_('Search')
     )
     obj_type = forms.ChoiceField(
-        choices=OBJ_TYPE_CHOICES, required=False, label='Type'
+        choices=OBJ_TYPE_CHOICES, required=False, label=_('Type')
     )

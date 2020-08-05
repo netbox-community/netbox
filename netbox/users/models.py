@@ -8,6 +8,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from utilities.utils import flatten_dict
 
@@ -162,7 +163,7 @@ class Token(models.Model):
     )
     write_enabled = models.BooleanField(
         default=True,
-        help_text='Permit create/update/delete operations using this key'
+        help_text=_('Permit create/update/delete operations using this key')
     )
     description = models.CharField(
         max_length=200,

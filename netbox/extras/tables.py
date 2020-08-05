@@ -1,5 +1,6 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
+from django.utils.translation import gettext as _
 
 from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ToggleColumn
 from .models import ConfigContext, ObjectChange, Tag, TaggedItem
@@ -84,10 +85,10 @@ class TaggedItemTable(BaseTable):
     content_object = tables.TemplateColumn(
         template_code=TAGGED_ITEM,
         orderable=False,
-        verbose_name='Object'
+        verbose_name=_('Object')
     )
     content_type = tables.Column(
-        verbose_name='Type'
+        verbose_name=_('Type')
     )
 
     class Meta(BaseTable.Meta):
@@ -99,7 +100,7 @@ class ConfigContextTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
     is_active = BooleanColumn(
-        verbose_name='Active'
+        verbose_name=_('Active')
     )
 
     class Meta(BaseTable.Meta):
@@ -119,15 +120,15 @@ class ObjectChangeTable(BaseTable):
         template_code=OBJECTCHANGE_ACTION
     )
     changed_object_type = tables.Column(
-        verbose_name='Type'
+        verbose_name=_('Type')
     )
     object_repr = tables.TemplateColumn(
         template_code=OBJECTCHANGE_OBJECT,
-        verbose_name='Object'
+        verbose_name=_('Object')
     )
     request_id = tables.TemplateColumn(
         template_code=OBJECTCHANGE_REQUEST_ID,
-        verbose_name='Request ID'
+        verbose_name=_('Request ID')
     )
 
     class Meta(BaseTable.Meta):

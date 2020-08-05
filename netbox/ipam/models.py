@@ -6,6 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import F, Q
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from taggit.managers import TaggableManager
 
 from dcim.models import Device, Interface
@@ -50,8 +51,8 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
         unique=True,
         blank=True,
         null=True,
-        verbose_name='Route distinguisher',
-        help_text='Unique route distinguisher (as defined in RFC 4364)'
+        verbose_name=_('Route distinguisher'),
+        help_text=_('Unique route distinguisher (as defined in RFC 4364)')
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -62,8 +63,8 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
     )
     enforce_unique = models.BooleanField(
         default=True,
-        verbose_name='Enforce unique space',
-        help_text='Prevent duplicate prefixes/IP addresses within this VRF'
+        verbose_name=_('Enforce unique space'),
+        help_text=_('Prevent duplicate prefixes/IP addresses within this VRF')
     )
     description = models.CharField(
         max_length=200,
@@ -84,7 +85,7 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
 
     class Meta:
         ordering = ('name', 'rd', 'pk')  # (name, rd) may be non-unique
-        verbose_name = 'VRF'
+        verbose_name = _('VRF')
         verbose_name_plural = 'VRFs'
 
     def __str__(self):
@@ -123,8 +124,8 @@ class RIR(ChangeLoggedModel):
     )
     is_private = models.BooleanField(
         default=False,
-        verbose_name='Private',
-        help_text='IP space managed by this RIR is considered private'
+        verbose_name=_('Private'),
+        help_text=_('IP space managed by this RIR is considered private')
     )
     description = models.CharField(
         max_length=200,
@@ -135,7 +136,7 @@ class RIR(ChangeLoggedModel):
 
     class Meta:
         ordering = ['name']
-        verbose_name = 'RIR'
+        verbose_name = _('RIR')
         verbose_name_plural = 'RIRs'
 
     def __str__(self):
@@ -164,7 +165,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         to='ipam.RIR',
         on_delete=models.PROTECT,
         related_name='aggregates',
-        verbose_name='RIR'
+        verbose_name=_('RIR')
     )
     date_added = models.DateField(
         blank=True,
@@ -299,7 +300,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     assigned to a VLAN where appropriate.
     """
     prefix = IPNetworkField(
-        help_text='IPv4 or IPv6 network with mask'
+        help_text=_('IPv4 or IPv6 network with mask')
     )
     site = models.ForeignKey(
         to='dcim.Site',
@@ -314,7 +315,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         related_name='prefixes',
         blank=True,
         null=True,
-        verbose_name='VRF'
+        verbose_name=_('VRF')
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -329,14 +330,14 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         related_name='prefixes',
         blank=True,
         null=True,
-        verbose_name='VLAN'
+        verbose_name=_('VLAN')
     )
     status = models.CharField(
         max_length=50,
         choices=PrefixStatusChoices,
         default=PrefixStatusChoices.STATUS_ACTIVE,
-        verbose_name='Status',
-        help_text='Operational status of this prefix'
+        verbose_name=_('Status'),
+        help_text=_('Operational status of this prefix')
     )
     role = models.ForeignKey(
         to='ipam.Role',
@@ -344,12 +345,12 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         related_name='prefixes',
         blank=True,
         null=True,
-        help_text='The primary function of this prefix'
+        help_text=_('The primary function of this prefix')
     )
     is_pool = models.BooleanField(
-        verbose_name='Is a pool',
+        verbose_name=_('Is a pool'),
         default=False,
-        help_text='All IP addresses within this prefix are considered usable'
+        help_text=_('All IP addresses within this prefix are considered usable')
     )
     description = models.CharField(
         max_length=200,
@@ -570,7 +571,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
     which has a NAT outside IP, that Interface's Device can use either the inside or outside IP as its primary IP.
     """
     address = IPAddressField(
-        help_text='IPv4 or IPv6 address (with mask)'
+        help_text=_('IPv4 or IPv6 address (with mask)')
     )
     vrf = models.ForeignKey(
         to='ipam.VRF',
@@ -578,7 +579,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         related_name='ip_addresses',
         blank=True,
         null=True,
-        verbose_name='VRF'
+        verbose_name=_('VRF')
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -591,13 +592,13 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         max_length=50,
         choices=IPAddressStatusChoices,
         default=IPAddressStatusChoices.STATUS_ACTIVE,
-        help_text='The operational status of this IP'
+        help_text=_('The operational status of this IP')
     )
     role = models.CharField(
         max_length=50,
         choices=IPAddressRoleChoices,
         blank=True,
-        help_text='The functional role of this IP'
+        help_text=_('The functional role of this IP')
     )
     interface = models.ForeignKey(
         to='dcim.Interface',
@@ -612,15 +613,15 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         related_name='nat_outside',
         blank=True,
         null=True,
-        verbose_name='NAT (Inside)',
-        help_text='The IP for which this address is the "outside" IP'
+        verbose_name=_('NAT (Inside)'),
+        help_text=_('The IP for which this address is the "outside" IP')
     )
     dns_name = models.CharField(
         max_length=255,
         blank=True,
         validators=[DNSValidator],
-        verbose_name='DNS Name',
-        help_text='Hostname or FQDN (not case-sensitive)'
+        verbose_name=_('DNS Name'),
+        help_text=_('Hostname or FQDN (not case-sensitive)')
     )
     description = models.CharField(
         max_length=200,
@@ -663,7 +664,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
 
     class Meta:
         ordering = ('address', 'pk')  # address may be non-unique
-        verbose_name = 'IP address'
+        verbose_name = _('IP address')
         verbose_name_plural = 'IP addresses'
 
     def __str__(self):
@@ -836,7 +837,7 @@ class VLANGroup(ChangeLoggedModel):
             ['site', 'name'],
             ['site', 'slug'],
         ]
-        verbose_name = 'VLAN group'
+        verbose_name = _('VLAN group')
         verbose_name_plural = 'VLAN groups'
 
     def __str__(self):
@@ -889,7 +890,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         null=True
     )
     vid = models.PositiveSmallIntegerField(
-        verbose_name='ID',
+        verbose_name=_('ID'),
         validators=[MinValueValidator(1), MaxValueValidator(4094)]
     )
     name = models.CharField(
@@ -943,7 +944,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
             ['group', 'vid'],
             ['group', 'name'],
         ]
-        verbose_name = 'VLAN'
+        verbose_name = _('VLAN')
         verbose_name_plural = 'VLANs'
 
     def __str__(self):
@@ -999,7 +1000,7 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         to='dcim.Device',
         on_delete=models.CASCADE,
         related_name='services',
-        verbose_name='device',
+        verbose_name=_('device'),
         null=True,
         blank=True
     )
@@ -1022,13 +1023,13 @@ class Service(ChangeLoggedModel, CustomFieldModel):
             MinValueValidator(SERVICE_PORT_MIN),
             MaxValueValidator(SERVICE_PORT_MAX)
         ],
-        verbose_name='Port number'
+        verbose_name=_('Port number')
     )
     ipaddresses = models.ManyToManyField(
         to='ipam.IPAddress',
         related_name='services',
         blank=True,
-        verbose_name='IP addresses'
+        verbose_name=_('IP addresses')
     )
     description = models.CharField(
         max_length=200,

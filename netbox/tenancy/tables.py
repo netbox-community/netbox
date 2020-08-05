@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.utils.translation import gettext as _
 
 from utilities.tables import BaseTable, TagColumn, ToggleColumn
 from .models import Tenant, TenantGroup
@@ -42,7 +43,7 @@ class TenantGroupTable(BaseTable):
         orderable=False
     )
     tenant_count = tables.Column(
-        verbose_name='Tenants'
+        verbose_name=_('Tenants')
     )
     actions = tables.TemplateColumn(
         template_code=TENANTGROUP_ACTIONS,
