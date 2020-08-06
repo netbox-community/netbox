@@ -4,6 +4,7 @@ from django.contrib.auth.admin import UserAdmin as UserAdmin_
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldError, ValidationError
+from django.db.models import Q
 
 from extras.admin import order_content_types
 from .models import AdminGroup, AdminUser, ObjectPermission, Token, UserConfig
@@ -136,7 +137,8 @@ class ObjectPermissionForm(forms.ModelForm):
         help_texts = {
             'actions': 'Actions granted in addition to those listed above',
             'constraints': 'JSON expression of a queryset filter that will return only permitted objects. Leave null '
-                           'to match all objects of this type.'
+                           'to match all objects of this type. A list of multiple objects will result in a logical OR '
+                           'operation.'
         }
         labels = {
             'actions': 'Additional actions'
@@ -167,8 +169,8 @@ class ObjectPermissionForm(forms.ModelForm):
                     self.instance.actions.remove(action)
 
     def clean(self):
-        object_types = self.cleaned_data['object_types']
-        constraints = self.cleaned_data['constraints']
+        object_types = self.cleaned_data.get('object_types')
+        constraints = self.cleaned_data.get('constraints')
 
         # Append any of the selected CRUD checkboxes to the actions list
         if not self.cleaned_data.get('actions'):
@@ -184,10 +186,13 @@ class ObjectPermissionForm(forms.ModelForm):
         # Validate the specified model constraints by attempting to execute a query. We don't care whether the query
         # returns anything; we just want to make sure the specified constraints are valid.
         if constraints:
+            # Normalize the constraints to a list of dicts
+            if type(constraints) is not list:
+                constraints = [constraints]
             for ct in object_types:
                 model = ct.model_class()
                 try:
-                    model.objects.filter(**constraints).exists()
+                    model.objects.filter(*[Q(**c) for c in constraints]).exists()
                 except FieldError as e:
                     raise ValidationError({
                         'constraints': f'Invalid filter for {model}: {e}'

@@ -44,8 +44,15 @@ class RestrictedQuerySet(QuerySet):
         else:
             attrs = Q()
             for perm_attrs in user._object_perm_cache[permission_required]:
-                if perm_attrs:
+                if type(perm_attrs) is list:
+                    for p in perm_attrs:
+                        attrs |= Q(**p)
+                elif perm_attrs:
                     attrs |= Q(**perm_attrs)
+                else:
+                    # Any permission with null constraints grants access to _all_ instances
+                    attrs = Q()
+                    break
             qs = self.filter(attrs)
 
         return qs
