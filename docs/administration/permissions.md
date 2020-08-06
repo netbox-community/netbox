@@ -6,13 +6,15 @@ NetBox v2.9 introduced a new object-based permissions framework, which replace's
 
 ### Example Constraint Definitions
 
-| Query Filter | Permission Constraints |
-| ------------ | --------------------- |
-| `filter(status='active')` | `{"status": "active"}` |
-| `filter(status='active', role='testing')` | `{"status": "active", "role": "testing"}` |
-| `filter(status__in=['planned', 'reserved'])` | `{"status__in": ["planned", "reserved"]}` |
-| `filter(name__startswith('Foo')` | `{"name__startswith": "Foo"}` |
-| `filter(vid__gte=100, vid__lt=200)` | `{"vid__gte": 100, "vid__lt": 200}` |
+| Constraints | Description |
+| ----------- | ----------- |
+| `{"status": "active"}` | Status is active |
+| `{"status__in": ["planned", "reserved"]}` | Status is active **OR** reserved |
+| `{"status": "active", "role": "testing"}` | Status is active **OR** role is testing |
+| `{"name__startswith": "Foo"}` | Name starts with "Foo" (case-sensitive) |
+| `{"name__iendswith": "bar"}` | Name ends with "bar" (case-insensitive) |
+| `{"vid__gte": 100, "vid__lt": 200}` | VLAN ID is greater than or equal to 100 **AND** less than 200 |
+| `[{"vid__lt": 200}, {"status": "reserved"}]` | VLAN ID is less than 200 **OR** status is reserved |
 
 ## Permissions Enforcement
 

@@ -75,7 +75,10 @@ class ObjectPermissionBackend(ModelBackend):
         obj_perm_constraints = self.get_all_permissions(user_obj)[perm]
         constraints = Q()
         for perm_constraints in obj_perm_constraints:
-            if perm_constraints:
+            if type(perm_constraints) is list:
+                for c in obj_perm_constraints:
+                    constraints |= Q(**c)
+            elif perm_constraints:
                 constraints |= Q(**perm_constraints)
             else:
                 # Found ObjectPermission with null constraints; allow model-level access
