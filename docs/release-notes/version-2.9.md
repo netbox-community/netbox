@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#4639](https://github.com/netbox-community/netbox/issues/4639) - Improve performance of web UI prefixes list
 * [#4919](https://github.com/netbox-community/netbox/issues/4919) - Allow adding/changing assigned permissions within group and user admin views
 * [#4940](https://github.com/netbox-community/netbox/issues/4940) - Add an `occupied` field to rack unit representations for rack elevation views
 * [#4945](https://github.com/netbox-community/netbox/issues/4945) - Add a user-friendly 403 error page
