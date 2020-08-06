@@ -20,6 +20,7 @@
 * [#4938](https://github.com/netbox-community/netbox/issues/4938) - Show add, import buttons on virtual chassis list view
 * [#4939](https://github.com/netbox-community/netbox/issues/4939) - Fix linking to LAG interfaces on other VC members
 * [#4950](https://github.com/netbox-community/netbox/issues/4950) - Include inventory item label in API serializer, UI view
+* [#4951](https://github.com/netbox-community/netbox/issues/4951) - Redirect to device inventory view after creting a new inventory item
 * [#4952](https://github.com/netbox-community/netbox/issues/4952) - Default to VM tab when creating/editing an IP address for a VM
 
 ### Other Changes

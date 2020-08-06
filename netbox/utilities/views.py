@@ -1281,10 +1281,6 @@ class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View
                     ))
                     if '_addanother' in request.POST:
                         return redirect(request.get_full_path())
-                    elif 'device_type' in form.cleaned_data:
-                        return redirect(form.cleaned_data['device_type'].get_absolute_url())
-                    elif 'device' in form.cleaned_data:
-                        return redirect(form.cleaned_data['device'].get_absolute_url())
                     else:
                         return redirect(self.get_return_url(request))
 
