@@ -337,9 +337,9 @@ class PrefixTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Prefix
         fields = (
-            'pk', 'prefix', 'children', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'is_pool', 'description',
+            'pk', 'prefix', 'status', 'children', 'vrf', 'tenant', 'site', 'vlan', 'role', 'is_pool', 'description',
         )
-        default_columns = ('pk', 'prefix', 'children', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'description')
+        default_columns = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'description')
         row_attrs = {
             'class': lambda record: 'success' if not record.pk else '',
         }
@@ -359,11 +359,11 @@ class PrefixDetailTable(PrefixTable):
 
     class Meta(PrefixTable.Meta):
         fields = (
-            'pk', 'prefix', 'status', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'is_pool', 'description',
-            'tags',
+            'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'is_pool',
+            'description', 'tags',
         )
         default_columns = (
-            'pk', 'prefix', 'status', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description',
+            'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description',
         )
 
 
