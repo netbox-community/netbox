@@ -437,6 +437,9 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         'q', 'within_include', 'family', 'mask_length', 'vrf_id', 'status', 'region', 'site', 'role', 'tenant_group',
         'tenant', 'is_pool', 'expand',
     ]
+    mask_length__lte = forms.IntegerField(
+        widget=forms.HiddenInput()
+    )
     q = forms.CharField(
         required=False,
         label='Search'
@@ -510,10 +513,6 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         widget=StaticSelect2(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
-    )
-    expand = forms.BooleanField(
-        required=False,
-        label='Expand prefix hierarchy'
     )
     tag = TagFilterField(model)
 

@@ -221,9 +221,7 @@ class AggregateView(ObjectView):
             'site', 'role'
         ).order_by(
             'prefix'
-        ).annotate_depth(
-            limit=0
-        )
+        ).annotate_tree()
 
         # Add available prefixes to the table if requested
         if request.GET.get('show_available', 'true') == 'true':
@@ -320,16 +318,11 @@ class RoleBulkDeleteView(BulkDeleteView):
 #
 
 class PrefixListView(ObjectListView):
-    queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
+    queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role').annotate_tree()
     filterset = filters.PrefixFilterSet
     filterset_form = forms.PrefixFilterForm
     table = tables.PrefixDetailTable
     template_name = 'ipam/prefix_list.html'
-
-    def alter_queryset(self, request):
-        # Show only top-level prefixes by default (unless searching)
-        limit = None if request.GET.get('expand') or request.GET.get('q') else 0
-        return self.queryset.annotate_depth(limit=limit)
 
 
 class PrefixView(ObjectView):
@@ -353,7 +346,7 @@ class PrefixView(ObjectView):
             prefix__net_contains=str(prefix.prefix)
         ).prefetch_related(
             'site', 'role'
-        ).annotate_depth()
+        ).annotate_tree()
         parent_prefix_table = tables.PrefixTable(list(parent_prefixes), orderable=False)
         parent_prefix_table.exclude = ('vrf',)
 
@@ -386,7 +379,7 @@ class PrefixPrefixesView(ObjectView):
         # Child prefixes table
         child_prefixes = prefix.get_child_prefixes().restrict(request.user, 'view').prefetch_related(
             'site', 'vlan', 'role',
-        ).annotate_depth(limit=0)
+        ).annotate_tree()
 
         # Add available prefixes to the table if requested
         if child_prefixes and request.GET.get('show_available', 'true') == 'true':
