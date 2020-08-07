@@ -12,6 +12,7 @@
 
 ### Bug Fixes
 
+* [#4903](https://github.com/netbox-community/netbox/issues/4903) - Fix member count when searching for virtual chassis
 * [#4905](https://github.com/netbox-community/netbox/issues/4905) - Fix front port count on device type view
 * [#4912](https://github.com/netbox-community/netbox/issues/4912) - Fix image attachment API endpoint
 * [#4914](https://github.com/netbox-community/netbox/issues/4914) - Fix toggling cable status under device view
@@ -21,7 +22,7 @@
 * [#4938](https://github.com/netbox-community/netbox/issues/4938) - Show add, import buttons on virtual chassis list view
 * [#4939](https://github.com/netbox-community/netbox/issues/4939) - Fix linking to LAG interfaces on other VC members
 * [#4950](https://github.com/netbox-community/netbox/issues/4950) - Include inventory item label in API serializer, UI view
-* [#4951](https://github.com/netbox-community/netbox/issues/4951) - Redirect to device inventory view after creting a new inventory item
+* [#4951](https://github.com/netbox-community/netbox/issues/4951) - Redirect to device inventory view after creating a new inventory item
 * [#4952](https://github.com/netbox-community/netbox/issues/4952) - Default to VM tab when creating/editing an IP address for a VM
 
 ### Other Changes

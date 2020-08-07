@@ -2180,7 +2180,7 @@ class InterfaceConnectionsListView(ObjectListView):
 
 class VirtualChassisListView(ObjectListView):
     queryset = VirtualChassis.objects.prefetch_related('master').annotate(
-        member_count=Count('members')
+        member_count=Count('members', distinct=True)
     ).order_by(*VirtualChassis._meta.ordering)
     table = tables.VirtualChassisTable
     filterset = filters.VirtualChassisFilterSet

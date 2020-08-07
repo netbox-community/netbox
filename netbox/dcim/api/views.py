@@ -608,7 +608,7 @@ class CableViewSet(ModelViewSet):
 
 class VirtualChassisViewSet(ModelViewSet):
     queryset = VirtualChassis.objects.prefetch_related('tags').annotate(
-        member_count=Count('members')
+        member_count=Count('members', distinct=True)
     ).order_by(*VirtualChassis._meta.ordering)
     serializer_class = serializers.VirtualChassisSerializer
     filterset_class = filters.VirtualChassisFilterSet

@@ -100,7 +100,7 @@ SEARCH_TYPES = OrderedDict((
     }),
     ('virtualchassis', {
         'queryset': VirtualChassis.objects.prefetch_related('master').annotate(
-            member_count=Count('members')
+            member_count=Count('members', distinct=True)
         ).order_by(*VirtualChassis._meta.ordering),
         'filterset': VirtualChassisFilterSet,
         'table': VirtualChassisTable,
