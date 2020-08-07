@@ -25,8 +25,6 @@ class SecretRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'name': 'Secret Role X',
             'slug': 'secret-role-x',
             'description': 'A secret role',
-            'users': [],
-            'groups': [],
         }
 
         cls.csv_data = (

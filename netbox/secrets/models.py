@@ -239,9 +239,6 @@ class SecretRole(ChangeLoggedModel):
     """
     A SecretRole represents an arbitrary functional classification of Secrets. For example, a user might define roles
     such as "Login Credentials" or "SNMP Communities."
-
-    By default, only superusers will have access to decrypt Secrets. To allow other users to decrypt Secrets, grant them
-    access to the appropriate SecretRoles either individually or by group.
     """
     name = models.CharField(
         max_length=50,
@@ -253,16 +250,6 @@ class SecretRole(ChangeLoggedModel):
     description = models.CharField(
         max_length=200,
         blank=True,
-    )
-    users = models.ManyToManyField(
-        to=User,
-        related_name='secretroles',
-        blank=True
-    )
-    groups = models.ManyToManyField(
-        to=Group,
-        related_name='secretroles',
-        blank=True
     )
 
     objects = RestrictedQuerySet.as_manager()
@@ -284,14 +271,6 @@ class SecretRole(ChangeLoggedModel):
             self.slug,
             self.description,
         )
-
-    def has_member(self, user):
-        """
-        Check whether the given user has belongs to this SecretRole. Note that superusers belong to all roles.
-        """
-        if user.is_superuser:
-            return True
-        return user in self.users.all() or user.groups.filter(pk__in=self.groups.all()).exists()
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
@@ -453,9 +432,3 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
         if not self.hash:
             raise Exception("Hash has not been generated for this secret.")
         return check_password(plaintext, self.hash, preferred=SecretValidationHasher())
-
-    def decryptable_by(self, user):
-        """
-        Check whether the given user has permission to decrypt this Secret.
-        """
-        return self.role.has_member(user)
