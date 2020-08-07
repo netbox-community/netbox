@@ -24,6 +24,7 @@
 * [#4950](https://github.com/netbox-community/netbox/issues/4950) - Include inventory item label in API serializer, UI view
 * [#4951](https://github.com/netbox-community/netbox/issues/4951) - Redirect to device inventory view after creating a new inventory item
 * [#4952](https://github.com/netbox-community/netbox/issues/4952) - Default to VM tab when creating/editing an IP address for a VM
+* [#4968](https://github.com/netbox-community/netbox/issues/4968) - Fix exception when activating user keys in admin UI
 
 ### Other Changes
 
