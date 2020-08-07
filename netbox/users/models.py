@@ -285,3 +285,11 @@ class ObjectPermission(models.Model):
 
     def __str__(self):
         return self.name
+
+    def list_constraints(self):
+        """
+        Return all constraint sets as a list (even if only a single set is defined).
+        """
+        if type(self.constraints) is not list:
+            return [self.constraints]
+        return self.constraints
