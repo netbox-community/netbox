@@ -342,18 +342,7 @@ class ReportListView(ContentTypePermissionRequiredMixin, View):
         })
 
 
-class GetReportMixin:
-    def _get_report(self, name, module=None):
-        if module is None:
-            module, name = name.split('.', 1)
-        report = get_report(module, name)
-        if report is None:
-            raise Http404
-
-        return report
-
-
-class ReportView(GetReportMixin, ContentTypePermissionRequiredMixin, View):
+class ReportView(ContentTypePermissionRequiredMixin, View):
     """
     Display a single Report and its associated JobResult (if any).
     """
@@ -362,7 +351,9 @@ class ReportView(GetReportMixin, ContentTypePermissionRequiredMixin, View):
 
     def get(self, request, module, name):
 
-        report = self._get_report(name, module)
+        report = get_report(module, name)
+        if report is None:
+            raise Http404
 
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
         report.result = JobResult.objects.filter(
@@ -382,50 +373,48 @@ class ReportView(GetReportMixin, ContentTypePermissionRequiredMixin, View):
         if not request.user.has_perm('extras.run_report'):
             return HttpResponseForbidden()
 
-        report = self._get_report(name, module)
-        form = ConfirmationForm(request.POST)
+        report = get_report(module, name)
+        if report is None:
+            raise Http404
 
         # Allow execution only if RQ worker process is running
         if not Worker.count(get_connection('default')):
             messages.error(request, "Unable to run report: RQ worker process not running.")
+            return render(request, 'extras/report.html', {
+                'report': report,
+            })
 
-        elif form.is_valid():
+        # Run the Report. A new JobResult is created.
+        report_content_type = ContentType.objects.get(app_label='extras', model='report')
+        job_result = JobResult.enqueue_job(
+            run_report,
+            report.full_name,
+            report_content_type,
+            request.user
+        )
 
-            # Run the Report. A new JobResult is created.
-            report_content_type = ContentType.objects.get(app_label='extras', model='report')
-            job_result = JobResult.enqueue_job(
-                run_report,
-                report.full_name,
-                report_content_type,
-                request.user
-            )
-
-            return redirect('extras:report_result', job_result_pk=job_result.pk)
-
-        return render(request, 'extras/report.html', {
-            'report': report,
-            'run_form': form,
-        })
+        return redirect('extras:report_result', job_result_pk=job_result.pk)
 
 
-class ReportResultView(ContentTypePermissionRequiredMixin, GetReportMixin, View):
-
+class ReportResultView(ContentTypePermissionRequiredMixin, View):
+    """
+    Display a JobResult pertaining to the execution of a Report.
+    """
     def get_required_permission(self):
         return 'extras.view_report'
 
     def get(self, request, job_result_pk):
-        result = get_object_or_404(JobResult.objects.all(), pk=job_result_pk)
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
-        if result.obj_type != report_content_type:
-            raise Http404
+        jobresult = get_object_or_404(JobResult.objects.all(), pk=job_result_pk, obj_type=report_content_type)
 
-        report = self._get_report(result.name)
+        # Retrieve the Report and attach the JobResult to it
+        module, report_name = jobresult.name.split('.')
+        report = get_report(module, report_name)
+        report.result = jobresult
 
         return render(request, 'extras/report_result.html', {
             'report': report,
-            'result': result,
-            'class_name': report.name,
-            'run_form': ConfirmationForm(),
+            'result': jobresult,
         })
 
 

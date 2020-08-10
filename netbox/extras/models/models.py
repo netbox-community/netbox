@@ -571,7 +571,6 @@ class Script(models.Model):
     """
     Dummy model used to generate permissions for custom scripts. Does not exist in the database.
     """
-
     class Meta:
         managed = False
 
@@ -585,7 +584,6 @@ class Report(models.Model):
     """
     Dummy model used to generate permissions for reports. Does not exist in the database.
     """
-
     class Meta:
         managed = False
 
@@ -606,7 +604,7 @@ class JobResult(models.Model):
         related_name='job_results',
         verbose_name='Object types',
         limit_choices_to=FeatureQuery('job_results'),
-        help_text="The object type to which this job result applies.",
+        help_text="The object type to which this job result applies",
         on_delete=models.CASCADE,
     )
     created = models.DateTimeField(
