@@ -4,7 +4,7 @@
 {% load log_levels %}
 {% load static %}
 
-{% block title %}{{ script }}{% endblock %}
+{% block title %}{{ script }} - {{ result.get_status_display }}{% endblock %}
 
 {% block content %}
     <div class="row noprint">

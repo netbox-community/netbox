@@ -28,7 +28,9 @@
                                     </td>
                                     <td>{{ script.Meta.description }}</td>
                                     {% if script.result %}
-                                        <td class="text-right">{{ script.result.created }}</td>
+                                        <td class="text-right">
+                                            <a href="{% url 'extras:script_result' job_result_pk=script.result.pk %}">{{ script.result.created }}</a>
+                                        </td>
                                     {% else %}
                                         <td class="text-right text-muted">Never</td>
                                     {% endif %}
