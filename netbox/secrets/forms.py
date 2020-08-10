@@ -46,13 +46,7 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = SecretRole
-        fields = [
-            'name', 'slug', 'description', 'users', 'groups',
-        ]
-        widgets = {
-            'users': StaticSelect2Multiple(),
-            'groups': StaticSelect2Multiple(),
-        }
+        fields = ('name', 'slug', 'description')
 
 
 class SecretRoleCSVForm(CSVModelForm):

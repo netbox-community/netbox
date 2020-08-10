@@ -18,7 +18,7 @@ class SecretRoleTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = SecretRole
-        fields = ('pk', 'name', 'secret_count', 'description', 'slug', 'users', 'groups', 'actions')
+        fields = ('pk', 'name', 'secret_count', 'description', 'slug', 'actions')
         default_columns = ('pk', 'name', 'secret_count', 'description', 'actions')
 
 
