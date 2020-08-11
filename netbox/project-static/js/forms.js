@@ -178,20 +178,6 @@ $(document).ready(function() {
                     }
                 });
 
-                // Conditional query params
-                $.each(element.attributes, function(index, attr){
-                    if (attr.name.includes("data-conditional-query-param-")){
-                        var conditional = attr.name.split("data-conditional-query-param-")[1].split("__");
-                        var field = $("#id_" + conditional[0]);
-                        var field_value = conditional[1];
-
-                        if ($('option:selected', field).attr('api-value') === field_value){
-                            var _val = attr.value.split("=");
-                            parameters[_val[0]] = _val[1];
-                        }
-                    }
-                });
-
                 // Additional query params
                 $.each(element.attributes, function(index, attr){
                     if (attr.name.includes("data-additional-query-param-")){

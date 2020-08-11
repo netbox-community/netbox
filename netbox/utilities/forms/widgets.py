@@ -145,11 +145,6 @@ class APISelect(SelectWithDisabled):
     :param disabled_indicator: (Optional) Mark option as disabled if this field equates true.
     :param filter_for: (Optional) A dict of chained form fields for which this field is a filter. The key is the
         name of the filter-for field (child field) and the value is the name of the query param filter.
-    :param conditional_query_params: (Optional) A dict of URL query params to append to the URL if the
-        condition is met. The condition is the dict key and is specified in the form `<field_name>__<field_value>`.
-        If the provided field value is selected for the given field, the URL query param will be appended to
-        the rendered URL. The value is the in the from `<param_name>=<param_value>`. This is useful in cases where
-        a particular field value dictates an additional API filter.
     :param additional_query_params: Optional) A dict of query params to append to the API request. The key is the
         name of the query param and the value if the query param's value.
     :param null_option: If true, include the static null option in the selection list.
@@ -161,7 +156,6 @@ class APISelect(SelectWithDisabled):
         value_field=None,
         disabled_indicator=None,
         filter_for=None,
-        conditional_query_params=None,
         additional_query_params=None,
         null_option=False,
         full=False,
@@ -185,9 +179,6 @@ class APISelect(SelectWithDisabled):
         if filter_for:
             for key, value in filter_for.items():
                 self.add_filter_for(key, value)
-        if conditional_query_params:
-            for key, value in conditional_query_params.items():
-                self.add_conditional_query_param(key, value)
         if additional_query_params:
             for key, value in additional_query_params.items():
                 self.add_additional_query_param(key, value)
@@ -216,16 +207,6 @@ class APISelect(SelectWithDisabled):
         values.append(value)
 
         self.attrs[key] = json.dumps(values)
-
-    def add_conditional_query_param(self, condition, value):
-        """
-        Add details for a URL query strings to append to the URL if the condition is met.
-        The condition is specified in the form `<field_name>__<field_value>`.
-
-        :param condition: The condition for the query param
-        :param value: The value of the query param
-        """
-        self.attrs['data-conditional-query-param-{}'.format(condition)] = value
 
 
 class APISelectMultiple(APISelect, forms.SelectMultiple):
