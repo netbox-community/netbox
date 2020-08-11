@@ -1,5 +1,13 @@
 # NetBox v2.8
 
+## v2.8.10 (FUTURE)
+
+### Enhancements
+
+* [#4885](https://github.com/netbox-community/netbox/issues/4885) - Add MultiChoiceVar for custom scripts
+
+---
+
 ## v2.8.9 (2020-08-04)
 
 ### Enhancements

@@ -154,6 +154,10 @@ CHOICES = (
 direction = ChoiceVar(choices=CHOICES)
 ```
 
+### MultiChoiceVar
+
+Similar to `ChoiceVar`, but allows for the selection of multiple choices.
+
 ### ObjectVar
 
 A NetBox object of a particular type, identified by the associated queryset. Most models will utilize the REST API to retrieve available options: Note that any filtering on the queryset in this case has no effect.
