@@ -141,7 +141,6 @@ class APISelect(SelectWithDisabled):
 
     :param api_url: API endpoint URL. Required if not set automatically by the parent field.
     :param display_field: (Optional) Field to display for child in selection list. Defaults to `name`.
-    :param value_field: (Optional) Field to use for the option value in selection list. Defaults to `id`.
     :param disabled_indicator: (Optional) Mark option as disabled if this field equates true.
     :param filter_for: (Optional) A dict of chained form fields for which this field is a filter. The key is the
         name of the filter-for field (child field) and the value is the name of the query param filter.
@@ -153,7 +152,6 @@ class APISelect(SelectWithDisabled):
         self,
         api_url=None,
         display_field=None,
-        value_field=None,
         disabled_indicator=None,
         filter_for=None,
         additional_query_params=None,
@@ -172,8 +170,6 @@ class APISelect(SelectWithDisabled):
             self.attrs['data-full'] = full
         if display_field:
             self.attrs['display-field'] = display_field
-        if value_field:
-            self.attrs['value-field'] = value_field
         if disabled_indicator:
             self.attrs['disabled-indicator'] = disabled_indicator
         if filter_for:

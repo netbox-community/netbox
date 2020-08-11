@@ -166,17 +166,13 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
     type = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field='slug',
-        )
+        required=False
     )
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'site': 'region'
             }
@@ -187,7 +183,6 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field='slug',
             null_option=True,
         )
     )
@@ -196,7 +191,6 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field='slug',
             null_option=True,
         )
     )
@@ -496,7 +490,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
         )
     )
@@ -505,7 +498,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
         )
     )
@@ -519,7 +511,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'site': 'region'
             }
@@ -530,7 +521,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
         )
     )
@@ -539,7 +529,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
             additional_query_params={
                 'vm_role': "True"
@@ -556,7 +545,6 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
         )
     )

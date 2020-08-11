@@ -70,7 +70,6 @@ class DeviceComponentFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field='slug',
             filter_for={
                 'site': 'region'
             }
@@ -81,7 +80,6 @@ class DeviceComponentFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'device_id': 'site',
             }
@@ -348,10 +346,7 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     tag = TagFilterField(model)
 
@@ -409,7 +404,6 @@ class RackGroupFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'site': 'region',
                 'parent': 'region',
@@ -421,7 +415,6 @@ class RackGroupFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'parent': 'site',
             }
@@ -430,11 +423,7 @@ class RackGroupFilterForm(BootstrapMixin, forms.Form):
     parent = DynamicModelMultipleChoiceField(
         queryset=RackGroup.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            api_url="/api/dcim/rack-groups/",
-            value_field="slug",
-        )
+        required=False
     )
 
 
@@ -662,7 +651,6 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'site': 'region'
             }
@@ -673,7 +661,6 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'group_id': 'site'
             }
@@ -699,7 +686,6 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
         )
     )
@@ -861,10 +847,7 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=RackGroup.objects.prefetch_related('site'),
@@ -972,10 +955,7 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
     manufacturer = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     subdevice_role = forms.MultipleChoiceField(
         choices=add_blank_choice(SubdeviceRoleChoices),
@@ -2116,7 +2096,6 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'site': 'region'
             }
@@ -2127,7 +2106,6 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'rack_group_id': 'site',
                 'rack_id': 'site',
@@ -2157,7 +2135,6 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
         )
     )
     manufacturer_id = DynamicModelMultipleChoiceField(
@@ -2181,7 +2158,6 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
         )
     )
@@ -3446,10 +3422,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
     manufacturer = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelect(
-            value_field="slug",
-        )
+        required=False
     )
     serial = forms.CharField(
         required=False
@@ -3900,7 +3873,6 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'rack_id': 'site',
                 'device_id': 'site',
@@ -3912,7 +3884,6 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field='slug',
             filter_for={
                 'device_id': 'tenant',
             }
@@ -3962,7 +3933,6 @@ class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'device_id': 'site',
             }
@@ -3981,7 +3951,6 @@ class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'device_id': 'site',
             }
@@ -4000,7 +3969,6 @@ class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'device_id': 'site',
             }
@@ -4240,7 +4208,6 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'site': 'region'
             }
@@ -4249,17 +4216,13 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     tenant_group = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
             filter_for={
                 'tenant': 'group'
@@ -4271,7 +4234,6 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
         )
     )
@@ -4369,7 +4331,6 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'site': 'region'
             }
@@ -4380,7 +4341,6 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'rack_group_id': 'site',
             }
@@ -4589,7 +4549,6 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'site': 'region'
             }
@@ -4600,7 +4559,6 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'power_panel_id': 'site',
                 'rack_id': 'site',

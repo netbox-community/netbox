@@ -108,7 +108,6 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'site': 'region'
             }
@@ -117,10 +116,7 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     asn = forms.IntegerField(
         required=False,
@@ -271,18 +267,12 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
     type = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     provider = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     status = forms.MultipleChoiceField(
         choices=CircuitStatusChoices,
@@ -294,7 +284,6 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'site': 'region'
             }
@@ -303,10 +292,7 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     commit_rate = forms.IntegerField(
         required=False,

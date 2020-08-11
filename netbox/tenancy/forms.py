@@ -107,7 +107,6 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
         )
     )
@@ -154,7 +153,6 @@ class TenancyFilterForm(forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
             filter_for={
                 'tenant': 'group'
@@ -166,7 +164,6 @@ class TenancyFilterForm(forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
         )
     )

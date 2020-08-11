@@ -251,12 +251,19 @@ class DynamicModelChoiceMixin:
     def __init__(self, *args, display_field='name', **kwargs):
         self.display_field = display_field
 
+        # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
+        # by widget_attrs()
+        self.to_field_name = kwargs.get('to_field_name')
+
         super().__init__(*args, **kwargs)
 
     def widget_attrs(self, widget):
-        return {
-            'display-field': self.display_field
+        attrs = {
+            'display-field': self.display_field,
         }
+        if self.to_field_name:
+            attrs['value-field'] = self.to_field_name
+        return attrs
 
     def get_bound_field(self, form, field_name):
         bound_field = BoundField(form, self, field_name)

@@ -217,10 +217,7 @@ class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=RIR.objects.all(),
         to_field_name='slug',
         required=False,
-        label='RIR',
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        label='RIR'
     )
     tag = TagFilterField(model)
 
@@ -481,7 +478,6 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'site': 'region'
             }
@@ -492,7 +488,6 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
         )
     )
@@ -501,7 +496,6 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
         )
     )
@@ -978,7 +972,6 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'site': 'region',
             }
@@ -989,7 +982,6 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
         )
     )
@@ -1145,7 +1137,6 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             filter_for={
                 'site': 'region',
                 'group_id': 'region'
@@ -1157,7 +1148,6 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
         )
     )
@@ -1179,7 +1169,6 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
         widget=APISelectMultiple(
-            value_field="slug",
             null_option=True,
         )
     )
