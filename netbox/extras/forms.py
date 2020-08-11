@@ -413,9 +413,9 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     user = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
+        display_field='username',
         widget=APISelectMultiple(
             api_url='/api/users/users/',
-            display_field='username'
         )
     )
     changed_object_type = forms.ModelChoiceField(

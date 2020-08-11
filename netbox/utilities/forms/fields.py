@@ -11,6 +11,7 @@ from django.db.models import Count
 from django.forms import BoundField
 from django.urls import reverse
 
+from utilities.api import get_serializer_for_model
 from utilities.choices import unpack_grouped_choices
 from utilities.validators import EnhancedURLValidator
 from . import widgets
@@ -246,6 +247,16 @@ class TagFilterField(forms.MultipleChoiceField):
 class DynamicModelChoiceMixin:
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
+
+    def __init__(self, *args, display_field='name', **kwargs):
+        self.display_field = display_field
+
+        super().__init__(*args, **kwargs)
+
+    def widget_attrs(self, widget):
+        return {
+            'display-field': self.display_field
+        }
 
     def get_bound_field(self, form, field_name):
         bound_field = BoundField(form, self, field_name)

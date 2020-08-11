@@ -716,9 +716,7 @@ class RackElevationFilterForm(RackFilterForm):
         queryset=Rack.objects.all(),
         label='Rack',
         required=False,
-        widget=APISelectMultiple(
-            display_field='display_name',
-        )
+        display_field='display_name'
     )
 
     def __init__(self, *args, **kwargs):
@@ -1048,9 +1046,7 @@ class ComponentTemplateCreateForm(ComponentForm):
     )
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),
-        widget=APISelect(
-            display_field='model'
-        )
+        display_field='model'
     )
     description = forms.CharField(
         required=False
@@ -1739,9 +1735,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
-        widget=APISelect(
-            display_field='display_name'
-        )
+        display_field='display_name'
     )
     position = forms.TypedChoiceField(
         required=False,
@@ -1764,9 +1758,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     )
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),
-        widget=APISelect(
-            display_field='model'
-        )
+        display_field='model'
     )
     device_role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.all()
@@ -2078,9 +2070,7 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),
         required=False,
-        widget=APISelect(
-            display_field="model",
-        )
+        display_field='model'
     )
     device_role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.all(),
@@ -2184,9 +2174,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         queryset=DeviceType.objects.all(),
         required=False,
         label='Model',
-        widget=APISelectMultiple(
-            display_field="model",
-        )
+        display_field='model'
     )
     platform = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
@@ -2715,8 +2703,8 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         queryset=VLAN.objects.all(),
         required=False,
         label='Untagged VLAN',
+        display_field='display_name',
         widget=APISelect(
-            display_field='display_name',
             full=True,
             additional_query_params={
                 'site_id': 'null',
@@ -2727,8 +2715,8 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         queryset=VLAN.objects.all(),
         required=False,
         label='Tagged VLANs',
+        display_field='display_name',
         widget=APISelectMultiple(
-            display_field='display_name',
             full=True,
             additional_query_params={
                 'site_id': 'null',
@@ -2816,8 +2804,8 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
+        display_field='display_name',
         widget=APISelect(
-            display_field='display_name',
             full=True,
             additional_query_params={
                 'site_id': 'null',
@@ -2827,8 +2815,8 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
+        display_field='display_name',
         widget=APISelectMultiple(
-            display_field='display_name',
             full=True,
             additional_query_params={
                 'site_id': 'null',
@@ -2885,8 +2873,8 @@ class InterfaceBulkEditForm(
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
+        display_field='display_name',
         widget=APISelect(
-            display_field='display_name',
             full=True,
             additional_query_params={
                 'site_id': 'null',
@@ -2896,8 +2884,8 @@ class InterfaceBulkEditForm(
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
+        display_field='display_name',
         widget=APISelectMultiple(
-            display_field='display_name',
             full=True,
             additional_query_params={
                 'site_id': 'null',
@@ -3514,8 +3502,8 @@ class ConnectCableToDeviceForm(BootstrapMixin, forms.ModelForm):
         queryset=Device.objects.all(),
         label='Device',
         required=False,
+        display_field='display_name',
         widget=APISelect(
-            display_field='display_name',
             filter_for={
                 'termination_b_id': 'device_id',
             }
@@ -3632,8 +3620,8 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, forms.ModelForm):
     termination_b_circuit = DynamicModelChoiceField(
         queryset=Circuit.objects.all(),
         label='Circuit',
+        display_field='cid',
         widget=APISelect(
-            display_field='cid',
             filter_for={
                 'termination_b_id': 'circuit_id',
             }
@@ -3662,8 +3650,8 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
         queryset=Site.objects.all(),
         label='Site',
         required=False,
+        display_field='cid',
         widget=APISelect(
-            display_field='cid',
             filter_for={
                 'termination_b_rackgroup': 'site_id',
                 'termination_b_powerpanel': 'site_id',
@@ -3674,8 +3662,8 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
         queryset=RackGroup.objects.all(),
         label='Rack Group',
         required=False,
+        display_field='cid',
         widget=APISelect(
-            display_field='cid',
             filter_for={
                 'termination_b_powerpanel': 'rackgroup_id',
             }
@@ -4199,8 +4187,8 @@ class VCMemberSelectForm(BootstrapMixin, forms.Form):
         queryset=Device.objects.filter(
             virtual_chassis__isnull=True
         ),
+        display_field='display_name',
         widget=APISelect(
-            display_field='display_name',
             disabled_indicator='virtual_chassis'
         )
     )

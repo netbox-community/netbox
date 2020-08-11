@@ -287,9 +287,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=VLAN.objects.all(),
         required=False,
         label='VLAN',
-        widget=APISelect(
-            display_field='display_name'
-        )
+        display_field='display_name'
     )
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
@@ -569,8 +567,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         queryset=Rack.objects.all(),
         required=False,
         label='Rack',
+        display_field='display_name',
         widget=APISelect(
-            display_field='display_name',
             filter_for={
                 'nat_device': 'rack_id'
             },
@@ -583,8 +581,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         queryset=Device.objects.all(),
         required=False,
         label='Device',
+        display_field='display_name',
         widget=APISelect(
-            display_field='display_name',
             filter_for={
                 'nat_inside': 'device_id'
             }
@@ -604,9 +602,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         queryset=IPAddress.objects.all(),
         required=False,
         label='IP Address',
-        widget=APISelect(
-            display_field='address'
-        )
+        display_field='address'
     )
     primary_for_parent = forms.BooleanField(
         required=False,
