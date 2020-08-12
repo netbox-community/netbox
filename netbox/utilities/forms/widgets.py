@@ -79,29 +79,12 @@ class SelectWithDisabled(forms.Select):
 
 class StaticSelect2(SelectWithDisabled):
     """
-    A static content using the Select2 widget
-
-    :param filter_for: (Optional) A dict of chained form fields for which this field is a filter. The key is the
-        name of the filter-for field (child field) and the value is the name of the query param filter.
+    A static <select> form widget using the Select2 library.
     """
-
-    def __init__(self, filter_for=None, *args, **kwargs):
-
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.attrs['class'] = 'netbox-select2-static'
-        if filter_for:
-            for key, value in filter_for.items():
-                self.add_filter_for(key, value)
-
-    def add_filter_for(self, name, value):
-        """
-        Add details for an additional query param in the form of a data-filter-for-* attribute.
-
-        :param name: The name of the query param
-        :param value: The value of the query param
-        """
-        self.attrs['data-filter-for-{}'.format(name)] = value
 
 
 class StaticSelect2Multiple(StaticSelect2, forms.SelectMultiple):
@@ -142,8 +125,6 @@ class APISelect(SelectWithDisabled):
     :param api_url: API endpoint URL. Required if not set automatically by the parent field.
     :param display_field: (Optional) Field to display for child in selection list. Defaults to `name`.
     :param disabled_indicator: (Optional) Mark option as disabled if this field equates true.
-    :param filter_for: (Optional) A dict of chained form fields for which this field is a filter. The key is the
-        name of the filter-for field (child field) and the value is the name of the query param filter.
     :param additional_query_params: Optional) A dict of query params to append to the API request. The key is the
         name of the query param and the value if the query param's value.
     """
@@ -152,7 +133,6 @@ class APISelect(SelectWithDisabled):
         api_url=None,
         display_field=None,
         disabled_indicator=None,
-        filter_for=None,
         additional_query_params=None,
         full=False,
         *args,
@@ -170,21 +150,9 @@ class APISelect(SelectWithDisabled):
             self.attrs['display-field'] = display_field
         if disabled_indicator:
             self.attrs['disabled-indicator'] = disabled_indicator
-        if filter_for:
-            for key, value in filter_for.items():
-                self.add_filter_for(key, value)
         if additional_query_params:
             for key, value in additional_query_params.items():
                 self.add_additional_query_param(key, value)
-
-    def add_filter_for(self, name, value):
-        """
-        Add details for an additional query param in the form of a data-filter-for-* attribute.
-
-        :param name: The name of the query param
-        :param value: The value of the query param
-        """
-        self.attrs['data-filter-for-{}'.format(name)] = value
 
     def add_additional_query_param(self, name, value):
         """
