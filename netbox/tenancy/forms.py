@@ -119,16 +119,14 @@ class TenancyForm(forms.Form):
     tenant_group = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
-        null_option='None',
-        widget=APISelect(
-            filter_for={
-                'tenant': 'group_id',
-            }
-        )
+        null_option='None'
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'group_id': '$tenant_group'
+        }
     )
 
     def __init__(self, *args, **kwargs):
@@ -148,16 +146,14 @@ class TenancyFilterForm(forms.Form):
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
         required=False,
-        null_option='None',
-        widget=APISelectMultiple(
-            filter_for={
-                'tenant': 'group'
-            }
-        )
+        null_option='None'
     )
     tenant = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         required=False,
-        null_option='None'
+        null_option='None',
+        query_params={
+            'group': '$tenant_group'
+        }
     )

@@ -68,27 +68,23 @@ class DeviceComponentFilterForm(BootstrapMixin, forms.Form):
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'site': 'region'
-            }
-        )
+        required=False
     )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'device_id': 'site',
-            }
-        )
+        query_params={
+            'region': '$region'
+        }
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
-        label='Device'
+        label='Device',
+        query_params={
+            'site': '$site'
+        }
     )
 
 
@@ -357,16 +353,14 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 
 class RackGroupForm(BootstrapMixin, forms.ModelForm):
     site = DynamicModelChoiceField(
-        queryset=Site.objects.all(),
-        widget=APISelect(
-            filter_for={
-                'parent': 'site_id',
-            }
-        )
+        queryset=Site.objects.all()
     )
     parent = DynamicModelChoiceField(
         queryset=RackGroup.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
     )
     slug = SlugField()
 
@@ -402,28 +396,24 @@ class RackGroupFilterForm(BootstrapMixin, forms.Form):
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'site': 'region',
-                'parent': 'region',
-            }
-        )
+        required=False
     )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'parent': 'site',
-            }
-        )
+        query_params={
+            'region': '$region'
+        }
     )
     parent = DynamicModelMultipleChoiceField(
         queryset=RackGroup.objects.all(),
         to_field_name='slug',
-        required=False
+        required=False,
+        query_params={
+            'region': '$region',
+            'site': '$site',
+        }
     )
 
 
@@ -458,16 +448,14 @@ class RackRoleCSVForm(CSVModelForm):
 
 class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     site = DynamicModelChoiceField(
-        queryset=Site.objects.all(),
-        widget=APISelect(
-            filter_for={
-                'group': 'site_id',
-            }
-        )
+        queryset=Site.objects.all()
     )
     group = DynamicModelChoiceField(
         queryset=RackGroup.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
     )
     role = DynamicModelChoiceField(
         queryset=RackRole.objects.all(),
@@ -562,16 +550,14 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        widget=APISelect(
-            filter_for={
-                'group': 'site_id',
-            }
-        )
+        required=False
     )
     group = DynamicModelChoiceField(
         queryset=RackGroup.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -649,30 +635,24 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'site': 'region'
-            }
-        )
+        required=False
     )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'group_id': 'site'
-            }
-        )
+        query_params={
+            'region': '$region'
+        }
     )
     group_id = DynamicModelMultipleChoiceField(
-        queryset=RackGroup.objects.prefetch_related(
-            'site'
-        ),
+        queryset=RackGroup.objects.all(),
         required=False,
         label='Rack group',
-        null_option='None'
+        null_option='None',
+        query_params={
+            'site': '$site'
+        }
     )
     status = forms.MultipleChoiceField(
         choices=RackStatusChoices,
@@ -698,15 +678,12 @@ class RackElevationFilterForm(RackFilterForm):
         queryset=Rack.objects.all(),
         label='Rack',
         required=False,
-        display_field='display_name'
+        display_field='display_name',
+        query_params={
+            'site': '$site',
+            'group_id': '$group_id',
+        }
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Filter the rack field based on the site and group
-        self.fields['site'].widget.add_filter_for('id', 'site')
-        self.fields['group_id'].widget.add_filter_for('id', 'group_id')
 
 
 #
@@ -716,25 +693,21 @@ class RackElevationFilterForm(RackFilterForm):
 class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        widget=APISelect(
-            filter_for={
-                'rack_group': 'site_id',
-                'rack': 'site_id',
-            }
-        )
+        required=False
     )
     rack_group = DynamicModelChoiceField(
         queryset=RackGroup.objects.all(),
         required=False,
-        widget=APISelect(
-            filter_for={
-                'rack': 'group_id'
-            }
-        )
+        query_params={
+            'site_id': '$site'
+        }
     )
     rack = DynamicModelChoiceField(
-        queryset=Rack.objects.all()
+        queryset=Rack.objects.all(),
+        query_params={
+            'site_id': '$site',
+            'group_id': 'rack',
+        }
     )
     units = NumericArrayField(
         base_field=forms.IntegerField(),
@@ -1011,16 +984,14 @@ class ComponentTemplateCreateForm(ComponentForm):
     """
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
-        required=False,
-        widget=APISelect(
-            filter_for={
-                'device_type': 'manufacturer_id'
-            }
-        )
+        required=False
     )
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),
-        display_field='model'
+        display_field='model',
+        query_params={
+            'manufacturer_id': '$manufacturer'
+        }
     )
     description = forms.CharField(
         required=False
@@ -1699,17 +1670,15 @@ class PlatformCSVForm(CSVModelForm):
 
 class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     site = DynamicModelChoiceField(
-        queryset=Site.objects.all(),
-        widget=APISelect(
-            filter_for={
-                'rack': 'site_id'
-            }
-        )
+        queryset=Site.objects.all()
     )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
-        display_field='display_name'
+        display_field='display_name',
+        query_params={
+            'site_id': '$site'
+        }
     )
     position = forms.TypedChoiceField(
         required=False,
@@ -1717,22 +1686,22 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         help_text="The lowest-numbered unit occupied by the device",
         widget=APISelect(
             api_url='/api/dcim/racks/{{rack}}/elevation/',
-            disabled_indicator='device'
+            disabled_indicator='device',
+            additional_query_params={
+                'face': '$face'
+            }
         )
     )
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
-        required=False,
-        widget=APISelect(
-            filter_for={
-                'device_type': 'manufacturer_id',
-                'platform': 'manufacturer_id'
-            }
-        )
+        required=False
     )
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),
-        display_field='model'
+        display_field='model',
+        query_params={
+            'manufacturer_id': '$manufacturer'
+        }
     )
     device_role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.all()
@@ -1741,22 +1710,20 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=Platform.objects.all(),
         required=False,
         query_params={
-            "manufacturer_id": "null"
+            'manufacturer_id': ['$manufacturer', 'null']
         }
     )
     cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
-        null_option='None',
-        widget=APISelect(
-            filter_for={
-                'cluster': 'group_id'
-            }
-        )
+        null_option='None'
     )
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'group_id': '$cluster_group'
+        }
     )
     comments = CommentField()
     local_context_data = JSONField(
@@ -1782,11 +1749,6 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                                   "config context",
         }
         widgets = {
-            'face': StaticSelect2(
-                filter_for={
-                    'position': 'face'
-                }
-            ),
             'status': StaticSelect2(),
             'primary_ip4': StaticSelect2(),
             'primary_ip6': StaticSelect2(),
@@ -2084,39 +2046,33 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'site': 'region'
-            }
-        )
+        required=False
     )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'rack_group_id': 'site',
-                'rack_id': 'site',
-            }
-        )
+        query_params={
+            'region': '$region'
+        }
     )
     rack_group_id = DynamicModelMultipleChoiceField(
         queryset=RackGroup.objects.all(),
         required=False,
         label='Rack group',
-        widget=APISelectMultiple(
-            filter_for={
-                'rack_id': 'group_id',
-            }
-        )
+        query_params={
+            'site': '$site'
+        }
     )
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         label='Rack',
-        null_option='None'
+        null_option='None',
+        query_params={
+            'site': '$site',
+            'group_id': '$rack_group_id',
+        }
     )
     role = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
@@ -2125,21 +2081,20 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         widget=APISelectMultiple(
         )
     )
-    manufacturer_id = DynamicModelMultipleChoiceField(
+    manufacturer = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
+        to_field_name='slug',
         required=False,
-        label='Manufacturer',
-        widget=APISelectMultiple(
-            filter_for={
-                'device_type_id': 'manufacturer_id',
-            }
-        )
+        label='Manufacturer'
     )
     device_type_id = DynamicModelMultipleChoiceField(
         queryset=DeviceType.objects.all(),
         required=False,
         label='Model',
-        display_field='model'
+        display_field='model',
+        query_params={
+            'manufacturer': '$manufacturer'
+        }
     )
     platform = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
@@ -3424,30 +3379,26 @@ class ConnectCableToDeviceForm(BootstrapMixin, forms.ModelForm):
     termination_b_site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         label='Site',
-        required=False,
-        widget=APISelect(
-            filter_for={
-                'termination_b_rack': 'site_id',
-                'termination_b_device': 'site_id',
-            }
-        )
+        required=False
     )
     termination_b_rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         label='Rack',
         required=False,
         null_option='None',
-        widget=APISelect(
-            filter_for={
-                'termination_b_device': 'rack_id',
-            }
-        )
+        query_params={
+            'site_id': '$termination_b_site'
+        }
     )
     termination_b_device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         label='Device',
         required=False,
         display_field='display_name',
+        query_params={
+            'site_id': '$termination_b_site',
+            'rack_id': '$termination_b_rack',
+        },
         widget=APISelect(
             filter_for={
                 'termination_b_id': 'device_id',
@@ -3545,27 +3496,21 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, forms.ModelForm):
     termination_b_provider = DynamicModelChoiceField(
         queryset=Provider.objects.all(),
         label='Provider',
-        required=False,
-        widget=APISelect(
-            filter_for={
-                'termination_b_circuit': 'provider_id',
-            }
-        )
+        required=False
     )
     termination_b_site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         label='Site',
-        required=False,
-        widget=APISelect(
-            filter_for={
-                'termination_b_circuit': 'site_id',
-            }
-        )
+        required=False
     )
     termination_b_circuit = DynamicModelChoiceField(
         queryset=Circuit.objects.all(),
         label='Circuit',
         display_field='cid',
+        query_params={
+            'provider_id': '$termination_b_provider',
+            'site_id': '$termination_b_site',
+        },
         widget=APISelect(
             filter_for={
                 'termination_b_id': 'circuit_id',
@@ -3595,29 +3540,25 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
         queryset=Site.objects.all(),
         label='Site',
         required=False,
-        display_field='cid',
-        widget=APISelect(
-            filter_for={
-                'termination_b_rackgroup': 'site_id',
-                'termination_b_powerpanel': 'site_id',
-            }
-        )
+        display_field='cid'
     )
     termination_b_rackgroup = DynamicModelChoiceField(
         queryset=RackGroup.objects.all(),
         label='Rack Group',
         required=False,
         display_field='cid',
-        widget=APISelect(
-            filter_for={
-                'termination_b_powerpanel': 'rackgroup_id',
-            }
-        )
+        query_params={
+            'site_id': '$termination_b_site'
+        }
     )
     termination_b_powerpanel = DynamicModelChoiceField(
         queryset=PowerPanel.objects.all(),
         label='Power Panel',
         required=False,
+        query_params={
+            'site_id': '$termination_b_site',
+            'rack_group_id': '$termination_b_rackgroup',
+        },
         widget=APISelect(
             filter_for={
                 'termination_b_id': 'power_panel_id',
@@ -3843,34 +3784,21 @@ class CableFilterForm(BootstrapMixin, forms.Form):
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'rack_id': 'site',
-                'device_id': 'site',
-            }
-        )
+        required=False
     )
     tenant = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'device_id': 'tenant',
-            }
-        )
+        required=False
     )
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         label='Rack',
         null_option='None',
-        widget=APISelectMultiple(
-            filter_for={
-                'device_id': 'rack_id',
-            }
-        )
+        query_params={
+            'site': '$site'
+        }
     )
     type = forms.MultipleChoiceField(
         choices=add_blank_choice(CableTypeChoices),
@@ -3890,7 +3818,12 @@ class CableFilterForm(BootstrapMixin, forms.Form):
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
-        label='Device'
+        label='Device',
+        query_params={
+            'site': '$site',
+            'tenant': '$tenant',
+            'rack_id': '$rack_id',
+        }
     )
     tag = TagFilterField(model)
 
@@ -3903,17 +3836,15 @@ class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'device_id': 'site',
-            }
-        )
+        required=False
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
-        label='Device'
+        label='Device',
+        query_params={
+            'site': '$site'
+        }
     )
 
 
@@ -3921,17 +3852,15 @@ class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'device_id': 'site',
-            }
-        )
+        required=False
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
-        label='Device'
+        label='Device',
+        query_params={
+            'site': '$site'
+        }
     )
 
 
@@ -3939,17 +3868,15 @@ class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'device_id': 'site',
-            }
-        )
+        required=False
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
-        label='Device'
+        label='Device',
+        query_params={
+            'site': '$site'
+        }
     )
 
 
@@ -3967,27 +3894,23 @@ class DeviceSelectionForm(forms.Form):
 class VirtualChassisCreateForm(BootstrapMixin, forms.ModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        widget=APISelect(
-            filter_for={
-                'rack': 'site_id',
-                'members': 'site_id',
-            }
-        )
+        required=False
     )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         null_option='None',
-        widget=APISelect(
-            filter_for={
-                'members': 'rack_id'
-            }
-        )
+        query_params={
+            'site_id': '$site'
+        }
     )
     members = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
+        query_params={
+            'site_id': '$site',
+            'rack_id': '$rack',
+        }
     )
     initial_position = forms.IntegerField(
         initial=1,
@@ -4101,29 +4024,23 @@ class DeviceVCMembershipForm(forms.ModelForm):
 class VCMemberSelectForm(BootstrapMixin, forms.Form):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        widget=APISelect(
-            filter_for={
-                'rack': 'site_id',
-                'device': 'site_id',
-            }
-        )
+        required=False
     )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         null_option='None',
-        widget=APISelect(
-            filter_for={
-                'device': 'rack_id'
-            }
-        )
+        query_params={
+            'site_id': '$site'
+        }
     )
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         display_field='display_name',
         query_params={
-            'virtual_chassis_id': 'null'
+            'site_id': '$site',
+            'rack_id': '$rack',
+            'virtual_chassis_id': 'null',
         }
     )
 
@@ -4172,34 +4089,30 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'site': 'region'
-            }
-        )
+        required=False
     )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        required=False
+        required=False,
+        query_params={
+            'region': '$region'
+        }
     )
     tenant_group = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
         required=False,
-        null_option='None',
-        widget=APISelectMultiple(
-            filter_for={
-                'tenant': 'group'
-            }
-        )
+        null_option='None'
     )
     tenant = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         required=False,
-        null_option='None'
+        null_option='None',
+        query_params={
+            'group': '$tenant_group'
+        }
     )
     tag = TagFilterField(model)
 
@@ -4210,16 +4123,14 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
 
 class PowerPanelForm(BootstrapMixin, forms.ModelForm):
     site = DynamicModelChoiceField(
-        queryset=Site.objects.all(),
-        widget=APISelect(
-            filter_for={
-                'rack_group': 'site_id',
-            }
-        )
+        queryset=Site.objects.all()
     )
     rack_group = DynamicModelChoiceField(
         queryset=RackGroup.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -4266,16 +4177,14 @@ class PowerPanelBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        widget=APISelect(
-            filter_for={
-                'rack_group': 'site_id',
-            }
-        )
+        required=False
     )
     rack_group = DynamicModelChoiceField(
         queryset=RackGroup.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
     )
 
     class Meta:
@@ -4293,28 +4202,24 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'site': 'region'
-            }
-        )
+        required=False
     )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'rack_group_id': 'site',
-            }
-        )
+        query_params={
+            'region': '$region'
+        }
     )
     rack_group_id = DynamicModelMultipleChoiceField(
         queryset=RackGroup.objects.all(),
         required=False,
         label='Rack group (ID)',
-        null_option='None'
+        null_option='None',
+        query_params={
+            'site': '$site'
+        }
     )
     tag = TagFilterField(model)
 
@@ -4326,20 +4231,20 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
 class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False,
-        widget=APISelect(
-            filter_for={
-                'power_panel': 'site_id',
-                'rack': 'site_id',
-            }
-        )
+        required=False
     )
     power_panel = DynamicModelChoiceField(
-        queryset=PowerPanel.objects.all()
+        queryset=PowerPanel.objects.all(),
+        query_params={
+            'site_id': '$site'
+        }
     )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
     )
     comments = CommentField()
     tags = DynamicModelMultipleChoiceField(
@@ -4445,12 +4350,7 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
     )
     power_panel = DynamicModelChoiceField(
         queryset=PowerPanel.objects.all(),
-        required=False,
-        widget=APISelect(
-            filter_for={
-                'rackgroup': 'site_id',
-            }
-        )
+        required=False
     )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
@@ -4509,35 +4409,33 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'site': 'region'
-            }
-        )
+        required=False
     )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'power_panel_id': 'site',
-                'rack_id': 'site',
-            }
-        )
+        query_params={
+            'region': '$region'
+        }
     )
     power_panel_id = DynamicModelMultipleChoiceField(
         queryset=PowerPanel.objects.all(),
         required=False,
         label='Power panel',
-        null_option='None'
+        null_option='None',
+        query_params={
+            'site': '$site'
+        }
     )
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         label='Rack',
-        null_option='None'
+        null_option='None',
+        query_params={
+            'site': '$site'
+        }
     )
     status = forms.MultipleChoiceField(
         choices=PowerFeedStatusChoices,

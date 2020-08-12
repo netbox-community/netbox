@@ -171,18 +171,16 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'site': 'region'
-            }
-        )
+        required=False
     )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        null_option='None'
+        null_option='None',
+        query_params={
+            'region': '$region'
+        }
     )
     group = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
@@ -197,38 +195,30 @@ class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        null_option='None',
-        widget=APISelect(
-            filter_for={
-                "site": "region_id",
-            }
-        )
+        null_option='None'
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        widget=APISelect(
-            filter_for={
-                "rack": "site_id",
-                "devices": "site_id",
-            }
-        )
+        query_params={
+            'region_id': '$region'
+        }
     )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         null_option='None',
-        widget=APISelect(
-            filter_for={
-                "devices": "rack_id"
-            }
-        )
+        query_params={
+            'site_id': '$site'
+        }
     )
     devices = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         display_field='display_name',
         query_params={
-            'cluster_id': 'null'
+            'site_id': '$site',
+            'rack_id': '$rack',
+            'cluster_id': 'null',
         }
     )
 
@@ -274,15 +264,13 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
-        null_option='None',
-        widget=APISelect(
-            filter_for={
-                "cluster": "group_id",
-            }
-        )
+        null_option='None'
     )
     cluster = DynamicModelChoiceField(
-        queryset=Cluster.objects.all()
+        queryset=Cluster.objects.all(),
+        query_params={
+            'group_id': '$cluster_group'
+        }
     )
     role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.all(),
@@ -491,18 +479,16 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            filter_for={
-                'site': 'region'
-            }
-        )
+        required=False
     )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        null_option='None'
+        null_option='None',
+        query_params={
+            'region': '$region'
+        }
     )
     role = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.filter(vm_role=True),
@@ -776,17 +762,15 @@ class VMInterfaceFilterForm(forms.Form):
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
-        label='Cluster',
-        widget=APISelectMultiple(
-            filter_for={
-                'virtual_machine_id': 'cluster_id'
-            }
-        )
+        label='Cluster'
     )
     virtual_machine_id = DynamicModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
-        label='Virtual machine'
+        label='Virtual machine',
+        query_params={
+            'cluster_id': '$cluster_id'
+        }
     )
     enabled = forms.NullBooleanField(
         required=False,

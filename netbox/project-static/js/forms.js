@@ -184,6 +184,17 @@ $(document).ready(function() {
                         var param_name = attr.name.split("data-additional-query-param-")[1];
 
                         $.each($.parseJSON(attr.value), function(index, value) {
+                            // Referencing the value of another form field
+                            if (value.startsWith('$')) {
+                                let ref_field = $('#id_' + value.slice(1));
+                                if (ref_field.val() && ref_field.is(":visible")) {
+                                    value = ref_field.val();
+                                } else if (ref_field.attr("required") && ref_field.attr("data-null-option")) {
+                                    value = "null";
+                                } else {
+                                    return true;  // Skip if ref_field has no value
+                                }
+                            }
                             if (param_name in parameters) {
                                 if (Array.isArray(parameters[param_name])) {
                                     parameters[param_name].push(value);
