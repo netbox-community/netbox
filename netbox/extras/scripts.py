@@ -170,27 +170,41 @@ class ChoiceVar(ScriptVariable):
 class ObjectVar(ScriptVariable):
     """
     A single object within NetBox.
+
+    :param model: The NetBox model being referenced
+    :param display_field: The attribute of the returned object to display in the selection list (default: 'name')
+    :param query_params: A dictionary of additional query parameters to attach when making REST API requests (optional)
+    :param null_option: The label to use as a "null" selection option (optional)
     """
     form_field = DynamicModelChoiceField
 
-    def __init__(self, queryset, *args, **kwargs):
+    def __init__(self, model=None, queryset=None, display_field='name', query_params=None, null_option=None, *args,
+                 **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Queryset for field choices
-        self.field_attrs['queryset'] = queryset
+        # Set the form field's queryset. Support backward compatibility for the "queryset" argument for now.
+        if model is not None:
+            self.field_attrs['queryset'] = model.objects.all()
+        elif queryset is not None:
+            warnings.warn(
+                f'{self}: Specifying a queryset for ObjectVar is no longer supported. Please use "model" instead.'
+            )
+            self.field_attrs['queryset'] = queryset
+        else:
+            raise TypeError('ObjectVar must specify a model')
+
+        self.field_attrs.update({
+            'display_field': display_field,
+            'query_params': query_params,
+            'null_option': null_option,
+        })
 
 
-class MultiObjectVar(ScriptVariable):
+class MultiObjectVar(ObjectVar):
     """
     Like ObjectVar, but can represent one or more objects.
     """
     form_field = DynamicModelMultipleChoiceField
-
-    def __init__(self, queryset, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Queryset for field choices
-        self.field_attrs['queryset'] = queryset
 
 
 class FileVar(ScriptVariable):
