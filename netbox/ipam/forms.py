@@ -464,9 +464,7 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         queryset=VRF.objects.all(),
         required=False,
         label='VRF',
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='Global'
     )
     status = forms.MultipleChoiceField(
         choices=PrefixStatusChoices,
@@ -487,17 +485,13 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     role = DynamicModelMultipleChoiceField(
         queryset=Role.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     is_pool = forms.NullBooleanField(
         required=False,
@@ -910,9 +904,7 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
         queryset=VRF.objects.all(),
         required=False,
         label='VRF',
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='Global'
     )
     status = forms.MultipleChoiceField(
         choices=IPAddressStatusChoices,
@@ -981,9 +973,7 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
 
 
@@ -1147,17 +1137,13 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
         label='VLAN group',
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     status = forms.MultipleChoiceField(
         choices=VLANStatusChoices,
@@ -1168,9 +1154,7 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         queryset=Role.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     tag = TagFilterField(model)
 

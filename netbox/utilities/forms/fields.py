@@ -245,12 +245,18 @@ class TagFilterField(forms.MultipleChoiceField):
 
 
 class DynamicModelChoiceMixin:
+    """
+    :param display_field: The name of the attribute of an API response object to display in the selection list
+    :param query_params: A dictionary of additional key/value pairs to attach to the API request
+    :param null_option: The string used to represent a null selection (if any)
+    """
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    def __init__(self, *args, display_field='name', query_params=None, **kwargs):
+    def __init__(self, *args, display_field='name', query_params=None, null_option=None, **kwargs):
         self.display_field = display_field
         self.query_params = query_params or {}
+        self.null_option = null_option
 
         # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
         # by widget_attrs()
@@ -266,6 +272,10 @@ class DynamicModelChoiceMixin:
         # Set value-field attribute if the field specifies to_field_name
         if self.to_field_name:
             attrs['value-field'] = self.to_field_name
+
+        # Set the string used to represent a null option
+        if self.null_option is not None:
+            attrs['data-null-option'] = self.null_option
 
         # Attach any static query parameters
         for key, value in self.query_params.items():

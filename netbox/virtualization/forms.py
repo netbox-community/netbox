@@ -182,17 +182,13 @@ class ClusterFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     group = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     tag = TagFilterField(model)
 
@@ -485,17 +481,13 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     cluster_type = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
@@ -516,18 +508,16 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     role = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.filter(vm_role=True),
         to_field_name='slug',
         required=False,
+        null_option='None',
         query_params={
             'vm_role': "True"
-        },
-        widget=APISelectMultiple(null_option=True)
+        }
     )
     status = forms.MultipleChoiceField(
         choices=VirtualMachineStatusChoices,
@@ -538,9 +528,7 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         queryset=Platform.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     mac_address = forms.CharField(
         required=False,

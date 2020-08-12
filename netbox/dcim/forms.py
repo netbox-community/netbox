@@ -672,9 +672,7 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         ),
         required=False,
         label='Rack group',
-        widget=APISelectMultiple(
-            null_option=True
-        )
+        null_option='None'
     )
     status = forms.MultipleChoiceField(
         choices=RackStatusChoices,
@@ -685,9 +683,7 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         queryset=RackRole.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     tag = TagFilterField(model)
 
@@ -853,9 +849,7 @@ class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
         queryset=RackGroup.objects.prefetch_related('site'),
         required=False,
         label='Rack group',
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     tag = TagFilterField(model)
 
@@ -2124,9 +2118,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         queryset=Rack.objects.all(),
         required=False,
         label='Rack',
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     role = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
@@ -2155,9 +2147,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
         queryset=Platform.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     status = forms.MultipleChoiceField(
         choices=DeviceStatusChoices,
@@ -3879,8 +3869,8 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         queryset=Rack.objects.all(),
         required=False,
         label='Rack',
+        null_option='None',
         widget=APISelectMultiple(
-            null_option=True,
             filter_for={
                 'device_id': 'rack_id',
             }
@@ -4208,8 +4198,8 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
         required=False,
+        null_option='None',
         widget=APISelectMultiple(
-            null_option=True,
             filter_for={
                 'tenant': 'group'
             }
@@ -4219,9 +4209,7 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     tag = TagFilterField(model)
 
@@ -4336,9 +4324,7 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=RackGroup.objects.all(),
         required=False,
         label='Rack group (ID)',
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     tag = TagFilterField(model)
 
@@ -4555,17 +4541,13 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=PowerPanel.objects.all(),
         required=False,
         label='Power panel',
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         label='Rack',
-        widget=APISelectMultiple(
-            null_option=True,
-        )
+        null_option='None'
     )
     status = forms.MultipleChoiceField(
         choices=PowerFeedStatusChoices,

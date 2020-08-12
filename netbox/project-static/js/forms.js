@@ -247,7 +247,7 @@ $(document).ready(function() {
                 if (element.getAttribute('data-null-option') && data.previous === null) {
                     results.unshift({
                         id: 'null',
-                        text: 'None'
+                        text: element.getAttribute('data-null-option')
                     });
                 }
 

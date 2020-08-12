@@ -146,7 +146,6 @@ class APISelect(SelectWithDisabled):
         name of the filter-for field (child field) and the value is the name of the query param filter.
     :param additional_query_params: Optional) A dict of query params to append to the API request. The key is the
         name of the query param and the value if the query param's value.
-    :param null_option: If true, include the static null option in the selection list.
     """
     def __init__(
         self,
@@ -155,7 +154,6 @@ class APISelect(SelectWithDisabled):
         disabled_indicator=None,
         filter_for=None,
         additional_query_params=None,
-        null_option=False,
         full=False,
         *args,
         **kwargs
@@ -178,8 +176,6 @@ class APISelect(SelectWithDisabled):
         if additional_query_params:
             for key, value in additional_query_params.items():
                 self.add_additional_query_param(key, value)
-        if null_option:
-            self.attrs['data-null-option'] = 1
 
     def add_filter_for(self, name, value):
         """
