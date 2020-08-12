@@ -123,7 +123,6 @@ class APISelect(SelectWithDisabled):
     A select widget populated via an API call
 
     :param api_url: API endpoint URL. Required if not set automatically by the parent field.
-    :param full: Omit brief=true when fetching REST API results
     """
     def __init__(self, api_url=None, full=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -131,8 +130,6 @@ class APISelect(SelectWithDisabled):
         self.attrs['class'] = 'netbox-select2-api'
         if api_url:
             self.attrs['data-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
-        if full:
-            self.attrs['data-full'] = full
 
     def add_query_param(self, name, value):
         """

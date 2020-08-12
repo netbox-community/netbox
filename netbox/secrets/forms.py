@@ -8,8 +8,8 @@ from extras.forms import (
 )
 from extras.models import Tag
 from utilities.forms import (
-    APISelectMultiple, BootstrapMixin, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, SlugField, StaticSelect2Multiple, TagFilterField,
+    BootstrapMixin, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    SlugField, TagFilterField,
 )
 from .constants import *
 from .models import Secret, SecretRole, UserKey

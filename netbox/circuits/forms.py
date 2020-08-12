@@ -8,9 +8,9 @@ from extras.models import Tag
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, CSVModelChoiceField,
-    CSVModelForm, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SmallTextarea, SlugField,
-    StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, CSVModelChoiceField, CSVModelForm, DatePicker,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, SmallTextarea, SlugField, StaticSelect2,
+    StaticSelect2Multiple, TagFilterField,
 )
 from .choices import CircuitStatusChoices
 from .models import Circuit, CircuitTermination, CircuitType, Provider
