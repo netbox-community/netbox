@@ -225,11 +225,11 @@ class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
         )
     )
     devices = DynamicModelMultipleChoiceField(
-        queryset=Device.objects.filter(cluster__isnull=True),
+        queryset=Device.objects.all(),
         display_field='display_name',
-        widget=APISelectMultiple(
-            disabled_indicator='cluster'
-        )
+        query_params={
+            'cluster_id': 'null'
+        }
     )
 
     class Meta:
