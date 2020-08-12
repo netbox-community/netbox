@@ -249,14 +249,18 @@ class DynamicModelChoiceMixin:
     :param display_field: The name of the attribute of an API response object to display in the selection list
     :param query_params: A dictionary of additional key/value pairs to attach to the API request
     :param null_option: The string used to represent a null selection (if any)
+    :param disabled_indicator: The name of the field which, if populated, will disable selection of the
+        choice (optional)
     """
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    def __init__(self, *args, display_field='name', query_params=None, null_option=None, **kwargs):
+    def __init__(self, *args, display_field='name', query_params=None, null_option=None, disabled_indicator=None,
+                 **kwargs):
         self.display_field = display_field
         self.query_params = query_params or {}
         self.null_option = null_option
+        self.disabled_indicator = disabled_indicator
 
         # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
         # by widget_attrs()
@@ -276,6 +280,10 @@ class DynamicModelChoiceMixin:
         # Set the string used to represent a null option
         if self.null_option is not None:
             attrs['data-null-option'] = self.null_option
+
+        # Set the disabled indicator, if any
+        if self.disabled_indicator is not None:
+            attrs['disabled-indicator'] = self.disabled_indicator
 
         # Attach any static query parameters
         for key, value in self.query_params.items():

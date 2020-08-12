@@ -3422,12 +3422,10 @@ class ConnectCableToConsolePortForm(ConnectCableToDeviceForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=ConsolePort.objects.all(),
         label='Name',
+        disabled_indicator='cable',
         query_params={
             'device_id': '$termination_b_device'
-        },
-        widget=APISelect(
-            disabled_indicator='cable'
-        )
+        }
     )
 
 
@@ -3435,12 +3433,10 @@ class ConnectCableToConsoleServerPortForm(ConnectCableToDeviceForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=ConsoleServerPort.objects.all(),
         label='Name',
+        disabled_indicator='cable',
         query_params={
             'device_id': '$termination_b_device'
-        },
-        widget=APISelect(
-            disabled_indicator='cable'
-        )
+        }
     )
 
 
@@ -3448,12 +3444,10 @@ class ConnectCableToPowerPortForm(ConnectCableToDeviceForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=PowerPort.objects.all(),
         label='Name',
+        disabled_indicator='cable',
         query_params={
             'device_id': '$termination_b_device'
-        },
-        widget=APISelect(
-            disabled_indicator='cable'
-        )
+        }
     )
 
 
@@ -3461,12 +3455,10 @@ class ConnectCableToPowerOutletForm(ConnectCableToDeviceForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=PowerOutlet.objects.all(),
         label='Name',
+        disabled_indicator='cable',
         query_params={
             'device_id': '$termination_b_device'
-        },
-        widget=APISelect(
-            disabled_indicator='cable'
-        )
+        }
     )
 
 
@@ -3474,13 +3466,11 @@ class ConnectCableToInterfaceForm(ConnectCableToDeviceForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         label='Name',
+        disabled_indicator='cable',
         query_params={
             'device_id': '$termination_b_device',
             'kind': 'physical',
-        },
-        widget=APISelect(
-            disabled_indicator='cable'
-        )
+        }
     )
 
 
@@ -3488,12 +3478,10 @@ class ConnectCableToFrontPortForm(ConnectCableToDeviceForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=FrontPort.objects.all(),
         label='Name',
+        disabled_indicator='cable',
         query_params={
             'device_id': '$termination_b_device'
-        },
-        widget=APISelect(
-            disabled_indicator='cable'
-        )
+        }
     )
 
 
@@ -3501,12 +3489,10 @@ class ConnectCableToRearPortForm(ConnectCableToDeviceForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=RearPort.objects.all(),
         label='Name',
+        disabled_indicator='cable',
         query_params={
             'device_id': '$termination_b_device'
-        },
-        widget=APISelect(
-            disabled_indicator='cable'
-        )
+        }
     )
 
 
@@ -3534,12 +3520,10 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         queryset=CircuitTermination.objects.all(),
         label='Side',
         display_field='term_side',
+        disabled_indicator='cable',
         query_params={
             'circuit_id': '$termination_b_circuit'
-        },
-        widget=APISelect(
-            disabled_indicator='cable'
-        )
+        }
     )
 
     class Meta:
@@ -3582,12 +3566,10 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
     termination_b_id = DynamicModelChoiceField(
         queryset=PowerFeed.objects.all(),
         label='Name',
+        disabled_indicator='cable',
         query_params={
             'power_panel_id': '$termination_b_powerpanel'
-        },
-        widget=APISelect(
-            disabled_indicator='cable'
-        )
+        }
     )
 
     class Meta:
