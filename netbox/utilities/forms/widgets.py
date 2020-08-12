@@ -123,22 +123,9 @@ class APISelect(SelectWithDisabled):
     A select widget populated via an API call
 
     :param api_url: API endpoint URL. Required if not set automatically by the parent field.
-    :param display_field: (Optional) Field to display for child in selection list. Defaults to `name`.
-    :param disabled_indicator: (Optional) Mark option as disabled if this field equates true.
-    :param additional_query_params: Optional) A dict of query params to append to the API request. The key is the
-        name of the query param and the value if the query param's value.
+    :param full: Omit brief=true when fetching REST API results
     """
-    def __init__(
-        self,
-        api_url=None,
-        display_field=None,
-        disabled_indicator=None,
-        additional_query_params=None,
-        full=False,
-        *args,
-        **kwargs
-    ):
-
+    def __init__(self, api_url=None, full=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.attrs['class'] = 'netbox-select2-api'
@@ -146,13 +133,6 @@ class APISelect(SelectWithDisabled):
             self.attrs['data-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
         if full:
             self.attrs['data-full'] = full
-        if display_field:
-            self.attrs['display-field'] = display_field
-        if disabled_indicator:
-            self.attrs['disabled-indicator'] = disabled_indicator
-        if additional_query_params:
-            for key, value in additional_query_params.items():
-                self.add_additional_query_param(key, value)
 
     def add_additional_query_param(self, name, value):
         """

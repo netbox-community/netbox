@@ -1686,9 +1686,9 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         help_text="The lowest-numbered unit occupied by the device",
         widget=APISelect(
             api_url='/api/dcim/racks/{{rack}}/elevation/',
-            disabled_indicator='device',
-            additional_query_params={
-                'face': '$face'
+            attrs={
+                'disabled-indicator': 'device',
+                'data-additional-query-param-face': "[\"$face\"]",
             }
         )
     )
@@ -2077,9 +2077,7 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, TenancyFilt
     role = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-        )
+        required=False
     )
     manufacturer = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
