@@ -248,8 +248,9 @@ class DynamicModelChoiceMixin:
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    def __init__(self, *args, display_field='name', **kwargs):
+    def __init__(self, *args, display_field='name', query_params=None, **kwargs):
         self.display_field = display_field
+        self.query_params = query_params or {}
 
         # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
         # by widget_attrs()
@@ -261,8 +262,15 @@ class DynamicModelChoiceMixin:
         attrs = {
             'display-field': self.display_field,
         }
+
+        # Set value-field attribute if the field specifies to_field_name
         if self.to_field_name:
             attrs['value-field'] = self.to_field_name
+
+        # Attach any static query parameters
+        for key, value in self.query_params.items():
+            widget.add_additional_query_param(key, value)
+
         return attrs
 
     def get_bound_field(self, form, field_name):

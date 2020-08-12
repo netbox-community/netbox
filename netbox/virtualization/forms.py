@@ -297,11 +297,9 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.all(),
         required=False,
-        widget=APISelect(
-            additional_query_params={
-                "vm_role": "True"
-            }
-        )
+        query_params={
+            "vm_role": "True"
+        }
     )
     platform = DynamicModelChoiceField(
         queryset=Platform.objects.all(),
@@ -438,11 +436,9 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
             vm_role=True
         ),
         required=False,
-        widget=APISelect(
-            additional_query_params={
-                "vm_role": "True"
-            }
-        )
+        query_params={
+            "vm_role": "True"
+        }
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -528,12 +524,10 @@ class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFil
         queryset=DeviceRole.objects.filter(vm_role=True),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            null_option=True,
-            additional_query_params={
-                'vm_role': "True"
-            }
-        )
+        query_params={
+            'vm_role': "True"
+        },
+        widget=APISelectMultiple(null_option=True)
     )
     status = forms.MultipleChoiceField(
         choices=VirtualMachineStatusChoices,
@@ -564,23 +558,19 @@ class VMInterfaceForm(BootstrapMixin, forms.ModelForm):
         queryset=VLAN.objects.all(),
         required=False,
         display_field='display_name',
-        widget=APISelect(
-            full=True,
-            additional_query_params={
-                'site_id': 'null',
-            },
-        )
+        query_params={
+            'site_id': 'null',
+        },
+        widget=APISelect(full=True)
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         display_field='display_name',
-        widget=APISelectMultiple(
-            full=True,
-            additional_query_params={
-                'site_id': 'null',
-            },
-        )
+        query_params={
+            'site_id': 'null',
+        },
+        widget=APISelectMultiple(full=True)
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -668,23 +658,19 @@ class VMInterfaceCreateForm(BootstrapMixin, forms.Form):
         queryset=VLAN.objects.all(),
         required=False,
         display_field='display_name',
-        widget=APISelect(
-            full=True,
-            additional_query_params={
-                'site_id': 'null',
-            },
-        )
+        query_params={
+            'site_id': 'null',
+        },
+        widget=APISelect(full=True)
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         display_field='display_name',
-        widget=APISelectMultiple(
-            full=True,
-            additional_query_params={
-                'site_id': 'null',
-            },
-        )
+        query_params={
+            'site_id': 'null',
+        },
+        widget=APISelectMultiple(full=True)
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -762,23 +748,19 @@ class VMInterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=VLAN.objects.all(),
         required=False,
         display_field='display_name',
-        widget=APISelect(
-            full=True,
-            additional_query_params={
-                'site_id': 'null',
-            },
-        )
+        query_params={
+            'site_id': 'null',
+        },
+        widget=APISelect(full=True)
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         display_field='display_name',
-        widget=APISelectMultiple(
-            full=True,
-            additional_query_params={
-                'site_id': 'null',
-            },
-        )
+        query_params={
+            'site_id': 'null',
+        },
+        widget=APISelectMultiple(full=True)
     )
 
     class Meta:

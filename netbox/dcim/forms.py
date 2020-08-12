@@ -1746,11 +1746,9 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     platform = DynamicModelChoiceField(
         queryset=Platform.objects.all(),
         required=False,
-        widget=APISelect(
-            additional_query_params={
-                "manufacturer_id": "null"
-            }
-        )
+        query_params={
+            "manufacturer_id": "null"
+        }
     )
     cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
@@ -2680,24 +2678,20 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         required=False,
         label='Untagged VLAN',
         display_field='display_name',
-        widget=APISelect(
-            full=True,
-            additional_query_params={
-                'site_id': 'null',
-            },
-        )
+        query_params={
+            'site_id': 'null',
+        },
+        widget=APISelect(full=True)
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         label='Tagged VLANs',
         display_field='display_name',
-        widget=APISelectMultiple(
-            full=True,
-            additional_query_params={
-                'site_id': 'null',
-            },
-        )
+        query_params={
+            'site_id': 'null',
+        },
+        widget=APISelectMultiple(full=True)
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -2781,23 +2775,19 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
         queryset=VLAN.objects.all(),
         required=False,
         display_field='display_name',
-        widget=APISelect(
-            full=True,
-            additional_query_params={
-                'site_id': 'null',
-            },
-        )
+        query_params={
+            'site_id': 'null',
+        },
+        widget=APISelect(full=True)
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         display_field='display_name',
-        widget=APISelectMultiple(
-            full=True,
-            additional_query_params={
-                'site_id': 'null',
-            },
-        )
+        query_params={
+            'site_id': 'null',
+        },
+        widget=APISelectMultiple(full=True)
     )
     field_order = (
         'device', 'name_pattern', 'label_pattern', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'description',
@@ -2850,23 +2840,19 @@ class InterfaceBulkEditForm(
         queryset=VLAN.objects.all(),
         required=False,
         display_field='display_name',
-        widget=APISelect(
-            full=True,
-            additional_query_params={
-                'site_id': 'null',
-            },
-        )
+        query_params={
+            'site_id': 'null',
+        },
+        widget=APISelect(full=True)
     )
     tagged_vlans = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         display_field='display_name',
-        widget=APISelectMultiple(
-            full=True,
-            additional_query_params={
-                'site_id': 'null',
-            },
-        )
+        query_params={
+            'site_id': 'null',
+        },
+        widget=APISelectMultiple(full=True)
     )
 
     class Meta:
