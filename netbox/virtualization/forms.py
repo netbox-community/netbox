@@ -197,12 +197,10 @@ class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
+        null_option='None',
         widget=APISelect(
             filter_for={
                 "site": "region_id",
-            },
-            attrs={
-                'nullable': 'true',
             }
         )
     )
@@ -219,12 +217,10 @@ class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
+        null_option='None',
         widget=APISelect(
             filter_for={
                 "devices": "rack_id"
-            },
-            attrs={
-                'nullable': 'true',
             }
         )
     )
@@ -278,12 +274,10 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
+        null_option='None',
         widget=APISelect(
             filter_for={
                 "cluster": "group_id",
-            },
-            attrs={
-                'nullable': 'true',
             }
         )
     )

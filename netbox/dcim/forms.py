@@ -1747,12 +1747,10 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
+        null_option='None',
         widget=APISelect(
             filter_for={
                 'cluster': 'group_id'
-            },
-            attrs={
-                'nullable': 'true'
             }
         )
     )
@@ -3438,12 +3436,10 @@ class ConnectCableToDeviceForm(BootstrapMixin, forms.ModelForm):
         queryset=Rack.objects.all(),
         label='Rack',
         required=False,
+        null_option='None',
         widget=APISelect(
             filter_for={
                 'termination_b_device': 'rack_id',
-            },
-            attrs={
-                'nullable': 'true',
             }
         )
     )
@@ -3982,12 +3978,10 @@ class VirtualChassisCreateForm(BootstrapMixin, forms.ModelForm):
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
+        null_option='None',
         widget=APISelect(
             filter_for={
                 'members': 'rack_id'
-            },
-            attrs={
-                'nullable': 'true',
             }
         )
     )
@@ -4118,12 +4112,10 @@ class VCMemberSelectForm(BootstrapMixin, forms.Form):
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
+        null_option='None',
         widget=APISelect(
             filter_for={
                 'device': 'rack_id'
-            },
-            attrs={
-                'nullable': 'true',
             }
         )
     )

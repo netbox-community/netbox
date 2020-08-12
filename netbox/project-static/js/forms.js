@@ -74,7 +74,7 @@ $(document).ready(function() {
         form.submit();
     });
 
-    // Parse URLs which may contain variable refrences to other field values
+    // Parse URLs which may contain variable references to other field values
     function parseURL(url) {
         var filter_regex = /\{\{([a-z_]+)\}\}/g;
         var match;
@@ -87,7 +87,7 @@ $(document).ready(function() {
                 rendered_url = rendered_url.replace(match[0], custom_attr);
             } else if (filter_field.val()) {
                 rendered_url = rendered_url.replace(match[0], filter_field.val());
-            } else if (filter_field.attr('nullable') == 'true') {
+            } else if (filter_field.attr('data-null-option')) {
                 rendered_url = rendered_url.replace(match[0], 'null');
             }
         }
@@ -123,7 +123,7 @@ $(document).ready(function() {
 
     // API backed selection
     // Includes live search and chained fields
-    // The `multiple` setting may be controled via a data-* attribute
+    // The `multiple` setting may be controlled via a data-* attribute
     $('.netbox-select2-api').select2({
         allowClear: true,
         placeholder: "---------",
@@ -165,7 +165,7 @@ $(document).ready(function() {
                 filter_for_elements.each(function(index, filter_for_element) {
                     var param_name = $(filter_for_element).attr(attr_name);
                     var is_required = $(filter_for_element).attr("required");
-                    var is_nullable = $(filter_for_element).attr("nullable");
+                    var is_nullable = $(filter_for_element).attr("data-null-option");
                     var is_visible = $(filter_for_element).is(":visible");
                     var value = $(filter_for_element).val();
 

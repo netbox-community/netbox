@@ -257,13 +257,11 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
+        null_option='None',
         widget=APISelect(
             filter_for={
                 'vlan_group': 'site_id',
                 'vlan': 'site_id',
-            },
-            attrs={
-                'nullable': 'true',
             }
         )
     )
@@ -271,12 +269,10 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=VLANGroup.objects.all(),
         required=False,
         label='VLAN group',
+        null_option='None',
         widget=APISelect(
             filter_for={
                 'vlan': 'group_id'
-            },
-            attrs={
-                'nullable': 'true',
             }
         )
     )
@@ -556,12 +552,10 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         required=False,
         label='Rack',
         display_field='display_name',
+        null_option='None',
         widget=APISelect(
             filter_for={
                 'nat_device': 'rack_id'
-            },
-            attrs={
-                'nullable': 'true'
             }
         )
     )
@@ -985,12 +979,10 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
+        null_option='None',
         widget=APISelect(
             filter_for={
                 'group': 'site_id'
-            },
-            attrs={
-                'nullable': 'true',
             }
         )
     )

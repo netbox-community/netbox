@@ -119,12 +119,10 @@ class TenancyForm(forms.Form):
     tenant_group = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
+        null_option='None',
         widget=APISelect(
             filter_for={
                 'tenant': 'group_id',
-            },
-            attrs={
-                'nullable': 'true',
             }
         )
     )
