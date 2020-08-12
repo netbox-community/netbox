@@ -5,8 +5,8 @@ from extras.forms import (
 )
 from extras.models import Tag
 from utilities.forms import (
-    APISelect, APISelectMultiple, BootstrapMixin, CommentField, CSVModelChoiceField, CSVModelForm,
-    DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField, TagFilterField,
+    BootstrapMixin, CommentField, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, SlugField, TagFilterField,
 )
 from .models import Tenant, TenantGroup
 

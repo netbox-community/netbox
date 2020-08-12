@@ -10,7 +10,7 @@ from netaddr import EUI
 from netaddr.core import AddrFormatError
 from timezone_field import TimeZoneFormField
 
-from circuits.models import Circuit, Provider
+from circuits.models import Circuit, CircuitTermination, Provider
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldModelCSVForm, CustomFieldFilterForm, CustomFieldModelForm,
     LocalConfigContextFilterForm,
@@ -3398,12 +3398,7 @@ class ConnectCableToDeviceForm(BootstrapMixin, forms.ModelForm):
         query_params={
             'site_id': '$termination_b_site',
             'rack_id': '$termination_b_rack',
-        },
-        widget=APISelect(
-            filter_for={
-                'termination_b_id': 'device_id',
-            }
-        )
+        }
     )
 
     class Meta:
@@ -3418,76 +3413,106 @@ class ConnectCableToDeviceForm(BootstrapMixin, forms.ModelForm):
             'length_unit': StaticSelect2,
         }
 
+    def clean_termination_b_id(self):
+        # Return the PK rather than the object
+        return getattr(self.cleaned_data['termination_b_id'], 'pk', None)
+
 
 class ConnectCableToConsolePortForm(ConnectCableToDeviceForm):
-    termination_b_id = forms.IntegerField(
+    termination_b_id = DynamicModelChoiceField(
+        queryset=ConsolePort.objects.all(),
         label='Name',
+        query_params={
+            'device_id': '$termination_b_device'
+        },
         widget=APISelect(
-            api_url='/api/dcim/console-ports/',
             disabled_indicator='cable',
+            full=True
         )
     )
 
 
 class ConnectCableToConsoleServerPortForm(ConnectCableToDeviceForm):
-    termination_b_id = forms.IntegerField(
+    termination_b_id = DynamicModelChoiceField(
+        queryset=ConsoleServerPort.objects.all(),
         label='Name',
+        query_params={
+            'device_id': '$termination_b_device'
+        },
         widget=APISelect(
-            api_url='/api/dcim/console-server-ports/',
             disabled_indicator='cable',
+            full=True
         )
     )
 
 
 class ConnectCableToPowerPortForm(ConnectCableToDeviceForm):
-    termination_b_id = forms.IntegerField(
+    termination_b_id = DynamicModelChoiceField(
+        queryset=PowerPort.objects.all(),
         label='Name',
+        query_params={
+            'device_id': '$termination_b_device'
+        },
         widget=APISelect(
-            api_url='/api/dcim/power-ports/',
             disabled_indicator='cable',
+            full=True
         )
     )
 
 
 class ConnectCableToPowerOutletForm(ConnectCableToDeviceForm):
-    termination_b_id = forms.IntegerField(
+    termination_b_id = DynamicModelChoiceField(
+        queryset=PowerOutlet.objects.all(),
         label='Name',
+        query_params={
+            'device_id': '$termination_b_device'
+        },
         widget=APISelect(
-            api_url='/api/dcim/power-outlets/',
             disabled_indicator='cable',
+            full=True
         )
     )
 
 
 class ConnectCableToInterfaceForm(ConnectCableToDeviceForm):
-    termination_b_id = forms.IntegerField(
+    termination_b_id = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
         label='Name',
+        query_params={
+            'device_id': '$termination_b_device',
+            'kind': 'physical',
+        },
         widget=APISelect(
-            api_url='/api/dcim/interfaces/',
             disabled_indicator='cable',
-            additional_query_params={
-                'kind': 'physical',
-            }
+            full=True
         )
     )
 
 
 class ConnectCableToFrontPortForm(ConnectCableToDeviceForm):
-    termination_b_id = forms.IntegerField(
+    termination_b_id = DynamicModelChoiceField(
+        queryset=FrontPort.objects.all(),
         label='Name',
+        query_params={
+            'device_id': '$termination_b_device'
+        },
         widget=APISelect(
-            api_url='/api/dcim/front-ports/',
             disabled_indicator='cable',
+            full=True
         )
     )
 
 
 class ConnectCableToRearPortForm(ConnectCableToDeviceForm):
-    termination_b_id = forms.IntegerField(
+    termination_b_id = DynamicModelChoiceField(
+        queryset=RearPort.objects.all(),
         label='Name',
+        query_params={
+            'device_id': '$termination_b_device'
+        },
         widget=APISelect(
-            api_url='/api/dcim/rear-ports/',
             disabled_indicator='cable',
+            full=True
         )
     )
 
@@ -3510,19 +3535,17 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         query_params={
             'provider_id': '$termination_b_provider',
             'site_id': '$termination_b_site',
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=CircuitTermination.objects.all(),
+        label='Side',
+        display_field='term_side',
+        query_params={
+            'circuit_id': '$termination_b_circuit'
         },
         widget=APISelect(
-            filter_for={
-                'termination_b_id': 'circuit_id',
-            }
-        )
-    )
-    termination_b_id = forms.IntegerField(
-        label='Side',
-        widget=APISelect(
-            api_url='/api/circuits/circuit-terminations/',
             disabled_indicator='cable',
-            display_field='term_side',
             full=True
         )
     )
@@ -3533,6 +3556,10 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, forms.ModelForm):
             'termination_b_provider', 'termination_b_site', 'termination_b_circuit', 'termination_b_id', 'type',
             'status', 'label', 'color', 'length', 'length_unit',
         ]
+
+    def clean_termination_b_id(self):
+        # Return the PK rather than the object
+        return getattr(self.cleaned_data['termination_b_id'], 'pk', None)
 
 
 class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
@@ -3558,17 +3585,17 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
         query_params={
             'site_id': '$termination_b_site',
             'rack_group_id': '$termination_b_rackgroup',
+        }
+    )
+    termination_b_id = DynamicModelChoiceField(
+        queryset=PowerFeed.objects.all(),
+        label='Name',
+        query_params={
+            'power_panel_id': '$termination_b_powerpanel'
         },
         widget=APISelect(
-            filter_for={
-                'termination_b_id': 'power_panel_id',
-            }
-        )
-    )
-    termination_b_id = forms.IntegerField(
-        label='Name',
-        widget=APISelect(
-            api_url='/api/dcim/power-feeds/',
+            disabled_indicator='cable',
+            full=True
         )
     )
 
@@ -3578,6 +3605,10 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
             'termination_b_rackgroup', 'termination_b_powerpanel', 'termination_b_id', 'type', 'status', 'label',
             'color', 'length', 'length_unit',
         ]
+
+    def clean_termination_b_id(self):
+        # Return the PK rather than the object
+        return getattr(self.cleaned_data['termination_b_id'], 'pk', None)
 
 
 class CableForm(BootstrapMixin, forms.ModelForm):

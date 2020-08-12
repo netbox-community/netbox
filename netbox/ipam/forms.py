@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 from dcim.models import Device, Interface, Rack, Region, Site
@@ -10,10 +9,9 @@ from extras.models import Tag
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditNullBooleanSelect, CSVChoiceField,
-    CSVModelChoiceField, CSVModelForm, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
-    ExpandableIPAddressField, ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField,
-    BOOLEAN_WITH_BLANK_CHOICES,
+    add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, CSVChoiceField, CSVModelChoiceField, CSVModelForm,
+    DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField, ReturnURLForm,
+    SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
