@@ -4120,13 +4120,11 @@ class VCMemberSelectForm(BootstrapMixin, forms.Form):
         )
     )
     device = DynamicModelChoiceField(
-        queryset=Device.objects.filter(
-            virtual_chassis__isnull=True
-        ),
+        queryset=Device.objects.all(),
         display_field='display_name',
-        widget=APISelect(
-            disabled_indicator='virtual_chassis'
-        )
+        query_params={
+            'virtual_chassis_id': 'null'
+        }
     )
 
     def clean_device(self):
