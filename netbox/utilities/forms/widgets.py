@@ -141,7 +141,7 @@ class APISelect(SelectWithDisabled):
         :param name: The name of the query param
         :param value: The value of the query param
         """
-        key = f'data-additional-query-param-{name}'
+        key = f'data-query-param-{name}'
 
         values = json.loads(self.attrs.get(key, '[]'))
         if type(value) is list:

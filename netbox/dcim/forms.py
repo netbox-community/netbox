@@ -1688,7 +1688,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             api_url='/api/dcim/racks/{{rack}}/elevation/',
             attrs={
                 'disabled-indicator': 'device',
-                'data-additional-query-param-face': "[\"$face\"]",
+                'data-query-param-face': "[\"$face\"]",
             }
         )
     )
