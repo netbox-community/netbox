@@ -572,8 +572,8 @@ class VMInterfaceForm(BootstrapMixin, forms.ModelForm):
         # Add current site to VLANs query params
         site = virtual_machine.site
         if site:
-            self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', site.pk)
-            self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', site.pk)
+            self.fields['untagged_vlan'].widget.add_query_param('site_id', site.pk)
+            self.fields['tagged_vlans'].widget.add_query_param('site_id', site.pk)
 
     def clean(self):
         super().clean()
@@ -655,8 +655,8 @@ class VMInterfaceCreateForm(BootstrapMixin, forms.Form):
         # Add current site to VLANs query params
         site = virtual_machine.site
         if site:
-            self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', site.pk)
-            self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', site.pk)
+            self.fields['untagged_vlan'].widget.add_query_param('site_id', site.pk)
+            self.fields['tagged_vlans'].widget.add_query_param('site_id', site.pk)
 
 
 class VMInterfaceCSVForm(CSVModelForm):
@@ -746,8 +746,8 @@ class VMInterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
             site = getattr(parent_obj.cluster, 'site', None)
             if site is not None:
                 # Add current site to VLANs query params
-                self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', site.pk)
-                self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', site.pk)
+                self.fields['untagged_vlan'].widget.add_query_param('site_id', site.pk)
+                self.fields['tagged_vlans'].widget.add_query_param('site_id', site.pk)
 
 
 class VMInterfaceBulkRenameForm(BulkRenameForm):

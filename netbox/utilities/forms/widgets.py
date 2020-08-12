@@ -134,7 +134,7 @@ class APISelect(SelectWithDisabled):
         if full:
             self.attrs['data-full'] = full
 
-    def add_additional_query_param(self, name, value):
+    def add_query_param(self, name, value):
         """
         Add details for an additional query param in the form of a data-* JSON-encoded list attribute.
 

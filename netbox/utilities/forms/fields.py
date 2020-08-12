@@ -287,7 +287,7 @@ class DynamicModelChoiceMixin:
 
         # Attach any static query parameters
         for key, value in self.query_params.items():
-            widget.add_additional_query_param(key, value)
+            widget.add_query_param(key, value)
 
         return attrs
 

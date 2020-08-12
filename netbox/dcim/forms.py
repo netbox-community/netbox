@@ -1809,7 +1809,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
 
             # If editing an existing device, exclude it from the list of occupied rack units. This ensures that a device
             # can be flipped from one face to another.
-            self.fields['position'].widget.add_additional_query_param('exclude', self.instance.pk)
+            self.fields['position'].widget.add_query_param('exclude', self.instance.pk)
 
             # Limit platform by manufacturer
             self.fields['platform'].queryset = Platform.objects.filter(
@@ -2673,8 +2673,8 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         )
 
         # Add current site to VLANs query params
-        self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', device.site.pk)
-        self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', device.site.pk)
+        self.fields['untagged_vlan'].widget.add_query_param('site_id', device.site.pk)
+        self.fields['tagged_vlans'].widget.add_query_param('site_id', device.site.pk)
 
 
 class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
@@ -2748,8 +2748,8 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
         )
 
         # Add current site to VLANs query params
-        self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', device.site.pk)
-        self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', device.site.pk)
+        self.fields['untagged_vlan'].widget.add_query_param('site_id', device.site.pk)
+        self.fields['tagged_vlans'].widget.add_query_param('site_id', device.site.pk)
 
 
 class InterfaceBulkCreateForm(
@@ -2813,8 +2813,8 @@ class InterfaceBulkEditForm(
             )
 
             # Add current site to VLANs query params
-            self.fields['untagged_vlan'].widget.add_additional_query_param('site_id', device.site.pk)
-            self.fields['tagged_vlans'].widget.add_additional_query_param('site_id', device.site.pk)
+            self.fields['untagged_vlan'].widget.add_query_param('site_id', device.site.pk)
+            self.fields['tagged_vlans'].widget.add_query_param('site_id', device.site.pk)
         else:
             self.fields['lag'].choices = ()
             self.fields['lag'].widget.attrs['disabled'] = True
