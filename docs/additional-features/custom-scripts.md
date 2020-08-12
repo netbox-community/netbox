@@ -163,12 +163,46 @@ In the example above, selecting the choice labeled "North" will submit the value
 
 ### ObjectVar
 
-A NetBox object of a particular type, identified by the associated queryset.
+A particular object within NetBox. Each ObjectVar must specify a particular model, and allows the user to select one of the available instances. ObjectVar accepts several arguments, listed below.
 
-* `queryset` - The base [Django queryset](https://docs.djangoproject.com/en/stable/topics/db/queries/) for the model
+* `model` - The model class
+* `display_field` - The name of the REST API object field to display in the selection list (default: `'name'`)
+* `query_params` - A dictionary of query parameters to use when retrieving available options (optional)
+* `null_option` - A label representing a "null" or empty choice (optional)
 
-!!! warning
-    Because the available options for this field are populated using the REST API, any filtering or exclusions performed on the specified queryset will not have any effect. While it is possible to influence the manner in which field options are populated using NetBox's `APISelect` widget, please note that this component is not officially supported and is planned to be replaced in a future release.
+The `display_field` argument is useful when referencing a model which does not have a `name` field. For example, when displaying a list of device types, you would likely use the `model` field:
+
+```python
+device_type = ObjectVar(
+    model=DeviceType,
+    display_field='model'
+)
+```
+
+To limit the selections available within the list, additional query parameters can be passed as the `query_params` dictionary. For example, to show only devices with an "active" status:
+
+```python
+device = ObjectVar(
+    model=Device,
+    query_params={
+        'status': 'active'
+    }
+)
+```
+
+Multiple values can be specified by assigning a list to the dictionary key. It is also possible to reference the value of other fields in the form by prepending a dollar sign (`$`) to the variable's name.
+
+```python
+region = ObjectVar(
+    model=Region
+)
+site = ObjectVar(
+    model=Site,
+    query_params={
+        'region_id': '$region'
+    }
+)
+```
 
 ### MultiObjectVar
 
@@ -207,9 +241,8 @@ These variables are presented as a web form to be completed by the user. Once su
 from django.utils.text import slugify
 
 from dcim.choices import DeviceStatusChoices, SiteStatusChoices
-from dcim.models import Device, DeviceRole, DeviceType, Site
+from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from extras.scripts import *
-from utilities.forms import APISelect
 
 
 class NewBranchScript(Script):
@@ -225,12 +258,17 @@ class NewBranchScript(Script):
     switch_count = IntegerVar(
         description="Number of access switches to create"
     )
+    manufacturer = ObjectVar(
+        model=Manufacturer,
+        required=False
+    )
     switch_model = ObjectVar(
         description="Access switch model",
-        queryset=DeviceType.objects.all(),
-        widget=APISelect(
-            display_field='model'
-        )
+        model=DeviceType,
+        display_field='model',
+        query_params={
+            'manufacturer_id': '$manufacturer'
+        }
     )
 
     def run(self, data, commit):
