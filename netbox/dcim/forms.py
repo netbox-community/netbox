@@ -3426,8 +3426,7 @@ class ConnectCableToConsolePortForm(ConnectCableToDeviceForm):
             'device_id': '$termination_b_device'
         },
         widget=APISelect(
-            disabled_indicator='cable',
-            full=True
+            disabled_indicator='cable'
         )
     )
 
@@ -3440,8 +3439,7 @@ class ConnectCableToConsoleServerPortForm(ConnectCableToDeviceForm):
             'device_id': '$termination_b_device'
         },
         widget=APISelect(
-            disabled_indicator='cable',
-            full=True
+            disabled_indicator='cable'
         )
     )
 
@@ -3454,8 +3452,7 @@ class ConnectCableToPowerPortForm(ConnectCableToDeviceForm):
             'device_id': '$termination_b_device'
         },
         widget=APISelect(
-            disabled_indicator='cable',
-            full=True
+            disabled_indicator='cable'
         )
     )
 
@@ -3468,8 +3465,7 @@ class ConnectCableToPowerOutletForm(ConnectCableToDeviceForm):
             'device_id': '$termination_b_device'
         },
         widget=APISelect(
-            disabled_indicator='cable',
-            full=True
+            disabled_indicator='cable'
         )
     )
 
@@ -3483,8 +3479,7 @@ class ConnectCableToInterfaceForm(ConnectCableToDeviceForm):
             'kind': 'physical',
         },
         widget=APISelect(
-            disabled_indicator='cable',
-            full=True
+            disabled_indicator='cable'
         )
     )
 
@@ -3497,8 +3492,7 @@ class ConnectCableToFrontPortForm(ConnectCableToDeviceForm):
             'device_id': '$termination_b_device'
         },
         widget=APISelect(
-            disabled_indicator='cable',
-            full=True
+            disabled_indicator='cable'
         )
     )
 
@@ -3511,8 +3505,7 @@ class ConnectCableToRearPortForm(ConnectCableToDeviceForm):
             'device_id': '$termination_b_device'
         },
         widget=APISelect(
-            disabled_indicator='cable',
-            full=True
+            disabled_indicator='cable'
         )
     )
 
@@ -3545,8 +3538,7 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, forms.ModelForm):
             'circuit_id': '$termination_b_circuit'
         },
         widget=APISelect(
-            disabled_indicator='cable',
-            full=True
+            disabled_indicator='cable'
         )
     )
 
@@ -3594,8 +3586,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
             'power_panel_id': '$termination_b_powerpanel'
         },
         widget=APISelect(
-            disabled_indicator='cable',
-            full=True
+            disabled_indicator='cable'
         )
     )
 
