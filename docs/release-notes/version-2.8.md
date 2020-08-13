@@ -6,6 +6,10 @@
 
 * [#4885](https://github.com/netbox-community/netbox/issues/4885) - Add MultiChoiceVar for custom scripts
 
+### Bug Fixes
+
+* [#4992](https://github.com/netbox-community/netbox/issues/4992) - Add `display_name` to nested VRF serializer
+
 ---
 
 ## v2.8.9 (2020-08-04)
