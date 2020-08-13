@@ -89,6 +89,18 @@
                 {% else %}
                     <div class="panel-body text-muted">
                         Not connected
+                        {% if perms.dcim.add_cable %}
+                            <span class="dropdown pull-right">
+                                <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span> Connect
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li><a href="{% url 'dcim:consoleport_connect' termination_a_id=instance.pk termination_b_type='console-server-port' %}?return_url={{ instance.get_absolute_url }}">Console Server Port</a></li>
+                                    <li><a href="{% url 'dcim:consoleport_connect' termination_a_id=instance.pk termination_b_type='front-port' %}?return_url={{ instance.get_absolute_url }}">Front Port</a></li>
+                                    <li><a href="{% url 'dcim:consoleport_connect' termination_a_id=instance.pk termination_b_type='rear-port' %}?return_url={{ instance.get_absolute_url }}">Rear Port</a></li>
+                                </ul>
+                            </span>
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>

@@ -97,6 +97,17 @@
                 {% else %}
                     <div class="panel-body text-muted">
                         Not connected
+                        {% if perms.dcim.add_cable %}
+                            <span class="dropdown pull-right">
+                                <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span> Connect
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li><a href="{% url 'dcim:powerport_connect' termination_a_id=instance.pk termination_b_type='power-outlet' %}?return_url={{ instance.get_absolute_url }}">Power Outlet</a></li>
+                                    <li><a href="{% url 'dcim:powerport_connect' termination_a_id=instance.pk termination_b_type='power-feed' %}?return_url={{ instance.get_absolute_url }}">Power Feed</a></li>
+                                </ul>
+                            </span>
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>
