@@ -6,10 +6,12 @@
 
 * [#4639](https://github.com/netbox-community/netbox/issues/4639) - Improve performance of web UI prefixes list
 * [#4919](https://github.com/netbox-community/netbox/issues/4919) - Allow adding/changing assigned permissions within group and user admin views
+* [#4922](https://github.com/netbox-community/netbox/issues/4922) - Optimize schema migration for replicating VM interfaces
 * [#4940](https://github.com/netbox-community/netbox/issues/4940) - Add an `occupied` field to rack unit representations for rack elevation views
 * [#4945](https://github.com/netbox-community/netbox/issues/4945) - Add a user-friendly 403 error page
 * [#4946](https://github.com/netbox-community/netbox/issues/4946) - Extend ObjectPermission to OR multiple constraints
 * [#4969](https://github.com/netbox-community/netbox/issues/4969) - Replace secret role user/group assignment with object permissions
+* [#4982](https://github.com/netbox-community/netbox/issues/4982) - Extended ObjectVar to allow filtering API query
 
 ### Bug Fixes
 
