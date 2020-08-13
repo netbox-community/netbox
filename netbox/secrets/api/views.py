@@ -6,6 +6,7 @@ from django.http import HttpResponseBadRequest
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ViewSet
 
 from secrets import filters
@@ -18,6 +19,14 @@ ERR_USERKEY_MISSING = "No UserKey found for the current user."
 ERR_USERKEY_INACTIVE = "UserKey has not been activated for decryption."
 ERR_PRIVKEY_MISSING = "Private key was not provided."
 ERR_PRIVKEY_INVALID = "Invalid private key."
+
+
+class SecretsRootView(APIRootView):
+    """
+    Secrets API root view
+    """
+    def get_view_name(self):
+        return 'Secrets'
 
 
 #

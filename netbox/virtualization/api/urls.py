@@ -1,18 +1,9 @@
-from rest_framework import routers
-
+from utilities.api import OrderedDefaultRouter
 from . import views
 
 
-class VirtualizationRootView(routers.APIRootView):
-    """
-    Virtualization API root view
-    """
-    def get_view_name(self):
-        return 'Virtualization'
-
-
-router = routers.DefaultRouter()
-router.APIRootView = VirtualizationRootView
+router = OrderedDefaultRouter()
+router.APIRootView = views.VirtualizationRootView
 
 # Clusters
 router.register('cluster-types', views.ClusterTypeViewSet)

@@ -2,6 +2,7 @@ from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.routers import APIRootView
 
 from dcim.models import Device
 from extras.api.serializers import RenderedGraphSerializer
@@ -12,6 +13,14 @@ from utilities.utils import get_subquery
 from virtualization import filters
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from . import serializers
+
+
+class VirtualizationRootView(APIRootView):
+    """
+    Virtualization API root view
+    """
+    def get_view_name(self):
+        return 'Virtualization'
 
 
 #

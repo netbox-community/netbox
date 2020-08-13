@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
+from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 from rq import Worker
 
@@ -23,6 +24,14 @@ from utilities.exceptions import RQWorkerNotRunningException
 from utilities.metadata import ContentTypeMetadata
 from utilities.utils import copy_safe_request
 from . import serializers
+
+
+class ExtrasRootView(APIRootView):
+    """
+    Extras API root view
+    """
+    def get_view_name(self):
+        return 'Extras'
 
 
 #

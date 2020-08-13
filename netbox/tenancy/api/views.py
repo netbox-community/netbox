@@ -1,3 +1,5 @@
+from rest_framework.routers import APIRootView
+
 from circuits.models import Circuit
 from dcim.models import Device, Rack, Site
 from extras.api.views import CustomFieldModelViewSet
@@ -8,6 +10,14 @@ from utilities.api import ModelViewSet
 from utilities.utils import get_subquery
 from virtualization.models import VirtualMachine
 from . import serializers
+
+
+class TenancyRootView(APIRootView):
+    """
+    Tenancy API root view
+    """
+    def get_view_name(self):
+        return 'Tenancy'
 
 
 #

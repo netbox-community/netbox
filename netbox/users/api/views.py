@@ -1,11 +1,20 @@
 from django.contrib.auth.models import Group, User
 from django.db.models import Count
+from rest_framework.routers import APIRootView
 
 from users import filters
 from users.models import ObjectPermission
 from utilities.api import ModelViewSet
 from utilities.querysets import RestrictedQuerySet
 from . import serializers
+
+
+class UsersRootView(APIRootView):
+    """
+    Users API root view
+    """
+    def get_view_name(self):
+        return 'Users'
 
 
 #

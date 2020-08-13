@@ -1,11 +1,12 @@
 from django.conf import settings
-from django.db.models import Count, Prefetch
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django_pglocks import advisory_lock
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.routers import APIRootView
 
 from extras.api.views import CustomFieldModelViewSet
 from ipam import filters
@@ -14,6 +15,14 @@ from utilities.api import ModelViewSet
 from utilities.constants import ADVISORY_LOCK_KEYS
 from utilities.utils import get_subquery
 from . import serializers
+
+
+class IPAMRootView(APIRootView):
+    """
+    IPAM API root view
+    """
+    def get_view_name(self):
+        return 'IPAM'
 
 
 #

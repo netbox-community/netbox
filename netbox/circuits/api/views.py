@@ -2,6 +2,7 @@ from django.db.models import Count, Prefetch
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.routers import APIRootView
 
 from circuits import filters
 from circuits.models import Provider, CircuitTermination, CircuitType, Circuit
@@ -10,6 +11,14 @@ from extras.api.views import CustomFieldModelViewSet
 from extras.models import Graph
 from utilities.api import ModelViewSet
 from . import serializers
+
+
+class CircuitsRootView(APIRootView):
+    """
+    Circuits API root view
+    """
+    def get_view_name(self):
+        return 'Circuits'
 
 
 #

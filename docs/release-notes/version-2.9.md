@@ -14,6 +14,7 @@
 * [#4982](https://github.com/netbox-community/netbox/issues/4982) - Extended ObjectVar to allow filtering API query
 * [#4994](https://github.com/netbox-community/netbox/issues/4994) - Add `cable` attribute to PowerFeed API serializer
 * [#4996](https://github.com/netbox-community/netbox/issues/4996) - Add "connect" buttons to individual device component views
+* [#4997](https://github.com/netbox-community/netbox/issues/4997) - The browsable API now lists available endpoints alphabetically
 
 ### Bug Fixes
 

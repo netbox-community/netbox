@@ -11,6 +11,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import action
 from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
+from rest_framework.routers import APIRootView
 from rest_framework.viewsets import GenericViewSet, ViewSet
 
 from circuits.models import Circuit
@@ -34,6 +35,14 @@ from utilities.metadata import ContentTypeMetadata
 from virtualization.models import VirtualMachine
 from . import serializers
 from .exceptions import MissingFilterException
+
+
+class DCIMRootView(APIRootView):
+    """
+    DCIM API root view
+    """
+    def get_view_name(self):
+        return 'DCIM'
 
 
 # Mixins

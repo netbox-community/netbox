@@ -13,6 +13,7 @@ from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.permissions import BasePermission
 from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
 from rest_framework.response import Response
+from rest_framework.routers import DefaultRouter
 from rest_framework.viewsets import ModelViewSet as _ModelViewSet
 
 from .utils import dict_to_filter_params, dynamic_import
@@ -399,3 +400,21 @@ class ModelViewSet(_ModelViewSet):
         logger.info(f"Deleting {model._meta.verbose_name} {instance} (PK: {instance.pk})")
 
         return super().perform_destroy(instance)
+
+
+#
+# Routers
+#
+
+class OrderedDefaultRouter(DefaultRouter):
+
+    def get_api_root_view(self, api_urls=None):
+        """
+        Wrap DRF's DefaultRouter to return an alphabetized list of endpoints.
+        """
+        api_root_dict = OrderedDict()
+        list_name = self.routes[0].name
+        for prefix, viewset, basename in sorted(self.registry, key=lambda x: x[0]):
+            api_root_dict[prefix] = list_name.format(basename=basename)
+
+        return self.APIRootView.as_view(api_root_dict=api_root_dict)
