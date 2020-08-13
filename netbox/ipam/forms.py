@@ -381,7 +381,8 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF'
+        label='VRF',
+        display_field='display_name'
     )
     prefix_length = forms.IntegerField(
         min_value=PREFIX_LENGTH_MIN,
@@ -524,7 +525,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF'
+        label='VRF',
+        display_field='display_name'
     )
     nat_site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
@@ -554,7 +556,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
     nat_vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF'
+        label='VRF',
+        display_field='display_name'
     )
     nat_inside = DynamicModelChoiceField(
         queryset=IPAddress.objects.all(),
@@ -667,7 +670,8 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF'
+        label='VRF',
+        display_field='display_name'
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -794,7 +798,8 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF'
+        label='VRF',
+        display_field='display_name'
     )
     mask_length = forms.IntegerField(
         min_value=IPADDRESS_MASK_LENGTH_MIN,
