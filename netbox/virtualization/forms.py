@@ -208,6 +208,7 @@ class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
         queryset=Rack.objects.all(),
         required=False,
         null_option='None',
+        display_field='display_name',
         query_params={
             'site_id': '$site'
         }

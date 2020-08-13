@@ -250,7 +250,8 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF'
+        label='VRF',
+        display_field='display_name'
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
@@ -498,7 +499,8 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
 class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
-        required=False
+        required=False,
+        display_field='display_name'
     )
     interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
@@ -561,7 +563,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         display_field='address',
         query_params={
             'device_id': '$nat_device',
-            'vrf_if': '$nat_vrf',
+            'vrf_id': '$nat_vrf',
         }
     )
     primary_for_parent = forms.BooleanField(

@@ -63,7 +63,8 @@ class SecretRoleCSVForm(CSVModelForm):
 
 class SecretForm(BootstrapMixin, CustomFieldModelForm):
     device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
+        queryset=Device.objects.all(),
+        display_field='display_name'
     )
     plaintext = forms.CharField(
         max_length=SECRET_PLAINTEXT_MAX_LENGTH,

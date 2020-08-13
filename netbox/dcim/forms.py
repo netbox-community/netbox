@@ -704,6 +704,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
     )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
+        display_field='display_name',
         query_params={
             'site_id': '$site',
             'group_id': 'rack',
@@ -1999,10 +2000,17 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    manufacturer = DynamicModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False
+    )
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),
         required=False,
-        display_field='model'
+        display_field='model',
+        query_params={
+            'manufacturer_id': '$manufacturer'
+        }
     )
     device_role = DynamicModelChoiceField(
         queryset=DeviceRole.objects.all(),
@@ -2177,7 +2185,8 @@ class ComponentCreateForm(ComponentForm):
     Base form for the creation of device components (models subclassed from ComponentModel).
     """
     device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
+        queryset=Device.objects.all(),
+        display_field='display_name'
     )
     description = forms.CharField(
         max_length=100,
@@ -3257,7 +3266,8 @@ class DeviceBayCSVForm(CSVModelForm):
 
 class InventoryItemForm(BootstrapMixin, forms.ModelForm):
     device = DynamicModelChoiceField(
-        queryset=Device.objects.prefetch_related('device_type__manufacturer')
+        queryset=Device.objects.all(),
+        display_field='display_name'
     )
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
@@ -3383,6 +3393,7 @@ class ConnectCableToDeviceForm(BootstrapMixin, forms.ModelForm):
         queryset=Rack.objects.all(),
         label='Rack',
         required=False,
+        display_field='display_name',
         null_option='None',
         query_params={
             'site_id': '$termination_b_site'
@@ -3902,6 +3913,7 @@ class VirtualChassisCreateForm(BootstrapMixin, forms.ModelForm):
         queryset=Rack.objects.all(),
         required=False,
         null_option='None',
+        display_field='display_name',
         query_params={
             'site_id': '$site'
         }
@@ -4032,6 +4044,7 @@ class VCMemberSelectForm(BootstrapMixin, forms.Form):
         queryset=Rack.objects.all(),
         required=False,
         null_option='None',
+        display_field='display_name',
         query_params={
             'site_id': '$site'
         }
@@ -4244,6 +4257,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
+        display_field='display_name',
         query_params={
             'site_id': '$site'
         }
@@ -4356,7 +4370,8 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
     )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
-        required=False
+        required=False,
+        display_field='display_name'
     )
     status = forms.ChoiceField(
         choices=add_blank_choice(PowerFeedStatusChoices),
