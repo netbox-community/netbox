@@ -12,6 +12,7 @@
 * [#4946](https://github.com/netbox-community/netbox/issues/4946) - Extend ObjectPermission to OR multiple constraints
 * [#4969](https://github.com/netbox-community/netbox/issues/4969) - Replace secret role user/group assignment with object permissions
 * [#4982](https://github.com/netbox-community/netbox/issues/4982) - Extended ObjectVar to allow filtering API query
+* [#4994](https://github.com/netbox-community/netbox/issues/4994) - Add `cable` attribute to PowerFeed API serializer
 
 ### Bug Fixes
 
@@ -99,6 +100,7 @@ When running a report or custom script, its execution is now queued for backgrou
 * dcim.FrontPortTemplate: Added `description` and `label` fields
 * dcim.Interface: Added `label` field
 * dcim.InterfaceTemplate: Added `description` and `label` fields
+* dcim.PowerFeed: Added `cable` field
 * dcim.PowerPanel: Added `tags` field
 * dcim.PowerPort: Added ``label` field
 * dcim.PowerPortTemplate: Added `description` and `label` fields

@@ -355,4 +355,4 @@ class NestedPowerFeedSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.PowerFeed
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'name', 'cable']

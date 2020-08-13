@@ -782,10 +782,11 @@ class PowerFeedSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
         choices=PowerFeedPhaseChoices,
         default=PowerFeedPhaseChoices.PHASE_SINGLE
     )
+    cable = NestedCableSerializer(read_only=True)
 
     class Meta:
         model = PowerFeed
         fields = [
             'id', 'url', 'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage',
-            'max_utilization', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'max_utilization', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'cable',
         ]

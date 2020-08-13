@@ -1959,7 +1959,7 @@ class PowerPanelTest(APIViewTestCases.APIViewTestCase):
 
 class PowerFeedTest(APIViewTestCases.APIViewTestCase):
     model = PowerFeed
-    brief_fields = ['id', 'name', 'url']
+    brief_fields = ['cable', 'id', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):
