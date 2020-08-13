@@ -9,6 +9,7 @@
 ### Bug Fixes
 
 * [#4992](https://github.com/netbox-community/netbox/issues/4992) - Add `display_name` to nested VRF serializer
+* [#4993](https://github.com/netbox-community/netbox/issues/4993) - Add `cable` to nested CircuitTermination serializer
 
 ---
 
