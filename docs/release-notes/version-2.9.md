@@ -29,6 +29,7 @@
 * [#4951](https://github.com/netbox-community/netbox/issues/4951) - Redirect to device inventory view after creating a new inventory item
 * [#4952](https://github.com/netbox-community/netbox/issues/4952) - Default to VM tab when creating/editing an IP address for a VM
 * [#4968](https://github.com/netbox-community/netbox/issues/4968) - Fix exception when activating user keys in admin UI
+* [#4995](https://github.com/netbox-community/netbox/issues/4995) - Fix missing buttons to add console/power ports under device view
 
 ### Other Changes
 
