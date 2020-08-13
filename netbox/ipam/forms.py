@@ -13,7 +13,7 @@ from utilities.forms import (
     DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField, ReturnURLForm,
     SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
-from virtualization.models import VirtualMachine, VMInterface
+from virtualization.models import Cluster, VirtualMachine, VMInterface
 from .choices import *
 from .constants import *
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
@@ -553,6 +553,19 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
             'rack_id': '$nat_rack',
         }
     )
+    nat_cluster = DynamicModelChoiceField(
+        queryset=Cluster.objects.all(),
+        required=False,
+        label='Cluster'
+    )
+    nat_virtual_machine = DynamicModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        label='Virtual Machine',
+        query_params={
+            'cluster_id': '$nat_cluster',
+        }
+    )
     nat_vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -566,6 +579,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         display_field='address',
         query_params={
             'device_id': '$nat_device',
+            'virtual_machine_id': '$nat_virtual_machine',
             'vrf_id': '$nat_vrf',
         }
     )
@@ -582,7 +596,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         model = IPAddress
         fields = [
             'address', 'vrf', 'status', 'role', 'dns_name', 'description', 'primary_for_parent', 'nat_site', 'nat_rack',
-            'nat_inside', 'tenant_group', 'tenant', 'tags',
+            'nat_device', 'nat_cluster', 'nat_virtual_machine', 'nat_vrf', 'nat_inside', 'tenant_group', 'tenant',
+            'tags',
         ]
         widgets = {
             'status': StaticSelect2(),

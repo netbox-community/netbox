@@ -56,16 +56,21 @@
         <div class="panel-heading"><strong>NAT IP (Inside)</strong></div>
         <div class="panel-body">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#select" aria-controls="home" role="tab" data-toggle="tab">By Device</a></li>
-                <li role="presentation"><a href="#search" aria-controls="search" role="tab" data-toggle="tab">By IP</a></li>
+                <li role="presentation" class="active"><a href="#by_device" aria-controls="home" role="tab" data-toggle="tab">By Device</a></li>
+                <li role="presentation"><a href="#by_vm" aria-controls="search" role="tab" data-toggle="tab">By VM</a></li>
+                <li role="presentation"><a href="#by_vrf" aria-controls="search" role="tab" data-toggle="tab">By IP</a></li>
             </ul>
             <div class="tab-content">
-                <div class="tab-pane active" id="select">
+                <div class="tab-pane active" id="by_device">
                     {% render_field form.nat_site %}
                     {% render_field form.nat_rack %}
                     {% render_field form.nat_device %}
                 </div>
-                <div class="tab-pane" id="search">
+                <div class="tab-pane" id="by_vm">
+                    {% render_field form.nat_cluster %}
+                    {% render_field form.nat_virtual_machine %}
+                </div>
+                <div class="tab-pane" id="by_vrf">
                   {% render_field form.nat_vrf %}
                 </div>
             </div>
