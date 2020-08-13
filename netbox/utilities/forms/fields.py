@@ -11,6 +11,7 @@ from django.db.models import Count
 from django.forms import BoundField
 from django.urls import reverse
 
+from utilities.api import get_serializer_for_model
 from utilities.choices import unpack_grouped_choices
 from utilities.validators import EnhancedURLValidator
 from . import widgets
@@ -244,8 +245,57 @@ class TagFilterField(forms.MultipleChoiceField):
 
 
 class DynamicModelChoiceMixin:
+    """
+    :param display_field: The name of the attribute of an API response object to display in the selection list
+    :param query_params: A dictionary of additional key/value pairs to attach to the API request
+    :param null_option: The string used to represent a null selection (if any)
+    :param disabled_indicator: The name of the field which, if populated, will disable selection of the
+        choice (optional)
+    :param brief_mode: Use the "brief" format (?brief=true) when making API requests (default)
+    """
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
+
+    def __init__(self, display_field='name', query_params=None, null_option=None, disabled_indicator=None,
+                 brief_mode=True, *args, **kwargs):
+        self.display_field = display_field
+        self.query_params = query_params or {}
+        self.null_option = null_option
+        self.disabled_indicator = disabled_indicator
+        self.brief_mode = brief_mode
+
+        # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
+        # by widget_attrs()
+        self.to_field_name = kwargs.get('to_field_name')
+
+        super().__init__(*args, **kwargs)
+
+    def widget_attrs(self, widget):
+        attrs = {
+            'display-field': self.display_field,
+        }
+
+        # Set value-field attribute if the field specifies to_field_name
+        if self.to_field_name:
+            attrs['value-field'] = self.to_field_name
+
+        # Set the string used to represent a null option
+        if self.null_option is not None:
+            attrs['data-null-option'] = self.null_option
+
+        # Set the disabled indicator, if any
+        if self.disabled_indicator is not None:
+            attrs['disabled-indicator'] = self.disabled_indicator
+
+        # Toggle brief mode
+        if not self.brief_mode:
+            attrs['data-full'] = 'true'
+
+        # Attach any static query parameters
+        for key, value in self.query_params.items():
+            widget.add_query_param(key, value)
+
+        return attrs
 
     def get_bound_field(self, form, field_name):
         bound_field = BoundField(form, self, field_name)

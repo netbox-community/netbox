@@ -8,8 +8,8 @@ from extras.forms import (
 )
 from extras.models import Tag
 from utilities.forms import (
-    APISelectMultiple, BootstrapMixin, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, SlugField, StaticSelect2Multiple, TagFilterField,
+    BootstrapMixin, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    SlugField, TagFilterField,
 )
 from .constants import *
 from .models import Secret, SecretRole, UserKey
@@ -63,7 +63,8 @@ class SecretRoleCSVForm(CSVModelForm):
 
 class SecretForm(BootstrapMixin, CustomFieldModelForm):
     device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
+        queryset=Device.objects.all(),
+        display_field='display_name'
     )
     plaintext = forms.CharField(
         max_length=SECRET_PLAINTEXT_MAX_LENGTH,
@@ -178,10 +179,7 @@ class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
     role = DynamicModelMultipleChoiceField(
         queryset=SecretRole.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     tag = TagFilterField(model)
 

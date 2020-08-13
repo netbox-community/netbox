@@ -8,9 +8,9 @@ from extras.models import Tag
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, CSVModelChoiceField,
-    CSVModelForm, DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SmallTextarea, SlugField,
-    StaticSelect2, StaticSelect2Multiple, TagFilterField,
+    add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, CSVModelChoiceField, CSVModelForm, DatePicker,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, SmallTextarea, SlugField, StaticSelect2,
+    StaticSelect2Multiple, TagFilterField,
 )
 from .choices import CircuitStatusChoices
 from .models import Circuit, CircuitTermination, CircuitType, Provider
@@ -106,21 +106,15 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-            filter_for={
-                'site': 'region'
-            }
-        )
+        required=False
     )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        query_params={
+            'region': '$region'
+        }
     )
     asn = forms.IntegerField(
         required=False,
@@ -271,18 +265,12 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
     type = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     provider = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     status = forms.MultipleChoiceField(
         choices=CircuitStatusChoices,
@@ -292,21 +280,15 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-            filter_for={
-                'site': 'region'
-            }
-        )
+        required=False
     )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
         required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        query_params={
+            'region': '$region'
+        }
     )
     commit_rate = forms.IntegerField(
         required=False,
