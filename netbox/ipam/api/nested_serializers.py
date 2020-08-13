@@ -26,7 +26,7 @@ class NestedVRFSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.VRF
-        fields = ['id', 'url', 'name', 'rd', 'prefix_count']
+        fields = ['id', 'url', 'name', 'rd', 'display_name', 'prefix_count']
 
 
 #

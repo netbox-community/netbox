@@ -22,7 +22,7 @@ class AppTest(APITestCase):
 
 class VRFTest(APIViewTestCases.APIViewTestCase):
     model = VRF
-    brief_fields = ['id', 'name', 'prefix_count', 'rd', 'url']
+    brief_fields = ['display_name', 'id', 'name', 'prefix_count', 'rd', 'url']
     create_data = [
         {
             'name': 'VRF 4',

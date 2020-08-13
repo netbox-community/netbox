@@ -34,6 +34,7 @@ __all__ = [
     'IPAddressVar',
     'IPAddressWithMaskVar',
     'IPNetworkVar',
+    'MultiChoiceVar',
     'MultiObjectVar',
     'ObjectVar',
     'Script',
@@ -165,6 +166,13 @@ class ChoiceVar(ScriptVariable):
 
         # Set field choices
         self.field_attrs['choices'] = choices
+
+
+class MultiChoiceVar(ChoiceVar):
+    """
+    Like ChoiceVar, but allows for the selection of multiple choices.
+    """
+    form_field = forms.MultipleChoiceField
 
 
 class ObjectVar(ScriptVariable):

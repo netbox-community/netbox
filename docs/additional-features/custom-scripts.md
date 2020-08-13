@@ -161,6 +161,10 @@ direction = ChoiceVar(choices=CHOICES)
 
 In the example above, selecting the choice labeled "North" will submit the value `n`.
 
+### MultiChoiceVar
+
+Similar to `ChoiceVar`, but allows for the selection of multiple choices.
+
 ### ObjectVar
 
 A particular object within NetBox. Each ObjectVar must specify a particular model, and allows the user to select one of the available instances. ObjectVar accepts several arguments, listed below.
