@@ -16,11 +16,14 @@ def replicate_interfaces(apps, schema_editor):
     vminterface_ct = ContentType.objects.get_for_model(VMInterface)
 
     # Replicate dcim.Interface instances assigned to VirtualMachines
-    original_interfaces = Interface.objects.filter(virtual_machine__isnull=False)
+    original_interfaces = Interface.objects.prefetch_related('tagged_vlans').filter(
+        virtual_machine__isnull=False
+    )
+    interfaces_count = len(original_interfaces)
     if show_output:
-        print(f"\n    Replicating {len(original_interfaces)} VM interfaces...", end='', flush=True)
-    for i, interface in enumerate(original_interfaces, start=1):
-        vminterface = VMInterface(
+        print(f"\n    Replicating {interfaces_count} VM interfaces...", flush=True)
+    new_interfaces = [
+        VMInterface(
             virtual_machine=interface.virtual_machine,
             name=interface.name,
             enabled=interface.enabled,
@@ -29,29 +32,45 @@ def replicate_interfaces(apps, schema_editor):
             mode=interface.mode,
             description=interface.description,
             untagged_vlan=interface.untagged_vlan,
-        )
-        vminterface.save()
+        ) for interface in original_interfaces
+    ]
+    VMInterface.objects.bulk_create(new_interfaces, batch_size=1000)
+
+    # Pre-fetch the PKs of interfaces with tags/IP addresses
+    interfaces_with_tags = TaggedItem.objects.filter(
+        content_type=interface_ct
+    ).values_list('object_id', flat=True)
+    interfaces_with_ips = IPAddress.objects.filter(
+        assigned_object_id__isnull=False
+    ).values_list('assigned_object_id', flat=True)
+
+    if show_output:
+        print(f"    Replicating assigned objects...", flush=True)
+    for i, interface in enumerate(original_interfaces):
+        vminterface = new_interfaces[i]
 
         # Copy tagged VLANs
-        vminterface.tagged_vlans.set(interface.tagged_vlans.all())
+        if interface.tagged_vlans.exists():
+            vminterface.tagged_vlans.set(interface.tagged_vlans.all())
 
         # Reassign tags to the new instance
-        TaggedItem.objects.filter(
-            content_type=interface_ct, object_id=interface.pk
-        ).update(
-            content_type=vminterface_ct, object_id=vminterface.pk
-        )
+        if interface.pk in interfaces_with_tags:
+            TaggedItem.objects.filter(content_type=interface_ct, object_id=interface.pk).update(
+                content_type=vminterface_ct,
+                object_id=vminterface.pk
+            )
 
         # Update any assigned IPAddresses
-        IPAddress.objects.filter(assigned_object_id=interface.pk).update(
-            assigned_object_type=vminterface_ct,
-            assigned_object_id=vminterface.pk
-        )
+        if interface.pk in interfaces_with_ips:
+            IPAddress.objects.filter(assigned_object_type=interface_ct, assigned_object_id=interface.pk).update(
+                assigned_object_type=vminterface_ct,
+                assigned_object_id=vminterface.pk
+            )
 
         # Progress counter
-        if show_output and not i % 250:
-            percentage = int(i / len(original_interfaces) * 100)
-            print(f"    {i}/{len(original_interfaces)} ({percentage}%)", flush=True)
+        if show_output and not i % 1000:
+            percentage = int(i / interfaces_count * 100)
+            print(f"      {i}/{interfaces_count} ({percentage}%)", flush=True)
 
     # Verify that all interfaces have been replicated
     replicated_count = VMInterface.objects.count()
