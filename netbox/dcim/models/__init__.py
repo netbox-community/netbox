@@ -648,10 +648,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     @property
     def display_name(self):
         if self.facility_id:
-            return "{} ({})".format(self.name, self.facility_id)
-        elif self.name:
-            return self.name
-        return ""
+            return f'{self.name} ({self.facility_id})'
+        return self.name
 
     def get_status_class(self):
         return self.STATUS_CLASS_MAP.get(self.status)
@@ -1216,7 +1214,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 
     @property
     def display_name(self):
-        return '{} {}'.format(self.manufacturer.name, self.model)
+        return f'{self.manufacturer.name} {self.model}'
 
     @property
     def is_parent_device(self):
@@ -1712,11 +1710,12 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     def display_name(self):
         if self.name:
             return self.name
-        elif self.virtual_chassis and self.virtual_chassis.master.name:
-            return "{}:{}".format(self.virtual_chassis.master, self.vc_position)
-        elif hasattr(self, 'device_type'):
-            return "{}".format(self.device_type)
-        return ""
+        elif self.virtual_chassis:
+            return f'{self.virtual_chassis.name}:{self.vc_position} ({self.pk})'
+        elif self.device_type:
+            return f'{self.device_type.manufacturer} {self.device_type.model} ({self.pk})'
+        else:
+            return ''  # Device has not yet been created
 
     @property
     def identifier(self):

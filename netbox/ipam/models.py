@@ -107,7 +107,7 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
     @property
     def display_name(self):
         if self.rd:
-            return "{} ({})".format(self.name, self.rd)
+            return f'{self.name} ({self.rd})'
         return self.name
 
 
@@ -985,9 +985,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
 
     @property
     def display_name(self):
-        if self.vid and self.name:
-            return "{} ({})".format(self.vid, self.name)
-        return None
+        return f'{self.name} ({self.vid})'
 
     def get_status_class(self):
         return self.STATUS_CLASS_MAP[self.status]
