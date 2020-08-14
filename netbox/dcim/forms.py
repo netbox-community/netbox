@@ -3928,6 +3928,7 @@ class VirtualChassisCreateForm(BootstrapMixin, forms.ModelForm):
     members = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
+        display_field='display_name',
         query_params={
             'site_id': '$site',
             'rack_id': '$rack',
