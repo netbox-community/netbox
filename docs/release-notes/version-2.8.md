@@ -221,6 +221,7 @@ $ python netbox/manage.py nbshell
 ## v2.8.0 (2020-04-13)
 
 **NOTE:** Beginning with release 2.8.0, NetBox requires Python 3.6 or later.
+**NOTE:** Beginning with release 2.8.0, NetBox requires PostgreSQL 9.6 or later.
 
 ### New Features (Beta)
 
