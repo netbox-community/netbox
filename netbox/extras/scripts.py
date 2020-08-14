@@ -23,7 +23,6 @@ from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, 
 from utilities.exceptions import AbortTransaction
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .forms import ScriptForm
-from .signals import purge_changelog
 
 __all__ = [
     'BaseScript',
@@ -465,7 +464,6 @@ def run_script(data, request, commit=True, *args, **kwargs):
 
         if not commit:
             # Delete all pending changelog entries
-            purge_changelog.send(Script)
             script.log_info(
                 "Database changes have been reverted automatically."
             )

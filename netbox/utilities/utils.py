@@ -276,6 +276,13 @@ def flatten_dict(d, prefix='', separator='.'):
     return ret
 
 
+# Taken from django.utils.functional (<3.0)
+def curry(_curried_func, *args, **kwargs):
+    def _curried(*moreargs, **morekwargs):
+        return _curried_func(*args, *moreargs, **{**kwargs, **morekwargs})
+    return _curried
+
+
 #
 # Fake request object
 #
