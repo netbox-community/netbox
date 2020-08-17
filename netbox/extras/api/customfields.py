@@ -175,7 +175,6 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
             )
 
     def create(self, validated_data):
-        from django.db.models.query import QuerySet
 
         with transaction.atomic():
 
