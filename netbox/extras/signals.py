@@ -25,10 +25,6 @@ def _handle_changed_object(request, sender, instance, **kwargs):
     else:
         return
 
-    # Cache any custom field values to ensure they are captured during serialization
-    if hasattr(instance, 'cache_custom_fields'):
-        instance.cache_custom_fields()
-
     # Record an ObjectChange if applicable
     if hasattr(instance, 'to_objectchange'):
         objectchange = instance.to_objectchange(action)

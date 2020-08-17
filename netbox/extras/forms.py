@@ -29,6 +29,9 @@ class CustomFieldModelForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
+        if self.instance._cf is None:
+            self.instance._cf = {}
+
         self._append_customfield_fields()
 
     def _append_customfield_fields(self):
@@ -48,9 +51,12 @@ class CustomFieldModelForm(forms.ModelForm):
             field_name = 'cf_{}'.format(cf.name)
             if self.instance.pk:
                 self.fields[field_name] = cf.to_form_field(set_initial=False)
-                self.fields[field_name].initial = self.custom_field_values.get(cf.name)
+                value = self.custom_field_values.get(cf.name)
+                self.fields[field_name].initial = value
+                self.instance._cf[cf.name] = value
             else:
                 self.fields[field_name] = cf.to_form_field()
+                self.instance._cf[cf.name] = self.fields[field_name].initial
 
             # Annotate the field in the list of CustomField form fields
             self.custom_fields.append(field_name)
@@ -77,13 +83,18 @@ class CustomFieldModelForm(forms.ModelForm):
             cfv.save()
 
     def save(self, commit=True):
+
+        # Cache custom field values on object prior to save to ensure change logging
+        for cf_name in self.custom_fields:
+            self.instance._cf[cf_name[3:]] = self.cleaned_data.get(cf_name)
+
         obj = super().save(commit)
 
         # Handle custom fields the same way we do M2M fields
         if commit:
             self._save_custom_fields()
         else:
-            self.save_custom_fields = self._save_custom_fields
+            obj.save_custom_fields = self._save_custom_fields
 
         return obj
 
