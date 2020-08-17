@@ -97,9 +97,10 @@ def serialize_object(obj, extra=None, exclude=None):
             field: str(value) for field, value in obj.cf.items()
         }
 
-    # Include any tags
+    # Include any tags. Check for tags cached on the instance; fall back to using the manager.
     if is_taggable(obj):
-        data['tags'] = [tag.name for tag in obj.tags.all()]
+        tags = getattr(obj, '_tags', obj.tags.all())
+        data['tags'] = [tag.name for tag in tags]
 
     # Append any extra data
     if extra is not None:
