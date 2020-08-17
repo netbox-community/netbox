@@ -12,16 +12,19 @@ from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
+from django.db.models.signals import m2m_changed, pre_delete, post_save
 from django.utils.functional import classproperty
 from django_rq import job
 
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import JobResultStatusChoices, LogLevelChoices
 from extras.models import JobResult
+from extras.signals import _handle_changed_object, _handle_deleted_object
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from utilities.exceptions import AbortTransaction
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.utils import curry
 from .forms import ScriptForm
 
 __all__ = [
@@ -435,8 +438,19 @@ def run_script(data, request, commit=True, *args, **kwargs):
     if 'commit' in inspect.signature(script.run).parameters:
         kwargs['commit'] = commit
     else:
-        warnings.warn(f"The run() method of script {script} should support a 'commit' argument. This will be required "
-                      f"beginning with NetBox v2.10.")
+        warnings.warn(
+            f"The run() method of script {script} should support a 'commit' argument. This will be required beginning "
+            f"with NetBox v2.10."
+        )
+
+    # Curry changelog signal receivers to pass the current request
+    handle_changed_object = curry(_handle_changed_object, request)
+    handle_deleted_object = curry(_handle_deleted_object, request)
+
+    # Connect object modification signals to their respective receivers
+    post_save.connect(handle_changed_object)
+    m2m_changed.connect(handle_changed_object)
+    pre_delete.connect(handle_deleted_object)
 
     try:
         with transaction.atomic():
@@ -469,6 +483,11 @@ def run_script(data, request, commit=True, *args, **kwargs):
             )
 
     logger.info(f"Script completed in {job_result.duration}")
+
+    # Disconnect signals
+    post_save.disconnect(handle_changed_object)
+    m2m_changed.disconnect(handle_changed_object)
+    pre_delete.disconnect(handle_deleted_object)
 
     # Delete any previous terminal state results
     JobResult.objects.filter(

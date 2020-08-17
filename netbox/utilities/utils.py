@@ -312,5 +312,6 @@ def copy_safe_request(request):
         'GET': request.GET,
         'FILES': request.FILES,
         'user': request.user,
-        'path': request.path
+        'path': request.path,
+        'id': getattr(request, 'id', None),  # UUID assigned by middleware
     })
