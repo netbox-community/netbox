@@ -7,7 +7,6 @@ from dcim.models import Site
 from extras.choices import *
 from extras.models import CustomField, CustomFieldValue, ObjectChange, Tag
 from utilities.testing import APITestCase
-from utilities.testing.utils import post_data
 from utilities.testing.views import ModelViewTestCase
 
 
@@ -36,12 +35,12 @@ class ChangeLogViewTest(ModelViewTestCase):
             'slug': 'test-site-1',
             'status': SiteStatusChoices.STATUS_ACTIVE,
             'cf_my_field': 'ABC',
-            'tags': list(tags),
+            'tags': [tag.pk for tag in tags],
         }
 
         request = {
             'path': self._get_url('add'),
-            'data': post_data(form_data),
+            'data': form_data,
         }
         self.add_permissions('dcim.add_site')
         response = self.client.post(**request)
@@ -69,12 +68,12 @@ class ChangeLogViewTest(ModelViewTestCase):
             'slug': 'test-site-x',
             'status': SiteStatusChoices.STATUS_PLANNED,
             'cf_my_field': 'DEF',
-            'tags': [tag3],
+            'tags': [tag3.pk],
         }
 
         request = {
             'path': self._get_url('edit', instance=site),
-            'data': post_data(form_data),
+            'data': form_data,
         }
         self.add_permissions('dcim.change_site')
         response = self.client.post(**request)
@@ -106,7 +105,7 @@ class ChangeLogViewTest(ModelViewTestCase):
 
         request = {
             'path': self._get_url('delete', instance=site),
-            'data': post_data({'confirm': True}),
+            'data': {'confirm': True},
         }
         self.add_permissions('dcim.delete_site')
         response = self.client.post(**request)
