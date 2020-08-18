@@ -1,9 +1,6 @@
 import uuid
 
-from django.db.models.signals import m2m_changed, pre_delete, post_save
-
-from utilities.utils import curry
-from .signals import _handle_changed_object, _handle_deleted_object
+from .context_managers import change_logging
 
 
 class ObjectChangeMiddleware(object):
@@ -24,27 +21,12 @@ class ObjectChangeMiddleware(object):
         self.get_response = get_response
 
     def __call__(self, request):
-
         # Assign a random unique ID to the request. This will be used to associate multiple object changes made during
         # the same request.
         request.id = uuid.uuid4()
 
-        # Curry signals receivers to pass the current request
-        handle_changed_object = curry(_handle_changed_object, request)
-        handle_deleted_object = curry(_handle_deleted_object, request)
-
-        # Connect our receivers to the post_save and post_delete signals.
-        post_save.connect(handle_changed_object, dispatch_uid='handle_changed_object')
-        m2m_changed.connect(handle_changed_object, dispatch_uid='handle_changed_object')
-        pre_delete.connect(handle_deleted_object, dispatch_uid='handle_deleted_object')
-
-        # Process the request
-        response = self.get_response(request)
-
-        # Disconnect change logging signals. This is necessary to avoid recording any errant
-        # changes during test cleanup.
-        post_save.disconnect(handle_changed_object, dispatch_uid='handle_changed_object')
-        m2m_changed.disconnect(handle_changed_object, dispatch_uid='handle_changed_object')
-        pre_delete.disconnect(handle_deleted_object, dispatch_uid='handle_deleted_object')
+        # Process the request with change logging enabled
+        with change_logging(request):
+            response = self.get_response(request)
 
         return response

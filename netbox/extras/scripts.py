@@ -12,19 +12,17 @@ from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
-from django.db.models.signals import m2m_changed, pre_delete, post_save
 from django.utils.functional import classproperty
 from django_rq import job
 
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import JobResultStatusChoices, LogLevelChoices
 from extras.models import JobResult
-from extras.signals import _handle_changed_object, _handle_deleted_object
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from utilities.exceptions import AbortTransaction
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
-from utilities.utils import curry
+from .context_managers import change_logging
 from .forms import ScriptForm
 
 __all__ = [
@@ -443,51 +441,39 @@ def run_script(data, request, commit=True, *args, **kwargs):
             f"with NetBox v2.10."
         )
 
-    # Curry changelog signal receivers to pass the current request
-    handle_changed_object = curry(_handle_changed_object, request)
-    handle_deleted_object = curry(_handle_deleted_object, request)
+    with change_logging(request):
 
-    # Connect object modification signals to their respective receivers
-    post_save.connect(handle_changed_object)
-    m2m_changed.connect(handle_changed_object)
-    pre_delete.connect(handle_deleted_object)
+        try:
+            with transaction.atomic():
+                script.output = script.run(**kwargs)
 
-    try:
-        with transaction.atomic():
-            script.output = script.run(**kwargs)
+                if not commit:
+                    raise AbortTransaction()
+
+        except AbortTransaction:
+            pass
+
+        except Exception as e:
+            stacktrace = traceback.format_exc()
+            script.log_failure(
+                "An exception occurred: `{}: {}`\n```\n{}\n```".format(type(e).__name__, e, stacktrace)
+            )
+            logger.error(f"Exception raised during script execution: {e}")
+            commit = False
+            job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
+
+        finally:
+            if job_result.status != JobResultStatusChoices.STATUS_ERRORED:
+                job_result.data = ScriptOutputSerializer(script).data
+                job_result.set_status(JobResultStatusChoices.STATUS_COMPLETED)
 
             if not commit:
-                raise AbortTransaction()
+                # Delete all pending changelog entries
+                script.log_info(
+                    "Database changes have been reverted automatically."
+                )
 
-    except AbortTransaction:
-        pass
-
-    except Exception as e:
-        stacktrace = traceback.format_exc()
-        script.log_failure(
-            "An exception occurred: `{}: {}`\n```\n{}\n```".format(type(e).__name__, e, stacktrace)
-        )
-        logger.error(f"Exception raised during script execution: {e}")
-        commit = False
-        job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
-
-    finally:
-        if job_result.status != JobResultStatusChoices.STATUS_ERRORED:
-            job_result.data = ScriptOutputSerializer(script).data
-            job_result.set_status(JobResultStatusChoices.STATUS_COMPLETED)
-
-        if not commit:
-            # Delete all pending changelog entries
-            script.log_info(
-                "Database changes have been reverted automatically."
-            )
-
-    logger.info(f"Script completed in {job_result.duration}")
-
-    # Disconnect signals
-    post_save.disconnect(handle_changed_object)
-    m2m_changed.disconnect(handle_changed_object)
-    pre_delete.disconnect(handle_deleted_object)
+        logger.info(f"Script completed in {job_result.duration}")
 
     # Delete any previous terminal state results
     JobResult.objects.filter(
