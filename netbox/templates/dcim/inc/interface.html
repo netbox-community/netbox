@@ -65,7 +65,7 @@
             LAG interface<br />
             <small class="text-muted">
                 {% for member in iface.member_interfaces.all %}
-                    <a href="#interface_{{ member.name }}">{{ member }}</a>{% if not forloop.last %}, {% endif %}
+                    <a href="{{ member.get_absolute_url }}">{{ member }}</a>{% if not forloop.last %}, {% endif %}
                 {% empty %}
                     No members
                 {% endfor %}

@@ -688,13 +688,17 @@ class Interface(CableTermination, ComponentModel, BaseInterface):
                         "Disconnect the interface or choose a suitable type."
             })
 
-        # An interface's LAG must belong to the same device (or VC master)
-        if self.lag and self.lag.device not in [self.device, self.device.get_vc_master()]:
-            raise ValidationError({
-                'lag': "The selected LAG interface ({}) belongs to a different device ({}).".format(
-                    self.lag.name, self.lag.device.name
-                )
-            })
+        # An interface's LAG must belong to the same device or virtual chassis
+        if self.lag and self.lag.device != self.device:
+            if self.device.virtual_chassis is None:
+                raise ValidationError({
+                    'lag': f"The selected LAG interface ({self.lag}) belongs to a different device ({self.lag.device})."
+                })
+            elif self.lag.device.virtual_chassis != self.device.virtual_chassis:
+                raise ValidationError({
+                    'lag': f"The selected LAG interface ({self.lag}) belongs to {self.lag.device}, which is not part "
+                           f"of virtual chassis {self.device.virtual_chassis}."
+                })
 
         # A virtual interface cannot have a parent LAG
         if self.type in NONCONNECTABLE_IFACE_TYPES and self.lag is not None:

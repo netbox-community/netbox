@@ -2682,11 +2682,11 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         else:
             device = self.instance.device
 
-        # Limit LAG choices to interfaces belonging to this device (or VC master)
-        self.fields['lag'].queryset = Interface.objects.filter(
-            device__in=[device, device.get_vc_master()],
-            type=InterfaceTypeChoices.TYPE_LAG
-        )
+        # Limit LAG choices to interfaces belonging to this device or a peer VC member
+        device_query = Q(device=device)
+        if device.virtual_chassis:
+            device_query |= Q(device__virtual_chassis=device.virtual_chassis)
+        self.fields['lag'].queryset = Interface.objects.filter(device_query, type=InterfaceTypeChoices.TYPE_LAG)
 
         # Add current site to VLANs query params
         self.fields['untagged_vlan'].widget.add_query_param('site_id', device.site.pk)
@@ -2754,14 +2754,14 @@ class InterfaceCreateForm(ComponentCreateForm, InterfaceCommonForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Limit LAG choices to interfaces which belong to the parent device (or VC master)
+        # Limit LAG choices to interfaces belonging to this device or a peer VC member
         device = Device.objects.get(
             pk=self.initial.get('device') or self.data.get('device')
         )
-        self.fields['lag'].queryset = Interface.objects.filter(
-            device__in=[device, device.get_vc_master()],
-            type=InterfaceTypeChoices.TYPE_LAG
-        )
+        device_query = Q(device=device)
+        if device.virtual_chassis:
+            device_query |= Q(device__virtual_chassis=device.virtual_chassis)
+        self.fields['lag'].queryset = Interface.objects.filter(device_query, type=InterfaceTypeChoices.TYPE_LAG)
 
         # Add current site to VLANs query params
         self.fields['untagged_vlan'].widget.add_query_param('site_id', device.site.pk)
