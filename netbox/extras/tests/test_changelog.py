@@ -27,13 +27,7 @@ class ChangeLogViewTest(ModelViewTestCase):
         cf.save()
         cf.obj_type.set([ct])
 
-        # Create some tags
-        tags = (
-            Tag(name='Tag 1', slug='tag-1'),
-            Tag(name='Tag 2', slug='tag-2'),
-            Tag(name='Tag 3', slug='tag-3'),
-        )
-        Tag.objects.bulk_create(tags)
+        cls.create_tags('Tag 1', 'Tag 2', 'Tag 3')
 
     def test_create_object(self):
         tags = Tag.objects.filter(name__in=['Tag 1', 'Tag 2'])
