@@ -36,7 +36,7 @@ class ChangeLogViewTest(ModelViewTestCase):
             'slug': 'test-site-1',
             'status': SiteStatusChoices.STATUS_ACTIVE,
             'cf_my_field': 'ABC',
-            'tags': [tag.pk for tag in tags],
+            'tags': list(tags),
         }
 
         request = {
@@ -69,7 +69,7 @@ class ChangeLogViewTest(ModelViewTestCase):
             'slug': 'test-site-x',
             'status': SiteStatusChoices.STATUS_PLANNED,
             'cf_my_field': 'DEF',
-            'tags': [tag3.pk],
+            'tags': [tag3],
         }
 
         request = {
