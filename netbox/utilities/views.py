@@ -949,6 +949,12 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                                 elif form.cleaned_data[name] not in (None, ''):
                                     setattr(obj, name, form.cleaned_data[name])
 
+                            # Cache custom fields on instance prior to save()
+                            if custom_fields:
+                                obj._cf = {
+                                    name: form.cleaned_data[name] for name in custom_fields
+                                }
+
                             obj.full_clean()
                             obj.save()
                             updated_objects.append(obj)

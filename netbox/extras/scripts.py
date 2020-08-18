@@ -22,8 +22,8 @@ from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from utilities.exceptions import AbortTransaction
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from .context_managers import change_logging
 from .forms import ScriptForm
-from .signals import purge_changelog
 
 __all__ = [
     'BaseScript',
@@ -436,41 +436,44 @@ def run_script(data, request, commit=True, *args, **kwargs):
     if 'commit' in inspect.signature(script.run).parameters:
         kwargs['commit'] = commit
     else:
-        warnings.warn(f"The run() method of script {script} should support a 'commit' argument. This will be required "
-                      f"beginning with NetBox v2.10.")
+        warnings.warn(
+            f"The run() method of script {script} should support a 'commit' argument. This will be required beginning "
+            f"with NetBox v2.10."
+        )
 
-    try:
-        with transaction.atomic():
-            script.output = script.run(**kwargs)
+    with change_logging(request):
+
+        try:
+            with transaction.atomic():
+                script.output = script.run(**kwargs)
+
+                if not commit:
+                    raise AbortTransaction()
+
+        except AbortTransaction:
+            pass
+
+        except Exception as e:
+            stacktrace = traceback.format_exc()
+            script.log_failure(
+                "An exception occurred: `{}: {}`\n```\n{}\n```".format(type(e).__name__, e, stacktrace)
+            )
+            logger.error(f"Exception raised during script execution: {e}")
+            commit = False
+            job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
+
+        finally:
+            if job_result.status != JobResultStatusChoices.STATUS_ERRORED:
+                job_result.data = ScriptOutputSerializer(script).data
+                job_result.set_status(JobResultStatusChoices.STATUS_COMPLETED)
 
             if not commit:
-                raise AbortTransaction()
+                # Delete all pending changelog entries
+                script.log_info(
+                    "Database changes have been reverted automatically."
+                )
 
-    except AbortTransaction:
-        pass
-
-    except Exception as e:
-        stacktrace = traceback.format_exc()
-        script.log_failure(
-            "An exception occurred: `{}: {}`\n```\n{}\n```".format(type(e).__name__, e, stacktrace)
-        )
-        logger.error(f"Exception raised during script execution: {e}")
-        commit = False
-        job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
-
-    finally:
-        if job_result.status != JobResultStatusChoices.STATUS_ERRORED:
-            job_result.data = ScriptOutputSerializer(script).data
-            job_result.set_status(JobResultStatusChoices.STATUS_COMPLETED)
-
-        if not commit:
-            # Delete all pending changelog entries
-            purge_changelog.send(Script)
-            script.log_info(
-                "Database changes have been reverted automatically."
-            )
-
-    logger.info(f"Script completed in {job_result.duration}")
+        logger.info(f"Script completed in {job_result.duration}")
 
     # Delete any previous terminal state results
     JobResult.objects.filter(

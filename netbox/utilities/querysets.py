@@ -3,20 +3,6 @@ from django.db.models import Q, QuerySet
 from utilities.permissions import permission_is_exempt
 
 
-class DummyQuerySet:
-    """
-    A fake QuerySet that can be used to cache relationships to objects that have been deleted.
-    """
-    def __init__(self, queryset):
-        self._cache = [obj for obj in queryset.all()]
-
-    def __iter__(self):
-        return iter(self._cache)
-
-    def all(self):
-        return self._cache
-
-
 class RestrictedQuerySet(QuerySet):
 
     def restrict(self, user, action='view'):

@@ -115,7 +115,7 @@ class TestCase(_TestCase):
         """
         err_message = "Expected HTTP status {}; received {}: {}"
         self.assertEqual(response.status_code, expected_status, err_message.format(
-            expected_status, response.status_code, getattr(response, 'data', 'No data')
+            expected_status, response.status_code, getattr(response, 'data', response.content)
         ))
 
     def assertInstanceEqual(self, instance, data, api=False):

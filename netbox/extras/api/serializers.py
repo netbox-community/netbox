@@ -108,6 +108,10 @@ class TaggedObjectSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags', [])
+
+        # Cache tags on instance for change logging
+        instance._tags = tags
+
         instance = super().update(instance, validated_data)
 
         return self._save_tags(instance, tags)

@@ -97,9 +97,10 @@ def serialize_object(obj, extra=None, exclude=None):
             field: str(value) for field, value in obj.cf.items()
         }
 
-    # Include any tags
+    # Include any tags. Check for tags cached on the instance; fall back to using the manager.
     if is_taggable(obj):
-        data['tags'] = [tag.name for tag in obj.tags.all()]
+        tags = getattr(obj, '_tags', obj.tags.all())
+        data['tags'] = [tag.name for tag in tags]
 
     # Append any extra data
     if extra is not None:
@@ -276,6 +277,13 @@ def flatten_dict(d, prefix='', separator='.'):
     return ret
 
 
+# Taken from django.utils.functional (<3.0)
+def curry(_curried_func, *args, **kwargs):
+    def _curried(*moreargs, **morekwargs):
+        return _curried_func(*args, *moreargs, **{**kwargs, **morekwargs})
+    return _curried
+
+
 #
 # Fake request object
 #
@@ -305,5 +313,6 @@ def copy_safe_request(request):
         'GET': request.GET,
         'FILES': request.FILES,
         'user': request.user,
-        'path': request.path
+        'path': request.path,
+        'id': getattr(request, 'id', None),  # UUID assigned by middleware
     })

@@ -3,7 +3,6 @@ import collections
 from django.db.models import Q
 from django.utils.deconstruct import deconstructible
 from taggit.managers import _TaggableManager
-from utilities.querysets import DummyQuerySet
 
 from extras.constants import EXTRAS_FEATURES
 from extras.registry import registry
@@ -15,9 +14,6 @@ def is_taggable(obj):
     """
     if hasattr(obj, 'tags'):
         if issubclass(obj.tags.__class__, _TaggableManager):
-            return True
-        # TaggableManager has been replaced with a DummyQuerySet prior to object deletion
-        if isinstance(obj.tags, DummyQuerySet):
             return True
     return False
 

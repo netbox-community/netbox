@@ -142,9 +142,9 @@ class APISelect(SelectWithDisabled):
 
         values = json.loads(self.attrs.get(key, '[]'))
         if type(value) is list:
-            values.extend(value)
+            values.extend([str(v) for v in value])
         else:
-            values.append(value)
+            values.append(str(value))
 
         self.attrs[key] = json.dumps(values)
 
