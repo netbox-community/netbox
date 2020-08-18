@@ -48,12 +48,3 @@ class ObjectChangeMiddleware(object):
         pre_delete.disconnect(handle_deleted_object, dispatch_uid='handle_deleted_object')
 
         return response
-
-        # TODO: Put this somewhere
-        # # Housekeeping: 1% chance of clearing out expired ObjectChanges. This applies only to requests which result in
-        # # one or more changes being logged.
-        # if settings.CHANGELOG_RETENTION and random.randint(1, 100) == 1:
-        #     cutoff = timezone.now() - timedelta(days=settings.CHANGELOG_RETENTION)
-        #     purged_count, _ = ObjectChange.objects.filter(
-        #         time__lt=cutoff
-        #     ).delete()
