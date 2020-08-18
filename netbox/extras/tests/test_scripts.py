@@ -152,10 +152,7 @@ class ScriptVariablesTest(TestCase):
     def test_objectvar(self):
 
         class TestScript(Script):
-
-            var1 = ObjectVar(
-                queryset=DeviceRole.objects.all()
-            )
+            var1 = ObjectVar(model=DeviceRole)
 
         # Populate some objects
         for i in range(1, 6):
@@ -173,10 +170,7 @@ class ScriptVariablesTest(TestCase):
     def test_multiobjectvar(self):
 
         class TestScript(Script):
-
-            var1 = MultiObjectVar(
-                queryset=DeviceRole.objects.all()
-            )
+            var1 = MultiObjectVar(model=DeviceRole)
 
         # Populate some objects
         for i in range(1, 6):
