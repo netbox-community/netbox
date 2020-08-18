@@ -16,14 +16,6 @@
                     <input type="checkbox" name="_nullify" value="{{ field.name }}" /> Set null
                 </label>
             {% endif %}
-            {% if field.errors %}
-                <ul>
-                    {% for error in field.errors %}
-                        <li class="text-danger">{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
     {% elif field|widget_type == 'textarea' and not field.label %}
         <div class="col-md-12">
             {{ field }}
@@ -35,14 +27,6 @@
             {% if field.help_text %}
                 <span class="help-block">{{ field.help_text|safe }}</span>
             {% endif %}
-            {% if field.errors %}
-                <ul>
-                    {% for error in field.errors %}
-                        <li class="text-danger">{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
     {% else %}
         <label class="col-md-3 control-label{% if field.field.required %} required{% endif %}" for="{{ field.id_for_label }}">{{ field.label }}</label>
         <div class="col-md-9">
@@ -55,13 +39,15 @@
             {% if field.help_text %}
                 <span class="help-block">{{ field.help_text|safe }}</span>
             {% endif %}
-            {% if field.errors %}
-                <ul>
-                    {% for error in field.errors %}
-                        <li class="text-danger">{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
     {% endif %}
+    {% if field.errors %}
+        <ul>
+            {% for error in field.errors %}
+                {# Embed an HTML comment indicating the error for extraction by tests #}
+                <!-- FORM-ERROR {{ field.name }}: {{ error }} -->
+                <li class="text-danger">{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    </div>
 </div>

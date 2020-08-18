@@ -1,4 +1,5 @@
 import logging
+import re
 from contextlib import contextmanager
 
 from django.contrib.auth.models import Permission, User
@@ -41,6 +42,14 @@ def create_test_user(username='testuser', permissions=None):
         user.user_permissions.add(perm)
 
     return user
+
+
+def extract_form_failures(content):
+    """
+    Given raw HTML content from an HTTP response, return a list of form errors.
+    """
+    FORM_ERROR_REGEX = r'<!-- FORM-ERROR (.*) -->'
+    return re.findall(FORM_ERROR_REGEX, str(content))
 
 
 @contextmanager

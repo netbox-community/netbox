@@ -13,7 +13,7 @@ from taggit.managers import TaggableManager
 from extras.models import Tag
 from users.models import ObjectPermission
 from utilities.permissions import resolve_permission_ct
-from .utils import disable_warnings, post_data
+from .utils import disable_warnings, extract_form_failures, post_data
 
 
 __all__ = (
@@ -113,10 +113,18 @@ class TestCase(_TestCase):
         """
         TestCase method. Provide more detail in the event of an unexpected HTTP response.
         """
-        err_message = "Expected HTTP status {}; received {}: {}"
-        self.assertEqual(response.status_code, expected_status, err_message.format(
-            expected_status, response.status_code, getattr(response, 'data', response.content)
-        ))
+        err_message = None
+        # Construct an error message only if we know the test is going to fail
+        if response.status_code != expected_status:
+            if hasattr(response, 'data'):
+                # REST API response; pass the response data through directly
+                err = response.data
+            else:
+                # Attempt to extract form validation errors from the response HTML
+                form_errors = extract_form_failures(response.content)
+                err = form_errors or response.content or 'No data'
+            err_message = f"Expected HTTP status {expected_status}; received {response.status_code}: {err}"
+        self.assertEqual(response.status_code, expected_status, err_message)
 
     def assertInstanceEqual(self, instance, data, api=False):
         """
