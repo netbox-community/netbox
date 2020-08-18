@@ -7,6 +7,7 @@ from dcim.models import Site
 from extras.choices import *
 from extras.models import CustomField, CustomFieldValue, ObjectChange, Tag
 from utilities.testing import APITestCase
+from utilities.testing.utils import post_data
 from utilities.testing.views import ModelViewTestCase
 
 
@@ -26,10 +27,8 @@ class ChangeLogViewTest(ModelViewTestCase):
         cf.save()
         cf.obj_type.set([ct])
 
-        cls.create_tags('Tag 1', 'Tag 2', 'Tag 3')
-
     def test_create_object(self):
-        tags = Tag.objects.filter(name__in=['Tag 1', 'Tag 2'])
+        tags = self.create_tags('Tag 1', 'Tag 2')
         form_data = {
             'name': 'Test Site 1',
             'slug': 'test-site-1',
@@ -40,7 +39,7 @@ class ChangeLogViewTest(ModelViewTestCase):
 
         request = {
             'path': self._get_url('add'),
-            'data': form_data,
+            'data': post_data(form_data),
         }
         self.add_permissions('dcim.add_site')
         response = self.client.post(**request)
@@ -61,19 +60,20 @@ class ChangeLogViewTest(ModelViewTestCase):
     def test_update_object(self):
         site = Site(name='Test Site 1', slug='test-site-1')
         site.save()
+        tags = self.create_tags('Tag 1', 'Tag 2', 'Tag 3')
+        site.tags.set('Tag 1', 'Tag 2')
 
-        tag3 = Tag.objects.get(name='Tag 3')
         form_data = {
             'name': 'Test Site X',
             'slug': 'test-site-x',
             'status': SiteStatusChoices.STATUS_PLANNED,
             'cf_my_field': 'DEF',
-            'tags': [tag3.pk],
+            'tags': [tags[2].pk],
         }
 
         request = {
             'path': self._get_url('edit', instance=site),
-            'data': form_data,
+            'data': post_data(form_data),
         }
         self.add_permissions('dcim.change_site')
         response = self.client.post(**request)
@@ -96,7 +96,8 @@ class ChangeLogViewTest(ModelViewTestCase):
             slug='test-site-1'
         )
         site.save()
-        site.tags.set(*Tag.objects.filter(name__in=['Tag 1', 'Tag 2']))
+        self.create_tags('Tag 1', 'Tag 2')
+        site.tags.set('Tag 1', 'Tag 2')
         CustomFieldValue.objects.create(
             field=CustomField.objects.get(name='my_field'),
             obj=site,
@@ -105,7 +106,7 @@ class ChangeLogViewTest(ModelViewTestCase):
 
         request = {
             'path': self._get_url('delete', instance=site),
-            'data': {'confirm': True},
+            'data': post_data({'confirm': True}),
         }
         self.add_permissions('dcim.delete_site')
         response = self.client.post(**request)
