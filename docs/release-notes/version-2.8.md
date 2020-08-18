@@ -8,6 +8,7 @@
 
 ### Bug Fixes
 
+* [#4989](https://github.com/netbox-community/netbox/issues/4989) - Annotate device & vm counts to cluster qeryset for global search
 * [#4992](https://github.com/netbox-community/netbox/issues/4992) - Add `display_name` to nested VRF serializer
 * [#4993](https://github.com/netbox-community/netbox/issues/4993) - Add `cable` to nested CircuitTermination serializer
 
