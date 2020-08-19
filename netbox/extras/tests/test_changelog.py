@@ -41,7 +41,7 @@ class ChangeLogViewTest(ModelViewTestCase):
             'path': self._get_url('add'),
             'data': post_data(form_data),
         }
-        self.add_permissions('dcim.add_site')
+        self.add_permissions('dcim.add_site', 'extras.view_tag')
         response = self.client.post(**request)
         self.assertHttpStatus(response, 302)
 
@@ -75,7 +75,7 @@ class ChangeLogViewTest(ModelViewTestCase):
             'path': self._get_url('edit', instance=site),
             'data': post_data(form_data),
         }
-        self.add_permissions('dcim.change_site')
+        self.add_permissions('dcim.change_site', 'extras.view_tag')
         response = self.client.post(**request)
         self.assertHttpStatus(response, 302)
 
