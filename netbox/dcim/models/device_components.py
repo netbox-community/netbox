@@ -22,6 +22,7 @@ from utilities.utils import serialize_object
 
 
 __all__ = (
+    'BaseInterface',
     'CableTermination',
     'ConsolePort',
     'ConsoleServerPort',
