@@ -446,32 +446,26 @@ def run_script(data, request, commit=True, *args, **kwargs):
         try:
             with transaction.atomic():
                 script.output = script.run(**kwargs)
+                job_result.set_status(JobResultStatusChoices.STATUS_COMPLETED)
 
                 if not commit:
                     raise AbortTransaction()
 
         except AbortTransaction:
-            pass
+            script.log_info("Database changes have been reverted automatically.")
 
         except Exception as e:
             stacktrace = traceback.format_exc()
             script.log_failure(
-                "An exception occurred: `{}: {}`\n```\n{}\n```".format(type(e).__name__, e, stacktrace)
+                f"An exception occurred: `{type(e).__name__}: {e}`\n```\n{stacktrace}\n```"
             )
+            script.log_info("Database changes have been reverted due to error.")
             logger.error(f"Exception raised during script execution: {e}")
-            commit = False
             job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
 
         finally:
-            if job_result.status != JobResultStatusChoices.STATUS_ERRORED:
-                job_result.data = ScriptOutputSerializer(script).data
-                job_result.set_status(JobResultStatusChoices.STATUS_COMPLETED)
-
-            if not commit:
-                # Delete all pending changelog entries
-                script.log_info(
-                    "Database changes have been reverted automatically."
-                )
+            job_result.data = ScriptOutputSerializer(script).data
+            job_result.save()
 
         logger.info(f"Script completed in {job_result.duration}")
 

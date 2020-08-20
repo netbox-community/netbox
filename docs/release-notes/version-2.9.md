@@ -6,6 +6,7 @@
 
 * [#4990](https://github.com/netbox-community/netbox/issues/4990) - Restore change logging during custom script execution
 * [#5004](https://github.com/netbox-community/netbox/issues/5004) - Permit assignment of an interface to a LAG on any peer virtual chassis member
+* [#5012](https://github.com/netbox-community/netbox/issues/5012) - Return details of exceptions resulting from report/script execution
 * [#5020](https://github.com/netbox-community/netbox/issues/5020) - Correct handling of dependent objects during bulk deletion
 
 ---

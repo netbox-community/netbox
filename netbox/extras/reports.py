@@ -2,10 +2,10 @@ import importlib
 import inspect
 import logging
 import pkgutil
+import traceback
 from collections import OrderedDict
 
 from django.conf import settings
-from django.db.models import Q
 from django.utils import timezone
 from django_rq import job
 
@@ -79,6 +79,7 @@ def run_report(job_result, *args, **kwargs):
     except Exception as e:
         print(e)
         job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
+        job_result.save()
         logging.error(f"Error during execution of report {job_result.name}")
 
     # Delete any previous terminal state results
@@ -170,7 +171,7 @@ class Report(object):
             timezone.now().isoformat(),
             level,
             str(obj) if obj else None,
-            obj.get_absolute_url() if getattr(obj, 'get_absolute_url', None) else None,
+            obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else None,
             message,
         ))
 
@@ -223,17 +224,25 @@ class Report(object):
         job_result.status = JobResultStatusChoices.STATUS_RUNNING
         job_result.save()
 
-        for method_name in self.test_methods:
-            self.active_test = method_name
-            test_method = getattr(self, method_name)
-            test_method()
+        try:
 
-        if self.failed:
-            self.logger.warning("Report failed")
-            job_result.status = JobResultStatusChoices.STATUS_FAILED
-        else:
-            self.logger.info("Report completed successfully")
-            job_result.status = JobResultStatusChoices.STATUS_COMPLETED
+            for method_name in self.test_methods:
+                self.active_test = method_name
+                test_method = getattr(self, method_name)
+                test_method()
+
+            if self.failed:
+                self.logger.warning("Report failed")
+                job_result.status = JobResultStatusChoices.STATUS_FAILED
+            else:
+                self.logger.info("Report completed successfully")
+                job_result.status = JobResultStatusChoices.STATUS_COMPLETED
+
+        except Exception as e:
+            stacktrace = traceback.format_exc()
+            self.log_failure(None, f"An exception occurred: {type(e).__name__}: {e} <pre>{stacktrace}</pre>")
+            logger.error(f"Exception raised during report execution: {e}")
+            job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
 
         job_result.data = self._results
         job_result.completed = timezone.now()

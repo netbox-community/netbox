@@ -652,14 +652,12 @@ class JobResult(models.Model):
 
     def set_status(self, status):
         """
-        Helper method to change the status of the job result and save. If the target status is terminal, the
-        completion time is also set.
+        Helper method to change the status of the job result. If the target status is terminal, the  completion
+        time is also set.
         """
         self.status = status
         if status in JobResultStatusChoices.TERMINAL_STATE_CHOICES:
             self.completed = timezone.now()
-
-        self.save()
 
     @classmethod
     def enqueue_job(cls, func, name, obj_type, user, *args, **kwargs):
