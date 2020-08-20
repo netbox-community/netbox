@@ -66,6 +66,24 @@
                                             {% endif %}
                                         </td>
                                         <td>
+                                            {% if field.choice_values %}
+                                                <button type="button" class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#{{ name }}_choices">
+                                                    <i class="fa fa-question"></i>
+                                                </button>
+                                                <div class="modal fade" id="{{ name }}_choices" tabindex="-1" role="dialog">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                                <h4 class="modal-title"><code>{{ name }}</code> Choices</h4>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <ul>{% for value, label in field.choices %}{% if value %}<li>{{ value }}</li>{% endif %}{% endfor %}</ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
                                             {% if field.help_text %}
                                                 {{ field.help_text }}<br />
                                             {% elif field.label %}

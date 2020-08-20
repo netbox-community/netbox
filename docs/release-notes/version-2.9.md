@@ -2,6 +2,10 @@
 
 ## v2.9-beta3 (FUTURE)
 
+### Enhancements
+
+* [#5024](https://github.com/netbox-community/netbox/issues/5024) - List available options for choice fields within CSV import forms
+
 ### Bug Fixes
 
 * [#4990](https://github.com/netbox-community/netbox/issues/4990) - Restore change logging during custom script execution
