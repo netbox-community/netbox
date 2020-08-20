@@ -509,7 +509,7 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                 obj.delete()
             except ProtectedError as e:
                 logger.info("Caught ProtectedError while attempting to delete object")
-                handle_protectederror(obj, request, e)
+                handle_protectederror([obj], request, e)
                 return redirect(obj.get_absolute_url())
 
             msg = 'Deleted {} {}'.format(self.queryset.model._meta.verbose_name, obj)
@@ -1164,7 +1164,7 @@ class BulkDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                     deleted_count = queryset.delete()[1][model._meta.label]
                 except ProtectedError as e:
                     logger.info("Caught ProtectedError while attempting to delete objects")
-                    handle_protectederror(list(queryset), request, e)
+                    handle_protectederror(queryset, request, e)
                     return redirect(self.get_return_url(request))
 
                 msg = 'Deleted {} {}'.format(deleted_count, model._meta.verbose_name_plural)
