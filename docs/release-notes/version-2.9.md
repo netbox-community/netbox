@@ -8,6 +8,7 @@
 * [#5004](https://github.com/netbox-community/netbox/issues/5004) - Permit assignment of an interface to a LAG on any peer virtual chassis member
 * [#5012](https://github.com/netbox-community/netbox/issues/5012) - Return details of exceptions resulting from report/script execution
 * [#5020](https://github.com/netbox-community/netbox/issues/5020) - Correct handling of dependent objects during bulk deletion
+* [#5022](https://github.com/netbox-community/netbox/issues/5022) - Fix exception when editing IP address with NAT inside IP assigned
 
 ---
 

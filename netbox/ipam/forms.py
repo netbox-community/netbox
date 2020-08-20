@@ -616,10 +616,15 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
             elif type(instance.assigned_object) is VMInterface:
                 initial['virtual_machine'] = instance.assigned_object.virtual_machine
                 initial['vminterface'] = instance.assigned_object
-            if instance.nat_inside and instance.nat_inside.device is not None:
-                initial['nat_site'] = instance.nat_inside.device.site
-                initial['nat_rack'] = instance.nat_inside.device.rack
-                initial['nat_device'] = instance.nat_inside.device
+            if instance.nat_inside:
+                nat_inside_parent = instance.nat_inside.assigned_object
+                if type(nat_inside_parent) is Interface:
+                    initial['nat_site'] = nat_inside_parent.device.site.pk
+                    initial['nat_rack'] = nat_inside_parent.device.rack.pk
+                    initial['nat_device'] = nat_inside_parent.device.pk
+                elif type(nat_inside_parent) is VMInterface:
+                    initial['nat_cluster'] = nat_inside_parent.virtual_machine.cluster.pk
+                    initial['nat_virtual_machine'] = nat_inside_parent.virtual_machine.pk
         kwargs['initial'] = initial
 
         super().__init__(*args, **kwargs)
