@@ -71,17 +71,10 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
     content_type = ContentTypeField(
         queryset=ContentType.objects.filter(FeatureQuery('export_templates').get_query()),
     )
-    template_language = ChoiceField(
-        choices=TemplateLanguageChoices,
-        default=TemplateLanguageChoices.LANGUAGE_JINJA2
-    )
 
     class Meta:
         model = ExportTemplate
-        fields = [
-            'id', 'url', 'content_type', 'name', 'description', 'template_language', 'template_code', 'mime_type',
-            'file_extension',
-        ]
+        fields = ['id', 'url', 'content_type', 'name', 'description', 'template_code', 'mime_type', 'file_extension']
 
 
 #

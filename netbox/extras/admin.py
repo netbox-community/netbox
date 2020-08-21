@@ -198,11 +198,6 @@ class ExportTemplateForm(forms.ModelForm):
     class Meta:
         model = ExportTemplate
         exclude = []
-        help_texts = {
-            'template_language': "<strong>Warning:</strong> Support for Django templating will be dropped in NetBox "
-                                 "v2.10. <a href=\"https://jinja.palletsprojects.com\">Jinja2</a> is strongly "
-                                 "recommended."
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -219,7 +214,7 @@ class ExportTemplateAdmin(admin.ModelAdmin):
             'fields': ('content_type', 'name', 'description', 'mime_type', 'file_extension')
         }),
         ('Content', {
-            'fields': ('template_language', 'template_code'),
+            'fields': ('template_code',),
             'classes': ('monospace',)
         })
     )

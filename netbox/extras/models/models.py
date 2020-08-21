@@ -283,11 +283,6 @@ class ExportTemplate(models.Model):
         max_length=200,
         blank=True
     )
-    template_language = models.CharField(
-        max_length=50,
-        choices=TemplateLanguageChoices,
-        default=TemplateLanguageChoices.LANGUAGE_JINJA2
-    )
     template_code = models.TextField(
         help_text='The list of objects being exported is passed as a context variable named <code>queryset</code>.'
     )
@@ -321,16 +316,7 @@ class ExportTemplate(models.Model):
         context = {
             'queryset': queryset
         }
-
-        if self.template_language == TemplateLanguageChoices.LANGUAGE_DJANGO:
-            template = Template(self.template_code)
-            output = template.render(Context(context))
-
-        elif self.template_language == TemplateLanguageChoices.LANGUAGE_JINJA2:
-            output = render_jinja2(self.template_code, context)
-
-        else:
-            return None
+        output = render_jinja2(self.template_code, context)
 
         # Replace CRLF-style line terminators
         output = output.replace('\r\n', '\n')

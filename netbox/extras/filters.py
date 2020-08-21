@@ -101,7 +101,7 @@ class ExportTemplateFilterSet(BaseFilterSet):
 
     class Meta:
         model = ExportTemplate
-        fields = ['id', 'content_type', 'name', 'template_language']
+        fields = ['id', 'content_type', 'name']
 
 
 class TagFilterSet(BaseFilterSet):
