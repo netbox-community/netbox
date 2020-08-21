@@ -132,17 +132,6 @@ if RELEASE_CHECK_URL:
 if RELEASE_CHECK_TIMEOUT < 3600:
     raise ImproperlyConfigured("RELEASE_CHECK_TIMEOUT has to be at least 3600 seconds (1 hour)")
 
-# TODO: Remove in v2.10
-# Backward compatibility for REMOTE_AUTH_DEFAULT_PERMISSIONS
-if type(REMOTE_AUTH_DEFAULT_PERMISSIONS) is not dict:
-    try:
-        REMOTE_AUTH_DEFAULT_PERMISSIONS = {perm: None for perm in REMOTE_AUTH_DEFAULT_PERMISSIONS}
-        warnings.warn(
-            "REMOTE_AUTH_DEFAULT_PERMISSIONS should be a dictionary. Backward compatibility will be removed in v2.10."
-        )
-    except TypeError:
-        raise ImproperlyConfigured("REMOTE_AUTH_DEFAULT_PERMISSIONS must be a dictionary.")
-
 
 #
 # Database
