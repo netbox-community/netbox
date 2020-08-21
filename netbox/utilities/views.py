@@ -1,11 +1,13 @@
 import logging
+import re
 import sys
 from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.contrib.auth.mixins import AccessMixin
+from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
 from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
@@ -14,6 +16,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 from django.utils.decorators import method_decorator
 from django.utils.html import escape
 from django.utils.http import is_safe_url
@@ -26,14 +29,99 @@ from django_tables2 import RequestConfig
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from extras.querysets import CustomFieldQueryset
 from utilities.exceptions import AbortTransaction
-from utilities.forms import BootstrapMixin, CSVDataField, TableConfigForm
+from utilities.forms import BootstrapMixin, BulkRenameForm, CSVDataField, TableConfigForm, restrict_form_fields
+from utilities.permissions import get_permission_for_model, resolve_permission
 from utilities.utils import csv_format, normalize_querydict, prepare_cloned_fields
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm, ImportForm
 from .paginator import EnhancedPaginator, get_paginate_count
 
 
-class GetReturnURLMixin(object):
+#
+# Mixins
+#
+
+class ContentTypePermissionRequiredMixin(AccessMixin):
+    """
+    Similar to Django's built-in PermissionRequiredMixin, but extended to check model-level permission assignments.
+    This is related to ObjectPermissionRequiredMixin, except that is does not enforce object-level permissions,
+    and fits within NetBox's custom permission enforcement system.
+
+    additional_permissions: An optional iterable of statically declared permissions to evaluate in addition to those
+                            derived from the object type
+    """
+    additional_permissions = list()
+
+    def get_required_permission(self):
+        """
+        Return the specific permission necessary to perform the requested action on an object.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__} must implement get_required_permission()")
+
+    def has_permission(self):
+        user = self.request.user
+        permission_required = self.get_required_permission()
+
+        # Check that the user has been granted the required permission(s).
+        if user.has_perms((permission_required, *self.additional_permissions)):
+            return True
+
+        return False
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.has_permission():
+            return self.handle_no_permission()
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ObjectPermissionRequiredMixin(AccessMixin):
+    """
+    Similar to Django's built-in PermissionRequiredMixin, but extended to check for both model-level and object-level
+    permission assignments. If the user has only object-level permissions assigned, the view's queryset is filtered
+    to return only those objects on which the user is permitted to perform the specified action.
+
+    additional_permissions: An optional iterable of statically declared permissions to evaluate in addition to those
+                            derived from the object type
+    """
+    additional_permissions = list()
+
+    def get_required_permission(self):
+        """
+        Return the specific permission necessary to perform the requested action on an object.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__} must implement get_required_permission()")
+
+    def has_permission(self):
+        user = self.request.user
+        permission_required = self.get_required_permission()
+
+        # Check that the user has been granted the required permission(s).
+        if user.has_perms((permission_required, *self.additional_permissions)):
+
+            # Update the view's QuerySet to filter only the permitted objects
+            action = resolve_permission(permission_required)[1]
+            self.queryset = self.queryset.restrict(user, action)
+
+            return True
+
+        return False
+
+    def dispatch(self, request, *args, **kwargs):
+
+        if not hasattr(self, 'queryset'):
+            raise ImproperlyConfigured(
+                '{} has no queryset defined. ObjectPermissionRequiredMixin may only be used on views which define '
+                'a base queryset'.format(self.__class__.__name__)
+            )
+
+        if not self.has_permission():
+            return self.handle_no_permission()
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class GetReturnURLMixin:
     """
     Provides logic for determining where a user should be redirected after processing a form.
     """
@@ -48,18 +136,61 @@ class GetReturnURLMixin(object):
             return query_param
 
         # Next, check if the object being modified (if any) has an absolute URL.
-        elif obj is not None and obj.pk and hasattr(obj, 'get_absolute_url'):
+        if obj is not None and obj.pk and hasattr(obj, 'get_absolute_url'):
             return obj.get_absolute_url()
 
         # Fall back to the default URL (if specified) for the view.
-        elif self.default_return_url is not None:
+        if self.default_return_url is not None:
             return reverse(self.default_return_url)
+
+        # Attempt to dynamically resolve the list view for the object
+        if hasattr(self, 'queryset'):
+            model_opts = self.queryset.model._meta
+            try:
+                return reverse(f'{model_opts.app_label}:{model_opts.model_name}_list')
+            except NoReverseMatch:
+                pass
 
         # If all else fails, return home. Ideally this should never happen.
         return reverse('home')
 
 
-class ObjectListView(View):
+#
+# Generic views
+#
+
+class ObjectView(ObjectPermissionRequiredMixin, View):
+    """
+    Retrieve a single object for display.
+
+    queryset: The base queryset for retrieving the object.
+    """
+    queryset = None
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'view')
+
+    def get_template_name(self):
+        """
+        Return self.template_name if set. Otherwise, resolve the template path by model app_label and name.
+        """
+        if hasattr(self, 'template_name'):
+            return self.template_name
+        model_opts = self.queryset.model._meta
+        return f'{model_opts.app_label}/{model_opts.model_name}.html'
+
+    def get(self, request, pk):
+        """
+        Generic GET handler for accessing an object by PK
+        """
+        instance = get_object_or_404(self.queryset, pk=pk)
+
+        return render(request, self.get_template_name(), {
+            'instance': instance,
+        })
+
+
+class ObjectListView(ObjectPermissionRequiredMixin, View):
     """
     List a series of objects.
 
@@ -75,6 +206,9 @@ class ObjectListView(View):
     table = None
     template_name = 'utilities/obj_list.html'
     action_buttons = ('add', 'import', 'export')
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'view')
 
     def queryset_to_yaml(self):
         """
@@ -162,7 +296,7 @@ class ObjectListView(View):
         # Compile a dictionary indicating which permissions are available to the current user for this model
         permissions = {}
         for action in ('add', 'change', 'delete', 'view'):
-            perm_name = '{}.{}_{}'.format(model._meta.app_label, action, model._meta.model_name)
+            perm_name = get_permission_for_model(model, action)
             permissions[action] = request.user.has_perm(perm_name)
 
         # Construct the table based on the user's permissions
@@ -218,25 +352,31 @@ class ObjectListView(View):
         return {}
 
 
-class ObjectEditView(GetReturnURLMixin, View):
+class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Create or edit a single object.
 
-    model: The model of the object being edited
+    queryset: The base queryset for the object being modified
     model_form: The form used to create or edit the object
     template_name: The name of the template
     """
-    model = None
+    queryset = None
     model_form = None
     template_name = 'utilities/obj_edit.html'
 
+    def get_required_permission(self):
+        # self._permission_action is set by dispatch() to either "add" or "change" depending on whether
+        # we are modifying an existing object or creating a new one.
+        return get_permission_for_model(self.queryset.model, self._permission_action)
+
     def get_object(self, kwargs):
-        # Look up object by slug or PK. Return None if neither was provided.
+        # Look up an existing object by slug or PK, if provided.
         if 'slug' in kwargs:
-            return get_object_or_404(self.model, slug=kwargs['slug'])
+            return get_object_or_404(self.queryset, slug=kwargs['slug'])
         elif 'pk' in kwargs:
-            return get_object_or_404(self.model, pk=kwargs['pk'])
-        return self.model()
+            return get_object_or_404(self.queryset, pk=kwargs['pk'])
+        # Otherwise, return a new instance.
+        return self.queryset.model()
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
         # Allow views to add extra info to an object before it is processed. For example, a parent object can be defined
@@ -244,84 +384,107 @@ class ObjectEditView(GetReturnURLMixin, View):
         return obj
 
     def dispatch(self, request, *args, **kwargs):
-        self.obj = self.alter_obj(self.get_object(kwargs), request, args, kwargs)
+        # Determine required permission based on whether we are editing an existing object
+        self._permission_action = 'change' if kwargs else 'add'
 
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        # Parse initial data manually to avoid setting field values as lists
+        obj = self.alter_obj(self.get_object(kwargs), request, args, kwargs)
+
         initial_data = normalize_querydict(request.GET)
-        form = self.model_form(instance=self.obj, initial=initial_data)
+        form = self.model_form(instance=obj, initial=initial_data)
+        restrict_form_fields(form, request.user)
 
         return render(request, self.template_name, {
-            'obj': self.obj,
-            'obj_type': self.model._meta.verbose_name,
+            'obj': obj,
+            'obj_type': self.queryset.model._meta.verbose_name,
             'form': form,
-            'return_url': self.get_return_url(request, self.obj),
+            'return_url': self.get_return_url(request, obj),
         })
 
     def post(self, request, *args, **kwargs):
         logger = logging.getLogger('netbox.views.ObjectEditView')
-        form = self.model_form(request.POST, request.FILES, instance=self.obj)
+        obj = self.alter_obj(self.get_object(kwargs), request, args, kwargs)
+        form = self.model_form(
+            data=request.POST,
+            files=request.FILES,
+            instance=obj
+        )
+        restrict_form_fields(form, request.user)
 
         if form.is_valid():
             logger.debug("Form validation was successful")
 
-            object_created = form.instance.pk is None
-            obj = form.save()
-            msg = '{} {}'.format(
-                'Created' if object_created else 'Modified',
-                self.model._meta.verbose_name
-            )
-            logger.info(f"{msg} {obj} (PK: {obj.pk})")
-            if hasattr(obj, 'get_absolute_url'):
-                msg = '{} <a href="{}">{}</a>'.format(msg, obj.get_absolute_url(), escape(obj))
-            else:
-                msg = '{} {}'.format(msg, escape(obj))
-            messages.success(request, mark_safe(msg))
+            try:
+                with transaction.atomic():
+                    object_created = form.instance.pk is None
+                    obj = form.save()
 
-            if '_addanother' in request.POST:
+                    # Check that the new object conforms with any assigned object-level permissions
+                    self.queryset.get(pk=obj.pk)
 
-                # If the object has clone_fields, pre-populate a new instance of the form
-                if hasattr(obj, 'clone_fields'):
-                    url = '{}?{}'.format(request.path, prepare_cloned_fields(obj))
-                    return redirect(url)
+                msg = '{} {}'.format(
+                    'Created' if object_created else 'Modified',
+                    self.queryset.model._meta.verbose_name
+                )
+                logger.info(f"{msg} {obj} (PK: {obj.pk})")
+                if hasattr(obj, 'get_absolute_url'):
+                    msg = '{} <a href="{}">{}</a>'.format(msg, obj.get_absolute_url(), escape(obj))
+                else:
+                    msg = '{} {}'.format(msg, escape(obj))
+                messages.success(request, mark_safe(msg))
 
-                return redirect(request.get_full_path())
+                if '_addanother' in request.POST:
 
-            return_url = form.cleaned_data.get('return_url')
-            if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
-                return redirect(return_url)
-            else:
-                return redirect(self.get_return_url(request, obj))
+                    # If the object has clone_fields, pre-populate a new instance of the form
+                    if hasattr(obj, 'clone_fields'):
+                        url = '{}?{}'.format(request.path, prepare_cloned_fields(obj))
+                        return redirect(url)
+
+                    return redirect(request.get_full_path())
+
+                return_url = form.cleaned_data.get('return_url')
+                if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
+                    return redirect(return_url)
+                else:
+                    return redirect(self.get_return_url(request, obj))
+
+            except ObjectDoesNotExist:
+                msg = "Object save failed due to object-level permissions violation"
+                logger.debug(msg)
+                form.add_error(None, msg)
 
         else:
             logger.debug("Form validation failed")
 
         return render(request, self.template_name, {
-            'obj': self.obj,
-            'obj_type': self.model._meta.verbose_name,
+            'obj': obj,
+            'obj_type': self.queryset.model._meta.verbose_name,
             'form': form,
-            'return_url': self.get_return_url(request, self.obj),
+            'return_url': self.get_return_url(request, obj),
         })
 
 
-class ObjectDeleteView(GetReturnURLMixin, View):
+class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Delete a single object.
 
-    model: The model of the object being deleted
+    queryset: The base queryset for the object being deleted
     template_name: The name of the template
     """
-    model = None
+    queryset = None
     template_name = 'utilities/obj_delete.html'
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'delete')
 
     def get_object(self, kwargs):
         # Look up object by slug if one has been provided. Otherwise, use PK.
         if 'slug' in kwargs:
-            return get_object_or_404(self.model, slug=kwargs['slug'])
+            return get_object_or_404(self.queryset, slug=kwargs['slug'])
         else:
-            return get_object_or_404(self.model, pk=kwargs['pk'])
+            return get_object_or_404(self.queryset, pk=kwargs['pk'])
 
     def get(self, request, **kwargs):
         obj = self.get_object(kwargs)
@@ -330,7 +493,7 @@ class ObjectDeleteView(GetReturnURLMixin, View):
         return render(request, self.template_name, {
             'obj': obj,
             'form': form,
-            'obj_type': self.model._meta.verbose_name,
+            'obj_type': self.queryset.model._meta.verbose_name,
             'return_url': self.get_return_url(request, obj),
         })
 
@@ -346,10 +509,10 @@ class ObjectDeleteView(GetReturnURLMixin, View):
                 obj.delete()
             except ProtectedError as e:
                 logger.info("Caught ProtectedError while attempting to delete object")
-                handle_protectederror(obj, request, e)
+                handle_protectederror([obj], request, e)
                 return redirect(obj.get_absolute_url())
 
-            msg = 'Deleted {} {}'.format(self.model._meta.verbose_name, obj)
+            msg = 'Deleted {} {}'.format(self.queryset.model._meta.verbose_name, obj)
             logger.info(msg)
             messages.success(request, msg)
 
@@ -365,24 +528,29 @@ class ObjectDeleteView(GetReturnURLMixin, View):
         return render(request, self.template_name, {
             'obj': obj,
             'form': form,
-            'obj_type': self.model._meta.verbose_name,
+            'obj_type': self.queryset.model._meta.verbose_name,
             'return_url': self.get_return_url(request, obj),
         })
 
 
-class BulkCreateView(GetReturnURLMixin, View):
+class BulkCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Create new objects in bulk.
 
+    queryset: Base queryset for the objects being created
     form: Form class which provides the `pattern` field
     model_form: The ModelForm used to create individual objects
     pattern_target: Name of the field to be evaluated as a pattern (if any)
     template_name: The name of the template
     """
+    queryset = None
     form = None
     model_form = None
     pattern_target = ''
     template_name = None
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'add')
 
     def get(self, request):
         # Set initial values for visible form fields from query args
@@ -403,7 +571,7 @@ class BulkCreateView(GetReturnURLMixin, View):
 
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkCreateView')
-        model = self.model_form._meta.model
+        model = self.queryset.model
         form = self.form(request.POST)
         model_form = self.model_form(request.POST)
 
@@ -436,6 +604,10 @@ class BulkCreateView(GetReturnURLMixin, View):
                             # Raise an IntegrityError to break the for loop and abort the transaction.
                             raise IntegrityError()
 
+                    # Enforce object-level permissions
+                    if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
+                        raise ObjectDoesNotExist
+
                     # If we make it to this point, validation has succeeded on all new objects.
                     msg = "Added {} {}".format(len(new_objs), model._meta.verbose_name_plural)
                     logger.info(msg)
@@ -448,6 +620,11 @@ class BulkCreateView(GetReturnURLMixin, View):
             except IntegrityError:
                 pass
 
+            except ObjectDoesNotExist:
+                msg = "Object creation failed due to object-level permissions violation"
+                logger.debug(msg)
+                form.add_error(None, msg)
+
         else:
             logger.debug("Form validation failed")
 
@@ -459,21 +636,29 @@ class BulkCreateView(GetReturnURLMixin, View):
         })
 
 
-class ObjectImportView(GetReturnURLMixin, View):
+class ObjectImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Import a single object (YAML or JSON format).
+
+    queryset: Base queryset for the objects being created
+    model_form: The ModelForm used to create individual objects
+    related_object_forms: A dictionary mapping of forms to be used for the creation of related (child) objects
+    template_name: The name of the template
     """
-    model = None
+    queryset = None
     model_form = None
     related_object_forms = dict()
     template_name = 'utilities/obj_import.html'
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'add')
 
     def get(self, request):
         form = ImportForm()
 
         return render(request, self.template_name, {
             'form': form,
-            'obj_type': self.model._meta.verbose_name,
+            'obj_type': self.queryset.model._meta.verbose_name,
             'return_url': self.get_return_url(request),
         })
 
@@ -487,6 +672,7 @@ class ObjectImportView(GetReturnURLMixin, View):
             # Initialize model form
             data = form.cleaned_data['data']
             model_form = self.model_form(data)
+            restrict_form_fields(model_form, request.user)
 
             # Assign default values for any fields which were not specified. We have to do this manually because passing
             # 'initial=' to the form on initialization merely sets default values for the widgets. Since widgets are not
@@ -503,12 +689,17 @@ class ObjectImportView(GetReturnURLMixin, View):
 
                         # Save the primary object
                         obj = model_form.save()
+
+                        # Enforce object-level permissions
+                        self.queryset.get(pk=obj.pk)
+
                         logger.debug(f"Created {obj} (PK: {obj.pk})")
 
                         # Iterate through the related object forms (if any), validating and saving each instance.
                         for field_name, related_object_form in self.related_object_forms.items():
                             logger.debug("Processing form for related objects: {related_object_form}")
 
+                            related_obj_pks = []
                             for i, rel_obj_data in enumerate(data.get(field_name, list())):
 
                                 f = related_object_form(obj, rel_obj_data)
@@ -518,7 +709,8 @@ class ObjectImportView(GetReturnURLMixin, View):
                                         f.data[subfield_name] = field.initial
 
                                 if f.is_valid():
-                                    f.save()
+                                    related_obj = f.save()
+                                    related_obj_pks.append(related_obj.pk)
                                 else:
                                     # Replicate errors on the related object form to the primary form for display
                                     for subfield_name, errors in f.errors.items():
@@ -527,8 +719,18 @@ class ObjectImportView(GetReturnURLMixin, View):
                                             model_form.add_error(None, err_msg)
                                     raise AbortTransaction()
 
+                            # Enforce object-level permissions on related objects
+                            model = related_object_form.Meta.model
+                            if model.objects.filter(pk__in=related_obj_pks).count() != len(related_obj_pks):
+                                raise ObjectDoesNotExist
+
                 except AbortTransaction:
                     pass
+
+                except ObjectDoesNotExist:
+                    msg = "Object creation failed due to object-level permissions violation"
+                    logger.debug(msg)
+                    form.add_error(None, msg)
 
             if not model_form.errors:
                 logger.info(f"Import object {obj} (PK: {obj.pk})")
@@ -561,20 +763,22 @@ class ObjectImportView(GetReturnURLMixin, View):
 
         return render(request, self.template_name, {
             'form': form,
-            'obj_type': self.model._meta.verbose_name,
+            'obj_type': self.queryset.model._meta.verbose_name,
             'return_url': self.get_return_url(request),
         })
 
 
-class BulkImportView(GetReturnURLMixin, View):
+class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Import objects in bulk (CSV format).
 
+    queryset: Base queryset for the model
     model_form: The form used to create each imported object
     table: The django-tables2 Table used to render the list of imported objects
     template_name: The name of the template
     widget_attrs: A dict of attributes to apply to the import widget (e.g. to require a session key)
     """
+    queryset = None
     model_form = None
     table = None
     template_name = 'utilities/obj_bulk_import.html'
@@ -595,6 +799,9 @@ class BulkImportView(GetReturnURLMixin, View):
         Provide a hook to modify the object immediately before saving it (e.g. to encrypt secret data).
         """
         return obj_form.save()
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'add')
 
     def get(self, request):
 
@@ -619,6 +826,7 @@ class BulkImportView(GetReturnURLMixin, View):
                     headers, records = form.cleaned_data['csv']
                     for row, data in enumerate(records, start=1):
                         obj_form = self.model_form(data, headers=headers)
+                        restrict_form_fields(obj_form, request.user)
 
                         if obj_form.is_valid():
                             obj = self._save_obj(obj_form, request)
@@ -627,6 +835,10 @@ class BulkImportView(GetReturnURLMixin, View):
                             for field, err in obj_form.errors.items():
                                 form.add_error('csv', "Row {} {}: {}".format(row, field, err[0]))
                             raise ValidationError("")
+
+                    # Enforce object-level permissions
+                    if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
+                        raise ObjectDoesNotExist
 
                 # Compile a table containing the imported objects
                 obj_table = self.table(new_objs)
@@ -644,6 +856,11 @@ class BulkImportView(GetReturnURLMixin, View):
             except ValidationError:
                 pass
 
+            except ObjectDoesNotExist:
+                msg = "Object import failed due to object-level permissions violation"
+                logger.debug(msg)
+                form.add_error(None, msg)
+
         else:
             logger.debug("Form validation failed")
 
@@ -655,7 +872,7 @@ class BulkImportView(GetReturnURLMixin, View):
         })
 
 
-class BulkEditView(GetReturnURLMixin, View):
+class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Edit objects in bulk.
 
@@ -671,6 +888,9 @@ class BulkEditView(GetReturnURLMixin, View):
     form = None
     template_name = 'utilities/obj_bulk_edit.html'
 
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'change')
+
     def get(self, request):
         return redirect(self.get_return_url(request))
 
@@ -681,13 +901,14 @@ class BulkEditView(GetReturnURLMixin, View):
         # If we are editing *all* objects in the queryset, replace the PK list with all matched objects.
         if request.POST.get('_all') and self.filterset is not None:
             pk_list = [
-                obj.pk for obj in self.filterset(request.GET, model.objects.only('pk')).qs
+                obj.pk for obj in self.filterset(request.GET, self.queryset.only('pk')).qs
             ]
         else:
             pk_list = request.POST.getlist('pk')
 
         if '_apply' in request.POST:
             form = self.form(model, request.POST)
+            restrict_form_fields(form, request.user)
 
             if form.is_valid():
                 logger.debug("Form validation was successful")
@@ -701,8 +922,8 @@ class BulkEditView(GetReturnURLMixin, View):
 
                     with transaction.atomic():
 
-                        updated_count = 0
-                        for obj in model.objects.filter(pk__in=form.cleaned_data['pk']):
+                        updated_objects = []
+                        for obj in self.queryset.filter(pk__in=form.cleaned_data['pk']):
 
                             # Update standard fields. If a field is listed in _nullify, delete its value.
                             for name in standard_fields:
@@ -728,8 +949,15 @@ class BulkEditView(GetReturnURLMixin, View):
                                 elif form.cleaned_data[name] not in (None, ''):
                                     setattr(obj, name, form.cleaned_data[name])
 
+                            # Cache custom fields on instance prior to save()
+                            if custom_fields:
+                                obj._cf = {
+                                    name: form.cleaned_data[name] for name in custom_fields
+                                }
+
                             obj.full_clean()
                             obj.save()
+                            updated_objects.append(obj)
                             logger.debug(f"Saved {obj} (PK: {obj.pk})")
 
                             # Update custom fields
@@ -759,10 +987,12 @@ class BulkEditView(GetReturnURLMixin, View):
                             if form.cleaned_data.get('remove_tags', None):
                                 obj.tags.remove(*form.cleaned_data['remove_tags'])
 
-                            updated_count += 1
+                        # Enforce object-level permissions
+                        if self.queryset.filter(pk__in=[obj.pk for obj in updated_objects]).count() != len(updated_objects):
+                            raise ObjectDoesNotExist
 
-                    if updated_count:
-                        msg = 'Updated {} {}'.format(updated_count, model._meta.verbose_name_plural)
+                    if updated_objects:
+                        msg = 'Updated {} {}'.format(len(updated_objects), model._meta.verbose_name_plural)
                         logger.info(msg)
                         messages.success(self.request, msg)
 
@@ -770,6 +1000,11 @@ class BulkEditView(GetReturnURLMixin, View):
 
                 except ValidationError as e:
                     messages.error(self.request, "{} failed validation: {}".format(obj, e))
+
+                except ObjectDoesNotExist:
+                    msg = "Object update failed due to object-level permissions violation"
+                    logger.debug(msg)
+                    form.add_error(None, msg)
 
             else:
                 logger.debug("Form validation failed")
@@ -787,6 +1022,7 @@ class BulkEditView(GetReturnURLMixin, View):
                 initial_data['device_type'] = request.GET.get('device_type')
 
             form = self.form(model, initial=initial_data)
+            restrict_form_fields(form, request.user)
 
         # Retrieve objects being edited
         table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
@@ -802,7 +1038,85 @@ class BulkEditView(GetReturnURLMixin, View):
         })
 
 
-class BulkDeleteView(GetReturnURLMixin, View):
+class BulkRenameView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
+    """
+    An extendable view for renaming objects in bulk.
+    """
+    queryset = None
+    template_name = 'utilities/obj_bulk_rename.html'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Create a new Form class from BulkRenameForm
+        class _Form(BulkRenameForm):
+            pk = ModelMultipleChoiceField(
+                queryset=self.queryset,
+                widget=MultipleHiddenInput()
+            )
+
+        self.form = _Form
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'change')
+
+    def post(self, request):
+        logger = logging.getLogger('netbox.views.BulkRenameView')
+
+        if '_preview' in request.POST or '_apply' in request.POST:
+            form = self.form(request.POST, initial={'pk': request.POST.getlist('pk')})
+            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
+
+            if form.is_valid():
+                try:
+                    with transaction.atomic():
+                        renamed_pks = []
+                        for obj in selected_objects:
+                            find = form.cleaned_data['find']
+                            replace = form.cleaned_data['replace']
+                            if form.cleaned_data['use_regex']:
+                                try:
+                                    obj.new_name = re.sub(find, replace, obj.name)
+                                # Catch regex group reference errors
+                                except re.error:
+                                    obj.new_name = obj.name
+                            else:
+                                obj.new_name = obj.name.replace(find, replace)
+                            renamed_pks.append(obj.pk)
+
+                        if '_apply' in request.POST:
+                            for obj in selected_objects:
+                                obj.name = obj.new_name
+                                obj.save()
+
+                            # Enforce constrained permissions
+                            if self.queryset.filter(pk__in=renamed_pks).count() != len(selected_objects):
+                                raise ObjectDoesNotExist
+
+                            messages.success(request, "Renamed {} {}".format(
+                                len(selected_objects),
+                                self.queryset.model._meta.verbose_name_plural
+                            ))
+                            return redirect(self.get_return_url(request))
+
+                except ObjectDoesNotExist:
+                    msg = "Object update failed due to object-level permissions violation"
+                    logger.debug(msg)
+                    form.add_error(None, msg)
+
+        else:
+            form = self.form(initial={'pk': request.POST.getlist('pk')})
+            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
+
+        return render(request, self.template_name, {
+            'form': form,
+            'obj_type_plural': self.queryset.model._meta.verbose_name_plural,
+            'selected_objects': selected_objects,
+            'return_url': self.get_return_url(request),
+        })
+
+
+class BulkDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Delete objects in bulk.
 
@@ -817,6 +1131,9 @@ class BulkDeleteView(GetReturnURLMixin, View):
     table = None
     form = None
     template_name = 'utilities/obj_bulk_delete.html'
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'delete')
 
     def get(self, request):
         return redirect(self.get_return_url(request))
@@ -842,12 +1159,12 @@ class BulkDeleteView(GetReturnURLMixin, View):
                 logger.debug("Form validation was successful")
 
                 # Delete objects
-                queryset = model.objects.filter(pk__in=pk_list)
+                queryset = self.queryset.filter(pk__in=pk_list)
                 try:
                     deleted_count = queryset.delete()[1][model._meta.label]
                 except ProtectedError as e:
                     logger.info("Caught ProtectedError while attempting to delete objects")
-                    handle_protectederror(list(queryset), request, e)
+                    handle_protectederror(queryset, request, e)
                     return redirect(self.get_return_url(request))
 
                 msg = 'Deleted {} {}'.format(deleted_count, model._meta.verbose_name_plural)
@@ -895,37 +1212,44 @@ class BulkDeleteView(GetReturnURLMixin, View):
 #
 
 # TODO: Replace with BulkCreateView
-class ComponentCreateView(GetReturnURLMixin, View):
+class ComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a Device or VirtualMachine.
     """
-    model = None
+    queryset = None
     form = None
     model_form = None
     template_name = None
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, 'add')
 
     def get(self, request):
 
         form = self.form(initial=request.GET)
 
         return render(request, self.template_name, {
-            'component_type': self.model._meta.verbose_name,
+            'component_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request),
         })
 
     def post(self, request):
-
+        logger = logging.getLogger('netbox.views.ComponentCreateView')
         form = self.form(request.POST, initial=request.GET)
+
         if form.is_valid():
 
             new_components = []
             data = deepcopy(request.POST)
 
-            for i, name in enumerate(form.cleaned_data['name_pattern']):
-
+            names = form.cleaned_data['name_pattern']
+            labels = form.cleaned_data.get('label_pattern')
+            for i, name in enumerate(names):
+                label = labels[i] if labels else None
                 # Initialize the individual component form
                 data['name'] = name
+                data['label'] = label
                 if hasattr(form, 'get_iterative_data'):
                     data.update(form.get_iterative_data(i))
                 component_form = self.model_form(data)
@@ -934,54 +1258,70 @@ class ComponentCreateView(GetReturnURLMixin, View):
                     new_components.append(component_form)
                 else:
                     for field, errors in component_form.errors.as_data().items():
-                        # Assign errors on the child form's name field to name_pattern on the parent form
+                        # Assign errors on the child form's name/label field to name_pattern/label_pattern on the parent form
                         if field == 'name':
                             field = 'name_pattern'
+                        elif field == 'label':
+                            field = 'label_pattern'
                         for e in errors:
                             form.add_error(field, '{}: {}'.format(name, ', '.join(e)))
 
             if not form.errors:
 
-                # Create the new components
-                for component_form in new_components:
-                    component_form.save()
+                try:
 
-                messages.success(request, "Added {} {}".format(
-                    len(new_components), self.model._meta.verbose_name_plural
-                ))
-                if '_addanother' in request.POST:
-                    return redirect(request.get_full_path())
-                elif 'device_type' in form.cleaned_data:
-                    return redirect(form.cleaned_data['device_type'].get_absolute_url())
-                elif 'device' in form.cleaned_data:
-                    return redirect(form.cleaned_data['device'].get_absolute_url())
-                else:
-                    return redirect(self.get_return_url(request))
+                    with transaction.atomic():
+
+                        # Create the new components
+                        new_objs = []
+                        for component_form in new_components:
+                            obj = component_form.save()
+                            new_objs.append(obj)
+
+                        # Enforce object-level permissions
+                        if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
+                            raise ObjectDoesNotExist
+
+                    messages.success(request, "Added {} {}".format(
+                        len(new_components), self.queryset.model._meta.verbose_name_plural
+                    ))
+                    if '_addanother' in request.POST:
+                        return redirect(request.get_full_path())
+                    else:
+                        return redirect(self.get_return_url(request))
+
+                except ObjectDoesNotExist:
+                    msg = "Component creation failed due to object-level permissions violation"
+                    logger.debug(msg)
+                    form.add_error(None, msg)
 
         return render(request, self.template_name, {
-            'component_type': self.model._meta.verbose_name,
+            'component_type': self.queryset.model._meta.verbose_name,
             'form': form,
             'return_url': self.get_return_url(request),
         })
 
 
-class BulkComponentCreateView(GetReturnURLMixin, View):
+class BulkComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a set of Devices or VirtualMachines.
     """
     parent_model = None
     parent_field = None
     form = None
-    model = None
+    queryset = None
     model_form = None
     filterset = None
     table = None
     template_name = 'utilities/obj_bulk_add_component.html'
 
+    def get_required_permission(self):
+        return f'dcim.add_{self.queryset.model._meta.model_name}'
+
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkComponentCreateView')
         parent_model_name = self.parent_model._meta.verbose_name_plural
-        model_name = self.model._meta.verbose_name_plural
+        model_name = self.queryset.model._meta.verbose_name_plural
 
         # Are we editing *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all') and self.filterset is not None:
@@ -1010,10 +1350,14 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
                         for obj in data['pk']:
 
                             names = data['name_pattern']
-                            for name in names:
+                            labels = data['label_pattern']
+                            for i, name in enumerate(names):
+                                label = labels[i] if labels else None
+
                                 component_data = {
                                     self.parent_field: obj.pk,
                                     'name': name,
+                                    'label': label
                                 }
                                 component_data.update(data)
                                 component_form = self.model_form(component_data)
@@ -1026,8 +1370,17 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
                                         for e in errors:
                                             form.add_error(field, '{} {}: {}'.format(obj, name, ', '.join(e)))
 
+                        # Enforce object-level permissions
+                        if self.queryset.filter(pk__in=[obj.pk for obj in new_components]).count() != len(new_components):
+                            raise ObjectDoesNotExist
+
                 except IntegrityError:
                     pass
+
+                except ObjectDoesNotExist:
+                    msg = "Component creation failed due to object-level permissions violation"
+                    logger.debug(msg)
+                    form.add_error(None, msg)
 
                 if not form.errors:
                     msg = "Added {} {} to {} {}.".format(

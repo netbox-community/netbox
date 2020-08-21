@@ -42,3 +42,25 @@ ADVISORY_LOCK_KEYS = {
     'available-prefixes': 100100,
     'available-ips': 100200,
 }
+
+#
+# HTTP Request META safe copy
+#
+
+HTTP_REQUEST_META_SAFE_COPY = [
+    'CONTENT_LENGTH',
+    'CONTENT_TYPE',
+    'HTTP_ACCEPT',
+    'HTTP_ACCEPT_ENCODING',
+    'HTTP_ACCEPT_LANGUAGE',
+    'HTTP_HOST',
+    'HTTP_REFERER',
+    'HTTP_USER_AGENT',
+    'QUERY_STRING',
+    'REMOTE_ADDR',
+    'REMOTE_HOST',
+    'REMOTE_USER',
+    'REQUEST_METHOD',
+    'SERVER_NAME',
+    'SERVER_PORT',
+]

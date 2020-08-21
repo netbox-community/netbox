@@ -2,8 +2,7 @@ from django import forms
 from django.contrib import admin
 
 from utilities.forms import LaxURLField
-from .models import CustomField, CustomFieldChoice, CustomLink, Graph, ExportTemplate, ReportResult, Webhook
-from .reports import get_report
+from .models import CustomField, CustomFieldChoice, CustomLink, Graph, ExportTemplate, JobResult, Webhook
 
 
 def order_content_types(field):
@@ -160,6 +159,10 @@ class GraphForm(forms.ModelForm):
     class Meta:
         model = Graph
         exclude = ()
+        help_texts = {
+            'template_language': "<a href=\"https://jinja.palletsprojects.com\">Jinja2</a> is strongly recommended for "
+                                 "new graphs."
+        }
         widgets = {
             'source': forms.Textarea,
             'link': forms.Textarea,
@@ -195,6 +198,11 @@ class ExportTemplateForm(forms.ModelForm):
     class Meta:
         model = ExportTemplate
         exclude = []
+        help_texts = {
+            'template_language': "<strong>Warning:</strong> Support for Django templating will be dropped in NetBox "
+                                 "v2.10. <a href=\"https://jinja.palletsprojects.com\">Jinja2</a> is strongly "
+                                 "recommended."
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -228,27 +236,18 @@ class ExportTemplateAdmin(admin.ModelAdmin):
 # Reports
 #
 
-@admin.register(ReportResult)
-class ReportResultAdmin(admin.ModelAdmin):
+@admin.register(JobResult)
+class JobResultAdmin(admin.ModelAdmin):
     list_display = [
-        'report', 'active', 'created', 'user', 'passing',
+        'obj_type', 'name', 'created', 'completed', 'user', 'status',
     ]
     fields = [
-        'report', 'user', 'passing', 'data',
+        'obj_type', 'name', 'created', 'completed', 'user', 'status', 'data', 'job_id'
     ]
     list_filter = [
-        'failed',
+        'status',
     ]
     readonly_fields = fields
 
     def has_add_permission(self, request):
         return False
-
-    def active(self, obj):
-        module, report_name = obj.report.split('.')
-        return True if get_report(module, report_name) else False
-    active.boolean = True
-
-    def passing(self, obj):
-        return not obj.failed
-    passing.boolean = True

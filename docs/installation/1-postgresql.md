@@ -3,7 +3,7 @@
 This section entails the installation and configuration of a local PostgreSQL database. If you already have a PostgreSQL database service in place, skip to [the next section](2-redis.md).
 
 !!! warning
-    NetBox requires PostgreSQL 9.6 or higher. Please note that MySQL and other relational databases are **not** supported.
+    NetBox requires PostgreSQL 9.6 or higher. Please note that MySQL and other relational databases are **not** currently supported.
 
 The installation instructions provided here have been tested to work on Ubuntu 18.04 and CentOS 7.5. The particular commands needed to install dependencies on other distributions may vary significantly. Unfortunately, this is outside the control of the NetBox maintainers. Please consult your distribution's documentation for assistance with any errors.
 
@@ -20,7 +20,7 @@ If a recent enough version of PostgreSQL is not available through your distribut
 
 #### CentOS
 
-CentOS 7.5 does not ship with a recent enough version of PostgreSQL, so it will need to be installed from an external repository. The instructions below show the installation of PostgreSQL 9.6, however you may opt to install a more recent version.
+CentOS 7 does not ship with a recent enough version of PostgreSQL, so it will need to be installed from an external repository. The instructions below show the installation of PostgreSQL 9.6, however you may opt to install a more recent version.
 
 ```no-highlight
 # yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
@@ -47,11 +47,11 @@ Then, start the service and enable it to run at boot:
 At a minimum, we need to create a database for NetBox and assign it a username and password for authentication. This is done with the following commands.
 
 !!! danger
-    DO NOT USE THE PASSWORD FROM THE EXAMPLE.
+    **Do not use the password from the example.** Choose a strong, random password to ensure secure database authentication for your NetBox installation.
 
 ```no-highlight
 # sudo -u postgres psql
-psql (10.10)
+psql (10.12 (Ubuntu 10.12-0ubuntu0.18.04.1))
 Type "help" for help.
 
 postgres=# CREATE DATABASE netbox;
@@ -68,7 +68,13 @@ postgres=# \q
 You can verify that authentication works issuing the following command and providing the configured password. (Replace `localhost` with your database server if using a remote database.)
 
 ```no-highlight
-# psql -U netbox -W -h localhost netbox
+# psql --username netbox --password --host localhost netbox
+Password for user netbox: 
+psql (10.12 (Ubuntu 10.12-0ubuntu0.18.04.1))
+SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, bits: 256, compression: off)
+Type "help" for help.
+
+netbox=> \q
 ```
 
 If successful, you will enter a `netbox` prompt. Type `\q` to exit.

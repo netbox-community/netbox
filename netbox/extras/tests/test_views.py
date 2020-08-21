@@ -10,12 +10,8 @@ from extras.models import ConfigContext, ObjectChange, Tag
 from utilities.testing import ViewTestCases, TestCase
 
 
-class TagTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Tag
-
-    # Disable inapplicable tests
-    test_create_object = None
-    test_import_objects = None
 
     @classmethod
     def setUpTestData(cls):
@@ -33,20 +29,29 @@ class TagTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'comments': 'Some comments',
         }
 
+        cls.csv_data = (
+            "name,slug,color,description",
+            "Tag 4,tag-4,ff0000,Fourth tag",
+            "Tag 5,tag-5,00ff00,Fifth tag",
+            "Tag 6,tag-6,0000ff,Sixth tag",
+        )
+
         cls.bulk_edit_data = {
             'color': '00ff00',
         }
 
 
-class ConfigContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+# TODO: Change base class to PrimaryObjectViewTestCase
+# Blocked by absence of standard create/edit, bulk create views
+class ConfigContextTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
     model = ConfigContext
-
-    # Disable inapplicable tests
-    test_import_objects = None
-
-    # TODO: Resolve model discrepancies when creating/editing ConfigContexts
-    test_create_object = None
-    test_edit_object = None
 
     @classmethod
     def setUpTestData(cls):
@@ -108,7 +113,7 @@ class ObjectChangeTestCase(TestCase):
 
         url = reverse('extras:objectchange_list')
         params = {
-            "user": User.objects.first(),
+            "user": User.objects.first().pk,
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))

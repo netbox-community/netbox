@@ -21,6 +21,7 @@
     <div class="panel panel-default">
         <div class="panel-heading"><strong>Location</strong></div>
         <div class="panel-body">
+            {% render_field form.region %}
             {% render_field form.site %}
             {% render_field form.rack %}
             {% if obj.device_type.is_child_device and obj.parent_bay %}

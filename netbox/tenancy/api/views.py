@@ -1,3 +1,5 @@
+from rest_framework.routers import APIRootView
+
 from circuits.models import Circuit
 from dcim.models import Device, Rack, Site
 from extras.api.views import CustomFieldModelViewSet
@@ -10,13 +12,25 @@ from virtualization.models import VirtualMachine
 from . import serializers
 
 
+class TenancyRootView(APIRootView):
+    """
+    Tenancy API root view
+    """
+    def get_view_name(self):
+        return 'Tenancy'
+
+
 #
 # Tenant Groups
 #
 
 class TenantGroupViewSet(ModelViewSet):
-    queryset = TenantGroup.objects.annotate(
-        tenant_count=get_subquery(Tenant, 'group')
+    queryset = TenantGroup.objects.add_related_count(
+        TenantGroup.objects.all(),
+        Tenant,
+        'group',
+        'tenant_count',
+        cumulative=True
     )
     serializer_class = serializers.TenantGroupSerializer
     filterset_class = filters.TenantGroupFilterSet

@@ -1,10 +1,10 @@
 from django.test import TestCase
 
-from dcim.models import DeviceRole, Interface, Platform, Region, Site
+from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from virtualization.choices import *
 from virtualization.filters import *
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 
 class ClusterTypeTestCase(TestCase):
@@ -260,11 +260,11 @@ class VirtualMachineTestCase(TestCase):
         VirtualMachine.objects.bulk_create(vms)
 
         interfaces = (
-            Interface(virtual_machine=vms[0], name='Interface 1', mac_address='00-00-00-00-00-01'),
-            Interface(virtual_machine=vms[1], name='Interface 2', mac_address='00-00-00-00-00-02'),
-            Interface(virtual_machine=vms[2], name='Interface 3', mac_address='00-00-00-00-00-03'),
+            VMInterface(virtual_machine=vms[0], name='Interface 1', mac_address='00-00-00-00-00-01'),
+            VMInterface(virtual_machine=vms[1], name='Interface 2', mac_address='00-00-00-00-00-02'),
+            VMInterface(virtual_machine=vms[2], name='Interface 3', mac_address='00-00-00-00-00-03'),
         )
-        Interface.objects.bulk_create(interfaces)
+        VMInterface.objects.bulk_create(interfaces)
 
     def test_id(self):
         params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
@@ -365,9 +365,9 @@ class VirtualMachineTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class InterfaceTestCase(TestCase):
-    queryset = Interface.objects.all()
-    filterset = InterfaceFilterSet
+class VMInterfaceTestCase(TestCase):
+    queryset = VMInterface.objects.all()
+    filterset = VMInterfaceFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -394,11 +394,11 @@ class InterfaceTestCase(TestCase):
         VirtualMachine.objects.bulk_create(vms)
 
         interfaces = (
-            Interface(virtual_machine=vms[0], name='Interface 1', enabled=True, mtu=100, mac_address='00-00-00-00-00-01'),
-            Interface(virtual_machine=vms[1], name='Interface 2', enabled=True, mtu=200, mac_address='00-00-00-00-00-02'),
-            Interface(virtual_machine=vms[2], name='Interface 3', enabled=False, mtu=300, mac_address='00-00-00-00-00-03'),
+            VMInterface(virtual_machine=vms[0], name='Interface 1', enabled=True, mtu=100, mac_address='00-00-00-00-00-01'),
+            VMInterface(virtual_machine=vms[1], name='Interface 2', enabled=True, mtu=200, mac_address='00-00-00-00-00-02'),
+            VMInterface(virtual_machine=vms[2], name='Interface 3', enabled=False, mtu=300, mac_address='00-00-00-00-00-03'),
         )
-        Interface.objects.bulk_create(interfaces)
+        VMInterface.objects.bulk_create(interfaces)
 
     def test_id(self):
         id_list = self.queryset.values_list('id', flat=True)[:2]

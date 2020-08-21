@@ -14,10 +14,11 @@ class RackElevationSVG:
     Use this class to render a rack elevation as an SVG image.
 
     :param rack: A NetBox Rack instance
+    :param user: User instance. If specified, only devices viewable by this user will be fully displayed.
     :param include_images: If true, the SVG document will embed front/rear device face images, where available
     :param base_url: Base URL for links within the SVG document. If none, links will be relative.
     """
-    def __init__(self, rack, include_images=True, base_url=None):
+    def __init__(self, rack, user=None, include_images=True, base_url=None):
         self.rack = rack
         self.include_images = include_images
         if base_url is not None:
@@ -25,7 +26,14 @@ class RackElevationSVG:
         else:
             self.base_url = ''
 
-    def _get_device_description(self, device):
+        # Determine the subset of devices within this rack that are viewable by the user, if any
+        permitted_devices = self.rack.devices
+        if user is not None:
+            permitted_devices = permitted_devices.restrict(user, 'view')
+        self.permitted_device_ids = permitted_devices.values_list('pk', flat=True)
+
+    @staticmethod
+    def _get_device_description(device):
         return '{} ({}) — {} ({}U) {} {}'.format(
             device.name,
             device.device_role,
@@ -174,10 +182,13 @@ class RackElevationSVG:
             text_cordinates = (x_offset + (unit_width / 2), y_offset + end_y / 2)
 
             # Draw the device
-            if device and device.face == face:
+            if device and device.face == face and device.pk in self.permitted_device_ids:
                 self._draw_device_front(drawing, device, start_cordinates, end_cordinates, text_cordinates)
-            elif device and device.device_type.is_full_depth:
+            elif device and device.device_type.is_full_depth and device.pk in self.permitted_device_ids:
                 self._draw_device_rear(drawing, device, start_cordinates, end_cordinates, text_cordinates)
+            elif device:
+                # Devices which the user does not have permission to view are rendered only as unavailable space
+                drawing.add(drawing.rect(start_cordinates, end_cordinates, class_='blocked'))
             else:
                 # Draw shallow devices, reservations, or empty units
                 class_ = 'slot'

@@ -75,16 +75,24 @@ def meta(obj, attr):
 
 
 @register.filter()
-def url_name(model, action):
+def viewname(model, action):
     """
-    Return the URL name for the given model and action, or None if invalid.
+    Return the view name for the given model and action. Does not perform any validation.
     """
-    url_name = '{}:{}_{}'.format(model._meta.app_label, model._meta.model_name, action)
+    return f'{model._meta.app_label}:{model._meta.model_name}_{action}'
+
+
+@register.filter()
+def validated_viewname(model, action):
+    """
+    Return the view name for the given model and action if valid, or None if invalid.
+    """
+    viewname = f'{model._meta.app_label}:{model._meta.model_name}_{action}'
     try:
-        # Validate and return the URL name. We don't return the actual URL yet because many of the templates
+        # Validate and return the view name. We don't return the actual URL yet because many of the templates
         # are written to pass a name to {% url %}.
-        reverse(url_name)
-        return url_name
+        reverse(viewname)
+        return viewname
     except NoReverseMatch:
         return None
 
@@ -191,6 +199,14 @@ def has_perms(user, permissions_list):
     return user.has_perms(permissions_list)
 
 
+@register.filter()
+def split(string, sep=','):
+    """
+    Split a string by the given value (default: comma)
+    """
+    return string.split(sep)
+
+
 #
 # Tags
 #
@@ -233,4 +249,15 @@ def tag(tag, url_name=None):
     return {
         'tag': tag,
         'url_name': url_name,
+    }
+
+
+@register.inclusion_tag('utilities/templatetags/badge.html')
+def badge(value, show_empty=False):
+    """
+    Display the specified number as a badge.
+    """
+    return {
+        'value': value,
+        'show_empty': show_empty,
     }

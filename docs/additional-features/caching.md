@@ -1,21 +1,25 @@
 # Caching
 
-To improve performance, NetBox supports caching for most object and list views. Caching is implemented using Redis,
-and [django-cacheops](https://github.com/Suor/django-cacheops)
+NetBox supports database query caching using [django-cacheops](https://github.com/Suor/django-cacheops) and Redis. When a query is made, the results are cached in Redis for a short period of time, as defined by the [CACHE_TIMEOUT](../../configuration/optional-settings/#cache_timeout) parameter (15 minutes by default). Within that time, all recurrences of that specific query will return the pre-fetched results from the cache.
 
-Several management commands are avaliable for administrators to manually invalidate cache entries in extenuating circumstances.
+If a change is made to any of the objects returned by the query within that time, or if the timeout expires, the results are automatically invalidated and the next request for those results will be sent to the database.
 
-To invalidate a specifc model instance (for example a Device with ID 34):
-```
-python netbox/manage.py invalidate dcim.Device.34
-```
+## Invalidating Cached Data
 
-To invalidate all instance of a model:
-```
-python netbox/manage.py invalidate dcim.Device
+Although caching is performed automatically and rarely requires administrative intervention, NetBox provides the `invalidate` management command to force invalidation of cached results. This command can reference a specific object my its type and numeric ID:
+
+```no-highlight
+$ python netbox/manage.py invalidate dcim.Device.34
 ```
 
-To flush the entire cache database:
+Alternatively, it can also delete all cached results for an object type:
+
+```no-highlight
+$ python netbox/manage.py invalidate dcim.Device
 ```
-python netbox/manage.py invalidate all
+
+Finally, calling it with the `all` argument will force invalidation of the entire cache database:
+
+```no-highlight
+$ python netbox/manage.py invalidate all
 ```

@@ -4,11 +4,11 @@ from collections import OrderedDict
 
 from django.core.serializers import serialize
 from django.db.models import Count, OuterRef, Subquery
-from django.http import QueryDict
 from jinja2 import Environment
 
 from dcim.choices import CableLengthUnitChoices
 from extras.utils import is_taggable
+from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 
 
 def csv_format(data):
@@ -97,9 +97,10 @@ def serialize_object(obj, extra=None, exclude=None):
             field: str(value) for field, value in obj.cf.items()
         }
 
-    # Include any tags
+    # Include any tags. Check for tags cached on the instance; fall back to using the manager.
     if is_taggable(obj):
-        data['tags'] = [tag.name for tag in obj.tags.all()]
+        tags = getattr(obj, '_tags', obj.tags.all())
+        data['tags'] = [tag.name for tag in tags]
 
     # Append any extra data
     if extra is not None:
@@ -218,7 +219,7 @@ def prepare_cloned_fields(instance):
     Compile an object's `clone_fields` list into a string of URL query parameters. Tags are automatically cloned where
     applicable.
     """
-    params = {}
+    params = []
     for field_name in getattr(instance, 'clone_fields', []):
         field = instance._meta.get_field(field_name)
         field_value = field.value_from_object(instance)
@@ -229,16 +230,15 @@ def prepare_cloned_fields(instance):
 
         # Omit empty values
         if field_value not in (None, ''):
-            params[field_name] = field_value
+            params.append((field_name, field_value))
 
     # Copy tags
     if is_taggable(instance):
-        params['tags'] = ','.join([t.name for t in instance.tags.all()])
+        for tag in instance.tags.all():
+            params.append(('tags', tag.pk))
 
     # Concatenate parameters into a URL query string
-    param_string = '&'.join(
-        ['{}={}'.format(k, v) for k, v in params.items()]
-    )
+    param_string = '&'.join([f'{k}={v}' for k, v in params])
 
     return param_string
 
@@ -275,3 +275,44 @@ def flatten_dict(d, prefix='', separator='.'):
         else:
             ret[key] = v
     return ret
+
+
+# Taken from django.utils.functional (<3.0)
+def curry(_curried_func, *args, **kwargs):
+    def _curried(*moreargs, **morekwargs):
+        return _curried_func(*args, *moreargs, **{**kwargs, **morekwargs})
+    return _curried
+
+
+#
+# Fake request object
+#
+
+class NetBoxFakeRequest:
+    """
+    A fake request object which is explicitly defined at the module level so it is able to be pickled. It simply
+    takes what is passed to it as kwargs on init and sets them as instance variables.
+    """
+    def __init__(self, _dict):
+        self.__dict__ = _dict
+
+
+def copy_safe_request(request):
+    """
+    Copy selected attributes from a request object into a new fake request object. This is needed in places where
+    thread safe pickling of the useful request data is needed.
+    """
+    meta = {
+        k: request.META[k]
+        for k in HTTP_REQUEST_META_SAFE_COPY
+        if k in request.META and isinstance(request.META[k], str)
+    }
+    return NetBoxFakeRequest({
+        'META': meta,
+        'POST': request.POST,
+        'GET': request.GET,
+        'FILES': request.FILES,
+        'user': request.user,
+        'path': request.path,
+        'id': getattr(request, 'id', None),  # UUID assigned by middleware
+    })

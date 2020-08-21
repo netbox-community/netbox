@@ -1,0 +1,70 @@
+{% extends 'dcim/device_component.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Device Bay</strong>
+                </div>
+                <table class="table table-hover panel-body attr-table">
+                    <tr>
+                        <td>Device</td>
+                        <td>
+                            <a href="{{ instance.device.get_absolute_url }}">{{ instance.device }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td>{{ instance.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Label</td>
+                        <td>{{ instance.label|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>{{ instance.description|placeholder }}</td>
+                    </tr>
+                </table>
+            </div>
+            {% include 'extras/inc/tags_panel.html' with tags=instance.tags.all %}
+            {% plugin_left_page instance %}
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Installed Device</strong>
+                </div>
+                {% if instance.installed_device %}
+                    {% with device=instance.installed_device %}
+                        <table class="table table-hover panel-body attr-table">
+                            <tr>
+                                <td>Device</td>
+                                <td>
+                                    <a href="{{ device.get_absolute_url }}">{{ device }}</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Device Type</td>
+                                <td>{{ device.device_type }}</td>
+                            </tr>
+                        </table>
+                    {% endwith %}
+                {% else %}
+                    <div class="panel-body text-muted">
+                        None
+                    </div>
+                {% endif %}
+            </div>
+            {% plugin_right_page instance %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% plugin_full_width_page instance %}
+        </div>
+    </div>
+{% endblock %}

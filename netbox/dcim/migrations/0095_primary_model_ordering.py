@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='device',
-            options={'ordering': ('_name', 'pk'), 'permissions': (('napalm_read', 'Read-only access to devices via NAPALM'), ('napalm_write', 'Read/write access to devices via NAPALM'))},
+            options={'ordering': ('_name', 'pk')},
         ),
         migrations.AlterModelOptions(
             name='rack',
@@ -43,17 +43,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='device',
             name='_name',
-            field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize, null=True),
+            field=utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize, null=True),
         ),
         migrations.AddField(
             model_name='rack',
             name='_name',
-            field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
+            field=utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
         ),
         migrations.AddField(
             model_name='site',
             name='_name',
-            field=utilities.fields.NaturalOrderingField('target_field', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
+            field=utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
         ),
         migrations.RunPython(
             code=naturalize_sites,

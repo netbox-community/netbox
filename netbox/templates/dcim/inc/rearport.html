@@ -10,7 +10,8 @@
 
     {# Name #}
     <td>
-        <i class="fa fa-fw fa-square{% if not rearport.cable %}-o{% endif %}"></i> {{ rearport }}
+        <i class="fa fa-fw fa-square{% if not rearport.cable %}-o{% endif %}"></i>
+        <a href="{{ rearport.get_absolute_url }}">{{ rearport }}</a>
     </td>
 
     {# Type #}

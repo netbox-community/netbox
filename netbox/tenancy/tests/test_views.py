@@ -49,13 +49,15 @@ class TenantTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Tenant X',
             'slug': 'tenant-x',
             'group': tenant_groups[1].pk,
             'description': 'A new tenant',
             'comments': 'Some comments',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (

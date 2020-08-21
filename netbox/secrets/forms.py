@@ -5,11 +5,11 @@ from django import forms
 from dcim.models import Device
 from extras.forms import (
     AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldModelForm, CustomFieldModelCSVForm,
-    TagField,
 )
+from extras.models import Tag
 from utilities.forms import (
-    APISelectMultiple, BootstrapMixin, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, SlugField, StaticSelect2Multiple, TagFilterField,
+    BootstrapMixin, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    SlugField, TagFilterField,
 )
 from .constants import *
 from .models import Secret, SecretRole, UserKey
@@ -46,13 +46,7 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = SecretRole
-        fields = [
-            'name', 'slug', 'description', 'users', 'groups',
-        ]
-        widgets = {
-            'users': StaticSelect2Multiple(),
-            'groups': StaticSelect2Multiple(),
-        }
+        fields = ('name', 'slug', 'description')
 
 
 class SecretRoleCSVForm(CSVModelForm):
@@ -69,7 +63,8 @@ class SecretRoleCSVForm(CSVModelForm):
 
 class SecretForm(BootstrapMixin, CustomFieldModelForm):
     device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
+        queryset=Device.objects.all(),
+        display_field='display_name'
     )
     plaintext = forms.CharField(
         max_length=SECRET_PLAINTEXT_MAX_LENGTH,
@@ -90,7 +85,8 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
     role = DynamicModelChoiceField(
         queryset=SecretRole.objects.all()
     )
-    tags = TagField(
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False
     )
 
@@ -183,10 +179,7 @@ class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
     role = DynamicModelMultipleChoiceField(
         queryset=SecretRole.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     tag = TagFilterField(model)
 

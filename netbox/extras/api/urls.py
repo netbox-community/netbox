@@ -1,18 +1,9 @@
-from rest_framework import routers
-
+from utilities.api import OrderedDefaultRouter
 from . import views
 
 
-class ExtrasRootView(routers.APIRootView):
-    """
-    Extras API root view
-    """
-    def get_view_name(self):
-        return 'Extras'
-
-
-router = routers.DefaultRouter()
-router.APIRootView = ExtrasRootView
+router = OrderedDefaultRouter()
+router.APIRootView = views.ExtrasRootView
 
 # Custom field choices
 router.register('_custom_field_choices', views.CustomFieldChoicesViewSet, basename='custom-field-choice')
@@ -40,6 +31,9 @@ router.register('scripts', views.ScriptViewSet, basename='script')
 
 # Change logging
 router.register('object-changes', views.ObjectChangeViewSet)
+
+# Job Results
+router.register('job-results', views.JobResultViewSet)
 
 app_name = 'extras-api'
 urlpatterns = router.urls

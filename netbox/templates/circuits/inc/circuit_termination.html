@@ -95,7 +95,7 @@
                 <td>IP Addressing</td>
                 <td>
                     {% if termination.connected_endpoint %}
-                        {% for ip in termination.connected_endpoint.ip_addresses.all %}
+                        {% for ip in termination.ip_addresses %}
                             {% if not forloop.first %}<br />{% endif %}
                             <a href="{% url 'ipam:ipaddress' pk=ip.pk %}">{{ ip }}</a> ({{ ip.vrf|default:"Global" }})
                         {% empty %}

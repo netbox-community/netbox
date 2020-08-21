@@ -1,19 +1,12 @@
 from django.contrib.postgres.fields import JSONField
 from drf_yasg import openapi
-from drf_yasg.inspectors import FieldInspector, NotHandled, PaginatorInspector, FilterInspector, SwaggerAutoSchema
+from drf_yasg.inspectors import FieldInspector, NotHandled, PaginatorInspector, SwaggerAutoSchema
 from drf_yasg.utils import get_serializer_ref_name
 from rest_framework.fields import ChoiceField
 from rest_framework.relations import ManyRelatedField
-from taggit_serializer.serializers import TagListSerializerField
 
-from dcim.api.serializers import InterfaceSerializer as DeviceInterfaceSerializer
 from extras.api.customfields import CustomFieldsSerializer
 from utilities.api import ChoiceField, SerializedPKRelatedField, WritableNestedSerializer
-from virtualization.api.serializers import InterfaceSerializer as VirtualMachineInterfaceSerializer
-
-# this might be ugly, but it limits drf_yasg-specific code to this file
-DeviceInterfaceSerializer.Meta.ref_name = 'DeviceInterface'
-VirtualMachineInterfaceSerializer.Meta.ref_name = 'VirtualMachineInterface'
 
 
 class NetBoxSwaggerAutoSchema(SwaggerAutoSchema):
@@ -52,19 +45,6 @@ class SerializedPKRelatedFieldInspector(FieldInspector):
         SwaggerType, ChildSwaggerType = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
         if isinstance(field, SerializedPKRelatedField):
             return self.probe_field_inspectors(field.serializer(), ChildSwaggerType, use_references)
-
-        return NotHandled
-
-
-class TagListFieldInspector(FieldInspector):
-    def field_to_swagger_object(self, field, swagger_object_type, use_references, **kwargs):
-        SwaggerType, ChildSwaggerType = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
-        if isinstance(field, TagListSerializerField):
-            child_schema = self.probe_field_inspectors(field.child, ChildSwaggerType, use_references)
-            return SwaggerType(
-                type=openapi.TYPE_ARRAY,
-                items=child_schema,
-            )
 
         return NotHandled
 

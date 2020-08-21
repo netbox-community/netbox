@@ -1,18 +1,9 @@
-from rest_framework import routers
-
+from utilities.api import OrderedDefaultRouter
 from . import views
 
 
-class IPAMRootView(routers.APIRootView):
-    """
-    IPAM API root view
-    """
-    def get_view_name(self):
-        return 'IPAM'
-
-
-router = routers.DefaultRouter()
-router.APIRootView = IPAMRootView
+router = OrderedDefaultRouter()
+router.APIRootView = views.IPAMRootView
 
 # VRFs
 router.register('vrfs', views.VRFViewSet)

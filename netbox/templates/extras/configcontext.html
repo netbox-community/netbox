@@ -31,6 +31,16 @@
             </a>
         {% endif %}
     </div>
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ configcontext.get_absolute_url }}">Config Context</a>
+        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'extras:configcontext_changelog' pk=configcontext.pk %}">Change Log</a>
+            </li>
+        {% endif %}
+    </ul>
     <h1>{% block title %}{{ configcontext }}{% endblock %}</h1>
 {% endblock %}
 

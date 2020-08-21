@@ -123,6 +123,57 @@ class BooleanColumn(tables.Column):
         return mark_safe(rendered)
 
 
+class ButtonsColumn(tables.TemplateColumn):
+    """
+    Render edit, delete, and changelog buttons for an object.
+
+    :param model: Model class to use for calculating URL view names
+    :param prepend_content: Additional template content to render in the column (optional)
+    """
+    buttons = ('changelog', 'edit', 'delete')
+    attrs = {'td': {'class': 'text-right text-nowrap noprint'}}
+    # Note that braces are escaped to allow for string formatting prior to template rendering
+    template_code = """
+    {{% if "changelog" in buttons %}}
+        <a href="{{% url '{app_label}:{model_name}_changelog' {pk_field}=record.{pk_field} %}}" class="btn btn-default btn-xs" title="Change log">
+            <i class="fa fa-history"></i>
+        </a>
+    {{% endif %}}
+    {{% if "edit" in buttons and perms.{app_label}.change_{model_name} %}}
+        <a href="{{% url '{app_label}:{model_name}_edit' {pk_field}=record.{pk_field} %}}?return_url={{{{ request.path }}}}" class="btn btn-xs btn-warning" title="Edit">
+            <i class="fa fa-pencil"></i>
+        </a>
+    {{% endif %}}
+    {{% if "delete" in buttons and perms.{app_label}.delete_{model_name} %}}
+        <a href="{{% url '{app_label}:{model_name}_delete' {pk_field}=record.{pk_field} %}}?return_url={{{{ request.path }}}}" class="btn btn-xs btn-danger" title="Delete">
+            <i class="fa fa-trash"></i>
+        </a>
+    {{% endif %}}
+    """
+
+    def __init__(self, model, *args, pk_field='pk', buttons=None, prepend_template=None, **kwargs):
+        if prepend_template:
+            prepend_template = prepend_template.replace('{', '{{')
+            prepend_template = prepend_template.replace('}', '}}')
+            self.template_code = prepend_template + self.template_code
+
+        template_code = self.template_code.format(
+            app_label=model._meta.app_label,
+            model_name=model._meta.model_name,
+            pk_field=pk_field,
+            buttons=buttons
+        )
+
+        super().__init__(template_code=template_code, *args, **kwargs)
+
+        self.extra_context.update({
+            'buttons': buttons or self.buttons,
+        })
+
+    def header(self):
+        return ''
+
+
 class ColorColumn(tables.Column):
     """
     Display a color (#RRGGBB).

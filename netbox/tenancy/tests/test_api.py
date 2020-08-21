@@ -16,7 +16,7 @@ class AppTest(APITestCase):
 
 class TenantGroupTest(APIViewTestCases.APIViewTestCase):
     model = TenantGroup
-    brief_fields = ['id', 'name', 'slug', 'tenant_count', 'url']
+    brief_fields = ['_depth', 'id', 'name', 'slug', 'tenant_count', 'url']
 
     @classmethod
     def setUpTestData(cls):

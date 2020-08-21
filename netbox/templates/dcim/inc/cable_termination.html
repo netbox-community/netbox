@@ -16,7 +16,9 @@
         </tr>
         <tr>
             <td>Component</td>
-            <td>{{ termination }}</td>
+            <td>
+                <a href="{{ termination.get_absolute_url }}">{{ termination }}</a>
+            </td>
         </tr>
     {% else %}
         {# Circuit termination #}

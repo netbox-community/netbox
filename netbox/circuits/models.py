@@ -6,9 +6,9 @@ from taggit.managers import TaggableManager
 from dcim.constants import CONNECTION_STATUS_CHOICES
 from dcim.fields import ASNField
 from dcim.models import CableTermination
-from extras.models import CustomFieldModel, ObjectChange, TaggedItem
+from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
-from utilities.models import ChangeLoggedModel
+from utilities.querysets import RestrictedQuerySet
 from utilities.utils import serialize_object
 from .choices import *
 from .querysets import CircuitQuerySet
@@ -66,8 +66,9 @@ class Provider(ChangeLoggedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
-
     tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = [
         'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
@@ -114,6 +115,8 @@ class CircuitType(ChangeLoggedModel):
         max_length=200,
         blank=True,
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'description']
 
@@ -272,9 +275,10 @@ class CircuitTermination(CableTermination):
         blank=True,
         null=True
     )
-    connection_status = models.NullBooleanField(
+    connection_status = models.BooleanField(
         choices=CONNECTION_STATUS_CHOICES,
-        blank=True
+        blank=True,
+        null=True
     )
     port_speed = models.PositiveIntegerField(
         verbose_name='Port speed (Kbps)'
@@ -299,6 +303,8 @@ class CircuitTermination(CableTermination):
         max_length=200,
         blank=True
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ['circuit', 'term_side']
@@ -330,6 +336,9 @@ class CircuitTermination(CableTermination):
     def get_peer_termination(self):
         peer_side = 'Z' if self.term_side == 'A' else 'A'
         try:
-            return CircuitTermination.objects.prefetch_related('site').get(circuit=self.circuit, term_side=peer_side)
+            return CircuitTermination.objects.prefetch_related('site').get(
+                circuit=self.circuit,
+                term_side=peer_side
+            )
         except CircuitTermination.DoesNotExist:
             return None

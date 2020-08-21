@@ -82,6 +82,7 @@
                 </tr>
             </table>
         </div>
+        {% include 'extras/inc/tags_panel.html' with tags=powerpanel.tags.all url='dcim:powerpanel_list' %}
         {% plugin_left_page powerpanel %}
     </div>
 	<div class="col-md-9">
