@@ -1,65 +1,6 @@
 # NetBox v2.9
 
-## v2.9-beta3 (FUTURE)
-
-### Enhancements
-
-* [#5024](https://github.com/netbox-community/netbox/issues/5024) - List available options for choice fields within CSV import forms
-
-### Bug Fixes
-
-* [#4990](https://github.com/netbox-community/netbox/issues/4990) - Restore change logging during custom script execution
-* [#5004](https://github.com/netbox-community/netbox/issues/5004) - Permit assignment of an interface to a LAG on any peer virtual chassis member
-* [#5012](https://github.com/netbox-community/netbox/issues/5012) - Return details of exceptions resulting from report/script execution
-* [#5020](https://github.com/netbox-community/netbox/issues/5020) - Correct handling of dependent objects during bulk deletion
-* [#5022](https://github.com/netbox-community/netbox/issues/5022) - Fix exception when editing IP address with NAT inside IP assigned
-
----
-
-## v2.9-beta2 (2020-08-13)
-
-**WARNING:** This is a beta release and is not suitable for production use. It is intended for development and evaluation purposes only. No upgrade path to the final v2.9 release will be provided from this beta, and users should assume that all data entered into the application will be lost. Please reference [the v2.9 beta documentation](https://netbox.readthedocs.io/en/develop-2.9/) for further information regarding this release.
-
-### Enhancements
-
-* [#4639](https://github.com/netbox-community/netbox/issues/4639) - Improve performance of web UI prefixes list
-* [#4919](https://github.com/netbox-community/netbox/issues/4919) - Allow adding/changing assigned permissions within group and user admin views
-* [#4922](https://github.com/netbox-community/netbox/issues/4922) - Optimize schema migration for replicating VM interfaces
-* [#4940](https://github.com/netbox-community/netbox/issues/4940) - Add an `occupied` field to rack unit representations for rack elevation views
-* [#4945](https://github.com/netbox-community/netbox/issues/4945) - Add a user-friendly 403 error page
-* [#4946](https://github.com/netbox-community/netbox/issues/4946) - Extend ObjectPermission to OR multiple constraints
-* [#4969](https://github.com/netbox-community/netbox/issues/4969) - Replace secret role user/group assignment with object permissions
-* [#4982](https://github.com/netbox-community/netbox/issues/4982) - Extended ObjectVar to allow filtering API query
-* [#4994](https://github.com/netbox-community/netbox/issues/4994) - Add `cable` attribute to PowerFeed API serializer
-* [#4996](https://github.com/netbox-community/netbox/issues/4996) - Add "connect" buttons to individual device component views
-* [#4997](https://github.com/netbox-community/netbox/issues/4997) - The browsable API now lists available endpoints alphabetically
-
-### Bug Fixes
-
-* [#4903](https://github.com/netbox-community/netbox/issues/4903) - Fix member count when searching for virtual chassis
-* [#4905](https://github.com/netbox-community/netbox/issues/4905) - Fix front port count on device type view
-* [#4912](https://github.com/netbox-community/netbox/issues/4912) - Fix image attachment API endpoint
-* [#4914](https://github.com/netbox-community/netbox/issues/4914) - Fix toggling cable status under device view
-* [#4921](https://github.com/netbox-community/netbox/issues/4921) - Render non-viewable devices as unavailable space in rack elevations
-* [#4930](https://github.com/netbox-community/netbox/issues/4930) - Replicate label values when instantiating device type components
-* [#4931](https://github.com/netbox-community/netbox/issues/4931) - Fix DoesNotExist exception when deleting devices
-* [#4938](https://github.com/netbox-community/netbox/issues/4938) - Show add, import buttons on virtual chassis list view
-* [#4939](https://github.com/netbox-community/netbox/issues/4939) - Fix linking to LAG interfaces on other VC members
-* [#4950](https://github.com/netbox-community/netbox/issues/4950) - Include inventory item label in API serializer, UI view
-* [#4951](https://github.com/netbox-community/netbox/issues/4951) - Redirect to device inventory view after creating a new inventory item
-* [#4952](https://github.com/netbox-community/netbox/issues/4952) - Default to VM tab when creating/editing an IP address for a VM
-* [#4968](https://github.com/netbox-community/netbox/issues/4968) - Fix exception when activating user keys in admin UI
-* [#4995](https://github.com/netbox-community/netbox/issues/4995) - Fix missing buttons to add console/power ports under device view
-
-### Other Changes
-
-* [#4940](https://github.com/netbox-community/netbox/issues/4940) - Add an `occupied` field to rack unit representations for rack elevation views
-* [#4942](https://github.com/netbox-community/netbox/issues/4942) - Make ObjectPermission's `name` field required
-* [#4943](https://github.com/netbox-community/netbox/issues/4943) - Add a `description` field to ObjectPermission
-
----
-
-## v2.9-beta1 (2020-07-23)
+## v2.9.0 (FUTURE)
 
 **WARNING:** This is a beta release and is not suitable for production use. It is intended for development and evaluation purposes only. No upgrade path to the final v2.9 release will be provided from this beta, and users should assume that all data entered into the application will be lost. Please reference [the v2.9 beta documentation](https://netbox.readthedocs.io/en/develop-2.9/) for further information regarding this release.
 
@@ -73,11 +14,29 @@ NetBox v2.9 replaces Django's built-in permissions framework with one that suppo
 
 When running a report or custom script, its execution is now queued for background processing and the user receives an immediate response indicating its status. This prevents long-running scripts from resulting in a timeout error. Once the execution has completed, the page will automatically refresh to display its results. Both scripts and reports now store their output in the new JobResult model. (The ReportResult model has been removed.)
 
+#### Named Virtual Chassis ([#2018](https://github.com/netbox-community/netbox/issues/2018))
+
+The VirtualChassis model now has a mandatory `name` field. Names are assigned to the virtual chassis itself rather than referencing the master VC member. Additionally, the designation of a master is now optional: a virtual chassis may have only non-master members.
+
+#### Changes to Tag Creation ([#3703](https://github.com/netbox-community/netbox/issues/3703))
+
+Tags are no longer created automatically: A tag must be created by a user before it can be applied to any object. Additionally, the REST API representation of assigned tags has been expanded to be consistent with other objects.
+
+#### Dedicated Model for VM Interfaces ([#4721](https://github.com/netbox-community/netbox/issues/4721))
+
+A new model has been introduced to represent virtual machine interfaces. Although this change is largely transparent to the end user, note that the IP address model no longer has a foreign key to the Interface model under the DCIM app. This has been replaced with a generic foreign key named `assigned_object`.
+
+#### REST API Endpoints for Users and Groups ([#4877](https://github.com/netbox-community/netbox/issues/4877))
+
+Two new REST API endpoints have been added to facilitate the retrieval and manipulation of users and groups:
+
+* `/api/users/groups/`
+* `/api/users/users/`
+
 ### Enhancements
 
-* [#2018](https://github.com/netbox-community/netbox/issues/2018) - Add `name` field to virtual chassis model
-* [#3703](https://github.com/netbox-community/netbox/issues/3703) - Tags must be created administratively before being assigned to an object
 * [#4615](https://github.com/netbox-community/netbox/issues/4615) - Add `label` field for all device components and component templates
+* [#4639](https://github.com/netbox-community/netbox/issues/4639) - Improve performance of web UI prefixes list
 * [#4742](https://github.com/netbox-community/netbox/issues/4742) - Add tagging for cables, power panels, and rack reservations
 * [#4788](https://github.com/netbox-community/netbox/issues/4788) - Add dedicated views for all device components
 * [#4792](https://github.com/netbox-community/netbox/issues/4792) - Add bulk rename capability for console and power ports
@@ -88,7 +47,13 @@ When running a report or custom script, its execution is now queued for backgrou
 * [#4817](https://github.com/netbox-community/netbox/issues/4817) - Standardize device/VM component `name` field to 64 characters
 * [#4837](https://github.com/netbox-community/netbox/issues/4837) - Use dynamic form widget for relationships to MPTT objects (e.g. regions)
 * [#4840](https://github.com/netbox-community/netbox/issues/4840) - Enable change logging for config contexts
-* [#4877](https://github.com/netbox-community/netbox/issues/4877) - Add REST API endpoints for users and groups
+* [#4940](https://github.com/netbox-community/netbox/issues/4940) - Add an `occupied` field to rack unit representations for rack elevation views
+* [#4945](https://github.com/netbox-community/netbox/issues/4945) - Add a user-friendly 403 error page
+* [#4969](https://github.com/netbox-community/netbox/issues/4969) - Replace secret role user/group assignment with object permissions
+* [#4982](https://github.com/netbox-community/netbox/issues/4982) - Extended ObjectVar to allow filtering API query
+* [#4994](https://github.com/netbox-community/netbox/issues/4994) - Add `cable` attribute to PowerFeed API serializer
+* [#4997](https://github.com/netbox-community/netbox/issues/4997) - The browsable API now lists available endpoints alphabetically
+* [#5024](https://github.com/netbox-community/netbox/issues/5024) - List available options for choice fields within CSV import forms
 
 ### Configuration Changes
 
