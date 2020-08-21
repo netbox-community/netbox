@@ -17,6 +17,10 @@ from extras.utils import FeatureQuery
 #
 
 class CustomFieldModel(models.Model):
+    custom_field_data = models.JSONField(
+        blank=True,
+        default=dict
+    )
 
     class Meta:
         abstract = True
