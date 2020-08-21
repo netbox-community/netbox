@@ -1,5 +1,13 @@
 # NetBox v2.9
 
+## v2.9.1 (FUTURE)
+
+### Enhancements
+
+* [#4991](https://github.com/netbox-community/netbox/issues/4991) - Add Python and NetBox versions to error page
+
+---
+
 ## v2.9.0 (2020-08-21)
 
 ### New Features
