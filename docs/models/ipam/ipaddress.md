@@ -10,6 +10,7 @@ Each IP address can also be assigned an operational status and a functional role
 * Reserved
 * Deprecated
 * DHCP
+* SLAAC (IPv6 Stateless Address Autoconfiguration)
 
 Roles are used to indicate some special attribute of an IP address; for example, use as a loopback or as the the virtual IP for a VRRP group. (Note that functional roles are conceptual in nature, and thus cannot be customized by the user.) Available roles include:
 
