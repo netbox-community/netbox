@@ -1,6 +1,6 @@
 # NetBox v2.9
 
-## v2.9.0 (FUTURE)
+## v2.9.0 (2020-08-21)
 
 **WARNING:** This is a beta release and is not suitable for production use. It is intended for development and evaluation purposes only. No upgrade path to the final v2.9 release will be provided from this beta, and users should assume that all data entered into the application will be lost. Please reference [the v2.9 beta documentation](https://netbox.readthedocs.io/en/develop-2.9/) for further information regarding this release.
 
@@ -47,6 +47,7 @@ Two new REST API endpoints have been added to facilitate the retrieval and manip
 * [#4817](https://github.com/netbox-community/netbox/issues/4817) - Standardize device/VM component `name` field to 64 characters
 * [#4837](https://github.com/netbox-community/netbox/issues/4837) - Use dynamic form widget for relationships to MPTT objects (e.g. regions)
 * [#4840](https://github.com/netbox-community/netbox/issues/4840) - Enable change logging for config contexts
+* [#4885](https://github.com/netbox-community/netbox/issues/4885) - Add MultiChoiceVar for custom scripts
 * [#4940](https://github.com/netbox-community/netbox/issues/4940) - Add an `occupied` field to rack unit representations for rack elevation views
 * [#4945](https://github.com/netbox-community/netbox/issues/4945) - Add a user-friendly 403 error page
 * [#4969](https://github.com/netbox-community/netbox/issues/4969) - Replace secret role user/group assignment with object permissions
@@ -75,6 +76,7 @@ Two new REST API endpoints have been added to facilitate the retrieval and manip
 ```
 
 * Legacy numeric values for choice fields are no longer conveyed or accepted.
+* circuits.CircuitTermination: Added `cable` field
 * dcim.Cable: Added `tags` field
 * dcim.ConsolePort: Added `label` field
 * dcim.ConsolePortTemplate: Added `description` and `label` fields
@@ -105,6 +107,7 @@ Two new REST API endpoints have been added to facilitate the retrieval and manip
 * extras.Script: Added `module` and `result` fields. The `result` field now conveys the nested representation of a JobResult.
 * extras.Tag: The count of `tagged_items` is no longer included when viewing the tags list when `brief` is passed.
 * ipam.IPAddress: Removed `interface` field; replaced with `assigned_object` generic foreign key. This may represent either a device interface or a virtual machine interface. Assign an object by setting `assigned_object_type` and `assigned_object_id`.
+* ipam.VRF: Added `display_name`
 * tenancy.TenantGroup: Added a `_depth` attribute indicating an object's position in the tree.
 * users.ObjectPermissions: Added the `/api/users/permissions/` endpoint
 * virtualization.VMInterface: Removed `type` field (VM interfaces have no type)
