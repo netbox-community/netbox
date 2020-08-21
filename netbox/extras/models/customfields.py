@@ -1,8 +1,6 @@
-from collections import OrderedDict
 from datetime import date
 
 from django import forms
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
@@ -29,36 +27,12 @@ class CustomFieldModel(models.Model):
         self._cf = custom_fields
         super().__init__(*args, **kwargs)
 
-    def cache_custom_fields(self):
-        """
-        Cache all custom field values for this instance
-        """
-        self._cf = {
-            field.name: value for field, value in self.get_custom_fields().items()
-        }
-
     @property
     def cf(self):
         """
-        Name-based CustomFieldValue accessor for use in templates
+        Convenience wrapper for custom field data.
         """
-        if self._cf is None:
-            self.cache_custom_fields()
-        return self._cf
-
-    def get_custom_fields(self):
-        """
-        Return a dictionary of custom fields for a single object in the form {<field>: value}.
-        """
-        fields = CustomField.objects.get_for_model(self)
-
-        # If the object exists, populate its custom fields with values
-        if hasattr(self, 'pk'):
-            values = self.custom_field_values.all()
-            values_dict = {cfv.field_id: cfv.value for cfv in values}
-            return OrderedDict([(field, values_dict.get(field.pk)) for field in fields])
-        else:
-            return OrderedDict([(field, None) for field in fields])
+        return self.custom_field_data
 
 
 class CustomFieldManager(models.Manager):
@@ -235,49 +209,6 @@ class CustomField(models.Model):
         return field
 
 
-class CustomFieldValue(models.Model):
-    field = models.ForeignKey(
-        to='extras.CustomField',
-        on_delete=models.CASCADE,
-        related_name='values'
-    )
-    obj_type = models.ForeignKey(
-        to=ContentType,
-        on_delete=models.PROTECT,
-        related_name='+'
-    )
-    obj_id = models.PositiveIntegerField()
-    obj = GenericForeignKey(
-        ct_field='obj_type',
-        fk_field='obj_id'
-    )
-    serialized_value = models.CharField(
-        max_length=255
-    )
-
-    class Meta:
-        ordering = ('obj_type', 'obj_id', 'pk')  # (obj_type, obj_id) may be non-unique
-        unique_together = ('field', 'obj_type', 'obj_id')
-
-    def __str__(self):
-        return '{} {}'.format(self.obj, self.field)
-
-    @property
-    def value(self):
-        return self.field.deserialize_value(self.serialized_value)
-
-    @value.setter
-    def value(self, value):
-        self.serialized_value = self.field.serialize_value(value)
-
-    def save(self, *args, **kwargs):
-        # Delete this object if it no longer has a value to store
-        if self.pk and self.value is None:
-            self.delete()
-        else:
-            super().save(*args, **kwargs)
-
-
 class CustomFieldChoice(models.Model):
     field = models.ForeignKey(
         to='extras.CustomField',
@@ -304,11 +235,13 @@ class CustomFieldChoice(models.Model):
         if self.field.type != CustomFieldTypeChoices.TYPE_SELECT:
             raise ValidationError("Custom field choices can only be assigned to selection fields.")
 
-    def delete(self, using=None, keep_parents=False):
-        # When deleting a CustomFieldChoice, delete all CustomFieldValues which point to it
-        pk = self.pk
-        super().delete(using, keep_parents)
-        CustomFieldValue.objects.filter(
-            field__type=CustomFieldTypeChoices.TYPE_SELECT,
-            serialized_value=str(pk)
-        ).delete()
+    def delete(self, *args, **kwargs):
+        # TODO: Prevent deletion of CustomFieldChoices which are in use?
+        field_name = f'custom_field_data__{self.field.name}'
+        for ct in self.field.obj_type.all():
+            model = ct.model_class()
+            for instance in model.objects.filter(**{field_name: self.pk}):
+                instance.custom_field_data.pop(self.field.name)
+                instance.save()
+
+        super().delete(*args, **kwargs)

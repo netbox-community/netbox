@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
@@ -101,11 +100,6 @@ class Tenant(ChangeLoggedModel, CustomFieldModel):
     )
     comments = models.TextField(
         blank=True
-    )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
     )
     tags = TaggableManager(through=TaggedItem)
 

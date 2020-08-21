@@ -12,7 +12,7 @@ from utilities.forms import (
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
-from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachment, ObjectChange, Tag
+from .models import ConfigContext, CustomField, ImageAttachment, ObjectChange, Tag
 
 
 #
@@ -40,11 +40,7 @@ class CustomFieldModelForm(forms.ModelForm):
         """
         # Retrieve initial CustomField values for the instance
         if self.instance.pk:
-            for cfv in CustomFieldValue.objects.filter(
-                obj_type=self.obj_type,
-                obj_id=self.instance.pk
-            ).prefetch_related('field'):
-                self.custom_field_values[cfv.field.name] = cfv.serialized_value
+            self.custom_field_values = self.instance.custom_field_data
 
         # Append form fields; assign initial values if modifying and existing object
         for cf in CustomField.objects.filter(obj_type=self.obj_type):
@@ -64,23 +60,7 @@ class CustomFieldModelForm(forms.ModelForm):
     def _save_custom_fields(self):
 
         for field_name in self.custom_fields:
-            try:
-                cfv = CustomFieldValue.objects.prefetch_related('field').get(
-                    field=self.fields[field_name].model,
-                    obj_type=self.obj_type,
-                    obj_id=self.instance.pk
-                )
-            except CustomFieldValue.DoesNotExist:
-                # Skip this field if none exists already and its value is empty
-                if self.cleaned_data[field_name] in [None, '']:
-                    continue
-                cfv = CustomFieldValue(
-                    field=self.fields[field_name].model,
-                    obj_type=self.obj_type,
-                    obj_id=self.instance.pk
-                )
-            cfv.value = self.cleaned_data[field_name]
-            cfv.save()
+            self.instance.custom_field_data[field_name[3:]] = self.cleaned_data[field_name]
 
     def save(self, commit=True):
 

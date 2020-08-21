@@ -7,7 +7,7 @@ from rest_framework import status
 from dcim.forms import SiteCSVForm
 from dcim.models import Site
 from extras.choices import *
-from extras.models import CustomField, CustomFieldValue, CustomFieldChoice
+from extras.models import CustomField, CustomFieldChoice
 from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
 
@@ -46,18 +46,18 @@ class CustomFieldTest(TestCase):
 
             # Assign a value to the first Site
             site = Site.objects.first()
-            cfv = CustomFieldValue(field=cf, obj_type=obj_type, obj_id=site.id)
-            cfv.value = data['field_value']
-            cfv.save()
+            site.custom_field_data[cf.name] = data['field_value']
+            site.save()
 
             # Retrieve the stored value
-            cfv = CustomFieldValue.objects.filter(obj_type=obj_type, obj_id=site.pk).first()
-            self.assertEqual(cfv.value, data['field_value'])
+            site.refresh_from_db()
+            self.assertEqual(site.custom_field_data[cf.name], data['field_value'])
 
             # Delete the stored value
-            cfv.value = data['empty_value']
-            cfv.save()
-            self.assertEqual(CustomFieldValue.objects.filter(obj_type=obj_type, obj_id=site.pk).count(), 0)
+            site.custom_field_data.pop(cf.name)
+            site.save()
+            site.refresh_from_db()
+            self.assertIsNone(site.custom_field_data.get(cf.name))
 
             # Delete the custom field
             cf.delete()
@@ -81,18 +81,18 @@ class CustomFieldTest(TestCase):
 
         # Assign a value to the first Site
         site = Site.objects.first()
-        cfv = CustomFieldValue(field=cf, obj_type=obj_type, obj_id=site.id)
-        cfv.value = cf.choices.first()
-        cfv.save()
+        site.custom_field_data[cf.name] = cf.choices.first().pk
+        site.save()
 
         # Retrieve the stored value
-        cfv = CustomFieldValue.objects.filter(obj_type=obj_type, obj_id=site.pk).first()
-        self.assertEqual(str(cfv.value), 'Option A')
+        site.refresh_from_db()
+        self.assertEqual(site.custom_field_data[cf.name], 'Option A')
 
         # Delete the stored value
-        cfv.value = None
-        cfv.save()
-        self.assertEqual(CustomFieldValue.objects.filter(obj_type=obj_type, obj_id=site.pk).count(), 0)
+        site.custom_field_data.pop(cf.name)
+        site.save()
+        site.refresh_from_db()
+        self.assertIsNone(site.custom_field_data.get(cf.name))
 
         # Delete the custom field
         cf.delete()
@@ -164,18 +164,15 @@ class CustomFieldAPITest(APITestCase):
         Site.objects.bulk_create(cls.sites)
 
         # Assign custom field values for site 2
-        site2_cfvs = {
-            cls.cf_text: 'bar',
-            cls.cf_integer: 456,
-            cls.cf_boolean: True,
-            cls.cf_date: '2020-01-02',
-            cls.cf_url: 'http://example.com/2',
-            cls.cf_select: cls.cf_select_choice2.pk,
+        cls.sites[1].custom_field_data = {
+            cls.cf_text.name: 'bar',
+            cls.cf_integer.name: 456,
+            cls.cf_boolean.name: True,
+            cls.cf_date.name: '2020-01-02',
+            cls.cf_url.name: 'http://example.com/2',
+            cls.cf_select.name: cls.cf_select_choice2.pk,
         }
-        for field, value in site2_cfvs.items():
-            cfv = CustomFieldValue(field=field, obj=cls.sites[1])
-            cfv.value = value
-            cfv.save()
+        cls.sites[1].save()
 
     def test_get_single_object_without_custom_field_values(self):
         """
@@ -518,7 +515,7 @@ class CustomFieldImportTest(TestCase):
 
         # Validate data for site 1
         custom_field_values = {
-            cf.name: value for cf, value in Site.objects.get(name='Site 1').get_custom_fields().items()
+            cf.name: value for cf, value in Site.objects.get(name='Site 1').custom_field_data
         }
         self.assertEqual(len(custom_field_values), 6)
         self.assertEqual(custom_field_values['text'], 'ABC')
@@ -530,7 +527,7 @@ class CustomFieldImportTest(TestCase):
 
         # Validate data for site 2
         custom_field_values = {
-            cf.name: value for cf, value in Site.objects.get(name='Site 2').get_custom_fields().items()
+            cf.name: value for cf, value in Site.objects.get(name='Site 2').custom_field_data
         }
         self.assertEqual(len(custom_field_values), 6)
         self.assertEqual(custom_field_values['text'], 'DEF')
@@ -543,8 +540,7 @@ class CustomFieldImportTest(TestCase):
         # No CustomFieldValues should be created for site 3
         obj_type = ContentType.objects.get_for_model(Site)
         site3 = Site.objects.get(name='Site 3')
-        self.assertFalse(CustomFieldValue.objects.filter(obj_type=obj_type, obj_id=site3.pk).exists())
-        self.assertEqual(CustomFieldValue.objects.count(), 12)  # Sanity check
+        self.assertEqual(site3.custom_field_data, {})
 
     def test_import_missing_required(self):
         """

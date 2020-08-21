@@ -8,7 +8,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CreateOnlyDefault
 
 from extras.choices import *
-from extras.models import CustomField, CustomFieldChoice, CustomFieldValue
+from extras.models import CustomField, CustomFieldChoice
 from utilities.api import ValidatedModelSerializer
 
 
@@ -164,15 +164,8 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
                 instance.custom_fields[field.name] = value
 
     def _save_custom_fields(self, instance, custom_fields):
-        content_type = ContentType.objects.get_for_model(self.Meta.model)
         for field_name, value in custom_fields.items():
-            custom_field = CustomField.objects.get(name=field_name)
-            CustomFieldValue.objects.update_or_create(
-                field=custom_field,
-                obj_type=content_type,
-                obj_id=instance.pk,
-                defaults={'serialized_value': custom_field.serialize_value(value)},
-            )
+            instance.custom_field_data[field_name] = value
 
     def create(self, validated_data):
 

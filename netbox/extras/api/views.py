@@ -93,10 +93,6 @@ class CustomFieldModelViewSet(ModelViewSet):
         })
         return context
 
-    def get_queryset(self):
-        # Prefetch custom field values
-        return super().get_queryset().prefetch_related('custom_field_values__field')
-
 
 #
 # Export templates

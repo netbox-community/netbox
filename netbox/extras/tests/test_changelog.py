@@ -5,7 +5,7 @@ from rest_framework import status
 from dcim.choices import SiteStatusChoices
 from dcim.models import Site
 from extras.choices import *
-from extras.models import CustomField, CustomFieldValue, ObjectChange, Tag
+from extras.models import CustomField, ObjectChange, Tag
 from utilities.testing import APITestCase
 from utilities.testing.utils import post_data
 from utilities.testing.views import ModelViewTestCase
@@ -93,16 +93,14 @@ class ChangeLogViewTest(ModelViewTestCase):
     def test_delete_object(self):
         site = Site(
             name='Test Site 1',
-            slug='test-site-1'
+            slug='test-site-1',
+            custom_field_data={
+                'my_field': 'ABC'
+            }
         )
         site.save()
         self.create_tags('Tag 1', 'Tag 2')
         site.tags.set('Tag 1', 'Tag 2')
-        CustomFieldValue.objects.create(
-            field=CustomField.objects.get(name='my_field'),
-            obj=site,
-            value='ABC'
-        )
 
         request = {
             'path': self._get_url('delete', instance=site),
@@ -209,15 +207,13 @@ class ChangeLogAPITest(APITestCase):
     def test_delete_object(self):
         site = Site(
             name='Test Site 1',
-            slug='test-site-1'
+            slug='test-site-1',
+            custom_field_data={
+                'my_field': 'ABC'
+            }
         )
         site.save()
         site.tags.set(*Tag.objects.all()[:2])
-        CustomFieldValue.objects.create(
-            field=CustomField.objects.get(name='my_field'),
-            obj=site,
-            value='ABC'
-        )
         self.assertEqual(ObjectChange.objects.count(), 0)
         self.add_permissions('dcim.delete_site')
         url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
