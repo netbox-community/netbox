@@ -1,7 +1,8 @@
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.routers import APIRootView
 
 from circuits import filters
 from circuits.models import Provider, CircuitTermination, CircuitType, Circuit
@@ -12,6 +13,14 @@ from utilities.api import ModelViewSet
 from . import serializers
 
 
+class CircuitsRootView(APIRootView):
+    """
+    Circuits API root view
+    """
+    def get_view_name(self):
+        return 'Circuits'
+
+
 #
 # Providers
 #
@@ -19,7 +28,7 @@ from . import serializers
 class ProviderViewSet(CustomFieldModelViewSet):
     queryset = Provider.objects.prefetch_related('tags').annotate(
         circuit_count=Count('circuits')
-    )
+    ).order_by(*Provider._meta.ordering)
     serializer_class = serializers.ProviderSerializer
     filterset_class = filters.ProviderFilterSet
 
@@ -28,8 +37,8 @@ class ProviderViewSet(CustomFieldModelViewSet):
         """
         A convenience method for rendering graphs for a particular provider.
         """
-        provider = get_object_or_404(Provider, pk=pk)
-        queryset = Graph.objects.filter(type__model='provider')
+        provider = get_object_or_404(self.queryset, pk=pk)
+        queryset = Graph.objects.restrict(request.user).filter(type__model='provider')
         serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': provider})
         return Response(serializer.data)
 
@@ -41,7 +50,7 @@ class ProviderViewSet(CustomFieldModelViewSet):
 class CircuitTypeViewSet(ModelViewSet):
     queryset = CircuitType.objects.annotate(
         circuit_count=Count('circuits')
-    )
+    ).order_by(*CircuitType._meta.ordering)
     serializer_class = serializers.CircuitTypeSerializer
     filterset_class = filters.CircuitTypeFilterSet
 
@@ -52,7 +61,10 @@ class CircuitTypeViewSet(ModelViewSet):
 
 class CircuitViewSet(CustomFieldModelViewSet):
     queryset = Circuit.objects.prefetch_related(
-        'type', 'tenant', 'provider', 'terminations__site', 'terminations__connected_endpoint__device'
+        Prefetch('terminations', queryset=CircuitTermination.objects.prefetch_related(
+            'site', 'connected_endpoint__device'
+        )),
+        'type', 'tenant', 'provider',
     ).prefetch_related('tags')
     serializer_class = serializers.CircuitSerializer
     filterset_class = filters.CircuitFilterSet

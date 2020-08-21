@@ -1,5 +1,6 @@
 import base64
 
+from django.test import override_settings
 from django.urls import reverse
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
@@ -24,8 +25,6 @@ class SecretRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'name': 'Secret Role X',
             'slug': 'secret-role-x',
             'description': 'A secret role',
-            'users': [],
-            'groups': [],
         }
 
         cls.csv_data = (
@@ -36,14 +35,16 @@ class SecretRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         )
 
 
-class SecretTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+# TODO: Change base class to PrimaryObjectViewTestCase
+class SecretTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
     model = Secret
-
-    # Disable inapplicable tests
-    test_create_object = None
-
-    # TODO: Check permissions enforcement on secrets.views.secret_edit
-    test_edit_object = None
 
     @classmethod
     def setUpTestData(cls):
@@ -95,6 +96,7 @@ class SecretTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.session_key = SessionKey(userkey=userkey)
         self.session_key.save(master_key)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_import_objects(self):
         self.add_permissions('secrets.add_secret')
 

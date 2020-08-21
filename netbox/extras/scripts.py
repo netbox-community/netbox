@@ -3,8 +3,8 @@ import json
 import logging
 import os
 import pkgutil
-import time
 import traceback
+import warnings
 from collections import OrderedDict
 
 import yaml
@@ -12,16 +12,18 @@ from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
-from mptt.forms import TreeNodeChoiceField, TreeNodeMultipleChoiceField
-from mptt.models import MPTTModel
+from django.utils.functional import classproperty
+from django_rq import job
 
+from extras.api.serializers import ScriptOutputSerializer
+from extras.choices import JobResultStatusChoices, LogLevelChoices
+from extras.models import JobResult
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
-from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARNING
 from utilities.exceptions import AbortTransaction
 from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from .context_managers import change_logging
 from .forms import ScriptForm
-from .signals import purge_changelog
 
 __all__ = [
     'BaseScript',
@@ -176,35 +178,41 @@ class MultiChoiceVar(ChoiceVar):
 class ObjectVar(ScriptVariable):
     """
     A single object within NetBox.
+
+    :param model: The NetBox model being referenced
+    :param display_field: The attribute of the returned object to display in the selection list (default: 'name')
+    :param query_params: A dictionary of additional query parameters to attach when making REST API requests (optional)
+    :param null_option: The label to use as a "null" selection option (optional)
     """
     form_field = DynamicModelChoiceField
 
-    def __init__(self, queryset, *args, **kwargs):
+    def __init__(self, model=None, queryset=None, display_field='name', query_params=None, null_option=None, *args,
+                 **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Queryset for field choices
-        self.field_attrs['queryset'] = queryset
+        # Set the form field's queryset. Support backward compatibility for the "queryset" argument for now.
+        if model is not None:
+            self.field_attrs['queryset'] = model.objects.all()
+        elif queryset is not None:
+            warnings.warn(
+                f'{self}: Specifying a queryset for ObjectVar is no longer supported. Please use "model" instead.'
+            )
+            self.field_attrs['queryset'] = queryset
+        else:
+            raise TypeError('ObjectVar must specify a model')
 
-        # Update form field for MPTT (nested) objects
-        if issubclass(queryset.model, MPTTModel):
-            self.form_field = TreeNodeChoiceField
+        self.field_attrs.update({
+            'display_field': display_field,
+            'query_params': query_params,
+            'null_option': null_option,
+        })
 
 
-class MultiObjectVar(ScriptVariable):
+class MultiObjectVar(ObjectVar):
     """
     Like ObjectVar, but can represent one or more objects.
     """
     form_field = DynamicModelMultipleChoiceField
-
-    def __init__(self, queryset, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Queryset for field choices
-        self.field_attrs['queryset'] = queryset
-
-        # Update form field for MPTT (nested) objects
-        if issubclass(queryset.model, MPTTModel):
-            self.form_field = TreeNodeMultipleChoiceField
 
 
 class FileVar(ScriptVariable):
@@ -275,7 +283,19 @@ class BaseScript:
         self.source = inspect.getsource(self.__class__)
 
     def __str__(self):
+        return self.name
+
+    @classproperty
+    def name(self):
         return getattr(self.Meta, 'name', self.__class__.__name__)
+
+    @classproperty
+    def full_name(self):
+        return '.'.join([self.__module__, self.__name__])
+
+    @classproperty
+    def description(self):
+        return getattr(self.Meta, 'description', '')
 
     @classmethod
     def module(cls):
@@ -314,23 +334,23 @@ class BaseScript:
 
     def log_debug(self, message):
         self.logger.log(logging.DEBUG, message)
-        self.log.append((LOG_DEFAULT, message))
+        self.log.append((LogLevelChoices.LOG_DEFAULT, message))
 
     def log_success(self, message):
         self.logger.log(logging.INFO, message)  # No syslog equivalent for SUCCESS
-        self.log.append((LOG_SUCCESS, message))
+        self.log.append((LogLevelChoices.LOG_SUCCESS, message))
 
     def log_info(self, message):
         self.logger.log(logging.INFO, message)
-        self.log.append((LOG_INFO, message))
+        self.log.append((LogLevelChoices.LOG_INFO, message))
 
     def log_warning(self, message):
         self.logger.log(logging.WARNING, message)
-        self.log.append((LOG_WARNING, message))
+        self.log.append((LogLevelChoices.LOG_WARNING, message))
 
     def log_failure(self, message):
         self.logger.log(logging.ERROR, message)
-        self.log.append((LOG_FAILURE, message))
+        self.log.append((LogLevelChoices.LOG_FAILURE, message))
 
     # Convenience functions
 
@@ -383,17 +403,21 @@ def is_variable(obj):
     return isinstance(obj, ScriptVariable)
 
 
-def run_script(script, data, request, commit=True):
+@job('default')
+def run_script(data, request, commit=True, *args, **kwargs):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
     exists outside of the Script class to ensure it cannot be overridden by a script author.
     """
-    output = None
-    start_time = None
-    end_time = None
+    job_result = kwargs.pop('job_result')
+    module, script_name = job_result.name.split('.', 1)
 
-    script_name = script.__class__.__name__
-    logger = logging.getLogger(f"netbox.scripts.{script.module()}.{script_name}")
+    script = get_script(module, script_name)()
+
+    job_result.status = JobResultStatusChoices.STATUS_RUNNING
+    job_result.save()
+
+    logger = logging.getLogger(f"netbox.scripts.{module}.{script_name}")
     logger.info(f"Running script (commit={commit})")
 
     # Add files to form data
@@ -404,45 +428,55 @@ def run_script(script, data, request, commit=True):
     # Add the current request as a property of the script
     script.request = request
 
+    # TODO: Drop backward-compatibility for absent 'commit' argument in v2.10
     # Determine whether the script accepts a 'commit' argument (this was introduced in v2.7.8)
     kwargs = {
         'data': data
     }
     if 'commit' in inspect.signature(script.run).parameters:
         kwargs['commit'] = commit
-
-    try:
-        with transaction.atomic():
-            start_time = time.time()
-            output = script.run(**kwargs)
-            end_time = time.time()
-            if not commit:
-                raise AbortTransaction()
-    except AbortTransaction:
-        pass
-    except Exception as e:
-        stacktrace = traceback.format_exc()
-        script.log_failure(
-            "An exception occurred: `{}: {}`\n```\n{}\n```".format(type(e).__name__, e, stacktrace)
-        )
-        logger.error(f"Exception raised during script execution: {e}")
-        commit = False
-    finally:
-        if not commit:
-            # Delete all pending changelog entries
-            purge_changelog.send(Script)
-            script.log_info(
-                "Database changes have been reverted automatically."
-            )
-
-    # Calculate execution time
-    if end_time is not None:
-        execution_time = end_time - start_time
-        logger.info(f"Script completed in {execution_time:.4f} seconds")
     else:
-        execution_time = None
+        warnings.warn(
+            f"The run() method of script {script} should support a 'commit' argument. This will be required beginning "
+            f"with NetBox v2.10."
+        )
 
-    return output, execution_time
+    with change_logging(request):
+
+        try:
+            with transaction.atomic():
+                script.output = script.run(**kwargs)
+                job_result.set_status(JobResultStatusChoices.STATUS_COMPLETED)
+
+                if not commit:
+                    raise AbortTransaction()
+
+        except AbortTransaction:
+            script.log_info("Database changes have been reverted automatically.")
+
+        except Exception as e:
+            stacktrace = traceback.format_exc()
+            script.log_failure(
+                f"An exception occurred: `{type(e).__name__}: {e}`\n```\n{stacktrace}\n```"
+            )
+            script.log_info("Database changes have been reverted due to error.")
+            logger.error(f"Exception raised during script execution: {e}")
+            job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
+
+        finally:
+            job_result.data = ScriptOutputSerializer(script).data
+            job_result.save()
+
+        logger.info(f"Script completed in {job_result.duration}")
+
+    # Delete any previous terminal state results
+    JobResult.objects.filter(
+        obj_type=job_result.obj_type,
+        name=job_result.name,
+        status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+    ).exclude(
+        pk=job_result.pk
+    ).delete()
 
 
 def get_scripts(use_names=False):

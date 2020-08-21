@@ -7,7 +7,7 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.filters import BaseFilterSet
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
-from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, Tag
+from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, JobResult, Tag
 
 
 __all__ = (
@@ -287,3 +287,33 @@ class CreatedUpdatedFilterSet(django_filters.FilterSet):
         field_name='last_updated',
         lookup_expr='lte'
     )
+
+
+#
+# Job Results
+#
+
+class JobResultFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    created = django_filters.DateTimeFilter()
+    completed = django_filters.DateTimeFilter()
+    status = django_filters.MultipleChoiceFilter(
+        choices=JobResultStatusChoices,
+        null_value=None
+    )
+
+    class Meta:
+        model = JobResult
+        fields = [
+            'id', 'created', 'completed', 'status', 'user', 'obj_type', 'name'
+        ]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(user__username__icontains=value)
+        )

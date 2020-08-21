@@ -23,15 +23,6 @@ class CircuitStatusChoices(ChoiceSet):
         (STATUS_DECOMMISSIONED, 'Decommissioned'),
     )
 
-    LEGACY_MAP = {
-        STATUS_DEPROVISIONING: 0,
-        STATUS_ACTIVE: 1,
-        STATUS_PLANNED: 2,
-        STATUS_PROVISIONING: 3,
-        STATUS_OFFLINE: 4,
-        STATUS_DECOMMISSIONED: 5,
-    }
-
 
 #
 # CircuitTerminations

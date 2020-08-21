@@ -6,6 +6,7 @@ from django.http import HttpResponseBadRequest
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ViewSet
 
 from secrets import filters
@@ -20,6 +21,14 @@ ERR_PRIVKEY_MISSING = "Private key was not provided."
 ERR_PRIVKEY_INVALID = "Invalid private key."
 
 
+class SecretsRootView(APIRootView):
+    """
+    Secrets API root view
+    """
+    def get_view_name(self):
+        return 'Secrets'
+
+
 #
 # Secret Roles
 #
@@ -27,9 +36,8 @@ ERR_PRIVKEY_INVALID = "Invalid private key."
 class SecretRoleViewSet(ModelViewSet):
     queryset = SecretRole.objects.annotate(
         secret_count=Count('secrets')
-    )
+    ).order_by(*SecretRole._meta.ordering)
     serializer_class = serializers.SecretRoleSerializer
-    permission_classes = [IsAuthenticated]
     filterset_class = filters.SecretRoleFilterSet
 
 
@@ -39,7 +47,7 @@ class SecretRoleViewSet(ModelViewSet):
 
 class SecretViewSet(ModelViewSet):
     queryset = Secret.objects.prefetch_related(
-        'device__primary_ip4', 'device__primary_ip6', 'role', 'role__users', 'role__groups', 'tags',
+        'device__primary_ip4', 'device__primary_ip6', 'role', 'tags',
     )
     serializer_class = serializers.SecretSerializer
     filterset_class = filters.SecretFilterSet
@@ -85,8 +93,8 @@ class SecretViewSet(ModelViewSet):
 
         secret = self.get_object()
 
-        # Attempt to decrypt the secret if the user is permitted and the master key is known
-        if secret.decryptable_by(request.user) and self.master_key is not None:
+        # Attempt to decrypt the secret if the master key is known
+        if self.master_key is not None:
             secret.decrypt(self.master_key)
 
         serializer = self.get_serializer(secret)
@@ -103,9 +111,7 @@ class SecretViewSet(ModelViewSet):
             if self.master_key is not None:
                 secrets = []
                 for secret in page:
-                    # Enforce role permissions
-                    if secret.decryptable_by(request.user):
-                        secret.decrypt(self.master_key)
+                    secret.decrypt(self.master_key)
                     secrets.append(secret)
                 serializer = self.get_serializer(secrets, many=True)
             else:

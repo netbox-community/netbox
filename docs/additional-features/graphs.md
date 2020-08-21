@@ -1,5 +1,8 @@
 # Graphs
 
+!!! warning
+    Native support for embedded graphs is due to be removed in NetBox v2.10. It will likely be superseded by a plugin providing similar functionality.
+
 NetBox does not have the ability to generate graphs natively, but this feature allows you to embed contextual graphs from an external resources (such as a monitoring system) inside the site, provider, and interface views. Each embedded graph must be defined with the following parameters:
 
 * **Type:** Site, device, provider, or interface. This determines in which view the graph will be displayed.
@@ -8,10 +11,7 @@ NetBox does not have the ability to generate graphs natively, but this feature a
 * **Source URL:** The source of the image to be embedded. The associated object will be available as a template variable named `obj`.
 * **Link URL (optional):** A URL to which the graph will be linked. The associated object will be available as a template variable named `obj`.
 
-Graph names and links can be rendered using the Django or Jinja2 template languages.
-
-!!! warning
-    Support for the Django templating language will be removed in NetBox v2.8. Jinja2 is recommended.
+Graph names and links can be rendered using Jinja2 or [Django's template language](https://docs.djangoproject.com/en/stable/ref/templates/language/).
 
 ## Examples
 

@@ -176,6 +176,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         Prefix.objects.create(prefix=IPNetwork('192.0.2.64/26'))
         Prefix.objects.create(prefix=IPNetwork('192.0.2.192/27'))
         url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
+        self.add_permissions('ipam.view_prefix')
 
         # Retrieve all available IPs
         response = self.client.get(url, **self.header)
@@ -190,6 +191,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         vrf = VRF.objects.create(name='Test VRF 1', rd='1234')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
+        self.add_permissions('ipam.add_prefix')
 
         # Create four available prefixes with individual requests
         prefixes_to_be_created = [
@@ -225,6 +227,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         """
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), is_pool=True)
         url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
+        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
 
         # Try to create five /30s (only four are available)
         data = [
@@ -240,6 +243,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
 
         # Verify that no prefixes were created (the entire /28 is still available)
         response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data[0]['prefix'], '192.0.2.0/28')
 
         # Create four /30s in a single request
@@ -253,6 +257,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         """
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), is_pool=True)
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
+        self.add_permissions('ipam.view_prefix', 'ipam.view_ipaddress')
 
         # Retrieve all available IPs
         response = self.client.get(url, **self.header)
@@ -271,6 +276,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         vrf = VRF.objects.create(name='Test VRF 1', rd='1234')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/30'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
+        self.add_permissions('ipam.view_prefix', 'ipam.add_ipaddress')
 
         # Create all four available IPs with individual requests
         for i in range(1, 5):
@@ -293,16 +299,13 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         """
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), is_pool=True)
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
+        self.add_permissions('ipam.view_prefix', 'ipam.add_ipaddress')
 
         # Try to create nine IPs (only eight are available)
-        data = [{'description': 'Test IP {}'.format(i)} for i in range(1, 10)]  # 9 IPs
+        data = [{'description': f'Test IP {i}'} for i in range(1, 10)]  # 9 IPs
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertIn('detail', response.data)
-
-        # Verify that no IPs were created (eight are still available)
-        response = self.client.get(url, **self.header)
-        self.assertEqual(len(response.data), 8)
 
         # Create all eight available IPs in a single request
         data = [{'description': 'Test IP {}'.format(i)} for i in range(1, 9)]  # 8 IPs
@@ -411,6 +414,7 @@ class VLANTest(APIViewTestCases.APIViewTestCase):
         vlan = VLAN.objects.first()
         Prefix.objects.create(prefix=IPNetwork('192.0.2.0/24'), vlan=vlan)
 
+        self.add_permissions('ipam.delete_vlan')
         url = reverse('ipam-api:vlan-detail', kwargs={'pk': vlan.pk})
         with disable_warnings('django.request'):
             response = self.client.delete(url, **self.header)

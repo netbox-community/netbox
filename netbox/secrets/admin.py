@@ -1,4 +1,5 @@
 from django.contrib import admin, messages
+from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.shortcuts import redirect, render
 
 from .forms import ActivateUserKeyForm
@@ -23,7 +24,7 @@ class UserKeyAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         if 'delete_selected' in actions:
             del actions['delete_selected']
-        if not request.user.has_perm('secrets.activate_userkey'):
+        if not request.user.has_perm('secrets.change_userkey'):
             del actions['activate_selected']
         return actions
 
@@ -50,7 +51,9 @@ class UserKeyAdmin(admin.ModelAdmin):
                         request, "Invalid private key provided. Unable to retrieve master key.", extra_tags='error'
                     )
         else:
-            form = ActivateUserKeyForm(initial={'_selected_action': request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})
+            form = ActivateUserKeyForm(
+                initial={'_selected_action': request.POST.getlist(ACTION_CHECKBOX_NAME)}
+            )
 
         return render(request, 'activate_keys.html', {
             'form': form,

@@ -1,6 +1,6 @@
 import django_tables2 as tables
 
-from utilities.tables import BaseTable, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, ButtonsColumn, TagColumn, ToggleColumn
 from .models import Tenant, TenantGroup
 
 MPTT_LINK = """
@@ -11,15 +11,6 @@ MPTT_LINK = """
 {% endif %}
     <a href="{{ record.get_absolute_url }}">{{ record.name }}</a>
 </span>
-"""
-
-TENANTGROUP_ACTIONS = """
-<a href="{% url 'tenancy:tenantgroup_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
-{% if perms.tenancy.change_tenantgroup %}
-    <a href="{% url 'tenancy:tenantgroup_edit' slug=record.slug %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
 """
 
 COL_TENANT = """
@@ -44,11 +35,7 @@ class TenantGroupTable(BaseTable):
     tenant_count = tables.Column(
         verbose_name='Tenants'
     )
-    actions = tables.TemplateColumn(
-        template_code=TENANTGROUP_ACTIONS,
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
-    )
+    actions = ButtonsColumn(TenantGroup, pk_field='slug')
 
     class Meta(BaseTable.Meta):
         model = TenantGroup

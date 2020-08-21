@@ -21,12 +21,6 @@ class SiteStatusChoices(ChoiceSet):
         (STATUS_RETIRED, 'Retired'),
     )
 
-    LEGACY_MAP = {
-        STATUS_ACTIVE: 1,
-        STATUS_PLANNED: 2,
-        STATUS_RETIRED: 4,
-    }
-
 
 #
 # Racks
@@ -47,14 +41,6 @@ class RackTypeChoices(ChoiceSet):
         (TYPE_WALLFRAME, 'Wall-mounted frame'),
         (TYPE_WALLCABINET, 'Wall-mounted cabinet'),
     )
-
-    LEGACY_MAP = {
-        TYPE_2POST: 100,
-        TYPE_4POST: 200,
-        TYPE_CABINET: 300,
-        TYPE_WALLFRAME: 1000,
-        TYPE_WALLCABINET: 1100,
-    }
 
 
 class RackWidthChoices(ChoiceSet):
@@ -88,14 +74,6 @@ class RackStatusChoices(ChoiceSet):
         (STATUS_DEPRECATED, 'Deprecated'),
     )
 
-    LEGACY_MAP = {
-        STATUS_RESERVED: 0,
-        STATUS_AVAILABLE: 1,
-        STATUS_PLANNED: 2,
-        STATUS_ACTIVE: 3,
-        STATUS_DEPRECATED: 4,
-    }
-
 
 class RackDimensionUnitChoices(ChoiceSet):
 
@@ -106,11 +84,6 @@ class RackDimensionUnitChoices(ChoiceSet):
         (UNIT_MILLIMETER, 'Millimeters'),
         (UNIT_INCH, 'Inches'),
     )
-
-    LEGACY_MAP = {
-        UNIT_MILLIMETER: 1000,
-        UNIT_INCH: 2000,
-    }
 
 
 class RackElevationDetailRenderChoices(ChoiceSet):
@@ -138,11 +111,6 @@ class SubdeviceRoleChoices(ChoiceSet):
         (ROLE_CHILD, 'Child'),
     )
 
-    LEGACY_MAP = {
-        ROLE_PARENT: True,
-        ROLE_CHILD: False,
-    }
-
 
 #
 # Devices
@@ -157,11 +125,6 @@ class DeviceFaceChoices(ChoiceSet):
         (FACE_FRONT, 'Front'),
         (FACE_REAR, 'Rear'),
     )
-
-    LEGACY_MAP = {
-        FACE_FRONT: 0,
-        FACE_REAR: 1,
-    }
 
 
 class DeviceStatusChoices(ChoiceSet):
@@ -183,16 +146,6 @@ class DeviceStatusChoices(ChoiceSet):
         (STATUS_INVENTORY, 'Inventory'),
         (STATUS_DECOMMISSIONING, 'Decommissioning'),
     )
-
-    LEGACY_MAP = {
-        STATUS_OFFLINE: 0,
-        STATUS_ACTIVE: 1,
-        STATUS_PLANNED: 2,
-        STATUS_STAGED: 3,
-        STATUS_FAILED: 4,
-        STATUS_INVENTORY: 5,
-        STATUS_DECOMMISSIONING: 6,
-    }
 
 
 #
@@ -611,12 +564,6 @@ class PowerOutletFeedLegChoices(ChoiceSet):
         (FEED_LEG_C, 'C'),
     )
 
-    LEGACY_MAP = {
-        FEED_LEG_A: 1,
-        FEED_LEG_B: 2,
-        FEED_LEG_C: 3,
-    }
-
 
 #
 # Interfaces
@@ -846,80 +793,6 @@ class InterfaceTypeChoices(ChoiceSet):
         ),
     )
 
-    LEGACY_MAP = {
-        TYPE_VIRTUAL: 0,
-        TYPE_LAG: 200,
-        TYPE_100ME_FIXED: 800,
-        TYPE_1GE_FIXED: 1000,
-        TYPE_1GE_GBIC: 1050,
-        TYPE_1GE_SFP: 1100,
-        TYPE_2GE_FIXED: 1120,
-        TYPE_5GE_FIXED: 1130,
-        TYPE_10GE_FIXED: 1150,
-        TYPE_10GE_CX4: 1170,
-        TYPE_10GE_SFP_PLUS: 1200,
-        TYPE_10GE_XFP: 1300,
-        TYPE_10GE_XENPAK: 1310,
-        TYPE_10GE_X2: 1320,
-        TYPE_25GE_SFP28: 1350,
-        TYPE_40GE_QSFP_PLUS: 1400,
-        TYPE_50GE_QSFP28: 1420,
-        TYPE_100GE_CFP: 1500,
-        TYPE_100GE_CFP2: 1510,
-        TYPE_100GE_CFP4: 1520,
-        TYPE_100GE_CPAK: 1550,
-        TYPE_100GE_QSFP28: 1600,
-        TYPE_200GE_CFP2: 1650,
-        TYPE_200GE_QSFP56: 1700,
-        TYPE_400GE_QSFP_DD: 1750,
-        TYPE_400GE_OSFP: 1800,
-        TYPE_80211A: 2600,
-        TYPE_80211G: 2610,
-        TYPE_80211N: 2620,
-        TYPE_80211AC: 2630,
-        TYPE_80211AD: 2640,
-        TYPE_GSM: 2810,
-        TYPE_CDMA: 2820,
-        TYPE_LTE: 2830,
-        TYPE_SONET_OC3: 6100,
-        TYPE_SONET_OC12: 6200,
-        TYPE_SONET_OC48: 6300,
-        TYPE_SONET_OC192: 6400,
-        TYPE_SONET_OC768: 6500,
-        TYPE_SONET_OC1920: 6600,
-        TYPE_SONET_OC3840: 6700,
-        TYPE_1GFC_SFP: 3010,
-        TYPE_2GFC_SFP: 3020,
-        TYPE_4GFC_SFP: 3040,
-        TYPE_8GFC_SFP_PLUS: 3080,
-        TYPE_16GFC_SFP_PLUS: 3160,
-        TYPE_32GFC_SFP28: 3320,
-        TYPE_128GFC_QSFP28: 3400,
-        TYPE_INFINIBAND_SDR: 7010,
-        TYPE_INFINIBAND_DDR: 7020,
-        TYPE_INFINIBAND_QDR: 7030,
-        TYPE_INFINIBAND_FDR10: 7040,
-        TYPE_INFINIBAND_FDR: 7050,
-        TYPE_INFINIBAND_EDR: 7060,
-        TYPE_INFINIBAND_HDR: 7070,
-        TYPE_INFINIBAND_NDR: 7080,
-        TYPE_INFINIBAND_XDR: 7090,
-        TYPE_T1: 4000,
-        TYPE_E1: 4010,
-        TYPE_T3: 4040,
-        TYPE_E3: 4050,
-        TYPE_STACKWISE: 5000,
-        TYPE_STACKWISE_PLUS: 5050,
-        TYPE_FLEXSTACK: 5100,
-        TYPE_FLEXSTACK_PLUS: 5150,
-        TYPE_JUNIPER_VCP: 5200,
-        TYPE_SUMMITSTACK: 5300,
-        TYPE_SUMMITSTACK128: 5310,
-        TYPE_SUMMITSTACK256: 5320,
-        TYPE_SUMMITSTACK512: 5330,
-        TYPE_OTHER: 32767,
-    }
-
 
 class InterfaceModeChoices(ChoiceSet):
 
@@ -932,12 +805,6 @@ class InterfaceModeChoices(ChoiceSet):
         (MODE_TAGGED, 'Tagged'),
         (MODE_TAGGED_ALL, 'Tagged (All)'),
     )
-
-    LEGACY_MAP = {
-        MODE_ACCESS: 100,
-        MODE_TAGGED: 200,
-        MODE_TAGGED_ALL: 300,
-    }
 
 
 #
@@ -987,22 +854,6 @@ class PortTypeChoices(ChoiceSet):
             )
         )
     )
-
-    LEGACY_MAP = {
-        TYPE_8P8C: 1000,
-        TYPE_110_PUNCH: 1100,
-        TYPE_BNC: 1200,
-        TYPE_ST: 2000,
-        TYPE_SC: 2100,
-        TYPE_SC_APC: 2110,
-        TYPE_FC: 2200,
-        TYPE_LC: 2300,
-        TYPE_LC_APC: 2310,
-        TYPE_MTRJ: 2400,
-        TYPE_MPO: 2500,
-        TYPE_LSH: 2600,
-        TYPE_LSH_APC: 2610,
-    }
 
 
 #
@@ -1063,28 +914,6 @@ class CableTypeChoices(ChoiceSet):
         (TYPE_POWER, 'Power'),
     )
 
-    LEGACY_MAP = {
-        TYPE_CAT3: 1300,
-        TYPE_CAT5: 1500,
-        TYPE_CAT5E: 1510,
-        TYPE_CAT6: 1600,
-        TYPE_CAT6A: 1610,
-        TYPE_CAT7: 1700,
-        TYPE_DAC_ACTIVE: 1800,
-        TYPE_DAC_PASSIVE: 1810,
-        TYPE_COAXIAL: 1900,
-        TYPE_MMF: 3000,
-        TYPE_MMF_OM1: 3010,
-        TYPE_MMF_OM2: 3020,
-        TYPE_MMF_OM3: 3030,
-        TYPE_MMF_OM4: 3040,
-        TYPE_SMF: 3500,
-        TYPE_SMF_OS1: 3510,
-        TYPE_SMF_OS2: 3520,
-        TYPE_AOC: 3800,
-        TYPE_POWER: 5000,
-    }
-
 
 class CableStatusChoices(ChoiceSet):
 
@@ -1097,11 +926,6 @@ class CableStatusChoices(ChoiceSet):
         (STATUS_PLANNED, 'Planned'),
         (STATUS_DECOMMISSIONING, 'Decommissioning'),
     )
-
-    LEGACY_MAP = {
-        STATUS_CONNECTED: True,
-        STATUS_PLANNED: False,
-    }
 
 
 class CableLengthUnitChoices(ChoiceSet):
@@ -1117,13 +941,6 @@ class CableLengthUnitChoices(ChoiceSet):
         (UNIT_FOOT, 'Feet'),
         (UNIT_INCH, 'Inches'),
     )
-
-    LEGACY_MAP = {
-        UNIT_METER: 1200,
-        UNIT_CENTIMETER: 1100,
-        UNIT_FOOT: 2100,
-        UNIT_INCH: 2000,
-    }
 
 
 #
@@ -1144,13 +961,6 @@ class PowerFeedStatusChoices(ChoiceSet):
         (STATUS_FAILED, 'Failed'),
     )
 
-    LEGACY_MAP = {
-        STATUS_OFFLINE: 0,
-        STATUS_ACTIVE: 1,
-        STATUS_PLANNED: 2,
-        STATUS_FAILED: 4,
-    }
-
 
 class PowerFeedTypeChoices(ChoiceSet):
 
@@ -1161,11 +971,6 @@ class PowerFeedTypeChoices(ChoiceSet):
         (TYPE_PRIMARY, 'Primary'),
         (TYPE_REDUNDANT, 'Redundant'),
     )
-
-    LEGACY_MAP = {
-        TYPE_PRIMARY: 1,
-        TYPE_REDUNDANT: 2,
-    }
 
 
 class PowerFeedSupplyChoices(ChoiceSet):
@@ -1178,11 +983,6 @@ class PowerFeedSupplyChoices(ChoiceSet):
         (SUPPLY_DC, 'DC'),
     )
 
-    LEGACY_MAP = {
-        SUPPLY_AC: 1,
-        SUPPLY_DC: 2,
-    }
-
 
 class PowerFeedPhaseChoices(ChoiceSet):
 
@@ -1193,8 +993,3 @@ class PowerFeedPhaseChoices(ChoiceSet):
         (PHASE_SINGLE, 'Single phase'),
         (PHASE_3PHASE, 'Three-phase'),
     )
-
-    LEGACY_MAP = {
-        PHASE_SINGLE: 1,
-        PHASE_3PHASE: 3,
-    }

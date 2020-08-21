@@ -11,6 +11,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import action
 from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
+from rest_framework.routers import APIRootView
 from rest_framework.viewsets import GenericViewSet, ViewSet
 
 from circuits.models import Circuit
@@ -36,6 +37,14 @@ from . import serializers
 from .exceptions import MissingFilterException
 
 
+class DCIMRootView(APIRootView):
+    """
+    DCIM API root view
+    """
+    def get_view_name(self):
+        return 'DCIM'
+
+
 # Mixins
 
 class CableTraceMixin(object):
@@ -45,7 +54,7 @@ class CableTraceMixin(object):
         """
         Trace a complete cable path and return each segment as a three-tuple of (termination, cable, termination).
         """
-        obj = get_object_or_404(self.queryset.model, pk=pk)
+        obj = get_object_or_404(self.queryset, pk=pk)
 
         # Initialize the path array
         path = []
@@ -75,8 +84,12 @@ class CableTraceMixin(object):
 #
 
 class RegionViewSet(ModelViewSet):
-    queryset = Region.objects.annotate(
-        site_count=Count('sites')
+    queryset = Region.objects.add_related_count(
+        Region.objects.all(),
+        Site,
+        'region',
+        'site_count',
+        cumulative=True
     )
     serializer_class = serializers.RegionSerializer
     filterset_class = filters.RegionFilterSet
@@ -96,7 +109,7 @@ class SiteViewSet(CustomFieldModelViewSet):
         vlan_count=get_subquery(VLAN, 'site'),
         circuit_count=get_subquery(Circuit, 'terminations__site'),
         virtualmachine_count=get_subquery(VirtualMachine, 'cluster__site'),
-    )
+    ).order_by(*Site._meta.ordering)
     serializer_class = serializers.SiteSerializer
     filterset_class = filters.SiteFilterSet
 
@@ -105,8 +118,8 @@ class SiteViewSet(CustomFieldModelViewSet):
         """
         A convenience method for rendering graphs for a particular site.
         """
-        site = get_object_or_404(Site, pk=pk)
-        queryset = Graph.objects.filter(type__model='site')
+        site = get_object_or_404(self.queryset, pk=pk)
+        queryset = Graph.objects.restrict(request.user).filter(type__model='site')
         serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': site})
         return Response(serializer.data)
 
@@ -116,9 +129,13 @@ class SiteViewSet(CustomFieldModelViewSet):
 #
 
 class RackGroupViewSet(ModelViewSet):
-    queryset = RackGroup.objects.prefetch_related('site').annotate(
-        rack_count=Count('racks')
-    )
+    queryset = RackGroup.objects.add_related_count(
+        RackGroup.objects.all(),
+        Rack,
+        'group',
+        'rack_count',
+        cumulative=True
+    ).prefetch_related('site')
     serializer_class = serializers.RackGroupSerializer
     filterset_class = filters.RackGroupFilterSet
 
@@ -130,7 +147,7 @@ class RackGroupViewSet(ModelViewSet):
 class RackRoleViewSet(ModelViewSet):
     queryset = RackRole.objects.annotate(
         rack_count=Count('racks')
-    )
+    ).order_by(*RackRole._meta.ordering)
     serializer_class = serializers.RackRoleSerializer
     filterset_class = filters.RackRoleFilterSet
 
@@ -145,7 +162,7 @@ class RackViewSet(CustomFieldModelViewSet):
     ).annotate(
         device_count=get_subquery(Device, 'rack'),
         powerfeed_count=get_subquery(PowerFeed, 'rack')
-    )
+    ).order_by(*Rack._meta.ordering)
     serializer_class = serializers.RackSerializer
     filterset_class = filters.RackFilterSet
 
@@ -158,7 +175,7 @@ class RackViewSet(CustomFieldModelViewSet):
         """
         Rack elevation representing the list of rack units. Also supports rendering the elevation as an SVG.
         """
-        rack = get_object_or_404(Rack, pk=pk)
+        rack = get_object_or_404(self.queryset, pk=pk)
         serializer = serializers.RackElevationDetailFilterSerializer(data=request.GET)
         if not serializer.is_valid():
             return Response(serializer.errors, 400)
@@ -168,6 +185,7 @@ class RackViewSet(CustomFieldModelViewSet):
             # Render and return the elevation as an SVG drawing with the correct content type
             drawing = rack.get_elevation_svg(
                 face=data['face'],
+                user=request.user,
                 unit_width=data['unit_width'],
                 unit_height=data['unit_height'],
                 legend_width=data['legend_width'],
@@ -180,6 +198,7 @@ class RackViewSet(CustomFieldModelViewSet):
             # Return a JSON representation of the rack units in the elevation
             elevation = rack.get_rack_units(
                 face=data['face'],
+                user=request.user,
                 exclude=data['exclude'],
                 expand_devices=data['expand_devices']
             )
@@ -218,7 +237,7 @@ class ManufacturerViewSet(ModelViewSet):
         devicetype_count=get_subquery(DeviceType, 'manufacturer'),
         inventoryitem_count=get_subquery(InventoryItem, 'manufacturer'),
         platform_count=get_subquery(Platform, 'manufacturer')
-    )
+    ).order_by(*Manufacturer._meta.ordering)
     serializer_class = serializers.ManufacturerSerializer
     filterset_class = filters.ManufacturerFilterSet
 
@@ -228,9 +247,9 @@ class ManufacturerViewSet(ModelViewSet):
 #
 
 class DeviceTypeViewSet(CustomFieldModelViewSet):
-    queryset = DeviceType.objects.prefetch_related('manufacturer').prefetch_related('tags').annotate(
+    queryset = DeviceType.objects.prefetch_related('manufacturer', 'tags').annotate(
         device_count=Count('instances')
-    )
+    ).order_by(*DeviceType._meta.ordering)
     serializer_class = serializers.DeviceTypeSerializer
     filterset_class = filters.DeviceTypeFilterSet
 
@@ -295,7 +314,7 @@ class DeviceRoleViewSet(ModelViewSet):
     queryset = DeviceRole.objects.annotate(
         device_count=get_subquery(Device, 'device_role'),
         virtualmachine_count=get_subquery(VirtualMachine, 'role')
-    )
+    ).order_by(*DeviceRole._meta.ordering)
     serializer_class = serializers.DeviceRoleSerializer
     filterset_class = filters.DeviceRoleFilterSet
 
@@ -308,7 +327,7 @@ class PlatformViewSet(ModelViewSet):
     queryset = Platform.objects.annotate(
         device_count=get_subquery(Device, 'platform'),
         virtualmachine_count=get_subquery(VirtualMachine, 'platform')
-    )
+    ).order_by(*Platform._meta.ordering)
     serializer_class = serializers.PlatformSerializer
     filterset_class = filters.PlatformFilterSet
 
@@ -349,8 +368,8 @@ class DeviceViewSet(CustomFieldModelViewSet):
         """
         A convenience method for rendering graphs for a particular Device.
         """
-        device = get_object_or_404(Device, pk=pk)
-        queryset = Graph.objects.filter(type__model='device')
+        device = get_object_or_404(self.queryset, pk=pk)
+        queryset = Graph.objects.restrict(request.user).filter(type__model='device')
         serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': device})
 
         return Response(serializer.data)
@@ -371,7 +390,9 @@ class DeviceViewSet(CustomFieldModelViewSet):
         """
         Execute a NAPALM method on a Device
         """
-        device = get_object_or_404(Device, pk=pk)
+        device = get_object_or_404(self.queryset, pk=pk)
+        if not device.primary_ip:
+            raise ServiceUnavailable("This device does not have a primary IP address configured.")
         if device.platform is None:
             raise ServiceUnavailable("No platform is configured for this device.")
         if not device.platform.napalm_driver:
@@ -411,7 +432,7 @@ class DeviceViewSet(CustomFieldModelViewSet):
             ))
 
         # Verify user permission
-        if not request.user.has_perm('dcim.napalm_read'):
+        if not request.user.has_perm('dcim.napalm_read_device'):
             return HttpResponseForbidden()
 
         napalm_methods = request.GET.getlist('method')
@@ -511,8 +532,8 @@ class InterfaceViewSet(CableTraceMixin, ModelViewSet):
         """
         A convenience method for rendering graphs for a particular interface.
         """
-        interface = get_object_or_404(Interface, pk=pk)
-        queryset = Graph.objects.filter(type__model='interface')
+        interface = get_object_or_404(self.queryset, pk=pk)
+        queryset = Graph.objects.restrict(request.user).filter(type__model='interface')
         serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': interface})
         return Response(serializer.data)
 
@@ -596,8 +617,8 @@ class CableViewSet(ModelViewSet):
 
 class VirtualChassisViewSet(ModelViewSet):
     queryset = VirtualChassis.objects.prefetch_related('tags').annotate(
-        member_count=Count('members')
-    )
+        member_count=Count('members', distinct=True)
+    ).order_by(*VirtualChassis._meta.ordering)
     serializer_class = serializers.VirtualChassisSerializer
     filterset_class = filters.VirtualChassisFilterSet
 
@@ -611,7 +632,7 @@ class PowerPanelViewSet(ModelViewSet):
         'site', 'rack_group'
     ).annotate(
         powerfeed_count=Count('powerfeeds')
-    )
+    ).order_by(*PowerPanel._meta.ordering)
     serializer_class = serializers.PowerPanelSerializer
     filterset_class = filters.PowerPanelFilterSet
 
@@ -671,7 +692,11 @@ class ConnectedDeviceViewSet(ViewSet):
             raise MissingFilterException(detail='Request must include "peer_device" and "peer_interface" filters.')
 
         # Determine local interface from peer interface's connection
-        peer_interface = get_object_or_404(Interface, device__name=peer_device_name, name=peer_interface_name)
+        peer_interface = get_object_or_404(
+            Interface.objects.all(),
+            device__name=peer_device_name,
+            name=peer_interface_name
+        )
         local_interface = peer_interface._connected_interface
 
         if local_interface is None:

@@ -5,8 +5,7 @@ from rest_framework import status
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
-from users.models import Token
-from utilities.testing import APITestCase, APIViewTestCases, create_test_user
+from utilities.testing import APITestCase, APIViewTestCases
 from .constants import PRIVATE_KEY, PUBLIC_KEY
 
 
@@ -114,3 +113,47 @@ class SecretTest(APIViewTestCases.APIViewTestCase):
         # Unlock the plaintext prior to evaluation of the instance
         instance.decrypt(self.master_key)
         return instance
+
+
+class GetSessionKeyTest(APITestCase):
+
+    def setUp(self):
+
+        super().setUp()
+
+        userkey = UserKey(user=self.user, public_key=PUBLIC_KEY)
+        userkey.save()
+        master_key = userkey.get_master_key(PRIVATE_KEY)
+        self.session_key = SessionKey(userkey=userkey)
+        self.session_key.save(master_key)
+
+        self.header = {
+            'HTTP_AUTHORIZATION': 'Token {}'.format(self.token.key),
+        }
+
+    def test_get_session_key(self):
+
+        encoded_session_key = base64.b64encode(self.session_key.key).decode()
+
+        url = reverse('secrets-api:get-session-key-list')
+        data = {
+            'private_key': PRIVATE_KEY,
+        }
+        response = self.client.post(url, data, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNotNone(response.data.get('session_key'))
+        self.assertNotEqual(response.data.get('session_key'), encoded_session_key)
+
+    def test_get_session_key_preserved(self):
+
+        encoded_session_key = base64.b64encode(self.session_key.key).decode()
+
+        url = reverse('secrets-api:get-session-key-list') + '?preserve_key=True'
+        data = {
+            'private_key': PRIVATE_KEY,
+        }
+        response = self.client.post(url, data, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('session_key'), encoded_session_key)

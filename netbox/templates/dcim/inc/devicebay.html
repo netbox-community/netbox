@@ -9,7 +9,8 @@
 
     {# Name #}
     <td>
-        <i class="fa fa-fw fa-{% if devicebay.installed_device %}dot-circle-o{% else %}circle-o{% endif %}"></i> {{ devicebay.name }}
+        <i class="fa fa-fw fa-{% if devicebay.installed_device %}dot-circle-o{% else %}circle-o{% endif %}"></i>
+        <a href="{{ devicebay.get_absolute_url }}">{{ devicebay.name }}</a>
     </td>
 
     {# Status #}

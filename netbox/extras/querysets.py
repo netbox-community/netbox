@@ -2,6 +2,8 @@ from collections import OrderedDict
 
 from django.db.models import Q, QuerySet
 
+from utilities.querysets import RestrictedQuerySet
+
 
 class CustomFieldQueryset:
     """
@@ -19,7 +21,7 @@ class CustomFieldQueryset:
             yield obj
 
 
-class ConfigContextQuerySet(QuerySet):
+class ConfigContextQuerySet(RestrictedQuerySet):
 
     def get_for_object(self, obj):
         """

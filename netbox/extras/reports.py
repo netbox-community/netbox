@@ -2,13 +2,18 @@ import importlib
 import inspect
 import logging
 import pkgutil
+import traceback
 from collections import OrderedDict
 
 from django.conf import settings
 from django.utils import timezone
+from django_rq import job
 
-from .constants import *
-from .models import ReportResult
+from .choices import JobResultStatusChoices, LogLevelChoices
+from .models import JobResult
+
+
+logger = logging.getLogger(__name__)
 
 
 def is_report(obj):
@@ -58,6 +63,33 @@ def get_reports():
         module_list.append((module_name, report_list))
 
     return module_list
+
+
+@job('default')
+def run_report(job_result, *args, **kwargs):
+    """
+    Helper function to call the run method on a report. This is needed to get around the inability to pickle an instance
+    method for queueing into the background processor.
+    """
+    module_name, report_name = job_result.name.split('.', 1)
+    report = get_report(module_name, report_name)
+
+    try:
+        report.run(job_result)
+    except Exception as e:
+        print(e)
+        job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
+        job_result.save()
+        logging.error(f"Error during execution of report {job_result.name}")
+
+    # Delete any previous terminal state results
+    JobResult.objects.filter(
+        obj_type=job_result.obj_type,
+        name=job_result.name,
+        status__in=JobResultStatusChoices.TERMINAL_STATE_CHOICES
+    ).exclude(
+        pk=job_result.pk
+    ).delete()
 
 
 class Report(object):
@@ -115,24 +147,31 @@ class Report(object):
         return self.__module__
 
     @property
-    def name(self):
+    def class_name(self):
         return self.__class__.__name__
 
     @property
-    def full_name(self):
-        return '.'.join([self.__module__, self.__class__.__name__])
+    def name(self):
+        """
+        Override this attribute to set a custom display name.
+        """
+        return self.class_name
 
-    def _log(self, obj, message, level=LOG_DEFAULT):
+    @property
+    def full_name(self):
+        return f'{self.module}.{self.class_name}'
+
+    def _log(self, obj, message, level=LogLevelChoices.LOG_DEFAULT):
         """
         Log a message from a test method. Do not call this method directly; use one of the log_* wrappers below.
         """
-        if level not in LOG_LEVEL_CODES:
+        if level not in LogLevelChoices.as_dict():
             raise Exception("Unknown logging level: {}".format(level))
         self._results[self.active_test]['log'].append((
             timezone.now().isoformat(),
-            LOG_LEVEL_CODES.get(level),
+            level,
             str(obj) if obj else None,
-            obj.get_absolute_url() if getattr(obj, 'get_absolute_url', None) else None,
+            obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else None,
             message,
         ))
 
@@ -140,7 +179,7 @@ class Report(object):
         """
         Log a message which is not associated with a particular object.
         """
-        self._log(None, message, level=LOG_DEFAULT)
+        self._log(None, message, level=LogLevelChoices.LOG_DEFAULT)
         self.logger.info(message)
 
     def log_success(self, obj, message=None):
@@ -148,7 +187,7 @@ class Report(object):
         Record a successful test against an object. Logging a message is optional.
         """
         if message:
-            self._log(obj, message, level=LOG_SUCCESS)
+            self._log(obj, message, level=LogLevelChoices.LOG_SUCCESS)
         self._results[self.active_test]['success'] += 1
         self.logger.info(f"Success | {obj}: {message}")
 
@@ -156,7 +195,7 @@ class Report(object):
         """
         Log an informational message.
         """
-        self._log(obj, message, level=LOG_INFO)
+        self._log(obj, message, level=LogLevelChoices.LOG_INFO)
         self._results[self.active_test]['info'] += 1
         self.logger.info(f"Info | {obj}: {message}")
 
@@ -164,7 +203,7 @@ class Report(object):
         """
         Log a warning.
         """
-        self._log(obj, message, level=LOG_WARNING)
+        self._log(obj, message, level=LogLevelChoices.LOG_WARNING)
         self._results[self.active_test]['warning'] += 1
         self.logger.info(f"Warning | {obj}: {message}")
 
@@ -172,32 +211,42 @@ class Report(object):
         """
         Log a failure. Calling this method will automatically mark the report as failed.
         """
-        self._log(obj, message, level=LOG_FAILURE)
+        self._log(obj, message, level=LogLevelChoices.LOG_FAILURE)
         self._results[self.active_test]['failure'] += 1
         self.logger.info(f"Failure | {obj}: {message}")
         self.failed = True
 
-    def run(self):
+    def run(self, job_result):
         """
-        Run the report and return its results. Each test method will be executed in order.
+        Run the report and save its results. Each test method will be executed in order.
         """
         self.logger.info(f"Running report")
+        job_result.status = JobResultStatusChoices.STATUS_RUNNING
+        job_result.save()
 
-        for method_name in self.test_methods:
-            self.active_test = method_name
-            test_method = getattr(self, method_name)
-            test_method()
+        try:
 
-        # Delete any previous ReportResult and create a new one to record the result.
-        ReportResult.objects.filter(report=self.full_name).delete()
-        result = ReportResult(report=self.full_name, failed=self.failed, data=self._results)
-        result.save()
-        self.result = result
+            for method_name in self.test_methods:
+                self.active_test = method_name
+                test_method = getattr(self, method_name)
+                test_method()
 
-        if self.failed:
-            self.logger.warning("Report failed")
-        else:
-            self.logger.info("Report completed successfully")
+            if self.failed:
+                self.logger.warning("Report failed")
+                job_result.status = JobResultStatusChoices.STATUS_FAILED
+            else:
+                self.logger.info("Report completed successfully")
+                job_result.status = JobResultStatusChoices.STATUS_COMPLETED
+
+        except Exception as e:
+            stacktrace = traceback.format_exc()
+            self.log_failure(None, f"An exception occurred: {type(e).__name__}: {e} <pre>{stacktrace}</pre>")
+            logger.error(f"Exception raised during report execution: {e}")
+            job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
+
+        job_result.data = self._results
+        job_result.completed = timezone.now()
+        job_result.save()
 
         # Perform any post-run tasks
         self.post_run()

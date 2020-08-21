@@ -298,6 +298,7 @@ class RackReservationFilterSet(BaseFilterSet, TenancyFilterSet):
         to_field_name='username',
         label='User (name)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = RackReservation
@@ -383,28 +384,28 @@ class DeviceTypeFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFil
         )
 
     def _console_ports(self, queryset, name, value):
-        return queryset.exclude(consoleport_templates__isnull=value)
+        return queryset.exclude(consoleporttemplates__isnull=value)
 
     def _console_server_ports(self, queryset, name, value):
-        return queryset.exclude(consoleserverport_templates__isnull=value)
+        return queryset.exclude(consoleserverporttemplates__isnull=value)
 
     def _power_ports(self, queryset, name, value):
-        return queryset.exclude(powerport_templates__isnull=value)
+        return queryset.exclude(powerporttemplates__isnull=value)
 
     def _power_outlets(self, queryset, name, value):
-        return queryset.exclude(poweroutlet_templates__isnull=value)
+        return queryset.exclude(poweroutlettemplates__isnull=value)
 
     def _interfaces(self, queryset, name, value):
-        return queryset.exclude(interface_templates__isnull=value)
+        return queryset.exclude(interfacetemplates__isnull=value)
 
     def _pass_through_ports(self, queryset, name, value):
         return queryset.exclude(
-            frontport_templates__isnull=value,
-            rearport_templates__isnull=value
+            frontporttemplates__isnull=value,
+            rearporttemplates__isnull=value
         )
 
     def _device_bays(self, queryset, name, value):
-        return queryset.exclude(device_bay_templates__isnull=value)
+        return queryset.exclude(devicebaytemplates__isnull=value)
 
 
 class DeviceTypeComponentFilterSet(NameSlugSearchFilterSet):
@@ -655,7 +656,7 @@ class DeviceFilterSet(
         return queryset.filter(
             Q(name__icontains=value) |
             Q(serial__icontains=value.strip()) |
-            Q(inventory_items__serial__icontains=value.strip()) |
+            Q(inventoryitems__serial__icontains=value.strip()) |
             Q(asset_tag__icontains=value.strip()) |
             Q(comments__icontains=value)
         ).distinct()
@@ -697,7 +698,7 @@ class DeviceFilterSet(
         )
 
     def _device_bays(self, queryset, name, value):
-        return queryset.exclude(device_bays__isnull=value)
+        return queryset.exclude(devicebays__isnull=value)
 
 
 class DeviceComponentFilterSet(django_filters.FilterSet):
@@ -746,6 +747,7 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(label__icontains=value) |
             Q(description__icontains=value)
         )
 
@@ -1066,7 +1068,8 @@ class VirtualChassisFilterSet(BaseFilterSet):
         if not value.strip():
             return queryset
         qs_filter = (
-            Q(master__name__icontains=value) |
+            Q(name__icontains=value) |
+            Q(members__name__icontains=value) |
             Q(domain__icontains=value)
         )
         return queryset.filter(qs_filter)
@@ -1117,6 +1120,7 @@ class CableFilterSet(BaseFilterSet):
         method='filter_device',
         field_name='device__tenant__slug'
     )
+    tag = TagFilter()
 
     class Meta:
         model = Cable
@@ -1265,6 +1269,7 @@ class PowerPanelFilterSet(BaseFilterSet):
         lookup_expr='in',
         label='Rack group (ID)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = PowerPanel

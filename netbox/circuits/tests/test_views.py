@@ -17,6 +17,8 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Provider(name='Provider 3', slug='provider-3', asn=65003),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'name': 'Provider X',
             'slug': 'provider-x',
@@ -26,7 +28,7 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'noc_contact': 'noc@example.com',
             'admin_contact': 'admin@example.com',
             'comments': 'Another provider',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -96,6 +98,8 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Circuit(cid='Circuit 3', provider=providers[0], type=circuittypes[0]),
         ])
 
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
         cls.form_data = {
             'cid': 'Circuit X',
             'provider': providers[1].pk,
@@ -106,7 +110,7 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'commit_rate': 1000,
             'description': 'A new circuit',
             'comments': 'Some comments',
-            'tags': 'Alpha,Bravo,Charlie',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
@@ -124,5 +128,4 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'commit_rate': 2000,
             'description': 'New description',
             'comments': 'New comments',
-
         }

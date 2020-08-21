@@ -1,15 +1,22 @@
 import datetime
+from unittest import skipIf
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils import timezone
+from django_rq.queues import get_connection
 from rest_framework import status
+from rq import Worker
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, RackGroup, RackRole, Site
-from extras.api.views import ScriptViewSet
-from extras.models import ConfigContext, Graph, ExportTemplate, Tag
+from extras.api.views import ReportViewSet, ScriptViewSet
+from extras.models import ConfigContext, ExportTemplate, Graph, ImageAttachment, Tag
+from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
+
+
+rq_worker_running = Worker.count(get_connection('default'))
 
 
 class AppTest(APITestCase):
@@ -102,7 +109,7 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class TagTest(APIViewTestCases.APIViewTestCase):
     model = Tag
-    brief_fields = ['color', 'id', 'name', 'slug', 'tagged_items', 'url']
+    brief_fields = ['color', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Tag 4',
@@ -127,6 +134,50 @@ class TagTest(APIViewTestCases.APIViewTestCase):
             Tag(name='Tag 3', slug='tag-3'),
         )
         Tag.objects.bulk_create(tags)
+
+
+# TODO: Standardize to APIViewTestCase (needs create & update tests)
+class ImageAttachmentTest(
+    APIViewTestCases.GetObjectViewTestCase,
+    APIViewTestCases.ListObjectsViewTestCase,
+    APIViewTestCases.DeleteObjectViewTestCase
+):
+    model = ImageAttachment
+    brief_fields = ['id', 'image', 'name', 'url']
+
+    @classmethod
+    def setUpTestData(cls):
+        ct = ContentType.objects.get_for_model(Site)
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        image_attachments = (
+            ImageAttachment(
+                content_type=ct,
+                object_id=site.pk,
+                name='Image Attachment 1',
+                image='http://example.com/image1.png',
+                image_height=100,
+                image_width=100
+            ),
+            ImageAttachment(
+                content_type=ct,
+                object_id=site.pk,
+                name='Image Attachment 2',
+                image='http://example.com/image2.png',
+                image_height=100,
+                image_width=100
+            ),
+            ImageAttachment(
+                content_type=ct,
+                object_id=site.pk,
+                name='Image Attachment 3',
+                image='http://example.com/image3.png',
+                image_height=100,
+                image_width=100
+            )
+        )
+        ImageAttachment.objects.bulk_create(image_attachments)
 
 
 class ConfigContextTest(APIViewTestCases.APIViewTestCase):
@@ -207,6 +258,39 @@ class ConfigContextTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(rendered_context['bar'], 456)
 
 
+class ReportTest(APITestCase):
+
+    class TestReport(Report):
+
+        def test_foo(self):
+            self.log_success(None, "Report completed")
+
+    def get_test_report(self, *args):
+        return self.TestReport()
+
+    def setUp(self):
+        super().setUp()
+
+        # Monkey-patch the API viewset's _get_script method to return our test script above
+        ReportViewSet._retrieve_report = self.get_test_report
+
+    def test_get_report(self):
+        url = reverse('extras-api:report-detail', kwargs={'pk': None})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.TestReport.__name__)
+
+    @skipIf(not rq_worker_running, "RQ worker not running")
+    def test_run_report(self):
+        self.add_permissions('extras.run_script')
+
+        url = reverse('extras-api:report-run', kwargs={'pk': None})
+        response = self.client.post(url, {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['result']['status']['value'], 'pending')
+
+
 class ScriptTest(APITestCase):
 
     class TestScript(Script):
@@ -246,6 +330,7 @@ class ScriptTest(APITestCase):
         self.assertEqual(response.data['vars']['var2'], 'IntegerVar')
         self.assertEqual(response.data['vars']['var3'], 'BooleanVar')
 
+    @skipIf(not rq_worker_running, "RQ worker not running")
     def test_run_script(self):
 
         script_data = {
@@ -263,13 +348,7 @@ class ScriptTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
-        self.assertEqual(response.data['log'][0]['status'], 'info')
-        self.assertEqual(response.data['log'][0]['message'], script_data['var1'])
-        self.assertEqual(response.data['log'][1]['status'], 'success')
-        self.assertEqual(response.data['log'][1]['message'], script_data['var2'])
-        self.assertEqual(response.data['log'][2]['status'], 'failure')
-        self.assertEqual(response.data['log'][2]['message'], script_data['var3'])
-        self.assertEqual(response.data['output'], 'Script complete')
+        self.assertEqual(response.data['result']['status']['value'], 'pending')
 
 
 class CreatedUpdatedFilterTest(APITestCase):
@@ -295,6 +374,7 @@ class CreatedUpdatedFilterTest(APITestCase):
         )
 
     def test_get_rack_created(self):
+        self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?created=2001-02-03'.format(url), **self.header)
 
@@ -302,6 +382,7 @@ class CreatedUpdatedFilterTest(APITestCase):
         self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
 
     def test_get_rack_created_gte(self):
+        self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?created__gte=2001-02-04'.format(url), **self.header)
 
@@ -309,6 +390,7 @@ class CreatedUpdatedFilterTest(APITestCase):
         self.assertEqual(response.data['results'][0]['id'], self.rack1.pk)
 
     def test_get_rack_created_lte(self):
+        self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?created__lte=2001-02-04'.format(url), **self.header)
 
@@ -316,6 +398,7 @@ class CreatedUpdatedFilterTest(APITestCase):
         self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
 
     def test_get_rack_last_updated(self):
+        self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?last_updated=2001-02-03%2001:02:03.000004'.format(url), **self.header)
 
@@ -323,6 +406,7 @@ class CreatedUpdatedFilterTest(APITestCase):
         self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
 
     def test_get_rack_last_updated_gte(self):
+        self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?last_updated__gte=2001-02-04%2001:02:03.000004'.format(url), **self.header)
 
@@ -330,6 +414,7 @@ class CreatedUpdatedFilterTest(APITestCase):
         self.assertEqual(response.data['results'][0]['id'], self.rack1.pk)
 
     def test_get_rack_last_updated_lte(self):
+        self.add_permissions('dcim.view_rack')
         url = reverse('dcim-api:rack-list')
         response = self.client.get('{}?last_updated__lte=2001-02-04%2001:02:03.000004'.format(url), **self.header)
 

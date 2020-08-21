@@ -1,11 +1,11 @@
 from django.db import models
-from django.urls import reverse
 from django.utils.text import slugify
 from taggit.models import TagBase, GenericTaggedItemBase
 
+from extras.models import ChangeLoggedModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField
-from utilities.models import ChangeLoggedModel
+from utilities.querysets import RestrictedQuerySet
 
 
 #
@@ -21,8 +21,12 @@ class Tag(TagBase, ChangeLoggedModel):
         blank=True,
     )
 
-    def get_absolute_url(self):
-        return reverse('extras:tag', args=[self.slug])
+    objects = RestrictedQuerySet.as_manager()
+
+    csv_headers = ['name', 'slug', 'color', 'description']
+
+    class Meta:
+        ordering = ['name']
 
     def slugify(self, tag, i=None):
         # Allow Unicode in Tag slugs (avoids empty slugs for Tags with all-Unicode names)
@@ -30,6 +34,14 @@ class Tag(TagBase, ChangeLoggedModel):
         if i is not None:
             slug += "_%d" % i
         return slug
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+            self.color,
+            self.description
+        )
 
 
 class TaggedItem(GenericTaggedItemBase):

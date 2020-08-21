@@ -10,14 +10,13 @@ from .models import Cable, CableTermination, Device, FrontPort, RearPort, Virtua
 @receiver(post_save, sender=VirtualChassis)
 def assign_virtualchassis_master(instance, created, **kwargs):
     """
-    When a VirtualChassis is created, automatically assign its master device to the VC.
+    When a VirtualChassis is created, automatically assign its master device (if any) to the VC.
     """
-    if created:
-        devices = Device.objects.filter(pk=instance.master.pk)
-        for device in devices:
-            device.virtual_chassis = instance
-            device.vc_position = None
-            device.save()
+    if created and instance.master:
+        master = Device.objects.get(pk=instance.master.pk)
+        master.virtual_chassis = instance
+        master.vc_position = 1
+        master.save()
 
 
 @receiver(pre_delete, sender=VirtualChassis)

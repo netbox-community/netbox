@@ -1,0 +1,77 @@
+{% extends 'dcim/device_component.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Inventory Item</strong>
+                </div>
+                <table class="table table-hover panel-body attr-table">
+                    <tr>
+                        <td>Device</td>
+                        <td>
+                            <a href="{{ instance.device.get_absolute_url }}">{{ instance.device }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Parent Item</td>
+                        <td>
+                            {% if instance.parent %}
+                                <a href="{{ instance.parent.get_absolute_url }}">{{ instance.parent }}</a>
+                            {% else %}
+                                <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td>{{ instance.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Label</td>
+                        <td>{{ instance.label|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <td>Manufacturer</td>
+                        <td>
+                            {% if instance.manufacturer %}
+                                <a href="{{ instance.manufacturer.get_absolute_url }}">{{ instance.manufacturer }}</a>
+                            {% else %}
+                                <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Part ID</td>
+                        <td>{{ instance.part_id|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <td>Serial</td>
+                        <td>{{ instance.serial|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <td>Asset Tag</td>
+                        <td>{{ instance.asset_tag|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>{{ instance.description|placeholder }}</td>
+                    </tr>
+                </table>
+            </div>
+            {% include 'extras/inc/tags_panel.html' with tags=instance.tags.all %}
+            {% plugin_left_page instance %}
+        </div>
+        <div class="col-md-6">
+            {% plugin_right_page instance %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% plugin_full_width_page instance %}
+        </div>
+    </div>
+{% endblock %}

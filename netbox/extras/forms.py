@@ -1,15 +1,14 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from mptt.forms import TreeNodeMultipleChoiceField
-from taggit.forms import TagField as TagField_
+from django.utils.safestring import mark_safe
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ColorSelect,
     ContentTypeSelect, CSVModelForm, DateTimePicker, DynamicModelMultipleChoiceField, JSONField, SlugField,
-    StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES,
+    StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
@@ -30,6 +29,9 @@ class CustomFieldModelForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
+        if self.instance._cf is None:
+            self.instance._cf = {}
+
         self._append_customfield_fields()
 
     def _append_customfield_fields(self):
@@ -49,9 +51,12 @@ class CustomFieldModelForm(forms.ModelForm):
             field_name = 'cf_{}'.format(cf.name)
             if self.instance.pk:
                 self.fields[field_name] = cf.to_form_field(set_initial=False)
-                self.fields[field_name].initial = self.custom_field_values.get(cf.name)
+                value = self.custom_field_values.get(cf.name)
+                self.fields[field_name].initial = value
+                self.instance._cf[cf.name] = value
             else:
                 self.fields[field_name] = cf.to_form_field()
+                self.instance._cf[cf.name] = self.fields[field_name].initial
 
             # Annotate the field in the list of CustomField form fields
             self.custom_fields.append(field_name)
@@ -78,13 +83,18 @@ class CustomFieldModelForm(forms.ModelForm):
             cfv.save()
 
     def save(self, commit=True):
+
+        # Cache custom field values on object prior to save to ensure change logging
+        for cf_name in self.custom_fields:
+            self.instance._cf[cf_name[3:]] = self.cleaned_data.get(cf_name)
+
         obj = super().save(commit)
 
         # Handle custom fields the same way we do M2M fields
         if commit:
             self._save_custom_fields()
         else:
-            self.save_custom_fields = self._save_custom_fields
+            obj.save_custom_fields = self._save_custom_fields
 
         return obj
 
@@ -142,15 +152,6 @@ class CustomFieldFilterForm(forms.Form):
 # Tags
 #
 
-class TagField(TagField_):
-
-    def widget_attrs(self, widget):
-        # Apply the "tagfield" CSS class to trigger the special API-based selection widget for tags
-        return {
-            'class': 'tagfield'
-        }
-
-
 class TagForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
 
@@ -159,6 +160,17 @@ class TagForm(BootstrapMixin, forms.ModelForm):
         fields = [
             'name', 'slug', 'color', 'description'
         ]
+
+
+class TagCSVForm(CSVModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = Tag
+        fields = Tag.csv_headers
+        help_texts = {
+            'color': mark_safe('RGB color in hexadecimal (e.g. <code>00ff00</code>)'),
+        }
 
 
 class AddRemoveTagsForm(forms.Form):
@@ -209,10 +221,9 @@ class TagBulkEditForm(BootstrapMixin, BulkEditForm):
 #
 
 class ConfigContextForm(BootstrapMixin, forms.ModelForm):
-    regions = TreeNodeMultipleChoiceField(
+    regions = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
-        required=False,
-        widget=StaticSelect2Multiple()
+        required=False
     )
     sites = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -290,42 +301,27 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
     region = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     role = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     platform = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     cluster_group = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
@@ -335,26 +331,17 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
     tenant_group = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     tenant = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
     tag = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         to_field_name='slug',
-        required=False,
-        widget=APISelectMultiple(
-            value_field="slug",
-        )
+        required=False
     )
 
 
@@ -410,11 +397,13 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         required=False,
         widget=StaticSelect2()
     )
-    # TODO: Convert to DynamicModelMultipleChoiceField once we have an API endpoint for users
-    user = forms.ModelChoiceField(
-        queryset=User.objects.order_by('username'),
+    user = DynamicModelMultipleChoiceField(
+        queryset=User.objects.all(),
         required=False,
-        widget=StaticSelect2()
+        display_field='username',
+        widget=APISelectMultiple(
+            api_url='/api/users/users/',
+        )
     )
     changed_object_type = forms.ModelChoiceField(
         queryset=ContentType.objects.order_by('model'),
