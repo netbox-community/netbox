@@ -2686,7 +2686,10 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         device_query = Q(device=device)
         if device.virtual_chassis:
             device_query |= Q(device__virtual_chassis=device.virtual_chassis)
-        self.fields['lag'].queryset = Interface.objects.filter(device_query, type=InterfaceTypeChoices.TYPE_LAG)
+        self.fields['lag'].queryset = Interface.objects.filter(
+            device_query,
+            type=InterfaceTypeChoices.TYPE_LAG
+        ).exclude(pk=self.instance.pk)
 
         # Add current site to VLANs query params
         self.fields['untagged_vlan'].widget.add_query_param('site_id', device.site.pk)

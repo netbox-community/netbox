@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#4540](https://github.com/netbox-community/netbox/issues/4540) - Add IP address status type for SLAAC
+* [#4814](https://github.com/netbox-community/netbox/issues/4814) - Allow nested LAG interfaces
 * [#4991](https://github.com/netbox-community/netbox/issues/4991) - Add Python and NetBox versions to error page
 
 ---

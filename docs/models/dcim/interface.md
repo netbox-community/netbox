@@ -4,7 +4,7 @@ Interfaces in NetBox represent network interfaces used to exchange data with con
 
 Interfaces may be physical or virtual in nature, but only physical interfaces may be connected via cables. Cables can connect interfaces to pass-through ports, circuit terminations, or other interfaces.
 
-Physical interfaces may be arranged into a link aggregation group (LAG) and associated with a parent LAG (virtual) interface. Like all virtual interfaces, LAG interfaces cannot be connected physically.
+Physical interfaces may be arranged into a link aggregation group (LAG) and associated with a parent LAG (virtual) interface. LAG interfaces can be recursively nested to model bonding of trunk groups. Like all virtual interfaces, LAG interfaces cannot be connected physically.
 
 IP addresses can be assigned to interfaces. VLANs can also be assigned to each interface as either tagged or untagged. (An interface may have only one untagged VLAN.)
 
