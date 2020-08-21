@@ -1,11 +1,10 @@
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Count, Prefetch
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2 import RequestConfig
 
-from extras.models import Graph
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
@@ -38,7 +37,6 @@ class ProviderView(ObjectView):
         ).prefetch_related(
             'type', 'tenant', 'terminations__site'
         ).annotate_sites()
-        show_graphs = Graph.objects.filter(type__model='provider').exists()
 
         circuits_table = tables.CircuitTable(circuits)
         circuits_table.columns.hide('provider')
@@ -52,7 +50,6 @@ class ProviderView(ObjectView):
         return render(request, 'circuits/provider.html', {
             'provider': provider,
             'circuits_table': circuits_table,
-            'show_graphs': show_graphs,
         })
 
 

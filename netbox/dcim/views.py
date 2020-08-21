@@ -14,7 +14,6 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from circuits.models import Circuit
-from extras.models import Graph
 from extras.views import ObjectConfigContextView
 from ipam.models import IPAddress, Prefix, Service, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
@@ -172,13 +171,11 @@ class SiteView(ObjectView):
         rack_groups = RackGroup.objects.restrict(request.user, 'view').filter(site=site).annotate(
             rack_count=Count('racks')
         )
-        show_graphs = Graph.objects.filter(type__model='site').exists()
 
         return render(request, 'dcim/site.html', {
             'site': site,
             'stats': stats,
             'rack_groups': rack_groups,
-            'show_graphs': show_graphs,
         })
 
 
@@ -1082,8 +1079,6 @@ class DeviceView(ObjectView):
             'secrets': secrets,
             'vc_members': vc_members,
             'related_devices': related_devices,
-            'show_graphs': Graph.objects.filter(type__model='device').exists(),
-            'show_interface_graphs': Graph.objects.filter(type__model='interface').exists(),
         })
 
 

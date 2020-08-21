@@ -381,7 +381,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 # Interfaces
 #
 
-@extras_features('graphs', 'export_templates', 'webhooks')
+@extras_features('export_templates', 'webhooks')
 class VMInterface(BaseInterface):
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',

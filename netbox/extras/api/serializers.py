@@ -10,7 +10,7 @@ from dcim.api.nested_serializers import (
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
 from extras.choices import *
 from extras.models import (
-    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, JobResult, Tag,
+    ConfigContext, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag,
 )
 from extras.utils import FeatureQuery
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
@@ -23,43 +23,6 @@ from utilities.api import (
 from virtualization.api.nested_serializers import NestedClusterGroupSerializer, NestedClusterSerializer
 from virtualization.models import Cluster, ClusterGroup
 from .nested_serializers import *
-
-
-#
-# Graphs
-#
-
-class GraphSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:graph-detail')
-    type = ContentTypeField(
-        queryset=ContentType.objects.filter(FeatureQuery('graphs').get_query()),
-    )
-
-    class Meta:
-        model = Graph
-        fields = ['id', 'url', 'type', 'weight', 'name', 'template_language', 'source', 'link']
-
-
-class RenderedGraphSerializer(serializers.ModelSerializer):
-    embed_url = serializers.SerializerMethodField(
-        read_only=True
-    )
-    embed_link = serializers.SerializerMethodField(
-        read_only=True
-    )
-    type = ContentTypeField(
-        read_only=True
-    )
-
-    class Meta:
-        model = Graph
-        fields = ['id', 'type', 'weight', 'name', 'embed_url', 'embed_link']
-
-    def get_embed_url(self, obj):
-        return obj.embed_url(self.context['graphed_object'])
-
-    def get_embed_link(self, obj):
-        return obj.embed_link(self.context['graphed_object'])
 
 
 #

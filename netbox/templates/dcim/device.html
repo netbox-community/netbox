@@ -38,12 +38,6 @@
     </div>
     <div class="pull-right noprint">
         {% plugin_buttons device %}
-        {% if show_graphs %}
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ device.name }}" data-url="{% url 'dcim-api:device-graphs' pk=device.pk %}" title="Show graphs">
-                <i class="fa fa-signal" aria-hidden="true"></i>
-                Graphs
-            </button>
-        {% endif %}
         {% if perms.dcim.change_device %}
             <div class="btn-group">
                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -958,7 +952,6 @@
             </div>
         </div>
     </div>
-{% include 'inc/modal.html' with name='graphs' title='Graphs' %}
 {% include 'secrets/inc/private_key_modal.html' %}
 {% endblock %}
 
@@ -1012,6 +1005,5 @@ $(".cable-toggle").click(function() {
 });
 </script>
 <script src="{% static 'js/interface_toggles.js' %}?v{{ settings.VERSION }}"></script>
-<script src="{% static 'js/graphs.js' %}?v{{ settings.VERSION }}"></script>
 <script src="{% static 'js/secrets.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

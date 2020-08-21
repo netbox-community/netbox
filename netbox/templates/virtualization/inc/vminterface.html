@@ -38,11 +38,6 @@
 
     {# Buttons #}
     <td class="text-right text-nowrap noprint">
-        {% if show_interface_graphs %}
-            <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ virtualmachine.name }} - {{ iface.name }}" data-url="{% url 'virtualization-api:vminterface-graphs' pk=iface.pk %}" title="Show graphs">
-                <i class="glyphicon glyphicon-signal" aria-hidden="true"></i>
-            </button>
-        {% endif %}
         {% if perms.ipam.add_ipaddress %}
             <a href="{% url 'ipam:ipaddress_add' %}?vminterface={{ iface.pk }}&return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-xs btn-success" title="Add IP address">
                 <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>

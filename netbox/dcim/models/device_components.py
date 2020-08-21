@@ -582,7 +582,7 @@ class BaseInterface(models.Model):
         abstract = True
 
 
-@extras_features('graphs', 'export_templates', 'webhooks')
+@extras_features('export_templates', 'webhooks')
 class Interface(CableTermination, ComponentModel, BaseInterface):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.

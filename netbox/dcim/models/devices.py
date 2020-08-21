@@ -450,7 +450,7 @@ class Platform(ChangeLoggedModel):
         )
 
 
-@extras_features('custom_fields', 'custom_links', 'graphs', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,

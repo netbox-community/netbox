@@ -23,9 +23,7 @@ from dcim.models import (
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
-from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
-from extras.models import Graph
 from ipam.models import Prefix, VLAN
 from utilities.api import (
     get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, ModelViewSet, ServiceUnavailable,
@@ -112,16 +110,6 @@ class SiteViewSet(CustomFieldModelViewSet):
     ).order_by(*Site._meta.ordering)
     serializer_class = serializers.SiteSerializer
     filterset_class = filters.SiteFilterSet
-
-    @action(detail=True)
-    def graphs(self, request, pk):
-        """
-        A convenience method for rendering graphs for a particular site.
-        """
-        site = get_object_or_404(self.queryset, pk=pk)
-        queryset = Graph.objects.restrict(request.user).filter(type__model='site')
-        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': site})
-        return Response(serializer.data)
 
 
 #
@@ -363,17 +351,6 @@ class DeviceViewSet(CustomFieldModelViewSet):
 
         return serializers.DeviceWithConfigContextSerializer
 
-    @action(detail=True)
-    def graphs(self, request, pk):
-        """
-        A convenience method for rendering graphs for a particular Device.
-        """
-        device = get_object_or_404(self.queryset, pk=pk)
-        queryset = Graph.objects.restrict(request.user).filter(type__model='device')
-        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': device})
-
-        return Response(serializer.data)
-
     @swagger_auto_schema(
         manual_parameters=[
             Parameter(
@@ -526,16 +503,6 @@ class InterfaceViewSet(CableTraceMixin, ModelViewSet):
     )
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filters.InterfaceFilterSet
-
-    @action(detail=True)
-    def graphs(self, request, pk):
-        """
-        A convenience method for rendering graphs for a particular interface.
-        """
-        interface = get_object_or_404(self.queryset, pk=pk)
-        queryset = Graph.objects.restrict(request.user).filter(type__model='interface')
-        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': interface})
-        return Response(serializer.data)
 
 
 class FrontPortViewSet(CableTraceMixin, ModelViewSet):

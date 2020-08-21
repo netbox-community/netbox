@@ -2,47 +2,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from dcim.models import DeviceRole, Platform, Region, Site
-from extras.choices import *
 from extras.filters import *
-from extras.utils import FeatureQuery
-from extras.models import ConfigContext, ExportTemplate, Graph, Tag
+from extras.models import ConfigContext, ExportTemplate, Tag
 from tenancy.models import Tenant, TenantGroup
 from virtualization.models import Cluster, ClusterGroup, ClusterType
-
-
-class GraphTestCase(TestCase):
-    queryset = Graph.objects.all()
-    filterset = GraphFilterSet
-
-    @classmethod
-    def setUpTestData(cls):
-
-        # Get the first three available types
-        content_types = ContentType.objects.filter(FeatureQuery('graphs').get_query())[:3]
-
-        graphs = (
-            Graph(name='Graph 1', type=content_types[0], template_language=TemplateLanguageChoices.LANGUAGE_DJANGO, source='http://example.com/1'),
-            Graph(name='Graph 2', type=content_types[1], template_language=TemplateLanguageChoices.LANGUAGE_JINJA2, source='http://example.com/2'),
-            Graph(name='Graph 3', type=content_types[2], template_language=TemplateLanguageChoices.LANGUAGE_JINJA2, source='http://example.com/3'),
-        )
-        Graph.objects.bulk_create(graphs)
-
-    def test_id(self):
-        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_name(self):
-        params = {'name': ['Graph 1', 'Graph 2']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_type(self):
-        content_type = ContentType.objects.filter(FeatureQuery('graphs').get_query()).first()
-        params = {'type': content_type.pk}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_template_language(self):
-        params = {'template_language': TemplateLanguageChoices.LANGUAGE_JINJA2}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class ExportTemplateTestCase(TestCase):

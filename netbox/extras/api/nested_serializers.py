@@ -7,7 +7,6 @@ from utilities.api import ChoiceField, WritableNestedSerializer
 __all__ = [
     'NestedConfigContextSerializer',
     'NestedExportTemplateSerializer',
-    'NestedGraphSerializer',
     'NestedImageAttachmentSerializer',
     'NestedJobResultSerializer',
     'NestedTagSerializer',
@@ -27,14 +26,6 @@ class NestedExportTemplateSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.ExportTemplate
-        fields = ['id', 'url', 'name']
-
-
-class NestedGraphSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:graph-detail')
-
-    class Meta:
-        model = models.Graph
         fields = ['id', 'url', 'name']
 
 

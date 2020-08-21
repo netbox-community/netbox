@@ -8,9 +8,6 @@ router.APIRootView = views.ExtrasRootView
 # Custom field choices
 router.register('_custom_field_choices', views.CustomFieldChoicesViewSet, basename='custom-field-choice')
 
-# Graphs
-router.register('graphs', views.GraphViewSet)
-
 # Export templates
 router.register('export-templates', views.ExportTemplateViewSet)
 

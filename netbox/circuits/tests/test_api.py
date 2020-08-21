@@ -1,11 +1,8 @@
-from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings
 from django.urls import reverse
 
 from circuits.choices import *
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim.models import Site
-from extras.models import Graph
 from utilities.testing import APITestCase, APIViewTestCases
 
 
@@ -45,27 +42,6 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
             Provider(name='Provider 3', slug='provider-3'),
         )
         Provider.objects.bulk_create(providers)
-
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
-    def test_get_provider_graphs(self):
-        """
-        Test retrieval of Graphs assigned to Providers.
-        """
-        provider = self.model.objects.first()
-        ct = ContentType.objects.get(app_label='circuits', model='provider')
-        graphs = (
-            Graph(type=ct, name='Graph 1', source='http://example.com/graphs.py?provider={{ obj.slug }}&foo=1'),
-            Graph(type=ct, name='Graph 2', source='http://example.com/graphs.py?provider={{ obj.slug }}&foo=2'),
-            Graph(type=ct, name='Graph 3', source='http://example.com/graphs.py?provider={{ obj.slug }}&foo=3'),
-        )
-        Graph.objects.bulk_create(graphs)
-
-        self.add_permissions('circuits.view_provider')
-        url = reverse('circuits-api:provider-graphs', kwargs={'pk': provider.pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(len(response.data), 3)
-        self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?provider=provider-1&foo=1')
 
 
 class CircuitTypeTest(APIViewTestCases.APIViewTestCase):

@@ -10,7 +10,7 @@ from rq import Worker
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, RackGroup, RackRole, Site
 from extras.api.views import ReportViewSet, ScriptViewSet
-from extras.models import ConfigContext, ExportTemplate, Graph, ImageAttachment, Tag
+from extras.models import ConfigContext, ExportTemplate, ImageAttachment, Tag
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
@@ -27,39 +27,6 @@ class AppTest(APITestCase):
         response = self.client.get('{}?format=api'.format(url), **self.header)
 
         self.assertEqual(response.status_code, 200)
-
-
-class GraphTest(APIViewTestCases.APIViewTestCase):
-    model = Graph
-    brief_fields = ['id', 'name', 'url']
-    create_data = [
-        {
-            'type': 'dcim.site',
-            'name': 'Graph 4',
-            'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=4',
-        },
-        {
-            'type': 'dcim.site',
-            'name': 'Graph 5',
-            'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=5',
-        },
-        {
-            'type': 'dcim.site',
-            'name': 'Graph 6',
-            'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=6',
-        },
-    ]
-
-    @classmethod
-    def setUpTestData(cls):
-        ct = ContentType.objects.get_for_model(Site)
-
-        graphs = (
-            Graph(type=ct, name='Graph 1', source='http://example.com/graphs.py?site={{ obj.name }}&foo=1'),
-            Graph(type=ct, name='Graph 2', source='http://example.com/graphs.py?site={{ obj.name }}&foo=2'),
-            Graph(type=ct, name='Graph 3', source='http://example.com/graphs.py?site={{ obj.name }}&foo=3'),
-        )
-        Graph.objects.bulk_create(graphs)
 
 
 class ExportTemplateTest(APIViewTestCases.APIViewTestCase):

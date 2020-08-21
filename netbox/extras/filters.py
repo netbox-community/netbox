@@ -7,7 +7,7 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.filters import BaseFilterSet
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
-from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, JobResult, Tag
+from .models import ConfigContext, CustomField, ExportTemplate, ObjectChange, JobResult, Tag
 
 
 __all__ = (
@@ -16,7 +16,6 @@ __all__ = (
     'CustomFieldFilter',
     'CustomFieldFilterSet',
     'ExportTemplateFilterSet',
-    'GraphFilterSet',
     'LocalConfigContextFilterSet',
     'ObjectChangeFilterSet',
     'TagFilterSet',
@@ -88,13 +87,6 @@ class CustomFieldFilterSet(django_filters.FilterSet):
         )
         for cf in custom_fields:
             self.filters['cf_{}'.format(cf.name)] = CustomFieldFilter(field_name=cf.name, custom_field=cf)
-
-
-class GraphFilterSet(BaseFilterSet):
-
-    class Meta:
-        model = Graph
-        fields = ['id', 'type', 'name', 'template_language']
 
 
 class ExportTemplateFilterSet(BaseFilterSet):

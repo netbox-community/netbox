@@ -80,21 +80,6 @@ class ObjectChangeActionChoices(ChoiceSet):
 
 
 #
-# ExportTemplates
-#
-
-class TemplateLanguageChoices(ChoiceSet):
-
-    LANGUAGE_JINJA2 = 'jinja2'
-    LANGUAGE_DJANGO = 'django'
-
-    CHOICES = (
-        (LANGUAGE_JINJA2, 'Jinja2'),
-        (LANGUAGE_DJANGO, 'Django (Legacy)'),
-    )
-
-
-#
 # Log Levels for Reports and Scripts
 #
 

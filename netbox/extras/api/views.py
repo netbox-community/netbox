@@ -15,7 +15,7 @@ from rq import Worker
 from extras import filters
 from extras.choices import JobResultStatusChoices
 from extras.models import (
-    ConfigContext, CustomFieldChoice, ExportTemplate, Graph, ImageAttachment, ObjectChange, JobResult, Tag,
+    ConfigContext, CustomFieldChoice, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag,
 )
 from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
@@ -96,17 +96,6 @@ class CustomFieldModelViewSet(ModelViewSet):
     def get_queryset(self):
         # Prefetch custom field values
         return super().get_queryset().prefetch_related('custom_field_values__field')
-
-
-#
-# Graphs
-#
-
-class GraphViewSet(ModelViewSet):
-    metadata_class = ContentTypeMetadata
-    queryset = Graph.objects.all()
-    serializer_class = serializers.GraphSerializer
-    filterset_class = filters.GraphFilterSet
 
 
 #

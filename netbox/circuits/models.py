@@ -22,7 +22,7 @@ __all__ = (
 )
 
 
-@extras_features('custom_fields', 'custom_links', 'graphs', 'export_templates', 'webhooks')
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
 class Provider(ChangeLoggedModel, CustomFieldModel):
     """
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model

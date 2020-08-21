@@ -1,14 +1,9 @@
 from django.db.models import Count, Prefetch
-from django.shortcuts import get_object_or_404
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 
 from circuits import filters
 from circuits.models import Provider, CircuitTermination, CircuitType, Circuit
-from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
-from extras.models import Graph
 from utilities.api import ModelViewSet
 from . import serializers
 
@@ -31,16 +26,6 @@ class ProviderViewSet(CustomFieldModelViewSet):
     ).order_by(*Provider._meta.ordering)
     serializer_class = serializers.ProviderSerializer
     filterset_class = filters.ProviderFilterSet
-
-    @action(detail=True)
-    def graphs(self, request, pk):
-        """
-        A convenience method for rendering graphs for a particular provider.
-        """
-        provider = get_object_or_404(self.queryset, pk=pk)
-        queryset = Graph.objects.restrict(request.user).filter(type__model='provider')
-        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': provider})
-        return Response(serializer.data)
 
 
 #

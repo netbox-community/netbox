@@ -1,10 +1,7 @@
-from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 
 from dcim.choices import InterfaceModeChoices
-from extras.models import Graph
 from ipam.models import VLAN
 from utilities.testing import APITestCase, APIViewTestCases
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -244,25 +241,3 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
                 'untagged_vlan': vlans[2].pk,
             },
         ]
-
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
-    def test_get_vminterface_graphs(self):
-        """
-        Test retrieval of Graphs assigned to VM interfaces.
-        """
-        ct = ContentType.objects.get_for_model(VMInterface)
-        graphs = (
-            Graph(type=ct, name='Graph 1', source='http://example.com/graphs.py?interface={{ obj.name }}&foo=1'),
-            Graph(type=ct, name='Graph 2', source='http://example.com/graphs.py?interface={{ obj.name }}&foo=2'),
-            Graph(type=ct, name='Graph 3', source='http://example.com/graphs.py?interface={{ obj.name }}&foo=3'),
-        )
-        Graph.objects.bulk_create(graphs)
-
-        self.add_permissions('virtualization.view_vminterface')
-        url = reverse('virtualization-api:vminterface-graphs', kwargs={
-            'pk': VMInterface.objects.first().pk
-        })
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(len(response.data), 3)
-        self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?interface=Interface 1&foo=1')

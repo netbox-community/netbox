@@ -1,6 +1,4 @@
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 
@@ -14,7 +12,6 @@ from dcim.models import (
     Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
 )
 from ipam.models import VLAN
-from extras.models import Graph
 from utilities.testing import APITestCase, APIViewTestCases
 from virtualization.models import Cluster, ClusterType
 
@@ -131,26 +128,6 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
                 'status': SiteStatusChoices.STATUS_ACTIVE,
             },
         ]
-
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
-    def test_get_site_graphs(self):
-        """
-        Test retrieval of Graphs assigned to Sites.
-        """
-        ct = ContentType.objects.get_for_model(Site)
-        graphs = (
-            Graph(type=ct, name='Graph 1', source='http://example.com/graphs.py?site={{ obj.slug }}&foo=1'),
-            Graph(type=ct, name='Graph 2', source='http://example.com/graphs.py?site={{ obj.slug }}&foo=2'),
-            Graph(type=ct, name='Graph 3', source='http://example.com/graphs.py?site={{ obj.slug }}&foo=3'),
-        )
-        Graph.objects.bulk_create(graphs)
-
-        self.add_permissions('dcim.view_site')
-        url = reverse('dcim-api:site-graphs', kwargs={'pk': Site.objects.first().pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(len(response.data), 3)
-        self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?site=site-1&foo=1')
 
 
 class RackGroupTest(APIViewTestCases.APIViewTestCase):
@@ -902,26 +879,6 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
-    def test_get_device_graphs(self):
-        """
-        Test retrieval of Graphs assigned to Devices.
-        """
-        ct = ContentType.objects.get_for_model(Device)
-        graphs = (
-            Graph(type=ct, name='Graph 1', source='http://example.com/graphs.py?device={{ obj.name }}&foo=1'),
-            Graph(type=ct, name='Graph 2', source='http://example.com/graphs.py?device={{ obj.name }}&foo=2'),
-            Graph(type=ct, name='Graph 3', source='http://example.com/graphs.py?device={{ obj.name }}&foo=3'),
-        )
-        Graph.objects.bulk_create(graphs)
-
-        self.add_permissions('dcim.view_device')
-        url = reverse('dcim-api:device-graphs', kwargs={'pk': Device.objects.first().pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(len(response.data), 3)
-        self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?device=Device 1&foo=1')
-
     def test_config_context_included_by_default_in_list_view(self):
         """
         Check that config context data is included by default in the devices list.
@@ -1158,26 +1115,6 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'untagged_vlan': vlans[2].pk,
             },
         ]
-
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
-    def test_get_interface_graphs(self):
-        """
-        Test retrieval of Graphs assigned to Devices.
-        """
-        ct = ContentType.objects.get_for_model(Interface)
-        graphs = (
-            Graph(type=ct, name='Graph 1', source='http://example.com/graphs.py?interface={{ obj.name }}&foo=1'),
-            Graph(type=ct, name='Graph 2', source='http://example.com/graphs.py?interface={{ obj.name }}&foo=2'),
-            Graph(type=ct, name='Graph 3', source='http://example.com/graphs.py?interface={{ obj.name }}&foo=3'),
-        )
-        Graph.objects.bulk_create(graphs)
-
-        self.add_permissions('dcim.view_interface')
-        url = reverse('dcim-api:interface-graphs', kwargs={'pk': Interface.objects.first().pk})
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(len(response.data), 3)
-        self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?interface=Interface 1&foo=1')
 
 
 class FrontPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
