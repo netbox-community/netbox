@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.9.0'
+VERSION = '2.9.1'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -142,6 +142,13 @@ if type(REMOTE_AUTH_DEFAULT_PERMISSIONS) is not dict:
         )
     except TypeError:
         raise ImproperlyConfigured("REMOTE_AUTH_DEFAULT_PERMISSIONS must be a dictionary.")
+# Backward compatibility for REMOTE_AUTH_BACKEND
+if REMOTE_AUTH_BACKEND == 'utilities.auth_backends.RemoteUserBackend':
+    warnings.warn(
+        "RemoteUserBackend has moved! Please update your configuration to:\n"
+        "    REMOTE_AUTH_BACKEND='netbox.authentication.RemoteUserBackend'"
+    )
+    REMOTE_AUTH_BACKEND = 'netbox.authentication.RemoteUserBackend'
 
 
 #

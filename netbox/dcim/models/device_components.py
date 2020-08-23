@@ -702,18 +702,12 @@ class Interface(CableTermination, ComponentModel, BaseInterface):
                 })
 
         # A virtual interface cannot have a parent LAG
-        if self.type in NONCONNECTABLE_IFACE_TYPES and self.lag is not None:
-            raise ValidationError({
-                'lag': "{} interfaces cannot have a parent LAG interface.".format(self.get_type_display())
-            })
+        if self.type == InterfaceTypeChoices.TYPE_VIRTUAL and self.lag is not None:
+            raise ValidationError({'lag': "Virtual interfaces cannot have a parent LAG interface."})
 
-        # Only a LAG can have LAG members
-        if self.type != InterfaceTypeChoices.TYPE_LAG and self.member_interfaces.exists():
-            raise ValidationError({
-                'type': "Cannot change interface type; it has LAG members ({}).".format(
-                    ", ".join([iface.name for iface in self.member_interfaces.all()])
-                )
-            })
+        # A LAG interface cannot be its own parent
+        if self.pk and self.lag_id == self.pk:
+            raise ValidationError({'lag': "A LAG interface cannot be its own parent."})
 
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.parent.site, None]:

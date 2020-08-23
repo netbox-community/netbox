@@ -1,8 +1,10 @@
 import logging
+import platform
 import re
 import sys
 from copy import deepcopy
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -1421,6 +1423,8 @@ def server_error(request, template_name=ERROR_500_TEMPLATE_NAME):
     type_, error, traceback = sys.exc_info()
 
     return HttpResponseServerError(template.render({
+        'python_version': platform.python_version(),
+        'netbox_version': settings.VERSION,
         'exception': str(type_),
         'error': error,
     }))

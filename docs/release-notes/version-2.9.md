@@ -1,6 +1,19 @@
 # NetBox v2.9
 
+## v2.9.1 (2020-08-22)
+
+### Enhancements
+
+* [#4540](https://github.com/netbox-community/netbox/issues/4540) - Add IP address status type for SLAAC
+* [#4814](https://github.com/netbox-community/netbox/issues/4814) - Allow nested LAG interfaces
+* [#4991](https://github.com/netbox-community/netbox/issues/4991) - Add Python and NetBox versions to error page
+* [#5033](https://github.com/netbox-community/netbox/issues/5033) - Support backward compatibility for `REMOTE_AUTH_BACKEND` configuration parameter
+
+---
+
 ## v2.9.0 (2020-08-21)
+
+**Note:** Redis 4.0 or later is required for this release.
 
 ### New Features
 
@@ -56,7 +69,8 @@ Two new REST API endpoints have been added to facilitate the retrieval and manip
 
 ### Configuration Changes
 
-* If in use, LDAP authentication must be enabled by setting `REMOTE_AUTH_BACKEND` to `'netbox.authentication.LDAPBackend'`. (LDAP configuration parameters in `ldap_config.py` remain unchanged.)
+* If using NetBox's built-in remote authentication backend, update `REMOTE_AUTH_BACKEND` to `'netbox.authentication.RemoteUserBackend'`, as the authentication class has moved.
+* If using LDAP authentication, set `REMOTE_AUTH_BACKEND` to `'netbox.authentication.LDAPBackend'`. (LDAP configuration parameters in `ldap_config.py` remain unchanged.)
 * `REMOTE_AUTH_DEFAULT_PERMISSIONS` now takes a dictionary rather than a list. This is a mapping of permission names to a dictionary of constraining attributes, or `None`. For example, `['dcim.add_site', 'dcim.change_site']` would become `{'dcim.add_site': None, 'dcim.change_site': None}`.
 
 ### REST API Changes
