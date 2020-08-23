@@ -88,7 +88,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
         return super().get_serializer_class()
 
     @swagger_auto_schema(method='get', responses={200: serializers.AvailablePrefixSerializer(many=True)})
-    @swagger_auto_schema(method='post', responses={201: serializers.AvailablePrefixSerializer(many=True)})
+    @swagger_auto_schema(method='post', responses={201: serializers.PrefixSerializer(many=False)})
     @action(detail=True, url_path='available-prefixes', methods=['get', 'post'])
     @advisory_lock(ADVISORY_LOCK_KEYS['available-prefixes'])
     def available_prefixes(self, request, pk=None):
