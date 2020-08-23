@@ -13,6 +13,8 @@
 
 ## v2.9.0 (2020-08-21)
 
+**Note:** Redis 4.0 or later is required for this release.
+
 ### New Features
 
 #### Object-Based Permissions ([#554](https://github.com/netbox-community/netbox/issues/554))
