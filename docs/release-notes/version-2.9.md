@@ -1,6 +1,6 @@
 # NetBox v2.9
 
-## v2.9.1 (FUTURE)
+## v2.9.1 (2020-08-22)
 
 ### Enhancements
 
