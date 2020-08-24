@@ -669,6 +669,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         'reserved': 'info',
         'deprecated': 'danger',
         'dhcp': 'success',
+        'slaac': 'success',
     }
 
     ROLE_CLASS_MAP = {
