@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#5035](https://github.com/netbox-community/netbox/issues/5035) - Fix exception when modifying an IP address assigned to a VM
 * [#5038](https://github.com/netbox-community/netbox/issues/5038) - Fix validation of primary IPs assigned to virtual machines
 
 ---

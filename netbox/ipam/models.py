@@ -745,7 +745,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
                         'vminterface': f"IP address is primary for virtual machine {vm} but not assigned to an "
                                        f"interface"
                     })
-                elif self.interface.virtual_machine != vm:
+                elif self.assigned_object.virtual_machine != vm:
                     raise ValidationError({
                         'vminterface': f"IP address is primary for virtual machine {vm} but assigned to "
                                        f"{self.assigned_object.virtual_machine} ({self.assigned_object})"
