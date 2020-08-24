@@ -57,26 +57,13 @@ class CustomFieldModelForm(forms.ModelForm):
             # Annotate the field in the list of CustomField form fields
             self.custom_fields.append(field_name)
 
-    def _save_custom_fields(self):
-
-        for field_name in self.custom_fields:
-            self.instance.custom_field_data[field_name[3:]] = self.cleaned_data[field_name]
-
     def save(self, commit=True):
 
-        # Cache custom field values on object prior to save to ensure change logging
+        # Save custom field data on instance
         for cf_name in self.custom_fields:
-            self.instance._cf[cf_name[3:]] = self.cleaned_data.get(cf_name)
+            self.instance.custom_field_data[cf_name[3:]] = self.cleaned_data.get(cf_name)
 
-        obj = super().save(commit)
-
-        # Handle custom fields the same way we do M2M fields
-        if commit:
-            self._save_custom_fields()
-        else:
-            obj.save_custom_fields = self._save_custom_fields
-
-        return obj
+        return super().save(commit)
 
 
 class CustomFieldModelCSVForm(CSVModelForm, CustomFieldModelForm):

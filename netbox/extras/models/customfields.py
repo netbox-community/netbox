@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from datetime import date
 
 from django import forms
@@ -33,6 +34,15 @@ class CustomFieldModel(models.Model):
         Convenience wrapper for custom field data.
         """
         return self.custom_field_data
+
+    def get_custom_fields(self):
+        """
+        Return a dictionary of custom fields for a single object in the form {<field>: value}.
+        """
+        fields = CustomField.objects.get_for_model(self)
+        return OrderedDict([
+            (field, self.custom_field_data.get(field.name)) for field in fields
+        ])
 
 
 class CustomFieldManager(models.Manager):
