@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 
 from dcim.choices import InterfaceModeChoices
@@ -325,28 +326,28 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             # Compile list of choices for primary IPv4 and IPv6 addresses
             for family in [4, 6]:
                 ip_choices = [(None, '---------')]
+
+                # Gather PKs of all interfaces belonging to this VM
+                interface_ids = self.instance.interfaces.values_list('pk', flat=True)
+
                 # Collect interface IPs
-                interface_ips = IPAddress.objects.prefetch_related('interface').filter(
+                interface_ips = IPAddress.objects.filter(
                     address__family=family,
-                    vminterface__in=self.instance.interfaces.values_list('id', flat=True)
+                    assigned_object_type=ContentType.objects.get_for_model(VMInterface),
+                    assigned_object_id__in=interface_ids
                 )
                 if interface_ips:
-                    ip_choices.append(
-                        ('Interface IPs', [
-                            (ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips
-                        ])
-                    )
+                    ip_list = [(ip.id, f'{ip.address} ({ip.assigned_object})') for ip in interface_ips]
+                    ip_choices.append(('Interface IPs', ip_list))
                 # Collect NAT IPs
                 nat_ips = IPAddress.objects.prefetch_related('nat_inside').filter(
                     address__family=family,
-                    nat_inside__vminterface__in=self.instance.interfaces.values_list('id', flat=True)
+                    nat_inside__assigned_object_type=ContentType.objects.get_for_model(VMInterface),
+                    nat_inside__assigned_object_id__in=interface_ids
                 )
                 if nat_ips:
-                    ip_choices.append(
-                        ('NAT IPs', [
-                            (ip.id, '{} ({})'.format(ip.address, ip.nat_inside.address)) for ip in nat_ips
-                        ])
-                    )
+                    ip_list = [(ip.id, f'{ip.address} (NAT)') for ip in nat_ips]
+                    ip_choices.append(('NAT IPs', ip_list))
                 self.fields['primary_ip{}'.format(family)].choices = ip_choices
 
         else:

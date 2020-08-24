@@ -1,5 +1,13 @@
 # NetBox v2.9
 
+## v2.9.2 (FUTURE)
+
+### Bug Fixes
+
+* [#5038](https://github.com/netbox-community/netbox/issues/5038) - Fix validation of primary IPs assigned to virtual machines
+
+---
+
 ## v2.9.1 (2020-08-22)
 
 ### Enhancements
