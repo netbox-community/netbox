@@ -752,6 +752,12 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
                                        f"{self.assigned_object.virtual_machine} ({self.assigned_object})"
                     })
 
+        # Validate IP status selection
+        if self.status == IPAddressStatusChoices.STATUS_SLAAC and self.family != 6:
+            raise ValidationError({
+                'status': "Only IPv6 addresses can be assigned SLAAC status"
+            })
+
     def save(self, *args, **kwargs):
 
         # Force dns_name to lowercase
