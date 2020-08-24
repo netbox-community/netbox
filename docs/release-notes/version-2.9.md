@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#4988](https://github.com/netbox-community/netbox/issues/4988) - Fix ordering of rack reservations with identical creation times
 * [#5035](https://github.com/netbox-community/netbox/issues/5035) - Fix exception when modifying an IP address assigned to a VM
 * [#5038](https://github.com/netbox-community/netbox/issues/5038) - Fix validation of primary IPs assigned to virtual machines
 * [#5040](https://github.com/netbox-community/netbox/issues/5040) - Limit SLAAC status to IPv6 addresses
