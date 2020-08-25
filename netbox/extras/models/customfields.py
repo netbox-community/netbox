@@ -24,10 +24,6 @@ class CustomFieldModel(models.Model):
     class Meta:
         abstract = True
 
-    def __init__(self, *args, custom_fields=None, **kwargs):
-        self._cf = custom_fields
-        super().__init__(*args, **kwargs)
-
     @property
     def cf(self):
         """
@@ -132,42 +128,6 @@ class CustomField(models.Model):
                 'default': f"The specified default value ({self.default}) is not listed as an available choice."
             })
 
-    def serialize_value(self, value):
-        """
-        Serialize the given value to a string suitable for storage as a CustomFieldValue
-        """
-        if value is None:
-            return ''
-        if self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
-            return str(int(bool(value)))
-        if self.type == CustomFieldTypeChoices.TYPE_DATE:
-            # Could be date/datetime object or string
-            try:
-                return value.strftime('%Y-%m-%d')
-            except AttributeError:
-                return value
-        if self.type == CustomFieldTypeChoices.TYPE_SELECT:
-            # Could be ModelChoiceField or TypedChoiceField
-            return str(value.id) if hasattr(value, 'id') else str(value)
-        return value
-
-    def deserialize_value(self, serialized_value):
-        """
-        Convert a string into the object it represents depending on the type of field
-        """
-        if serialized_value == '':
-            return None
-        if self.type == CustomFieldTypeChoices.TYPE_INTEGER:
-            return int(serialized_value)
-        if self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
-            return bool(int(serialized_value))
-        if self.type == CustomFieldTypeChoices.TYPE_DATE:
-            # Read date as YYYY-MM-DD
-            return date(*[int(n) for n in serialized_value.split('-')])
-        if self.type == CustomFieldTypeChoices.TYPE_SELECT:
-            return self.choices.get(pk=int(serialized_value))
-        return serialized_value
-
     def to_form_field(self, set_initial=True, enforce_required=True, for_csv_import=False):
         """
         Return a form field suitable for setting a CustomField's value for an object.
@@ -229,7 +189,7 @@ class CustomField(models.Model):
             field = forms.CharField(max_length=255, required=required, initial=initial)
 
         field.model = self
-        field.label = self.label if self.label else self.name.replace('_', ' ').capitalize()
+        field.label = str(self)
         if self.description:
             field.help_text = self.description
 

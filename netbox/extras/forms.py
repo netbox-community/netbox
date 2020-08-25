@@ -25,12 +25,8 @@ class CustomFieldModelForm(forms.ModelForm):
 
         self.obj_type = ContentType.objects.get_for_model(self._meta.model)
         self.custom_fields = []
-        self.custom_field_values = {}
 
         super().__init__(*args, **kwargs)
-
-        if self.instance._cf is None:
-            self.instance._cf = {}
 
         self._append_customfield_fields()
 
@@ -38,21 +34,14 @@ class CustomFieldModelForm(forms.ModelForm):
         """
         Append form fields for all CustomFields assigned to this model.
         """
-        # Retrieve initial CustomField values for the instance
-        if self.instance.pk:
-            self.custom_field_values = self.instance.custom_field_data
-
         # Append form fields; assign initial values if modifying and existing object
         for cf in CustomField.objects.filter(obj_type=self.obj_type):
             field_name = 'cf_{}'.format(cf.name)
             if self.instance.pk:
                 self.fields[field_name] = cf.to_form_field(set_initial=False)
-                value = self.custom_field_values.get(cf.name)
-                self.fields[field_name].initial = value
-                self.instance._cf[cf.name] = value
+                self.fields[field_name].initial = self.instance.custom_field_data.get(cf.name)
             else:
                 self.fields[field_name] = cf.to_form_field()
-                self.instance._cf[cf.name] = self.fields[field_name].initial
 
             # Annotate the field in the list of CustomField form fields
             self.custom_fields.append(field_name)
