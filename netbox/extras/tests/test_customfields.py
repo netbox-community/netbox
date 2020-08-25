@@ -1,5 +1,3 @@
-from datetime import date
-
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework import status
@@ -30,7 +28,7 @@ class CustomFieldTest(TestCase):
             {'field_type': CustomFieldTypeChoices.TYPE_INTEGER, 'field_value': 42, 'empty_value': None},
             {'field_type': CustomFieldTypeChoices.TYPE_BOOLEAN, 'field_value': True, 'empty_value': None},
             {'field_type': CustomFieldTypeChoices.TYPE_BOOLEAN, 'field_value': False, 'empty_value': None},
-            {'field_type': CustomFieldTypeChoices.TYPE_DATE, 'field_value': date(2016, 6, 23), 'empty_value': None},
+            {'field_type': CustomFieldTypeChoices.TYPE_DATE, 'field_value': '2016-06-23', 'empty_value': None},
             {'field_type': CustomFieldTypeChoices.TYPE_URL, 'field_value': 'http://example.com/', 'empty_value': ''},
         )
 
@@ -239,7 +237,7 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(site.custom_field_data['boolean_field'], self.cf_boolean.default)
         self.assertEqual(str(site.custom_field_data['date_field']), self.cf_date.default)
         self.assertEqual(site.custom_field_data['url_field'], self.cf_url.default)
-        self.assertEqual(site.custom_field_data['choice_field'].pk, self.cf_select_choice1.pk)
+        self.assertEqual(site.custom_field_data['choice_field'], self.cf_select_choice1.pk)
 
     def test_create_single_object_with_values(self):
         """
@@ -280,7 +278,7 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(site.custom_field_data['boolean_field'], data_cf['boolean_field'])
         self.assertEqual(str(site.custom_field_data['date_field']), data_cf['date_field'])
         self.assertEqual(site.custom_field_data['url_field'], data_cf['url_field'])
-        self.assertEqual(site.custom_field_data['choice_field'].pk, data_cf['choice_field'])
+        self.assertEqual(site.custom_field_data['choice_field'], data_cf['choice_field'])
 
     def test_create_multiple_objects_with_defaults(self):
         """
@@ -326,7 +324,7 @@ class CustomFieldAPITest(APITestCase):
             self.assertEqual(site.custom_field_data['boolean_field'], self.cf_boolean.default)
             self.assertEqual(str(site.custom_field_data['date_field']), self.cf_date.default)
             self.assertEqual(site.custom_field_data['url_field'], self.cf_url.default)
-            self.assertEqual(site.custom_field_data['choice_field'].pk, self.cf_select_choice1.pk)
+            self.assertEqual(site.custom_field_data['choice_field'], self.cf_select_choice1.pk)
 
     def test_create_multiple_objects_with_values(self):
         """
@@ -382,7 +380,7 @@ class CustomFieldAPITest(APITestCase):
             self.assertEqual(site.custom_field_data['boolean_field'], custom_field_data['boolean_field'])
             self.assertEqual(str(site.custom_field_data['date_field']), custom_field_data['date_field'])
             self.assertEqual(site.custom_field_data['url_field'], custom_field_data['url_field'])
-            self.assertEqual(site.custom_field_data['choice_field'].pk, custom_field_data['choice_field'])
+            self.assertEqual(site.custom_field_data['choice_field'], custom_field_data['choice_field'])
 
     def test_update_single_object_with_values(self):
         """
@@ -502,7 +500,7 @@ class CustomFieldImportTest(TestCase):
         self.assertEqual(site1.custom_field_data['text'], 'ABC')
         self.assertEqual(site1.custom_field_data['integer'], 123)
         self.assertEqual(site1.custom_field_data['boolean'], True)
-        self.assertEqual(site1.custom_field_data['date'], date(2020, 1, 1))
+        self.assertEqual(site1.custom_field_data['date'], '2020-01-01')
         self.assertEqual(site1.custom_field_data['url'], 'http://example.com/1')
         self.assertEqual(site1.custom_field_data['select'].value, 'Choice A')
 
@@ -512,7 +510,7 @@ class CustomFieldImportTest(TestCase):
         self.assertEqual(site2.custom_field_data['text'], 'DEF')
         self.assertEqual(site2.custom_field_data['integer'], 456)
         self.assertEqual(site2.custom_field_data['boolean'], False)
-        self.assertEqual(site2.custom_field_data['date'], date(2020, 1, 2))
+        self.assertEqual(site2.custom_field_data['date'], '2020-01-02')
         self.assertEqual(site2.custom_field_data['url'], 'http://example.com/2')
         self.assertEqual(site2.custom_field_data['select'].value, 'Choice B')
 

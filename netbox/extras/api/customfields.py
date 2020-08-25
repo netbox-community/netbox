@@ -2,7 +2,6 @@ from datetime import datetime
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CreateOnlyDefault
@@ -134,6 +133,7 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
     Extends ModelSerializer to render any CustomFields and their values associated with an object.
     """
     custom_fields = CustomFieldsSerializer(
+        source='custom_field_data',
         required=False,
         default=CreateOnlyDefault(CustomFieldDefaultValues())
     )
@@ -162,40 +162,6 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
                 instance.custom_fields[field.name] = CustomFieldChoiceSerializer(value).data
             else:
                 instance.custom_fields[field.name] = value
-
-    def _save_custom_fields(self, instance, custom_fields):
-        for field_name, value in custom_fields.items():
-            instance.custom_field_data[field_name] = value
-
-    def create(self, validated_data):
-
-        with transaction.atomic():
-
-            instance = super().create(validated_data)
-
-            # Save custom fields
-            custom_fields = validated_data.get('custom_fields')
-            if custom_fields is not None:
-                self._save_custom_fields(instance, custom_fields)
-                instance.custom_fields = custom_fields
-
-        return instance
-
-    def update(self, instance, validated_data):
-
-        with transaction.atomic():
-
-            custom_fields = validated_data.get('custom_fields')
-            instance._cf = custom_fields
-
-            instance = super().update(instance, validated_data)
-
-            # Save custom fields
-            if custom_fields is not None:
-                self._save_custom_fields(instance, custom_fields)
-                instance.custom_fields = custom_fields
-
-        return instance
 
 
 class CustomFieldChoiceSerializer(serializers.ModelSerializer):
