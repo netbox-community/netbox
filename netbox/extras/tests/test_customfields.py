@@ -466,9 +466,9 @@ class CustomFieldImportTest(TestCase):
         self.assertEqual(site2.custom_field_data['url'], 'http://example.com/2')
         self.assertEqual(site2.custom_field_data['select'], 'Choice B')
 
-        # No CustomFieldValues should be created for site 3
+        # No custom field data should be set for site 3
         site3 = Site.objects.get(name='Site 3')
-        self.assertEqual(site3.custom_field_data, {})
+        self.assertFalse(any(site3.custom_field_data.values()))
 
     def test_import_missing_required(self):
         """
