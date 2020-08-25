@@ -3,6 +3,7 @@ from datetime import date
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import ValidationError
 from django.db import models
 
@@ -11,11 +12,10 @@ from extras.choices import *
 from extras.utils import FeatureQuery
 
 
-#
-# Custom fields
-#
-
 class CustomFieldModel(models.Model):
+    """
+    Abstract class for any model which may have custom fields associated with it.
+    """
     custom_field_data = models.JSONField(
         blank=True,
         default=dict
@@ -104,6 +104,12 @@ class CustomField(models.Model):
         default=100,
         help_text='Fields with higher weights appear lower in a form.'
     )
+    choices = ArrayField(
+        base_field=models.CharField(max_length=100),
+        blank=True,
+        null=True,
+        help_text='Comma-separated list of available choices (for selection fields)'
+    )
 
     objects = CustomFieldManager()
 
@@ -112,6 +118,19 @@ class CustomField(models.Model):
 
     def __str__(self):
         return self.label or self.name.replace('_', ' ').capitalize()
+
+    def clean(self):
+        # Choices can be set only on selection fields
+        if self.choices and self.type != CustomFieldTypeChoices.TYPE_SELECT:
+            raise ValidationError({
+                'choices': "Choices may be set only for selection-type custom fields."
+            })
+
+        # A selection field's default (if any) must be present in its available choices
+        if self.type == CustomFieldTypeChoices.TYPE_SELECT and self.default and self.default not in self.choices:
+            raise ValidationError({
+                'default': f"The specified default value ({self.default}) is not listed as an available choice."
+            })
 
     def serialize_value(self, value):
         """
@@ -187,16 +206,14 @@ class CustomField(models.Model):
 
         # Select
         elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
-            choices = [(cfc.pk, cfc.value) for cfc in self.choices.all()]
+            choices = [(c, c) for c in self.choices]
 
             if not required:
                 choices = add_blank_choice(choices)
 
-            # Set the initial value to the PK of the default choice, if any
-            if set_initial:
-                default_choice = self.choices.filter(value=self.default).first()
-                if default_choice:
-                    initial = default_choice.pk
+            # Set the initial value to the first available choice (if any)
+            if set_initial and self.choices:
+                initial = self.choices[0]
 
             field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
             field = field_class(
@@ -217,41 +234,3 @@ class CustomField(models.Model):
             field.help_text = self.description
 
         return field
-
-
-class CustomFieldChoice(models.Model):
-    field = models.ForeignKey(
-        to='extras.CustomField',
-        on_delete=models.CASCADE,
-        related_name='choices',
-        limit_choices_to={'type': CustomFieldTypeChoices.TYPE_SELECT}
-    )
-    value = models.CharField(
-        max_length=100
-    )
-    weight = models.PositiveSmallIntegerField(
-        default=100,
-        help_text='Higher weights appear lower in the list'
-    )
-
-    class Meta:
-        ordering = ['field', 'weight', 'value']
-        unique_together = ['field', 'value']
-
-    def __str__(self):
-        return self.value
-
-    def clean(self):
-        if self.field.type != CustomFieldTypeChoices.TYPE_SELECT:
-            raise ValidationError("Custom field choices can only be assigned to selection fields.")
-
-    def delete(self, *args, **kwargs):
-        # TODO: Prevent deletion of CustomFieldChoices which are in use?
-        field_name = f'custom_field_data__{self.field.name}'
-        for ct in self.field.obj_type.all():
-            model = ct.model_class()
-            for instance in model.objects.filter(**{field_name: self.pk}):
-                instance.custom_field_data.pop(self.field.name)
-                instance.save()
-
-        super().delete(*args, **kwargs)

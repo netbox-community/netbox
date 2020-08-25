@@ -14,9 +14,7 @@ from rq import Worker
 
 from extras import filters
 from extras.choices import JobResultStatusChoices
-from extras.models import (
-    ConfigContext, CustomFieldChoice, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag,
-)
+from extras.models import ConfigContext, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag
 from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
 from utilities.api import IsAuthenticatedOrLoginNotRequired, ModelViewSet
@@ -35,36 +33,6 @@ class ExtrasRootView(APIRootView):
 
 
 #
-# Custom field choices
-#
-
-class CustomFieldChoicesViewSet(ViewSet):
-    """
-    """
-    permission_classes = [IsAuthenticatedOrLoginNotRequired]
-
-    def __init__(self, *args, **kwargs):
-        super(CustomFieldChoicesViewSet, self).__init__(*args, **kwargs)
-
-        self._fields = OrderedDict()
-
-        for cfc in CustomFieldChoice.objects.all():
-            self._fields.setdefault(cfc.field.name, {})
-            self._fields[cfc.field.name][cfc.value] = cfc.pk
-
-    def list(self, request):
-        return Response(self._fields)
-
-    def retrieve(self, request, pk):
-        if pk not in self._fields:
-            raise Http404
-        return Response(self._fields[pk])
-
-    def get_view_name(self):
-        return "Custom Field choices"
-
-
-#
 # Custom fields
 #
 
@@ -77,19 +45,11 @@ class CustomFieldModelViewSet(ModelViewSet):
 
         # Gather all custom fields for the model
         content_type = ContentType.objects.get_for_model(self.queryset.model)
-        custom_fields = content_type.custom_fields.prefetch_related('choices')
-
-        # Cache all relevant CustomFieldChoices. This saves us from having to do a lookup per select field per object.
-        custom_field_choices = {}
-        for field in custom_fields:
-            for cfc in field.choices.all():
-                custom_field_choices[cfc.id] = cfc.value
-        custom_field_choices = custom_field_choices
+        custom_fields = content_type.custom_fields.all()
 
         context = super().get_serializer_context()
         context.update({
             'custom_fields': custom_fields,
-            'custom_field_choices': custom_field_choices,
         })
         return context
 

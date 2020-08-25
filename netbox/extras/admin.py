@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 
 from utilities.forms import LaxURLField
-from .models import CustomField, CustomFieldChoice, CustomLink, ExportTemplate, JobResult, Webhook
+from .models import CustomField, CustomLink, ExportTemplate, JobResult, Webhook
 
 
 def order_content_types(field):
@@ -81,14 +81,8 @@ class CustomFieldForm(forms.ModelForm):
         order_content_types(self.fields['obj_type'])
 
 
-class CustomFieldChoiceAdmin(admin.TabularInline):
-    model = CustomFieldChoice
-    extra = 5
-
-
 @admin.register(CustomField)
 class CustomFieldAdmin(admin.ModelAdmin):
-    inlines = [CustomFieldChoiceAdmin]
     list_display = [
         'name', 'models', 'type', 'required', 'filter_logic', 'default', 'weight', 'description',
     ]

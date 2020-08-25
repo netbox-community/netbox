@@ -7,7 +7,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CreateOnlyDefault
 
 from extras.choices import *
-from extras.models import CustomField, CustomFieldChoice
+from extras.models import CustomField
 from utilities.api import ValidatedModelSerializer
 
 
@@ -37,12 +37,6 @@ class CustomFieldDefaultValues:
                 elif field.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
                     # TODO: Fix default value assignment for boolean custom fields
                     field_value = False if field.default.lower() == 'false' else bool(field.default)
-                elif field.type == CustomFieldTypeChoices.TYPE_SELECT:
-                    try:
-                        field_value = field.choices.get(value=field.default).pk
-                    except ObjectDoesNotExist:
-                        # Invalid default value
-                        field_value = None
                 else:
                     field_value = field.default
                 value[field.name] = field_value
@@ -69,9 +63,7 @@ class CustomFieldsSerializer(serializers.BaseSerializer):
             try:
                 cf = custom_fields[field_name]
             except KeyError:
-                raise ValidationError(
-                    "Invalid custom field for {} objects: {}".format(content_type, field_name)
-                )
+                raise ValidationError(f"Invalid custom field for {content_type} objects: {field_name}")
 
             # Data validation
             if value not in [None, '']:
@@ -81,15 +73,11 @@ class CustomFieldsSerializer(serializers.BaseSerializer):
                     try:
                         int(value)
                     except ValueError:
-                        raise ValidationError(
-                            "Invalid value for integer field {}: {}".format(field_name, value)
-                        )
+                        raise ValidationError(f"Invalid value for integer field {field_name}: {value}")
 
                 # Validate boolean
                 if cf.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value not in [True, False, 1, 0]:
-                    raise ValidationError(
-                        "Invalid value for boolean field {}: {}".format(field_name, value)
-                    )
+                    raise ValidationError(f"Invalid value for boolean field {field_name}: {value}")
 
                 # Validate date
                 if cf.type == CustomFieldTypeChoices.TYPE_DATE:
@@ -97,25 +85,16 @@ class CustomFieldsSerializer(serializers.BaseSerializer):
                         datetime.strptime(value, '%Y-%m-%d')
                     except ValueError:
                         raise ValidationError(
-                            "Invalid date for field {}: {}. (Required format is YYYY-MM-DD.)".format(field_name, value)
+                            f"Invalid date for field {field_name}: {value}. (Required format is YYYY-MM-DD.)"
                         )
 
                 # Validate selected choice
                 if cf.type == CustomFieldTypeChoices.TYPE_SELECT:
-                    try:
-                        value = int(value)
-                    except ValueError:
-                        raise ValidationError(
-                            "{}: Choice selections must be passed as integers.".format(field_name)
-                        )
-                    valid_choices = [c.pk for c in cf.choices.all()]
-                    if value not in valid_choices:
-                        raise ValidationError(
-                            "Invalid choice for field {}: {}".format(field_name, value)
-                        )
+                    if value not in cf.choices:
+                        raise ValidationError(f"Invalid choice for field {field_name}: {value}")
 
             elif cf.required:
-                raise ValidationError("Required field {} cannot be empty.".format(field_name))
+                raise ValidationError(f"Required field {field_name} cannot be empty.")
 
         # Check for missing required fields
         missing_fields = []
@@ -157,20 +136,4 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
     def _populate_custom_fields(self, instance, custom_fields):
         instance.custom_fields = {}
         for field in custom_fields:
-            value = instance.cf.get(field.name)
-            if field.type == CustomFieldTypeChoices.TYPE_SELECT and value is not None:
-                instance.custom_fields[field.name] = CustomFieldChoiceSerializer(value).data
-            else:
-                instance.custom_fields[field.name] = value
-
-
-class CustomFieldChoiceSerializer(serializers.ModelSerializer):
-    """
-    Imitate utilities.api.ChoiceFieldSerializer
-    """
-    value = serializers.IntegerField(source='pk')
-    label = serializers.CharField(source='value')
-
-    class Meta:
-        model = CustomFieldChoice
-        fields = ['value', 'label']
+            instance.custom_fields[field.name] = instance.cf.get(field.name)
