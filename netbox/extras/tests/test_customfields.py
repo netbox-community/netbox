@@ -393,19 +393,17 @@ class CustomFieldAPITest(APITestCase):
 
         # Validate response data
         response_cf = response.data['custom_fields']
-        data_cf = data['custom_fields']
-        self.assertEqual(response_cf['text_field'], data_cf['text_field'])
-        self.assertEqual(response_cf['number_field'], data_cf['number_field'])
-        # TODO: Non-updated fields are missing from the response data
-        # self.assertEqual(response_cf['boolean_field'], site2_original_cfvs['boolean_field'])
-        # self.assertEqual(response_cf['date_field'], site2_original_cfvs['date_field'])
-        # self.assertEqual(response_cf['url_field'], site2_original_cfvs['url_field'])
-        # self.assertEqual(response_cf['choice_field'], site2_original_cfvs['choice_field'].value)
+        self.assertEqual(response_cf['text_field'], data['custom_fields']['text_field'])
+        self.assertEqual(response_cf['number_field'], data['custom_fields']['number_field'])
+        self.assertEqual(response_cf['boolean_field'], original_cfvs['boolean_field'])
+        self.assertEqual(response_cf['date_field'], original_cfvs['date_field'])
+        self.assertEqual(response_cf['url_field'], original_cfvs['url_field'])
+        self.assertEqual(response_cf['choice_field'], original_cfvs['choice_field'])
 
         # Validate database data
         site.refresh_from_db()
-        self.assertEqual(site.custom_field_data['text_field'], data_cf['text_field'])
-        self.assertEqual(site.custom_field_data['number_field'], data_cf['number_field'])
+        self.assertEqual(site.custom_field_data['text_field'], data['custom_fields']['text_field'])
+        self.assertEqual(site.custom_field_data['number_field'], data['custom_fields']['number_field'])
         self.assertEqual(site.custom_field_data['boolean_field'], original_cfvs['boolean_field'])
         self.assertEqual(site.custom_field_data['date_field'], original_cfvs['date_field'])
         self.assertEqual(site.custom_field_data['url_field'], original_cfvs['url_field'])
@@ -456,7 +454,7 @@ class CustomFieldImportTest(TestCase):
         self.assertEqual(site1.custom_field_data['boolean'], True)
         self.assertEqual(site1.custom_field_data['date'], '2020-01-01')
         self.assertEqual(site1.custom_field_data['url'], 'http://example.com/1')
-        self.assertEqual(site1.custom_field_data['select'].value, 'Choice A')
+        self.assertEqual(site1.custom_field_data['select'], 'Choice A')
 
         # Validate data for site 2
         site2 = Site.objects.get(name='Site 2')
@@ -466,7 +464,7 @@ class CustomFieldImportTest(TestCase):
         self.assertEqual(site2.custom_field_data['boolean'], False)
         self.assertEqual(site2.custom_field_data['date'], '2020-01-02')
         self.assertEqual(site2.custom_field_data['url'], 'http://example.com/2')
-        self.assertEqual(site2.custom_field_data['select'].value, 'Choice B')
+        self.assertEqual(site2.custom_field_data['select'], 'Choice B')
 
         # No CustomFieldValues should be created for site 3
         site3 = Site.objects.get(name='Site 3')

@@ -1,10 +1,9 @@
 from datetime import datetime
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import CreateOnlyDefault
+from rest_framework.fields import CreateOnlyDefault, Field
 
 from extras.choices import *
 from extras.models import CustomField
@@ -46,12 +45,18 @@ class CustomFieldDefaultValues:
         return value
 
 
-class CustomFieldsSerializer(serializers.BaseSerializer):
+class CustomFieldsDataField(Field):
 
     def to_representation(self, obj):
-        return obj
+        content_type = ContentType.objects.get_for_model(self.parent.Meta.model)
+        custom_fields = CustomField.objects.filter(obj_type=content_type)
+
+        return {cf.name: obj.get(cf.name) for cf in custom_fields}
 
     def to_internal_value(self, data):
+        # If updating an existing instance, start with existing custom_field_data
+        if self.parent.instance:
+            data = {**self.parent.instance.custom_field_data, **data}
 
         content_type = ContentType.objects.get_for_model(self.parent.Meta.model)
         custom_fields = {
@@ -111,9 +116,8 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
     """
     Extends ModelSerializer to render any CustomFields and their values associated with an object.
     """
-    custom_fields = CustomFieldsSerializer(
+    custom_fields = CustomFieldsDataField(
         source='custom_field_data',
-        required=False,
         default=CreateOnlyDefault(CustomFieldDefaultValues())
     )
 
