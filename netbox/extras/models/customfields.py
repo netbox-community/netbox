@@ -1,9 +1,9 @@
 from collections import OrderedDict
-from datetime import date
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import ValidationError
 from django.db import models
 
@@ -17,6 +17,7 @@ class CustomFieldModel(models.Model):
     Abstract class for any model which may have custom fields associated with it.
     """
     custom_field_data = models.JSONField(
+        encoder=DjangoJSONEncoder,
         blank=True,
         default=dict
     )
