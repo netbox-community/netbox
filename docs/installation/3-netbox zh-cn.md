@@ -165,12 +165,10 @@ ALLOWED_HOSTS = ['netbox.example.com', '192.0.2.123']
 
 ### DATABASE
 
-本参数配置数据库连接信息. You must define the username and password used when you configured PostgreSQL. If the service is running on a remote host, replace `localhost` with its address. See the [configuration documentation](../../configuration/required-settings/#database) for more detail on individual parameters.
+本参数配置数据库连接信息. 配置 PostgreSQL 时必须指定用户名和密码. 如果服务运行在远程主机, 用相应地址替换 `localhost` . 各参数详细说明查看 [配置文档](../../configuration/required-settings/#database) .
 
 
-This parameter holds the database configuration details. You must define the username and password used when you configured PostgreSQL. If the service is running on a remote host, replace `localhost` with its address. See the [configuration documentation](../../configuration/required-settings/#database) for more detail on individual parameters.
-
-Example:
+例如:
 
 ```python
 DATABASE = {
@@ -185,7 +183,7 @@ DATABASE = {
 
 ### REDIS
 
-Redis is a in-memory key-value store required as part of the NetBox installation. It is used for features such as webhooks and caching. Redis typically requires minimal configuration; the values below should suffice for most installations. See the [configuration documentation](../../configuration/required-settings/#redis) for more detail on individual parameters.
+Redis 是基于内存的 key-value 存储，是 NetBox 安装的必需部分. 主要用于 webhooks 和缓存. Redis 通常需要最小化配置; 如下参数满足大多数据应用场景. 各参数详细说明查看 [配置文档](../../configuration/required-settings/#redis) .
 
 ```python
 REDIS = {
@@ -210,16 +208,17 @@ REDIS = {
 
 ### SECRET_KEY
 
-Generate a random secret key of at least 50 alphanumeric characters. This key must be unique to this installation and must not be shared outside the local system.
+创建一个至少50个字符的包括数字、字符的随机密钥。此密钥必须对此安装唯一，且不应在本系统外使用。 
 
-You may use the script located at `netbox/generate_secret_key.py` to generate a suitable key.
+必须使用 `netbox/generate_secret_key.py` 创建一个相应的密钥.
 
 !!! note
-    In the case of a highly available installation with multiple web servers, `SECRET_KEY` must be identical among all servers in order to maintain a persistent user session state.
 
-## Run Database Migrations
+在具有多个web服务器的高可用性安装的情况下，所有服务器之间的, `SECRET_KEY` 必须相同，才能保存持久化的用户会话状态。
 
-Before NetBox can run, we need to install the database schema. This is done by running `python3 manage.py migrate` from the `netbox` directory (`/opt/netbox/netbox/` in our example):
+## 运行数据库迁移
+
+在 NetBox 运行前, 必须安装数据库脚本. 在我们的示例里，通过在 `netbox` 目录 (`/opt/netbox/netbox/` )运行 `python3 manage.py migrate` :
 
 ```no-highlight
 (venv) # cd /opt/netbox/netbox/
@@ -234,11 +233,11 @@ Running migrations:
   ...
 ```
 
-If this step results in a PostgreSQL authentication error, ensure that the username and password created in the database match what has been specified in `configuration.py`
+如果本步骤报 PostgreSQL 验证错, 请确认在数据库安装时创建的用户名和密码与配置文件 `configuration.py` 中指定的相匹配。
 
-## Create a Super User
+## 创建超级用户
 
-NetBox does not come with any predefined user accounts. You'll need to create a super user to be able to log into NetBox:
+NetBox 未指定任何预置账户. 您首先必须创建一个超级用户以登录 NetBox:
 
 ```no-highlight
 (venv) # python3 manage.py createsuperuser
@@ -249,7 +248,7 @@ Password (again):
 Superuser created successfully.
 ```
 
-## Collect Static Files
+## 采集静态文件
 
 ```no-highlight
 (venv) # python3 manage.py collectstatic --no-input
@@ -257,9 +256,9 @@ Superuser created successfully.
 959 static files copied to '/opt/netbox/netbox/static'.
 ```
 
-## Test the Application
+## 测试应用程序
 
-At this point, NetBox should be able to run. We can verify this by starting a development instance:
+当前, NetBox 应该可以运行了. 我们能够通过启动一个开发实例以进行确认：
 
 ```no-highlight
 (venv) # python3 manage.py runserver 0.0.0.0:8000 --insecure
@@ -272,15 +271,15 @@ Starting development server at http://0.0.0.0:8000/
 Quit the server with CONTROL-C.
 ```
 
-Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page. Note that this built-in web service is for development and testing purposes only. **It is not suited for production use.**
+然后, 使用在 (`ALLOWED_HOSTS` 中指定的地址)连接到服务器的 8000 端口; 例如, <http://127.0.0.1:8000/>. 然后就应该能够看到 NetBox 首页. 需要注意的是，内建的 Web 服务器只用于开发和测试目的. **不适合生产环境使用.**
 
 !!! warning
-    If the test service does not run, or you cannot reach the NetBox home page, something has gone wrong. Do not proceed with the rest of this guide until the installation has been corrected.
+    如果测试服务没有运行，或者您无法访问 NetBox 主页，则说明出现了问题。在纠正安装之前，不要继续执行本指南的其余部分。 
 
-Note that the initial UI will be locked down for non-authenticated users.
+ 请注意，对于未经身份验证的用户，初始UI将被锁定.
 
-![NetBox UI as seen by a non-authenticated user](../media/installation/netbox_ui_guest.png)
+![未经身份验证的 NetBox 用户界面](../media/installation/netbox_ui_guest.png)
 
-After logging in as the superuser you created earlier, all areas of the UI will be available.
+以先前创建的超级用户身份登录后，UI的所有区域都将可用。 
 
-![NetBox UI as seen by an administrator](../media/installation/netbox_ui_admin.png)
+![NetBox 的管理员界面](../media/installation/netbox_ui_admin.png)
