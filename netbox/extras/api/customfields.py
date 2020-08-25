@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from django.contrib.contenttypes.models import ContentType
-from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CreateOnlyDefault, Field
 
@@ -47,28 +46,33 @@ class CustomFieldDefaultValues:
 
 class CustomFieldsDataField(Field):
 
-    def to_representation(self, obj):
-        content_type = ContentType.objects.get_for_model(self.parent.Meta.model)
-        custom_fields = CustomField.objects.filter(obj_type=content_type)
+    def _get_custom_fields(self):
+        """
+        Cache CustomFields assigned to this model to avoid redundant database queries
+        """
+        if not hasattr(self, '_custom_fields'):
+            content_type = ContentType.objects.get_for_model(self.parent.Meta.model)
+            self._custom_fields = CustomField.objects.filter(obj_type=content_type)
+        return self._custom_fields
 
-        return {cf.name: obj.get(cf.name) for cf in custom_fields}
+    def to_representation(self, obj):
+        return {
+            cf.name: obj.get(cf.name) for cf in self._get_custom_fields()
+        }
 
     def to_internal_value(self, data):
         # If updating an existing instance, start with existing custom_field_data
         if self.parent.instance:
             data = {**self.parent.instance.custom_field_data, **data}
 
-        content_type = ContentType.objects.get_for_model(self.parent.Meta.model)
-        custom_fields = {
-            field.name: field for field in CustomField.objects.filter(obj_type=content_type)
-        }
+        custom_fields = {field.name: field for field in self._get_custom_fields()}
 
         for field_name, value in data.items():
 
             try:
                 cf = custom_fields[field_name]
             except KeyError:
-                raise ValidationError(f"Invalid custom field for {content_type} objects: {field_name}")
+                raise ValidationError(f"Invalid custom field name: {field_name}")
 
             # Data validation
             if value not in [None, '']:
