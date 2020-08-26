@@ -487,6 +487,7 @@ SWAGGER_SETTINGS = {
         'utilities.custom_inspectors.CustomFieldsDataFieldInspector',
         'utilities.custom_inspectors.JSONFieldInspector',
         'utilities.custom_inspectors.NullableBooleanFieldInspector',
+        'utilities.custom_inspectors.ChoiceFieldInspector',
         'utilities.custom_inspectors.SerializedPKRelatedFieldInspector',
         'drf_yasg.inspectors.CamelCaseJSONFilter',
         'drf_yasg.inspectors.ReferencingSerializerInspector',
