@@ -5,6 +5,7 @@ from drf_yasg.utils import get_serializer_ref_name
 from rest_framework.fields import ChoiceField
 from rest_framework.relations import ManyRelatedField
 
+from extras.api.customfields import CustomFieldsDataField
 from utilities.api import ChoiceField, SerializedPKRelatedField, WritableNestedSerializer
 
 
@@ -58,6 +59,17 @@ class NullableBooleanFieldInspector(FieldInspector):
                 result.type = 'boolean'
 
         return result
+
+
+class CustomFieldsDataFieldInspector(FieldInspector):
+
+    def field_to_swagger_object(self, field, swagger_object_type, use_references, **kwargs):
+        SwaggerType, ChildSwaggerType = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
+
+        if isinstance(field, CustomFieldsDataField) and swagger_object_type == openapi.Schema:
+            return SwaggerType(type=openapi.TYPE_OBJECT)
+
+        return NotHandled
 
 
 class JSONFieldInspector(FieldInspector):
