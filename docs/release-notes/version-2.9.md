@@ -18,6 +18,7 @@
 * [#5045](https://github.com/netbox-community/netbox/issues/5045) - Allow assignment of interfaces to non-master VC peer LAG during import
 * [#5058](https://github.com/netbox-community/netbox/issues/5058) - Correct URL for front rack elevation images when using external storage
 * [#5059](https://github.com/netbox-community/netbox/issues/5059) - Fix inclusion of checkboxes for interfaces in virtual machine view
+* [#5060](https://github.com/netbox-community/netbox/issues/5060) - Fix validation when bulk-importing child devices
 
 ---
 
