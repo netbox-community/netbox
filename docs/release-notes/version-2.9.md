@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#5055](https://github.com/netbox-community/netbox/issues/5055) - Add tags column to device/VM component list tables
+* [#5056](https://github.com/netbox-community/netbox/issues/5056) - Add interface and parent columns to IP address list
 
 ### Bug Fixes
 

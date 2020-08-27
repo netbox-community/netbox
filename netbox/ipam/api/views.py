@@ -247,7 +247,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
 class IPAddressViewSet(CustomFieldModelViewSet):
     queryset = IPAddress.objects.prefetch_related(
-        'vrf__tenant', 'tenant', 'nat_inside', 'nat_outside', 'tags',
+        'vrf__tenant', 'tenant', 'nat_inside', 'nat_outside', 'tags', 'assigned_object'
     )
     serializer_class = serializers.IPAddressSerializer
     filterset_class = filters.IPAddressFilterSet
