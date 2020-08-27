@@ -684,7 +684,7 @@ class VMInterfaceCSVForm(CSVModelForm):
             return self.cleaned_data['enabled']
 
 
-class VMInterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
+class VMInterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=VMInterface.objects.all(),
         widget=forms.MultipleHiddenInput()
