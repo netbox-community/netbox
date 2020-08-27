@@ -335,13 +335,13 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         for field in ['primary_ip4', 'primary_ip6']:
             ip = getattr(self, field)
             if ip is not None:
-                if ip.interface in interfaces:
+                if ip.assigned_object in interfaces:
                     pass
-                elif self.primary_ip4.nat_inside is not None and self.primary_ip4.nat_inside.interface in interfaces:
+                elif ip.nat_inside is not None and ip.nat_inside.assigned_object in interfaces:
                     pass
                 else:
                     raise ValidationError({
-                        field: "The specified IP address ({}) is not assigned to this VM.".format(ip),
+                        field: f"The specified IP address ({ip}) is not assigned to this VM.",
                     })
 
     def to_csv(self):

@@ -493,7 +493,7 @@ class PrefixBulkDeleteView(BulkDeleteView):
 
 class IPAddressListView(ObjectListView):
     queryset = IPAddress.objects.prefetch_related(
-        'vrf__tenant', 'tenant', 'nat_inside'
+        'vrf__tenant', 'tenant', 'nat_inside', 'assigned_object'
     )
     filterset = filters.IPAddressFilterSet
     filterset_form = forms.IPAddressFilterForm

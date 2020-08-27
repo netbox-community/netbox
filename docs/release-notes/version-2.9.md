@@ -1,5 +1,29 @@
 # NetBox v2.9
 
+## v2.9.2 (2020-08-27)
+
+### Enhancements
+
+* [#5055](https://github.com/netbox-community/netbox/issues/5055) - Add tags column to device/VM component list tables
+* [#5056](https://github.com/netbox-community/netbox/issues/5056) - Add interface and parent columns to IP address list
+
+### Bug Fixes
+
+* [#4988](https://github.com/netbox-community/netbox/issues/4988) - Fix ordering of rack reservations with identical creation times
+* [#5002](https://github.com/netbox-community/netbox/issues/5002) - Correct OpenAPI definition for `available-prefixes` endpoint
+* [#5035](https://github.com/netbox-community/netbox/issues/5035) - Fix exception when modifying an IP address assigned to a VM
+* [#5038](https://github.com/netbox-community/netbox/issues/5038) - Fix validation of primary IPs assigned to virtual machines
+* [#5040](https://github.com/netbox-community/netbox/issues/5040) - Limit SLAAC status to IPv6 addresses
+* [#5041](https://github.com/netbox-community/netbox/issues/5041) - Fix form tabs when assigning an IP to a VM interface
+* [#5042](https://github.com/netbox-community/netbox/issues/5042) - Fix display of SLAAC label for IP addresses status
+* [#5045](https://github.com/netbox-community/netbox/issues/5045) - Allow assignment of interfaces to non-master VC peer LAG during import
+* [#5058](https://github.com/netbox-community/netbox/issues/5058) - Correct URL for front rack elevation images when using external storage
+* [#5059](https://github.com/netbox-community/netbox/issues/5059) - Fix inclusion of checkboxes for interfaces in virtual machine view
+* [#5060](https://github.com/netbox-community/netbox/issues/5060) - Fix validation when bulk-importing child devices
+* [#5061](https://github.com/netbox-community/netbox/issues/5061) - Allow adding/removing tags when bulk editing virtual machine interfaces
+
+---
+
 ## v2.9.1 (2020-08-22)
 
 ### Enhancements

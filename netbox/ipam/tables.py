@@ -387,15 +387,23 @@ class IPAddressTable(BaseTable):
     tenant = tables.TemplateColumn(
         template_code=TENANT_LINK
     )
-    assigned = tables.BooleanColumn(
-        accessor='assigned_object_id',
-        verbose_name='Assigned'
+    assigned_object = tables.Column(
+        linkify=True,
+        orderable=False,
+        verbose_name='Interface'
+    )
+    assigned_object_parent = tables.Column(
+        accessor='assigned_object__parent',
+        linkify=True,
+        orderable=False,
+        verbose_name='Interface Parent'
     )
 
     class Meta(BaseTable.Meta):
         model = IPAddress
         fields = (
-            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned', 'dns_name', 'description',
+            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned_object', 'assigned_object_parent', 'dns_name',
+            'description',
         )
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, IPAddress) else '',
