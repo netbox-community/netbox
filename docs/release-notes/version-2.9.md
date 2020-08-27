@@ -12,6 +12,7 @@
 * [#5041](https://github.com/netbox-community/netbox/issues/5041) - Fix form tabs when assigning an IP to a VM interface
 * [#5042](https://github.com/netbox-community/netbox/issues/5042) - Fix display of SLAAC label for IP addresses status
 * [#5045](https://github.com/netbox-community/netbox/issues/5045) - Allow assignment of interfaces to non-master VC peer LAG during import
+* [#5058](https://github.com/netbox-community/netbox/issues/5058) - Correct URL for front rack elevation images when using external storage
 * [#5059](https://github.com/netbox-community/netbox/issues/5059) - Fix inclusion of checkboxes for interfaces in virtual machine view
 
 ---
