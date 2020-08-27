@@ -2,6 +2,10 @@
 
 ## v2.9.2 (FUTURE)
 
+### Enhancements
+
+* [#5055](https://github.com/netbox-community/netbox/issues/5055) - Add tags column to device/VM component list tables
+
 ### Bug Fixes
 
 * [#4988](https://github.com/netbox-community/netbox/issues/4988) - Fix ordering of rack reservations with identical creation times
