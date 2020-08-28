@@ -85,6 +85,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('ipam', '0037_ipaddress_assignment'),
         ('virtualization', '0015_vminterface'),
+        ('dcim', '0082_3569_interface_fields'),
     ]
 
     operations = [
