@@ -36,6 +36,15 @@ class LoginView(View):
         return super().dispatch(*args, **kwargs)
 
     def get(self, request):
+        if request.user.is_authenticated:
+            # Already logged-in, determine where to redirect
+            redirect_to = request.GET.get('next', reverse('home'))
+            if redirect_to and not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
+                logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {redirect_to}")
+                redirect_to = reverse('home')
+
+            return HttpResponseRedirect(redirect_to)
+
         form = LoginForm(request)
 
         return render(request, self.template_name, {
