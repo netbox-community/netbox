@@ -149,7 +149,7 @@ class RackElevationSVG:
         unit_cursor = 0
         for u in elevation:
             o = other[unit_cursor]
-            if not u['device'] and o['device']:
+            if not u['device'] and o['device'] and o['device'].device_type.is_full_depth:
                 u['device'] = o['device']
                 u['height'] = 1
             unit_cursor += u.get('height', 1)

@@ -1,5 +1,13 @@
 # NetBox v2.9
 
+## v2.9.3 (FUTURE)
+
+### Bug Fixes
+
+* [#5063](https://github.com/netbox-community/netbox/issues/5063) - Fix "add device" link in rack elevations for opposite side of half-depth devices
+
+---
+
 ## v2.9.2 (2020-08-27)
 
 ### Enhancements
