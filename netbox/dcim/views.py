@@ -1033,7 +1033,7 @@ class DeviceView(ObjectView):
         )
 
         # Interfaces
-        interfaces = device.vc_interfaces.restrict(request.user, 'view').filter(device=device).prefetch_related(
+        interfaces = device.vc_interfaces.restrict(request.user, 'view').prefetch_related(
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user)),
             Prefetch('member_interfaces', queryset=Interface.objects.restrict(request.user)),
             'lag', '_connected_interface__device', '_connected_circuittermination__circuit', 'cable',
