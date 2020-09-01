@@ -6,6 +6,7 @@
 
 * [#5063](https://github.com/netbox-community/netbox/issues/5063) - Fix "add device" link in rack elevations for opposite side of half-depth devices
 * [#5074](https://github.com/netbox-community/netbox/issues/5074) - Fix inclusion of VC member interfaces when viewing VC master
+* [#5081](https://github.com/netbox-community/netbox/issues/5081) - Fix exception during webhook processing with custom select field
 
 ---
 
