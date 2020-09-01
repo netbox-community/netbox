@@ -8,6 +8,7 @@
 * [#5074](https://github.com/netbox-community/netbox/issues/5074) - Fix inclusion of VC member interfaces when viewing VC master
 * [#5078](https://github.com/netbox-community/netbox/issues/5078) - Fix assignment of existing IP addresses to interfaces via web UI
 * [#5081](https://github.com/netbox-community/netbox/issues/5081) - Fix exception during webhook processing with custom select field
+* [#5085](https://github.com/netbox-community/netbox/issues/5085) - Fix ordering by assignment in IP addresses table
 * [#5087](https://github.com/netbox-community/netbox/issues/5087) - Restore label field when editing console server ports, power ports, and power outlets
 
 ---

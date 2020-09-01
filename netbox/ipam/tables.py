@@ -415,6 +415,10 @@ class IPAddressDetailTable(IPAddressTable):
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )
+    assigned = tables.BooleanColumn(
+        accessor='assigned_object_id',
+        verbose_name='Assigned'
+    )
     tags = TagColumn(
         url_name='ipam:ipaddress_list'
     )
