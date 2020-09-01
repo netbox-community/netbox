@@ -67,11 +67,7 @@ IPADDRESS_LINK = """
 """
 
 IPADDRESS_ASSIGN_LINK = """
-{% if request.GET %}
-    <a href="{% url 'ipam:ipaddress_edit' pk=record.pk %}?interface={{ request.GET.interface }}&return_url={{ request.GET.return_url }}">{{ record }}</a>
-{% else %}
-    <a href="{% url 'ipam:ipaddress_edit' pk=record.pk %}?interface={{ record.interface.pk }}&return_url={{ request.path }}">{{ record }}</a>
-{% endif %}
+<a href="{% url 'ipam:ipaddress_edit' pk=record.pk %}?{% if request.GET.interface %}interface={{ request.GET.interface }}{% elif request.GET.vminterface %}vminterface={{ request.GET.vminterface }}{% endif %}&return_url={{ request.GET.return_url }}">{{ record }}</a>
 """
 
 VRF_LINK = """
