@@ -14,6 +14,7 @@
 * [#5081](https://github.com/netbox-community/netbox/issues/5081) - Fix exception during webhook processing with custom select field
 * [#5085](https://github.com/netbox-community/netbox/issues/5085) - Fix ordering by assignment in IP addresses table
 * [#5087](https://github.com/netbox-community/netbox/issues/5087) - Restore label field when editing console server ports, power ports, and power outlets
+* [#5089](https://github.com/netbox-community/netbox/issues/5089) - Redirect to device view after editing component
 * [#5090](https://github.com/netbox-community/netbox/issues/5090) - Fix status display for console/power/interface connections
 * [#5091](https://github.com/netbox-community/netbox/issues/5091) - Avoid KeyError when handling invalid table preferences
 
