@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#5072](https://github.com/netbox-community/netbox/issues/5072) - Add REST API filters for image attachments
 * [#5080](https://github.com/netbox-community/netbox/issues/5080) - Add 8P6C, 8P4C, 8P2C port types
 
 ### Bug Fixes

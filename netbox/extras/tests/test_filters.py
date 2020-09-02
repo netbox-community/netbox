@@ -1,11 +1,11 @@
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from dcim.models import DeviceRole, Platform, Region, Site
+from dcim.models import DeviceRole, Platform, Rack, Region, Site
 from extras.choices import *
 from extras.filters import *
 from extras.utils import FeatureQuery
-from extras.models import ConfigContext, ExportTemplate, Graph, Tag
+from extras.models import ConfigContext, ExportTemplate, Graph, ImageAttachment, Tag
 from tenancy.models import Tenant, TenantGroup
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
@@ -76,6 +76,84 @@ class ExportTemplateTestCase(TestCase):
     def test_template_language(self):
         params = {'template_language': TemplateLanguageChoices.LANGUAGE_JINJA2}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class ImageAttachmentTestCase(TestCase):
+    queryset = ImageAttachment.objects.all()
+    filterset = ImageAttachmentFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site_ct = ContentType.objects.get(app_label='dcim', model='site')
+        rack_ct = ContentType.objects.get(app_label='dcim', model='rack')
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+        )
+        Rack.objects.bulk_create(racks)
+
+        image_attachments = (
+            ImageAttachment(
+                content_type=site_ct,
+                object_id=sites[0].pk,
+                name='Image Attachment 1',
+                image='http://example.com/image1.png',
+                image_height=100,
+                image_width=100
+            ),
+            ImageAttachment(
+                content_type=site_ct,
+                object_id=sites[1].pk,
+                name='Image Attachment 2',
+                image='http://example.com/image2.png',
+                image_height=100,
+                image_width=100
+            ),
+            ImageAttachment(
+                content_type=rack_ct,
+                object_id=racks[0].pk,
+                name='Image Attachment 3',
+                image='http://example.com/image3.png',
+                image_height=100,
+                image_width=100
+            ),
+            ImageAttachment(
+                content_type=rack_ct,
+                object_id=racks[1].pk,
+                name='Image Attachment 4',
+                image='http://example.com/image4.png',
+                image_height=100,
+                image_width=100
+            )
+        )
+        ImageAttachment.objects.bulk_create(image_attachments)
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Image Attachment 1', 'Image Attachment 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_content_type(self):
+        params = {'content_type': ContentType.objects.get(app_label='dcim', model='site').pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_content_type_and_object_id(self):
+        params = {
+            'content_type': ContentType.objects.get(app_label='dcim', model='site').pk,
+            'object_id': [Site.objects.first().pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class ConfigContextTestCase(TestCase):
