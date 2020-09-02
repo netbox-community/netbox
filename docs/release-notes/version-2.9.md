@@ -2,6 +2,10 @@
 
 ## v2.9.3 (FUTURE)
 
+### Enhancements
+
+* [#5080](https://github.com/netbox-community/netbox/issues/5080) - Add 8P6C, 8P4C, 8P2C port types
+
 ### Bug Fixes
 
 * [#5063](https://github.com/netbox-community/netbox/issues/5063) - Fix "add device" link in rack elevations for opposite side of half-depth devices
