@@ -1,5 +1,30 @@
 # NetBox v2.9
 
+## v2.9.3 (2020-09-04)
+
+### Enhancements
+
+* [#4977](https://github.com/netbox-community/netbox/issues/4977) - Redirect authenticated users from login view
+* [#5048](https://github.com/netbox-community/netbox/issues/5048) - Show the device/VM name when editing a component
+* [#5072](https://github.com/netbox-community/netbox/issues/5072) - Add REST API filters for image attachments
+* [#5080](https://github.com/netbox-community/netbox/issues/5080) - Add 8P6C, 8P4C, 8P2C port types
+
+### Bug Fixes
+
+* [#5046](https://github.com/netbox-community/netbox/issues/5046) - Disabled plugin menu items are no longer clickable
+* [#5063](https://github.com/netbox-community/netbox/issues/5063) - Fix "add device" link in rack elevations for opposite side of half-depth devices
+* [#5074](https://github.com/netbox-community/netbox/issues/5074) - Fix inclusion of VC member interfaces when viewing VC master
+* [#5078](https://github.com/netbox-community/netbox/issues/5078) - Fix assignment of existing IP addresses to interfaces via web UI
+* [#5081](https://github.com/netbox-community/netbox/issues/5081) - Fix exception during webhook processing with custom select field
+* [#5085](https://github.com/netbox-community/netbox/issues/5085) - Fix ordering by assignment in IP addresses table
+* [#5087](https://github.com/netbox-community/netbox/issues/5087) - Restore label field when editing console server ports, power ports, and power outlets
+* [#5089](https://github.com/netbox-community/netbox/issues/5089) - Redirect to device view after editing component
+* [#5090](https://github.com/netbox-community/netbox/issues/5090) - Fix status display for console/power/interface connections
+* [#5091](https://github.com/netbox-community/netbox/issues/5091) - Avoid KeyError when handling invalid table preferences
+* [#5095](https://github.com/netbox-community/netbox/issues/5095) - Show assigned prefixes in VLANs list
+
+---
+
 ## v2.9.2 (2020-08-27)
 
 ### Enhancements

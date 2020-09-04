@@ -582,7 +582,7 @@ class IPAddressAssignView(ObjectView):
     def dispatch(self, request, *args, **kwargs):
 
         # Redirect user if an interface has not been provided
-        if 'interface' not in request.GET:
+        if 'interface' not in request.GET and 'vminterface' not in request.GET:
             return redirect('ipam:ipaddress_add')
 
         return super().dispatch(request, *args, **kwargs)
@@ -609,7 +609,7 @@ class IPAddressAssignView(ObjectView):
         return render(request, 'ipam/ipaddress_assign.html', {
             'form': form,
             'table': table,
-            'return_url': request.GET.get('return_url', ''),
+            'return_url': request.GET.get('return_url'),
         })
 
 

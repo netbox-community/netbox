@@ -328,6 +328,9 @@ A `PluginMenuButton` has the following attributes:
 * `color` - One of the choices provided by `ButtonColorChoices` (optional)
 * `permissions` - A list of permissions required to display this button (optional)
 
+!!! note
+    Any buttons associated within a menu item will be shown only if the user has permission to view the link, regardless of what permissions are set on the buttons.
+
 ## Extending Core Templates
 
 Plugins can inject custom content into certain areas of the detail views of applicable models. This is accomplished by subclassing `PluginTemplateExtension`, designating a particular NetBox model, and defining the desired methods to render custom content. Four methods are available:

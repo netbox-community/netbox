@@ -44,7 +44,7 @@ class BaseTable(tables.Table):
                     self.columns.show(name)
                 else:
                     self.columns.hide(name)
-            self.sequence = columns
+            self.sequence = [c for c in columns if c in self.base_columns]
 
             # Always include PK and actions column, if defined on the table
             if pk:

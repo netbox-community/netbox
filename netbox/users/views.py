@@ -38,6 +38,10 @@ class LoginView(View):
     def get(self, request):
         form = LoginForm(request)
 
+        if request.user.is_authenticated:
+            logger = logging.getLogger('netbox.auth.login')
+            return self.redirect_to_next(request, logger)
+
         return render(request, self.template_name, {
             'form': form,
         })
@@ -48,12 +52,6 @@ class LoginView(View):
 
         if form.is_valid():
             logger.debug("Login form validation was successful")
-
-            # Determine where to direct user after successful login
-            redirect_to = request.POST.get('next', reverse('home'))
-            if redirect_to and not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
-                logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {redirect_to}")
-                redirect_to = reverse('home')
 
             # If maintenance mode is enabled, assume the database is read-only, and disable updating the user's
             # last_login time upon authentication.
@@ -66,8 +64,7 @@ class LoginView(View):
             logger.info(f"User {request.user} successfully authenticated")
             messages.info(request, "Logged in as {}.".format(request.user))
 
-            logger.debug(f"Redirecting user to {redirect_to}")
-            return HttpResponseRedirect(redirect_to)
+            return self.redirect_to_next(request, logger)
 
         else:
             logger.debug("Login form validation failed")
@@ -75,6 +72,19 @@ class LoginView(View):
         return render(request, self.template_name, {
             'form': form,
         })
+
+    def redirect_to_next(self, request, logger):
+        if request.method == "POST":
+            redirect_to = request.POST.get('next', reverse('home'))
+        else:
+            redirect_to = request.GET.get('next', reverse('home'))
+
+        if redirect_to and not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
+            logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {redirect_to}")
+            redirect_to = reverse('home')
+
+        logger.debug(f"Redirecting user to {redirect_to}")
+        return HttpResponseRedirect(redirect_to)
 
 
 class LogoutView(View):

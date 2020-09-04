@@ -152,6 +152,10 @@ INTERFACE_TAGGED_VLANS = """
 {% endfor %}
 """
 
+CONNECTION_STATUS = """
+<span class="label label-{% if record.connection_status %}success{% else %}danger{% endif %}">{{ record.get_connection_status_display }}</span>
+"""
+
 
 #
 # Regions
@@ -908,15 +912,20 @@ class ConsoleConnectionTable(BaseTable):
         verbose_name='Console Server'
     )
     connected_endpoint = tables.Column(
+        linkify=True,
         verbose_name='Port'
     )
     device = tables.Column(
         linkify=True
     )
     name = tables.Column(
+        linkify=True,
         verbose_name='Console Port'
     )
-    connection_status = BooleanColumn()
+    connection_status = tables.TemplateColumn(
+        template_code=CONNECTION_STATUS,
+        verbose_name='Status'
+    )
 
     class Meta(BaseTable.Meta):
         model = ConsolePort
@@ -933,13 +942,19 @@ class PowerConnectionTable(BaseTable):
     )
     outlet = tables.Column(
         accessor=Accessor('_connected_poweroutlet'),
+        linkify=True,
         verbose_name='Outlet'
     )
     device = tables.Column(
         linkify=True
     )
     name = tables.Column(
+        linkify=True,
         verbose_name='Power Port'
+    )
+    connection_status = tables.TemplateColumn(
+        template_code=CONNECTION_STATUS,
+        verbose_name='Status'
     )
 
     class Meta(BaseTable.Meta):
@@ -971,6 +986,10 @@ class InterfaceConnectionTable(BaseTable):
         accessor=Accessor('_connected_interface'),
         args=[Accessor('_connected_interface__pk')],
         verbose_name='Interface B'
+    )
+    connection_status = tables.TemplateColumn(
+        template_code=CONNECTION_STATUS,
+        verbose_name='Status'
     )
 
     class Meta(BaseTable.Meta):

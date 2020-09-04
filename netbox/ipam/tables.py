@@ -67,11 +67,7 @@ IPADDRESS_LINK = """
 """
 
 IPADDRESS_ASSIGN_LINK = """
-{% if request.GET %}
-    <a href="{% url 'ipam:ipaddress_edit' pk=record.pk %}?interface={{ request.GET.interface }}&return_url={{ request.GET.return_url }}">{{ record }}</a>
-{% else %}
-    <a href="{% url 'ipam:ipaddress_edit' pk=record.pk %}?interface={{ record.interface.pk }}&return_url={{ request.path }}">{{ record }}</a>
-{% endif %}
+<a href="{% url 'ipam:ipaddress_edit' pk=record.pk %}?{% if request.GET.interface %}interface={{ request.GET.interface }}{% elif request.GET.vminterface %}vminterface={{ request.GET.vminterface }}{% endif %}&return_url={{ request.GET.return_url }}">{{ record }}</a>
 """
 
 VRF_LINK = """
@@ -103,7 +99,7 @@ VLAN_LINK = """
 """
 
 VLAN_PREFIXES = """
-{% for prefix in record.prefixes.unrestricted %}
+{% for prefix in record.prefixes.all %}
     <a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a>{% if not forloop.last %}<br />{% endif %}
 {% empty %}
     &mdash;
@@ -418,6 +414,10 @@ class IPAddressDetailTable(IPAddressTable):
     )
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
+    )
+    assigned = tables.BooleanColumn(
+        accessor='assigned_object_id',
+        verbose_name='Assigned'
     )
     tags = TagColumn(
         url_name='ipam:ipaddress_list'
