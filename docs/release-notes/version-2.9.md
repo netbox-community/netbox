@@ -10,6 +10,7 @@
 
 ### Bug Fixes
 
+* [#5046](https://github.com/netbox-community/netbox/issues/5046) - Disabled plugin menu items are no longer clickable
 * [#5063](https://github.com/netbox-community/netbox/issues/5063) - Fix "add device" link in rack elevations for opposite side of half-depth devices
 * [#5074](https://github.com/netbox-community/netbox/issues/5074) - Fix inclusion of VC member interfaces when viewing VC master
 * [#5078](https://github.com/netbox-community/netbox/issues/5078) - Fix assignment of existing IP addresses to interfaces via web UI
