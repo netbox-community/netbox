@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#4977](https://github.com/netbox-community/netbox/issues/4977) - Redirect authenticated users from login view
+* [#5048](https://github.com/netbox-community/netbox/issues/5048) - Show the device/VM name when editing a component
 * [#5072](https://github.com/netbox-community/netbox/issues/5072) - Add REST API filters for image attachments
 * [#5080](https://github.com/netbox-community/netbox/issues/5080) - Add 8P6C, 8P4C, 8P2C port types
 
