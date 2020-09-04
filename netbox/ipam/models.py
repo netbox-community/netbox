@@ -669,6 +669,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         'reserved': 'info',
         'deprecated': 'danger',
         'dhcp': 'success',
+        'slaac': 'success',
     }
 
     ROLE_CLASS_MAP = {
@@ -745,11 +746,17 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
                         'vminterface': f"IP address is primary for virtual machine {vm} but not assigned to an "
                                        f"interface"
                     })
-                elif self.interface.virtual_machine != vm:
+                elif self.assigned_object.virtual_machine != vm:
                     raise ValidationError({
                         'vminterface': f"IP address is primary for virtual machine {vm} but assigned to "
                                        f"{self.assigned_object.virtual_machine} ({self.assigned_object})"
                     })
+
+        # Validate IP status selection
+        if self.status == IPAddressStatusChoices.STATUS_SLAAC and self.family != 6:
+            raise ValidationError({
+                'status': "Only IPv6 addresses can be assigned SLAAC status"
+            })
 
     def save(self, *args, **kwargs):
 

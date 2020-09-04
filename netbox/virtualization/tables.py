@@ -154,11 +154,14 @@ class VMInterfaceTable(BaseInterfaceTable):
     name = tables.Column(
         linkify=True
     )
+    tags = TagColumn(
+        url_name='virtualization:vminterface_list'
+    )
 
     class Meta(BaseTable.Meta):
         model = VMInterface
         fields = (
-            'pk', 'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description', 'ip_addresses',
+            'pk', 'virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description', 'tags', 'ip_addresses',
             'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'virtual_machine', 'name', 'enabled', 'description')

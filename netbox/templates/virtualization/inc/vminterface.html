@@ -2,7 +2,7 @@
 <tr class="interface{% if not iface.enabled %} danger{% endif %}" id="interface_{{ iface.name }}">
 
     {# Checkbox #}
-    {% if perms.virtualization.change_interface or perms.virtualization.delete_interface %}
+    {% if perms.virtualization.change_vminterface or perms.virtualization.delete_vminterface %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ iface.pk }}" />
         </td>
@@ -43,12 +43,12 @@
                 <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
             </a>
         {% endif %}
-        {% if perms.virtualization.change_interface %}
+        {% if perms.virtualization.change_vminterface %}
             <a href="{% url 'virtualization:vminterface_edit' pk=iface.pk %}?return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-info btn-xs" title="Edit interface">
                 <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
             </a>
         {% endif %}
-        {% if perms.virtualization.delete_interface %}
+        {% if perms.virtualization.delete_vminterface %}
             <a href="{% url 'virtualization:vminterface_delete' pk=iface.pk %}?return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-danger btn-xs" title="Delete interface">
                 <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
             </a>
@@ -60,7 +60,7 @@
     {% if ipaddresses %}
         <tr class="ipaddresses">
             {# Placeholder #}
-            {% if perms.virtualization.change_interface or perms.virtualization.delete_interface %}
+            {% if perms.virtualization.change_vminterface or perms.virtualization.delete_vminterface %}
                 <td></td>
             {% endif %}
 

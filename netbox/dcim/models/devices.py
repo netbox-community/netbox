@@ -633,7 +633,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         # Check for a duplicate name on a device assigned to the same Site and no Tenant. This is necessary
         # because Django does not consider two NULL fields to be equal, and thus will not trigger a violation
         # of the uniqueness constraint without manual intervention.
-        if self.name and self.tenant is None:
+        if self.name and hasattr(self, 'site') and self.tenant is None:
             if Device.objects.exclude(pk=self.pk).filter(
                     name=self.name,
                     site=self.site,

@@ -1811,7 +1811,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
                     nat_inside__assigned_object_id__in=interface_ids
                 ).prefetch_related('assigned_object')
                 if nat_ips:
-                    ip_list = [(ip.id, f'{ip.address} ({ip.assigned_object})') for ip in nat_ips]
+                    ip_list = [(ip.id, f'{ip.address} (NAT)') for ip in nat_ips]
                     ip_choices.append(('NAT IPs', ip_list))
                 self.fields['primary_ip{}'.format(family)].choices = ip_choices
 
@@ -2317,7 +2317,7 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'device', 'name', 'type', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2390,7 +2390,7 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerPort
         fields = [
-            'device', 'name', 'type', 'maximum_draw', 'allocated_draw', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2479,7 +2479,7 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerOutlet
         fields = [
-            'device', 'name', 'type', 'power_port', 'feed_leg', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2686,7 +2686,10 @@ class InterfaceForm(InterfaceCommonForm, BootstrapMixin, forms.ModelForm):
         device_query = Q(device=device)
         if device.virtual_chassis:
             device_query |= Q(device__virtual_chassis=device.virtual_chassis)
-        self.fields['lag'].queryset = Interface.objects.filter(device_query, type=InterfaceTypeChoices.TYPE_LAG)
+        self.fields['lag'].queryset = Interface.objects.filter(
+            device_query,
+            type=InterfaceTypeChoices.TYPE_LAG
+        ).exclude(pk=self.instance.pk)
 
         # Add current site to VLANs query params
         self.fields['untagged_vlan'].widget.add_query_param('site_id', device.site.pk)
@@ -2876,17 +2879,22 @@ class InterfaceCSVForm(CSVModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Limit LAG choices to interfaces belonging to this device (or VC master)
+        # Limit LAG choices to interfaces belonging to this device (or virtual chassis)
         device = None
         if self.is_bound and 'device' in self.data:
             try:
                 device = self.fields['device'].to_python(self.data['device'])
             except forms.ValidationError:
                 pass
-
-        if device:
+        if device and device.virtual_chassis:
             self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[device, device.get_vc_master()], type=InterfaceTypeChoices.TYPE_LAG
+                Q(device=device) | Q(device__virtual_chassis=device.virtual_chassis),
+                type=InterfaceTypeChoices.TYPE_LAG
+            )
+        elif device:
+            self.fields['lag'].queryset = Interface.objects.filter(
+                device=device,
+                type=InterfaceTypeChoices.TYPE_LAG
             )
         else:
             self.fields['lag'].queryset = Interface.objects.none()

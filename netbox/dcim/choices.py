@@ -814,6 +814,9 @@ class InterfaceModeChoices(ChoiceSet):
 class PortTypeChoices(ChoiceSet):
 
     TYPE_8P8C = '8p8c'
+    TYPE_8P6C = '8p6c'
+    TYPE_8P4C = '8p4c'
+    TYPE_8P2C = '8p2c'
     TYPE_110_PUNCH = '110-punch'
     TYPE_BNC = 'bnc'
     TYPE_MRJ21 = 'mrj21'
@@ -833,6 +836,9 @@ class PortTypeChoices(ChoiceSet):
             'Copper',
             (
                 (TYPE_8P8C, '8P8C'),
+                (TYPE_8P6C, '8P6C'),
+                (TYPE_8P4C, '8P4C'),
+                (TYPE_8P2C, '8P2C'),
                 (TYPE_110_PUNCH, '110 Punch'),
                 (TYPE_BNC, 'BNC'),
                 (TYPE_MRJ21, 'MRJ21'),

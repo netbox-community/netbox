@@ -1030,7 +1030,7 @@ class DeviceView(ObjectView):
         )
 
         # Interfaces
-        interfaces = device.vc_interfaces.restrict(request.user, 'view').filter(device=device).prefetch_related(
+        interfaces = device.vc_interfaces.restrict(request.user, 'view').prefetch_related(
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user)),
             Prefetch('member_interfaces', queryset=Interface.objects.restrict(request.user)),
             'lag', '_connected_interface__device', '_connected_circuittermination__circuit', 'cable',
@@ -1228,6 +1228,7 @@ class ConsolePortCreateView(ComponentCreateView):
 class ConsolePortEditView(ObjectEditView):
     queryset = ConsolePort.objects.all()
     model_form = forms.ConsolePortForm
+    template_name = 'dcim/device_component_edit.html'
 
 
 class ConsolePortDeleteView(ObjectDeleteView):
@@ -1287,6 +1288,7 @@ class ConsoleServerPortCreateView(ComponentCreateView):
 class ConsoleServerPortEditView(ObjectEditView):
     queryset = ConsoleServerPort.objects.all()
     model_form = forms.ConsoleServerPortForm
+    template_name = 'dcim/device_component_edit.html'
 
 
 class ConsoleServerPortDeleteView(ObjectDeleteView):
@@ -1346,6 +1348,7 @@ class PowerPortCreateView(ComponentCreateView):
 class PowerPortEditView(ObjectEditView):
     queryset = PowerPort.objects.all()
     model_form = forms.PowerPortForm
+    template_name = 'dcim/device_component_edit.html'
 
 
 class PowerPortDeleteView(ObjectDeleteView):
@@ -1405,6 +1408,7 @@ class PowerOutletCreateView(ComponentCreateView):
 class PowerOutletEditView(ObjectEditView):
     queryset = PowerOutlet.objects.all()
     model_form = forms.PowerOutletForm
+    template_name = 'dcim/device_component_edit.html'
 
 
 class PowerOutletDeleteView(ObjectDeleteView):
@@ -1556,6 +1560,7 @@ class FrontPortCreateView(ComponentCreateView):
 class FrontPortEditView(ObjectEditView):
     queryset = FrontPort.objects.all()
     model_form = forms.FrontPortForm
+    template_name = 'dcim/device_component_edit.html'
 
 
 class FrontPortDeleteView(ObjectDeleteView):
@@ -1615,6 +1620,7 @@ class RearPortCreateView(ComponentCreateView):
 class RearPortEditView(ObjectEditView):
     queryset = RearPort.objects.all()
     model_form = forms.RearPortForm
+    template_name = 'dcim/device_component_edit.html'
 
 
 class RearPortDeleteView(ObjectDeleteView):
@@ -1674,6 +1680,7 @@ class DeviceBayCreateView(ComponentCreateView):
 class DeviceBayEditView(ObjectEditView):
     queryset = DeviceBay.objects.all()
     model_form = forms.DeviceBayForm
+    template_name = 'dcim/device_component_edit.html'
 
 
 class DeviceBayDeleteView(ObjectDeleteView):

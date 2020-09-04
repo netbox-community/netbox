@@ -25,7 +25,7 @@ Begin by installing all system packages required by NetBox and its dependencies.
 Before continuing with either platform, update pip (Python's package management tool) to its latest release:
 
 ```no-highlight
-# pip install --upgrade pip
+# pip3 install --upgrade pip
 ```
 
 ## Download NetBox

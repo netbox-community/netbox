@@ -67,11 +67,7 @@ IPADDRESS_LINK = """
 """
 
 IPADDRESS_ASSIGN_LINK = """
-{% if request.GET %}
-    <a href="{% url 'ipam:ipaddress_edit' pk=record.pk %}?interface={{ request.GET.interface }}&return_url={{ request.GET.return_url }}">{{ record }}</a>
-{% else %}
-    <a href="{% url 'ipam:ipaddress_edit' pk=record.pk %}?interface={{ record.interface.pk }}&return_url={{ request.path }}">{{ record }}</a>
-{% endif %}
+<a href="{% url 'ipam:ipaddress_edit' pk=record.pk %}?{% if request.GET.interface %}interface={{ request.GET.interface }}{% elif request.GET.vminterface %}vminterface={{ request.GET.vminterface }}{% endif %}&return_url={{ request.GET.return_url }}">{{ record }}</a>
 """
 
 VRF_LINK = """
@@ -103,7 +99,7 @@ VLAN_LINK = """
 """
 
 VLAN_PREFIXES = """
-{% for prefix in record.prefixes.unrestricted %}
+{% for prefix in record.prefixes.all %}
     <a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a>{% if not forloop.last %}<br />{% endif %}
 {% empty %}
     &mdash;
@@ -387,15 +383,23 @@ class IPAddressTable(BaseTable):
     tenant = tables.TemplateColumn(
         template_code=TENANT_LINK
     )
-    assigned = tables.BooleanColumn(
-        accessor='assigned_object_id',
-        verbose_name='Assigned'
+    assigned_object = tables.Column(
+        linkify=True,
+        orderable=False,
+        verbose_name='Interface'
+    )
+    assigned_object_parent = tables.Column(
+        accessor='assigned_object__parent',
+        linkify=True,
+        orderable=False,
+        verbose_name='Interface Parent'
     )
 
     class Meta(BaseTable.Meta):
         model = IPAddress
         fields = (
-            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned', 'dns_name', 'description',
+            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned_object', 'assigned_object_parent', 'dns_name',
+            'description',
         )
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, IPAddress) else '',
@@ -410,6 +414,10 @@ class IPAddressDetailTable(IPAddressTable):
     )
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
+    )
+    assigned = tables.BooleanColumn(
+        accessor='assigned_object_id',
+        verbose_name='Assigned'
     )
     tags = TagColumn(
         url_name='ipam:ipaddress_list'
