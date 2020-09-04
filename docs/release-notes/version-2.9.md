@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#4977](https://github.com/netbox-community/netbox/issues/4977) - Redirect authenticated users from login view
 * [#5072](https://github.com/netbox-community/netbox/issues/5072) - Add REST API filters for image attachments
 * [#5080](https://github.com/netbox-community/netbox/issues/5080) - Add 8P6C, 8P4C, 8P2C port types
 
@@ -18,6 +19,7 @@
 * [#5089](https://github.com/netbox-community/netbox/issues/5089) - Redirect to device view after editing component
 * [#5090](https://github.com/netbox-community/netbox/issues/5090) - Fix status display for console/power/interface connections
 * [#5091](https://github.com/netbox-community/netbox/issues/5091) - Avoid KeyError when handling invalid table preferences
+* [#5095](https://github.com/netbox-community/netbox/issues/5095) - Avoid KeyError when handling invalid table preferences
 
 ---
 
