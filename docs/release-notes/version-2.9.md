@@ -21,7 +21,7 @@
 * [#5089](https://github.com/netbox-community/netbox/issues/5089) - Redirect to device view after editing component
 * [#5090](https://github.com/netbox-community/netbox/issues/5090) - Fix status display for console/power/interface connections
 * [#5091](https://github.com/netbox-community/netbox/issues/5091) - Avoid KeyError when handling invalid table preferences
-* [#5095](https://github.com/netbox-community/netbox/issues/5095) - Avoid KeyError when handling invalid table preferences
+* [#5095](https://github.com/netbox-community/netbox/issues/5095) - Show assigned prefixes in VLANs list
 
 ---
 
