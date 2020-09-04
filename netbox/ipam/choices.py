@@ -41,12 +41,14 @@ class IPAddressStatusChoices(ChoiceSet):
     STATUS_RESERVED = 'reserved'
     STATUS_DEPRECATED = 'deprecated'
     STATUS_DHCP = 'dhcp'
+    STATUS_SLAAC = 'slaac'
 
     CHOICES = (
         (STATUS_ACTIVE, 'Active'),
         (STATUS_RESERVED, 'Reserved'),
         (STATUS_DEPRECATED, 'Deprecated'),
         (STATUS_DHCP, 'DHCP'),
+        (STATUS_SLAAC, 'SLAAC'),
     )
 
 

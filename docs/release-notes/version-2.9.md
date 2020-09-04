@@ -1,6 +1,68 @@
 # NetBox v2.9
 
+## v2.9.3 (2020-09-04)
+
+### Enhancements
+
+* [#4977](https://github.com/netbox-community/netbox/issues/4977) - Redirect authenticated users from login view
+* [#5048](https://github.com/netbox-community/netbox/issues/5048) - Show the device/VM name when editing a component
+* [#5072](https://github.com/netbox-community/netbox/issues/5072) - Add REST API filters for image attachments
+* [#5080](https://github.com/netbox-community/netbox/issues/5080) - Add 8P6C, 8P4C, 8P2C port types
+
+### Bug Fixes
+
+* [#5046](https://github.com/netbox-community/netbox/issues/5046) - Disabled plugin menu items are no longer clickable
+* [#5063](https://github.com/netbox-community/netbox/issues/5063) - Fix "add device" link in rack elevations for opposite side of half-depth devices
+* [#5074](https://github.com/netbox-community/netbox/issues/5074) - Fix inclusion of VC member interfaces when viewing VC master
+* [#5078](https://github.com/netbox-community/netbox/issues/5078) - Fix assignment of existing IP addresses to interfaces via web UI
+* [#5081](https://github.com/netbox-community/netbox/issues/5081) - Fix exception during webhook processing with custom select field
+* [#5085](https://github.com/netbox-community/netbox/issues/5085) - Fix ordering by assignment in IP addresses table
+* [#5087](https://github.com/netbox-community/netbox/issues/5087) - Restore label field when editing console server ports, power ports, and power outlets
+* [#5089](https://github.com/netbox-community/netbox/issues/5089) - Redirect to device view after editing component
+* [#5090](https://github.com/netbox-community/netbox/issues/5090) - Fix status display for console/power/interface connections
+* [#5091](https://github.com/netbox-community/netbox/issues/5091) - Avoid KeyError when handling invalid table preferences
+* [#5095](https://github.com/netbox-community/netbox/issues/5095) - Show assigned prefixes in VLANs list
+
+---
+
+## v2.9.2 (2020-08-27)
+
+### Enhancements
+
+* [#5055](https://github.com/netbox-community/netbox/issues/5055) - Add tags column to device/VM component list tables
+* [#5056](https://github.com/netbox-community/netbox/issues/5056) - Add interface and parent columns to IP address list
+
+### Bug Fixes
+
+* [#4988](https://github.com/netbox-community/netbox/issues/4988) - Fix ordering of rack reservations with identical creation times
+* [#5002](https://github.com/netbox-community/netbox/issues/5002) - Correct OpenAPI definition for `available-prefixes` endpoint
+* [#5035](https://github.com/netbox-community/netbox/issues/5035) - Fix exception when modifying an IP address assigned to a VM
+* [#5038](https://github.com/netbox-community/netbox/issues/5038) - Fix validation of primary IPs assigned to virtual machines
+* [#5040](https://github.com/netbox-community/netbox/issues/5040) - Limit SLAAC status to IPv6 addresses
+* [#5041](https://github.com/netbox-community/netbox/issues/5041) - Fix form tabs when assigning an IP to a VM interface
+* [#5042](https://github.com/netbox-community/netbox/issues/5042) - Fix display of SLAAC label for IP addresses status
+* [#5045](https://github.com/netbox-community/netbox/issues/5045) - Allow assignment of interfaces to non-master VC peer LAG during import
+* [#5058](https://github.com/netbox-community/netbox/issues/5058) - Correct URL for front rack elevation images when using external storage
+* [#5059](https://github.com/netbox-community/netbox/issues/5059) - Fix inclusion of checkboxes for interfaces in virtual machine view
+* [#5060](https://github.com/netbox-community/netbox/issues/5060) - Fix validation when bulk-importing child devices
+* [#5061](https://github.com/netbox-community/netbox/issues/5061) - Allow adding/removing tags when bulk editing virtual machine interfaces
+
+---
+
+## v2.9.1 (2020-08-22)
+
+### Enhancements
+
+* [#4540](https://github.com/netbox-community/netbox/issues/4540) - Add IP address status type for SLAAC
+* [#4814](https://github.com/netbox-community/netbox/issues/4814) - Allow nested LAG interfaces
+* [#4991](https://github.com/netbox-community/netbox/issues/4991) - Add Python and NetBox versions to error page
+* [#5033](https://github.com/netbox-community/netbox/issues/5033) - Support backward compatibility for `REMOTE_AUTH_BACKEND` configuration parameter
+
+---
+
 ## v2.9.0 (2020-08-21)
+
+**Note:** Redis 4.0 or later is required for this release.
 
 ### New Features
 
@@ -56,7 +118,8 @@ Two new REST API endpoints have been added to facilitate the retrieval and manip
 
 ### Configuration Changes
 
-* If in use, LDAP authentication must be enabled by setting `REMOTE_AUTH_BACKEND` to `'netbox.authentication.LDAPBackend'`. (LDAP configuration parameters in `ldap_config.py` remain unchanged.)
+* If using NetBox's built-in remote authentication backend, update `REMOTE_AUTH_BACKEND` to `'netbox.authentication.RemoteUserBackend'`, as the authentication class has moved.
+* If using LDAP authentication, set `REMOTE_AUTH_BACKEND` to `'netbox.authentication.LDAPBackend'`. (LDAP configuration parameters in `ldap_config.py` remain unchanged.)
 * `REMOTE_AUTH_DEFAULT_PERMISSIONS` now takes a dictionary rather than a list. This is a mapping of permission names to a dictionary of constraining attributes, or `None`. For example, `['dcim.add_site', 'dcim.change_site']` would become `{'dcim.add_site': None, 'dcim.change_site': None}`.
 
 ### REST API Changes

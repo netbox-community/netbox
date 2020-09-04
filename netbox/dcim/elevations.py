@@ -94,8 +94,12 @@ class RackElevationSVG:
 
         # Embed front device type image if one exists
         if self.include_images and device.device_type.front_image:
-            url = '{}{}'.format(self.base_url, device.device_type.front_image.url)
-            image = drawing.image(href=url, insert=start, size=end, class_='device-image')
+            image = drawing.image(
+                href=device.device_type.front_image.url,
+                insert=start,
+                size=end,
+                class_='device-image'
+            )
             image.fit(scale='slice')
             link.add(image)
 
@@ -107,8 +111,12 @@ class RackElevationSVG:
 
         # Embed rear device type image if one exists
         if self.include_images and device.device_type.rear_image:
-            url = device.device_type.rear_image.url
-            image = drawing.image(href=url, insert=start, size=end, class_='device-image')
+            image = drawing.image(
+                href=device.device_type.rear_image.url,
+                insert=start,
+                size=end,
+                class_='device-image'
+            )
             image.fit(scale='slice')
             drawing.add(image)
 
@@ -141,7 +149,7 @@ class RackElevationSVG:
         unit_cursor = 0
         for u in elevation:
             o = other[unit_cursor]
-            if not u['device'] and o['device']:
+            if not u['device'] and o['device'] and o['device'].device_type.is_full_depth:
                 u['device'] = o['device']
                 u['height'] = 1
             unit_cursor += u.get('height', 1)

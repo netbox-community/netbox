@@ -595,7 +595,7 @@ class RackReservation(ChangeLoggedModel):
     csv_headers = ['site', 'rack_group', 'rack', 'units', 'tenant', 'user', 'description']
 
     class Meta:
-        ordering = ['created']
+        ordering = ['created', 'pk']
 
     def __str__(self):
         return "Reservation for rack {}".format(self.rack)

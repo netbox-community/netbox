@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.9.1-dev'
+VERSION = '2.9.4-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -131,7 +131,6 @@ if RELEASE_CHECK_URL:
 # Enforce a minimum cache timeout for update checks
 if RELEASE_CHECK_TIMEOUT < 3600:
     raise ImproperlyConfigured("RELEASE_CHECK_TIMEOUT has to be at least 3600 seconds (1 hour)")
-
 
 #
 # Database

@@ -7,7 +7,7 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.filters import BaseFilterSet
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
-from .models import ConfigContext, CustomField, ExportTemplate, ObjectChange, JobResult, Tag
+from .models import ConfigContext, CustomField, ExportTemplate, ImageAttachment, JobResult, ObjectChange, Tag
 
 
 __all__ = (
@@ -16,6 +16,7 @@ __all__ = (
     'CustomFieldFilter',
     'CustomFieldFilterSet',
     'ExportTemplateFilterSet',
+    'ImageAttachmentFilterSet',
     'LocalConfigContextFilterSet',
     'ObjectChangeFilterSet',
     'TagFilterSet',
@@ -77,6 +78,13 @@ class ExportTemplateFilterSet(BaseFilterSet):
     class Meta:
         model = ExportTemplate
         fields = ['id', 'content_type', 'name']
+
+
+class ImageAttachmentFilterSet(BaseFilterSet):
+
+    class Meta:
+        model = ImageAttachment
+        fields = ['id', 'content_type', 'object_id', 'name']
 
 
 class TagFilterSet(BaseFilterSet):

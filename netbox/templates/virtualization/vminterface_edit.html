@@ -5,14 +5,34 @@
     <div class="panel panel-default">
         <div class="panel-heading"><strong>Interface</strong></div>
         <div class="panel-body">
+            {% if form.instance.virtual_machine %}
+                <div class="form-group">
+                    <label class="col-md-3 control-label required" for="id_device">Virtual Machine</label>
+                    <div class="col-md-9">
+                        <p class="form-control-static">
+                            <a href="{{ form.instance.virtual_machine.get_absolute_url }}">{{ form.instance.virtual_machine }}</a>
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
             {% render_field form.name %}
             {% render_field form.enabled %}
             {% render_field form.mac_address %}
             {% render_field form.mtu %}
             {% render_field form.description %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>802.1Q Switching</strong></div>
+        <div class="panel-body">
             {% render_field form.mode %}
             {% render_field form.untagged_vlan %}
             {% render_field form.tagged_vlans %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Tags</strong></div>
+        <div class="panel-body">
             {% render_field form.tags %}
         </div>
     </div>

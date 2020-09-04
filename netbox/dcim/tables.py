@@ -152,6 +152,10 @@ INTERFACE_TAGGED_VLANS = """
 {% endfor %}
 """
 
+CONNECTION_STATUS = """
+<span class="label label-{% if record.connection_status %}success{% else %}danger{% endif %}">{{ record.get_connection_status_display }}</span>
+"""
+
 
 #
 # Regions
@@ -706,34 +710,48 @@ class DeviceComponentTable(BaseTable):
 
 
 class ConsolePortTable(DeviceComponentTable):
+    tags = TagColumn(
+        url_name='dcim:consoleport_list'
+    )
 
     class Meta(DeviceComponentTable.Meta):
         model = ConsolePort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable')
+        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'tags')
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
 class ConsoleServerPortTable(DeviceComponentTable):
+    tags = TagColumn(
+        url_name='dcim:consoleserverport_list'
+    )
 
     class Meta(DeviceComponentTable.Meta):
         model = ConsoleServerPort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable')
+        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'tags')
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
 class PowerPortTable(DeviceComponentTable):
+    tags = TagColumn(
+        url_name='dcim:powerport_list'
+    )
 
     class Meta(DeviceComponentTable.Meta):
         model = PowerPort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'maximum_draw', 'allocated_draw', 'cable')
+        fields = (
+            'pk', 'device', 'name', 'label', 'type', 'description', 'maximum_draw', 'allocated_draw', 'cable', 'tags',
+        )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description')
 
 
 class PowerOutletTable(DeviceComponentTable):
+    tags = TagColumn(
+        url_name='dcim:poweroutlet_list'
+    )
 
     class Meta(DeviceComponentTable.Meta):
         model = PowerOutlet
-        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'power_port', 'feed_leg', 'cable')
+        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'power_port', 'feed_leg', 'cable', 'tags')
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description')
 
 
@@ -753,12 +771,15 @@ class BaseInterfaceTable(BaseTable):
 
 
 class InterfaceTable(DeviceComponentTable, BaseInterfaceTable):
+    tags = TagColumn(
+        url_name='dcim:interface_list'
+    )
 
     class Meta(DeviceComponentTable.Meta):
         model = Interface
         fields = (
             'pk', 'device', 'name', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address',
-            'description', 'cable', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
+            'description', 'cable', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'enabled', 'type', 'description')
 
@@ -767,18 +788,26 @@ class FrontPortTable(DeviceComponentTable):
     rear_port_position = tables.Column(
         verbose_name='Position'
     )
+    tags = TagColumn(
+        url_name='dcim:frontport_list'
+    )
 
     class Meta(DeviceComponentTable.Meta):
         model = FrontPort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable')
+        fields = (
+            'pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'tags',
+        )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description')
 
 
 class RearPortTable(DeviceComponentTable):
+    tags = TagColumn(
+        url_name='dcim:rearport_list'
+    )
 
     class Meta(DeviceComponentTable.Meta):
         model = RearPort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'positions', 'description', 'cable')
+        fields = ('pk', 'device', 'name', 'label', 'type', 'positions', 'description', 'cable', 'tags')
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
@@ -786,10 +815,13 @@ class DeviceBayTable(DeviceComponentTable):
     installed_device = tables.Column(
         linkify=True
     )
+    tags = TagColumn(
+        url_name='dcim:devicebay_list'
+    )
 
     class Meta(DeviceComponentTable.Meta):
         model = DeviceBay
-        fields = ('pk', 'device', 'name', 'label', 'installed_device', 'description')
+        fields = ('pk', 'device', 'name', 'label', 'installed_device', 'description', 'tags')
         default_columns = ('pk', 'device', 'name', 'label', 'installed_device', 'description')
 
 
@@ -798,12 +830,16 @@ class InventoryItemTable(DeviceComponentTable):
         linkify=True
     )
     discovered = BooleanColumn()
+    tags = TagColumn(
+        url_name='dcim:inventoryitem_list'
+    )
+    cable = None  # Override DeviceComponentTable
 
     class Meta(DeviceComponentTable.Meta):
         model = InventoryItem
         fields = (
             'pk', 'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description',
-            'discovered',
+            'discovered', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag')
 
@@ -876,15 +912,20 @@ class ConsoleConnectionTable(BaseTable):
         verbose_name='Console Server'
     )
     connected_endpoint = tables.Column(
+        linkify=True,
         verbose_name='Port'
     )
     device = tables.Column(
         linkify=True
     )
     name = tables.Column(
+        linkify=True,
         verbose_name='Console Port'
     )
-    connection_status = BooleanColumn()
+    connection_status = tables.TemplateColumn(
+        template_code=CONNECTION_STATUS,
+        verbose_name='Status'
+    )
 
     class Meta(BaseTable.Meta):
         model = ConsolePort
@@ -901,13 +942,19 @@ class PowerConnectionTable(BaseTable):
     )
     outlet = tables.Column(
         accessor=Accessor('_connected_poweroutlet'),
+        linkify=True,
         verbose_name='Outlet'
     )
     device = tables.Column(
         linkify=True
     )
     name = tables.Column(
+        linkify=True,
         verbose_name='Power Port'
+    )
+    connection_status = tables.TemplateColumn(
+        template_code=CONNECTION_STATUS,
+        verbose_name='Status'
     )
 
     class Meta(BaseTable.Meta):
@@ -939,6 +986,10 @@ class InterfaceConnectionTable(BaseTable):
         accessor=Accessor('_connected_interface'),
         args=[Accessor('_connected_interface__pk')],
         verbose_name='Interface B'
+    )
+    connection_status = tables.TemplateColumn(
+        template_code=CONNECTION_STATUS,
+        verbose_name='Status'
     )
 
     class Meta(BaseTable.Meta):

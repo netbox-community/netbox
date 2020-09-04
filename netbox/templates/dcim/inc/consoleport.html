@@ -66,7 +66,7 @@
             </span>
         {% endif %}
         {% if perms.dcim.change_consoleport %}
-            <a href="{% url 'dcim:consoleport_edit' pk=cp.pk %}" title="Edit port" class="btn btn-info btn-xs">
+            <a href="{% url 'dcim:consoleport_edit' pk=cp.pk %}?return_url={{ device.get_absolute_url }}" title="Edit port" class="btn btn-info btn-xs">
                 <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
             </a>
         {% endif %}

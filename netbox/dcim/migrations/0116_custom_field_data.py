@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0114_update_jsonfield'),
+        ('dcim', '0115_rackreservation_order'),
     ]
 
     operations = [

@@ -85,6 +85,7 @@ class ImageAttachmentViewSet(ModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = ImageAttachment.objects.all()
     serializer_class = serializers.ImageAttachmentSerializer
+    filterset_class = filters.ImageAttachmentFilterSet
 
 
 #
