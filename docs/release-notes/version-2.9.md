@@ -129,6 +129,7 @@ Two new REST API endpoints have been added to facilitate the retrieval and manip
 * If using NetBox's built-in remote authentication backend, update `REMOTE_AUTH_BACKEND` to `'netbox.authentication.RemoteUserBackend'`, as the authentication class has moved.
 * If using LDAP authentication, set `REMOTE_AUTH_BACKEND` to `'netbox.authentication.LDAPBackend'`. (LDAP configuration parameters in `ldap_config.py` remain unchanged.)
 * `REMOTE_AUTH_DEFAULT_PERMISSIONS` now takes a dictionary rather than a list. This is a mapping of permission names to a dictionary of constraining attributes, or `None`. For example, `['dcim.add_site', 'dcim.change_site']` would become `{'dcim.add_site': None, 'dcim.change_site': None}`.
+* Backward compatibility for the old `webhooks` Redis queue name has been dropped. Ensure that your `REDIS` configuration parameter specifies both the `tasks` and `caching` databases.
 
 ### REST API Changes
 
