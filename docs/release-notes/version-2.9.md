@@ -1,5 +1,13 @@
 # NetBox v2.9
 
+## v2.9.4 (FUTURE)
+
+### Bug Fixes
+
+* [#5111](https://github.com/netbox-community/netbox/issues/5111) - Allow use of tuples when specifying ObjectVar `query_params`
+
+---
+
 ## v2.9.3 (2020-09-04)
 
 ### Enhancements
