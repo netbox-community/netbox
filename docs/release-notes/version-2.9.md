@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#5050](https://github.com/netbox-community/netbox/issues/5050) - Fix potential failure on `0016_replicate_interfaces` schema migration from old release
 * [#5111](https://github.com/netbox-community/netbox/issues/5111) - Allow use of tuples when specifying ObjectVar `query_params`
 
 ---

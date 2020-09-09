@@ -83,6 +83,7 @@ def replicate_interfaces(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('dcim', '0082_3569_interface_fields'),
         ('ipam', '0037_ipaddress_assignment'),
         ('virtualization', '0015_vminterface'),
     ]
