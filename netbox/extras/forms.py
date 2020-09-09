@@ -152,7 +152,7 @@ class CustomFieldFilterForm(forms.Form):
 # Tags
 #
 
-class TagForm(BootstrapMixin, forms.ModelForm):
+class TagForm(BootstrapMixin, CustomFieldModelForm):
     slug = SlugField()
 
     class Meta:

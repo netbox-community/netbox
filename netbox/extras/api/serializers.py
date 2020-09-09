@@ -8,6 +8,7 @@ from dcim.api.nested_serializers import (
     NestedRegionSerializer, NestedSiteSerializer,
 )
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
+from extras.api.customfields import CustomFieldModelSerializer
 from extras.choices import *
 from extras.models import (
     ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, JobResult, Tag,
@@ -88,13 +89,16 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
 # Tags
 #
 
-class TagSerializer(ValidatedModelSerializer):
+class TagSerializer(CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:tag-detail')
     tagged_items = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Tag
-        fields = ['id', 'url', 'name', 'slug', 'color', 'description', 'tagged_items']
+        fields = [
+            'id', 'url', 'name', 'slug', 'color', 'description', 'custom_fields',
+            'tagged_items',
+        ]
 
 
 class TaggedObjectSerializer(serializers.Serializer):

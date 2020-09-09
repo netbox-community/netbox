@@ -124,7 +124,7 @@ class ExportTemplateViewSet(ModelViewSet):
 # Tags
 #
 
-class TagViewSet(ModelViewSet):
+class TagViewSet(CustomFieldModelViewSet):
     queryset = Tag.objects.annotate(
         tagged_items=Count('extras_taggeditem_items')
     ).order_by(*Tag._meta.ordering)

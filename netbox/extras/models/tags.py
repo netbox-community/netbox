@@ -1,8 +1,10 @@
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils.text import slugify
 from taggit.models import TagBase, GenericTaggedItemBase
 
-from extras.models import ChangeLoggedModel
+from extras.models import ChangeLoggedModel, CustomFieldModel
+from extras.utils import extras_features
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField
 from utilities.querysets import RestrictedQuerySet
@@ -12,13 +14,19 @@ from utilities.querysets import RestrictedQuerySet
 # Tags
 #
 
-class Tag(TagBase, ChangeLoggedModel):
+@extras_features('custom_fields')
+class Tag(TagBase, ChangeLoggedModel, CustomFieldModel):
     color = ColorField(
         default=ColorChoices.COLOR_GREY
     )
     description = models.CharField(
         max_length=200,
         blank=True,
+    )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
     )
 
     objects = RestrictedQuerySet.as_manager()
