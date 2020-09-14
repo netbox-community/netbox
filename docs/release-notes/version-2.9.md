@@ -6,6 +6,7 @@
 
 * [#5050](https://github.com/netbox-community/netbox/issues/5050) - Fix potential failure on `0016_replicate_interfaces` schema migration from old release
 * [#5109](https://github.com/netbox-community/netbox/issues/5109) - Fix representation of custom choice field values for webhook data
+* [#5108](https://github.com/netbox-community/netbox/issues/5108) - Fix execution of reports via CLI
 * [#5111](https://github.com/netbox-community/netbox/issues/5111) - Allow use of tuples when specifying ObjectVar `query_params`
 * [#5118](https://github.com/netbox-community/netbox/issues/5118) - Specifying an empty list of tags should clear assigned tags (REST API)
 
