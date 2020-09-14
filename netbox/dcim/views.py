@@ -310,6 +310,11 @@ class RackElevationListView(ObjectListView):
         racks = filters.RackFilterSet(request.GET, self.queryset).qs
         total_count = racks.count()
 
+        # Determine ordering
+        reverse = bool(request.GET.get('reverse', False))
+        if reverse:
+            racks = racks.reverse()
+
         # Pagination
         per_page = request.GET.get('per_page', settings.PAGINATE_COUNT)
         page_number = request.GET.get('page', 1)
@@ -330,6 +335,7 @@ class RackElevationListView(ObjectListView):
             'paginator': paginator,
             'page': page,
             'total_count': total_count,
+            'reverse': reverse,
             'rack_face': rack_face,
             'filter_form': forms.RackElevationFilterForm(request.GET),
         })
