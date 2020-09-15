@@ -91,11 +91,9 @@ def serialize_object(obj, extra=None, exclude=None):
     json_str = serialize('json', [obj])
     data = json.loads(json_str)[0]['fields']
 
-    # Include any custom fields
-    if hasattr(obj, 'get_custom_fields'):
-        data['custom_fields'] = {
-            field: str(value) for field, value in obj.cf.items()
-        }
+    # Include custom_field_data as "custom_fields"
+    if hasattr(obj, 'custom_field_data'):
+        data['custom_fields'] = data.pop('custom_field_data')
 
     # Include any tags. Check for tags cached on the instance; fall back to using the manager.
     if is_taggable(obj):
