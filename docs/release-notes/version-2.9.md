@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#1755](https://github.com/netbox-community/netbox/issues/1755) - Toggle order in which rack elevations are displayed
+* [#5134](https://github.com/netbox-community/netbox/issues/5134) - Display full hierarchy in breadcrumbs for sites/racks
 
 ### Bug Fixes
 

@@ -12,7 +12,7 @@
             <ol class="breadcrumb">
                 <li><a href="{% url 'dcim:site_list' %}">Sites</a></li>
                 {% if site.region %}
-                    {% for region in site.region.get_ancestors.unrestricted %}
+                    {% for region in site.region.get_ancestors %}
                         <li><a href="{{ region.get_absolute_url }}">{{ region }}</a></li>
                     {% endfor %}
                     <li><a href="{{ site.region.get_absolute_url }}">{{ site.region }}</a></li>
@@ -86,7 +86,7 @@
                     <td>Region</td>
                     <td>
                         {% if site.region %}
-                            {% for region in site.region.get_ancestors.unrestricted %}
+                            {% for region in site.region.get_ancestors %}
                                 <a href="{{ region.get_absolute_url }}">{{ region }}</a>
                                 <i class="fa fa-angle-right"></i>
                             {% endfor %}
