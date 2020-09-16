@@ -14,6 +14,7 @@
 * [#5108](https://github.com/netbox-community/netbox/issues/5108) - Fix execution of reports via CLI
 * [#5111](https://github.com/netbox-community/netbox/issues/5111) - Allow use of tuples when specifying ObjectVar `query_params`
 * [#5118](https://github.com/netbox-community/netbox/issues/5118) - Specifying an empty list of tags should clear assigned tags (REST API)
+* [#5133](https://github.com/netbox-community/netbox/issues/5133) - Fix disassociation of an IP address from a VM interface
 
 ---
 
