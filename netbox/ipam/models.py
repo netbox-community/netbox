@@ -726,30 +726,18 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
                     })
 
         # Check for primary IP assignment that doesn't match the assigned device/VM
-        if self.pk and type(self.assigned_object) is Interface:
+        if self.pk:
             device = Device.objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
             if device:
-                if self.assigned_object is None:
+                if getattr(self.assigned_object, 'device', None) != device:
                     raise ValidationError({
-                        'interface': f"IP address is primary for device {device} but not assigned to an interface"
+                        'interface': f"IP address is primary for device {device} but not assigned to it!"
                     })
-                elif self.assigned_object.device != device:
-                    raise ValidationError({
-                        'interface': f"IP address is primary for device {device} but assigned to "
-                                     f"{self.assigned_object.device} ({self.assigned_object})"
-                    })
-        elif self.pk and type(self.assigned_object) is VMInterface:
             vm = VirtualMachine.objects.filter(Q(primary_ip4=self) | Q(primary_ip6=self)).first()
             if vm:
-                if self.assigned_object is None:
+                if getattr(self.assigned_object, 'virtual_machine', None) != vm:
                     raise ValidationError({
-                        'vminterface': f"IP address is primary for virtual machine {vm} but not assigned to an "
-                                       f"interface"
-                    })
-                elif self.assigned_object.virtual_machine != vm:
-                    raise ValidationError({
-                        'vminterface': f"IP address is primary for virtual machine {vm} but assigned to "
-                                       f"{self.assigned_object.virtual_machine} ({self.assigned_object})"
+                        'vminterface': f"IP address is primary for virtual machine {vm} but not assigned to it!"
                     })
 
         # Validate IP status selection

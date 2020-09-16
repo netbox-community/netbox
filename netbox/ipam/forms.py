@@ -641,11 +641,11 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
                 self.initial['primary_for_parent'] = True
 
     def clean(self):
-        super().clean()
 
         # Cannot select both a device interface and a VM interface
         if self.cleaned_data.get('interface') and self.cleaned_data.get('vminterface'):
             raise forms.ValidationError("Cannot select both a device interface and a virtual machine interface")
+        self.instance.assigned_object = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')
 
         # Primary IP assignment is only available if an interface has been assigned.
         interface = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')
@@ -655,26 +655,21 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
             )
 
     def save(self, *args, **kwargs):
-
-        # Set assigned object
-        interface = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')
-        if interface:
-            self.instance.assigned_object = interface
-
         ipaddress = super().save(*args, **kwargs)
 
         # Assign/clear this IPAddress as the primary for the associated Device/VirtualMachine.
+        interface = self.instance.assigned_object
         if interface and self.cleaned_data['primary_for_parent']:
             if ipaddress.address.version == 4:
                 interface.parent.primary_ip4 = ipaddress
             else:
-                interface.primary_ip6 = ipaddress
+                interface.parent.primary_ip6 = ipaddress
             interface.parent.save()
         elif interface and ipaddress.address.version == 4 and interface.parent.primary_ip4 == ipaddress:
             interface.parent.primary_ip4 = None
             interface.parent.save()
         elif interface and ipaddress.address.version == 6 and interface.parent.primary_ip6 == ipaddress:
-            interface.parent.primary_ip4 = None
+            interface.parent.primary_ip6 = None
             interface.parent.save()
 
         return ipaddress
