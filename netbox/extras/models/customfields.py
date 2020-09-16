@@ -116,6 +116,17 @@ class CustomField(models.Model):
     def __str__(self):
         return self.label or self.name.replace('_', ' ').capitalize()
 
+    def remove_stale_data(self, content_types):
+        """
+        Delete custom field data which is no longer relevant (either because the CustomField is
+        no longer assigned to a model, or because it has been deleted).
+        """
+        for ct in content_types:
+            model = ct.model_class()
+            for obj in model.objects.filter(**{f'custom_field_data__{self.name}__isnull': False}):
+                del(obj.custom_field_data[self.name])
+                obj.save()
+
     def clean(self):
         # Choices can be set only on selection fields
         if self.choices and self.type != CustomFieldTypeChoices.TYPE_SELECT:
