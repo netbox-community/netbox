@@ -83,13 +83,14 @@ class CustomFieldForm(forms.ModelForm):
 
 @admin.register(CustomField)
 class CustomFieldAdmin(admin.ModelAdmin):
+    actions = None
+    form = CustomFieldForm
     list_display = [
         'name', 'models', 'type', 'required', 'filter_logic', 'default', 'weight', 'description',
     ]
     list_filter = [
         'type', 'required', 'obj_type',
     ]
-    form = CustomFieldForm
 
     def models(self, obj):
         return ', '.join([ct.name for ct in obj.obj_type.all()])
