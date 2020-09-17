@@ -159,15 +159,11 @@ class CustomField(models.Model):
         elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
             choices = (
                 (None, '---------'),
-                (1, 'True'),
-                (0, 'False'),
+                (True, 'True'),
+                (False, 'False'),
             )
-            if initial is not None and initial.lower() in ['true', 'yes', '1']:
-                initial = 1
-            elif initial is not None and initial.lower() in ['false', 'no', '0']:
-                initial = 0
-            else:
-                initial = None
+            if initial is not None:
+                initial = bool(initial)
             field = forms.NullBooleanField(
                 required=required, initial=initial, widget=StaticSelect2(choices=choices)
             )
