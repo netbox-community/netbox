@@ -9,6 +9,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Original CustomFieldModels
         migrations.AddField(
             model_name='device',
             name='custom_field_data',
@@ -31,6 +32,28 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='site',
+            name='custom_field_data',
+            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+
+        # Added under #5146
+        migrations.AddField(
+            model_name='cable',
+            name='custom_field_data',
+            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='powerpanel',
+            name='custom_field_data',
+            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='rackreservation',
+            name='custom_field_data',
+            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
+        ),
+        migrations.AddField(
+            model_name='virtualchassis',
             name='custom_field_data',
             field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder),
         ),

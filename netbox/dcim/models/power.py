@@ -22,8 +22,8 @@ __all__ = (
 # Power
 #
 
-@extras_features('custom_links', 'export_templates', 'webhooks')
-class PowerPanel(ChangeLoggedModel):
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+class PowerPanel(ChangeLoggedModel, CustomFieldModel):
     """
     A distribution point for electrical power; e.g. a data center RPP.
     """

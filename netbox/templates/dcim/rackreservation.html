@@ -124,6 +124,7 @@
                 </tr>
             </table>
         </div>
+        {% include 'inc/custom_fields_panel.html' with obj=rackreservation %}
         {% include 'extras/inc/tags_panel.html' with tags=rackreservation.tags.all url='dcim:rackreservation_list' %}
         {% plugin_left_page rackreservation %}
 	</div>

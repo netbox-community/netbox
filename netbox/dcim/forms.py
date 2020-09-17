@@ -690,7 +690,7 @@ class RackElevationFilterForm(RackFilterForm):
 # Rack reservations
 #
 
-class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
+class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False
@@ -3608,7 +3608,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
         return getattr(self.cleaned_data['termination_b_id'], 'pk', None)
 
 
-class CableForm(BootstrapMixin, forms.ModelForm):
+class CableForm(BootstrapMixin, CustomFieldModelForm):
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -3919,7 +3919,7 @@ class DeviceSelectionForm(forms.Form):
     )
 
 
-class VirtualChassisCreateForm(BootstrapMixin, forms.ModelForm):
+class VirtualChassisCreateForm(BootstrapMixin, CustomFieldModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False
@@ -3972,7 +3972,7 @@ class VirtualChassisCreateForm(BootstrapMixin, forms.ModelForm):
         return instance
 
 
-class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
+class VirtualChassisForm(BootstrapMixin, CustomFieldModelForm):
     master = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
@@ -4152,7 +4152,7 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Power panels
 #
 
-class PowerPanelForm(BootstrapMixin, forms.ModelForm):
+class PowerPanelForm(BootstrapMixin, CustomFieldModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all()
     )

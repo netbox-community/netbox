@@ -78,6 +78,7 @@
                 </tr>
             </table>
         </div>
+        {% include 'inc/custom_fields_panel.html' with obj=virtualchassis %}
         {% include 'extras/inc/tags_panel.html' with tags=virtualchassis.tags.all url='dcim:virtualchassis_list' %}
         {% plugin_left_page virtualchassis %}
     </div>

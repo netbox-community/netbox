@@ -561,8 +561,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         return 0
 
 
-@extras_features('custom_links', 'export_templates', 'webhooks')
-class RackReservation(ChangeLoggedModel):
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+class RackReservation(ChangeLoggedModel, CustomFieldModel):
     """
     One or more reserved units within a Rack.
     """

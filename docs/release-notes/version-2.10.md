@@ -4,6 +4,10 @@
 
 **NOTE:** This release completely removes support for embedded graphs.
 
+### New Features
+
+* [#5146](https://github.com/netbox-community/netbox/issues/5146) - Add custom fields support for cables, power panels, rack reservations, and virtual chassis
+
 ### Other Changes
 
 * [#4349](https://github.com/netbox-community/netbox/issues/4349) - Dropped support for embedded graphs

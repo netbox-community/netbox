@@ -83,6 +83,7 @@
                     </tr>
                 </table>
             </div>
+            {% include 'inc/custom_fields_panel.html' with obj=cable %}
             {% include 'extras/inc/tags_panel.html' with tags=cable.tags.all url='dcim:cable_list' %}
             {% plugin_left_page cable %}
         </div>

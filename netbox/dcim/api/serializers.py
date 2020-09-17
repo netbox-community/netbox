@@ -168,7 +168,7 @@ class RackUnitSerializer(serializers.Serializer):
     occupied = serializers.BooleanField(read_only=True)
 
 
-class RackReservationSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
+class RackReservationSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackreservation-detail')
     rack = NestedRackSerializer()
     user = NestedUserSerializer()
@@ -176,7 +176,7 @@ class RackReservationSerializer(TaggedObjectSerializer, ValidatedModelSerializer
 
     class Meta:
         model = RackReservation
-        fields = ['id', 'url', 'rack', 'units', 'created', 'user', 'tenant', 'description', 'tags']
+        fields = ['id', 'url', 'rack', 'units', 'created', 'user', 'tenant', 'description', 'tags', 'custom_fields']
 
 
 class RackElevationDetailFilterSerializer(serializers.Serializer):
@@ -649,7 +649,7 @@ class InventoryItemSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
 # Cables
 #
 
-class CableSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
+class CableSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
     termination_a_type = ContentTypeField(
         queryset=ContentType.objects.filter(CABLE_TERMINATION_MODELS)
@@ -667,6 +667,7 @@ class CableSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
         fields = [
             'id', 'url', 'termination_a_type', 'termination_a_id', 'termination_a', 'termination_b_type',
             'termination_b_id', 'termination_b', 'type', 'status', 'label', 'color', 'length', 'length_unit', 'tags',
+            'custom_fields',
         ]
 
     def _get_termination(self, obj, side):
@@ -729,21 +730,21 @@ class InterfaceConnectionSerializer(ValidatedModelSerializer):
 # Virtual chassis
 #
 
-class VirtualChassisSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
+class VirtualChassisSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualchassis-detail')
     master = NestedDeviceSerializer(required=False)
     member_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VirtualChassis
-        fields = ['id', 'url', 'name', 'domain', 'master', 'tags', 'member_count']
+        fields = ['id', 'url', 'name', 'domain', 'master', 'tags', 'custom_fields', 'member_count']
 
 
 #
 # Power panels
 #
 
-class PowerPanelSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
+class PowerPanelSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerpanel-detail')
     site = NestedSiteSerializer()
     rack_group = NestedRackGroupSerializer(
@@ -755,7 +756,7 @@ class PowerPanelSerializer(TaggedObjectSerializer, ValidatedModelSerializer):
 
     class Meta:
         model = PowerPanel
-        fields = ['id', 'url', 'site', 'rack_group', 'name', 'tags', 'powerfeed_count']
+        fields = ['id', 'url', 'site', 'rack_group', 'name', 'tags', 'custom_fields', 'powerfeed_count']
 
 
 class PowerFeedSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):

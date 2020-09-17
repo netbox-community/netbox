@@ -882,8 +882,8 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 # Cables
 #
 
-@extras_features('custom_links', 'export_templates', 'webhooks')
-class Cable(ChangeLoggedModel):
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+class Cable(ChangeLoggedModel, CustomFieldModel):
     """
     A physical connection between two endpoints.
     """
@@ -1168,8 +1168,8 @@ class Cable(ChangeLoggedModel):
 # Virtual chassis
 #
 
-@extras_features('custom_links', 'export_templates', 'webhooks')
-class VirtualChassis(ChangeLoggedModel):
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+class VirtualChassis(ChangeLoggedModel, CustomFieldModel):
     """
     A collection of Devices which operate with a shared control plane (e.g. a switch stack).
     """
