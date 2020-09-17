@@ -2,6 +2,7 @@ from django import forms
 from django.contrib import admin
 
 from utilities.forms import LaxURLField
+from .choices import CustomFieldTypeChoices
 from .models import CustomField, CustomLink, ExportTemplate, JobResult, Webhook
 
 
@@ -80,6 +81,14 @@ class CustomFieldForm(forms.ModelForm):
 
         order_content_types(self.fields['obj_type'])
 
+    def clean(self):
+
+        # Validate selection choices
+        if self.cleaned_data['type'] == CustomFieldTypeChoices.TYPE_SELECT and len(self.cleaned_data['choices']) < 2:
+            raise forms.ValidationError({
+                'choices': 'Selection fields must specify at least two choices.'
+            })
+
 
 @admin.register(CustomField)
 class CustomFieldAdmin(admin.ModelAdmin):
@@ -91,6 +100,19 @@ class CustomFieldAdmin(admin.ModelAdmin):
     list_filter = [
         'type', 'required', 'obj_type',
     ]
+    fieldsets = (
+        ('Custom Field', {
+            'fields': ('type', 'name', 'weight', 'label', 'description', 'required', 'default', 'filter_logic')
+        }),
+        ('Assignment', {
+            'description': 'A custom field must be assigned to one or more object types.',
+            'fields': ('obj_type',)
+        }),
+        ('Choices', {
+            'description': 'A selection field must have two or more choices assigned to it.',
+            'fields': ('choices',)
+        })
+    )
 
     def models(self, obj):
         return ', '.join([ct.name for ct in obj.obj_type.all()])
