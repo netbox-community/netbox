@@ -6,7 +6,6 @@ from Crypto.Util import strxor
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import Group, User
-from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -305,11 +304,6 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
     hash = models.CharField(
         max_length=128,
         editable=False
-    )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
     )
     tags = TaggableManager(through=TaggedItem)
 

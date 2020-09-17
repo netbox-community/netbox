@@ -1,6 +1,6 @@
 import netaddr
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -69,11 +69,6 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
     description = models.CharField(
         max_length=200,
         blank=True
-    )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -177,11 +172,6 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
     description = models.CharField(
         max_length=200,
         blank=True
-    )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -363,11 +353,6 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     description = models.CharField(
         max_length=200,
         blank=True
-    )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -646,11 +631,6 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
     description = models.CharField(
         max_length=200,
         blank=True
-    )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -935,11 +915,6 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         max_length=200,
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
     tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
@@ -1049,11 +1024,6 @@ class Service(ChangeLoggedModel, CustomFieldModel):
     description = models.CharField(
         max_length=200,
         blank=True
-    )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
     )
     tags = TaggableManager(through=TaggedItem)
 

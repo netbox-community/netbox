@@ -28,8 +28,7 @@ from django.views.defaults import ERROR_500_TEMPLATE_NAME
 from django.views.generic import View
 from django_tables2 import RequestConfig
 
-from extras.models import CustomField, CustomFieldValue, ExportTemplate
-from extras.querysets import CustomFieldQueryset
+from extras.models import CustomField, ExportTemplate
 from utilities.exceptions import AbortTransaction
 from utilities.forms import BootstrapMixin, BulkRenameForm, CSVDataField, TableConfigForm, restrict_form_fields
 from utilities.permissions import get_permission_for_model, resolve_permission
@@ -231,8 +230,8 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         headers = self.queryset.model.csv_headers.copy()
 
         # Add custom field headers, if any
-        if hasattr(self.queryset.model, 'get_custom_fields'):
-            for custom_field in self.queryset.model().get_custom_fields():
+        if hasattr(self.queryset.model, 'custom_field_data'):
+            for custom_field in CustomField.objects.get_for_model(self.queryset.model):
                 headers.append(custom_field.name)
                 custom_fields.append(custom_field.name)
 
@@ -257,19 +256,11 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         if self.filterset:
             self.queryset = self.filterset(request.GET, self.queryset).qs
 
-        # If this type of object has one or more custom fields, prefetch any relevant custom field values
-        custom_fields = CustomField.objects.filter(
-            obj_type=ContentType.objects.get_for_model(model)
-        ).prefetch_related('choices')
-        if custom_fields:
-            self.queryset = self.queryset.prefetch_related('custom_field_values')
-
         # Check for export template rendering
         if request.GET.get('export'):
             et = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET.get('export'))
-            queryset = CustomFieldQueryset(self.queryset, custom_fields) if custom_fields else self.queryset
             try:
-                return et.render_to_response(queryset)
+                return et.render_to_response(self.queryset)
             except Exception as e:
                 messages.error(
                     request,
@@ -951,37 +942,17 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
                                 elif form.cleaned_data[name] not in (None, ''):
                                     setattr(obj, name, form.cleaned_data[name])
 
-                            # Cache custom fields on instance prior to save()
-                            if custom_fields:
-                                obj._cf = {
-                                    name: form.cleaned_data[name] for name in custom_fields
-                                }
+                            # Update custom fields
+                            for name in custom_fields:
+                                if name in form.nullable_fields and name in nullified_fields:
+                                    obj.custom_field_data.pop(name, None)
+                                else:
+                                    obj.custom_field_data[name] = form.cleaned_data[name]
 
                             obj.full_clean()
                             obj.save()
                             updated_objects.append(obj)
                             logger.debug(f"Saved {obj} (PK: {obj.pk})")
-
-                            # Update custom fields
-                            obj_type = ContentType.objects.get_for_model(model)
-                            for name in custom_fields:
-                                field = form.fields[name].model
-                                if name in form.nullable_fields and name in nullified_fields:
-                                    CustomFieldValue.objects.filter(
-                                        field=field, obj_type=obj_type, obj_id=obj.pk
-                                    ).delete()
-                                elif form.cleaned_data[name] not in [None, '']:
-                                    try:
-                                        cfv = CustomFieldValue.objects.get(
-                                            field=field, obj_type=obj_type, obj_id=obj.pk
-                                        )
-                                    except CustomFieldValue.DoesNotExist:
-                                        cfv = CustomFieldValue(
-                                            field=field, obj_type=obj_type, obj_id=obj.pk
-                                        )
-                                    cfv.value = form.cleaned_data[name]
-                                    cfv.save()
-                            logger.debug(f"Saved custom fields for {obj} (PK: {obj.pk})")
 
                             # Add/remove tags
                             if form.cleaned_data.get('add_tags', None):

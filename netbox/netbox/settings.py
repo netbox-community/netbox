@@ -483,9 +483,10 @@ REST_FRAMEWORK = {
 SWAGGER_SETTINGS = {
     'DEFAULT_AUTO_SCHEMA_CLASS': 'utilities.custom_inspectors.NetBoxSwaggerAutoSchema',
     'DEFAULT_FIELD_INSPECTORS': [
+        'utilities.custom_inspectors.CustomFieldsDataFieldInspector',
         'utilities.custom_inspectors.JSONFieldInspector',
         'utilities.custom_inspectors.NullableBooleanFieldInspector',
-        'utilities.custom_inspectors.CustomChoiceFieldInspector',
+        'utilities.custom_inspectors.ChoiceFieldInspector',
         'utilities.custom_inspectors.SerializedPKRelatedFieldInspector',
         'drf_yasg.inspectors.CamelCaseJSONFilter',
         'drf_yasg.inspectors.ReferencingSerializerInspector',

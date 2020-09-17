@@ -134,11 +134,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
     comments = models.TextField(
         blank=True
     )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
-    )
     tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
@@ -583,11 +578,6 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     )
     comments = models.TextField(
         blank=True
-    )
-    custom_field_values = GenericRelation(
-        to='extras.CustomFieldValue',
-        content_type_field='obj_type',
-        object_id_field='obj_id'
     )
     images = GenericRelation(
         to='extras.ImageAttachment'

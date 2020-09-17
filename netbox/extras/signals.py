@@ -3,12 +3,14 @@ from datetime import timedelta
 
 from cacheops.signals import cache_invalidated, cache_read
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.signals import m2m_changed, pre_delete
 from django.utils import timezone
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 from prometheus_client import Counter
 
 from .choices import ObjectChangeActionChoices
-from .models import ObjectChange
+from .models import CustomField, ObjectChange
 from .webhooks import enqueue_webhooks
 
 
@@ -69,6 +71,29 @@ def _handle_deleted_object(request, sender, instance, **kwargs):
 
     # Increment metric counters
     model_deletes.labels(instance._meta.model_name).inc()
+
+
+#
+# Custom fields
+#
+
+def handle_cf_removed_obj_types(instance, action, pk_set, **kwargs):
+    """
+    Handle the cleanup of old custom field data when a CustomField is removed from one or more ContentTypes.
+    """
+    if action == 'post_remove':
+        instance.remove_stale_data(ContentType.objects.filter(pk__in=pk_set))
+
+
+def handle_cf_deleted(instance, **kwargs):
+    """
+    Handle the cleanup of old custom field data when a CustomField is deleted.
+    """
+    instance.remove_stale_data(instance.obj_type.all())
+
+
+m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.obj_type.through)
+pre_delete.connect(handle_cf_deleted, sender=CustomField)
 
 
 #

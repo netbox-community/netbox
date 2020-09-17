@@ -1,5 +1,5 @@
 from .change_logging import ChangeLoggedModel, ObjectChange
-from .customfields import CustomField, CustomFieldChoice, CustomFieldModel, CustomFieldValue
+from .customfields import CustomField, CustomFieldModel
 from .models import (
     ConfigContext, ConfigContextModel, CustomLink, ExportTemplate, ImageAttachment, JobResult, Report, Script,
     Webhook,
@@ -11,9 +11,7 @@ __all__ = (
     'ConfigContext',
     'ConfigContextModel',
     'CustomField',
-    'CustomFieldChoice',
     'CustomFieldModel',
-    'CustomFieldValue',
     'CustomLink',
     'ExportTemplate',
     'ImageAttachment',

@@ -22,15 +22,20 @@ __all__ = (
     'TagFilterSet',
 )
 
+EXACT_FILTER_TYPES = (
+    CustomFieldTypeChoices.TYPE_BOOLEAN,
+    CustomFieldTypeChoices.TYPE_DATE,
+    CustomFieldTypeChoices.TYPE_INTEGER,
+    CustomFieldTypeChoices.TYPE_SELECT,
+)
+
 
 class CustomFieldFilter(django_filters.Filter):
     """
     Filter objects by the presence of a CustomFieldValue. The filter's name is used as the CustomField name.
     """
-
     def __init__(self, custom_field, *args, **kwargs):
-        self.cf_type = custom_field.type
-        self.filter_logic = custom_field.filter_logic
+        self.custom_field = custom_field
         super().__init__(*args, **kwargs)
 
     def filter(self, queryset, value):
@@ -39,44 +44,22 @@ class CustomFieldFilter(django_filters.Filter):
         if value is None or not value.strip():
             return queryset
 
-        # Selection fields get special treatment (values must be integers)
-        if self.cf_type == CustomFieldTypeChoices.TYPE_SELECT:
-            try:
-                # Treat 0 as None
-                if int(value) == 0:
-                    return queryset.exclude(
-                        custom_field_values__field__name=self.field_name,
-                    )
-                # Match on exact CustomFieldChoice PK
-                else:
-                    return queryset.filter(
-                        custom_field_values__field__name=self.field_name,
-                        custom_field_values__serialized_value=value,
-                    )
-            except ValueError:
-                return queryset.none()
-
         # Apply the assigned filter logic (exact or loose)
-        if (self.cf_type == CustomFieldTypeChoices.TYPE_BOOLEAN or
-                self.filter_logic == CustomFieldFilterLogicChoices.FILTER_EXACT):
-            queryset = queryset.filter(
-                custom_field_values__field__name=self.field_name,
-                custom_field_values__serialized_value=value
-            )
+        if (
+            self.custom_field.type in EXACT_FILTER_TYPES or
+            self.custom_field.filter_logic == CustomFieldFilterLogicChoices.FILTER_EXACT
+        ):
+            kwargs = {f'custom_field_data__{self.field_name}': value}
         else:
-            queryset = queryset.filter(
-                custom_field_values__field__name=self.field_name,
-                custom_field_values__serialized_value__icontains=value
-            )
+            kwargs = {f'custom_field_data__{self.field_name}__icontains': value}
 
-        return queryset
+        return queryset.filter(**kwargs)
 
 
 class CustomFieldFilterSet(django_filters.FilterSet):
     """
     Dynamically add a Filter for each CustomField applicable to the parent model.
     """
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

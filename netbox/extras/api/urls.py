@@ -5,9 +5,6 @@ from . import views
 router = OrderedDefaultRouter()
 router.APIRootView = views.ExtrasRootView
 
-# Custom field choices
-router.register('_custom_field_choices', views.CustomFieldChoicesViewSet, basename='custom-field-choice')
-
 # Export templates
 router.register('export-templates', views.ExportTemplateViewSet)
 

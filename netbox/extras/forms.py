@@ -12,7 +12,7 @@ from utilities.forms import (
 )
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
-from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachment, ObjectChange, Tag
+from .models import ConfigContext, CustomField, ImageAttachment, ObjectChange, Tag
 
 
 #
@@ -25,12 +25,8 @@ class CustomFieldModelForm(forms.ModelForm):
 
         self.obj_type = ContentType.objects.get_for_model(self._meta.model)
         self.custom_fields = []
-        self.custom_field_values = {}
 
         super().__init__(*args, **kwargs)
-
-        if self.instance._cf is None:
-            self.instance._cf = {}
 
         self._append_customfield_fields()
 
@@ -38,65 +34,25 @@ class CustomFieldModelForm(forms.ModelForm):
         """
         Append form fields for all CustomFields assigned to this model.
         """
-        # Retrieve initial CustomField values for the instance
-        if self.instance.pk:
-            for cfv in CustomFieldValue.objects.filter(
-                obj_type=self.obj_type,
-                obj_id=self.instance.pk
-            ).prefetch_related('field'):
-                self.custom_field_values[cfv.field.name] = cfv.serialized_value
-
         # Append form fields; assign initial values if modifying and existing object
         for cf in CustomField.objects.filter(obj_type=self.obj_type):
             field_name = 'cf_{}'.format(cf.name)
             if self.instance.pk:
                 self.fields[field_name] = cf.to_form_field(set_initial=False)
-                value = self.custom_field_values.get(cf.name)
-                self.fields[field_name].initial = value
-                self.instance._cf[cf.name] = value
+                self.fields[field_name].initial = self.instance.custom_field_data.get(cf.name)
             else:
                 self.fields[field_name] = cf.to_form_field()
-                self.instance._cf[cf.name] = self.fields[field_name].initial
 
             # Annotate the field in the list of CustomField form fields
             self.custom_fields.append(field_name)
 
-    def _save_custom_fields(self):
-
-        for field_name in self.custom_fields:
-            try:
-                cfv = CustomFieldValue.objects.prefetch_related('field').get(
-                    field=self.fields[field_name].model,
-                    obj_type=self.obj_type,
-                    obj_id=self.instance.pk
-                )
-            except CustomFieldValue.DoesNotExist:
-                # Skip this field if none exists already and its value is empty
-                if self.cleaned_data[field_name] in [None, '']:
-                    continue
-                cfv = CustomFieldValue(
-                    field=self.fields[field_name].model,
-                    obj_type=self.obj_type,
-                    obj_id=self.instance.pk
-                )
-            cfv.value = self.cleaned_data[field_name]
-            cfv.save()
-
     def save(self, commit=True):
 
-        # Cache custom field values on object prior to save to ensure change logging
+        # Save custom field data on instance
         for cf_name in self.custom_fields:
-            self.instance._cf[cf_name[3:]] = self.cleaned_data.get(cf_name)
+            self.instance.custom_field_data[cf_name[3:]] = self.cleaned_data.get(cf_name)
 
-        obj = super().save(commit)
-
-        # Handle custom fields the same way we do M2M fields
-        if commit:
-            self._save_custom_fields()
-        else:
-            obj.save_custom_fields = self._save_custom_fields
-
-        return obj
+        return super().save(commit)
 
 
 class CustomFieldModelCSVForm(CSVModelForm, CustomFieldModelForm):
