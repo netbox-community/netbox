@@ -20,4 +20,10 @@
 
 ### REST API Changes
 
+* dcim.Cable: Added `custom_fields`
+* dcim.InventoryItem: The `_depth` field has been added to reflect MPTT positioning
+* dcim.PowerPanel: Added `custom_fields`
+* dcim.RackReservation: Added `custom_fields`
+* dcim.VirtualChassis: Added `custom_fields`
 * extras.ExportTemplate: The `template_language` field has been removed
+* extras.Graph: This API endpoint has been removed (see #4349)
