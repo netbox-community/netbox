@@ -220,6 +220,9 @@
                 </tr>
             </table>
         </div>
+        {% if perms.secrets.view_secret %}
+            {% include 'secrets/inc/assigned_secrets.html' %}
+        {% endif %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Services</strong>
@@ -325,8 +328,10 @@
         {% endif %}
 	</div>
 </div>
+{% include 'secrets/inc/private_key_modal.html' %}
 {% endblock %}
 
 {% block javascript %}
 <script src="{% static 'js/interface_toggles.js' %}?v{{ settings.VERSION }}"></script>
+<script src="{% static 'js/secrets.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

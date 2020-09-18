@@ -82,13 +82,6 @@ class SecretEditView(ObjectEditView):
     model_form = forms.SecretForm
     template_name = 'secrets/secret_edit.html'
 
-    def alter_obj(self, secret, request, args, kwargs):
-        if not secret.pk:
-            # Set assigned_object based on URL kwargs
-            model = kwargs.get('model')
-            secret.assigned_object = get_object_or_404(model, pk=kwargs['object_id'])
-        return secret
-
     def dispatch(self, request, *args, **kwargs):
 
         # Check that the user has a valid UserKey
