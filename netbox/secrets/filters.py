@@ -35,16 +35,6 @@ class SecretFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterS
         to_field_name='slug',
         label='Role (slug)',
     )
-    device_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Device.objects.all(),
-        label='Device (ID)',
-    )
-    device = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__name',
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        label='Device (name)',
-    )
     tag = TagFilter()
 
     class Meta:

@@ -6,13 +6,14 @@ from Crypto.Util import strxor
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import Group, User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from taggit.managers import TaggableManager
 
-from dcim.models import Device
 from extras.models import ChangeLoggedModel, CustomFieldModel, TaggedItem
 from extras.utils import extras_features
 from utilities.querysets import RestrictedQuerySet
@@ -276,17 +277,26 @@ class SecretRole(ChangeLoggedModel):
 class Secret(ChangeLoggedModel, CustomFieldModel):
     """
     A Secret stores an AES256-encrypted copy of sensitive data, such as passwords or secret keys. An irreversible
-    SHA-256 hash is stored along with the ciphertext for validation upon decryption. Each Secret is assigned to a
-    Device; Devices may have multiple Secrets associated with them. A name can optionally be defined along with the
-    ciphertext; this string is stored as plain text in the database.
+    SHA-256 hash is stored along with the ciphertext for validation upon decryption. Each Secret is assigned to exactly
+    one NetBox object, and objects may have multiple Secrets associated with them. A name can optionally be defined
+    along with the ciphertext; this string is stored as plain text in the database.
 
     A Secret can be up to 65,535 bytes (64KB - 1B) in length. Each secret string will be padded with random data to
     a minimum of 64 bytes during encryption in order to protect short strings from ciphertext analysis.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='secrets'
+    assigned_object_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
+    assigned_object_id = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+    assigned_object = GenericForeignKey(
+        ct_field='assigned_object_type',
+        fk_field='assigned_object_id'
     )
     role = models.ForeignKey(
         to='secrets.SecretRole',
@@ -310,34 +320,26 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
     objects = RestrictedQuerySet.as_manager()
 
     plaintext = None
-    csv_headers = ['device', 'role', 'name', 'plaintext']
+    csv_headers = ['assigned_object_type', 'assigned_object_id', 'role', 'name', 'plaintext']
 
     class Meta:
-        ordering = ['device', 'role', 'name']
-        unique_together = ['device', 'role', 'name']
+        ordering = ('role', 'name', 'pk')
+        unique_together = ('assigned_object_type', 'assigned_object_id', 'role', 'name')
 
     def __init__(self, *args, **kwargs):
         self.plaintext = kwargs.pop('plaintext', None)
         super().__init__(*args, **kwargs)
 
     def __str__(self):
-        try:
-            device = self.device
-        except Device.DoesNotExist:
-            device = None
-        if self.role and device and self.name:
-            return '{} for {} ({})'.format(self.role, self.device, self.name)
-        # Return role and device if no name is set
-        if self.role and device:
-            return '{} for {}'.format(self.role, self.device)
-        return 'Secret'
+        return self.name or 'Secret'
 
     def get_absolute_url(self):
         return reverse('secrets:secret', args=[self.pk])
 
     def to_csv(self):
         return (
-            self.device,
+            f'{self.assigned_object_type.app_label}.{self.assigned_object_type.model}',
+            self.assigned_object_id,
             self.role,
             self.name,
             self.plaintext or '',
