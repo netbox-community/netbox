@@ -7,6 +7,7 @@
 ### New Features
 
 * [#1692](https://github.com/netbox-community/netbox/issues/1692) - Allow assigment of inventory items to parent items in web UI
+* [#4956](https://github.com/netbox-community/netbox/issues/4956) - Include inventory items on primary device view
 * [#5146](https://github.com/netbox-community/netbox/issues/5146) - Add custom fields support for cables, power panels, rack reservations, and virtual chassis
 
 ### Other Changes

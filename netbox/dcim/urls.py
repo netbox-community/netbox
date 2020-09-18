@@ -189,7 +189,6 @@ urlpatterns = [
     path('devices/<int:pk>/delete/', views.DeviceDeleteView.as_view(), name='device_delete'),
     path('devices/<int:pk>/config-context/', views.DeviceConfigContextView.as_view(), name='device_configcontext'),
     path('devices/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='device_changelog', kwargs={'model': Device}),
-    path('devices/<int:pk>/inventory/', views.DeviceInventoryView.as_view(), name='device_inventory'),
     path('devices/<int:pk>/status/', views.DeviceStatusView.as_view(), name='device_status'),
     path('devices/<int:pk>/lldp-neighbors/', views.DeviceLLDPNeighborsView.as_view(), name='device_lldp_neighbors'),
     path('devices/<int:pk>/config/', views.DeviceConfigView.as_view(), name='device_config'),

@@ -1050,6 +1050,11 @@ class DeviceView(ObjectView):
             'installed_device__device_type__manufacturer',
         )
 
+        # Inventory items
+        inventoryitems = InventoryItem.objects.restrict(request.user, 'view').filter(
+            device=device
+        ).prefetch_related('manufacturer')
+
         # Services
         services = Service.objects.restrict(request.user, 'view').filter(device=device)
 
@@ -1072,30 +1077,14 @@ class DeviceView(ObjectView):
             'powerports': powerports,
             'poweroutlets': poweroutlets,
             'interfaces': interfaces,
-            'devicebays': devicebays,
             'frontports': frontports,
             'rearports': rearports,
+            'devicebays': devicebays,
+            'inventoryitems': inventoryitems,
             'services': services,
             'secrets': secrets,
             'vc_members': vc_members,
             'related_devices': related_devices,
-        })
-
-
-class DeviceInventoryView(ObjectView):
-    queryset = Device.objects.all()
-
-    def get(self, request, pk):
-
-        device = get_object_or_404(self.queryset, pk=pk)
-        inventory_items = InventoryItem.objects.restrict(request.user, 'view').filter(
-            device=device
-        ).prefetch_related('manufacturer')
-
-        return render(request, 'dcim/device_inventory.html', {
-            'device': device,
-            'inventory_items': inventory_items,
-            'active_tab': 'inventory',
         })
 
 
