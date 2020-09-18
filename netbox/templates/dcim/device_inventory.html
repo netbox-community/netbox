@@ -30,9 +30,7 @@
                         </thead>
                         <tbody>
                             {% for item in inventory_items %}
-                                {% with template_name='dcim/inc/inventoryitem.html' indent=0 %}
-                                    {% include template_name %}
-                                {% endwith %}
+                                {% include 'dcim/inc/inventoryitem.html' %}
                             {% endfor %}
                         </tbody>
                     </table>

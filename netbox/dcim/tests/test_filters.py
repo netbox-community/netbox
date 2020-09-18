@@ -2285,14 +2285,16 @@ class InventoryItemTestCase(TestCase):
             InventoryItem(device=devices[1], manufacturer=manufacturers[1], name='Inventory Item 2', part_id='1002', serial='DEF', asset_tag='1002', discovered=True, description='Second'),
             InventoryItem(device=devices[2], manufacturer=manufacturers[2], name='Inventory Item 3', part_id='1003', serial='GHI', asset_tag='1003', discovered=False, description='Third'),
         )
-        InventoryItem.objects.bulk_create(inventory_items)
+        for i in inventory_items:
+            i.save()
 
         child_inventory_items = (
             InventoryItem(device=devices[0], name='Inventory Item 1A', parent=inventory_items[0]),
             InventoryItem(device=devices[1], name='Inventory Item 2A', parent=inventory_items[1]),
             InventoryItem(device=devices[2], name='Inventory Item 3A', parent=inventory_items[2]),
         )
-        InventoryItem.objects.bulk_create(child_inventory_items)
+        for i in child_inventory_items:
+            i.save()
 
     def test_id(self):
         params = {'id': self.queryset.values_list('pk', flat=True)[:2]}

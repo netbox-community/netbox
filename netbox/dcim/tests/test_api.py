@@ -1273,7 +1273,7 @@ class DeviceBayTest(APIViewTestCases.APIViewTestCase):
 
 class InventoryItemTest(APIViewTestCases.APIViewTestCase):
     model = InventoryItem
-    brief_fields = ['device', 'id', 'name', 'url']
+    brief_fields = ['_depth', 'device', 'id', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):
@@ -1283,12 +1283,9 @@ class InventoryItemTest(APIViewTestCases.APIViewTestCase):
         devicerole = DeviceRole.objects.create(name='Test Device Role 1', slug='test-device-role-1', color='ff0000')
         device = Device.objects.create(device_type=devicetype, device_role=devicerole, name='Device 1', site=site)
 
-        inventory_items = (
-            InventoryItem(device=device, name='Inventory Item 1', manufacturer=manufacturer),
-            InventoryItem(device=device, name='Inventory Item 2', manufacturer=manufacturer),
-            InventoryItem(device=device, name='Inventory Item 3', manufacturer=manufacturer),
-        )
-        InventoryItem.objects.bulk_create(inventory_items)
+        InventoryItem.objects.create(device=device, name='Inventory Item 1', manufacturer=manufacturer)
+        InventoryItem.objects.create(device=device, name='Inventory Item 2', manufacturer=manufacturer)
+        InventoryItem.objects.create(device=device, name='Inventory Item 3', manufacturer=manufacturer)
 
         cls.create_data = [
             {

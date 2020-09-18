@@ -6,6 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
+from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 
 from dcim.choices import *
@@ -15,6 +16,7 @@ from dcim.fields import MACAddressField
 from extras.models import ObjectChange, TaggedItem
 from extras.utils import extras_features
 from utilities.fields import NaturalOrderingField
+from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
 from utilities.querysets import RestrictedQuerySet
 from utilities.query_functions import CollateAsChar
@@ -952,17 +954,18 @@ class DeviceBay(ComponentModel):
 #
 
 @extras_features('export_templates', 'webhooks')
-class InventoryItem(ComponentModel):
+class InventoryItem(MPTTModel, ComponentModel):
     """
     An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.
     InventoryItems are used only for inventory purposes.
     """
-    parent = models.ForeignKey(
+    parent = TreeForeignKey(
         to='self',
         on_delete=models.CASCADE,
         related_name='child_items',
         blank=True,
-        null=True
+        null=True,
+        db_index=True
     )
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',
@@ -996,6 +999,8 @@ class InventoryItem(ComponentModel):
     )
 
     tags = TaggableManager(through=TaggedItem)
+
+    objects = TreeManager()
 
     csv_headers = [
         'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',

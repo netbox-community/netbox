@@ -10,6 +10,7 @@
 
 ### Other Changes
 
+* [#1846](https://github.com/netbox-community/netbox/issues/1846) - Enable MPTT for InventoryItem hierarchy
 * [#4349](https://github.com/netbox-community/netbox/issues/4349) - Dropped support for embedded graphs
 * [#4360](https://github.com/netbox-community/netbox/issues/4360) - Remove support for the Django template language from export templates
 * [#4878](https://github.com/netbox-community/netbox/issues/4878) - Custom field data is now stored directly on each object

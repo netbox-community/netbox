@@ -1089,10 +1089,8 @@ class DeviceInventoryView(ObjectView):
 
         device = get_object_or_404(self.queryset, pk=pk)
         inventory_items = InventoryItem.objects.restrict(request.user, 'view').filter(
-            device=device, parent=None
-        ).prefetch_related(
-            'manufacturer', 'child_items'
-        )
+            device=device
+        ).prefetch_related('manufacturer')
 
         return render(request, 'dcim/device_inventory.html', {
             'device': device,

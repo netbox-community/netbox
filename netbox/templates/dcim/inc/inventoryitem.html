@@ -8,7 +8,7 @@
         </td>
     {% endif %}
 
-    <td style="padding-left: {{ indent|add:5 }}px">
+    <td style="padding-left: {{ item.level }}0px">
         <a href="{{ item.get_absolute_url }}">{{ item }}</a>
     </td>
     <td>
@@ -38,8 +38,3 @@
         {% endif %}
     </td>
 </tr>
-{% for item in item.child_items.all %}
-    {% with template_name='dcim/inc/inventoryitem.html' indent=indent|add:20 %}
-        {% include template_name %}
-    {% endwith %}
-{% endfor %}

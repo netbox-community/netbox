@@ -1430,11 +1430,9 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         device = create_test_device('Device 1')
         manufacturer, _ = Manufacturer.objects.get_or_create(name='Manufacturer 1', slug='manufacturer-1')
 
-        InventoryItem.objects.bulk_create([
-            InventoryItem(device=device, name='Inventory Item 1'),
-            InventoryItem(device=device, name='Inventory Item 2'),
-            InventoryItem(device=device, name='Inventory Item 3'),
-        ])
+        InventoryItem.objects.create(device=device, name='Inventory Item 1')
+        InventoryItem.objects.create(device=device, name='Inventory Item 2')
+        InventoryItem.objects.create(device=device, name='Inventory Item 3')
 
         tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
 
