@@ -1,10 +1,12 @@
+from django.contrib.contenttypes.models import ContentType
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
-from dcim.api.nested_serializers import NestedDeviceSerializer
 from extras.api.customfields import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
+from secrets.constants import SECRET_ASSIGNMENT_MODELS
 from secrets.models import Secret, SecretRole
-from utilities.api import ValidatedModelSerializer
+from utilities.api import ContentTypeField, ValidatedModelSerializer, get_serializer_for_model
 from .nested_serializers import *
 
 
@@ -23,17 +25,26 @@ class SecretRoleSerializer(ValidatedModelSerializer):
 
 class SecretSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='secrets-api:secret-detail')
-    device = NestedDeviceSerializer()
+    assigned_object_type = ContentTypeField(
+        queryset=ContentType.objects.filter(SECRET_ASSIGNMENT_MODELS)
+    )
+    assigned_object = serializers.SerializerMethodField(read_only=True)
     role = NestedSecretRoleSerializer()
     plaintext = serializers.CharField()
 
     class Meta:
         model = Secret
         fields = [
-            'id', 'url', 'device', 'role', 'name', 'plaintext', 'hash', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'assigned_object_type', 'assigned_object_id', 'assigned_object', 'role', 'name', 'plaintext',
+            'hash', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         validators = []
+
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    def get_assigned_object(self, obj):
+        serializer = get_serializer_for_model(obj.assigned_object, prefix='Nested')
+        context = {'request': self.context['request']}
+        return serializer(obj.assigned_object, context=context).data
 
     def validate(self, data):
 

@@ -1,6 +1,7 @@
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 
 from dcim.models import Device
 from extras.forms import (
@@ -142,10 +143,11 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
 
 
 class SecretCSVForm(CustomFieldModelCSVForm):
-    device = CSVModelChoiceField(
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        help_text='Assigned device'
+    assigned_object_type = CSVModelChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=SECRET_ASSIGNMENT_MODELS,
+        to_field_name='model',
+        help_text='Side A type'
     )
     role = CSVModelChoiceField(
         queryset=SecretRole.objects.all(),
