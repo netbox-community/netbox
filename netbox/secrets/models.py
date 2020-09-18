@@ -286,14 +286,9 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
     """
     assigned_object_type = models.ForeignKey(
         to=ContentType,
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True
+        on_delete=models.PROTECT
     )
-    assigned_object_id = models.PositiveIntegerField(
-        blank=True,
-        null=True
-    )
+    assigned_object_id = models.PositiveIntegerField()
     assigned_object = GenericForeignKey(
         ct_field='assigned_object_type',
         fk_field='assigned_object_id'
