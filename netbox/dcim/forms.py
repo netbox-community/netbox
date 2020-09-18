@@ -3284,6 +3284,13 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
         queryset=Device.objects.all(),
         display_field='display_name'
     )
+    parent = DynamicModelChoiceField(
+        queryset=InventoryItem.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device'
+        }
+    )
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False
@@ -3296,7 +3303,8 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InventoryItem
         fields = [
-            'name', 'label', 'device', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'tags',
+            'device', 'parent', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description',
+            'tags',
         ]
 
 
@@ -3304,6 +3312,13 @@ class InventoryItemCreateForm(ComponentCreateForm):
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False
+    )
+    parent = DynamicModelChoiceField(
+        queryset=InventoryItem.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device'
+        }
     )
     part_id = forms.CharField(
         max_length=50,
@@ -3319,8 +3334,8 @@ class InventoryItemCreateForm(ComponentCreateForm):
         required=False,
     )
     field_order = (
-        'device', 'name_pattern', 'label_pattern', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description',
-        'tags',
+        'device', 'parent', 'name_pattern', 'label_pattern', 'manufacturer', 'part_id', 'serial', 'asset_tag',
+        'description', 'tags',
     )
 
 
