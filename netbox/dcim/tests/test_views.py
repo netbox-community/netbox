@@ -983,9 +983,9 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "device_role,manufacturer,device_type,status,name,site,rack_group,rack,position,face",
-            "Device Role 1,Manufacturer 1,Device Type 1,Active,Device 4,Site 1,Rack Group 1,Rack 1,10,Front",
-            "Device Role 1,Manufacturer 1,Device Type 1,Active,Device 5,Site 1,Rack Group 1,Rack 1,20,Front",
-            "Device Role 1,Manufacturer 1,Device Type 1,Active,Device 6,Site 1,Rack Group 1,Rack 1,30,Front",
+            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 4,Site 1,Rack Group 1,Rack 1,10,front",
+            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 5,Site 1,Rack Group 1,Rack 1,20,front",
+            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 6,Site 1,Rack Group 1,Rack 1,30,front",
         )
 
         cls.bulk_edit_data = {
@@ -1267,9 +1267,9 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.csv_data = (
             "device,name,type",
-            "Device 1,Interface 4,1000BASE-T (1GE)",
-            "Device 1,Interface 5,1000BASE-T (1GE)",
-            "Device 1,Interface 6,1000BASE-T (1GE)",
+            "Device 1,Interface 4,1000base-t",
+            "Device 1,Interface 5,1000base-t",
+            "Device 1,Interface 6,1000base-t",
         )
 
 
@@ -1326,9 +1326,9 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.csv_data = (
             "device,name,type,rear_port,rear_port_position",
-            "Device 1,Front Port 4,8P8C,Rear Port 4,1",
-            "Device 1,Front Port 5,8P8C,Rear Port 5,1",
-            "Device 1,Front Port 6,8P8C,Rear Port 6,1",
+            "Device 1,Front Port 4,8p8c,Rear Port 4,1",
+            "Device 1,Front Port 5,8p8c,Rear Port 5,1",
+            "Device 1,Front Port 6,8p8c,Rear Port 6,1",
         )
 
 
@@ -1372,9 +1372,9 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.csv_data = (
             "device,name,type,positions",
-            "Device 1,Rear Port 4,8P8C,1",
-            "Device 1,Rear Port 5,8P8C,1",
-            "Device 1,Rear Port 6,8P8C,1",
+            "Device 1,Rear Port 4,8p8c,1",
+            "Device 1,Rear Port 5,8p8c,1",
+            "Device 1,Rear Port 6,8p8c,1",
         )
 
 

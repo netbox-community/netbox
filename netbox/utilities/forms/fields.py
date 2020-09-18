@@ -117,18 +117,11 @@ class CSVChoiceField(forms.ChoiceField):
     """
     Invert the provided set of choices to take the human-friendly label as input, and return the database value.
     """
-    def __init__(self, choices, *args, **kwargs):
-        super().__init__(choices=choices, *args, **kwargs)
-        self.choices = [(label, label) for value, label in unpack_grouped_choices(choices)]
-        self.choice_values = {label: value for value, label in unpack_grouped_choices(choices)}
+    STATIC_CHOICES = True
 
-    def clean(self, value):
-        value = super().clean(value)
-        if not value:
-            return ''
-        if value not in self.choice_values:
-            raise forms.ValidationError("Invalid choice: {}".format(value))
-        return self.choice_values[value]
+    def __init__(self, *, choices=(), **kwargs):
+        super().__init__(choices=choices, **kwargs)
+        self.choices = unpack_grouped_choices(choices)
 
 
 class CSVModelChoiceField(forms.ModelChoiceField):

@@ -66,7 +66,7 @@
                                             {% endif %}
                                         </td>
                                         <td>
-                                            {% if field.choice_values %}
+                                            {% if field.STATIC_CHOICES %}
                                                 <button type="button" class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#{{ name }}_choices">
                                                     <i class="fa fa-question"></i>
                                                 </button>
@@ -77,9 +77,12 @@
                                                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                                                 <h4 class="modal-title"><code>{{ name }}</code> Choices</h4>
                                                             </div>
-                                                            <div class="modal-body">
-                                                                <ul>{% for value, label in field.choices %}{% if value %}<li>{{ value }}</li>{% endif %}{% endfor %}</ul>
-                                                            </div>
+                                                            <table class="table table-striped modal-body">
+                                                                <tr><th>Import Value</th><th>Label</th></tr>
+                                                                {% for value, label in field.choices %}
+                                                                    {% if value %}<tr><td><samp>{{ value }}</samp></td><td>{{ label }}</td></tr>{% endif %}
+                                                                {% endfor %}
+                                                            </table>
                                                         </div>
                                                     </div>
                                                 </div>

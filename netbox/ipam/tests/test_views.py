@@ -194,9 +194,9 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "vrf,prefix,status",
-            "VRF 1,10.4.0.0/16,Active",
-            "VRF 1,10.5.0.0/16,Active",
-            "VRF 1,10.6.0.0/16,Active",
+            "VRF 1,10.4.0.0/16,active",
+            "VRF 1,10.5.0.0/16,active",
+            "VRF 1,10.6.0.0/16,active",
         )
 
         cls.bulk_edit_data = {
@@ -244,9 +244,9 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "vrf,address,status",
-            "VRF 1,192.0.2.4/24,Active",
-            "VRF 1,192.0.2.5/24,Active",
-            "VRF 1,192.0.2.6/24,Active",
+            "VRF 1,192.0.2.4/24,active",
+            "VRF 1,192.0.2.5/24,active",
+            "VRF 1,192.0.2.6/24,active",
         )
 
         cls.bulk_edit_data = {
@@ -334,9 +334,9 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "vid,name,status",
-            "104,VLAN104,Active",
-            "105,VLAN105,Active",
-            "106,VLAN106,Active",
+            "104,VLAN104,active",
+            "105,VLAN105,active",
+            "106,VLAN106,active",
         )
 
         cls.bulk_edit_data = {
@@ -393,9 +393,9 @@ class ServiceTestCase(
 
         cls.csv_data = (
             "device,name,protocol,port,description",
-            "Device 1,Service 1,TCP,1,First service",
-            "Device 1,Service 2,TCP,2,Second service",
-            "Device 1,Service 3,UDP,3,Third service",
+            "Device 1,Service 1,tcp,1,First service",
+            "Device 1,Service 2,tcp,2,Second service",
+            "Device 1,Service 3,udp,3,Third service",
         )
 
         cls.bulk_edit_data = {
