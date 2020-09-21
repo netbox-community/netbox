@@ -414,7 +414,6 @@ class RackReservationListView(ObjectListView):
     filterset = filters.RackReservationFilterSet
     filterset_form = forms.RackReservationFilterForm
     table = tables.RackReservationTable
-    action_buttons = ('export',)
 
 
 class RackReservationView(ObjectView):
