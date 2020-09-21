@@ -14,7 +14,7 @@ from dcim.models import Device, Interface
 from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import serialize_object
+from utilities.utils import array_to_string, serialize_object
 from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .constants import *
@@ -1038,7 +1038,7 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique
 
     def __str__(self):
-        return f'{self.name} ({self.get_protocol_display()}/{self.ports})'
+        return f'{self.name} ({self.get_protocol_display()}/{self.port_list})'
 
     def get_absolute_url(self):
         return reverse('ipam:service', args=[self.pk])
@@ -1064,3 +1064,7 @@ class Service(ChangeLoggedModel, CustomFieldModel):
             self.ports,
             self.description,
         )
+
+    @property
+    def port_list(self):
+        return array_to_string(self.ports)
