@@ -24,7 +24,7 @@ We will be installing Redis server via remi repo, as netbox requires Redis v4.0 
 Confirm if Redis v4.0 or later has been installed. 
 
 ```
- yum list installed | grep redis
+# yum list installed | grep redis
 redis.x86_64                       6.0.8-1.el7.remi                 @remi    
 ```
 
