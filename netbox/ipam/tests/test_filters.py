@@ -763,9 +763,9 @@ class ServiceTestCase(TestCase):
         params = {'protocol': ServiceProtocolChoices.PROTOCOL_TCP}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
-    # def test_port(self):
-    #     params = {'port': ['1001', '1002', '1003']}
-    #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+    def test_port(self):
+        params = {'port': '1001'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_device(self):
         devices = Device.objects.all()[:2]

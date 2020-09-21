@@ -623,8 +623,9 @@ class ServiceTable(BaseTable):
     parent = tables.LinkColumn(
         order_by=('device', 'virtual_machine')
     )
-    ports = tables.Column(
-        orderable=False
+    ports = tables.TemplateColumn(
+        template_code='{{ record.port_list }}',
+        verbose_name='Ports'
     )
     tags = TagColumn(
         url_name='ipam:service_list'

@@ -68,7 +68,6 @@ class TreeNodeMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
     """
     Filters for a set of Models, including all descendant models within a Tree.  Example: [<Region: R1>,<Region: R2>]
     """
-
     def get_filter_predicate(self, v):
         # null value filtering
         if v is None:
@@ -84,7 +83,6 @@ class NullableCharFieldFilter(django_filters.CharFilter):
     """
     Allow matching on null field values by passing a special string used to signify NULL.
     """
-
     def filter(self, qs, value):
         if value != settings.FILTERS_NULL_CHOICE_VALUE:
             return super().filter(qs, value)
@@ -105,6 +103,16 @@ class TagFilter(django_filters.ModelMultipleChoiceFilter):
         kwargs.setdefault('queryset', Tag.objects.all())
 
         super().__init__(*args, **kwargs)
+
+
+class NumericArrayFilter(django_filters.NumberFilter):
+    """
+    Filter based on the presence of an integer within an ArrayField.
+    """
+    def filter(self, qs, value):
+        if value:
+            value = [value]
+        return super().filter(qs, value)
 
 
 #
