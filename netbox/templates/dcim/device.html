@@ -396,7 +396,19 @@
                                 </div>
                             {% endif %}
                             {% if perms.secrets.view_secret %}
-                                {% include 'secrets/inc/assigned_secrets.html' %}
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <strong>Secrets</strong>
+                                    </div>
+                                    {% include 'secrets/inc/assigned_secrets.html' %}
+                                    {% if perms.secrets.add_secret %}
+                                        <div class="panel-footer text-right noprint">
+                                            <a href="{% url 'secrets:secret_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-xs btn-primary">
+                                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add secret
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
                             {% endif %}
                             <div class="panel panel-default">
                                 <div class="panel-heading">
