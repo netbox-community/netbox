@@ -7,6 +7,7 @@
 ### New Features
 
 * [#1692](https://github.com/netbox-community/netbox/issues/1692) - Allow assigment of inventory items to parent items in web UI
+* [#2179](https://github.com/netbox-community/netbox/issues/2179) - Support the assignment of multiple port numbers for services
 * [#4956](https://github.com/netbox-community/netbox/issues/4956) - Include inventory items on primary device view
 * [#5003](https://github.com/netbox-community/netbox/issues/5003) - CSV import now accepts slug values for choice fields
 * [#5146](https://github.com/netbox-community/netbox/issues/5146) - Add custom fields support for cables, power panels, rack reservations, and virtual chassis
@@ -28,3 +29,4 @@
 * dcim.VirtualChassis: Added `custom_fields`
 * extras.ExportTemplate: The `template_language` field has been removed
 * extras.Graph: This API endpoint has been removed (see #4349)
+* ipam.Service: Renamed `port` to `ports`; now holds a list of one or more port numbers
