@@ -14,12 +14,18 @@
 ```
 
 ### CentOS
-
+We will be installing Redis server via remi repo, as netbox requires Redis v4.0 or later.
 ```no-highlight
-# yum install -y epel-release
-# yum install -y redis
+# yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+# yum --enablerepo=remi install redis
 # systemctl start redis
 # systemctl enable redis
+```
+Confirm if Redis v4.0 or later has been installed. 
+
+```
+ yum list installed | grep redis
+redis.x86_64                       6.0.8-1.el7.remi                 @remi    
 ```
 
 You may wish to modify the Redis configuration at `/etc/redis.conf` or `/etc/redis/redis.conf`, however in most cases the default configuration is sufficient.
