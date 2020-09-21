@@ -117,4 +117,4 @@ class NestedServiceSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.Service
-        fields = ['id', 'url', 'name', 'protocol', 'port']
+        fields = ['id', 'url', 'name', 'protocol', 'ports']

@@ -428,7 +428,7 @@ class VLANTest(APIViewTestCases.APIViewTestCase):
 
 class ServiceTest(APIViewTestCases.APIViewTestCase):
     model = Service
-    brief_fields = ['id', 'name', 'port', 'protocol', 'url']
+    brief_fields = ['id', 'name', 'ports', 'protocol', 'url']
 
     @classmethod
     def setUpTestData(cls):
@@ -444,9 +444,9 @@ class ServiceTest(APIViewTestCases.APIViewTestCase):
         Device.objects.bulk_create(devices)
 
         services = (
-            Service(device=devices[0], name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=1),
-            Service(device=devices[0], name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=2),
-            Service(device=devices[0], name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=3),
+            Service(device=devices[0], name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
+            Service(device=devices[0], name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2]),
+            Service(device=devices[0], name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[3]),
         )
         Service.objects.bulk_create(services)
 
@@ -455,18 +455,18 @@ class ServiceTest(APIViewTestCases.APIViewTestCase):
                 'device': devices[1].pk,
                 'name': 'Service 4',
                 'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
-                'port': 4,
+                'ports': [4],
             },
             {
                 'device': devices[1].pk,
                 'name': 'Service 5',
                 'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
-                'port': 5,
+                'ports': [5],
             },
             {
                 'device': devices[1].pk,
                 'name': 'Service 6',
                 'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
-                'port': 6,
+                'ports': [6],
             },
         ]

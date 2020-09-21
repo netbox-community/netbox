@@ -546,7 +546,7 @@ class ServiceFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
 
     class Meta:
         model = Service
-        fields = ['id', 'name', 'protocol', 'port']
+        fields = ['id', 'name', 'protocol']
 
     def search(self, queryset, name, value):
         if not value.strip():

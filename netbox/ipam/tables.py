@@ -623,11 +623,14 @@ class ServiceTable(BaseTable):
     parent = tables.LinkColumn(
         order_by=('device', 'virtual_machine')
     )
+    ports = tables.Column(
+        orderable=False
+    )
     tags = TagColumn(
         url_name='ipam:service_list'
     )
 
     class Meta(BaseTable.Meta):
         model = Service
-        fields = ('pk', 'name', 'parent', 'protocol', 'port', 'ipaddresses', 'description', 'tags')
-        default_columns = ('pk', 'name', 'parent', 'protocol', 'port', 'description')
+        fields = ('pk', 'name', 'parent', 'protocol', 'ports', 'ipaddresses', 'description', 'tags')
+        default_columns = ('pk', 'name', 'parent', 'protocol', 'ports', 'description')
