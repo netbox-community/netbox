@@ -6,6 +6,20 @@
 
 ### New Features
 
+#### REST API Bulk Deletion ([#3436](https://github.com/netbox-community/netbox/issues/3436))
+
+The REST API now supports the bulk deletion of objects of the same type in a single request. Send a `DELETE` HTTP request to the list to the model's list endpoint (e.g. `/api/dcim/sites/`) with a list of JSON objects specifying the numeric ID of each object to be deleted. For example, to delete sites with IDs 10, 11, and 12, issue the following request:
+
+```no-highlight
+curl -s -X DELETE \
+-H "Authorization: Token $TOKEN" \
+-H "Content-Type: application/json" \
+http://netbox/api/dcim/sites/ \
+--data '[{"id": 10}, {"id": 11}, {"id": 12}]'
+```
+
+### Enhancements
+
 * [#1503](https://github.com/netbox-community/netbox/issues/1503) - Allow assigment of secrets to virtual machines
 * [#1692](https://github.com/netbox-community/netbox/issues/1692) - Allow assigment of inventory items to parent items in web UI
 * [#2179](https://github.com/netbox-community/netbox/issues/2179) - Support the assignment of multiple port numbers for services
@@ -23,6 +37,7 @@
 
 ### REST API Changes
 
+* Added support for `DELETE` operations on list endpoints
 * dcim.Cable: Added `custom_fields`
 * dcim.InventoryItem: The `_depth` field has been added to reflect MPTT positioning
 * dcim.PowerPanel: Added `custom_fields`
