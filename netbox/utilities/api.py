@@ -291,13 +291,56 @@ class WritableNestedSerializer(serializers.ModelSerializer):
             )
 
 
-class BulkDeleteSerializer(serializers.Serializer):
+class BulkOperationSerializer(serializers.Serializer):
     id = serializers.IntegerField()
 
 
 #
 # Mixins
 #
+
+class BulkUpdateModelMixin:
+    """
+    Support bulk modification of objects using the list endpoint for a model. Accepts a PATCH action with a list of one
+    or more JSON objects, each specifying the numeric ID of an object to be updated as well as the attributes to be set.
+    For example:
+
+    PATCH /api/dcim/sites/
+    [
+        {
+            "id": 123,
+            "name": "New name"
+        },
+        {
+            "id": 456,
+            "status": "planned"
+        }
+    ]
+    """
+    def bulk_update(self, request):
+        serializer = BulkOperationSerializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        qs = self.get_queryset().filter(
+            pk__in=[o['id'] for o in serializer.data]
+        )
+
+        # Map update data by object ID
+        update_data = {
+            obj.pop('id'): obj for obj in request.data
+        }
+
+        self.perform_bulk_update(qs, update_data)
+
+        return Response(status=status.HTTP_200_OK)
+
+    def perform_bulk_update(self, objects, update_data):
+        with transaction.atomic():
+            for obj in objects:
+                data = update_data.get(obj.id)
+                serializer = self.get_serializer(obj, data=data, partial=True)
+                serializer.is_valid(raise_exception=True)
+                self.perform_update(serializer)
+
 
 class BulkDestroyModelMixin:
     """
@@ -311,11 +354,11 @@ class BulkDestroyModelMixin:
     ]
     """
     def bulk_destroy(self, request):
-        serializer = BulkDeleteSerializer(data=request.data, many=True)
+        serializer = BulkOperationSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
-
-        pk_list = [o['id'] for o in serializer.data]
-        qs = self.get_queryset().filter(pk__in=pk_list)
+        qs = self.get_queryset().filter(
+            pk__in=[o['id'] for o in serializer.data]
+        )
 
         self.perform_bulk_destroy(qs)
 
@@ -336,6 +379,7 @@ class ModelViewSet(mixins.CreateModelMixin,
                    mixins.UpdateModelMixin,
                    mixins.DestroyModelMixin,
                    mixins.ListModelMixin,
+                   BulkUpdateModelMixin,
                    BulkDestroyModelMixin,
                    GenericViewSet):
     """
@@ -455,6 +499,7 @@ class OrderedDefaultRouter(DefaultRouter):
 
         # Extend the list view mappings to support the DELETE operation
         self.routes[0].mapping.update({
+            'patch': 'bulk_update',
             'delete': 'bulk_destroy',
         })
 
