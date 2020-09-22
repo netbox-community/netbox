@@ -32,6 +32,9 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
             'slug': 'provider-6',
         },
     ]
+    bulk_update_data = {
+        'asn': 1234,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -61,6 +64,9 @@ class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
             'slug': 'circuit-type-6',
         },
     )
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -76,6 +82,9 @@ class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
 class CircuitTest(APIViewTestCases.APIViewTestCase):
     model = Circuit
     brief_fields = ['cid', 'id', 'url']
+    bulk_update_data = {
+        'status': 'planned',
+    }
 
     @classmethod
     def setUpTestData(cls):

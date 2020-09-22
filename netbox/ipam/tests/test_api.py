@@ -37,6 +37,9 @@ class VRFTest(APIViewTestCases.APIViewTestCase):
             'rd': '65000:6',
         },
     ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -66,6 +69,9 @@ class RIRTest(APIViewTestCases.APIViewTestCase):
             'slug': 'rir-6',
         },
     ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -81,6 +87,9 @@ class RIRTest(APIViewTestCases.APIViewTestCase):
 class AggregateTest(APIViewTestCases.APIViewTestCase):
     model = Aggregate
     brief_fields = ['family', 'id', 'prefix', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -131,6 +140,9 @@ class RoleTest(APIViewTestCases.APIViewTestCase):
             'slug': 'role-6',
         },
     ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -157,6 +169,9 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
             'prefix': '192.168.6.0/24',
         },
     ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -328,6 +343,9 @@ class IPAddressTest(APIViewTestCases.APIViewTestCase):
             'address': '192.168.0.6/24',
         },
     ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -357,6 +375,9 @@ class VLANGroupTest(APIViewTestCases.APIViewTestCase):
             'slug': 'vlan-group-6',
         },
     ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -372,6 +393,9 @@ class VLANGroupTest(APIViewTestCases.APIViewTestCase):
 class VLANTest(APIViewTestCases.APIViewTestCase):
     model = VLAN
     brief_fields = ['display_name', 'id', 'name', 'url', 'vid']
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -429,6 +453,9 @@ class VLANTest(APIViewTestCases.APIViewTestCase):
 class ServiceTest(APIViewTestCases.APIViewTestCase):
     model = Service
     brief_fields = ['id', 'name', 'ports', 'protocol', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):

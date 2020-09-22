@@ -234,6 +234,7 @@ class APIViewTestCases:
 
     class UpdateObjectViewTestCase(APITestCase):
         update_data = {}
+        bulk_update_data = None
 
         def test_update_object_without_permission(self):
             """
@@ -267,6 +268,32 @@ class APIViewTestCases:
             self.assertHttpStatus(response, status.HTTP_200_OK)
             instance.refresh_from_db()
             self.assertInstanceEqual(instance, self.update_data, api=True)
+
+        def test_bulk_update_objects(self):
+            """
+            PATCH a set of objects in a single request.
+            """
+            if self.bulk_update_data is None:
+                self.skipTest("Bulk update data not set")
+
+            # Add object-level permission
+            obj_perm = ObjectPermission(
+                actions=['change']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+
+            id_list = self._get_queryset().values_list('id', flat=True)[:3]
+            self.assertEqual(len(id_list), 3, "Insufficient number of objects to test bulk update")
+            data = [
+                {'id': id, **self.bulk_update_data} for id in id_list
+            ]
+
+            response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            for instance in self._get_queryset().filter(pk__in=id_list):
+                self.assertInstanceEqual(instance, self.bulk_update_data, api=True)
 
     class DeleteObjectViewTestCase(APITestCase):
 

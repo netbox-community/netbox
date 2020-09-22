@@ -12,7 +12,10 @@ from users.models import Token
 
 def is_custom_action(action):
     return action not in {
-        'retrieve', 'list', 'create', 'update', 'partial_update', 'destroy', 'bulk_destroy'
+        # Default actions
+        'retrieve', 'list', 'create', 'update', 'partial_update', 'destroy',
+        # Bulk operations
+        'bulk_update', 'bulk_partial_update', 'bulk_destroy',
     }
 
 
