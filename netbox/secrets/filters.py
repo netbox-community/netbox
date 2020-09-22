@@ -4,6 +4,7 @@ from django.db.models import Q
 from dcim.models import Device
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
 from utilities.filters import BaseFilterSet, NameSlugSearchFilterSet, TagFilter
+from virtualization.models import VirtualMachine
 from .models import Secret, SecretRole
 
 
@@ -35,15 +36,27 @@ class SecretFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterS
         to_field_name='slug',
         label='Role (slug)',
     )
-    device_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Device.objects.all(),
-        label='Device (ID)',
-    )
     device = django_filters.ModelMultipleChoiceFilter(
         field_name='device__name',
         queryset=Device.objects.all(),
         to_field_name='name',
         label='Device (name)',
+    )
+    device_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device',
+        queryset=Device.objects.all(),
+        label='Device (ID)',
+    )
+    virtual_machine = django_filters.ModelMultipleChoiceFilter(
+        field_name='virtual_machine__name',
+        queryset=VirtualMachine.objects.all(),
+        to_field_name='name',
+        label='Virtual machine (name)',
+    )
+    virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='virtual_machine',
+        queryset=VirtualMachine.objects.all(),
+        label='Virtual machine (ID)',
     )
     tag = TagFilter()
 

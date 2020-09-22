@@ -395,30 +395,16 @@
                                     </table>
                                 </div>
                             {% endif %}
-                            {% if request.user.is_authenticated %}
+                            {% if perms.secrets.view_secret %}
                                 <div class="panel panel-default">
                                     <div class="panel-heading">
                                         <strong>Secrets</strong>
                                     </div>
-                                    {% if secrets %}
-                                        <table class="table table-hover panel-body">
-                                            {% for secret in secrets %}
-                                                {% include 'secrets/inc/secret_tr.html' %}
-                                            {% endfor %}
-                                        </table>
-                                    {% else %}
-                                        <div class="panel-body text-muted">
-                                            None found
-                                        </div>
-                                    {% endif %}
+                                    {% include 'secrets/inc/assigned_secrets.html' %}
                                     {% if perms.secrets.add_secret %}
-                                        <form id="secret_form">
-                                            {% csrf_token %}
-                                        </form>
                                         <div class="panel-footer text-right noprint">
                                             <a href="{% url 'secrets:secret_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-xs btn-primary">
-                                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                                                Add secret
+                                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add secret
                                             </a>
                                         </div>
                                     {% endif %}

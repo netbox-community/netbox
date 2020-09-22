@@ -9,6 +9,7 @@ from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
 from ipam.models import IPAddress, Service
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
+from secrets.models import Secret
 from utilities.utils import get_subquery
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, BulkRenameView, ComponentCreateView,
@@ -240,23 +241,30 @@ class VirtualMachineView(ObjectView):
     queryset = VirtualMachine.objects.prefetch_related('tenant__group')
 
     def get(self, request, pk):
-
         virtualmachine = get_object_or_404(self.queryset, pk=pk)
+
+        # Interfaces
         interfaces = VMInterface.objects.restrict(request.user, 'view').filter(
             virtual_machine=virtualmachine
         ).prefetch_related(
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user))
         )
+
+        # Services
         services = Service.objects.restrict(request.user, 'view').filter(
             virtual_machine=virtualmachine
         ).prefetch_related(
             Prefetch('ipaddresses', queryset=IPAddress.objects.restrict(request.user))
         )
 
+        # Secrets
+        secrets = Secret.objects.restrict(request.user, 'view').filter(virtual_machine=virtualmachine)
+
         return render(request, 'virtualization/virtualmachine.html', {
             'virtualmachine': virtualmachine,
             'interfaces': interfaces,
             'services': services,
+            'secrets': secrets,
         })
 
 

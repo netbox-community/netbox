@@ -1,6 +1,7 @@
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 
 from dcim.models import Device
 from extras.forms import (
@@ -11,6 +12,7 @@ from utilities.forms import (
     BootstrapMixin, CSVModelChoiceField, CSVModelForm, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
     SlugField, TagFilterField,
 )
+from virtualization.models import VirtualMachine
 from .constants import *
 from .models import Secret, SecretRole, UserKey
 
@@ -64,7 +66,12 @@ class SecretRoleCSVForm(CSVModelForm):
 class SecretForm(BootstrapMixin, CustomFieldModelForm):
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
+        required=False,
         display_field='display_name'
+    )
+    virtual_machine = DynamicModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False
     )
     plaintext = forms.CharField(
         max_length=SECRET_PLAINTEXT_MAX_LENGTH,
@@ -93,10 +100,21 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = Secret
         fields = [
-            'device', 'role', 'name', 'plaintext', 'plaintext2', 'tags',
+            'device', 'virtual_machine', 'role', 'name', 'plaintext', 'plaintext2', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
+
+        # Initialize helper selectors
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {}).copy()
+        if instance:
+            if type(instance.assigned_object) is Device:
+                initial['device'] = instance.assigned_object
+            elif type(instance.assigned_object) is VirtualMachine:
+                initial['virtual_machine'] = instance.assigned_object
+        kwargs['initial'] = initial
+
         super().__init__(*args, **kwargs)
 
         # A plaintext value is required when creating a new Secret
@@ -105,28 +123,31 @@ class SecretForm(BootstrapMixin, CustomFieldModelForm):
 
     def clean(self):
 
+        if not self.cleaned_data['device'] and not self.cleaned_data['virtual_machine']:
+            raise forms.ValidationError("Secrets must be assigned to a device or virtual machine.")
+
+        if self.cleaned_data['device'] and self.cleaned_data['virtual_machine']:
+            raise forms.ValidationError("Cannot select both a device and virtual machine for secret assignment.")
+
         # Verify that the provided plaintext values match
         if self.cleaned_data['plaintext'] != self.cleaned_data['plaintext2']:
             raise forms.ValidationError({
                 'plaintext2': "The two given plaintext values do not match. Please check your input."
             })
 
-        # Validate uniqueness
-        if Secret.objects.filter(
-            device=self.cleaned_data['device'],
-            role=self.cleaned_data['role'],
-            name=self.cleaned_data['name']
-        ).exclude(pk=self.instance.pk).exists():
-            raise forms.ValidationError(
-                "Each secret assigned to a device must have a unique combination of role and name"
-            )
+    def save(self, *args, **kwargs):
+        # Set assigned object
+        self.instance.assigned_object = self.cleaned_data.get('device') or self.cleaned_data.get('virtual_machine')
+
+        return super().save(*args, **kwargs)
 
 
 class SecretCSVForm(CustomFieldModelCSVForm):
-    device = CSVModelChoiceField(
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        help_text='Assigned device'
+    assigned_object_type = CSVModelChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=SECRET_ASSIGNMENT_MODELS,
+        to_field_name='model',
+        help_text='Side A type'
     )
     role = CSVModelChoiceField(
         queryset=SecretRole.objects.all(),

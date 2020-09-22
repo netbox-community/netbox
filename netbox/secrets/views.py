@@ -58,7 +58,7 @@ class SecretRoleBulkDeleteView(BulkDeleteView):
 #
 
 class SecretListView(ObjectListView):
-    queryset = Secret.objects.prefetch_related('role', 'device')
+    queryset = Secret.objects.prefetch_related('role', 'tags')
     filterset = filters.SecretFilterSet
     filterset_form = forms.SecretFilterForm
     table = tables.SecretTable
@@ -198,13 +198,13 @@ class SecretBulkImportView(BulkImportView):
 
 
 class SecretBulkEditView(BulkEditView):
-    queryset = Secret.objects.prefetch_related('role', 'device')
+    queryset = Secret.objects.prefetch_related('role')
     filterset = filters.SecretFilterSet
     table = tables.SecretTable
     form = forms.SecretBulkEditForm
 
 
 class SecretBulkDeleteView(BulkDeleteView):
-    queryset = Secret.objects.prefetch_related('role', 'device')
+    queryset = Secret.objects.prefetch_related('role')
     filterset = filters.SecretFilterSet
     table = tables.SecretTable
