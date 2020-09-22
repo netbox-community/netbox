@@ -4,7 +4,7 @@ from django.db.models import Q
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
-from utilities.filters import BaseFilterSet
+from utilities.filters import BaseFilterSet, ContentTypeFilter
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
 from .models import ConfigContext, CustomField, ExportTemplate, ImageAttachment, JobResult, ObjectChange, Tag
@@ -81,10 +81,11 @@ class ExportTemplateFilterSet(BaseFilterSet):
 
 
 class ImageAttachmentFilterSet(BaseFilterSet):
+    content_type = ContentTypeFilter()
 
     class Meta:
         model = ImageAttachment
-        fields = ['id', 'content_type', 'object_id', 'name']
+        fields = ['id', 'content_type_id', 'object_id', 'name']
 
 
 class TagFilterSet(BaseFilterSet):
@@ -234,11 +235,12 @@ class ObjectChangeFilterSet(BaseFilterSet):
         label='Search',
     )
     time = django_filters.DateTimeFromToRangeFilter()
+    changed_object_type = ContentTypeFilter()
 
     class Meta:
         model = ObjectChange
         fields = [
-            'id', 'user', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object_id',
+            'id', 'user', 'user_name', 'request_id', 'action', 'changed_object_type_id', 'changed_object_id',
             'object_repr',
         ]
 

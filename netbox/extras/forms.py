@@ -361,8 +361,8 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
             api_url='/api/users/users/',
         )
     )
-    changed_object_type = forms.ModelChoiceField(
-        queryset=ContentType.objects.order_by('model'),
+    changed_object_type_id = forms.ModelChoiceField(
+        queryset=ContentType.objects.order_by('app_label', 'model'),
         required=False,
         widget=ContentTypeSelect(),
         label='Object Type'

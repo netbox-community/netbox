@@ -1,4 +1,5 @@
 import django_filters
+from django_filters.constants import EMPTY_VALUES
 from copy import deepcopy
 from dcim.forms import MACAddressField
 from django import forms
@@ -113,6 +114,26 @@ class NumericArrayFilter(django_filters.NumberFilter):
         if value:
             value = [value]
         return super().filter(qs, value)
+
+
+class ContentTypeFilter(django_filters.CharFilter):
+    """
+    Allow specifying a ContentType by <app_label>.<model> (e.g. "dcim.site").
+    """
+    def filter(self, qs, value):
+        if value in EMPTY_VALUES:
+            return qs
+
+        try:
+            app_label, model = value.lower().split('.')
+        except ValueError:
+            return qs.none()
+        return qs.filter(
+            **{
+                f'{self.field_name}__app_label': app_label,
+                f'{self.field_name}__model': model
+            }
+        )
 
 
 #

@@ -35,6 +35,7 @@ http://netbox/api/dcim/sites/ \
 * [#1503](https://github.com/netbox-community/netbox/issues/1503) - Allow assigment of secrets to virtual machines
 * [#1692](https://github.com/netbox-community/netbox/issues/1692) - Allow assigment of inventory items to parent items in web UI
 * [#2179](https://github.com/netbox-community/netbox/issues/2179) - Support the assignment of multiple port numbers for services
+* [#4897](https://github.com/netbox-community/netbox/issues/4897) - Allow filtering by content type identified as `<app>.<model>` string
 * [#4956](https://github.com/netbox-community/netbox/issues/4956) - Include inventory items on primary device view
 * [#5003](https://github.com/netbox-community/netbox/issues/5003) - CSV import now accepts slug values for choice fields
 * [#5146](https://github.com/netbox-community/netbox/issues/5146) - Add custom fields support for cables, power panels, rack reservations, and virtual chassis
@@ -57,5 +58,7 @@ http://netbox/api/dcim/sites/ \
 * dcim.VirtualChassis: Added `custom_fields`
 * extras.ExportTemplate: The `template_language` field has been removed
 * extras.Graph: This API endpoint has been removed (see #4349)
+* extras.ImageAttachment: Filtering by `content_type` now takes a string in the form `<app>.<model>`
+* extras.ObjectChange: Filtering by `changed_object_type` now takes a string in the form `<app>.<model>`
 * ipam.Service: Renamed `port` to `ports`; now holds a list of one or more port numbers
 * secrets.Secret: Removed `device` field; replaced with `assigned_object` generic foreign key. This may represent either a device or a virtual machine. Assign an object by setting `assigned_object_type` and `assigned_object_id`.

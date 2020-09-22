@@ -1,9 +1,14 @@
+import uuid
+
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from dcim.models import DeviceRole, Platform, Rack, Region, Site
+from extras.choices import ObjectChangeActionChoices
 from extras.filters import *
-from extras.models import ConfigContext, ExportTemplate, ImageAttachment, Tag
+from extras.models import ConfigContext, ExportTemplate, ImageAttachment, ObjectChange, Tag
+from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
@@ -298,4 +303,98 @@ class TagTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-# TODO: ObjectChangeFilter test
+class ObjectChangeTestCase(TestCase):
+    queryset = ObjectChange.objects.all()
+    filterset = ObjectChangeFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        users = (
+            User(username='user1'),
+            User(username='user2'),
+            User(username='user3'),
+        )
+        User.objects.bulk_create(users)
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        ipaddress = IPAddress.objects.create(address='192.0.2.1/24')
+
+        object_changes = (
+            ObjectChange(
+                user=users[0],
+                user_name=users[0].username,
+                request_id=uuid.uuid4(),
+                action=ObjectChangeActionChoices.ACTION_CREATE,
+                changed_object=site,
+                object_repr=str(site),
+                object_data={'name': site.name, 'slug': site.slug}
+            ),
+            ObjectChange(
+                user=users[0],
+                user_name=users[0].username,
+                request_id=uuid.uuid4(),
+                action=ObjectChangeActionChoices.ACTION_UPDATE,
+                changed_object=site,
+                object_repr=str(site),
+                object_data={'name': site.name, 'slug': site.slug}
+            ),
+            ObjectChange(
+                user=users[1],
+                user_name=users[1].username,
+                request_id=uuid.uuid4(),
+                action=ObjectChangeActionChoices.ACTION_DELETE,
+                changed_object=site,
+                object_repr=str(site),
+                object_data={'name': site.name, 'slug': site.slug}
+            ),
+            ObjectChange(
+                user=users[1],
+                user_name=users[1].username,
+                request_id=uuid.uuid4(),
+                action=ObjectChangeActionChoices.ACTION_CREATE,
+                changed_object=ipaddress,
+                object_repr=str(ipaddress),
+                object_data={'address': ipaddress.address, 'status': ipaddress.status}
+            ),
+            ObjectChange(
+                user=users[2],
+                user_name=users[2].username,
+                request_id=uuid.uuid4(),
+                action=ObjectChangeActionChoices.ACTION_UPDATE,
+                changed_object=ipaddress,
+                object_repr=str(ipaddress),
+                object_data={'address': ipaddress.address, 'status': ipaddress.status}
+            ),
+            ObjectChange(
+                user=users[2],
+                user_name=users[2].username,
+                request_id=uuid.uuid4(),
+                action=ObjectChangeActionChoices.ACTION_DELETE,
+                changed_object=ipaddress,
+                object_repr=str(ipaddress),
+                object_data={'address': ipaddress.address, 'status': ipaddress.status}
+            ),
+        )
+        ObjectChange.objects.bulk_create(object_changes)
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:3]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    # def test_user(self):
+    #     params = {'user_id': User.objects.filter(username__in=['user1', 'user2']).values_list('pk', flat=True)}
+    #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+    #     params = {'user': ['user1', 'user2']}
+    #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_user_name(self):
+        params = {'user_name': ['user1', 'user2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_changed_object_type(self):
+        params = {'changed_object_type': 'dcim.site'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_changed_object_type_id(self):
+        params = {'changed_object_type_id': ContentType.objects.get(app_label='dcim', model='site').pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
