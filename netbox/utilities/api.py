@@ -8,13 +8,13 @@ from django.core.exceptions import FieldError, MultipleObjectsReturned, ObjectDo
 from django.db import transaction
 from django.db.models import ManyToManyField, ProtectedError
 from django.urls import reverse
-from rest_framework import serializers
+from rest_framework import mixins, serializers, status
 from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.permissions import BasePermission
 from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
 from rest_framework.response import Response
 from rest_framework.routers import DefaultRouter
-from rest_framework.viewsets import ModelViewSet as _ModelViewSet
+from rest_framework.viewsets import GenericViewSet
 
 from .utils import dict_to_filter_params, dynamic_import
 
@@ -291,11 +291,53 @@ class WritableNestedSerializer(serializers.ModelSerializer):
             )
 
 
+class BulkDeleteSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+
+
+#
+# Mixins
+#
+
+class BulkDestroyModelMixin:
+    """
+    Support bulk deletion of objects using the list endpoint for a model. Accepts a DELETE action with a list of one
+    or more JSON objects, each specifying the numeric ID of an object to be deleted. For example:
+
+    DELETE /api/dcim/sites/
+    [
+        {"id": 123},
+        {"id": 456}
+    ]
+    """
+    def bulk_destroy(self, request):
+        serializer = BulkDeleteSerializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        pk_list = [o['id'] for o in serializer.data]
+        qs = self.get_queryset().filter(pk__in=pk_list)
+
+        self.perform_bulk_destroy(qs)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def perform_bulk_destroy(self, objects):
+        with transaction.atomic():
+            for obj in objects:
+                self.perform_destroy(obj)
+
+
 #
 # Viewsets
 #
 
-class ModelViewSet(_ModelViewSet):
+class ModelViewSet(mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
+                   mixins.DestroyModelMixin,
+                   mixins.ListModelMixin,
+                   BulkDestroyModelMixin,
+                   GenericViewSet):
     """
     Accept either a single object or a list of objects to create.
     """
@@ -407,6 +449,14 @@ class ModelViewSet(_ModelViewSet):
 #
 
 class OrderedDefaultRouter(DefaultRouter):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Extend the list view mappings to support the DELETE operation
+        self.routes[0].mapping.update({
+            'delete': 'bulk_destroy',
+        })
 
     def get_api_root_view(self, api_urls=None):
         """

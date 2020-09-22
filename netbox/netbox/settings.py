@@ -472,6 +472,13 @@ REST_FRAMEWORK = {
     'DEFAULT_VERSION': REST_FRAMEWORK_VERSION,
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'PAGE_SIZE': PAGINATE_COUNT,
+    'SCHEMA_COERCE_METHOD_NAMES': {
+        # Default mappings
+        'retrieve': 'read',
+        'destroy': 'delete',
+        # Custom operations
+        'bulk_destroy': 'bulk_delete',
+    },
     'VIEW_NAME_FUNCTION': 'netbox.api.get_view_name',
 }
 

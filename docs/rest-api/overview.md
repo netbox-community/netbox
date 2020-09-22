@@ -529,3 +529,17 @@ Note that `DELETE` requests do not return any data: If successful, the API will 
 
 !!! note
     You can run `curl` with the verbose (`-v`) flag to inspect the HTTP response codes.
+
+### Deleting Multiple Objects
+
+NetBox supports the simultaneous deletion of multiple objects of the same type by issuing a `DELETE` request to the model's list endpoint with a list of dictionaries specifying the numeric ID of each object to be deleted. For example, to delete sites with IDs 10, 11, and 12, issue the following request:
+
+```no-highlight
+curl -s -X DELETE \
+-H "Authorization: Token $TOKEN" \
+http://netbox/api/dcim/sites/ \
+--data '[{"id": 10}, {"id": 11}, {"id": 12}]'
+```
+
+!!! note
+    The bulk deletion of objects is an all-or-none operation, meaning that if NetBox fails to delete any of the specified objects (e.g. due a dependency by a related object), the entire operation will be aborted and none of the objects will be deleted.
