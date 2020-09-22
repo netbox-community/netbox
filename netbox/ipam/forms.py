@@ -10,8 +10,8 @@ from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, BootstrapMixin, BulkEditNullBooleanSelect, CSVChoiceField, CSVModelChoiceField, CSVModelForm,
-    DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField, ReturnURLForm,
-    SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
+    DatePicker, DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableIPAddressField, NumericArrayField,
+    ReturnURLForm, SlugField, StaticSelect2, StaticSelect2Multiple, TagFilterField, BOOLEAN_WITH_BLANK_CHOICES,
 )
 from virtualization.models import Cluster, VirtualMachine, VMInterface
 from .choices import *
@@ -1155,9 +1155,12 @@ class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 #
 
 class ServiceForm(BootstrapMixin, CustomFieldModelForm):
-    port = forms.IntegerField(
-        min_value=SERVICE_PORT_MIN,
-        max_value=SERVICE_PORT_MAX
+    ports = NumericArrayField(
+        base_field=forms.IntegerField(
+            min_value=SERVICE_PORT_MIN,
+            max_value=SERVICE_PORT_MAX
+        ),
+        help_text="Comma-separated list of numeric unit IDs. A range may be specified using a hyphen."
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -1167,7 +1170,7 @@ class ServiceForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = Service
         fields = [
-            'name', 'protocol', 'port', 'ipaddresses', 'description', 'tags',
+            'name', 'protocol', 'ports', 'ipaddresses', 'description', 'tags',
         ]
         help_texts = {
             'ipaddresses': "IP address assignment is optional. If no IPs are selected, the service is assumed to be "
@@ -1244,11 +1247,11 @@ class ServiceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         required=False,
         widget=StaticSelect2()
     )
-    port = forms.IntegerField(
-        validators=[
-            MinValueValidator(1),
-            MaxValueValidator(65535),
-        ],
+    ports = NumericArrayField(
+        base_field=forms.IntegerField(
+            min_value=SERVICE_PORT_MIN,
+            max_value=SERVICE_PORT_MAX
+        ),
         required=False
     )
     description = forms.CharField(

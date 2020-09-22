@@ -1,13 +1,10 @@
 <tr>
-    <td>
-        <a href="{{ service.get_absolute_url }}">{{ service.name }}</a>
-    </td>
-    <td>
-        {{ service.get_protocol_display }}/{{ service.port }}
-    </td>
+    <td><a href="{{ service.get_absolute_url }}">{{ service.name }}</a></td>
+    <td>{{ service.get_protocol_display }}</td>
+    <td>{{ service.port_list }}</td>
     <td>
         {% for ip in service.ipaddresses.all %}
-            <span>{{ ip.address.ip }}</span><br />
+            <a href="{{ ip.get_absolute_url }}">{{ ip.address.ip }}</a><br />
         {% empty %}
             <span class="text-muted">All IPs</span>
         {% endfor %}
@@ -18,7 +15,7 @@
             <i class="fa fa-history"></i>
         </a>
         {% if perms.ipam.change_service %}
-            <a href="{% url 'ipam:service_edit' pk=service.pk %}" class="btn btn-info btn-xs" title="Edit service">
+            <a href="{% url 'ipam:service_edit' pk=service.pk %}?return_url={{ service.parent.get_absolute_url }}" class="btn btn-info btn-xs" title="Edit service">
                 <i class="glyphicon glyphicon-pencil"></i>
             </a>
         {% endif %}

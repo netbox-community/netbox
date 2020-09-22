@@ -282,6 +282,6 @@ class ServiceSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     class Meta:
         model = Service
         fields = [
-            'id', 'url', 'device', 'virtual_machine', 'name', 'port', 'protocol', 'ipaddresses', 'description', 'tags',
+            'id', 'url', 'device', 'virtual_machine', 'name', 'ports', 'protocol', 'ipaddresses', 'description', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]

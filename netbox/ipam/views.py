@@ -843,9 +843,6 @@ class ServiceEditView(ObjectEditView):
             )
         return obj
 
-    def get_return_url(self, request, service):
-        return service.parent.get_absolute_url()
-
 
 class ServiceBulkImportView(BulkImportView):
     queryset = Service.objects.all()

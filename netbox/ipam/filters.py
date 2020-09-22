@@ -8,7 +8,7 @@ from dcim.models import Device, Interface, Region, Site
 from extras.filters import CustomFieldFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
 from utilities.filters import (
-    BaseFilterSet, MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, TagFilter,
+    BaseFilterSet, MultiValueCharFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, NumericArrayFilter, TagFilter,
     TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import VirtualMachine, VMInterface
@@ -542,11 +542,15 @@ class ServiceFilterSet(BaseFilterSet, CreatedUpdatedFilterSet):
         to_field_name='name',
         label='Virtual machine (name)',
     )
+    port = NumericArrayFilter(
+        field_name='ports',
+        lookup_expr='contains'
+    )
     tag = TagFilter()
 
     class Meta:
         model = Service
-        fields = ['id', 'name', 'protocol', 'port']
+        fields = ['id', 'name', 'protocol']
 
     def search(self, queryset, name, value):
         if not value.strip():

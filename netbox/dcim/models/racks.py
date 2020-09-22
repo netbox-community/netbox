@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from itertools import count, groupby
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -22,7 +21,7 @@ from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
 from utilities.mptt import TreeManager
-from utilities.utils import serialize_object
+from utilities.utils import array_to_string, serialize_object
 from .devices import Device
 from .power import PowerFeed
 
@@ -642,9 +641,4 @@ class RackReservation(ChangeLoggedModel, CustomFieldModel):
 
     @property
     def unit_list(self):
-        """
-        Express the assigned units as a string of summarized ranges. For example:
-            [0, 1, 2, 10, 14, 15, 16] => "0-2, 10, 14-16"
-        """
-        group = (list(x) for _, x in groupby(sorted(self.units), lambda x, c=count(): next(c) - x))
-        return ', '.join('-'.join(map(str, (g[0], g[-1])[:len(g)])) for g in group)
+        return array_to_string(self.units)

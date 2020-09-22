@@ -373,9 +373,9 @@ class ServiceTestCase(
         device = Device.objects.create(name='Device 1', site=site, device_type=devicetype, device_role=devicerole)
 
         Service.objects.bulk_create([
-            Service(device=device, name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=101),
-            Service(device=device, name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=102),
-            Service(device=device, name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, port=103),
+            Service(device=device, name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
+            Service(device=device, name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]),
+            Service(device=device, name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
         ])
 
         tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
@@ -385,14 +385,14 @@ class ServiceTestCase(
             'virtual_machine': None,
             'name': 'Service X',
             'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
-            'port': 999,
+            'ports': '104,105',
             'ipaddresses': [],
             'description': 'A new service',
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "device,name,protocol,port,description",
+            "device,name,protocol,ports,description",
             "Device 1,Service 1,tcp,1,First service",
             "Device 1,Service 2,tcp,2,Second service",
             "Device 1,Service 3,udp,3,Third service",
@@ -400,6 +400,6 @@ class ServiceTestCase(
 
         cls.bulk_edit_data = {
             'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
-            'port': 888,
+            'ports': '106,107',
             'description': 'New description',
         }

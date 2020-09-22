@@ -2,6 +2,7 @@ import netaddr
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -13,7 +14,7 @@ from dcim.models import Device, Interface
 from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import serialize_object
+from utilities.utils import array_to_string, serialize_object
 from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .constants import *
@@ -1008,12 +1009,14 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         max_length=50,
         choices=ServiceProtocolChoices
     )
-    port = models.PositiveIntegerField(
-        validators=[
-            MinValueValidator(SERVICE_PORT_MIN),
-            MaxValueValidator(SERVICE_PORT_MAX)
-        ],
-        verbose_name='Port number'
+    ports = ArrayField(
+        base_field=models.PositiveIntegerField(
+            validators=[
+                MinValueValidator(SERVICE_PORT_MIN),
+                MaxValueValidator(SERVICE_PORT_MAX)
+            ]
+        ),
+        verbose_name='Port numbers'
     )
     ipaddresses = models.ManyToManyField(
         to='ipam.IPAddress',
@@ -1029,13 +1032,13 @@ class Service(ChangeLoggedModel, CustomFieldModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['device', 'virtual_machine', 'name', 'protocol', 'port', 'description']
+    csv_headers = ['device', 'virtual_machine', 'name', 'protocol', 'ports', 'description']
 
     class Meta:
-        ordering = ('protocol', 'port', 'pk')  # (protocol, port) may be non-unique
+        ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique
 
     def __str__(self):
-        return '{} ({}/{})'.format(self.name, self.port, self.get_protocol_display())
+        return f'{self.name} ({self.get_protocol_display()}/{self.port_list})'
 
     def get_absolute_url(self):
         return reverse('ipam:service', args=[self.pk])
@@ -1058,6 +1061,10 @@ class Service(ChangeLoggedModel, CustomFieldModel):
             self.virtual_machine.name if self.virtual_machine else None,
             self.name,
             self.get_protocol_display(),
-            self.port,
+            self.ports,
             self.description,
         )
+
+    @property
+    def port_list(self):
+        return array_to_string(self.ports)
