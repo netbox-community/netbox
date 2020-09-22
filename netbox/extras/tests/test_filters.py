@@ -109,12 +109,12 @@ class ImageAttachmentTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_content_type(self):
-        params = {'content_type': ContentType.objects.get(app_label='dcim', model='site').pk}
+        params = {'content_type': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_content_type_and_object_id(self):
+    def test_content_type_id_and_object_id(self):
         params = {
-            'content_type': ContentType.objects.get(app_label='dcim', model='site').pk,
+            'content_type_id': ContentType.objects.get(app_label='dcim', model='site').pk,
             'object_id': [Site.objects.first().pk],
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -381,6 +381,7 @@ class ObjectChangeTestCase(TestCase):
         params = {'id': self.queryset.values_list('pk', flat=True)[:3]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
+    # TODO: Merge #5167 from develop
     # def test_user(self):
     #     params = {'user_id': User.objects.filter(username__in=['user1', 'user2']).values_list('pk', flat=True)}
     #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
