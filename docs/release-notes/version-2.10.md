@@ -18,6 +18,18 @@ http://netbox/api/dcim/sites/ \
 --data '[{"id": 10}, {"id": 11}, {"id": 12}]'
 ```
 
+#### REST API Bulk Update ([#4882](https://github.com/netbox-community/netbox/issues/4882))
+
+Similar to bulk deletion, the REST API also now supports bulk updates. Send a `PUT` or `PATCH` HTTP request to the list to the model's list endpoint (e.g. `/api/dcim/sites/`) with a list of JSON objects specifying the numeric ID of each object and the attribute(s) to be updated. For example, to set a description for sites with IDs 10 and 11, issue the following request:
+
+```no-highlight
+curl -s -X PATCH \
+-H "Authorization: Token $TOKEN" \
+-H "Content-Type: application/json" \
+http://netbox/api/dcim/sites/ \
+--data '[{"id": 10, "description": "Foo"}, {"id": 11, "description": "Bar"}]'
+```
+
 ### Enhancements
 
 * [#1503](https://github.com/netbox-community/netbox/issues/1503) - Allow assigment of secrets to virtual machines
@@ -37,7 +49,7 @@ http://netbox/api/dcim/sites/ \
 
 ### REST API Changes
 
-* Added support for `DELETE` operations on list endpoints
+* Added support for `PUT`, `PATCH`, and `DELETE` operations on list endpoints
 * dcim.Cable: Added `custom_fields`
 * dcim.InventoryItem: The `_depth` field has been added to reflect MPTT positioning
 * dcim.PowerPanel: Added `custom_fields`
