@@ -20,6 +20,7 @@
 * [#5133](https://github.com/netbox-community/netbox/issues/5133) - Fix disassociation of an IP address from a VM interface
 * [#5136](https://github.com/netbox-community/netbox/issues/5136) - Fix exception when bulk editing interface 802.1Q mode
 * [#5156](https://github.com/netbox-community/netbox/issues/5156) - Add missing "add" button to rack reservations list
+* [#5167](https://github.com/netbox-community/netbox/issues/5167) - Support filtering ObjectChanges by multiple users
 
 ---
 
