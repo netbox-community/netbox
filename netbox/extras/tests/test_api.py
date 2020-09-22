@@ -49,6 +49,9 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
     ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -91,6 +94,9 @@ class TagTest(APIViewTestCases.APIViewTestCase):
             'slug': 'tag-6',
         },
     ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -164,6 +170,9 @@ class ConfigContextTest(APIViewTestCases.APIViewTestCase):
             'data': {'more_baz': None},
         },
     ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):

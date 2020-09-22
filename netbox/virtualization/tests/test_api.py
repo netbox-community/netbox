@@ -34,6 +34,9 @@ class ClusterTypeTest(APIViewTestCases.APIViewTestCase):
             'slug': 'cluster-type-6',
         },
     ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -63,6 +66,9 @@ class ClusterGroupTest(APIViewTestCases.APIViewTestCase):
             'slug': 'cluster-type-6',
         },
     ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -123,6 +129,9 @@ class ClusterTest(APIViewTestCases.APIViewTestCase):
 class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
     model = VirtualMachine
     brief_fields = ['id', 'name', 'url']
+    bulk_update_data = {
+        'status': 'staged',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -196,6 +205,9 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
 class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
     model = VMInterface
     brief_fields = ['id', 'name', 'url', 'virtual_machine']
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
