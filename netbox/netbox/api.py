@@ -4,9 +4,20 @@ from rest_framework import authentication, exceptions
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import DjangoObjectPermissions, SAFE_METHODS
 from rest_framework.renderers import BrowsableAPIRenderer
+from rest_framework.schemas import coreapi
 from rest_framework.utils import formatting
 
 from users.models import Token
+
+
+def is_custom_action(action):
+    return action not in {
+        'retrieve', 'list', 'create', 'update', 'partial_update', 'destroy', 'bulk_destroy'
+    }
+
+
+# Monkey-patch DRF to treat bulk_destroy() as a non-custom action (see #3436)
+coreapi.is_custom_action = is_custom_action
 
 
 #
