@@ -20,6 +20,7 @@
 * [#5118](https://github.com/netbox-community/netbox/issues/5118) - Specifying an empty list of tags should clear assigned tags (REST API)
 * [#5133](https://github.com/netbox-community/netbox/issues/5133) - Fix disassociation of an IP address from a VM interface
 * [#5136](https://github.com/netbox-community/netbox/issues/5136) - Fix exception when bulk editing interface 802.1Q mode
+* [#5137](https://github.com/netbox-community/netbox/issues/5137) - Correct permission for viewing report results is `extras.view_reportresult` (not `extras.view_report`)
 * [#5156](https://github.com/netbox-community/netbox/issues/5156) - Add missing "add" button to rack reservations list
 * [#5167](https://github.com/netbox-community/netbox/issues/5167) - Support filtering ObjectChanges by multiple users
 

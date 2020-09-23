@@ -401,7 +401,7 @@ class ReportResultView(ContentTypePermissionRequiredMixin, View):
     Display a JobResult pertaining to the execution of a Report.
     """
     def get_required_permission(self):
-        return 'extras.view_report'
+        return 'extras.view_reportresult'
 
     def get(self, request, job_result_pk):
         report_content_type = ContentType.objects.get(app_label='extras', model='report')
