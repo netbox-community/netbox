@@ -985,9 +985,16 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
     def get_status_class(self):
         return self.STATUS_CLASS_MAP[self.status]
 
-    def get_members(self):
-        # Return all interfaces assigned to this VLAN
+    def get_interfaces(self):
+        # Return all device interfaces assigned to this VLAN
         return Interface.objects.filter(
+            Q(untagged_vlan_id=self.pk) |
+            Q(tagged_vlans=self.pk)
+        ).distinct()
+
+    def get_vminterfaces(self):
+        # Return all VM interfaces assigned to this VLAN
+        return VMInterface.objects.filter(
             Q(untagged_vlan_id=self.pk) |
             Q(tagged_vlans=self.pk)
         ).distinct()
