@@ -25,7 +25,7 @@ class Command(BaseCommand):
             for report in report_list:
                 if module_name in options['reports'] or report.full_name in options['reports']:
 
-                    # Run the report and create a new ReportResult
+                    # Run the report and create a new JobResult
                     self.stdout.write(
                         "[{:%H:%M:%S}] Running {}...".format(timezone.now(), report.full_name)
                     )
