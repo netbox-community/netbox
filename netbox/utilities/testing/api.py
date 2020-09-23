@@ -266,7 +266,7 @@ class APIViewTestCases:
             response = self.client.patch(url, update_data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
             instance.refresh_from_db()
-            self.assertInstanceEqual(instance, self.update_data, api=True)
+            self.assertInstanceEqual(instance, update_data, api=True)
 
     class DeleteObjectViewTestCase(APITestCase):
 
