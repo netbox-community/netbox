@@ -169,9 +169,13 @@ class SiteView(ObjectView):
             'circuit_count': Circuit.objects.restrict(request.user, 'view').filter(terminations__site=site).count(),
             'vm_count': VirtualMachine.objects.restrict(request.user, 'view').filter(cluster__site=site).count(),
         }
-        rack_groups = RackGroup.objects.restrict(request.user, 'view').filter(site=site).annotate(
-            rack_count=Count('racks')
-        )
+        rack_groups = RackGroup.objects.add_related_count(
+            RackGroup.objects.all(),
+            Rack,
+            'group',
+            'rack_count',
+            cumulative=True
+        ).restrict(request.user, 'view').filter(site=site)
         show_graphs = Graph.objects.filter(type__model='site').exists()
 
         return render(request, 'dcim/site.html', {

@@ -8,6 +8,7 @@
 * [#5128](https://github.com/netbox-community/netbox/issues/5128) - Increase maximum rear port positions from 64 to 1024
 * [#5134](https://github.com/netbox-community/netbox/issues/5134) - Display full hierarchy in breadcrumbs for sites/racks
 * [#5149](https://github.com/netbox-community/netbox/issues/5149) - Add rack group field to device edit form
+* [#5164](https://github.com/netbox-community/netbox/issues/5164) - Show total rack count per rack group under site view
 
 ### Bug Fixes
 
