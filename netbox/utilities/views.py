@@ -945,7 +945,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
 
                                 # ManyToManyFields
                                 elif isinstance(model_field, ManyToManyField):
-                                    if form.cleaned_data[name].count() > 0:
+                                    if form.cleaned_data[name]:
                                         getattr(obj, name).set(form.cleaned_data[name])
                                 # Normal fields
                                 elif form.cleaned_data[name] not in (None, ''):

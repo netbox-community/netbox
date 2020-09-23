@@ -158,7 +158,7 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
         instance.custom_fields = {}
         for field in custom_fields:
             value = instance.cf.get(field.name)
-            if field.type == CustomFieldTypeChoices.TYPE_SELECT and value:
+            if field.type == CustomFieldTypeChoices.TYPE_SELECT and type(value) is CustomFieldChoice:
                 instance.custom_fields[field.name] = CustomFieldChoiceSerializer(value).data
             else:
                 instance.custom_fields[field.name] = value

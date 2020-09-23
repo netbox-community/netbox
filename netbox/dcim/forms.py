@@ -1680,12 +1680,21 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'region_id': '$region'
         }
     )
+    rack_group = DynamicModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        display_field='display_name',
+        query_params={
+            'site_id': '$site'
+        }
+    )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         display_field='display_name',
         query_params={
-            'site_id': '$site'
+            'site_id': '$site',
+            'group_id': '$rack_group',
         }
     )
     position = forms.TypedChoiceField(

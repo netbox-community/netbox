@@ -59,3 +59,21 @@ class TaggedItemTest(APITestCase):
             sorted([t.name for t in site.tags.all()]),
             sorted(["Foo", "Bar", "New Tag"])
         )
+
+    def test_clear_tagged_item(self):
+        site = Site.objects.create(
+            name='Test Site',
+            slug='test-site'
+        )
+        site.tags.add("Foo", "Bar", "Baz")
+        data = {
+            'tags': []
+        }
+        self.add_permissions('dcim.change_site')
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
+
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['tags']), 0)
+        site = Site.objects.get(pk=response.data['id'])
+        self.assertEqual(len(site.tags.all()), 0)

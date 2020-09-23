@@ -12,7 +12,7 @@
             <ol class="breadcrumb">
                 <li><a href="{% url 'dcim:site_list' %}">Sites</a></li>
                 {% if site.region %}
-                    {% for region in site.region.get_ancestors.unrestricted %}
+                    {% for region in site.region.get_ancestors %}
                         <li><a href="{{ region.get_absolute_url }}">{{ region }}</a></li>
                     {% endfor %}
                     <li><a href="{{ site.region.get_absolute_url }}">{{ site.region }}</a></li>
@@ -86,7 +86,7 @@
                     <td>Region</td>
                     <td>
                         {% if site.region %}
-                            {% for region in site.region.get_ancestors.unrestricted %}
+                            {% for region in site.region.get_ancestors %}
                                 <a href="{{ region.get_absolute_url }}">{{ region }}</a>
                                 <i class="fa fa-angle-right"></i>
                             {% endfor %}
@@ -255,7 +255,7 @@
             <table class="table table-hover panel-body">
                 {% for rg in rack_groups %}
                     <tr>
-                        <td><i class="fa fa-fw fa-folder-o"></i> <a href="{{ rg.get_absolute_url }}">{{ rg }}</a></td>
+                        <td style="padding-left: {{ rg.level }}8px"><i class="fa fa-fw fa-folder-o"></i> <a href="{{ rg.get_absolute_url }}">{{ rg }}</a></td>
                         <td>{{ rg.rack_count }}</td>
                         <td class="text-right noprint">
                             <a href="{% url 'dcim:rack_elevation_list' %}?group_id={{ rg.pk }}" class="btn btn-xs btn-primary" title="View elevations">

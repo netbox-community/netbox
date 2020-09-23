@@ -491,6 +491,14 @@ The file path to the location where custom reports will be kept. By default, thi
 
 ---
 
+## RQ_DEFAULT_TIMEOUT
+
+Default: `300`
+
+The maximum execution time of a background task (such as running a custom script), in seconds.
+
+---
+
 ## SCRIPTS_ROOT
 
 Default: `$INSTALL_ROOT/netbox/scripts/`
