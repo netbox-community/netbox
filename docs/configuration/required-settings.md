@@ -65,7 +65,6 @@ Redis is configured using a configuration setting similar to `DATABASE` and thes
 * `PORT` - TCP port of the Redis service; leave blank for default port (6379)
 * `PASSWORD` - Redis password (if set)
 * `DATABASE` - Numeric database ID
-* `DEFAULT_TIMEOUT` - Connection timeout in seconds
 * `SSL` - Use SSL connection to Redis
 
 An example configuration is provided below:
@@ -77,7 +76,6 @@ REDIS = {
         'PORT': 1234,
         'PASSWORD': 'foobar',
         'DATABASE': 0,
-        'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     },
     'caching': {
@@ -85,7 +83,6 @@ REDIS = {
         'PORT': 6379,
         'PASSWORD': '',
         'DATABASE': 1,
-        'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     }
 }
@@ -109,6 +106,7 @@ above and the addition of two new keys.
 * `SENTINELS`: List of tuples or tuple of tuples with each inner tuple containing the name or IP address 
 of the Redis server and port for each sentinel instance to connect to
 * `SENTINEL_SERVICE`: Name of the master / service to connect to
+* `SENTINEL_TIMEOUT`: Connection timeout, in seconds
 
 Example:
 
@@ -117,9 +115,9 @@ REDIS = {
     'tasks': {
         'SENTINELS': [('mysentinel.redis.example.com', 6379)],
         'SENTINEL_SERVICE': 'netbox',
+        'SENTINEL_TIMEOUT': 10,
         'PASSWORD': '',
         'DATABASE': 0,
-        'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     },
     'caching': {
@@ -130,7 +128,6 @@ REDIS = {
         'SENTINEL_SERVICE': 'netbox',
         'PASSWORD': '',
         'DATABASE': 1,
-        'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     }
 }

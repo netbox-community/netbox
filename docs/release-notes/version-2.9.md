@@ -2,6 +2,8 @@
 
 ## v2.9.4 (FUTURE)
 
+**NOTE:** This release removes support for the `DEFAULT_TIMEOUT` parameter under `REDIS` database configuration. Set `RQ_DEFAULT_TIMEOUT` as a global configuration parameter instead.
+
 ### Enhancements
 
 * [#1755](https://github.com/netbox-community/netbox/issues/1755) - Toggle order in which rack elevations are displayed
@@ -9,6 +11,7 @@
 * [#5134](https://github.com/netbox-community/netbox/issues/5134) - Display full hierarchy in breadcrumbs for sites/racks
 * [#5149](https://github.com/netbox-community/netbox/issues/5149) - Add rack group field to device edit form
 * [#5164](https://github.com/netbox-community/netbox/issues/5164) - Show total rack count per rack group under site view
+* [#5171](https://github.com/netbox-community/netbox/issues/5171) - Introduce the `RQ_DEFAULT_TIMEOUT` configuration parameter
 
 ### Bug Fixes
 
