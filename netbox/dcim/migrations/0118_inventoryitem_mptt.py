@@ -6,7 +6,7 @@ import mptt.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0116_custom_field_data'),
+        ('dcim', '0117_custom_field_data'),
     ]
 
     operations = [

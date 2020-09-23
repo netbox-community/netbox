@@ -24,7 +24,6 @@ REDIS = {
         'PORT': 6379,
         'PASSWORD': '',
         'DATABASE': 0,
-        'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     },
     'caching': {
@@ -32,7 +31,6 @@ REDIS = {
         'PORT': 6379,
         'PASSWORD': '',
         'DATABASE': 1,
-        'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     }
 }

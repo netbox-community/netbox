@@ -11,11 +11,8 @@
     <div class="row noprint">
         <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
-            <li><a href="{% url 'dcim:site' slug=device.site.slug %}">{{ device.site }}</a></li>
-            {% if device.rack %}
-                <li><a href="{% url 'dcim:rack_list' %}?site={{ device.site.slug }}">Racks</a></li>
-                <li><a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack }}</a></li>
-            {% endif %}
+            <li><a href="{% url 'dcim:device_list' %}">Devices</a></li>
+            <li><a href="{% url 'dcim:device_list' %}?site={{ device.site.slug }}">{{ device.site }}</a></li>
             {% if device.parent_bay %}
                 <li><a href="{% url 'dcim:device' pk=device.parent_bay.device.pk %}">{{ device.parent_bay.device }}</a></li>
                 <li>{{ device.parent_bay }}</li>

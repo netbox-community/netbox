@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0115_rackreservation_order'),
+        ('dcim', '0116_rearport_max_positions'),
     ]
 
     operations = [

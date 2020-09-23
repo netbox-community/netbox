@@ -114,12 +114,12 @@ class BooleanColumn(tables.Column):
     character.
     """
     def render(self, value):
-        if value is True:
+        if value:
             rendered = '<span class="text-success"><i class="fa fa-check"></i></span>'
-        elif value is False:
-            rendered = '<span class="text-danger"><i class="fa fa-close"></i></span>'
-        else:
+        elif value is None:
             rendered = '<span class="text-muted">&mdash;</span>'
+        else:
+            rendered = '<span class="text-danger"><i class="fa fa-close"></i></span>'
         return mark_safe(rendered)
 
 

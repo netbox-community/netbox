@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('circuits', '0020_custom_field_data'),
-        ('dcim', '0116_custom_field_data'),
+        ('dcim', '0117_custom_field_data'),
         ('extras', '0050_customfield_add_choices'),
         ('ipam', '0038_custom_field_data'),
         ('secrets', '0010_custom_field_data'),

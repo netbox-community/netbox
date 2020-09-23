@@ -1,5 +1,37 @@
 # NetBox v2.9
 
+## v2.9.4 (2020-09-23)
+
+**NOTE:** This release removes support for the `DEFAULT_TIMEOUT` parameter under `REDIS` database configuration. Set `RQ_DEFAULT_TIMEOUT` as a global configuration parameter instead.
+
+**NOTE:** Any permissions referencing the legacy ReportResult model (e.g. `extras.view_reportresult`) should be updated to reference the Report model.
+
+### Enhancements
+
+* [#1755](https://github.com/netbox-community/netbox/issues/1755) - Toggle order in which rack elevations are displayed
+* [#5128](https://github.com/netbox-community/netbox/issues/5128) - Increase maximum rear port positions from 64 to 1024
+* [#5134](https://github.com/netbox-community/netbox/issues/5134) - Display full hierarchy in breadcrumbs for sites/racks
+* [#5149](https://github.com/netbox-community/netbox/issues/5149) - Add rack group field to device edit form
+* [#5164](https://github.com/netbox-community/netbox/issues/5164) - Show total rack count per rack group under site view
+* [#5171](https://github.com/netbox-community/netbox/issues/5171) - Introduce the `RQ_DEFAULT_TIMEOUT` configuration parameter
+
+### Bug Fixes
+
+* [#5050](https://github.com/netbox-community/netbox/issues/5050) - Fix potential failure on `0016_replicate_interfaces` schema migration from old release
+* [#5066](https://github.com/netbox-community/netbox/issues/5066) - Update `view_reportresult` to `view_report` permission
+* [#5075](https://github.com/netbox-community/netbox/issues/5075) - Include a VLAN membership view for VM interfaces
+* [#5105](https://github.com/netbox-community/netbox/issues/5105) - Validation should fail when reassigning a primary IP from device to VM
+* [#5109](https://github.com/netbox-community/netbox/issues/5109) - Fix representation of custom choice field values for webhook data
+* [#5108](https://github.com/netbox-community/netbox/issues/5108) - Fix execution of reports via CLI
+* [#5111](https://github.com/netbox-community/netbox/issues/5111) - Allow use of tuples when specifying ObjectVar `query_params`
+* [#5118](https://github.com/netbox-community/netbox/issues/5118) - Specifying an empty list of tags should clear assigned tags (REST API)
+* [#5133](https://github.com/netbox-community/netbox/issues/5133) - Fix disassociation of an IP address from a VM interface
+* [#5136](https://github.com/netbox-community/netbox/issues/5136) - Fix exception when bulk editing interface 802.1Q mode
+* [#5156](https://github.com/netbox-community/netbox/issues/5156) - Add missing "add" button to rack reservations list
+* [#5167](https://github.com/netbox-community/netbox/issues/5167) - Support filtering ObjectChanges by multiple users
+
+---
+
 ## v2.9.3 (2020-09-04)
 
 ### Enhancements
@@ -121,6 +153,7 @@ Two new REST API endpoints have been added to facilitate the retrieval and manip
 * If using NetBox's built-in remote authentication backend, update `REMOTE_AUTH_BACKEND` to `'netbox.authentication.RemoteUserBackend'`, as the authentication class has moved.
 * If using LDAP authentication, set `REMOTE_AUTH_BACKEND` to `'netbox.authentication.LDAPBackend'`. (LDAP configuration parameters in `ldap_config.py` remain unchanged.)
 * `REMOTE_AUTH_DEFAULT_PERMISSIONS` now takes a dictionary rather than a list. This is a mapping of permission names to a dictionary of constraining attributes, or `None`. For example, `['dcim.add_site', 'dcim.change_site']` would become `{'dcim.add_site': None, 'dcim.change_site': None}`.
+* Backward compatibility for the old `webhooks` Redis queue name has been dropped. Ensure that your `REDIS` configuration parameter specifies both the `tasks` and `caching` databases.
 
 ### REST API Changes
 

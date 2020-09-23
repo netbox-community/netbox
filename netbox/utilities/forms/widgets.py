@@ -141,7 +141,7 @@ class APISelect(SelectWithDisabled):
         key = f'data-query-param-{name}'
 
         values = json.loads(self.attrs.get(key, '[]'))
-        if type(value) is list:
+        if type(value) in (list, tuple):
             values.extend([str(v) for v in value])
         else:
             values.append(str(value))

@@ -15,7 +15,7 @@ def rebuild_mptt(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0117_inventoryitem_mptt'),
+        ('dcim', '0118_inventoryitem_mptt'),
     ]
 
     operations = [

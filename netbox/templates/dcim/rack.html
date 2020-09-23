@@ -11,6 +11,12 @@
             <ol class="breadcrumb">
                 <li><a href="{% url 'dcim:rack_list' %}">Racks</a></li>
                 <li><a href="{% url 'dcim:rack_list' %}?site={{ rack.site.slug }}">{{ rack.site }}</a></li>
+                {% if rack.group %}
+                    {% for group in rack.group.get_ancestors %}
+                        <li><a href="{{ group.get_absolute_url }}">{{ group }}</a></li>
+                    {% endfor %}
+                    <li><a href="{{ rack.group.get_absolute_url }}">{{ rack.group }}</a></li>
+                {% endif %}
                 <li>{{ rack }}</li>
             </ol>
         </div>
@@ -87,7 +93,10 @@
                     <td>Group</td>
                     <td>
                         {% if rack.group %}
-                            <a href="{% url 'dcim:rack_list' %}?site={{ rack.site.slug }}&group={{ rack.group.slug }}">{{ rack.group }}</a>
+                            {% for group in rack.group.get_ancestors %}
+                                <a href="{{ group.get_absolute_url }}">{{ group }}</a> <i class="fa fa-caret-right"></i>
+                            {% endfor %}
+                            <a href="{{ rack.group.get_absolute_url }}">{{ rack.group }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}

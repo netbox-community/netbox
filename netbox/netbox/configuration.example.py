@@ -33,7 +33,6 @@ REDIS = {
         # 'SENTINEL_SERVICE': 'netbox',
         'PASSWORD': '',
         'DATABASE': 0,
-        'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     },
     'caching': {
@@ -44,7 +43,6 @@ REDIS = {
         # 'SENTINEL_SERVICE': 'netbox',
         'PASSWORD': '',
         'DATABASE': 1,
-        'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     }
 }
@@ -231,6 +229,9 @@ RELEASE_CHECK_URL = None
 # The file path where custom reports will be stored. A trailing slash is not needed. Note that the default value of
 # this setting is derived from the installed location.
 # REPORTS_ROOT = '/opt/netbox/netbox/reports'
+
+# Maximum execution time for background tasks, in seconds.
+RQ_DEFAULT_TIMEOUT = 300
 
 # The file path where custom scripts will be stored. A trailing slash is not needed. Note that the default value of
 # this setting is derived from the installed location.

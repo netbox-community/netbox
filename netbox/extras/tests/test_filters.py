@@ -381,12 +381,11 @@ class ObjectChangeTestCase(TestCase):
         params = {'id': self.queryset.values_list('pk', flat=True)[:3]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
-    # TODO: Merge #5167 from develop
-    # def test_user(self):
-    #     params = {'user_id': User.objects.filter(username__in=['user1', 'user2']).values_list('pk', flat=True)}
-    #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-    #     params = {'user': ['user1', 'user2']}
-    #     self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+    def test_user(self):
+        params = {'user_id': User.objects.filter(username__in=['user1', 'user2']).values_list('pk', flat=True)}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'user': ['user1', 'user2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_user_name(self):
         params = {'user_name': ['user1', 'user2']}
