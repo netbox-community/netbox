@@ -1,6 +1,6 @@
 # NetBox v2.9
 
-## v2.9.4 (FUTURE)
+## v2.9.4 (2020-09-23)
 
 **NOTE:** This release removes support for the `DEFAULT_TIMEOUT` parameter under `REDIS` database configuration. Set `RQ_DEFAULT_TIMEOUT` as a global configuration parameter instead.
 
