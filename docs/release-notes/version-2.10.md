@@ -64,5 +64,7 @@ http://netbox/api/dcim/sites/ \
 * extras.Graph: This API endpoint has been removed (see #4349)
 * extras.ImageAttachment: Filtering by `content_type` now takes a string in the form `<app>.<model>`
 * extras.ObjectChange: Filtering by `changed_object_type` now takes a string in the form `<app>.<model>`
+* ipam.RouteTarget: New endpoint
 * ipam.Service: Renamed `port` to `ports`; now holds a list of one or more port numbers
+* ipam.VRF: Added `import_targets` and `export_targets` fields
 * secrets.Secret: Removed `device` field; replaced with `assigned_object` generic foreign key. This may represent either a device or a virtual machine. Assign an object by setting `assigned_object_type` and `assigned_object_id`.
