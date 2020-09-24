@@ -23,10 +23,23 @@
             <div style="white-space: nowrap; overflow-x: scroll;">
                 {% for rack in page %}
                     <div style="display: inline-block; width: 266px">
-                        {% include 'dcim/inc/rack_elevation_header.html' %}
+                        <div class="text-center">
+                            <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name }}</a></strong>
+                            {% if rack.role %}
+                                <br /><small class="label" style="color: {{ rack.role.color|fgcolor }}; background-color: #{{ rack.role.color }}">{{ rack.role }}</small>
+                            {% endif %}
+                            {% if rack.facility_id %}
+                                <br /><small class="text-muted">{{ rack.facility_id }}</small>
+                            {% endif %}
+                        </div>
                         {% include 'dcim/inc/rack_elevation.html' with face=rack_face %}
                         <div class="clearfix"></div>
-                        {% include 'dcim/inc/rack_elevation_header.html' %}
+                        <div class="text-center">
+                            <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name }}</a></strong>
+                            {% if rack.facility_id %}
+                                <small class="text-muted">({{ rack.facility_id }})</small>
+                            {% endif %}
+                        </div>
                     </div>
                 {% endfor %}
             </div>
