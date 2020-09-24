@@ -8,6 +8,9 @@ router.APIRootView = views.IPAMRootView
 # VRFs
 router.register('vrfs', views.VRFViewSet)
 
+# Route targets
+router.register('route-targets', views.RouteTargetViewSet)
+
 # RIRs
 router.register('rirs', views.RIRViewSet)
 

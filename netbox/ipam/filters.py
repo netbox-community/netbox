@@ -13,7 +13,7 @@ from utilities.filters import (
 )
 from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 
 
 __all__ = (
@@ -22,6 +22,7 @@ __all__ = (
     'PrefixFilterSet',
     'RIRFilterSet',
     'RoleFilterSet',
+    'RouteTargetFilterSet',
     'ServiceFilterSet',
     'VLANFilterSet',
     'VLANGroupFilterSet',
@@ -48,6 +49,26 @@ class VRFFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Create
     class Meta:
         model = VRF
         fields = ['id', 'name', 'rd', 'enforce_unique']
+
+
+class RouteTargetFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    tag = TagFilter()
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+
+    class Meta:
+        model = RouteTarget
+        fields = ['id', 'name']
 
 
 class RIRFilterSet(BaseFilterSet, NameSlugSearchFilterSet):

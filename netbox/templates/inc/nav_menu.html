@@ -331,6 +331,15 @@
                             {% endif %}
                             <a href="{% url 'ipam:vrf_list' %}">VRFs</a>
                         </li>
+                        <li{% if not perms.ipam.view_routetarget %} class="disabled"{% endif %}>
+                            {% if perms.ipam.add_routetarget %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'ipam:routetarget_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
+                                    <a href="{% url 'ipam:routetarget_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'ipam:routetarget_list' %}">Route Targets</a>
+                        </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">VLANs</li>
                         <li{% if not perms.ipam.view_vlan %} class="disabled"{% endif %}>

@@ -1,5 +1,4 @@
 from django import forms
-from django.core.validators import MaxValueValidator, MinValueValidator
 
 from dcim.models import Device, Interface, Rack, Region, Site
 from extras.forms import (
@@ -16,7 +15,7 @@ from utilities.forms import (
 from virtualization.models import Cluster, VirtualMachine, VMInterface
 from .choices import *
 from .constants import *
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 
 PREFIX_MASK_LENGTH_CHOICES = add_blank_choice([
     (i, i) for i in range(PREFIX_LENGTH_MIN, PREFIX_LENGTH_MAX + 1)
@@ -91,6 +90,66 @@ class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm
 class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = VRF
     field_order = ['q', 'tenant_group', 'tenant']
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
+    tag = TagFilterField(model)
+
+
+#
+# Route targets
+#
+
+class RouteTargetForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = RouteTarget
+        fields = [
+            'name', 'description', 'tenant_group', 'tenant', 'tags',
+        ]
+
+
+class RouteTargetCSVForm(CustomFieldModelCSVForm):
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned tenant'
+    )
+
+    class Meta:
+        model = RouteTarget
+        fields = RouteTarget.csv_headers
+
+
+class RouteTargetBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = [
+            'tenant', 'description',
+        ]
+
+
+class RouteTargetFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
+    model = RouteTarget
+    field_order = ['q', 'name', 'tenant_group', 'tenant']
     q = forms.CharField(
         required=False,
         label='Search'

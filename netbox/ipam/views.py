@@ -16,7 +16,7 @@ from virtualization.models import VirtualMachine, VMInterface
 from . import filters, forms, tables
 from .choices import *
 from .constants import *
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 from .utils import add_available_ipaddresses, add_available_prefixes, add_available_vlans
 
 
@@ -72,6 +72,56 @@ class VRFBulkDeleteView(BulkDeleteView):
     queryset = VRF.objects.prefetch_related('tenant')
     filterset = filters.VRFFilterSet
     table = tables.VRFTable
+
+
+#
+# Route targets
+#
+
+class RouteTargetListView(ObjectListView):
+    queryset = RouteTarget.objects.prefetch_related('tenant')
+    filterset = filters.RouteTargetFilterSet
+    filterset_form = forms.RouteTargetFilterForm
+    table = tables.RouteTargetTable
+
+
+class RouteTargetView(ObjectView):
+    queryset = RouteTarget.objects.all()
+
+    def get(self, request, pk):
+        routetarget = get_object_or_404(self.queryset, pk=pk)
+
+        return render(request, 'ipam/routetarget.html', {
+            'routetarget': routetarget,
+        })
+
+
+class RouteTargetEditView(ObjectEditView):
+    queryset = RouteTarget.objects.all()
+    model_form = forms.RouteTargetForm
+
+
+class RouteTargetDeleteView(ObjectDeleteView):
+    queryset = RouteTarget.objects.all()
+
+
+class RouteTargetBulkImportView(BulkImportView):
+    queryset = RouteTarget.objects.all()
+    model_form = forms.RouteTargetCSVForm
+    table = tables.RouteTargetTable
+
+
+class RouteTargetBulkEditView(BulkEditView):
+    queryset = RouteTarget.objects.prefetch_related('tenant')
+    filterset = filters.RouteTargetFilterSet
+    table = tables.RouteTargetTable
+    form = forms.RouteTargetBulkEditForm
+
+
+class RouteTargetBulkDeleteView(BulkDeleteView):
+    queryset = RouteTarget.objects.prefetch_related('tenant')
+    filterset = filters.RouteTargetFilterSet
+    table = tables.RouteTargetTable
 
 
 #

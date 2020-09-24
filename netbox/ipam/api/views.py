@@ -10,7 +10,7 @@ from rest_framework.routers import APIRootView
 
 from extras.api.views import CustomFieldModelViewSet
 from ipam import filters
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 from utilities.api import ModelViewSet
 from utilities.constants import ADVISORY_LOCK_KEYS
 from utilities.utils import get_subquery
@@ -36,6 +36,16 @@ class VRFViewSet(CustomFieldModelViewSet):
     ).order_by(*VRF._meta.ordering)
     serializer_class = serializers.VRFSerializer
     filterset_class = filters.VRFFilterSet
+
+
+#
+# Route targets
+#
+
+class RouteTargetViewSet(CustomFieldModelViewSet):
+    queryset = RouteTarget.objects.prefetch_related('tenant').prefetch_related('tags')
+    serializer_class = serializers.RouteTargetSerializer
+    filterset_class = filters.RouteTargetFilterSet
 
 
 #

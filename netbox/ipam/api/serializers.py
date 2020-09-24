@@ -3,20 +3,17 @@ from collections import OrderedDict
 from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
-from rest_framework.reverse import reverse
 from rest_framework.validators import UniqueTogetherValidator
 
 from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerializer
-from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
 from ipam.choices import *
 from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import (
-    ChoiceField, ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer, WritableNestedSerializer,
-    get_serializer_for_model,
+    ChoiceField, ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer, get_serializer_for_model,
 )
 from virtualization.api.nested_serializers import NestedVirtualMachineSerializer
 from .nested_serializers import *
@@ -37,6 +34,21 @@ class VRFSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
         fields = [
             'id', 'url', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'tags', 'display_name',
             'custom_fields', 'created', 'last_updated', 'ipaddress_count', 'prefix_count',
+        ]
+
+
+#
+# Route targets
+#
+
+class RouteTargetSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:routetarget-detail')
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
+
+    class Meta:
+        model = RouteTarget
+        fields = [
+            'id', 'url', 'name', 'tenant', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 

@@ -107,6 +107,50 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
         return self.name
 
 
+@extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
+class RouteTarget(ChangeLoggedModel, CustomFieldModel):
+    """
+    A BGP extended community used to control the redistribution of routes among VRFs, as defined in RFC 4364.
+    """
+    name = models.CharField(
+        max_length=VRF_RD_MAX_LENGTH,  # Same format options as VRF RD (RFC 4360 section 4)
+        unique=True,
+        help_text='Route target value (formatted in accordance with RFC 4360)'
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='route_targets',
+        blank=True,
+        null=True
+    )
+    tags = TaggableManager(through=TaggedItem)
+
+    objects = RestrictedQuerySet.as_manager()
+
+    csv_headers = ['name', 'description', 'tenant']
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('ipam:routetarget', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.description,
+            self.tenant.name if self.tenant else None,
+        )
+
+
 class RIR(ChangeLoggedModel):
     """
     A Regional Internet Registry (RIR) is responsible for the allocation of a large portion of the global IP address
