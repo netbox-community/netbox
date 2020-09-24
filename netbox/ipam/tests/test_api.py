@@ -6,7 +6,7 @@ from rest_framework import status
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import *
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 from utilities.testing import APITestCase, APIViewTestCases, disable_warnings
 
 
@@ -50,6 +50,35 @@ class VRFTest(APIViewTestCases.APIViewTestCase):
             VRF(name='VRF 3'),  # No RD
         )
         VRF.objects.bulk_create(vrfs)
+
+
+class RouteTargetTest(APIViewTestCases.APIViewTestCase):
+    model = RouteTarget
+    brief_fields = ['id', 'name', 'url']
+    create_data = [
+        {
+            'name': '65000:1004',
+        },
+        {
+            'name': '65000:1005',
+        },
+        {
+            'name': '65000:1006',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        route_targets = (
+            RouteTarget(name='65000:1001'),
+            RouteTarget(name='65000:1002'),
+            RouteTarget(name='65000:1003'),
+        )
+        RouteTarget.objects.bulk_create(route_targets)
 
 
 class RIRTest(APIViewTestCases.APIViewTestCase):
