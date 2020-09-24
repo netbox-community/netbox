@@ -35,6 +35,28 @@ class VRFFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Create
         method='search',
         label='Search',
     )
+    import_target_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='import_targets',
+        queryset=RouteTarget.objects.all(),
+        label='Import target',
+    )
+    import_target = django_filters.ModelMultipleChoiceFilter(
+        field_name='import_targets__name',
+        queryset=RouteTarget.objects.all(),
+        to_field_name='name',
+        label='Import target (name)',
+    )
+    export_target_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='export_targets',
+        queryset=RouteTarget.objects.all(),
+        label='Export target',
+    )
+    export_target = django_filters.ModelMultipleChoiceFilter(
+        field_name='export_targets__name',
+        queryset=RouteTarget.objects.all(),
+        to_field_name='name',
+        label='Export target (name)',
+    )
     tag = TagFilter()
 
     def search(self, queryset, name, value):
@@ -55,6 +77,28 @@ class RouteTargetFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    importing_vrf_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='importing_vrfs',
+        queryset=VRF.objects.all(),
+        label='Importing VRF',
+    )
+    importing_vrf = django_filters.ModelMultipleChoiceFilter(
+        field_name='importing_vrfs__rd',
+        queryset=VRF.objects.all(),
+        to_field_name='rd',
+        label='Import VRF (RD)',
+    )
+    exporting_vrf_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='exporting_vrfs',
+        queryset=VRF.objects.all(),
+        label='Exporting VRF',
+    )
+    exporting_vrf = django_filters.ModelMultipleChoiceFilter(
+        field_name='exporting_vrfs__rd',
+        queryset=VRF.objects.all(),
+        to_field_name='rd',
+        label='Export VRF (RD)',
     )
     tag = TagFilter()
 

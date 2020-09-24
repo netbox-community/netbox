@@ -31,6 +31,14 @@ IPADDRESS_MASK_LENGTH_CHOICES = add_blank_choice([
 #
 
 class VRFForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+    import_targets = DynamicModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        required=False
+    )
+    export_targets = DynamicModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        required=False
+    )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
@@ -39,7 +47,8 @@ class VRFForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     class Meta:
         model = VRF
         fields = [
-            'name', 'rd', 'enforce_unique', 'description', 'tenant_group', 'tenant', 'tags',
+            'name', 'rd', 'enforce_unique', 'description', 'import_targets', 'export_targets', 'tenant_group', 'tenant',
+            'tags',
         ]
         labels = {
             'rd': "RD",
@@ -89,10 +98,20 @@ class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm
 
 class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = VRF
-    field_order = ['q', 'tenant_group', 'tenant']
+    field_order = ['q', 'import_target', 'export_target', 'tenant_group', 'tenant']
     q = forms.CharField(
         required=False,
         label='Search'
+    )
+    import_target = DynamicModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        to_field_name='name',
+        required=False
+    )
+    export_target = DynamicModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        to_field_name='name',
+        required=False
     )
     tag = TagFilterField(model)
 
@@ -149,10 +168,20 @@ class RouteTargetBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulk
 
 class RouteTargetFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = RouteTarget
-    field_order = ['q', 'name', 'tenant_group', 'tenant']
+    field_order = ['q', 'name', 'tenant_group', 'tenant', 'importing_vrfs', 'exporting_vrfs']
     q = forms.CharField(
         required=False,
         label='Search'
+    )
+    importing_vrf_id = DynamicModelMultipleChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='Imported by VRF'
+    )
+    exporting_vrf_id = DynamicModelMultipleChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='Exported by VRF'
     )
     tag = TagFilterField(model)
 

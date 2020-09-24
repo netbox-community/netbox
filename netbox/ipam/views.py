@@ -39,9 +39,20 @@ class VRFView(ObjectView):
         vrf = get_object_or_404(self.queryset, pk=pk)
         prefix_count = Prefix.objects.restrict(request.user, 'view').filter(vrf=vrf).count()
 
+        import_targets_table = tables.RouteTargetTable(
+            vrf.import_targets.prefetch_related('tenant'),
+            orderable=False
+        )
+        export_targets_table = tables.RouteTargetTable(
+            vrf.export_targets.prefetch_related('tenant'),
+            orderable=False
+        )
+
         return render(request, 'ipam/vrf.html', {
             'vrf': vrf,
             'prefix_count': prefix_count,
+            'import_targets_table': import_targets_table,
+            'export_targets_table': export_targets_table,
         })
 
 
@@ -91,8 +102,19 @@ class RouteTargetView(ObjectView):
     def get(self, request, pk):
         routetarget = get_object_or_404(self.queryset, pk=pk)
 
+        importing_vrfs_table = tables.VRFTable(
+            routetarget.importing_vrfs.prefetch_related('tenant'),
+            orderable=False
+        )
+        exporting_vrfs_table = tables.VRFTable(
+            routetarget.exporting_vrfs.prefetch_related('tenant'),
+            orderable=False
+        )
+
         return render(request, 'ipam/routetarget.html', {
             'routetarget': routetarget,
+            'importing_vrfs_table': importing_vrfs_table,
+            'exporting_vrfs_table': exporting_vrfs_table,
         })
 
 

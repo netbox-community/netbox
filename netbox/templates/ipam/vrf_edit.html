@@ -12,6 +12,13 @@
         </div>
     </div>
     <div class="panel panel-default">
+        <div class="panel-heading"><strong>Route Targets</strong></div>
+        <div class="panel-body">
+            {% render_field form.import_targets %}
+            {% render_field form.export_targets %}
+        </div>
+    </div>
+    <div class="panel panel-default">
         <div class="panel-heading"><strong>Tenancy</strong></div>
         <div class="panel-body">
             {% render_field form.tenant_group %}

@@ -83,10 +83,12 @@
 		    </table>
         </div>
         {% include 'extras/inc/tags_panel.html' with tags=routetarget.tags.all url='ipam:routetarget_list' %}
+        {% include 'inc/custom_fields_panel.html' with obj=routetarget %}
         {% plugin_left_page routetarget %}
 	</div>
 	<div class="col-md-6">
-        {% include 'inc/custom_fields_panel.html' with obj=routetarget %}
+        {% include 'panel_table.html' with table=importing_vrfs_table heading="Importing VRFs" %}
+        {% include 'panel_table.html' with table=exporting_vrfs_table heading="Exporting VRFs" %}
         {% plugin_right_page routetarget %}
     </div>
 </div>

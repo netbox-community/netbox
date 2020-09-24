@@ -31,4 +31,14 @@ class Migration(migrations.Migration):
                 'ordering': ['name'],
             },
         ),
+        migrations.AddField(
+            model_name='vrf',
+            name='export_targets',
+            field=models.ManyToManyField(blank=True, related_name='exporting_vrfs', to='ipam.RouteTarget'),
+        ),
+        migrations.AddField(
+            model_name='vrf',
+            name='import_targets',
+            field=models.ManyToManyField(blank=True, related_name='importing_vrfs', to='ipam.RouteTarget'),
+        ),
     ]

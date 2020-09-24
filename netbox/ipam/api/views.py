@@ -30,7 +30,9 @@ class IPAMRootView(APIRootView):
 #
 
 class VRFViewSet(CustomFieldModelViewSet):
-    queryset = VRF.objects.prefetch_related('tenant').prefetch_related('tags').annotate(
+    queryset = VRF.objects.prefetch_related('tenant').prefetch_related(
+        'import_targets', 'export_targets', 'tags'
+    ).annotate(
         ipaddress_count=get_subquery(IPAddress, 'vrf'),
         prefix_count=get_subquery(Prefix, 'vrf')
     ).order_by(*VRF._meta.ordering)

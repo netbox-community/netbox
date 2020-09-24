@@ -71,6 +71,16 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
         max_length=200,
         blank=True
     )
+    import_targets = models.ManyToManyField(
+        to='ipam.RouteTarget',
+        related_name='importing_vrfs',
+        blank=True
+    )
+    export_targets = models.ManyToManyField(
+        to='ipam.RouteTarget',
+        related_name='exporting_vrfs',
+        blank=True
+    )
     tags = TaggableManager(through=TaggedItem)
 
     objects = RestrictedQuerySet.as_manager()
