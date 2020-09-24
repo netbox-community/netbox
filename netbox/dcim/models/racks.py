@@ -276,14 +276,6 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         'outer_depth', 'outer_unit',
     ]
 
-    STATUS_CLASS_MAP = {
-        RackStatusChoices.STATUS_RESERVED: 'warning',
-        RackStatusChoices.STATUS_AVAILABLE: 'success',
-        RackStatusChoices.STATUS_PLANNED: 'info',
-        RackStatusChoices.STATUS_ACTIVE: 'primary',
-        RackStatusChoices.STATUS_DEPRECATED: 'danger',
-    }
-
     class Meta:
         ordering = ('site', 'group', '_name', 'pk')  # (site, group, name) may be non-unique
         unique_together = (
@@ -379,7 +371,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         return self.name
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return RackStatusChoices.CSS_CLASSES.get(self.status)
 
     def get_rack_units(self, user=None, face=DeviceFaceChoices.FACE_FRONT, exclude=None, expand_devices=True):
         """

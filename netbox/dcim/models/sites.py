@@ -199,14 +199,6 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email',
     ]
 
-    STATUS_CLASS_MAP = {
-        SiteStatusChoices.STATUS_PLANNED: 'info',
-        SiteStatusChoices.STATUS_STAGING: 'primary',
-        SiteStatusChoices.STATUS_ACTIVE: 'success',
-        SiteStatusChoices.STATUS_DECOMMISSIONING: 'warning',
-        SiteStatusChoices.STATUS_RETIRED: 'danger',
-    }
-
     class Meta:
         ordering = ('_name',)
 
@@ -238,4 +230,4 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         )
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return SiteStatusChoices.CSS_CLASSES.get(self.status)

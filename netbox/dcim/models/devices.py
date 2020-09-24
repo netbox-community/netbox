@@ -600,16 +600,6 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         'device_type', 'device_role', 'tenant', 'platform', 'site', 'rack', 'status', 'cluster',
     ]
 
-    STATUS_CLASS_MAP = {
-        DeviceStatusChoices.STATUS_OFFLINE: 'warning',
-        DeviceStatusChoices.STATUS_ACTIVE: 'success',
-        DeviceStatusChoices.STATUS_PLANNED: 'info',
-        DeviceStatusChoices.STATUS_STAGED: 'primary',
-        DeviceStatusChoices.STATUS_FAILED: 'danger',
-        DeviceStatusChoices.STATUS_INVENTORY: 'default',
-        DeviceStatusChoices.STATUS_DECOMMISSIONING: 'warning',
-    }
-
     class Meta:
         ordering = ('_name', 'pk')  # Name may be null
         unique_together = (
@@ -881,7 +871,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         return Device.objects.filter(parent_bay__device=self.pk)
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return DeviceStatusChoices.CSS_CLASSES.get(self.status)
 
 
 #
@@ -972,12 +962,6 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
         'termination_a_type', 'termination_a_id', 'termination_b_type', 'termination_b_id', 'type', 'status', 'label',
         'color', 'length', 'length_unit',
     ]
-
-    STATUS_CLASS_MAP = {
-        CableStatusChoices.STATUS_CONNECTED: 'success',
-        CableStatusChoices.STATUS_PLANNED: 'info',
-        CableStatusChoices.STATUS_DECOMMISSIONING: 'warning',
-    }
 
     class Meta:
         ordering = ['pk']
@@ -1159,7 +1143,7 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
         )
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return CableStatusChoices.CSS_CLASSES.get(self.status)
 
     def get_compatible_types(self):
         """

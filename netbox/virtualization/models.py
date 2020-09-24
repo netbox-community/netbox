@@ -287,15 +287,6 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         'cluster', 'tenant', 'platform', 'status', 'role', 'vcpus', 'memory', 'disk',
     ]
 
-    STATUS_CLASS_MAP = {
-        VirtualMachineStatusChoices.STATUS_OFFLINE: 'warning',
-        VirtualMachineStatusChoices.STATUS_ACTIVE: 'success',
-        VirtualMachineStatusChoices.STATUS_PLANNED: 'info',
-        VirtualMachineStatusChoices.STATUS_STAGED: 'primary',
-        VirtualMachineStatusChoices.STATUS_FAILED: 'danger',
-        VirtualMachineStatusChoices.STATUS_DECOMMISSIONING: 'warning',
-    }
-
     class Meta:
         ordering = ('name', 'pk')  # Name may be non-unique
         unique_together = [
@@ -355,7 +346,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         )
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return VirtualMachineStatusChoices.CSS_CLASSES.get(self.status)
 
     @property
     def primary_ip(self):

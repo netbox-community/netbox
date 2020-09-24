@@ -21,6 +21,14 @@ class SiteStatusChoices(ChoiceSet):
         (STATUS_RETIRED, 'Retired'),
     )
 
+    CSS_CLASSES = {
+        STATUS_PLANNED: 'info',
+        STATUS_STAGING: 'primary',
+        STATUS_ACTIVE: 'success',
+        STATUS_DECOMMISSIONING: 'warning',
+        STATUS_RETIRED: 'danger',
+    }
+
 
 #
 # Racks
@@ -73,6 +81,14 @@ class RackStatusChoices(ChoiceSet):
         (STATUS_ACTIVE, 'Active'),
         (STATUS_DEPRECATED, 'Deprecated'),
     )
+
+    CSS_CLASSES = {
+        STATUS_RESERVED: 'warning',
+        STATUS_AVAILABLE: 'success',
+        STATUS_PLANNED: 'info',
+        STATUS_ACTIVE: 'primary',
+        STATUS_DEPRECATED: 'danger',
+    }
 
 
 class RackDimensionUnitChoices(ChoiceSet):
@@ -146,6 +162,16 @@ class DeviceStatusChoices(ChoiceSet):
         (STATUS_INVENTORY, 'Inventory'),
         (STATUS_DECOMMISSIONING, 'Decommissioning'),
     )
+
+    CSS_CLASSES = {
+        STATUS_OFFLINE: 'warning',
+        STATUS_ACTIVE: 'success',
+        STATUS_PLANNED: 'info',
+        STATUS_STAGED: 'primary',
+        STATUS_FAILED: 'danger',
+        STATUS_INVENTORY: 'default',
+        STATUS_DECOMMISSIONING: 'warning',
+    }
 
 
 #
@@ -933,6 +959,12 @@ class CableStatusChoices(ChoiceSet):
         (STATUS_DECOMMISSIONING, 'Decommissioning'),
     )
 
+    CSS_CLASSES = {
+        STATUS_CONNECTED: 'success',
+        STATUS_PLANNED: 'info',
+        STATUS_DECOMMISSIONING: 'warning',
+    }
+
 
 class CableLengthUnitChoices(ChoiceSet):
 
@@ -967,6 +999,13 @@ class PowerFeedStatusChoices(ChoiceSet):
         (STATUS_FAILED, 'Failed'),
     )
 
+    CSS_CLASSES = {
+        STATUS_OFFLINE: 'warning',
+        STATUS_ACTIVE: 'success',
+        STATUS_PLANNED: 'info',
+        STATUS_FAILED: 'danger',
+    }
+
 
 class PowerFeedTypeChoices(ChoiceSet):
 
@@ -977,6 +1016,11 @@ class PowerFeedTypeChoices(ChoiceSet):
         (TYPE_PRIMARY, 'Primary'),
         (TYPE_REDUNDANT, 'Redundant'),
     )
+
+    CSS_CLASSES = {
+        TYPE_PRIMARY: 'success',
+        TYPE_REDUNDANT: 'info',
+    }
 
 
 class PowerFeedSupplyChoices(ChoiceSet):

@@ -99,13 +99,13 @@ class LogLevelChoices(ChoiceSet):
         (LOG_FAILURE, 'Failure'),
     )
 
-    CLASS_MAP = (
-        (LOG_DEFAULT, 'default'),
-        (LOG_SUCCESS, 'success'),
-        (LOG_INFO, 'info'),
-        (LOG_WARNING, 'warning'),
-        (LOG_FAILURE, 'danger'),
-    )
+    CSS_CLASSES = {
+        LOG_DEFAULT: 'default',
+        LOG_SUCCESS: 'success',
+        LOG_INFO: 'info',
+        LOG_WARNING: 'warning',
+        LOG_FAILURE: 'danger',
+    }
 
 
 #

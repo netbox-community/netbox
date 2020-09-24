@@ -156,18 +156,6 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         'available_power',
     ]
 
-    STATUS_CLASS_MAP = {
-        PowerFeedStatusChoices.STATUS_OFFLINE: 'warning',
-        PowerFeedStatusChoices.STATUS_ACTIVE: 'success',
-        PowerFeedStatusChoices.STATUS_PLANNED: 'info',
-        PowerFeedStatusChoices.STATUS_FAILED: 'danger',
-    }
-
-    TYPE_CLASS_MAP = {
-        PowerFeedTypeChoices.TYPE_PRIMARY: 'success',
-        PowerFeedTypeChoices.TYPE_REDUNDANT: 'info',
-    }
-
     class Meta:
         ordering = ['power_panel', 'name']
         unique_together = ['power_panel', 'name']
@@ -225,7 +213,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         return self.power_panel
 
     def get_type_class(self):
-        return self.TYPE_CLASS_MAP.get(self.type)
+        return PowerFeedTypeChoices.CSS_CLASSES.get(self.type)
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return PowerFeedStatusChoices.CSS_CLASSES.get(self.status)

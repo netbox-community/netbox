@@ -191,15 +191,6 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description',
     ]
 
-    STATUS_CLASS_MAP = {
-        CircuitStatusChoices.STATUS_DEPROVISIONING: 'warning',
-        CircuitStatusChoices.STATUS_ACTIVE: 'success',
-        CircuitStatusChoices.STATUS_PLANNED: 'info',
-        CircuitStatusChoices.STATUS_PROVISIONING: 'primary',
-        CircuitStatusChoices.STATUS_OFFLINE: 'danger',
-        CircuitStatusChoices.STATUS_DECOMMISSIONED: 'default',
-    }
-
     class Meta:
         ordering = ['provider', 'cid']
         unique_together = ['provider', 'cid']
@@ -224,7 +215,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         )
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return CircuitStatusChoices.CSS_CLASSES.get(self.status)
 
     def _get_termination(self, side):
         for ct in self.terminations.all():

@@ -420,13 +420,6 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
     ]
 
-    STATUS_CLASS_MAP = {
-        'container': 'default',
-        'active': 'primary',
-        'reserved': 'info',
-        'deprecated': 'danger',
-    }
-
     class Meta:
         ordering = (F('vrf').asc(nulls_first=True), 'prefix', 'pk')  # (vrf, prefix) may be non-unique
         verbose_name_plural = 'prefixes'
@@ -507,7 +500,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     prefix_length = property(fset=_set_prefix_length)
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return PrefixStatusChoices.CSS_CLASSES.get(self.status)
 
     def get_duplicates(self):
         return Prefix.objects.filter(vrf=self.vrf, prefix=str(self.prefix)).exclude(pk=self.pk)
@@ -699,25 +692,6 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         'vrf', 'tenant', 'status', 'role', 'description',
     ]
 
-    STATUS_CLASS_MAP = {
-        'active': 'primary',
-        'reserved': 'info',
-        'deprecated': 'danger',
-        'dhcp': 'success',
-        'slaac': 'success',
-    }
-
-    ROLE_CLASS_MAP = {
-        'loopback': 'default',
-        'secondary': 'primary',
-        'anycast': 'warning',
-        'vip': 'success',
-        'vrrp': 'success',
-        'hsrp': 'success',
-        'glbp': 'success',
-        'carp': 'success',
-    }
-
     class Meta:
         ordering = ('address', 'pk')  # address may be non-unique
         verbose_name = 'IP address'
@@ -840,10 +814,10 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
     mask_length = property(fset=_set_mask_length)
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP.get(self.status)
+        return IPAddressStatusChoices.CSS_CLASSES.get(self.status)
 
     def get_role_class(self):
-        return self.ROLE_CLASS_MAP[self.role]
+        return IPAddressRoleChoices.CSS_CLASSES.get(self.role)
 
 
 class VLANGroup(ChangeLoggedModel):
@@ -967,12 +941,6 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         'site', 'group', 'tenant', 'status', 'role', 'description',
     ]
 
-    STATUS_CLASS_MAP = {
-        'active': 'primary',
-        'reserved': 'info',
-        'deprecated': 'danger',
-    }
-
     class Meta:
         ordering = ('site', 'group', 'vid', 'pk')  # (site, group, vid) may be non-unique
         unique_together = [
@@ -1013,7 +981,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         return f'{self.name} ({self.vid})'
 
     def get_status_class(self):
-        return self.STATUS_CLASS_MAP[self.status]
+        return VLANStatusChoices.CSS_CLASSES.get(self.status)
 
     def get_interfaces(self):
         # Return all device interfaces assigned to this VLAN
