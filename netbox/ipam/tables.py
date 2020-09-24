@@ -5,7 +5,7 @@ from dcim.models import Interface
 from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, TagColumn, ToggleColumn
 from virtualization.models import VMInterface
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 
 RIR_UTILIZATION = """
 <div class="progress">
@@ -174,6 +174,26 @@ class VRFTable(BaseTable):
         model = VRF
         fields = ('pk', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'tags')
         default_columns = ('pk', 'name', 'rd', 'tenant', 'description')
+
+
+#
+# Route targets
+#
+
+class RouteTargetTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.LinkColumn()
+    tenant = tables.TemplateColumn(
+        template_code=COL_TENANT
+    )
+    tags = TagColumn(
+        url_name='ipam:vrf_list'
+    )
+
+    class Meta(BaseTable.Meta):
+        model = RouteTarget
+        fields = ('pk', 'name', 'tenant', 'description', 'tags')
+        default_columns = ('pk', 'name', 'tenant', 'description')
 
 
 #

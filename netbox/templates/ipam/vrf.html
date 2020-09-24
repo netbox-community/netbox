@@ -99,10 +99,12 @@
 		    </table>
         </div>
         {% include 'extras/inc/tags_panel.html' with tags=vrf.tags.all url='ipam:vrf_list' %}
+        {% include 'inc/custom_fields_panel.html' with obj=vrf %}
         {% plugin_left_page vrf %}
 	</div>
 	<div class="col-md-6">
-        {% include 'inc/custom_fields_panel.html' with obj=vrf %}
+        {% include 'panel_table.html' with table=import_targets_table heading="Import Route Targets" %}
+        {% include 'panel_table.html' with table=export_targets_table heading="Export Route Targets" %}
         {% plugin_right_page vrf %}
     </div>
 </div>

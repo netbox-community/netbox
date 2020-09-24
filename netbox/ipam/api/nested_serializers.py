@@ -9,6 +9,7 @@ __all__ = [
     'NestedPrefixSerializer',
     'NestedRIRSerializer',
     'NestedRoleSerializer',
+    'NestedRouteTargetSerializer',
     'NestedServiceSerializer',
     'NestedVLANGroupSerializer',
     'NestedVLANSerializer',
@@ -27,6 +28,18 @@ class NestedVRFSerializer(WritableNestedSerializer):
     class Meta:
         model = models.VRF
         fields = ['id', 'url', 'name', 'rd', 'display_name', 'prefix_count']
+
+
+#
+# Route targets
+#
+
+class NestedRouteTargetSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:routetarget-detail')
+
+    class Meta:
+        model = models.RouteTarget
+        fields = ['id', 'url', 'name']
 
 
 #

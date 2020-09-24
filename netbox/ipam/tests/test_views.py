@@ -4,7 +4,7 @@ from netaddr import IPNetwork
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.choices import *
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 from tenancy.models import Tenant
 from utilities.testing import ViewTestCases
 
@@ -48,6 +48,46 @@ class VRFTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'tenant': tenants[1].pk,
             'enforce_unique': False,
+            'description': 'New description',
+        }
+
+
+class RouteTargetTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = RouteTarget
+
+    @classmethod
+    def setUpTestData(cls):
+
+        tenants = (
+            Tenant(name='Tenant A', slug='tenant-a'),
+            Tenant(name='Tenant B', slug='tenant-b'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        tags = cls.create_tags('Alpha', 'Bravo', 'Charlie')
+
+        route_targets = (
+            RouteTarget(name='65000:1001', tenant=tenants[0]),
+            RouteTarget(name='65000:1002', tenant=tenants[1]),
+            RouteTarget(name='65000:1003'),
+        )
+        RouteTarget.objects.bulk_create(route_targets)
+
+        cls.form_data = {
+            'name': '65000:100',
+            'description': 'A new route target',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,tenant,description",
+            "65000:1004,Tenant A,Foo",
+            "65000:1005,Tenant B,Bar",
+            "65000:1006,,No tenant",
+        )
+
+        cls.bulk_edit_data = {
+            'tenant': tenants[1].pk,
             'description': 'New description',
         }
 

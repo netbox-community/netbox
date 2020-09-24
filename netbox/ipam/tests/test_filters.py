@@ -3,7 +3,7 @@ from django.test import TestCase
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Region, Site
 from ipam.choices import *
 from ipam.filters import *
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 from virtualization.models import Cluster, ClusterType, VirtualMachine, VMInterface
 from tenancy.models import Tenant, TenantGroup
 
@@ -14,6 +14,13 @@ class VRFTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+
+        route_targets = (
+            RouteTarget(name='65000:1001'),
+            RouteTarget(name='65000:1002'),
+            RouteTarget(name='65000:1003'),
+        )
+        RouteTarget.objects.bulk_create(route_targets)
 
         tenant_groups = (
             TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
@@ -39,6 +46,12 @@ class VRFTestCase(TestCase):
             VRF(name='VRF 6', rd='65000:600', tenant=tenants[2], enforce_unique=True),
         )
         VRF.objects.bulk_create(vrfs)
+        vrfs[0].import_targets.add(route_targets[0])
+        vrfs[0].export_targets.add(route_targets[0])
+        vrfs[1].import_targets.add(route_targets[1])
+        vrfs[1].export_targets.add(route_targets[1])
+        vrfs[2].import_targets.add(route_targets[2])
+        vrfs[2].export_targets.add(route_targets[2])
 
     def test_id(self):
         params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
@@ -58,6 +71,20 @@ class VRFTestCase(TestCase):
         params = {'enforce_unique': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
+    def test_import_target(self):
+        route_targets = RouteTarget.objects.all()[:2]
+        params = {'import_target_id': [route_targets[0].pk, route_targets[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'import_target': [route_targets[0].name, route_targets[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_export_target(self):
+        route_targets = RouteTarget.objects.all()[:2]
+        params = {'export_target_id': [route_targets[0].pk, route_targets[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'export_target': [route_targets[0].name, route_targets[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_tenant(self):
         tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
@@ -71,6 +98,92 @@ class VRFTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+
+class RouteTargetTestCase(TestCase):
+    queryset = RouteTarget.objects.all()
+    filterset = RouteTargetFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        tenant_groups = (
+            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+        )
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
+            Tenant(name='Tenant 2', slug='tenant-2', group=tenant_groups[1]),
+            Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[2]),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        route_targets = (
+            RouteTarget(name='65000:1001', tenant=tenants[0]),
+            RouteTarget(name='65000:1002', tenant=tenants[0]),
+            RouteTarget(name='65000:1003', tenant=tenants[0]),
+            RouteTarget(name='65000:1004', tenant=tenants[0]),
+            RouteTarget(name='65000:2001', tenant=tenants[1]),
+            RouteTarget(name='65000:2002', tenant=tenants[1]),
+            RouteTarget(name='65000:2003', tenant=tenants[1]),
+            RouteTarget(name='65000:2004', tenant=tenants[1]),
+            RouteTarget(name='65000:3001', tenant=tenants[2]),
+            RouteTarget(name='65000:3002', tenant=tenants[2]),
+            RouteTarget(name='65000:3003', tenant=tenants[2]),
+            RouteTarget(name='65000:3004', tenant=tenants[2]),
+        )
+        RouteTarget.objects.bulk_create(route_targets)
+
+        vrfs = (
+            VRF(name='VRF 1', rd='65000:100'),
+            VRF(name='VRF 2', rd='65000:200'),
+            VRF(name='VRF 3', rd='65000:300'),
+        )
+        VRF.objects.bulk_create(vrfs)
+        vrfs[0].import_targets.add(route_targets[0], route_targets[1])
+        vrfs[0].export_targets.add(route_targets[2], route_targets[3])
+        vrfs[1].import_targets.add(route_targets[4], route_targets[5])
+        vrfs[1].export_targets.add(route_targets[6], route_targets[7])
+
+    def test_id(self):
+        params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['65000:1001', '65000:1002', '65000:1003']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_importing_vrf(self):
+        vrfs = VRF.objects.all()[:2]
+        params = {'importing_vrf_id': [vrfs[0].pk, vrfs[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'importing_vrf': [vrfs[0].rd, vrfs[1].rd]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_exporting_vrf(self):
+        vrfs = VRF.objects.all()[:2]
+        params = {'exporting_vrf_id': [vrfs[0].pk, vrfs[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'exporting_vrf': [vrfs[0].rd, vrfs[1].rd]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_tenant(self):
+        tenants = Tenant.objects.all()[:2]
+        params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+        params = {'tenant': [tenants[0].slug, tenants[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+
+    def test_tenant_group(self):
+        tenant_groups = TenantGroup.objects.all()[:2]
+        params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+        params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
 
 
 class RIRTestCase(TestCase):

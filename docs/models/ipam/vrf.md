@@ -10,3 +10,5 @@ By default, NetBox will allow duplicate prefixes to be assigned to a VRF. This b
 
 !!! note
     Enforcement of unique IP space can be toggled for global table (non-VRF prefixes) using the `ENFORCE_GLOBAL_UNIQUE` configuration setting.
+
+Each VRF may have one or more import and/or export route targets applied to it. Route targets are used to control the exchange of routes (prefixes) among VRFs in L3VPNs.
