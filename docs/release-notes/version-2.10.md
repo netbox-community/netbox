@@ -6,6 +6,10 @@
 
 ### New Features
 
+#### Route Targets ([#259](https://github.com/netbox-community/netbox/issues/259))
+
+This release introduces support for model L3VPN route targets, which can be used to control the redistribution of routing information among VRFs. Each VRF may be assigned one or more route targets in the import or export direction (or both). Like VRFs, route targets may be assigned to tenants and may have tags applied to them.
+
 #### REST API Bulk Deletion ([#3436](https://github.com/netbox-community/netbox/issues/3436))
 
 The REST API now supports the bulk deletion of objects of the same type in a single request. Send a `DELETE` HTTP request to the list to the model's list endpoint (e.g. `/api/dcim/sites/`) with a list of JSON objects specifying the numeric ID of each object to be deleted. For example, to delete sites with IDs 10, 11, and 12, issue the following request:
