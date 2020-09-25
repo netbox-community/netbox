@@ -5,6 +5,16 @@
     <div class="panel panel-default">
         <div class="panel-heading"><strong>Interface</strong></div>
         <div class="panel-body">
+            {% if form.instance.device %}
+                <div class="form-group">
+                    <label class="col-md-3 control-label required" for="id_device">Device</label>
+                    <div class="col-md-9">
+                        <p class="form-control-static">
+                            <a href="{{ form.instance.device.get_absolute_url }}">{{ form.instance.device }}</a>
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
             {% render_field form.name %}
             {% render_field form.label %}
             {% render_field form.type %}
@@ -14,6 +24,11 @@
             {% render_field form.mtu %}
             {% render_field form.mgmt_only %}
             {% render_field form.description %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>802.1Q Switching</strong></div>
+        <div class="panel-body">
             {% render_field form.mode %}
             {% render_field form.untagged_vlan %}
             {% render_field form.tagged_vlans %}

@@ -1680,12 +1680,21 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
             'region_id': '$region'
         }
     )
+    rack_group = DynamicModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        display_field='display_name',
+        query_params={
+            'site_id': '$site'
+        }
+    )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         display_field='display_name',
         query_params={
-            'site_id': '$site'
+            'site_id': '$site',
+            'group_id': '$rack_group',
         }
     )
     position = forms.TypedChoiceField(
@@ -2317,7 +2326,7 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'device', 'name', 'type', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2390,7 +2399,7 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerPort
         fields = [
-            'device', 'name', 'type', 'maximum_draw', 'allocated_draw', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2479,7 +2488,7 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerOutlet
         fields = [
-            'device', 'name', 'type', 'power_port', 'feed_leg', 'description', 'tags',
+            'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),

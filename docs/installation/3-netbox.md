@@ -25,7 +25,7 @@ Begin by installing all system packages required by NetBox and its dependencies.
 Before continuing with either platform, update pip (Python's package management tool) to its latest release:
 
 ```no-highlight
-# pip install --upgrade pip
+# pip3 install --upgrade pip
 ```
 
 ## Download NetBox
@@ -163,7 +163,6 @@ REDIS = {
         'PORT': 6379,             # Redis port
         'PASSWORD': '',           # Redis password (optional)
         'DATABASE': 0,            # Database ID
-        'DEFAULT_TIMEOUT': 300,   # Timeout (seconds)
         'SSL': False,             # Use SSL (optional)
     },
     'caching': {
@@ -171,7 +170,6 @@ REDIS = {
         'PORT': 6379,
         'PASSWORD': '',
         'DATABASE': 1,            # Unique ID for second database
-        'DEFAULT_TIMEOUT': 300,
         'SSL': False,
     }
 }

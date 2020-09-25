@@ -315,7 +315,7 @@ class ReportListView(ContentTypePermissionRequiredMixin, View):
     Retrieve all of the available reports from disk and the recorded JobResult (if any) for each.
     """
     def get_required_permission(self):
-        return 'extras.view_reportresult'
+        return 'extras.view_report'
 
     def get(self, request):
 
@@ -347,7 +347,7 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
     Display a single Report and its associated JobResult (if any).
     """
     def get_required_permission(self):
-        return 'extras.view_reportresult'
+        return 'extras.view_report'
 
     def get(self, request, module, name):
 

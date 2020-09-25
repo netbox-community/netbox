@@ -1,4 +1,5 @@
 import django_filters
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
@@ -7,7 +8,7 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.filters import BaseFilterSet
 from virtualization.models import Cluster, ClusterGroup
 from .choices import *
-from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, JobResult, Tag
+from .models import ConfigContext, CustomField, ExportTemplate, Graph, ImageAttachment, JobResult, ObjectChange, Tag
 
 
 __all__ = (
@@ -17,6 +18,7 @@ __all__ = (
     'CustomFieldFilterSet',
     'ExportTemplateFilterSet',
     'GraphFilterSet',
+    'ImageAttachmentFilterSet',
     'LocalConfigContextFilterSet',
     'ObjectChangeFilterSet',
     'TagFilterSet',
@@ -102,6 +104,13 @@ class ExportTemplateFilterSet(BaseFilterSet):
     class Meta:
         model = ExportTemplate
         fields = ['id', 'content_type', 'name', 'template_language']
+
+
+class ImageAttachmentFilterSet(BaseFilterSet):
+
+    class Meta:
+        model = ImageAttachment
+        fields = ['id', 'content_type', 'object_id', 'name']
 
 
 class TagFilterSet(BaseFilterSet):
@@ -251,12 +260,21 @@ class ObjectChangeFilterSet(BaseFilterSet):
         label='Search',
     )
     time = django_filters.DateTimeFromToRangeFilter()
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=User.objects.all(),
+        label='User (ID)',
+    )
+    user = django_filters.ModelMultipleChoiceFilter(
+        field_name='user__username',
+        queryset=User.objects.all(),
+        to_field_name='username',
+        label='User name',
+    )
 
     class Meta:
         model = ObjectChange
         fields = [
-            'id', 'user', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object_id',
-            'object_repr',
+            'id', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object_id', 'object_repr',
         ]
 
     def search(self, queryset, name, value):

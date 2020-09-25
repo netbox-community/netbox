@@ -809,7 +809,10 @@ class FrontPort(CableTermination, ComponentModel):
     )
     rear_port_position = models.PositiveSmallIntegerField(
         default=1,
-        validators=[MinValueValidator(1), MaxValueValidator(64)]
+        validators=[
+            MinValueValidator(REARPORT_POSITIONS_MIN),
+            MaxValueValidator(REARPORT_POSITIONS_MAX)
+        ]
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -864,7 +867,10 @@ class RearPort(CableTermination, ComponentModel):
     )
     positions = models.PositiveSmallIntegerField(
         default=1,
-        validators=[MinValueValidator(1), MaxValueValidator(64)]
+        validators=[
+            MinValueValidator(REARPORT_POSITIONS_MIN),
+            MaxValueValidator(REARPORT_POSITIONS_MAX)
+        ]
     )
     tags = TaggableManager(through=TaggedItem)
 

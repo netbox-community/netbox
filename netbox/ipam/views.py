@@ -493,7 +493,7 @@ class PrefixBulkDeleteView(BulkDeleteView):
 
 class IPAddressListView(ObjectListView):
     queryset = IPAddress.objects.prefetch_related(
-        'vrf__tenant', 'tenant', 'nat_inside'
+        'vrf__tenant', 'tenant', 'nat_inside', 'assigned_object'
     )
     filterset = filters.IPAddressFilterSet
     filterset_form = forms.IPAddressFilterForm
@@ -582,7 +582,7 @@ class IPAddressAssignView(ObjectView):
     def dispatch(self, request, *args, **kwargs):
 
         # Redirect user if an interface has not been provided
-        if 'interface' not in request.GET:
+        if 'interface' not in request.GET and 'vminterface' not in request.GET:
             return redirect('ipam:ipaddress_add')
 
         return super().dispatch(request, *args, **kwargs)
@@ -609,7 +609,7 @@ class IPAddressAssignView(ObjectView):
         return render(request, 'ipam/ipaddress_assign.html', {
             'form': form,
             'table': table,
-            'return_url': request.GET.get('return_url', ''),
+            'return_url': request.GET.get('return_url'),
         })
 
 
@@ -749,15 +749,13 @@ class VLANView(ObjectView):
         })
 
 
-class VLANMembersView(ObjectView):
+class VLANInterfacesView(ObjectView):
     queryset = VLAN.objects.all()
 
     def get(self, request, pk):
-
         vlan = get_object_or_404(self.queryset, pk=pk)
-        members = vlan.get_members().restrict(request.user, 'view').prefetch_related('device', 'virtual_machine')
-
-        members_table = tables.VLANMemberTable(members)
+        interfaces = vlan.get_interfaces().prefetch_related('device')
+        members_table = tables.VLANDevicesTable(interfaces)
 
         paginate = {
             'paginator_class': EnhancedPaginator,
@@ -765,10 +763,31 @@ class VLANMembersView(ObjectView):
         }
         RequestConfig(request, paginate).configure(members_table)
 
-        return render(request, 'ipam/vlan_members.html', {
+        return render(request, 'ipam/vlan_interfaces.html', {
             'vlan': vlan,
             'members_table': members_table,
-            'active_tab': 'members',
+            'active_tab': 'interfaces',
+        })
+
+
+class VLANVMInterfacesView(ObjectView):
+    queryset = VLAN.objects.all()
+
+    def get(self, request, pk):
+        vlan = get_object_or_404(self.queryset, pk=pk)
+        interfaces = vlan.get_vminterfaces().prefetch_related('virtual_machine')
+        members_table = tables.VLANVirtualMachinesTable(interfaces)
+
+        paginate = {
+            'paginator_class': EnhancedPaginator,
+            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+        }
+        RequestConfig(request, paginate).configure(members_table)
+
+        return render(request, 'ipam/vlan_vminterfaces.html', {
+            'vlan': vlan,
+            'members_table': members_table,
+            'active_tab': 'vminterfaces',
         })
 
 

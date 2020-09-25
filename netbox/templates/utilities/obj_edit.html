@@ -31,7 +31,9 @@
                     <div class="panel panel-default">
                         <div class="panel-heading"><strong>{{ obj_type|capfirst }}</strong></div>
                         <div class="panel-body">
-                            {% render_form form %}
+                            {% block form_fields %}
+                                {% render_form form %}
+                            {% endblock %}
                         </div>
                     </div>
                 {% endblock %}

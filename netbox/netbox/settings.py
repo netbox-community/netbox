@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 # Environment setup
 #
 
-VERSION = '2.9.2-dev'
+VERSION = '2.9.4'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -110,6 +110,7 @@ REMOTE_AUTH_HEADER = getattr(configuration, 'REMOTE_AUTH_HEADER', 'HTTP_REMOTE_U
 RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
 RELEASE_CHECK_TIMEOUT = getattr(configuration, 'RELEASE_CHECK_TIMEOUT', 24 * 3600)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
+RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
 SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
@@ -220,10 +221,13 @@ TASKS_REDIS_USING_SENTINEL = all([
     len(TASKS_REDIS_SENTINELS) > 0
 ])
 TASKS_REDIS_SENTINEL_SERVICE = TASKS_REDIS.get('SENTINEL_SERVICE', 'default')
+TASKS_REDIS_SENTINEL_TIMEOUT = TASKS_REDIS.get('SENTINEL_TIMEOUT', 10)
 TASKS_REDIS_PASSWORD = TASKS_REDIS.get('PASSWORD', '')
 TASKS_REDIS_DATABASE = TASKS_REDIS.get('DATABASE', 0)
-TASKS_REDIS_DEFAULT_TIMEOUT = TASKS_REDIS.get('DEFAULT_TIMEOUT', 300)
 TASKS_REDIS_SSL = TASKS_REDIS.get('SSL', False)
+# TODO: Remove in v2.10 (see #5171)
+if 'DEFAULT_TIMEOUT' in TASKS_REDIS:
+    warnings.warn('DEFAULT_TIMEOUT is no longer supported under REDIS configuration. Set RQ_DEFAULT_TIMEOUT instead.')
 
 # Caching
 if 'caching' not in REDIS:
@@ -241,7 +245,6 @@ CACHING_REDIS_USING_SENTINEL = all([
 CACHING_REDIS_SENTINEL_SERVICE = CACHING_REDIS.get('SENTINEL_SERVICE', 'default')
 CACHING_REDIS_PASSWORD = CACHING_REDIS.get('PASSWORD', '')
 CACHING_REDIS_DATABASE = CACHING_REDIS.get('DATABASE', 0)
-CACHING_REDIS_DEFAULT_TIMEOUT = CACHING_REDIS.get('DEFAULT_TIMEOUT', 300)
 CACHING_REDIS_SSL = CACHING_REDIS.get('SSL', False)
 
 
@@ -549,7 +552,7 @@ if TASKS_REDIS_USING_SENTINEL:
         'PASSWORD': TASKS_REDIS_PASSWORD,
         'SOCKET_TIMEOUT': None,
         'CONNECTION_KWARGS': {
-            'socket_connect_timeout': TASKS_REDIS_DEFAULT_TIMEOUT
+            'socket_connect_timeout': TASKS_REDIS_SENTINEL_TIMEOUT
         },
     }
 else:
@@ -558,8 +561,8 @@ else:
         'PORT': TASKS_REDIS_PORT,
         'DB': TASKS_REDIS_DATABASE,
         'PASSWORD': TASKS_REDIS_PASSWORD,
-        'DEFAULT_TIMEOUT': TASKS_REDIS_DEFAULT_TIMEOUT,
         'SSL': TASKS_REDIS_SSL,
+        'DEFAULT_TIMEOUT': RQ_DEFAULT_TIMEOUT,
     }
 
 RQ_QUEUES = {

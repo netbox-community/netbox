@@ -4,6 +4,7 @@ from django_tables2.utils import Accessor
 from dcim.models import Interface
 from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, TagColumn, ToggleColumn
+from virtualization.models import VMInterface
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 RIR_UTILIZATION = """
@@ -67,11 +68,7 @@ IPADDRESS_LINK = """
 """
 
 IPADDRESS_ASSIGN_LINK = """
-{% if request.GET %}
-    <a href="{% url 'ipam:ipaddress_edit' pk=record.pk %}?interface={{ request.GET.interface }}&return_url={{ request.GET.return_url }}">{{ record }}</a>
-{% else %}
-    <a href="{% url 'ipam:ipaddress_edit' pk=record.pk %}?interface={{ record.interface.pk }}&return_url={{ request.path }}">{{ record }}</a>
-{% endif %}
+<a href="{% url 'ipam:ipaddress_edit' pk=record.pk %}?{% if request.GET.interface %}interface={{ request.GET.interface }}{% elif request.GET.vminterface %}vminterface={{ request.GET.vminterface }}{% endif %}&return_url={{ request.GET.return_url }}">{{ record }}</a>
 """
 
 VRF_LINK = """
@@ -103,7 +100,7 @@ VLAN_LINK = """
 """
 
 VLAN_PREFIXES = """
-{% for prefix in record.prefixes.unrestricted %}
+{% for prefix in record.prefixes.all %}
     <a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a>{% if not forloop.last %}<br />{% endif %}
 {% empty %}
     &mdash;
@@ -128,9 +125,11 @@ VLANGROUP_ADD_VLAN = """
 {% endwith %}
 """
 
-VLAN_MEMBER_UNTAGGED = """
+VLAN_MEMBER_TAGGED = """
 {% if record.untagged_vlan_id == vlan.pk %}
-    <i class="glyphicon glyphicon-ok">
+    <span class="text-danger"><i class="fa fa-close"></i></span>
+{% else %}
+    <span class="text-success"><i class="fa fa-check"></i></span>
 {% endif %}
 """
 
@@ -387,15 +386,23 @@ class IPAddressTable(BaseTable):
     tenant = tables.TemplateColumn(
         template_code=TENANT_LINK
     )
-    assigned = tables.BooleanColumn(
-        accessor='assigned_object_id',
-        verbose_name='Assigned'
+    assigned_object = tables.Column(
+        linkify=True,
+        orderable=False,
+        verbose_name='Interface'
+    )
+    assigned_object_parent = tables.Column(
+        accessor='assigned_object__parent',
+        linkify=True,
+        orderable=False,
+        verbose_name='Interface Parent'
     )
 
     class Meta(BaseTable.Meta):
         model = IPAddress
         fields = (
-            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned', 'dns_name', 'description',
+            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned_object', 'assigned_object_parent', 'dns_name',
+            'description',
         )
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, IPAddress) else '',
@@ -410,6 +417,10 @@ class IPAddressDetailTable(IPAddressTable):
     )
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
+    )
+    assigned = BooleanColumn(
+        accessor='assigned_object_id',
+        verbose_name='Assigned'
     )
     tags = TagColumn(
         url_name='ipam:ipaddress_list'
@@ -545,15 +556,15 @@ class VLANDetailTable(VLANTable):
         default_columns = ('pk', 'vid', 'site', 'group', 'name', 'prefixes', 'tenant', 'status', 'role', 'description')
 
 
-class VLANMemberTable(BaseTable):
-    parent = tables.LinkColumn(
-        order_by=['device', 'virtual_machine']
-    )
+class VLANMembersTable(BaseTable):
+    """
+    Base table for Interface and VMInterface assignments
+    """
     name = tables.LinkColumn(
         verbose_name='Interface'
     )
-    untagged = tables.TemplateColumn(
-        template_code=VLAN_MEMBER_UNTAGGED,
+    tagged = tables.TemplateColumn(
+        template_code=VLAN_MEMBER_TAGGED,
         orderable=False
     )
     actions = tables.TemplateColumn(
@@ -562,9 +573,21 @@ class VLANMemberTable(BaseTable):
         verbose_name=''
     )
 
+
+class VLANDevicesTable(VLANMembersTable):
+    device = tables.LinkColumn()
+
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = ('parent', 'name', 'untagged', 'actions')
+        fields = ('device', 'name', 'tagged', 'actions')
+
+
+class VLANVirtualMachinesTable(VLANMembersTable):
+    virtual_machine = tables.LinkColumn()
+
+    class Meta(BaseTable.Meta):
+        model = VMInterface
+        fields = ('virtual_machine', 'name', 'tagged', 'actions')
 
 
 class InterfaceVLANTable(BaseTable):

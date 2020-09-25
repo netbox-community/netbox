@@ -264,7 +264,10 @@ class FrontPortTemplate(ComponentTemplateModel):
     )
     rear_port_position = models.PositiveSmallIntegerField(
         default=1,
-        validators=[MinValueValidator(1), MaxValueValidator(64)]
+        validators=[
+            MinValueValidator(REARPORT_POSITIONS_MIN),
+            MaxValueValidator(REARPORT_POSITIONS_MAX)
+        ]
     )
 
     class Meta:
@@ -315,7 +318,10 @@ class RearPortTemplate(ComponentTemplateModel):
     )
     positions = models.PositiveSmallIntegerField(
         default=1,
-        validators=[MinValueValidator(1), MaxValueValidator(64)]
+        validators=[
+            MinValueValidator(REARPORT_POSITIONS_MIN),
+            MaxValueValidator(REARPORT_POSITIONS_MAX)
+        ]
     )
 
     class Meta:
