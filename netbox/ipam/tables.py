@@ -4,7 +4,9 @@ from django_tables2.utils import Accessor
 
 from dcim.models import Interface
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, TagColumn, ToggleColumn
+from utilities.tables import (
+    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, LinkedCountColumn, TagColumn, ToggleColumn,
+)
 from virtualization.models import VMInterface
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
 
@@ -32,14 +34,6 @@ RIR_UTILIZATION = """
 UTILIZATION_GRAPH = """
 {% load helpers %}
 {% if record.pk %}{% utilization_graph record.get_utilization %}{% else %}&mdash;{% endif %}
-"""
-
-ROLE_PREFIX_COUNT = """
-<a href="{% url 'ipam:prefix_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
-"""
-
-ROLE_VLAN_COUNT = """
-<a href="{% url 'ipam:vlan_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
 """
 
 PREFIX_LINK = """
@@ -209,7 +203,9 @@ class RIRTable(BaseTable):
     is_private = BooleanColumn(
         verbose_name='Private'
     )
-    aggregate_count = tables.Column(
+    aggregate_count = LinkedCountColumn(
+        viewname='ipam:aggregate_list',
+        url_params={'rir': 'slug'},
         verbose_name='Aggregates'
     )
     actions = ButtonsColumn(RIR, pk_field='slug')
@@ -304,12 +300,14 @@ class AggregateDetailTable(AggregateTable):
 
 class RoleTable(BaseTable):
     pk = ToggleColumn()
-    prefix_count = tables.TemplateColumn(
-        template_code=ROLE_PREFIX_COUNT,
+    prefix_count = LinkedCountColumn(
+        viewname='ipam:prefix_list',
+        url_params={'role': 'slug'},
         verbose_name='Prefixes'
     )
-    vlan_count = tables.TemplateColumn(
-        template_code=ROLE_VLAN_COUNT,
+    vlan_count = LinkedCountColumn(
+        viewname='ipam:vlan_list',
+        url_params={'role': 'slug'},
         verbose_name='VLANs'
     )
     actions = ButtonsColumn(Role, pk_field='slug')
@@ -508,7 +506,9 @@ class VLANGroupTable(BaseTable):
         viewname='dcim:site',
         args=[Accessor('site__slug')]
     )
-    vlan_count = tables.Column(
+    vlan_count = LinkedCountColumn(
+        viewname='ipam:vlan_list',
+        url_params={'group': 'slug'},
         verbose_name='VLANs'
     )
     actions = ButtonsColumn(

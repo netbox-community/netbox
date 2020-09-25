@@ -2,21 +2,15 @@ import django_tables2 as tables
 
 from dcim.tables import BaseInterfaceTable
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, TagColumn, ToggleColumn
+from utilities.tables import (
+    BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, TagColumn, ToggleColumn,
+)
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 VIRTUALMACHINE_PRIMARY_IP = """
 {{ record.primary_ip6.address.ip|default:"" }}
 {% if record.primary_ip6 and record.primary_ip4 %}<br />{% endif %}
 {{ record.primary_ip4.address.ip|default:"" }}
-"""
-
-DEVICE_COUNT = """
-<a href="{% url 'dcim:device_list' %}?cluster_id={{ record.pk }}">{{ value|default:0 }}</a>
-"""
-
-VM_COUNT = """
-<a href="{% url 'virtualization:virtualmachine_list' %}?cluster_id={{ record.pk }}">{{ value|default:0 }}</a>
 """
 
 
@@ -69,12 +63,14 @@ class ClusterTable(BaseTable):
     site = tables.Column(
         linkify=True
     )
-    device_count = tables.TemplateColumn(
-        template_code=DEVICE_COUNT,
+    device_count = LinkedCountColumn(
+        viewname='dcim:device_list',
+        url_params={'cluster_id': 'pk'},
         verbose_name='Devices'
     )
-    vm_count = tables.TemplateColumn(
-        template_code=VM_COUNT,
+    vm_count = LinkedCountColumn(
+        viewname='virtualization:virtualmachine_list',
+        url_params={'cluster_id': 'pk'},
         verbose_name='VMs'
     )
     tags = TagColumn(

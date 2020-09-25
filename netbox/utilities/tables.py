@@ -1,6 +1,7 @@
 import django_tables2 as tables
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import RelatedField
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django_tables2.data import TableQuerysetData
 
@@ -211,6 +212,29 @@ class ColoredLabelColumn(tables.TemplateColumn):
 
     def __init__(self, *args, **kwargs):
         super().__init__(template_code=self.template_code, *args, **kwargs)
+
+
+class LinkedCountColumn(tables.Column):
+    """
+    Render a count of related objects linked to a filtered URL.
+
+    :param viewname: The view name to use for URL resolution
+    :param view_kwargs: Additional kwargs to pass for URL resolution (optional)
+    :param url_params: A dict of query parameters to append to the URL (e.g. ?foo=bar) (optional)
+    """
+    def __init__(self, viewname, *args, view_kwargs=None, url_params=None, default=0, **kwargs):
+        self.viewname = viewname
+        self.view_kwargs = view_kwargs or {}
+        self.url_params = url_params
+        super().__init__(*args, default=default, **kwargs)
+
+    def render(self, record, value):
+        if value:
+            url = reverse(self.viewname, kwargs=self.view_kwargs)
+            if self.url_params:
+                url += '?' + '&'.join([f'{k}={getattr(record, v)}' for k, v in self.url_params.items()])
+            return mark_safe(f'<a href="{url}">{value}</a>')
+        return value
 
 
 class TagColumn(tables.TemplateColumn):

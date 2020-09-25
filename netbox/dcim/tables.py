@@ -3,8 +3,8 @@ from django_tables2.utils import Accessor
 
 from tenancy.tables import COL_TENANT
 from utilities.tables import (
-    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, TagColumn,
-    ToggleColumn,
+    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn,
+    TagColumn, ToggleColumn,
 )
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -49,14 +49,6 @@ RACKGROUP_ELEVATIONS = """
 </a>
 """
 
-RACK_DEVICE_COUNT = """
-<a href="{% url 'dcim:device_list' %}?rack_id={{ record.pk }}">{{ value }}</a>
-"""
-
-DEVICE_COUNT = """
-<a href="{% url 'dcim:device_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
-"""
-
 RACKRESERVATION_ACTIONS = """
 <a href="{% url 'dcim:rackreservation_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
@@ -75,14 +67,6 @@ MANUFACTURER_ACTIONS = """
 {% endif %}
 """
 
-DEVICEROLE_DEVICE_COUNT = """
-<a href="{% url 'dcim:device_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
-"""
-
-DEVICEROLE_VM_COUNT = """
-<a href="{% url 'virtualization:virtualmachine_list' %}?role={{ record.slug }}">{{ value|default:0 }}</a>
-"""
-
 DEVICEROLE_ACTIONS = """
 <a href="{% url 'dcim:devicerole_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
     <i class="fa fa-history"></i>
@@ -92,22 +76,10 @@ DEVICEROLE_ACTIONS = """
 {% endif %}
 """
 
-PLATFORM_DEVICE_COUNT = """
-<a href="{% url 'dcim:device_list' %}?platform={{ record.slug }}">{{ value|default:0 }}</a>
-"""
-
-PLATFORM_VM_COUNT = """
-<a href="{% url 'virtualization:virtualmachine_list' %}?platform={{ record.slug }}">{{ value|default:0 }}</a>
-"""
-
 DEVICE_PRIMARY_IP = """
 {{ record.primary_ip6.address.ip|default:"" }}
 {% if record.primary_ip6 and record.primary_ip4 %}<br />{% endif %}
 {{ record.primary_ip4.address.ip|default:"" }}
-"""
-
-DEVICETYPE_INSTANCES_TEMPLATE = """
-<a href="{% url 'dcim:device_list' %}?manufacturer_id={{ record.manufacturer_id }}&device_type_id={{ record.pk }}">{{ record.instance_count }}</a>
 """
 
 UTILIZATION_GRAPH = """
@@ -127,10 +99,6 @@ CABLE_TERMINATION_PARENT = """
 
 CABLE_LENGTH = """
 {% if record.length %}{{ record.length }} {{ record.get_length_unit_display }}{% else %}&mdash;{% endif %}
-"""
-
-POWERPANEL_POWERFEED_COUNT = """
-<a href="{% url 'dcim:powerfeed_list' %}?power_panel_id={{ record.pk }}">{{ value }}</a>
 """
 
 INTERFACE_IPADDRESSES = """
@@ -280,8 +248,9 @@ class RackTable(BaseTable):
 
 
 class RackDetailTable(RackTable):
-    device_count = tables.TemplateColumn(
-        template_code=RACK_DEVICE_COUNT,
+    device_count = LinkedCountColumn(
+        viewname='dcim:device_list',
+        url_params={'rack_id': 'pk'},
         verbose_name='Devices'
     )
     get_utilization = tables.TemplateColumn(
@@ -388,8 +357,9 @@ class DeviceTypeTable(BaseTable):
     is_full_depth = BooleanColumn(
         verbose_name='Full Depth'
     )
-    instance_count = tables.TemplateColumn(
-        template_code=DEVICETYPE_INSTANCES_TEMPLATE,
+    instance_count = LinkedCountColumn(
+        viewname='dcim:device_list',
+        url_params={'device_type_id': 'pk'},
         verbose_name='Instances'
     )
     tags = TagColumn(
@@ -526,12 +496,14 @@ class DeviceBayTemplateTable(ComponentTemplateTable):
 
 class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
-    device_count = tables.TemplateColumn(
-        template_code=DEVICEROLE_DEVICE_COUNT,
+    device_count = LinkedCountColumn(
+        viewname='dcim:device_list',
+        url_params={'role': 'slug'},
         verbose_name='Devices'
     )
-    vm_count = tables.TemplateColumn(
-        template_code=DEVICEROLE_VM_COUNT,
+    vm_count = LinkedCountColumn(
+        viewname='virtualization:virtualmachine_list',
+        url_params={'role': 'slug'},
         verbose_name='VMs'
     )
     color = tables.TemplateColumn(
@@ -553,12 +525,14 @@ class DeviceRoleTable(BaseTable):
 
 class PlatformTable(BaseTable):
     pk = ToggleColumn()
-    device_count = tables.TemplateColumn(
-        template_code=PLATFORM_DEVICE_COUNT,
+    device_count = LinkedCountColumn(
+        viewname='dcim:device_list',
+        url_params={'platform': 'slug'},
         verbose_name='Devices'
     )
-    vm_count = tables.TemplateColumn(
-        template_code=PLATFORM_VM_COUNT,
+    vm_count = LinkedCountColumn(
+        viewname='virtualization:virtualmachine_list',
+        url_params={'platform': 'slug'},
         verbose_name='VMs'
     )
     actions = ButtonsColumn(Platform, pk_field='slug')
@@ -994,7 +968,9 @@ class VirtualChassisTable(BaseTable):
     master = tables.Column(
         linkify=True
     )
-    member_count = tables.Column(
+    member_count = LinkedCountColumn(
+        viewname='dcim:device_list',
+        url_params={'virtual_chassis_id': 'pk'},
         verbose_name='Members'
     )
     tags = TagColumn(
@@ -1018,8 +994,9 @@ class PowerPanelTable(BaseTable):
         viewname='dcim:site',
         args=[Accessor('site__slug')]
     )
-    powerfeed_count = tables.TemplateColumn(
-        template_code=POWERPANEL_POWERFEED_COUNT,
+    powerfeed_count = LinkedCountColumn(
+        viewname='dcim:powerfeed_list',
+        url_params={'power_panel_id': 'pk'},
         verbose_name='Feeds'
     )
     tags = TagColumn(

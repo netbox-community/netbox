@@ -1,6 +1,6 @@
 import django_tables2 as tables
 
-from utilities.tables import BaseTable, ButtonsColumn, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, ButtonsColumn, LinkedCountColumn, TagColumn, ToggleColumn
 from .models import SecretRole, Secret
 
 
@@ -11,7 +11,9 @@ from .models import SecretRole, Secret
 class SecretRoleTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    secret_count = tables.Column(
+    secret_count = LinkedCountColumn(
+        viewname='secrets:secret_list',
+        url_params={'role': 'slug'},
         verbose_name='Secrets'
     )
     actions = ButtonsColumn(SecretRole, pk_field='slug')
