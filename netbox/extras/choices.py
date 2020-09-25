@@ -78,6 +78,12 @@ class ObjectChangeActionChoices(ChoiceSet):
         (ACTION_DELETE, 'Deleted'),
     )
 
+    CSS_CLASSES = {
+        ACTION_CREATE: 'success',
+        ACTION_UPDATE: 'primary',
+        ACTION_DELETE: 'danger',
+    }
+
 
 #
 # Log Levels for Reports and Scripts

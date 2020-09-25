@@ -197,7 +197,7 @@ class ColorColumn(tables.Column):
     """
     def render(self, value):
         return mark_safe(
-            '<span class="label color-block" style="background-color: #{}">&nbsp;</span>'.format(value)
+            f'<span class="label color-block" style="background-color: #{value}">&nbsp;</span>'
         )
 
 

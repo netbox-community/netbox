@@ -152,3 +152,6 @@ class ObjectChange(models.Model):
             self.object_repr,
             self.object_data,
         )
+
+    def get_action_class(self):
+        return ObjectChangeActionChoices.CSS_CLASSES.get(self.action)

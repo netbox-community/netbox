@@ -24,19 +24,6 @@ MPTT_LINK = """
 </span>
 """
 
-SITE_REGION_LINK = """
-{% if record.region %}
-    <a href="{% url 'dcim:site_list' %}?region={{ record.region.slug }}">{{ record.region }}</a>
-{% else %}
-    &mdash;
-{% endif %}
-"""
-
-COLOR_LABEL = """
-{% load helpers %}
-<label class="label" style="color: {{ record.color|fgcolor }}; background-color: #{{ record.color }}">{{ record }}</label>
-"""
-
 DEVICE_LINK = """
 <a href="{% url 'dcim:device' pk=record.pk %}">
     {{ record.name|default:'<span class="label label-info">Unnamed device</span>' }}
@@ -47,39 +34,6 @@ RACKGROUP_ELEVATIONS = """
 <a href="{% url 'dcim:rack_elevation_list' %}?site={{ record.site.slug }}&group_id={{ record.pk }}" class="btn btn-xs btn-primary" title="View elevations">
     <i class="fa fa-eye"></i>
 </a>
-"""
-
-RACKRESERVATION_ACTIONS = """
-<a href="{% url 'dcim:rackreservation_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
-{% if perms.dcim.change_rackreservation %}
-    <a href="{% url 'dcim:rackreservation_edit' pk=record.pk %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
-"""
-
-MANUFACTURER_ACTIONS = """
-<a href="{% url 'dcim:manufacturer_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
-{% if perms.dcim.change_manufacturer %}
-    <a href="{% url 'dcim:manufacturer_edit' slug=record.slug %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
-"""
-
-DEVICEROLE_ACTIONS = """
-<a href="{% url 'dcim:devicerole_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
-</a>
-{% if perms.dcim.change_devicerole %}
-    <a href="{% url 'dcim:devicerole_edit' slug=record.slug %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-{% endif %}
-"""
-
-DEVICE_PRIMARY_IP = """
-{{ record.primary_ip6.address.ip|default:"" }}
-{% if record.primary_ip6 and record.primary_ip4 %}<br />{% endif %}
-{{ record.primary_ip4.address.ip|default:"" }}
 """
 
 UTILIZATION_GRAPH = """
@@ -149,8 +103,8 @@ class SiteTable(BaseTable):
         order_by=('_name',)
     )
     status = ChoiceFieldColumn()
-    region = tables.TemplateColumn(
-        template_code=SITE_REGION_LINK
+    region = tables.Column(
+        linkify=True
     )
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
@@ -206,7 +160,7 @@ class RackRoleTable(BaseTable):
     pk = ToggleColumn()
     name = tables.Column(linkify=True)
     rack_count = tables.Column(verbose_name='Racks')
-    color = tables.TemplateColumn(COLOR_LABEL)
+    color = ColorColumn()
     actions = ButtonsColumn(RackRole)
 
     class Meta(BaseTable.Meta):
@@ -506,10 +460,7 @@ class DeviceRoleTable(BaseTable):
         url_params={'role': 'slug'},
         verbose_name='VMs'
     )
-    color = tables.TemplateColumn(
-        template_code=COLOR_LABEL,
-        verbose_name='Label'
-    )
+    color = ColorColumn()
     vm_role = BooleanColumn()
     actions = ButtonsColumn(DeviceRole, pk_field='slug')
 
@@ -577,9 +528,8 @@ class DeviceTable(BaseTable):
         verbose_name='Type',
         text=lambda record: record.device_type.display_name
     )
-    primary_ip = tables.TemplateColumn(
-        template_code=DEVICE_PRIMARY_IP,
-        orderable=False,
+    primary_ip = tables.Column(
+        linkify=True,
         verbose_name='IP Address'
     )
     primary_ip4 = tables.Column(

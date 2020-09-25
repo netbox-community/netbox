@@ -78,14 +78,6 @@ VRF_LINK = """
 {% endif %}
 """
 
-STATUS_LABEL = """
-{% if record.pk %}
-    <span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
-{% else %}
-    <span class="label label-success">Available</span>
-{% endif %}
-"""
-
 VLAN_LINK = """
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}">{{ record.vid }}</a>
@@ -127,12 +119,6 @@ VLAN_MEMBER_TAGGED = """
     <span class="text-danger"><i class="fa fa-close"></i></span>
 {% else %}
     <span class="text-success"><i class="fa fa-check"></i></span>
-{% endif %}
-"""
-
-VLAN_MEMBER_ACTIONS = """
-{% if perms.dcim.change_interface %}
-    <a href="{% if record.device %}{% url 'dcim:interface_edit' pk=record.pk %}{% else %}{% url 'virtualization:vminterface_edit' pk=record.pk %}{% endif %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil"></i></a>
 {% endif %}
 """
 
@@ -587,15 +573,11 @@ class VLANMembersTable(BaseTable):
         template_code=VLAN_MEMBER_TAGGED,
         orderable=False
     )
-    actions = tables.TemplateColumn(
-        template_code=VLAN_MEMBER_ACTIONS,
-        attrs={'td': {'class': 'text-right noprint'}},
-        verbose_name=''
-    )
 
 
 class VLANDevicesTable(VLANMembersTable):
     device = tables.LinkColumn()
+    actions = ButtonsColumn(Interface, buttons=['edit'])
 
     class Meta(BaseTable.Meta):
         model = Interface
@@ -604,6 +586,7 @@ class VLANDevicesTable(VLANMembersTable):
 
 class VLANVirtualMachinesTable(VLANMembersTable):
     virtual_machine = tables.LinkColumn()
+    actions = ButtonsColumn(VMInterface, buttons=['edit'])
 
     class Meta(BaseTable.Meta):
         model = VMInterface

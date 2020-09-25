@@ -7,12 +7,6 @@ from utilities.tables import (
 )
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
-VIRTUALMACHINE_PRIMARY_IP = """
-{{ record.primary_ip6.address.ip|default:"" }}
-{% if record.primary_ip6 and record.primary_ip4 %}<br />{% endif %}
-{{ record.primary_ip4.address.ip|default:"" }}
-"""
-
 
 #
 # Cluster types
@@ -113,10 +107,9 @@ class VirtualMachineDetailTable(VirtualMachineTable):
         linkify=True,
         verbose_name='IPv6 Address'
     )
-    primary_ip = tables.TemplateColumn(
-        orderable=False,
-        verbose_name='IP Address',
-        template_code=VIRTUALMACHINE_PRIMARY_IP
+    primary_ip = tables.Column(
+        linkify=True,
+        verbose_name='IP Address'
     )
     tags = TagColumn(
         url_name='virtualization:virtualmachine_list'
