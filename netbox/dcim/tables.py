@@ -3,7 +3,8 @@ from django_tables2.utils import Accessor
 
 from tenancy.tables import COL_TENANT
 from utilities.tables import (
-    BaseTable, BooleanColumn, ButtonsColumn, ColorColumn, ColoredLabelColumn, TagColumn, ToggleColumn,
+    BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, TagColumn,
+    ToggleColumn,
 )
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -99,14 +100,6 @@ PLATFORM_VM_COUNT = """
 <a href="{% url 'virtualization:virtualmachine_list' %}?platform={{ record.slug }}">{{ value|default:0 }}</a>
 """
 
-STATUS_LABEL = """
-<span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
-"""
-
-TYPE_LABEL = """
-<span class="label label-{{ record.get_type_class }}">{{ record.get_type_display }}</span>
-"""
-
 DEVICE_PRIMARY_IP = """
 {{ record.primary_ip6.address.ip|default:"" }}
 {% if record.primary_ip6 and record.primary_ip4 %}<br />{% endif %}
@@ -187,9 +180,7 @@ class SiteTable(BaseTable):
     name = tables.LinkColumn(
         order_by=('_name',)
     )
-    status = tables.TemplateColumn(
-        template_code=STATUS_LABEL
-    )
+    status = ChoiceFieldColumn()
     region = tables.TemplateColumn(
         template_code=SITE_REGION_LINK
     )
@@ -272,9 +263,7 @@ class RackTable(BaseTable):
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )
-    status = tables.TemplateColumn(
-        template_code=STATUS_LABEL
-    )
+    status = ChoiceFieldColumn()
     role = ColoredLabelColumn()
     u_height = tables.TemplateColumn(
         template_code="{{ record.u_height }}U",
@@ -595,9 +584,7 @@ class DeviceTable(BaseTable):
         order_by=('_name',),
         template_code=DEVICE_LINK
     )
-    status = tables.TemplateColumn(
-        template_code=STATUS_LABEL
-    )
+    status = ChoiceFieldColumn()
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )
@@ -663,9 +650,7 @@ class DeviceImportTable(BaseTable):
     name = tables.TemplateColumn(
         template_code=DEVICE_LINK
     )
-    status = tables.TemplateColumn(
-        template_code=STATUS_LABEL
-    )
+    status = ChoiceFieldColumn()
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )
@@ -876,9 +861,7 @@ class CableTable(BaseTable):
         orderable=False,
         verbose_name='Termination B'
     )
-    status = tables.TemplateColumn(
-        template_code=STATUS_LABEL
-    )
+    status = ChoiceFieldColumn()
     length = tables.TemplateColumn(
         template_code=CABLE_LENGTH,
         order_by='_abs_length'
@@ -1062,12 +1045,8 @@ class PowerFeedTable(BaseTable):
     rack = tables.Column(
         linkify=True
     )
-    status = tables.TemplateColumn(
-        template_code=STATUS_LABEL
-    )
-    type = tables.TemplateColumn(
-        template_code=TYPE_LABEL
-    )
+    status = ChoiceFieldColumn()
+    type = ChoiceFieldColumn()
     max_utilization = tables.TemplateColumn(
         template_code="{{ value }}%"
     )

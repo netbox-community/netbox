@@ -1,11 +1,14 @@
 import django_tables2 as tables
+from django.utils.safestring import mark_safe
 from django_tables2.utils import Accessor
 
 from dcim.models import Interface
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, TagColumn, ToggleColumn
 from virtualization.models import VMInterface
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+
+AVAILABLE_LABEL = mark_safe('<span class="label label-success">Available</span>')
 
 RIR_UTILIZATION = """
 <div class="progress">
@@ -327,8 +330,8 @@ class PrefixTable(BaseTable):
         template_code=PREFIX_LINK,
         attrs={'th': {'style': 'padding-left: 17px'}}
     )
-    status = tables.TemplateColumn(
-        template_code=STATUS_LABEL
+    status = ChoiceFieldColumn(
+        default=AVAILABLE_LABEL
     )
     vrf = tables.TemplateColumn(
         template_code=VRF_LINK,
@@ -400,9 +403,10 @@ class IPAddressTable(BaseTable):
         template_code=VRF_LINK,
         verbose_name='VRF'
     )
-    status = tables.TemplateColumn(
-        template_code=STATUS_LABEL
+    status = ChoiceFieldColumn(
+        default=AVAILABLE_LABEL
     )
+    role = ChoiceFieldColumn()
     tenant = tables.TemplateColumn(
         template_code=TENANT_LINK
     )
@@ -461,9 +465,7 @@ class IPAddressAssignTable(BaseTable):
         template_code=IPADDRESS_ASSIGN_LINK,
         verbose_name='IP Address'
     )
-    status = tables.TemplateColumn(
-        template_code=STATUS_LABEL
-    )
+    status = ChoiceFieldColumn()
     assigned_object = tables.Column(
         orderable=False
     )
@@ -485,9 +487,7 @@ class InterfaceIPAddressTable(BaseTable):
         template_code=VRF_LINK,
         verbose_name='VRF'
     )
-    status = tables.TemplateColumn(
-        template_code=STATUS_LABEL
-    )
+    status = ChoiceFieldColumn()
     tenant = tables.TemplateColumn(
         template_code=TENANT_LINK
     )
@@ -543,8 +543,8 @@ class VLANTable(BaseTable):
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )
-    status = tables.TemplateColumn(
-        template_code=STATUS_LABEL
+    status = ChoiceFieldColumn(
+        default=AVAILABLE_LABEL
     )
     role = tables.TemplateColumn(
         template_code=VLAN_ROLE_LINK
@@ -630,9 +630,7 @@ class InterfaceVLANTable(BaseTable):
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
     )
-    status = tables.TemplateColumn(
-        template_code=STATUS_LABEL
-    )
+    status = ChoiceFieldColumn()
     role = tables.TemplateColumn(
         template_code=VLAN_ROLE_LINK
     )

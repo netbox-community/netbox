@@ -1,14 +1,9 @@
 import django_tables2 as tables
-from django_tables2.utils import Accessor
 
 from dcim.tables import BaseInterfaceTable
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, ButtonsColumn, ColoredLabelColumn, TagColumn, ToggleColumn
+from utilities.tables import BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, TagColumn, ToggleColumn
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
-
-VIRTUALMACHINE_STATUS = """
-<span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
-"""
 
 VIRTUALMACHINE_PRIMARY_IP = """
 {{ record.primary_ip6.address.ip|default:"" }}
@@ -99,9 +94,7 @@ class ClusterTable(BaseTable):
 class VirtualMachineTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    status = tables.TemplateColumn(
-        template_code=VIRTUALMACHINE_STATUS
-    )
+    status = ChoiceFieldColumn()
     cluster = tables.Column(
         linkify=True
     )

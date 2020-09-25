@@ -174,6 +174,22 @@ class ButtonsColumn(tables.TemplateColumn):
         return ''
 
 
+class ChoiceFieldColumn(tables.Column):
+    """
+    Render a ChoiceField value inside a <span> indicating a particular CSS class. This is useful for displaying colored
+    choices. The CSS class is derived by calling .get_FOO_class() on the row record.
+    """
+    def render(self, record, bound_column, value):
+        if value:
+            name = bound_column.name
+            css_class = getattr(record, f'get_{name}_class')()
+            label = getattr(record, f'get_{name}_display')()
+            return mark_safe(
+                f'<span class="label label-{css_class}">{label}</span>'
+            )
+        return self.default
+
+
 class ColorColumn(tables.Column):
     """
     Display a color (#RRGGBB).
