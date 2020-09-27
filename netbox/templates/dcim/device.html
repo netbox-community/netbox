@@ -326,7 +326,7 @@
             {% plugin_left_page device %}
         </div>
         <div class="col-md-6">
-            {% if power_ports and poweroutlets %}
+            {% if powerports and poweroutlets %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <strong>Power Utilization</strong>
@@ -339,7 +339,7 @@
                             <th>Available</th>
                             <th>Utilization</th>
                         </tr>
-                        {% for pp in power_ports %}
+                        {% for pp in powerports %}
                             {% with utilization=pp.get_power_draw powerfeed=pp.connected_endpoint %}
                                 <tr>
                                     <td>{{ pp }}</td>
