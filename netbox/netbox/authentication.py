@@ -136,6 +136,9 @@ class RemoteUserBackend(_RemoteUserBackend):
 class LDAPBackend:
 
     def __new__(cls, *args, **kwargs):
+        # Enable logging for django_auth_ldap
+        ldap_logger = logging.getLogger('django_auth_ldap')
+        
         try:
             import ldap
             from django_auth_ldap.backend import LDAPBackend as LDAPBackend_, LDAPSettings
@@ -171,10 +174,5 @@ class LDAPBackend:
         # Optionally disable strict certificate checking
         if getattr(ldap_config, 'LDAP_IGNORE_CERT_ERRORS', False):
             ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
-
-        # Enable logging for django_auth_ldap
-        ldap_logger = logging.getLogger('django_auth_ldap')
-        ldap_logger.addHandler(logging.StreamHandler())
-        ldap_logger.setLevel(logging.DEBUG)
 
         return obj
