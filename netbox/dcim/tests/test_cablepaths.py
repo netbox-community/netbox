@@ -45,17 +45,36 @@ class CablePathTestCase(TestCase):
         ]
         Interface.objects.bulk_create(cls.interfaces)
 
-        # Create four RearPorts with four FrontPorts each
+        # Create four RearPorts with four FrontPorts each, and two with only one position
         cls.rear_ports = [
-            RearPort(device=device, name=f'RP{i}', positions=4) for i in range(1, 5)
+            RearPort(device=device, name=f'RP1', positions=4),
+            RearPort(device=device, name=f'RP2', positions=4),
+            RearPort(device=device, name=f'RP3', positions=4),
+            RearPort(device=device, name=f'RP4', positions=4),
+            RearPort(device=device, name=f'RP5', positions=1),
+            RearPort(device=device, name=f'RP6', positions=1),
         ]
         RearPort.objects.bulk_create(cls.rear_ports)
-        cls.front_ports = []
-        for i, rear_port in enumerate(cls.rear_ports, start=1):
-            cls.front_ports.extend(
-                FrontPort(device=device, name=f'FP{i}:{j}', rear_port=rear_port, rear_port_position=j)
-                for j in range(1, 5)
-            )
+        cls.front_ports = [
+            FrontPort(device=device, name=f'FP1:1', rear_port=cls.rear_ports[0], rear_port_position=1),
+            FrontPort(device=device, name=f'FP1:2', rear_port=cls.rear_ports[0], rear_port_position=2),
+            FrontPort(device=device, name=f'FP1:3', rear_port=cls.rear_ports[0], rear_port_position=3),
+            FrontPort(device=device, name=f'FP1:4', rear_port=cls.rear_ports[0], rear_port_position=4),
+            FrontPort(device=device, name=f'FP2:1', rear_port=cls.rear_ports[1], rear_port_position=1),
+            FrontPort(device=device, name=f'FP2:2', rear_port=cls.rear_ports[1], rear_port_position=2),
+            FrontPort(device=device, name=f'FP2:3', rear_port=cls.rear_ports[1], rear_port_position=3),
+            FrontPort(device=device, name=f'FP2:4', rear_port=cls.rear_ports[1], rear_port_position=4),
+            FrontPort(device=device, name=f'FP3:1', rear_port=cls.rear_ports[2], rear_port_position=1),
+            FrontPort(device=device, name=f'FP3:2', rear_port=cls.rear_ports[2], rear_port_position=2),
+            FrontPort(device=device, name=f'FP3:3', rear_port=cls.rear_ports[2], rear_port_position=3),
+            FrontPort(device=device, name=f'FP3:4', rear_port=cls.rear_ports[2], rear_port_position=4),
+            FrontPort(device=device, name=f'FP4:1', rear_port=cls.rear_ports[3], rear_port_position=1),
+            FrontPort(device=device, name=f'FP4:2', rear_port=cls.rear_ports[3], rear_port_position=2),
+            FrontPort(device=device, name=f'FP4:3', rear_port=cls.rear_ports[3], rear_port_position=3),
+            FrontPort(device=device, name=f'FP4:4', rear_port=cls.rear_ports[3], rear_port_position=4),
+            FrontPort(device=device, name=f'FP5', rear_port=cls.rear_ports[4], rear_port_position=1),
+            FrontPort(device=device, name=f'FP6', rear_port=cls.rear_ports[5], rear_port_position=1),
+        ]
         FrontPort.objects.bulk_create(cls.front_ports)
 
         # Create four circuits with two terminations (A and Z) each (8 total)
@@ -331,6 +350,68 @@ class CablePathTestCase(TestCase):
                 cable7, self.front_ports[13], self.rear_ports[3], cable5, self.front_ports[8], self.rear_ports[2],
                 cable4, self.rear_ports[1], self.front_ports[4], cable3, self.rear_ports[0], self.front_ports[1],
                 cable2
+            )
+        )
+        self.assertEqual(CablePath.objects.count(), 4)
+
+        # Delete cable 3
+        cable3.delete()
+
+        # Check for four partial paths; one from each interface
+        self.assertEqual(CablePath.objects.filter(destination_id__isnull=True).count(), 4)
+        self.assertEqual(CablePath.objects.filter(destination_id__isnull=False).count(), 0)
+
+    def test_05_interfaces_to_interfaces_via_patched_pass_throughs(self):
+        """
+        [IF1] --C1-- [FP1:1] [RP1] --C3-- [FP5] [RP5] --C4-- [RP2] [FP2:1] --C5-- [IF3]
+        [IF2] --C2-- [FP1:2]                                       [FP2:2] --C6-- [IF4]
+        """
+        # Create cables 1-2, 5-6
+        cable1 = Cable(termination_a=self.interfaces[0], termination_b=self.front_ports[0])  # IF1 -> FP1:1
+        cable1.save()
+        cable2 = Cable(termination_a=self.interfaces[1], termination_b=self.front_ports[1])  # IF2 -> FP1:2
+        cable2.save()
+        cable5 = Cable(termination_a=self.interfaces[2], termination_b=self.front_ports[4])  # IF3 -> FP2:1
+        cable5.save()
+        cable6 = Cable(termination_a=self.interfaces[3], termination_b=self.front_ports[5])  # IF4 -> FP2:2
+        cable6.save()
+        self.assertEqual(CablePath.objects.count(), 4)  # Four partial paths; one from each interface
+
+        # Create cables 3-4
+        cable3 = Cable(termination_a=self.rear_ports[0], termination_b=self.front_ports[16])  # RP1 -> FP5
+        cable3.save()
+        cable4 = Cable(termination_a=self.rear_ports[4], termination_b=self.rear_ports[1])  # RP5 -> RP2
+        cable4.save()
+        self.assertPathExists(
+            origin=self.interfaces[0],
+            destination=self.interfaces[2],
+            path=(
+                cable1, self.front_ports[0], self.rear_ports[0], cable3, self.front_ports[16], self.rear_ports[4],
+                cable4, self.rear_ports[1], self.front_ports[4], cable5
+            )
+        )
+        self.assertPathExists(
+            origin=self.interfaces[1],
+            destination=self.interfaces[3],
+            path=(
+                cable2, self.front_ports[1], self.rear_ports[0], cable3, self.front_ports[16], self.rear_ports[4],
+                cable4, self.rear_ports[1], self.front_ports[5], cable6
+            )
+        )
+        self.assertPathExists(
+            origin=self.interfaces[2],
+            destination=self.interfaces[0],
+            path=(
+                cable5, self.front_ports[4], self.rear_ports[1], cable4, self.rear_ports[4], self.front_ports[16],
+                cable3, self.rear_ports[0], self.front_ports[0], cable1
+            )
+        )
+        self.assertPathExists(
+            origin=self.interfaces[3],
+            destination=self.interfaces[1],
+            path=(
+                cable6, self.front_ports[5], self.rear_ports[1], cable4, self.rear_ports[4], self.front_ports[16],
+                cable3, self.rear_ports[0], self.front_ports[1], cable2
             )
         )
         self.assertEqual(CablePath.objects.count(), 4)
