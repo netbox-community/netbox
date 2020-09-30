@@ -18,27 +18,7 @@ class CablePathTestCase(TestCase):
         device_role = DeviceRole.objects.create(name='Device Role', slug='device-role')
         device = Device.objects.create(site=site, device_type=device_type, device_role=device_role, name='Test Device')
 
-        # Create 16 instances of each type of path-terminating component
-        cls.console_ports = [
-            ConsolePort(device=device, name=f'Console Port {i}')
-            for i in range(1, 17)
-        ]
-        ConsolePort.objects.bulk_create(cls.console_ports)
-        cls.console_server_ports = [
-            ConsoleServerPort(device=device, name=f'Console Server Port {i}')
-            for i in range(1, 17)
-        ]
-        ConsoleServerPort.objects.bulk_create(cls.console_server_ports)
-        cls.power_ports = [
-            PowerPort(device=device, name=f'Power Port {i}')
-            for i in range(1, 17)
-        ]
-        PowerPort.objects.bulk_create(cls.power_ports)
-        cls.power_outlets = [
-            PowerOutlet(device=device, name=f'Power Outlet {i}')
-            for i in range(1, 17)
-        ]
-        PowerOutlet.objects.bulk_create(cls.power_outlets)
+        # Create 16 interfaces for testing
         cls.interfaces = [
             Interface(device=device, name=f'Interface {i}')
             for i in range(1, 17)
