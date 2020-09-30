@@ -14,6 +14,9 @@ from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.fields import PathField
+from dcim.managers import CablePathManager
+from dcim.utils import path_node_to_object
 from extras.models import ChangeLoggedModel, ConfigContextModel, CustomFieldModel, TaggedItem
 from extras.utils import extras_features
 from utilities.choices import ColorChoices
@@ -25,6 +28,7 @@ from .device_components import *
 
 __all__ = (
     'Cable',
+    'CablePath',
     'Device',
     'DeviceRole',
     'DeviceType',
@@ -1152,6 +1156,44 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
         if self.termination_a is None:
             return
         return COMPATIBLE_TERMINATION_TYPES[self.termination_a._meta.model_name]
+
+
+class CablePath(models.Model):
+    """
+    An array of objects conveying the end-to-end path of one or more Cables.
+    """
+    origin_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE,
+        related_name='+'
+    )
+    origin_id = models.PositiveIntegerField()
+    origin = GenericForeignKey(
+        ct_field='origin_type',
+        fk_field='origin_id'
+    )
+    destination_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    destination_id = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+    destination = GenericForeignKey(
+        ct_field='destination_type',
+        fk_field='destination_id'
+    )
+    path = PathField()
+
+    objects = CablePathManager()
+
+    def __str__(self):
+        path = ', '.join([str(path_node_to_object(node)) for node in self.path])
+        return f"Path #{self.pk}: {self.origin} to {self.destination} via ({path})"
 
 
 #

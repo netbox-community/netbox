@@ -1,6 +1,7 @@
 import logging
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -32,6 +33,7 @@ __all__ = (
     'FrontPort',
     'Interface',
     'InventoryItem',
+    'PathEndpoint',
     'PowerOutlet',
     'PowerPort',
     'RearPort',
@@ -250,12 +252,23 @@ class CableTermination(models.Model):
         return endpoints
 
 
+class PathEndpoint:
+
+    def get_connections(self):
+        from dcim.models import CablePath
+        return CablePath.objects.filter(
+            origin_type=ContentType.objects.get_for_model(self),
+            origin_id=self.pk,
+            destination_id__isnull=False
+        )
+
+
 #
 # Console ports
 #
 
 @extras_features('export_templates', 'webhooks')
-class ConsolePort(CableTermination, ComponentModel):
+class ConsolePort(CableTermination, PathEndpoint, ComponentModel):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
@@ -303,7 +316,7 @@ class ConsolePort(CableTermination, ComponentModel):
 #
 
 @extras_features('webhooks')
-class ConsoleServerPort(CableTermination, ComponentModel):
+class ConsoleServerPort(CableTermination, PathEndpoint, ComponentModel):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
@@ -344,7 +357,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
 #
 
 @extras_features('export_templates', 'webhooks')
-class PowerPort(CableTermination, ComponentModel):
+class PowerPort(CableTermination, PathEndpoint, ComponentModel):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
@@ -493,7 +506,7 @@ class PowerPort(CableTermination, ComponentModel):
 #
 
 @extras_features('webhooks')
-class PowerOutlet(CableTermination, ComponentModel):
+class PowerOutlet(CableTermination, PathEndpoint, ComponentModel):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
@@ -585,7 +598,7 @@ class BaseInterface(models.Model):
 
 
 @extras_features('export_templates', 'webhooks')
-class Interface(CableTermination, ComponentModel, BaseInterface):
+class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.
     """

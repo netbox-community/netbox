@@ -75,65 +75,19 @@
         <td colspan="2" class="text-muted">Virtual interface</td>
     {% elif iface.is_wireless %}
         <td colspan="2" class="text-muted">Wireless interface</td>
-    {% elif iface.connected_endpoint.name %}
-        {# Connected to an Interface #}
-        <td>
-            <a href="{% url 'dcim:device' pk=iface.connected_endpoint.device.pk %}">
-                {{ iface.connected_endpoint.device }}
-            </a>
-        </td>
-        <td>
-            <a href="{% url 'dcim:interface' pk=iface.connected_endpoint.pk %}">
-                <span title="{{ iface.connected_endpoint.get_type_display }}">
-                    {{ iface.connected_endpoint }}
-                </span>
-            </a>
-        </td>
-    {% elif iface.connected_endpoint.term_side %}
-        {# Connected to a CircuitTermination #}
-        {% with iface.connected_endpoint.get_peer_termination as peer_termination %}
-            {% if peer_termination %}
-                {% if peer_termination.connected_endpoint %}
-                    <td>
-                        <a href="{% url 'dcim:device' pk=peer_termination.connected_endpoint.device.pk %}">
-                            {{ peer_termination.connected_endpoint.device }}
-                        </a><br/>
-                        <small>via <i class="fa fa-fw fa-globe" title="Circuit"></i>
-                            <a href="{{ iface.connected_endpoint.circuit.get_absolute_url }}">
-                                {{ iface.connected_endpoint.circuit.provider }}
-                                {{ iface.connected_endpoint.circuit }}
-                            </a>
-                        </small>
-                    </td>
-                    <td>
-                        {{ peer_termination.connected_endpoint }}
-                    </td>
-                {% else %}
-                    <td colspan="2">
-                        <a href="{% url 'dcim:site' slug=peer_termination.site.slug %}">
-                            {{ peer_termination.site }}
-                        </a>
-                        via <i class="fa fa-fw fa-globe" title="Circuit"></i>
-                        <a href="{{ iface.connected_endpoint.circuit.get_absolute_url }}">
-                            {{ iface.connected_endpoint.circuit.provider }}
-                            {{ iface.connected_endpoint.circuit }}
-                        </a>
-                    </td>
-                {% endif %}
+    {% else %}
+        {% with path_count=iface.get_connections.count %}
+            {% if path_count > 1 %}
+                <td colspan="2">Multiple connections</td>
+            {% elif path_count %}
+                {% with endpoint=iface.get_connections.first.destination %}
+                    <td><a href="{{ endpoint.parent.get_absolute_url }}">{{ endpoint.parent }}</a></td>
+                    <td><a href="{{ endpoint.get_absolute_url }}">{{ endpoint }}</a></td>
+                {% endwith %}
             {% else %}
-                <td colspan="2">
-                    <i class="fa fa-fw fa-globe" title="Circuit"></i>
-                    <a href="{{ iface.connected_endpoint.circuit.get_absolute_url }}">
-                        {{ iface.connected_endpoint.circuit.provider }}
-                        {{ iface.connected_endpoint.circuit }}
-                    </a>
-                </td>
+                <td colspan="2" class="text-muted">Not connected</td>
             {% endif %}
         {% endwith %}
-    {% else %}
-        <td colspan="2">
-            <span class="text-muted">Not connected</span>
-        </td>
     {% endif %}
 
     {# Buttons #}

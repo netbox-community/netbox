@@ -1,3 +1,5 @@
+from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.validators import ArrayMaxLengthValidator
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
@@ -50,3 +52,12 @@ class MACAddressField(models.Field):
         if not value:
             return None
         return str(self.to_python(value))
+
+
+class PathField(ArrayField):
+    """
+    An ArrayField which holds a set of objects, each identified by a (type, ID) tuple.
+    """
+    def __init__(self, **kwargs):
+        kwargs['base_field'] = models.CharField(max_length=40)
+        super().__init__(**kwargs)
