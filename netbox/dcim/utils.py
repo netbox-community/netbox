@@ -34,14 +34,18 @@ def trace_paths(node):
         # Follow a FrontPort to its corresponding RearPort
         if isinstance(peer_termination, FrontPort):
             path.append(object_to_path_node(peer_termination))
-            position_stack.append(peer_termination.rear_port_position)
             node = peer_termination.rear_port
+            if node.positions > 1:
+                position_stack.append(peer_termination.rear_port_position)
             path.append(object_to_path_node(node))
 
         # Follow a RearPort to its corresponding FrontPort
         elif isinstance(peer_termination, RearPort):
             path.append(object_to_path_node(peer_termination))
-            if position_stack:
+            if peer_termination.positions == 1:
+                node = FrontPort.objects.get(rear_port=peer_termination, rear_port_position=1)
+                path.append(object_to_path_node(node))
+            elif position_stack:
                 position = position_stack.pop()
                 node = FrontPort.objects.get(rear_port=peer_termination, rear_port_position=position)
                 path.append(object_to_path_node(node))
