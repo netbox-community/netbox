@@ -13,6 +13,15 @@ EXIT=0
 RED='\033[0;31m'
 NOCOLOR='\033[0m'
 
+if [ -d ./venv/ ]; then
+    VENV="$PWD/venv"
+    if [ -e $VENV/bin/python ]; then
+        PATH=$VENV/bin:$PATH
+    elif [ -e $VENV/Scripts/python.exe ]; then
+        PATH=$VENV/Scripts:$PATH
+    fi
+fi
+
 echo "Validating PEP8 compliance..."
 pycodestyle --ignore=W504,E501 netbox/
 if [ $? != 0 ]; then
