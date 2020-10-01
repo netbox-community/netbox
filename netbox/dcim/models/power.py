@@ -10,7 +10,7 @@ from extras.models import ChangeLoggedModel, CustomFieldModel, TaggedItem
 from extras.utils import extras_features
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import ExclusionValidator
-from .device_components import CableTermination
+from .device_components import CableTermination, PathEndpoint
 
 __all__ = (
     'PowerFeed',
@@ -73,7 +73,7 @@ class PowerPanel(ChangeLoggedModel, CustomFieldModel):
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
-class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
+class PowerFeed(ChangeLoggedModel, PathEndpoint, CableTermination, CustomFieldModel):
     """
     An electrical circuit delivered from a PowerPanel.
     """

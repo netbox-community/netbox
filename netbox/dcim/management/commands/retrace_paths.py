@@ -12,6 +12,7 @@ ENDPOINT_MODELS = (
     'dcim.ConsolePort',
     'dcim.ConsoleServerPort',
     'dcim.Interface',
+    'dcim.PowerFeed',
     'dcim.PowerOutlet',
     'dcim.PowerPort',
 )
