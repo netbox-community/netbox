@@ -6,14 +6,15 @@ from django.db import transaction
 from django.dispatch import receiver
 
 from .models import Cable, CablePath, Device, PathEndpoint, VirtualChassis
-from .utils import object_to_path_node, trace_paths
+from .utils import object_to_path_node, trace_path
 
 
-def create_cablepaths(node):
+def create_cablepath(node):
     """
     Create CablePaths for all paths originating from the specified node.
     """
-    for path, destination in trace_paths(node):
+    path, destination = trace_path(node)
+    if path:
         cp = CablePath(origin=node, path=path, destination=destination)
         cp.save()
 
@@ -28,7 +29,7 @@ def rebuild_paths(obj):
     with transaction.atomic():
         for cp in cable_paths:
             cp.delete()
-            create_cablepaths(cp.origin)
+            create_cablepath(cp.origin)
 
 
 @receiver(post_save, sender=VirtualChassis)
@@ -76,7 +77,7 @@ def update_connected_endpoints(instance, created, **kwargs):
     if created:
         for termination in (instance.termination_a, instance.termination_b):
             if isinstance(termination, PathEndpoint):
-                create_cablepaths(termination)
+                create_cablepath(termination)
             else:
                 rebuild_paths(termination)
     else:
@@ -116,4 +117,4 @@ def nullify_connected_endpoints(instance, **kwargs):
             origin_type=ContentType.objects.get_for_model(origin),
             origin_id=origin.pk
         ).delete()
-        create_cablepaths(origin)
+        create_cablepath(origin)

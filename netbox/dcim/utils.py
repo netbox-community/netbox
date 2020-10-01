@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 
+from .exceptions import CableTraceSplit
 from .models import FrontPort, RearPort
 
 
@@ -17,13 +18,13 @@ def path_node_to_object(repr):
     return model_class.objects.get(pk=int(object_id))
 
 
-def trace_paths(node):
+def trace_path(node):
     destination = None
     path = []
     position_stack = []
 
     if node.cable is None:
-        return []
+        return [], None
 
     while node.cable is not None:
 
@@ -50,20 +51,12 @@ def trace_paths(node):
                 node = FrontPort.objects.get(rear_port=peer_termination, rear_port_position=position)
                 path.append(object_to_path_node(node))
             else:
-                # No position indicated, so we have to trace _all_ peer FrontPorts
-                paths = []
-                for frontport in FrontPort.objects.filter(rear_port=peer_termination):
-                    branches = trace_paths(frontport)
-                    if branches:
-                        for branch, destination in branches:
-                            paths.append(([*path, object_to_path_node(frontport), *branch], destination))
-                    else:
-                        paths.append(([*path, object_to_path_node(frontport)], None))
-                return paths
+                # No position indicated: path has split (probably invalid?)
+                raise CableTraceSplit(peer_termination)
 
         # Anything else marks the end of the path
         else:
             destination = peer_termination
             break
 
-    return [(path, destination)]
+    return path, destination

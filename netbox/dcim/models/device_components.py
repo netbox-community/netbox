@@ -1,7 +1,6 @@
 import logging
 
 from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -256,7 +255,7 @@ class PathEndpoint(models.Model):
     """
     Any object which may serve as either endpoint of a CablePath.
     """
-    paths = GenericRelation(
+    _paths = GenericRelation(
         to='dcim.CablePath',
         content_type_field='origin_type',
         object_id_field='origin_id',
@@ -265,6 +264,15 @@ class PathEndpoint(models.Model):
 
     class Meta:
         abstract = True
+
+    @property
+    def path(self):
+        """
+        Return the _complete_ CablePath associated with this origin point, if any.
+        """
+        if not hasattr(self, '_path'):
+            self._path = self._paths.filter(destination_id__isnull=False).first()
+        return self._path
 
 
 #

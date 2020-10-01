@@ -76,7 +76,7 @@
     {% elif iface.is_wireless %}
         <td colspan="2" class="text-muted">Wireless interface</td>
     {% else %}
-        {% include 'dcim/inc/endpoint_connection.html' with paths=iface.paths.all %}
+        {% include 'dcim/inc/endpoint_connection.html' with path=iface.path %}
     {% endif %}
 
     {# Buttons #}

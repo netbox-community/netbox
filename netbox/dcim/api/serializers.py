@@ -33,11 +33,9 @@ class ConnectedEndpointSerializer(ValidatedModelSerializer):
     connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, read_only=True)
 
     def get_connected_endpoint_type(self, obj):
-        if hasattr(obj, 'connected_endpoint') and obj.connected_endpoint is not None:
-            return '{}.{}'.format(
-                obj.connected_endpoint._meta.app_label,
-                obj.connected_endpoint._meta.model_name
-            )
+        if obj.path is not None:
+            destination = obj.path.destination
+            return f'{destination._meta.app_label}.{destination._meta.model_name}'
         return None
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
@@ -45,14 +43,11 @@ class ConnectedEndpointSerializer(ValidatedModelSerializer):
         """
         Return the appropriate serializer for the type of connected object.
         """
-        if getattr(obj, 'connected_endpoint', None) is None:
-            return None
-
-        serializer = get_serializer_for_model(obj.connected_endpoint, prefix='Nested')
-        context = {'request': self.context['request']}
-        data = serializer(obj.connected_endpoint, context=context).data
-
-        return data
+        if obj.path is not None:
+            serializer = get_serializer_for_model(obj.path.destination, prefix='Nested')
+            context = {'request': self.context['request']}
+            return serializer(obj.path.destination, context=context).data
+        return None
 
 
 #

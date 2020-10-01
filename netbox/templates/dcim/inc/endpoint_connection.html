@@ -1,7 +1,5 @@
-{% if paths|length > 1 %}
-    <td colspan="2">Multiple connections</td>
-{% elif paths %}
-    {% with endpoint=paths.0.destination %}
+{% if path %}
+    {% with endpoint=path.destination %}
         <td><a href="{{ endpoint.parent.get_absolute_url }}">{{ endpoint.parent }}</a></td>
         <td><a href="{{ endpoint.get_absolute_url }}">{{ endpoint }}</a></td>
     {% endwith %}

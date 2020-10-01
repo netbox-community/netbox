@@ -1018,7 +1018,7 @@ class DeviceView(ObjectView):
 
         # Console ports
         consoleports = ConsolePort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
-            Prefetch('paths', queryset=CablePath.objects.filter(destination_id__isnull=False)),
+            Prefetch('_paths', queryset=CablePath.objects.filter(destination_id__isnull=False)),
             'cable',
         )
 
@@ -1026,25 +1026,25 @@ class DeviceView(ObjectView):
         consoleserverports = ConsoleServerPort.objects.restrict(request.user, 'view').filter(
             device=device
         ).prefetch_related(
-            Prefetch('paths', queryset=CablePath.objects.filter(destination_id__isnull=False)),
+            Prefetch('_paths', queryset=CablePath.objects.filter(destination_id__isnull=False)),
             'cable',
         )
 
         # Power ports
         powerports = PowerPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
-            Prefetch('paths', queryset=CablePath.objects.filter(destination_id__isnull=False)),
+            Prefetch('_paths', queryset=CablePath.objects.filter(destination_id__isnull=False)),
             'cable',
         )
 
         # Power outlets
         poweroutlets = PowerOutlet.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
-            Prefetch('paths', queryset=CablePath.objects.filter(destination_id__isnull=False)),
+            Prefetch('_paths', queryset=CablePath.objects.filter(destination_id__isnull=False)),
             'cable', 'power_port',
         )
 
         # Interfaces
         interfaces = device.vc_interfaces.restrict(request.user, 'view').prefetch_related(
-            Prefetch('paths', queryset=CablePath.objects.filter(destination_id__isnull=False)),
+            Prefetch('_paths', queryset=CablePath.objects.filter(destination_id__isnull=False)),
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user)),
             Prefetch('member_interfaces', queryset=Interface.objects.restrict(request.user)),
             'lag', 'cable', 'tags',

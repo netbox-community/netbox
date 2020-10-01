@@ -5,7 +5,7 @@ from django.db import connection
 from django.db.models import Q
 
 from dcim.models import CablePath
-from dcim.signals import create_cablepaths
+from dcim.signals import create_cablepath
 
 ENDPOINT_MODELS = (
     'circuits.CircuitTermination',
@@ -60,7 +60,7 @@ class Command(BaseCommand):
             print(f'Retracing {origins.count()} cabled {model._meta.verbose_name_plural}...')
             i = 0
             for i, obj in enumerate(origins, start=1):
-                create_cablepaths(obj)
+                create_cablepath(obj)
                 if not i % 1000:
                     self.stdout.write(f'  {i}')
             self.stdout.write(self.style.SUCCESS(f'  Retraced {i} {model._meta.verbose_name_plural}'))

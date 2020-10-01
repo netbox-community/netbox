@@ -49,7 +49,7 @@
     </td>
 
     {# Connection #}
-    {% with paths=po.paths.all %}
+    {% with path=po.path %}
         {% include 'dcim/inc/endpoint_connection.html' %}
         <td>
             {% if paths|length == 1 %}
