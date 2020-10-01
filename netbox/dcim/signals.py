@@ -86,7 +86,7 @@ def update_connected_endpoints(instance, created, **kwargs):
         # may change in the future.) However, we do need to capture status changes and update
         # any CablePaths accordingly.
         if instance.status != CableStatusChoices.STATUS_CONNECTED:
-            CablePath.objects.filter(path__contains=object_to_path_node(instance)).update(is_connected=False)
+            CablePath.objects.filter(path__contains=[object_to_path_node(instance)]).update(is_connected=False)
         else:
             rebuild_paths(instance)
 

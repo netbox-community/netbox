@@ -63,4 +63,7 @@ def trace_path(node):
             destination = peer_termination
             break
 
+    if destination is None:
+        is_connected = False
+
     return path, destination, is_connected

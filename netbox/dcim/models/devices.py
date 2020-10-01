@@ -980,6 +980,9 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
         # A copy of the PK to be used by __str__ in case the object is deleted
         self._pk = self.pk
 
+        # Cache the original status so we can check later if it's been changed
+        self._orig_status = self.status
+
     @classmethod
     def from_db(cls, db, field_names, values):
         """
@@ -991,8 +994,6 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
         instance._orig_termination_a_id = instance.termination_a_id
         instance._orig_termination_b_type_id = instance.termination_b_type_id
         instance._orig_termination_b_id = instance.termination_b_id
-
-        instance._orig_status = instance.status
 
         return instance
 
