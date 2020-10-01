@@ -8,6 +8,7 @@
 * [#5174](https://github.com/netbox-community/netbox/issues/5174) - Ensure consistent alignment of rack elevations
 * [#5175](https://github.com/netbox-community/netbox/issues/5175) - Fix toggling of rack elevation order
 * [#5184](https://github.com/netbox-community/netbox/issues/5184) - Fix missing Power Utilization
+* [#5199](https://github.com/netbox-community/netbox/issues/5199) - Change default LDAP logging to INFO
 
 ---
 
