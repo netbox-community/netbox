@@ -252,15 +252,19 @@ class CableTermination(models.Model):
         return endpoints
 
 
-class PathEndpoint:
+class PathEndpoint(models.Model):
+    """
+    Any object which may serve as either endpoint of a CablePath.
+    """
+    paths = GenericRelation(
+        to='dcim.CablePath',
+        content_type_field='origin_type',
+        object_id_field='origin_id',
+        related_query_name='%(class)s'
+    )
 
-    def get_connections(self):
-        from dcim.models import CablePath
-        return CablePath.objects.filter(
-            origin_type=ContentType.objects.get_for_model(self),
-            origin_id=self.pk,
-            destination_id__isnull=False
-        )
+    class Meta:
+        abstract = True
 
 
 #

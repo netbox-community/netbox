@@ -38,18 +38,7 @@
     </td>
 
     {# Connection #}
-    {% if csp.connected_endpoint %}
-        <td>
-            <a href="{% url 'dcim:device' pk=csp.connected_endpoint.device.pk %}">{{ csp.connected_endpoint.device }}</a>
-        </td>
-        <td>
-            {{ csp.connected_endpoint }}
-        </td>
-    {% else %}
-        <td colspan="2">
-            <span class="text-muted">Not connected</span>
-        </td>
-    {% endif %}
+    {% include 'dcim/inc/endpoint_connection.html' with paths=csp.paths.all %}
 
     {# Actions #}
     <td class="text-right noprint">

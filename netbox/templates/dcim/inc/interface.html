@@ -76,18 +76,7 @@
     {% elif iface.is_wireless %}
         <td colspan="2" class="text-muted">Wireless interface</td>
     {% else %}
-        {% with path_count=iface.get_connections.count %}
-            {% if path_count > 1 %}
-                <td colspan="2">Multiple connections</td>
-            {% elif path_count %}
-                {% with endpoint=iface.get_connections.first.destination %}
-                    <td><a href="{{ endpoint.parent.get_absolute_url }}">{{ endpoint.parent }}</a></td>
-                    <td><a href="{{ endpoint.get_absolute_url }}">{{ endpoint }}</a></td>
-                {% endwith %}
-            {% else %}
-                <td colspan="2" class="text-muted">Not connected</td>
-            {% endif %}
-        {% endwith %}
+        {% include 'dcim/inc/endpoint_connection.html' with paths=iface.paths.all %}
     {% endif %}
 
     {# Buttons #}

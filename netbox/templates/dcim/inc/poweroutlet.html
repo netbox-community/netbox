@@ -49,27 +49,20 @@
     </td>
 
     {# Connection #}
-    {% if po.connected_endpoint %}
-        {% with pp=po.connected_endpoint %}
-            <td>
-                <a href="{% url 'dcim:device' pk=pp.device.pk %}">{{ pp.device }}</a>
-            </td>
-            <td>
-                {{ pp }}
-            </td>
-            <td>
-                {% if pp.allocated_draw %}
-                    {{ pp.allocated_draw }}W{% if pp.maximum_draw %} ({{ pp.maximum_draw }}W max){% endif %}
-                {% elif pp.maximum_draw %}
-                    {{ pp.maximum_draw }}W
-                {% endif %}
-            </td>
-        {% endwith %}
-    {% else %}
-        <td colspan="3">
-            <span class="text-muted">Not connected</span>
+    {% with paths=po.paths.all %}
+        {% include 'dcim/inc/endpoint_connection.html' %}
+        <td>
+            {% if paths|length == 1 %}
+                {% with pp=paths.0.destination %}
+                    {% if pp.allocated_draw %}
+                        {{ pp.allocated_draw }}W{% if pp.maximum_draw %} ({{ pp.maximum_draw }}W max){% endif %}
+                    {% elif pp.maximum_draw %}
+                        {{ pp.maximum_draw }}W
+                    {% endif %}
+                {% endwith %}
+            {% endif %}
         </td>
-    {% endif %}
+    {% endwith %}
 
     {# Actions #}
     <td class="text-right noprint">

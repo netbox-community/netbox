@@ -32,7 +32,7 @@ from . import filters, forms, tables
 from .choices import DeviceFaceChoices
 from .constants import NONCONNECTABLE_IFACE_TYPES
 from .models import (
-    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    Cable, CablePath, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
     InventoryItem, Manufacturer, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
@@ -1018,32 +1018,36 @@ class DeviceView(ObjectView):
 
         # Console ports
         consoleports = ConsolePort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
-            'connected_endpoint__device', 'cable',
+            Prefetch('paths', queryset=CablePath.objects.filter(destination_id__isnull=False)),
+            'cable',
         )
 
         # Console server ports
         consoleserverports = ConsoleServerPort.objects.restrict(request.user, 'view').filter(
             device=device
         ).prefetch_related(
-            'connected_endpoint__device', 'cable',
+            Prefetch('paths', queryset=CablePath.objects.filter(destination_id__isnull=False)),
+            'cable',
         )
 
         # Power ports
         powerports = PowerPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
-            '_connected_poweroutlet__device', 'cable',
+            Prefetch('paths', queryset=CablePath.objects.filter(destination_id__isnull=False)),
+            'cable',
         )
 
         # Power outlets
         poweroutlets = PowerOutlet.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
-            'connected_endpoint__device', 'cable', 'power_port',
+            Prefetch('paths', queryset=CablePath.objects.filter(destination_id__isnull=False)),
+            'cable', 'power_port',
         )
 
         # Interfaces
         interfaces = device.vc_interfaces.restrict(request.user, 'view').prefetch_related(
+            Prefetch('paths', queryset=CablePath.objects.filter(destination_id__isnull=False)),
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user)),
             Prefetch('member_interfaces', queryset=Interface.objects.restrict(request.user)),
-            'lag', '_connected_interface__device', '_connected_circuittermination__circuit', 'cable',
-            'cable__termination_a', 'cable__termination_b', 'tags'
+            'lag', 'cable', 'tags',
         )
 
         # Front ports
