@@ -992,6 +992,8 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
         instance._orig_termination_b_type_id = instance.termination_b_type_id
         instance._orig_termination_b_id = instance.termination_b_id
 
+        instance._orig_status = instance.status
+
         return instance
 
     def __str__(self):
@@ -1188,6 +1190,9 @@ class CablePath(models.Model):
         fk_field='destination_id'
     )
     path = PathField()
+    is_connected = models.BooleanField(
+        default=False
+    )
 
     objects = CablePathManager()
 

@@ -5,6 +5,7 @@ from django.db.models.signals import post_save, pre_delete
 from django.db import transaction
 from django.dispatch import receiver
 
+from .choices import CableStatusChoices
 from .models import Cable, CablePath, Device, PathEndpoint, VirtualChassis
 from .utils import object_to_path_node, trace_path
 
@@ -13,9 +14,9 @@ def create_cablepath(node):
     """
     Create CablePaths for all paths originating from the specified node.
     """
-    path, destination = trace_path(node)
+    path, destination, is_connected = trace_path(node)
     if path:
-        cp = CablePath(origin=node, path=path, destination=destination)
+        cp = CablePath(origin=node, path=path, destination=destination, is_connected=is_connected)
         cp.save()
 
 
@@ -80,10 +81,14 @@ def update_connected_endpoints(instance, created, **kwargs):
                 create_cablepath(termination)
             else:
                 rebuild_paths(termination)
-    else:
-        # We currently don't support modifying either termination of an existing Cable. This
-        # may change in the future.
-        pass
+    elif instance.status != instance._orig_status:
+        # We currently don't support modifying either termination of an existing Cable. (This
+        # may change in the future.) However, we do need to capture status changes and update
+        # any CablePaths accordingly.
+        if instance.status != CableStatusChoices.STATUS_CONNECTED:
+            CablePath.objects.filter(path__contains=object_to_path_node(instance)).update(is_connected=False)
+        else:
+            rebuild_paths(instance)
 
 
 @receiver(pre_delete, sender=Cable)

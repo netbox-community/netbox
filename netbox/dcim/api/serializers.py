@@ -30,7 +30,7 @@ from .nested_serializers import *
 class ConnectedEndpointSerializer(ValidatedModelSerializer):
     connected_endpoint_type = serializers.SerializerMethodField(read_only=True)
     connected_endpoint = serializers.SerializerMethodField(read_only=True)
-    connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, read_only=True)
+    connection_status = serializers.SerializerMethodField(read_only=True)
 
     def get_connected_endpoint_type(self, obj):
         if obj.path is not None:
@@ -47,6 +47,13 @@ class ConnectedEndpointSerializer(ValidatedModelSerializer):
             serializer = get_serializer_for_model(obj.path.destination, prefix='Nested')
             context = {'request': self.context['request']}
             return serializer(obj.path.destination, context=context).data
+        return None
+
+    # TODO: Tweak the representation for this field
+    @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
+    def get_connection_status(self, obj):
+        if obj.path is not None:
+            return obj.path.is_connected
         return None
 
 

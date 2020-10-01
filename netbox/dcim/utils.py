@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 
+from .choices import CableStatusChoices
 from .exceptions import CableTraceSplit
 from .models import FrontPort, RearPort
 
@@ -22,11 +23,14 @@ def trace_path(node):
     destination = None
     path = []
     position_stack = []
+    is_connected = True
 
     if node.cable is None:
-        return [], None
+        return [], None, False
 
     while node.cable is not None:
+        if node.cable.status != CableStatusChoices.STATUS_CONNECTED:
+            is_connected = False
 
         # Follow the cable to its far-end termination
         path.append(object_to_path_node(node.cable))
@@ -59,4 +63,4 @@ def trace_path(node):
             destination = peer_termination
             break
 
-    return path, destination
+    return path, destination, is_connected
