@@ -4,7 +4,7 @@ from django.core.management.color import no_style
 from django.db import connection
 from django.db.models import Q
 
-from dcim.models import CablePath, Interface
+from dcim.models import CablePath
 from dcim.signals import create_cablepaths
 
 ENDPOINT_MODELS = (
@@ -31,7 +31,7 @@ class Command(BaseCommand):
         q = Q()
         for model_name in model_names:
             app_label, model = model_name.split('.')
-            q |= Q(app_label=app_label, model=model)
+            q |= Q(app_label__iexact=app_label, model__iexact=model)
         return ContentType.objects.filter(q)
 
     def handle(self, *model_names, **options):
