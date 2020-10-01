@@ -176,5 +176,5 @@ class LDAPBackend:
         ldap_logger = logging.getLogger('django_auth_ldap')
         ldap_logger.addHandler(logging.StreamHandler())
         ldap_logger.setLevel(logging.INFO if settings.DEBUG is False else logging.DEBUG)
-        ldap_logger.info('Set Logging')
+
         return obj
