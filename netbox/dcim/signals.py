@@ -1,7 +1,7 @@
 import logging
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_save, post_delete, pre_delete
 from django.db import transaction
 from django.dispatch import receiver
 
@@ -91,7 +91,7 @@ def update_connected_endpoints(instance, created, **kwargs):
             rebuild_paths(instance)
 
 
-@receiver(pre_delete, sender=Cable)
+@receiver(post_delete, sender=Cable)
 def nullify_connected_endpoints(instance, **kwargs):
     """
     When a Cable is deleted, check for and update its two connected endpoints
@@ -108,18 +108,15 @@ def nullify_connected_endpoints(instance, **kwargs):
         instance.termination_b.cable = None
         instance.termination_b.save()
 
-    # Delete any dependent cable paths
-    cable_paths = CablePath.objects.filter(path__contains=[object_to_path_node(instance)])
-    retrace_queue = [cp.origin for cp in cable_paths]
-    deleted, _ = cable_paths.delete()
-    logger.info(f'Deleted {deleted} cable paths')
-
-    # Retrace cable paths from the origins of deleted paths
-    for origin in retrace_queue:
-        # Delete and recreate all CablePaths for this origin point
-        # TODO: We can probably be smarter about skipping unchanged paths
-        CablePath.objects.filter(
-            origin_type=ContentType.objects.get_for_model(origin),
-            origin_id=origin.pk
-        ).delete()
-        create_cablepath(origin)
+    # Delete and retrace any dependent cable paths
+    for cablepath in CablePath.objects.filter(path__contains=[object_to_path_node(instance)]):
+        path, destination, is_connected = trace_path(cablepath.origin)
+        if path:
+            CablePath.objects.filter(pk=cablepath.pk).update(
+                path=path,
+                destination_type=ContentType.objects.get_for_model(destination) if destination else None,
+                destination_id=destination.pk if destination else None,
+                is_connected=is_connected
+            )
+        else:
+            cablepath.delete()

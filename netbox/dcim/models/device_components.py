@@ -126,37 +126,29 @@ class CableTermination(models.Model):
 
 class PathEndpoint(models.Model):
     """
-    Any object which may serve as either endpoint of a CablePath.
+    Any object which may serve as the originating endpoint of a CablePath.
     """
-    _paths = GenericRelation(
+    _path = models.ForeignKey(
         to='dcim.CablePath',
-        content_type_field='origin_type',
-        object_id_field='origin_id',
-        related_query_name='%(class)s'
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
     )
 
     class Meta:
         abstract = True
 
     def trace(self):
-        if self.path is None:
+        if self._path is None:
             return []
 
         # Construct the complete path
-        path = [self, *[path_node_to_object(obj) for obj in self.path.path], self.path.destination]
-        assert not len(path) % 3, f"Invalid path length for CablePath #{self.pk}: {len(self.path)} elements in path"
+        path = [self, *[path_node_to_object(obj) for obj in self._path.path], self._path.destination]
+        assert not len(path) % 3,\
+            f"Invalid path length for CablePath #{self.pk}: {len(self._path.path)} elements in path"
 
         # Return the path as a list of three-tuples (A termination, cable, B termination)
         return list(zip(*[iter(path)] * 3))
-
-    @property
-    def path(self):
-        """
-        Return the _complete_ CablePath associated with this origin point, if any.
-        """
-        if not hasattr(self, '_path'):
-            self._path = self._paths.filter(destination_id__isnull=False).first()
-        return self._path
 
 
 #

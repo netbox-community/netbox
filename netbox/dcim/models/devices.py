@@ -1204,6 +1204,13 @@ class CablePath(models.Model):
         path = ', '.join([str(path_node_to_object(node)) for node in self.path])
         return f"Path #{self.pk}: {self.origin} to {self.destination} via ({path})"
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # Record a direct reference to this CablePath on its originating object
+        model = self.origin._meta.model
+        model.objects.filter(pk=self.origin.pk).update(_path=self.pk)
+
 
 #
 # Virtual chassis
