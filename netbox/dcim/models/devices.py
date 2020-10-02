@@ -1197,6 +1197,9 @@ class CablePath(models.Model):
 
     objects = CablePathManager()
 
+    class Meta:
+        unique_together = ('origin_type', 'origin_id')
+
     def __str__(self):
         path = ', '.join([str(path_node_to_object(node)) for node in self.path])
         return f"Path #{self.pk}: {self.origin} to {self.destination} via ({path})"
