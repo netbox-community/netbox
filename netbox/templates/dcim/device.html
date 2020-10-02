@@ -532,6 +532,10 @@
                                 <tbody>
                                     {% for iface in interfaces %}
                                         {% include 'dcim/inc/interface.html' %}
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted">&mdash; No interfaces defined &mdash;</td>
+                                        </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -592,6 +596,10 @@
                                 <tbody>
                                     {% for frontport in frontports %}
                                         {% include 'dcim/inc/frontport.html' %}
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted">&mdash; No front ports defined &mdash;</td>
+                                        </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -649,6 +657,10 @@
                                 <tbody>
                                     {% for rearport in rearports %}
                                         {% include 'dcim/inc/rearport.html' %}
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted">&mdash; No rear ports defined &mdash;</td>
+                                        </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -704,6 +716,10 @@
                                 </thead>
                                 {% for cp in consoleports %}
                                     {% include 'dcim/inc/consoleport.html' %}
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">&mdash; No console ports defined &mdash;</td>
+                                    </tr>
                                 {% endfor %}
                             </table>
                             <div class="panel-footer noprint">
@@ -758,6 +774,10 @@
                                 <tbody>
                                     {% for csp in consoleserverports %}
                                         {% include 'dcim/inc/consoleserverport.html' %}
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">&mdash; No console server ports defined &mdash;</td>
+                                        </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -814,6 +834,10 @@
                                 </thead>
                                 {% for pp in powerports %}
                                     {% include 'dcim/inc/powerport.html' %}
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">&mdash; No power ports defined &mdash;</td>
+                                    </tr>
                                 {% endfor %}
                             </table>
                             <div class="panel-footer noprint">
@@ -869,6 +893,10 @@
                                 <tbody>
                                     {% for po in poweroutlets %}
                                         {% include 'dcim/inc/poweroutlet.html' %}
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted">&mdash; No power outlets defined &mdash;</td>
+                                        </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
