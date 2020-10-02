@@ -1,5 +1,6 @@
 import django_filters
 from django.contrib.auth.models import User
+from django.db.models import Count
 
 from extras.filters import CustomFieldFilterSet, LocalConfigContextFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
@@ -752,7 +753,21 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         )
 
 
-class ConsolePortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
+class PathEndpointFilterSet(django_filters.FilterSet):
+    is_connected = django_filters.BooleanFilter(
+        method='filter_is_connected',
+        label='Search',
+    )
+
+    def filter_is_connected(self, queryset, name, value):
+        kwargs = {'connected_paths': 1 if value else 0}
+        # TODO: Boolean rather than Count()?
+        return queryset.annotate(
+            connected_paths=Count('_paths', filter=Q(_paths__is_connected=True))
+        ).filter(**kwargs)
+
+
+class ConsolePortFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
         null_value=None
@@ -765,10 +780,10 @@ class ConsolePortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
 
     class Meta:
         model = ConsolePort
-        fields = ['id', 'name', 'description', 'connection_status']
+        fields = ['id', 'name', 'description']
 
 
-class ConsoleServerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
+class ConsoleServerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
         null_value=None
@@ -781,10 +796,10 @@ class ConsoleServerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['id', 'name', 'description', 'connection_status']
+        fields = ['id', 'name', 'description']
 
 
-class PowerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
+class PowerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerPortTypeChoices,
         null_value=None
@@ -797,10 +812,10 @@ class PowerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
 
     class Meta:
         model = PowerPort
-        fields = ['id', 'name', 'maximum_draw', 'allocated_draw', 'description', 'connection_status']
+        fields = ['id', 'name', 'maximum_draw', 'allocated_draw', 'description']
 
 
-class PowerOutletFilterSet(BaseFilterSet, DeviceComponentFilterSet):
+class PowerOutletFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerOutletTypeChoices,
         null_value=None
@@ -813,10 +828,10 @@ class PowerOutletFilterSet(BaseFilterSet, DeviceComponentFilterSet):
 
     class Meta:
         model = PowerOutlet
-        fields = ['id', 'name', 'feed_leg', 'description', 'connection_status']
+        fields = ['id', 'name', 'feed_leg', 'description']
 
 
-class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet):
+class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpointFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -864,7 +879,7 @@ class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet):
 
     class Meta:
         model = Interface
-        fields = ['id', 'name', 'connection_status', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'description']
+        fields = ['id', 'name', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'description']
 
     def filter_device(self, queryset, name, value):
         try:
@@ -1284,7 +1299,7 @@ class PowerPanelFilterSet(BaseFilterSet):
         return queryset.filter(qs_filter)
 
 
-class PowerFeedFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class PowerFeedFilterSet(BaseFilterSet, PathEndpointFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

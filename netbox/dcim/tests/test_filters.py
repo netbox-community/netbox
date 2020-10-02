@@ -1514,9 +1514,8 @@ class ConsolePortTestCase(TestCase):
         params = {'description': ['First', 'Second']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    # TODO: Fix boolean value
-    def test_connection_status(self):
-        params = {'connection_status': 'True'}
+    def test_is_connected(self):
+        params = {'is_connected': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -1609,9 +1608,8 @@ class ConsoleServerPortTestCase(TestCase):
         params = {'description': ['First', 'Second']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    # TODO: Fix boolean value
-    def test_connection_status(self):
-        params = {'connection_status': 'True'}
+    def test_is_connected(self):
+        params = {'is_connected': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -1712,9 +1710,8 @@ class PowerPortTestCase(TestCase):
         params = {'allocated_draw': [50, 100]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    # TODO: Fix boolean value
-    def test_connection_status(self):
-        params = {'connection_status': 'True'}
+    def test_is_connected(self):
+        params = {'is_connected': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -1812,9 +1809,8 @@ class PowerOutletTestCase(TestCase):
         params = {'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_A}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    # TODO: Fix boolean value
-    def test_connection_status(self):
-        params = {'connection_status': 'True'}
+    def test_is_connected(self):
+        params = {'is_connected': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -1900,9 +1896,8 @@ class InterfaceTestCase(TestCase):
         params = {'name': ['Interface 1', 'Interface 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    # TODO: Fix boolean value
-    def test_connection_status(self):
-        params = {'connection_status': 'True'}
+    def test_is_connected(self):
+        params = {'is_connected': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_enabled(self):
