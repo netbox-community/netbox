@@ -383,6 +383,7 @@ urlpatterns = [
     path('power-feeds/<int:pk>/', views.PowerFeedView.as_view(), name='powerfeed'),
     path('power-feeds/<int:pk>/edit/', views.PowerFeedEditView.as_view(), name='powerfeed_edit'),
     path('power-feeds/<int:pk>/delete/', views.PowerFeedDeleteView.as_view(), name='powerfeed_delete'),
+    path('power-feeds/<int:pk>/trace/', views.PathTraceView.as_view(), name='powerfeed_trace', kwargs={'model': PowerFeed}),
     path('power-feeds/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='powerfeed_changelog', kwargs={'model': PowerFeed}),
 
 ]
