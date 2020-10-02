@@ -713,6 +713,7 @@ class VLANGroupVLANsView(ObjectView):
         return render(request, 'ipam/vlangroup_vlans.html', {
             'vlan_group': vlan_group,
             'first_available_vlan': vlan_group.get_next_available_vid(),
+            'bulk_querystring': 'group_id={}'.format(vlan_group.pk),
             'vlan_table': vlan_table,
             'permissions': permissions,
         })
