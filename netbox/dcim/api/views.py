@@ -45,7 +45,7 @@ class DCIMRootView(APIRootView):
 
 # Mixins
 
-class CableTraceMixin(object):
+class PathEndpointMixin(object):
 
     @action(detail=True, url_path='trace')
     def trace(self, request, pk):
@@ -57,7 +57,7 @@ class CableTraceMixin(object):
         # Initialize the path array
         path = []
 
-        for near_end, cable, far_end in obj.trace()[0]:
+        for near_end, cable, far_end in obj.trace():
 
             # Serialize each object
             serializer_a = get_serializer_for_model(near_end, prefix='Nested')
@@ -469,19 +469,19 @@ class DeviceViewSet(CustomFieldModelViewSet):
 # Device components
 #
 
-class ConsolePortViewSet(CableTraceMixin, ModelViewSet):
+class ConsolePortViewSet(PathEndpointMixin, ModelViewSet):
     queryset = ConsolePort.objects.prefetch_related('device', 'connected_endpoint__device', 'cable', 'tags')
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filters.ConsolePortFilterSet
 
 
-class ConsoleServerPortViewSet(CableTraceMixin, ModelViewSet):
+class ConsoleServerPortViewSet(PathEndpointMixin, ModelViewSet):
     queryset = ConsoleServerPort.objects.prefetch_related('device', 'connected_endpoint__device', 'cable', 'tags')
     serializer_class = serializers.ConsoleServerPortSerializer
     filterset_class = filters.ConsoleServerPortFilterSet
 
 
-class PowerPortViewSet(CableTraceMixin, ModelViewSet):
+class PowerPortViewSet(PathEndpointMixin, ModelViewSet):
     queryset = PowerPort.objects.prefetch_related(
         'device', '_connected_poweroutlet__device', '_connected_powerfeed', 'cable', 'tags'
     )
@@ -489,13 +489,13 @@ class PowerPortViewSet(CableTraceMixin, ModelViewSet):
     filterset_class = filters.PowerPortFilterSet
 
 
-class PowerOutletViewSet(CableTraceMixin, ModelViewSet):
+class PowerOutletViewSet(PathEndpointMixin, ModelViewSet):
     queryset = PowerOutlet.objects.prefetch_related('device', 'connected_endpoint__device', 'cable', 'tags')
     serializer_class = serializers.PowerOutletSerializer
     filterset_class = filters.PowerOutletFilterSet
 
 
-class InterfaceViewSet(CableTraceMixin, ModelViewSet):
+class InterfaceViewSet(PathEndpointMixin, ModelViewSet):
     queryset = Interface.objects.prefetch_related(
         'device', '_connected_interface', '_connected_circuittermination', 'cable', 'ip_addresses', 'tags'
     ).filter(
@@ -505,13 +505,13 @@ class InterfaceViewSet(CableTraceMixin, ModelViewSet):
     filterset_class = filters.InterfaceFilterSet
 
 
-class FrontPortViewSet(CableTraceMixin, ModelViewSet):
+class FrontPortViewSet(ModelViewSet):
     queryset = FrontPort.objects.prefetch_related('device__device_type__manufacturer', 'rear_port', 'cable', 'tags')
     serializer_class = serializers.FrontPortSerializer
     filterset_class = filters.FrontPortFilterSet
 
 
-class RearPortViewSet(CableTraceMixin, ModelViewSet):
+class RearPortViewSet(ModelViewSet):
     queryset = RearPort.objects.prefetch_related('device__device_type__manufacturer', 'cable', 'tags')
     serializer_class = serializers.RearPortSerializer
     filterset_class = filters.RearPortFilterSet

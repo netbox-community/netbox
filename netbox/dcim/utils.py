@@ -2,7 +2,6 @@ from django.contrib.contenttypes.models import ContentType
 
 from .choices import CableStatusChoices
 from .exceptions import CableTraceSplit
-from .models import FrontPort, RearPort
 
 
 def object_to_path_node(obj):
@@ -20,6 +19,8 @@ def path_node_to_object(repr):
 
 
 def trace_path(node):
+    from .models import FrontPort, RearPort
+
     destination = None
     path = []
     position_stack = []

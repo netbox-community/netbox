@@ -1961,9 +1961,9 @@ class CableView(ObjectView):
         })
 
 
-class CableTraceView(ObjectView):
+class PathTraceView(ObjectView):
     """
-    Trace a cable path beginning from the given termination.
+    Trace a cable path beginning from the given path endpoint (origin).
     """
     additional_permissions = ['dcim.view_cable']
 
@@ -1976,7 +1976,7 @@ class CableTraceView(ObjectView):
     def get(self, request, pk):
 
         obj = get_object_or_404(self.queryset, pk=pk)
-        path, split_ends, position_stack = obj.trace()
+        path = obj.trace()
         total_length = sum(
             [entry[1]._abs_length for entry in path if entry[1] and entry[1]._abs_length]
         )
@@ -1984,8 +1984,6 @@ class CableTraceView(ObjectView):
         return render(request, 'dcim/cable_trace.html', {
             'obj': obj,
             'trace': path,
-            'split_ends': split_ends,
-            'position_stack': position_stack,
             'total_length': total_length,
         })
 
