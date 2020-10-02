@@ -337,7 +337,81 @@ class CablePathTestCase(TestCase):
         self.assertEqual(CablePath.objects.filter(destination_id__isnull=True).count(), 4)
         self.assertEqual(CablePath.objects.filter(destination_id__isnull=False).count(), 0)
 
-    def test_05_interfaces_to_interfaces_via_patched_pass_throughs(self):
+    def test_05_interfaces_to_interfaces_via_multiple_pass_throughs(self):
+        """
+        [IF1] --C1-- [FP1:1] [RP1] --C3-- [RP2] [FP2:1] --C4-- [FP3:1] [RP3] --C6-- [RP4] [FP4:1] --C7-- [IF3]
+        [IF2] --C2-- [FP1:2]                    [FP2:1] --C5-- [FP3:1]                    [FP4:2] --C8-- [IF4]
+        """
+        # Create cables 1-3, 6-8
+        cable1 = Cable(termination_a=self.interfaces[0], termination_b=self.front_ports[0])
+        cable1.save()
+        cable2 = Cable(termination_a=self.interfaces[1], termination_b=self.front_ports[1])
+        cable2.save()
+        cable3 = Cable(termination_a=self.rear_ports[0], termination_b=self.rear_ports[1])
+        cable3.save()
+        cable6 = Cable(termination_a=self.rear_ports[2], termination_b=self.rear_ports[3])
+        cable6.save()
+        cable7 = Cable(termination_a=self.interfaces[2], termination_b=self.front_ports[12])
+        cable7.save()
+        cable8 = Cable(termination_a=self.interfaces[3], termination_b=self.front_ports[13])
+        cable8.save()
+        self.assertEqual(CablePath.objects.count(), 4)  # Four partial paths; one from each interface
+
+        # Create cables 4 and 5
+        cable4 = Cable(termination_a=self.front_ports[4], termination_b=self.front_ports[8])
+        cable4.save()
+        cable5 = Cable(termination_a=self.front_ports[5], termination_b=self.front_ports[9])
+        cable5.save()
+        self.assertPathExists(
+            origin=self.interfaces[0],
+            destination=self.interfaces[2],
+            path=(
+                cable1, self.front_ports[0], self.rear_ports[0], cable3, self.rear_ports[1], self.front_ports[4],
+                cable4, self.front_ports[8], self.rear_ports[2], cable6, self.rear_ports[3], self.front_ports[12],
+                cable7
+            ),
+            is_connected=True
+        )
+        self.assertPathExists(
+            origin=self.interfaces[1],
+            destination=self.interfaces[3],
+            path=(
+                cable2, self.front_ports[1], self.rear_ports[0], cable3, self.rear_ports[1], self.front_ports[5],
+                cable5, self.front_ports[9], self.rear_ports[2], cable6, self.rear_ports[3], self.front_ports[13],
+                cable8
+            ),
+            is_connected=True
+        )
+        self.assertPathExists(
+            origin=self.interfaces[2],
+            destination=self.interfaces[0],
+            path=(
+                cable7, self.front_ports[12], self.rear_ports[3], cable6, self.rear_ports[2], self.front_ports[8],
+                cable4, self.front_ports[4], self.rear_ports[1], cable3, self.rear_ports[0], self.front_ports[0],
+                cable1
+            ),
+            is_connected=True
+        )
+        self.assertPathExists(
+            origin=self.interfaces[3],
+            destination=self.interfaces[1],
+            path=(
+                cable8, self.front_ports[13], self.rear_ports[3], cable6, self.rear_ports[2], self.front_ports[9],
+                cable5, self.front_ports[5], self.rear_ports[1], cable3, self.rear_ports[0], self.front_ports[1],
+                cable2
+            ),
+            is_connected=True
+        )
+        self.assertEqual(CablePath.objects.count(), 4)
+
+        # Delete cable 5
+        cable5.delete()
+
+        # Check for two complete paths (IF1 <--> IF2) and two partial (IF3 <--> IF4)
+        self.assertEqual(CablePath.objects.filter(destination_id__isnull=True).count(), 2)
+        self.assertEqual(CablePath.objects.filter(destination_id__isnull=False).count(), 2)
+
+    def test_06_interfaces_to_interfaces_via_patched_pass_throughs(self):
         """
         [IF1] --C1-- [FP1:1] [RP1] --C3-- [FP5] [RP5] --C4-- [RP2] [FP2:1] --C5-- [IF3]
         [IF2] --C2-- [FP1:2]                                       [FP2:2] --C6-- [IF4]
@@ -403,7 +477,7 @@ class CablePathTestCase(TestCase):
         self.assertEqual(CablePath.objects.filter(destination_id__isnull=True).count(), 4)
         self.assertEqual(CablePath.objects.filter(destination_id__isnull=False).count(), 0)
 
-    def test_06_interface_to_interface_via_existing_cable(self):
+    def test_07_interface_to_interface_via_existing_cable(self):
         """
         [IF1] --C1-- [FP5] [RP5] --C2-- [RP6] [FP6] --C3-- [IF2]
         """
@@ -446,7 +520,7 @@ class CablePathTestCase(TestCase):
         )
         self.assertEqual(CablePath.objects.count(), 2)
 
-    def test_07_change_cable_status(self):
+    def test_08_change_cable_status(self):
         """
         [IF1] --C1-- [FP5] [RP5] --C2-- [IF2]
         """
