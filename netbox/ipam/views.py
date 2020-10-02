@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2 import RequestConfig
 
 from dcim.models import Device, Interface
-from utilities.paginator import EnhancedPaginator
+from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.utils import get_subquery
 from utilities.views import (
     BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView,
@@ -233,7 +233,7 @@ class AggregateView(ObjectView):
 
         paginate = {
             'paginator_class': EnhancedPaginator,
-            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+            'per_page': get_paginate_count(request)
         }
         RequestConfig(request, paginate).configure(prefix_table)
 
@@ -391,7 +391,7 @@ class PrefixPrefixesView(ObjectView):
 
         paginate = {
             'paginator_class': EnhancedPaginator,
-            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+            'per_page': get_paginate_count(request)
         }
         RequestConfig(request, paginate).configure(prefix_table)
 
@@ -435,7 +435,7 @@ class PrefixIPAddressesView(ObjectView):
 
         paginate = {
             'paginator_class': EnhancedPaginator,
-            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+            'per_page': get_paginate_count(request)
         }
         RequestConfig(request, paginate).configure(ip_table)
 
@@ -539,7 +539,7 @@ class IPAddressView(ObjectView):
 
         paginate = {
             'paginator_class': EnhancedPaginator,
-            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+            'per_page': get_paginate_count(request)
         }
         RequestConfig(request, paginate).configure(related_ips_table)
 
@@ -699,7 +699,7 @@ class VLANGroupVLANsView(ObjectView):
 
         paginate = {
             'paginator_class': EnhancedPaginator,
-            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+            'per_page': get_paginate_count(request),
         }
         RequestConfig(request, paginate).configure(vlan_table)
 
@@ -760,7 +760,7 @@ class VLANInterfacesView(ObjectView):
 
         paginate = {
             'paginator_class': EnhancedPaginator,
-            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+            'per_page': get_paginate_count(request)
         }
         RequestConfig(request, paginate).configure(members_table)
 
@@ -781,7 +781,7 @@ class VLANVMInterfacesView(ObjectView):
 
         paginate = {
             'paginator_class': EnhancedPaginator,
-            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+            'per_page': get_paginate_count(request)
         }
         RequestConfig(request, paginate).configure(members_table)
 
