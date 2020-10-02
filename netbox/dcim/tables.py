@@ -812,13 +812,15 @@ class CableTable(BaseTable):
 #
 
 class ConsoleConnectionTable(BaseTable):
-    console_server = tables.LinkColumn(
-        viewname='dcim:device',
-        accessor=Accessor('connected_endpoint__device'),
-        args=[Accessor('connected_endpoint__device__pk')],
+    console_server = tables.Column(
+        accessor=Accessor('path__destination__device'),
+        orderable=False,
+        linkify=True,
         verbose_name='Console Server'
     )
-    connected_endpoint = tables.Column(
+    console_server_port = tables.Column(
+        accessor=Accessor('path__destination'),
+        orderable=False,
         linkify=True,
         verbose_name='Port'
     )
@@ -830,25 +832,27 @@ class ConsoleConnectionTable(BaseTable):
         verbose_name='Console Port'
     )
     connection_status = tables.TemplateColumn(
+        accessor=Accessor('path__is_connected'),
+        orderable=False,
         template_code=CONNECTION_STATUS,
         verbose_name='Status'
     )
 
     class Meta(BaseTable.Meta):
         model = ConsolePort
-        fields = ('console_server', 'connected_endpoint', 'device', 'name', 'connection_status')
+        fields = ('console_server', 'console_server_port', 'device', 'name', 'connection_status')
 
 
 class PowerConnectionTable(BaseTable):
-    pdu = tables.LinkColumn(
-        viewname='dcim:device',
-        accessor=Accessor('connected_endpoint__device'),
-        args=[Accessor('connected_endpoint__device__pk')],
-        order_by='_connected_poweroutlet__device',
+    pdu = tables.Column(
+        accessor=Accessor('path__destination__device'),
+        orderable=False,
+        linkify=True,
         verbose_name='PDU'
     )
     outlet = tables.Column(
-        accessor=Accessor('_connected_poweroutlet'),
+        accessor=Accessor('path__destination'),
+        orderable=False,
         linkify=True,
         verbose_name='Outlet'
     )
@@ -860,6 +864,8 @@ class PowerConnectionTable(BaseTable):
         verbose_name='Power Port'
     )
     connection_status = tables.TemplateColumn(
+        accessor=Accessor('path__is_connected'),
+        orderable=False,
         template_code=CONNECTION_STATUS,
         verbose_name='Status'
     )
@@ -870,31 +876,31 @@ class PowerConnectionTable(BaseTable):
 
 
 class InterfaceConnectionTable(BaseTable):
-    device_a = tables.LinkColumn(
-        viewname='dcim:device',
+    device_a = tables.Column(
         accessor=Accessor('device'),
-        args=[Accessor('device__pk')],
+        linkify=True,
         verbose_name='Device A'
     )
-    interface_a = tables.LinkColumn(
-        viewname='dcim:interface',
+    interface_a = tables.Column(
         accessor=Accessor('name'),
-        args=[Accessor('pk')],
+        linkify=True,
         verbose_name='Interface A'
     )
-    device_b = tables.LinkColumn(
-        viewname='dcim:device',
-        accessor=Accessor('_connected_interface__device'),
-        args=[Accessor('_connected_interface__device__pk')],
+    device_b = tables.Column(
+        accessor=Accessor('path__destination__device'),
+        orderable=False,
+        linkify=True,
         verbose_name='Device B'
     )
-    interface_b = tables.LinkColumn(
-        viewname='dcim:interface',
-        accessor=Accessor('_connected_interface'),
-        args=[Accessor('_connected_interface__pk')],
+    interface_b = tables.Column(
+        accessor=Accessor('path__destination'),
+        orderable=False,
+        linkify=True,
         verbose_name='Interface B'
     )
     connection_status = tables.TemplateColumn(
+        accessor=Accessor('path__is_connected'),
+        orderable=False,
         template_code=CONNECTION_STATUS,
         verbose_name='Status'
     )
