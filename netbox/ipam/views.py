@@ -527,7 +527,8 @@ class IPAddressView(ObjectView):
         # Exclude anycast IPs if this IP is anycast
         if ipaddress.role == IPAddressRoleChoices.ROLE_ANYCAST:
             duplicate_ips = duplicate_ips.exclude(role=IPAddressRoleChoices.ROLE_ANYCAST)
-        duplicate_ips_table = tables.IPAddressTable(list(duplicate_ips), orderable=False)
+        # Limit to a maximum of 10 duplicates displayed here
+        duplicate_ips_table = tables.IPAddressTable(duplicate_ips[:10], orderable=False)
 
         # Related IP table
         related_ips = IPAddress.objects.restrict(request.user, 'view').exclude(
@@ -547,6 +548,7 @@ class IPAddressView(ObjectView):
             'ipaddress': ipaddress,
             'parent_prefixes_table': parent_prefixes_table,
             'duplicate_ips_table': duplicate_ips_table,
+            'more_duplicate_ips': duplicate_ips.count() > 10,
             'related_ips_table': related_ips_table,
         })
 
