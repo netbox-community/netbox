@@ -67,8 +67,8 @@ INTERFACE_TAGGED_VLANS = """
 {% endfor %}
 """
 
-CONNECTION_STATUS = """
-<span class="label label-{% if record.connection_status %}success{% else %}danger{% endif %}">{{ record.get_connection_status_display }}</span>
+PATH_STATUS = """
+<span class="label label-{% if value %}success{% else %}danger{% endif %}">{% if value %}Connected{% else %}Not Connected{% endif %}</span>
 """
 
 
@@ -813,13 +813,13 @@ class CableTable(BaseTable):
 
 class ConsoleConnectionTable(BaseTable):
     console_server = tables.Column(
-        accessor=Accessor('path__destination__device'),
+        accessor=Accessor('_path__destination__device'),
         orderable=False,
         linkify=True,
         verbose_name='Console Server'
     )
     console_server_port = tables.Column(
-        accessor=Accessor('path__destination'),
+        accessor=Accessor('_path__destination'),
         orderable=False,
         linkify=True,
         verbose_name='Port'
@@ -831,27 +831,28 @@ class ConsoleConnectionTable(BaseTable):
         linkify=True,
         verbose_name='Console Port'
     )
-    connection_status = tables.TemplateColumn(
-        accessor=Accessor('path__is_connected'),
-        orderable=False,
-        template_code=CONNECTION_STATUS,
-        verbose_name='Status'
+    path_status = tables.TemplateColumn(
+        accessor=Accessor('_path__is_connected'),
+        template_code=PATH_STATUS,
+        verbose_name='Path Status'
     )
+
+    add_prefetch = False
 
     class Meta(BaseTable.Meta):
         model = ConsolePort
-        fields = ('console_server', 'console_server_port', 'device', 'name', 'connection_status')
+        fields = ('console_server', 'console_server_port', 'device', 'name', 'path_status')
 
 
 class PowerConnectionTable(BaseTable):
     pdu = tables.Column(
-        accessor=Accessor('path__destination__device'),
+        accessor=Accessor('_path__destination__device'),
         orderable=False,
         linkify=True,
         verbose_name='PDU'
     )
     outlet = tables.Column(
-        accessor=Accessor('path__destination'),
+        accessor=Accessor('_path__destination'),
         orderable=False,
         linkify=True,
         verbose_name='Outlet'
@@ -863,16 +864,17 @@ class PowerConnectionTable(BaseTable):
         linkify=True,
         verbose_name='Power Port'
     )
-    connection_status = tables.TemplateColumn(
-        accessor=Accessor('path__is_connected'),
-        orderable=False,
-        template_code=CONNECTION_STATUS,
-        verbose_name='Status'
+    path_status = tables.TemplateColumn(
+        accessor=Accessor('_path__is_connected'),
+        template_code=PATH_STATUS,
+        verbose_name='Path Status'
     )
+
+    add_prefetch = False
 
     class Meta(BaseTable.Meta):
         model = PowerPort
-        fields = ('pdu', 'outlet', 'device', 'name', 'connection_status')
+        fields = ('pdu', 'outlet', 'device', 'name', 'path_status')
 
 
 class InterfaceConnectionTable(BaseTable):
@@ -887,29 +889,28 @@ class InterfaceConnectionTable(BaseTable):
         verbose_name='Interface A'
     )
     device_b = tables.Column(
-        accessor=Accessor('path__destination__device'),
+        accessor=Accessor('_path__destination__device'),
         orderable=False,
         linkify=True,
         verbose_name='Device B'
     )
     interface_b = tables.Column(
-        accessor=Accessor('path__destination'),
+        accessor=Accessor('_path__destination'),
         orderable=False,
         linkify=True,
         verbose_name='Interface B'
     )
-    connection_status = tables.TemplateColumn(
-        accessor=Accessor('path__is_connected'),
-        orderable=False,
-        template_code=CONNECTION_STATUS,
-        verbose_name='Status'
+    path_status = tables.TemplateColumn(
+        accessor=Accessor('_path__is_connected'),
+        template_code=PATH_STATUS,
+        verbose_name='Path Status'
     )
+
+    add_prefetch = False
 
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = (
-            'device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status',
-        )
+        fields = ('device_a', 'interface_a', 'device_b', 'interface_b', 'path_status')
 
 
 #

@@ -2079,12 +2079,8 @@ class CableBulkDeleteView(BulkDeleteView):
 
 class ConsoleConnectionsListView(ObjectListView):
     queryset = ConsolePort.objects.prefetch_related(
-        'device', 'connected_endpoint__device'
-    ).filter(
-        connected_endpoint__isnull=False
-    ).order_by(
-        'cable', 'connected_endpoint__device__name', 'connected_endpoint__name'
-    )
+        'device', '_path__destination__device'
+    ).filter(_path__isnull=False).order_by('device')
     filterset = filters.ConsoleConnectionFilterSet
     filterset_form = forms.ConsoleConnectionFilterForm
     table = tables.ConsoleConnectionTable
@@ -2097,11 +2093,11 @@ class ConsoleConnectionsListView(ObjectListView):
         ]
         for obj in self.queryset:
             csv = csv_format([
-                obj.connected_endpoint.device.identifier if obj.connected_endpoint else None,
-                obj.connected_endpoint.name if obj.connected_endpoint else None,
+                obj._path.destination.device.identifier if obj._path.destination else None,
+                obj._path.destination.name if obj._path.destination else None,
                 obj.device.identifier,
                 obj.name,
-                obj.get_connection_status_display(),
+                'Connected' if obj._path.is_connected else 'Not Connected',
             ])
             csv_data.append(csv)
 
@@ -2110,12 +2106,8 @@ class ConsoleConnectionsListView(ObjectListView):
 
 class PowerConnectionsListView(ObjectListView):
     queryset = PowerPort.objects.prefetch_related(
-        'device', '_connected_poweroutlet__device'
-    ).filter(
-        _connected_poweroutlet__isnull=False
-    ).order_by(
-        'cable', '_connected_poweroutlet__device__name', '_connected_poweroutlet__name'
-    )
+        'device', '_path__destination__device'
+    ).filter(_path__isnull=False).order_by('device')
     filterset = filters.PowerConnectionFilterSet
     filterset_form = forms.PowerConnectionFilterForm
     table = tables.PowerConnectionTable
@@ -2128,11 +2120,11 @@ class PowerConnectionsListView(ObjectListView):
         ]
         for obj in self.queryset:
             csv = csv_format([
-                obj.connected_endpoint.device.identifier if obj.connected_endpoint else None,
-                obj.connected_endpoint.name if obj.connected_endpoint else None,
+                obj._path.destination.device.identifier if obj._path.destination else None,
+                obj._path.destination.name if obj._path.destination else None,
                 obj.device.identifier,
                 obj.name,
-                obj.get_connection_status_display(),
+                'Connected' if obj._path.is_connected else 'Not Connected',
             ])
             csv_data.append(csv)
 
@@ -2141,14 +2133,12 @@ class PowerConnectionsListView(ObjectListView):
 
 class InterfaceConnectionsListView(ObjectListView):
     queryset = Interface.objects.prefetch_related(
-        'device', 'cable', '_connected_interface__device'
+        'device', '_path__destination__device'
     ).filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
-        _connected_interface__isnull=False,
+        _path__isnull=False,
         pk__lt=F('_connected_interface')
-    ).order_by(
-        'device'
-    )
+    ).order_by('device')
     filterset = filters.InterfaceConnectionFilterSet
     filterset_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
@@ -2163,11 +2153,11 @@ class InterfaceConnectionsListView(ObjectListView):
         ]
         for obj in self.queryset:
             csv = csv_format([
-                obj.connected_endpoint.device.identifier if obj.connected_endpoint else None,
-                obj.connected_endpoint.name if obj.connected_endpoint else None,
+                obj._path.destination.device.identifier if obj._path.destination else None,
+                obj._path.destination.name if obj._path.destination else None,
                 obj.device.identifier,
                 obj.name,
-                obj.get_connection_status_display(),
+                'Connected' if obj._path.is_connected else 'Not Connected',
             ])
             csv_data.append(csv)
 
