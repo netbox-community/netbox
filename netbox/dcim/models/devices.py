@@ -1191,7 +1191,7 @@ class CablePath(models.Model):
         fk_field='destination_id'
     )
     path = PathField()
-    is_connected = models.BooleanField(
+    is_active = models.BooleanField(
         default=False
     )
 

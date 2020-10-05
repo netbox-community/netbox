@@ -52,7 +52,7 @@ class ConnectedEndpointSerializer(ValidatedModelSerializer):
     @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
     def get_connection_status(self, obj):
         if obj._path is not None:
-            return obj._path.is_connected
+            return obj._path.is_active
         return None
 
 

@@ -2088,7 +2088,7 @@ class ConsoleConnectionsListView(ObjectListView):
                 obj._path.destination.name if obj._path.destination else None,
                 obj.device.identifier,
                 obj.name,
-                'Connected' if obj._path.is_connected else 'Not Connected',
+                'Connected' if obj._path.is_active else 'Not Connected',
             ])
             csv_data.append(csv)
 
@@ -2115,7 +2115,7 @@ class PowerConnectionsListView(ObjectListView):
                 obj._path.destination.name if obj._path.destination else None,
                 obj.device.identifier,
                 obj.name,
-                'Connected' if obj._path.is_connected else 'Not Connected',
+                'Connected' if obj._path.is_active else 'Not Connected',
             ])
             csv_data.append(csv)
 
@@ -2148,7 +2148,7 @@ class InterfaceConnectionsListView(ObjectListView):
                 obj._path.destination.name if obj._path.destination else None,
                 obj.device.identifier,
                 obj.name,
-                'Connected' if obj._path.is_connected else 'Not Connected',
+                'Connected' if obj._path.is_active else 'Not Connected',
             ])
             csv_data.append(csv)
 

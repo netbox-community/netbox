@@ -760,7 +760,7 @@ class PathEndpointFilterSet(django_filters.FilterSet):
     )
 
     def filter_is_connected(self, queryset, name, value):
-        return queryset.filter(_path__is_connected=True)
+        return queryset.filter(_path__is_active=True)
 
 
 class ConsolePortFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpointFilterSet):

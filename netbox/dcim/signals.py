@@ -14,9 +14,9 @@ def create_cablepath(node):
     """
     Create CablePaths for all paths originating from the specified node.
     """
-    path, destination, is_connected = trace_path(node)
+    path, destination, is_active = trace_path(node)
     if path:
-        cp = CablePath(origin=node, path=path, destination=destination, is_connected=is_connected)
+        cp = CablePath(origin=node, path=path, destination=destination, is_active=is_active)
         cp.save()
 
 
@@ -86,7 +86,7 @@ def update_connected_endpoints(instance, created, **kwargs):
         # may change in the future.) However, we do need to capture status changes and update
         # any CablePaths accordingly.
         if instance.status != CableStatusChoices.STATUS_CONNECTED:
-            CablePath.objects.filter(path__contains=[object_to_path_node(instance)]).update(is_connected=False)
+            CablePath.objects.filter(path__contains=[object_to_path_node(instance)]).update(is_active=False)
         else:
             rebuild_paths(instance)
 
@@ -110,13 +110,13 @@ def nullify_connected_endpoints(instance, **kwargs):
 
     # Delete and retrace any dependent cable paths
     for cablepath in CablePath.objects.filter(path__contains=[object_to_path_node(instance)]):
-        path, destination, is_connected = trace_path(cablepath.origin)
+        path, destination, is_active = trace_path(cablepath.origin)
         if path:
             CablePath.objects.filter(pk=cablepath.pk).update(
                 path=path,
                 destination_type=ContentType.objects.get_for_model(destination) if destination else None,
                 destination_id=destination.pk if destination else None,
-                is_connected=is_connected
+                is_active=is_active
             )
         else:
             cablepath.delete()

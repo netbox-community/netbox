@@ -832,7 +832,7 @@ class ConsoleConnectionTable(BaseTable):
         verbose_name='Console Port'
     )
     path_status = tables.TemplateColumn(
-        accessor=Accessor('_path__is_connected'),
+        accessor=Accessor('_path__is_active'),
         template_code=PATH_STATUS,
         verbose_name='Path Status'
     )
@@ -865,7 +865,7 @@ class PowerConnectionTable(BaseTable):
         verbose_name='Power Port'
     )
     path_status = tables.TemplateColumn(
-        accessor=Accessor('_path__is_connected'),
+        accessor=Accessor('_path__is_active'),
         template_code=PATH_STATUS,
         verbose_name='Path Status'
     )
@@ -901,7 +901,7 @@ class InterfaceConnectionTable(BaseTable):
         verbose_name='Interface B'
     )
     path_status = tables.TemplateColumn(
-        accessor=Accessor('_path__is_connected'),
+        accessor=Accessor('_path__is_active'),
         template_code=PATH_STATUS,
         verbose_name='Path Status'
     )

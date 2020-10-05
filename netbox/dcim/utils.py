@@ -24,14 +24,14 @@ def trace_path(node):
     destination = None
     path = []
     position_stack = []
-    is_connected = True
+    is_active = True
 
     if node is None or node.cable is None:
         return [], None, False
 
     while node.cable is not None:
         if node.cable.status != CableStatusChoices.STATUS_CONNECTED:
-            is_connected = False
+            is_active = False
 
         # Follow the cable to its far-end termination
         path.append(object_to_path_node(node.cable))
@@ -65,6 +65,6 @@ def trace_path(node):
             break
 
     if destination is None:
-        is_connected = False
+        is_active = False
 
-    return path, destination, is_connected
+    return path, destination, is_active

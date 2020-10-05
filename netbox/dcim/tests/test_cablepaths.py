@@ -123,14 +123,14 @@ class CablePathTestCase(TestCase):
             cls.circuittermination2_Z,
         ])
 
-    def assertPathExists(self, origin, destination, path=None, is_connected=None, msg=None):
+    def assertPathExists(self, origin, destination, path=None, is_active=None, msg=None):
         """
         Assert that a CablePath from origin to destination with a specific intermediate path exists.
 
         :param origin: Originating endpoint
         :param destination: Terminating endpoint, or None
         :param path: Sequence of objects comprising the intermediate path (optional)
-        :param is_connected: Boolean indicating whether the end-to-end path is complete and active (optional)
+        :param is_active: Boolean indicating whether the end-to-end path is complete and active (optional)
         :param msg: Custom failure message (optional)
 
         :return: The matching CablePath (if any)
@@ -147,8 +147,8 @@ class CablePathTestCase(TestCase):
             kwargs['destination_id__isnull'] = True
         if path is not None:
             kwargs['path'] = objects_to_path(*path)
-        if is_connected is not None:
-            kwargs['is_connected'] = is_connected
+        if is_active is not None:
+            kwargs['is_active'] = is_active
         if msg is None:
             if destination is not None:
                 msg = f"Missing path from {origin} to {destination}"
@@ -194,13 +194,13 @@ class CablePathTestCase(TestCase):
             origin=self.interface1,
             destination=self.interface2,
             path=(cable1,),
-            is_connected=True
+            is_active=True
         )
         path2 = self.assertPathExists(
             origin=self.interface2,
             destination=self.interface1,
             path=(cable1,),
-            is_connected=True
+            is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 2)
         self.interface1.refresh_from_db()
@@ -225,13 +225,13 @@ class CablePathTestCase(TestCase):
             origin=self.consoleport1,
             destination=self.consoleserverport1,
             path=(cable1,),
-            is_connected=True
+            is_active=True
         )
         path2 = self.assertPathExists(
             origin=self.consoleserverport1,
             destination=self.consoleport1,
             path=(cable1,),
-            is_connected=True
+            is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 2)
         self.consoleport1.refresh_from_db()
@@ -256,13 +256,13 @@ class CablePathTestCase(TestCase):
             origin=self.powerport1,
             destination=self.poweroutlet1,
             path=(cable1,),
-            is_connected=True
+            is_active=True
         )
         path2 = self.assertPathExists(
             origin=self.poweroutlet1,
             destination=self.powerport1,
             path=(cable1,),
-            is_connected=True
+            is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 2)
         self.powerport1.refresh_from_db()
@@ -287,13 +287,13 @@ class CablePathTestCase(TestCase):
             origin=self.powerport1,
             destination=self.powerfeed1,
             path=(cable1,),
-            is_connected=True
+            is_active=True
         )
         path2 = self.assertPathExists(
             origin=self.powerfeed1,
             destination=self.powerport1,
             path=(cable1,),
-            is_connected=True
+            is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 2)
         self.powerport1.refresh_from_db()
@@ -318,13 +318,13 @@ class CablePathTestCase(TestCase):
             origin=self.interface1,
             destination=self.circuittermination1_A,
             path=(cable1,),
-            is_connected=True
+            is_active=True
         )
         path2 = self.assertPathExists(
             origin=self.circuittermination1_A,
             destination=self.interface1,
             path=(cable1,),
-            is_connected=True
+            is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 2)
         self.interface1.refresh_from_db()
@@ -352,7 +352,7 @@ class CablePathTestCase(TestCase):
             origin=self.interface1,
             destination=None,
             path=(cable1, self.front_port5_1, self.rear_port5),
-            is_connected=False
+            is_active=False
         )
         self.assertEqual(CablePath.objects.count(), 1)
 
@@ -363,13 +363,13 @@ class CablePathTestCase(TestCase):
             origin=self.interface1,
             destination=self.interface2,
             path=(cable1, self.front_port5_1, self.rear_port5, cable2),
-            is_connected=True
+            is_active=True
         )
         self.assertPathExists(
             origin=self.interface2,
             destination=self.interface1,
             path=(cable2, self.rear_port5, self.front_port5_1, cable1),
-            is_connected=True
+            is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 2)
 
@@ -379,7 +379,7 @@ class CablePathTestCase(TestCase):
             origin=self.interface1,
             destination=None,
             path=(cable1, self.front_port5_1, self.rear_port5),
-            is_connected=False
+            is_active=False
         )
         self.assertEqual(CablePath.objects.count(), 1)
         self.interface1.refresh_from_db()
@@ -406,13 +406,13 @@ class CablePathTestCase(TestCase):
             origin=self.interface1,
             destination=None,
             path=(cable1, self.front_port1_1, self.rear_port1),
-            is_connected=False
+            is_active=False
         )
         self.assertPathExists(
             origin=self.interface2,
             destination=None,
             path=(cable2, self.front_port1_2, self.rear_port1),
-            is_connected=False
+            is_active=False
         )
         self.assertEqual(CablePath.objects.count(), 2)
 
@@ -423,13 +423,13 @@ class CablePathTestCase(TestCase):
             origin=self.interface1,
             destination=None,
             path=(cable1, self.front_port1_1, self.rear_port1, cable3, self.rear_port2, self.front_port2_1),
-            is_connected=False
+            is_active=False
         )
         self.assertPathExists(
             origin=self.interface2,
             destination=None,
             path=(cable2, self.front_port1_2, self.rear_port1, cable3, self.rear_port2, self.front_port2_2),
-            is_connected=False
+            is_active=False
         )
         self.assertEqual(CablePath.objects.count(), 2)
 
@@ -445,7 +445,7 @@ class CablePathTestCase(TestCase):
                 cable1, self.front_port1_1, self.rear_port1, cable3, self.rear_port2, self.front_port2_1,
                 cable4,
             ),
-            is_connected=True
+            is_active=True
         )
         path2 = self.assertPathExists(
             origin=self.interface2,
@@ -454,7 +454,7 @@ class CablePathTestCase(TestCase):
                 cable2, self.front_port1_2, self.rear_port1, cable3, self.rear_port2, self.front_port2_2,
                 cable5,
             ),
-            is_connected=True
+            is_active=True
         )
         path3 = self.assertPathExists(
             origin=self.interface3,
@@ -463,7 +463,7 @@ class CablePathTestCase(TestCase):
                 cable4, self.front_port2_1, self.rear_port2, cable3, self.rear_port1, self.front_port1_1,
                 cable1
             ),
-            is_connected=True
+            is_active=True
         )
         path4 = self.assertPathExists(
             origin=self.interface4,
@@ -472,7 +472,7 @@ class CablePathTestCase(TestCase):
                 cable5, self.front_port2_2, self.rear_port2, cable3, self.rear_port1, self.front_port1_2,
                 cable2
             ),
-            is_connected=True
+            is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 4)
 
@@ -530,7 +530,7 @@ class CablePathTestCase(TestCase):
                 cable4, self.rear_port3, self.front_port3_1, cable5, self.rear_port4, self.front_port4_1,
                 cable6
             ),
-            is_connected=True
+            is_active=True
         )
         self.assertPathExists(
             origin=self.interface2,
@@ -540,7 +540,7 @@ class CablePathTestCase(TestCase):
                 cable4, self.rear_port3, self.front_port3_1, cable5, self.rear_port4, self.front_port4_2,
                 cable7
             ),
-            is_connected=True
+            is_active=True
         )
         self.assertPathExists(
             origin=self.interface3,
@@ -550,7 +550,7 @@ class CablePathTestCase(TestCase):
                 cable4, self.rear_port2, self.front_port2_1, cable3, self.rear_port1, self.front_port1_1,
                 cable1
             ),
-            is_connected=True
+            is_active=True
         )
         self.assertPathExists(
             origin=self.interface4,
@@ -560,7 +560,7 @@ class CablePathTestCase(TestCase):
                 cable4, self.rear_port2, self.front_port2_1, cable3, self.rear_port1, self.front_port1_2,
                 cable2
             ),
-            is_connected=True
+            is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 4)
 
@@ -609,7 +609,7 @@ class CablePathTestCase(TestCase):
                 cable4, self.front_port3_1, self.rear_port3, cable6, self.rear_port4, self.front_port4_1,
                 cable7
             ),
-            is_connected=True
+            is_active=True
         )
         self.assertPathExists(
             origin=self.interface2,
@@ -619,7 +619,7 @@ class CablePathTestCase(TestCase):
                 cable5, self.front_port3_2, self.rear_port3, cable6, self.rear_port4, self.front_port4_2,
                 cable8
             ),
-            is_connected=True
+            is_active=True
         )
         self.assertPathExists(
             origin=self.interface3,
@@ -629,7 +629,7 @@ class CablePathTestCase(TestCase):
                 cable4, self.front_port2_1, self.rear_port2, cable3, self.rear_port1, self.front_port1_1,
                 cable1
             ),
-            is_connected=True
+            is_active=True
         )
         self.assertPathExists(
             origin=self.interface4,
@@ -639,7 +639,7 @@ class CablePathTestCase(TestCase):
                 cable5, self.front_port2_2, self.rear_port2, cable3, self.rear_port1, self.front_port1_2,
                 cable2
             ),
-            is_connected=True
+            is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 4)
 
@@ -683,7 +683,7 @@ class CablePathTestCase(TestCase):
                 cable1, self.front_port1_1, self.rear_port1, cable3, self.front_port5_1, self.rear_port5,
                 cable4, self.rear_port2, self.front_port2_1, cable5
             ),
-            is_connected=True
+            is_active=True
         )
         self.assertPathExists(
             origin=self.interface2,
@@ -692,7 +692,7 @@ class CablePathTestCase(TestCase):
                 cable2, self.front_port1_2, self.rear_port1, cable3, self.front_port5_1, self.rear_port5,
                 cable4, self.rear_port2, self.front_port2_2, cable6
             ),
-            is_connected=True
+            is_active=True
         )
         self.assertPathExists(
             origin=self.interface3,
@@ -701,7 +701,7 @@ class CablePathTestCase(TestCase):
                 cable5, self.front_port2_1, self.rear_port2, cable4, self.rear_port5, self.front_port5_1,
                 cable3, self.rear_port1, self.front_port1_1, cable1
             ),
-            is_connected=True
+            is_active=True
         )
         self.assertPathExists(
             origin=self.interface4,
@@ -710,7 +710,7 @@ class CablePathTestCase(TestCase):
                 cable6, self.front_port2_2, self.rear_port2, cable4, self.rear_port5, self.front_port5_1,
                 cable3, self.rear_port1, self.front_port1_2, cable2
             ),
-            is_connected=True
+            is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 4)
 
@@ -740,7 +740,7 @@ class CablePathTestCase(TestCase):
             origin=self.interface1,
             destination=None,
             path=(cable1, self.front_port5_1, self.rear_port5, cable2, self.rear_port6, self.front_port6_1),
-            is_connected=False
+            is_active=False
         )
         self.assertEqual(CablePath.objects.count(), 1)
 
@@ -754,7 +754,7 @@ class CablePathTestCase(TestCase):
                 cable1, self.front_port5_1, self.rear_port5, cable2, self.rear_port6, self.front_port6_1,
                 cable3,
             ),
-            is_connected=True
+            is_active=True
         )
         self.assertPathExists(
             origin=self.interface2,
@@ -763,7 +763,7 @@ class CablePathTestCase(TestCase):
                 cable3, self.front_port6_1, self.rear_port6, cable2, self.rear_port5, self.front_port5_1,
                 cable1,
             ),
-            is_connected=True
+            is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 2)
 
@@ -779,7 +779,7 @@ class CablePathTestCase(TestCase):
         cable1.save()
         cable2 = Cable(termination_a=self.rear_port5, termination_b=self.interface2)
         cable2.save()
-        self.assertEqual(CablePath.objects.filter(is_connected=True).count(), 2)
+        self.assertEqual(CablePath.objects.filter(is_active=True).count(), 2)
         self.assertEqual(CablePath.objects.count(), 2)
 
         # Change cable 2's status to "planned"
@@ -789,13 +789,13 @@ class CablePathTestCase(TestCase):
             origin=self.interface1,
             destination=self.interface2,
             path=(cable1, self.front_port5_1, self.rear_port5, cable2),
-            is_connected=False
+            is_active=False
         )
         self.assertPathExists(
             origin=self.interface2,
             destination=self.interface1,
             path=(cable2, self.rear_port5, self.front_port5_1, cable1),
-            is_connected=False
+            is_active=False
         )
         self.assertEqual(CablePath.objects.count(), 2)
 
@@ -807,12 +807,12 @@ class CablePathTestCase(TestCase):
             origin=self.interface1,
             destination=self.interface2,
             path=(cable1, self.front_port5_1, self.rear_port5, cable2),
-            is_connected=True
+            is_active=True
         )
         self.assertPathExists(
             origin=self.interface2,
             destination=self.interface1,
             path=(cable2, self.rear_port5, self.front_port5_1, cable1),
-            is_connected=True
+            is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 2)
