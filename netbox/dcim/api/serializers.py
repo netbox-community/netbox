@@ -760,7 +760,7 @@ class PowerPanelSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
         fields = ['id', 'url', 'site', 'rack_group', 'name', 'tags', 'custom_fields', 'powerfeed_count']
 
 
-class PowerFeedSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
+class PowerFeedSerializer(TaggedObjectSerializer, ConnectedEndpointSerializer, CustomFieldModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerfeed-detail')
     power_panel = NestedPowerPanelSerializer()
     rack = NestedRackSerializer(
@@ -790,5 +790,6 @@ class PowerFeedSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
         model = PowerFeed
         fields = [
             'id', 'url', 'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage',
-            'max_utilization', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'cable',
+            'max_utilization', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'connected_endpoint_type', 'connected_endpoint', 'connected_endpoint_reachable', 'cable',
         ]

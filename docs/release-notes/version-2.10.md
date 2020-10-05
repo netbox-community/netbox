@@ -68,6 +68,7 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 * dcim.FrontPort: Removed the `trace` endpoint
 * dcim.Interface: Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
 * dcim.InventoryItem: The `_depth` field has been added to reflect MPTT positioning
+* dcim.PowerFeed: Add fields `connected_endpoint`, `connected_endpoint_type`, and `connected_endpoint_reachable`
 * dcim.PowerOutlet: Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
 * dcim.PowerPanel: Added `custom_fields`
 * dcim.PowerPort: Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
