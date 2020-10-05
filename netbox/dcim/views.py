@@ -1018,31 +1018,31 @@ class DeviceView(ObjectView):
 
         # Console ports
         consoleports = ConsolePort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
-            'cable', '_path',
+            'cable', '_path__destination',
         )
 
         # Console server ports
         consoleserverports = ConsoleServerPort.objects.restrict(request.user, 'view').filter(
             device=device
         ).prefetch_related(
-            'cable', '_path',
+            'cable', '_path__destination',
         )
 
         # Power ports
         powerports = PowerPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
-            'cable', '_path',
+            'cable', '_path__destination',
         )
 
         # Power outlets
         poweroutlets = PowerOutlet.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
-            'cable', 'power_port', '_path',
+            'cable', 'power_port', '_path__destination',
         )
 
         # Interfaces
         interfaces = device.vc_interfaces.restrict(request.user, 'view').prefetch_related(
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user)),
             Prefetch('member_interfaces', queryset=Interface.objects.restrict(request.user)),
-            'lag', 'cable', '_path', 'tags',
+            'lag', 'cable', '_path__destination', 'tags',
         )
 
         # Front ports
