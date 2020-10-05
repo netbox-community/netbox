@@ -470,37 +470,31 @@ class DeviceViewSet(CustomFieldModelViewSet):
 #
 
 class ConsolePortViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = ConsolePort.objects.prefetch_related('device', 'connected_endpoint__device', 'cable', 'tags')
+    queryset = ConsolePort.objects.prefetch_related('device', '_path', 'cable', 'tags')
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filters.ConsolePortFilterSet
 
 
 class ConsoleServerPortViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = ConsoleServerPort.objects.prefetch_related('device', 'connected_endpoint__device', 'cable', 'tags')
+    queryset = ConsoleServerPort.objects.prefetch_related('device', '_path', 'cable', 'tags')
     serializer_class = serializers.ConsoleServerPortSerializer
     filterset_class = filters.ConsoleServerPortFilterSet
 
 
 class PowerPortViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = PowerPort.objects.prefetch_related(
-        'device', '_connected_poweroutlet__device', '_connected_powerfeed', 'cable', 'tags'
-    )
+    queryset = PowerPort.objects.prefetch_related('device', '_path', 'cable', 'tags')
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filters.PowerPortFilterSet
 
 
 class PowerOutletViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = PowerOutlet.objects.prefetch_related('device', 'connected_endpoint__device', 'cable', 'tags')
+    queryset = PowerOutlet.objects.prefetch_related('device', '_path', 'cable', 'tags')
     serializer_class = serializers.PowerOutletSerializer
     filterset_class = filters.PowerOutletFilterSet
 
 
 class InterfaceViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = Interface.objects.prefetch_related(
-        'device', '_connected_interface', '_connected_circuittermination', 'cable', 'ip_addresses', 'tags'
-    ).filter(
-        device__isnull=False
-    )
+    queryset = Interface.objects.prefetch_related('device', '_path', 'cable', 'ip_addresses', 'tags')
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filters.InterfaceFilterSet
 
@@ -534,32 +528,26 @@ class InventoryItemViewSet(ModelViewSet):
 #
 
 class ConsoleConnectionViewSet(ListModelMixin, GenericViewSet):
-    queryset = ConsolePort.objects.prefetch_related(
-        'device', 'connected_endpoint__device'
-    ).filter(
-        connected_endpoint__isnull=False
+    queryset = ConsolePort.objects.prefetch_related('device', '_path').filter(
+        _path__destination_id__isnull=False
     )
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filters.ConsoleConnectionFilterSet
 
 
 class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
-    queryset = PowerPort.objects.prefetch_related(
-        'device', 'connected_endpoint__device'
-    ).filter(
-        _connected_poweroutlet__isnull=False
+    queryset = PowerPort.objects.prefetch_related('device', '_path').filter(
+        _path__destination_id__isnull=False
     )
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filters.PowerConnectionFilterSet
 
 
 class InterfaceConnectionViewSet(ListModelMixin, GenericViewSet):
-    queryset = Interface.objects.prefetch_related(
-        'device', '_connected_interface__device'
-    ).filter(
+    queryset = Interface.objects.prefetch_related('device', '_path').filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
-        _connected_interface__isnull=False,
-        pk__lt=F('_connected_interface')
+        _path__destination_id__isnull=False,
+        pk__lt=F('_path__destination_id')
     )
     serializer_class = serializers.InterfaceConnectionSerializer
     filterset_class = filters.InterfaceConnectionFilterSet
@@ -664,7 +652,7 @@ class ConnectedDeviceViewSet(ViewSet):
             device__name=peer_device_name,
             name=peer_interface_name
         )
-        local_interface = peer_interface._connected_interface
+        local_interface = peer_interface.connected_endpoint
 
         if local_interface is None:
             return Response()

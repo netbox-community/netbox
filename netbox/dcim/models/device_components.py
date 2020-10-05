@@ -150,6 +150,15 @@ class PathEndpoint(models.Model):
         # Return the path as a list of three-tuples (A termination, cable, B termination)
         return list(zip(*[iter(path)] * 3))
 
+    @property
+    def connected_endpoint(self):
+        """
+        Caching accessor for the attached CablePath's destination (if any)
+        """
+        if not hasattr(self, '_connected_endpoint'):
+            self._connected_endpoint = self._path.destination if self._path else None
+        return self._connected_endpoint
+
 
 #
 # Console ports
@@ -165,13 +174,6 @@ class ConsolePort(CableTermination, PathEndpoint, ComponentModel):
         choices=ConsolePortTypeChoices,
         blank=True,
         help_text='Physical port type'
-    )
-    connected_endpoint = models.OneToOneField(
-        to='dcim.ConsoleServerPort',
-        on_delete=models.SET_NULL,
-        related_name='connected_endpoint',
-        blank=True,
-        null=True
     )
     connection_status = models.BooleanField(
         choices=CONNECTION_STATUS_CHOICES,
@@ -267,20 +269,6 @@ class PowerPort(CableTermination, PathEndpoint, ComponentModel):
         validators=[MinValueValidator(1)],
         help_text="Allocated power draw (watts)"
     )
-    _connected_poweroutlet = models.OneToOneField(
-        to='dcim.PowerOutlet',
-        on_delete=models.SET_NULL,
-        related_name='connected_endpoint',
-        blank=True,
-        null=True
-    )
-    _connected_powerfeed = models.OneToOneField(
-        to='dcim.PowerFeed',
-        on_delete=models.SET_NULL,
-        related_name='+',
-        blank=True,
-        null=True
-    )
     connection_status = models.BooleanField(
         choices=CONNECTION_STATUS_CHOICES,
         blank=True,
@@ -307,43 +295,6 @@ class PowerPort(CableTermination, PathEndpoint, ComponentModel):
             self.allocated_draw,
             self.description,
         )
-
-    @property
-    def connected_endpoint(self):
-        """
-        Return the connected PowerOutlet, if it exists, or the connected PowerFeed, if it exists. We have to check for
-        ObjectDoesNotExist in case the referenced object has been deleted from the database.
-        """
-        try:
-            if self._connected_poweroutlet:
-                return self._connected_poweroutlet
-        except ObjectDoesNotExist:
-            pass
-        try:
-            if self._connected_powerfeed:
-                return self._connected_powerfeed
-        except ObjectDoesNotExist:
-            pass
-        return None
-
-    @connected_endpoint.setter
-    def connected_endpoint(self, value):
-        # TODO: Fix circular import
-        from . import PowerFeed
-
-        if value is None:
-            self._connected_poweroutlet = None
-            self._connected_powerfeed = None
-        elif isinstance(value, PowerOutlet):
-            self._connected_poweroutlet = value
-            self._connected_powerfeed = None
-        elif isinstance(value, PowerFeed):
-            self._connected_poweroutlet = None
-            self._connected_powerfeed = value
-        else:
-            raise ValueError(
-                "Connected endpoint must be a PowerOutlet or PowerFeed, not {}.".format(type(value))
-            )
 
     def get_power_draw(self):
         """
@@ -497,20 +448,6 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
         max_length=100,
         blank=True
     )
-    _connected_interface = models.OneToOneField(
-        to='self',
-        on_delete=models.SET_NULL,
-        related_name='+',
-        blank=True,
-        null=True
-    )
-    _connected_circuittermination = models.OneToOneField(
-        to='circuits.CircuitTermination',
-        on_delete=models.SET_NULL,
-        related_name='+',
-        blank=True,
-        null=True
-    )
     connection_status = models.BooleanField(
         choices=CONNECTION_STATUS_CHOICES,
         blank=True,
@@ -630,42 +567,6 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
             self.tagged_vlans.clear()
 
         return super().save(*args, **kwargs)
-
-    @property
-    def connected_endpoint(self):
-        """
-        Return the connected Interface, if it exists, or the connected CircuitTermination, if it exists. We have to
-        check for ObjectDoesNotExist in case the referenced object has been deleted from the database.
-        """
-        try:
-            if self._connected_interface:
-                return self._connected_interface
-        except ObjectDoesNotExist:
-            pass
-        try:
-            if self._connected_circuittermination:
-                return self._connected_circuittermination
-        except ObjectDoesNotExist:
-            pass
-        return None
-
-    @connected_endpoint.setter
-    def connected_endpoint(self, value):
-        from circuits.models import CircuitTermination
-
-        if value is None:
-            self._connected_interface = None
-            self._connected_circuittermination = None
-        elif isinstance(value, Interface):
-            self._connected_interface = value
-            self._connected_circuittermination = None
-        elif isinstance(value, CircuitTermination):
-            self._connected_interface = None
-            self._connected_circuittermination = value
-        else:
-            raise ValueError(
-                "Connected endpoint must be an Interface or CircuitTermination, not {}.".format(type(value))
-            )
 
     @property
     def parent(self):

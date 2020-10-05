@@ -1171,18 +1171,19 @@ class ConsoleConnectionFilterSet(BaseFilterSet):
         model = ConsolePort
         fields = ['name', 'connection_status']
 
-    def filter_site(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(connected_endpoint__device__site__slug=value)
-
-    def filter_device(self, queryset, name, value):
-        if not value:
-            return queryset
-        return queryset.filter(
-            Q(**{'{}__in'.format(name): value}) |
-            Q(**{'connected_endpoint__{}__in'.format(name): value})
-        )
+    # TODO: Fix filters
+    # def filter_site(self, queryset, name, value):
+    #     if not value.strip():
+    #         return queryset
+    #     return queryset.filter(connected_endpoint__device__site__slug=value)
+    #
+    # def filter_device(self, queryset, name, value):
+    #     if not value:
+    #         return queryset
+    #     return queryset.filter(
+    #         Q(**{'{}__in'.format(name): value}) |
+    #         Q(**{'connected_endpoint__{}__in'.format(name): value})
+    #     )
 
 
 class PowerConnectionFilterSet(BaseFilterSet):
@@ -1202,18 +1203,19 @@ class PowerConnectionFilterSet(BaseFilterSet):
         model = PowerPort
         fields = ['name', 'connection_status']
 
-    def filter_site(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(_connected_poweroutlet__device__site__slug=value)
-
-    def filter_device(self, queryset, name, value):
-        if not value:
-            return queryset
-        return queryset.filter(
-            Q(**{'{}__in'.format(name): value}) |
-            Q(**{'_connected_poweroutlet__{}__in'.format(name): value})
-        )
+    # TODO: Fix filters
+    # def filter_site(self, queryset, name, value):
+    #     if not value.strip():
+    #         return queryset
+    #     return queryset.filter(_connected_poweroutlet__device__site__slug=value)
+    #
+    # def filter_device(self, queryset, name, value):
+    #     if not value:
+    #         return queryset
+    #     return queryset.filter(
+    #         Q(**{'{}__in'.format(name): value}) |
+    #         Q(**{'_connected_poweroutlet__{}__in'.format(name): value})
+    #     )
 
 
 class InterfaceConnectionFilterSet(BaseFilterSet):
@@ -1233,21 +1235,22 @@ class InterfaceConnectionFilterSet(BaseFilterSet):
         model = Interface
         fields = ['connection_status']
 
-    def filter_site(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(device__site__slug=value) |
-            Q(_connected_interface__device__site__slug=value)
-        )
-
-    def filter_device(self, queryset, name, value):
-        if not value:
-            return queryset
-        return queryset.filter(
-            Q(**{'{}__in'.format(name): value}) |
-            Q(**{'_connected_interface__{}__in'.format(name): value})
-        )
+    # TODO: Fix filters
+    # def filter_site(self, queryset, name, value):
+    #     if not value.strip():
+    #         return queryset
+    #     return queryset.filter(
+    #         Q(device__site__slug=value) |
+    #         Q(_connected_interface__device__site__slug=value)
+    #     )
+    #
+    # def filter_device(self, queryset, name, value):
+    #     if not value:
+    #         return queryset
+    #     return queryset.filter(
+    #         Q(**{'{}__in'.format(name): value}) |
+    #         Q(**{'_connected_interface__{}__in'.format(name): value})
+    #     )
 
 
 class PowerPanelFilterSet(BaseFilterSet):

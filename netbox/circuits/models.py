@@ -248,13 +248,6 @@ class CircuitTermination(PathEndpoint, CableTermination):
         on_delete=models.PROTECT,
         related_name='circuit_terminations'
     )
-    connected_endpoint = models.OneToOneField(
-        to='dcim.Interface',
-        on_delete=models.SET_NULL,
-        related_name='+',
-        blank=True,
-        null=True
-    )
     connection_status = models.BooleanField(
         choices=CONNECTION_STATUS_CHOICES,
         blank=True,

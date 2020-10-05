@@ -1122,10 +1122,8 @@ class DeviceLLDPNeighborsView(ObjectView):
     def get(self, request, pk):
 
         device = get_object_or_404(self.queryset, pk=pk)
-        interfaces = device.vc_interfaces.restrict(request.user, 'view').exclude(
+        interfaces = device.vc_interfaces.restrict(request.user, 'view').prefetch_related('_path').exclude(
             type__in=NONCONNECTABLE_IFACE_TYPES
-        ).prefetch_related(
-            '_connected_interface__device'
         )
 
         return render(request, 'dcim/device_lldp_neighbors.html', {
@@ -1483,8 +1481,6 @@ class InterfaceView(ObjectView):
 
         return render(request, 'dcim/interface.html', {
             'instance': interface,
-            'connected_interface': interface._connected_interface,
-            'connected_circuittermination': interface._connected_circuittermination,
             'ipaddress_table': ipaddress_table,
             'vlan_table': vlan_table,
         })
@@ -2137,7 +2133,7 @@ class InterfaceConnectionsListView(ObjectListView):
     ).filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
         _path__isnull=False,
-        pk__lt=F('_connected_interface')
+        pk__lt=F('_path__destination_id')
     ).order_by('device')
     filterset = filters.InterfaceConnectionFilterSet
     filterset_form = forms.InterfaceConnectionFilterForm

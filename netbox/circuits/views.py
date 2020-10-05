@@ -131,7 +131,7 @@ class CircuitView(ObjectView):
         circuit = get_object_or_404(self.queryset, pk=pk)
 
         termination_a = CircuitTermination.objects.restrict(request.user, 'view').prefetch_related(
-            'site__region', 'connected_endpoint__device'
+            'site__region'
         ).filter(
             circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_A
         ).first()
@@ -139,7 +139,7 @@ class CircuitView(ObjectView):
             termination_a.ip_addresses = termination_a.connected_endpoint.ip_addresses.restrict(request.user, 'view')
 
         termination_z = CircuitTermination.objects.restrict(request.user, 'view').prefetch_related(
-            'site__region', 'connected_endpoint__device'
+            'site__region'
         ).filter(
             circuit=circuit, term_side=CircuitTerminationSideChoices.SIDE_Z
         ).first()

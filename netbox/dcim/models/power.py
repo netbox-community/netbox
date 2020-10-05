@@ -88,13 +88,6 @@ class PowerFeed(ChangeLoggedModel, PathEndpoint, CableTermination, CustomFieldMo
         blank=True,
         null=True
     )
-    connected_endpoint = models.OneToOneField(
-        to='dcim.PowerPort',
-        on_delete=models.SET_NULL,
-        related_name='+',
-        blank=True,
-        null=True
-    )
     connection_status = models.BooleanField(
         choices=CONNECTION_STATUS_CHOICES,
         blank=True,

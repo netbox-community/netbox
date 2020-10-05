@@ -77,61 +77,63 @@
                     </div>
                     {% if instance.cable %}
                         <table class="table table-hover panel-body attr-table">
-                            {% if connected_interface %}
-                                <tr>
-                                    <td>Device</td>
-                                    <td>
-                                        <a href="{{ connected_interface.device.get_absolute_url }}">{{ connected_interface.device }}</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>
-                                        <a href="{{ connected_interface.get_absolute_url }}">{{ connected_interface.name }}</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Type</td>
-                                    <td>{{ connected_interface.get_type_display }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Enabled</td>
-                                    <td>
-                                        {% if connected_interface.enabled %}
-                                            <span class="text-success"><i class="fa fa-check"></i></span>
-                                        {% else %}
-                                            <span class="text-danger"><i class="fa fa-close"></i></span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>LAG</td>
-                                    <td>
-                                        {% if connected_interface.lag%}
-                                            <a href="{{ connected_interface.lag.get_absolute_url }}">{{ connected_interface.lag }}</a>
-                                        {% else %}
-                                            <span class="text-muted">None</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Description</td>
-                                    <td>{{ connected_interface.description|placeholder }}</td>
-                                </tr>
-                                <tr>
-                                    <td>MTU</td>
-                                    <td>{{ connected_interface.mtu|placeholder }}</td>
-                                </tr>
-                                <tr>
-                                    <td>MAC Address</td>
-                                    <td>{{ connected_interface.mac_address|placeholder }}</td>
-                                </tr>
-                                <tr>
-                                    <td>802.1Q Mode</td>
-                                    <td>{{ connected_interface.get_mode_display }}</td>
-                                </tr>
-                            {% elif connected_circuittermination %}
-                                {% with ct=connected_circuittermination %}
+                            {% if instance.connected_endpoint.device %}
+                                {% with iface=instance.connected_endpoint %}
+                                    <tr>
+                                        <td>Device</td>
+                                        <td>
+                                            <a href="{{ iface.device.get_absolute_url }}">{{ iface.device }}</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Name</td>
+                                        <td>
+                                            <a href="{{ iface.get_absolute_url }}">{{ iface.name }}</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Type</td>
+                                        <td>{{ iface.get_type_display }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Enabled</td>
+                                        <td>
+                                            {% if iface.enabled %}
+                                                <span class="text-success"><i class="fa fa-check"></i></span>
+                                            {% else %}
+                                                <span class="text-danger"><i class="fa fa-close"></i></span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>LAG</td>
+                                        <td>
+                                            {% if iface.lag%}
+                                                <a href="{{ iface.lag.get_absolute_url }}">{{ iface.lag }}</a>
+                                            {% else %}
+                                                <span class="text-muted">None</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Description</td>
+                                        <td>{{ iface.description|placeholder }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>MTU</td>
+                                        <td>{{ iface.mtu|placeholder }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>MAC Address</td>
+                                        <td>{{ iface.mac_address|placeholder }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>802.1Q Mode</td>
+                                        <td>{{ iface.get_mode_display }}</td>
+                                    </tr>
+                                {% endwith %}
+                            {% elif instance.connected_endpoint.circuit %}
+                                {% with ct=instance.connected_endpoint %}
                                     <tr>
                                         <td>Provider</td>
                                         <td><a href="{{ ct.circuit.provider.get_absolute_url }}">{{ ct.circuit.provider }}</a></td>

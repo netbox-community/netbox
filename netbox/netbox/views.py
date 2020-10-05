@@ -190,15 +190,15 @@ class HomeView(View):
 
     def get(self, request):
 
-        connected_consoleports = ConsolePort.objects.restrict(request.user, 'view').filter(
-            connected_endpoint__isnull=False
+        connected_consoleports = ConsolePort.objects.restrict(request.user, 'view').prefetch_related('_path').filter(
+            _path__destination_id__isnull=False
         )
-        connected_powerports = PowerPort.objects.restrict(request.user, 'view').filter(
-            _connected_poweroutlet__isnull=False
+        connected_powerports = PowerPort.objects.restrict(request.user, 'view').prefetch_related('_path').filter(
+            _path__destination_id__isnull=False
         )
-        connected_interfaces = Interface.objects.restrict(request.user, 'view').filter(
-            _connected_interface__isnull=False,
-            pk__lt=F('_connected_interface')
+        connected_interfaces = Interface.objects.restrict(request.user, 'view').prefetch_related('_path').filter(
+            _path__destination_id__isnull=False,
+            pk__lt=F('_path__destination_id')
         )
 
         # Report Results
