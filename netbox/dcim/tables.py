@@ -67,10 +67,6 @@ INTERFACE_TAGGED_VLANS = """
 {% endfor %}
 """
 
-PATH_STATUS = """
-<span class="label label-{% if value %}success{% else %}danger{% endif %}">{% if value %}Connected{% else %}Not Connected{% endif %}</span>
-"""
-
 
 #
 # Regions
@@ -831,17 +827,16 @@ class ConsoleConnectionTable(BaseTable):
         linkify=True,
         verbose_name='Console Port'
     )
-    path_status = tables.TemplateColumn(
+    reachable = BooleanColumn(
         accessor=Accessor('_path__is_active'),
-        template_code=PATH_STATUS,
-        verbose_name='Path Status'
+        verbose_name='Reachable'
     )
 
     add_prefetch = False
 
     class Meta(BaseTable.Meta):
         model = ConsolePort
-        fields = ('console_server', 'console_server_port', 'device', 'name', 'path_status')
+        fields = ('device', 'name', 'console_server', 'console_server_port', 'reachable')
 
 
 class PowerConnectionTable(BaseTable):
@@ -864,17 +859,16 @@ class PowerConnectionTable(BaseTable):
         linkify=True,
         verbose_name='Power Port'
     )
-    path_status = tables.TemplateColumn(
+    reachable = BooleanColumn(
         accessor=Accessor('_path__is_active'),
-        template_code=PATH_STATUS,
-        verbose_name='Path Status'
+        verbose_name='Reachable'
     )
 
     add_prefetch = False
 
     class Meta(BaseTable.Meta):
         model = PowerPort
-        fields = ('pdu', 'outlet', 'device', 'name', 'path_status')
+        fields = ('device', 'name', 'pdu', 'outlet', 'reachable')
 
 
 class InterfaceConnectionTable(BaseTable):
@@ -900,17 +894,16 @@ class InterfaceConnectionTable(BaseTable):
         linkify=True,
         verbose_name='Interface B'
     )
-    path_status = tables.TemplateColumn(
+    reachable = BooleanColumn(
         accessor=Accessor('_path__is_active'),
-        template_code=PATH_STATUS,
-        verbose_name='Path Status'
+        verbose_name='Reachable'
     )
 
     add_prefetch = False
 
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = ('device_a', 'interface_a', 'device_b', 'interface_b', 'path_status')
+        fields = ('device_a', 'interface_a', 'device_b', 'interface_b', 'reachable')
 
 
 #

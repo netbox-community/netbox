@@ -1150,7 +1150,20 @@ class CableFilterSet(BaseFilterSet):
         return queryset
 
 
-class ConsoleConnectionFilterSet(BaseFilterSet):
+class ConnectionFilterSet:
+
+    def filter_site(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(device__site__slug=value)
+
+    def filter_device(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(device_id__in=value)
+
+
+class ConsoleConnectionFilterSet(ConnectionFilterSet, BaseFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -1167,22 +1180,8 @@ class ConsoleConnectionFilterSet(BaseFilterSet):
         model = ConsolePort
         fields = ['name']
 
-    # TODO: Fix filters
-    # def filter_site(self, queryset, name, value):
-    #     if not value.strip():
-    #         return queryset
-    #     return queryset.filter(connected_endpoint__device__site__slug=value)
-    #
-    # def filter_device(self, queryset, name, value):
-    #     if not value:
-    #         return queryset
-    #     return queryset.filter(
-    #         Q(**{'{}__in'.format(name): value}) |
-    #         Q(**{'connected_endpoint__{}__in'.format(name): value})
-    #     )
 
-
-class PowerConnectionFilterSet(BaseFilterSet):
+class PowerConnectionFilterSet(ConnectionFilterSet, BaseFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -1199,22 +1198,8 @@ class PowerConnectionFilterSet(BaseFilterSet):
         model = PowerPort
         fields = ['name']
 
-    # TODO: Fix filters
-    # def filter_site(self, queryset, name, value):
-    #     if not value.strip():
-    #         return queryset
-    #     return queryset.filter(_connected_poweroutlet__device__site__slug=value)
-    #
-    # def filter_device(self, queryset, name, value):
-    #     if not value:
-    #         return queryset
-    #     return queryset.filter(
-    #         Q(**{'{}__in'.format(name): value}) |
-    #         Q(**{'_connected_poweroutlet__{}__in'.format(name): value})
-    #     )
 
-
-class InterfaceConnectionFilterSet(BaseFilterSet):
+class InterfaceConnectionFilterSet(ConnectionFilterSet, BaseFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -1230,23 +1215,6 @@ class InterfaceConnectionFilterSet(BaseFilterSet):
     class Meta:
         model = Interface
         fields = []
-
-    # TODO: Fix filters
-    # def filter_site(self, queryset, name, value):
-    #     if not value.strip():
-    #         return queryset
-    #     return queryset.filter(
-    #         Q(device__site__slug=value) |
-    #         Q(_connected_interface__device__site__slug=value)
-    #     )
-    #
-    # def filter_device(self, queryset, name, value):
-    #     if not value:
-    #         return queryset
-    #     return queryset.filter(
-    #         Q(**{'{}__in'.format(name): value}) |
-    #         Q(**{'_connected_interface__{}__in'.format(name): value})
-    #     )
 
 
 class PowerPanelFilterSet(BaseFilterSet):
