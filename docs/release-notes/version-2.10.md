@@ -34,6 +34,12 @@ http://netbox/api/dcim/sites/ \
 --data '[{"id": 10, "description": "Foo"}, {"id": 11, "description": "Bar"}]'
 ```
 
+#### Improved Cable Trace Performance ([#4900](https://github.com/netbox-community/netbox/issues/4900))
+
+All end-to-end cable paths are now cached using the new CablePath model. This allows NetBox to now immediately return the complete path originating from any endpoint directly from the database, rather than having to trace each cable recursively. It also resolves some systemic validation issues with the original implementation.
+
+**Note:** As part of this change, cable traces will no longer traverse circuits: A circuit termination will be considered the origin or destination of an end-to-end path.
+
 ### Enhancements
 
 * [#1503](https://github.com/netbox-community/netbox/issues/1503) - Allow assigment of secrets to virtual machines
@@ -56,9 +62,11 @@ http://netbox/api/dcim/sites/ \
 
 * Added support for `PUT`, `PATCH`, and `DELETE` operations on list endpoints
 * dcim.Cable: Added `custom_fields`
+* dcim.FrontPort: Removed the `trace` endpoint
 * dcim.InventoryItem: The `_depth` field has been added to reflect MPTT positioning
 * dcim.PowerPanel: Added `custom_fields`
 * dcim.RackReservation: Added `custom_fields`
+* dcim.RearPort: Removed the `trace` endpoint
 * dcim.VirtualChassis: Added `custom_fields`
 * extras.ExportTemplate: The `template_language` field has been removed
 * extras.Graph: This API endpoint has been removed (see #4349)
