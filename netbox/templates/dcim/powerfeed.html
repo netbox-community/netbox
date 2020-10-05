@@ -123,11 +123,6 @@
                 </tr>
             </table>
         </div>
-        {% include 'inc/custom_fields_panel.html' with obj=powerfeed %}
-        {% include 'extras/inc/tags_panel.html' with tags=powerfeed.tags.all url='dcim:powerfeed_list' %}
-        {% plugin_left_page powerfeed %}
-    </div>
-    <div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Electrical Characteristics</strong>
@@ -154,6 +149,70 @@
                     <td>{{ powerfeed.max_utilization }}%</td>
                 </tr>
             </table>
+        </div>
+        {% include 'inc/custom_fields_panel.html' with obj=powerfeed %}
+        {% include 'extras/inc/tags_panel.html' with tags=powerfeed.tags.all url='dcim:powerfeed_list' %}
+        {% plugin_left_page powerfeed %}
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Connection</strong>
+            </div>
+            {% if powerfeed.cable %}
+                <table class="table table-hover panel-body attr-table">
+                    <tr>
+                        <td>Cable</td>
+                        <td>
+                            <a href="{{ powerfeed.cable.get_absolute_url }}">{{ powerfeed.cable }}</a>
+                            <a href="{% url 'dcim:consoleport_trace' pk=powerfeed.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                                <i class="fa fa-share-alt" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% if powerfeed.connected_endpoint %}
+                        <tr>
+                            <td>Device</td>
+                            <td>
+                                <a href="{{ powerfeed.connected_endpoint.device.get_absolute_url }}">{{ powerfeed.connected_endpoint.device }}</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Name</td>
+                            <td>
+                                <a href="{{ powerfeed.connected_endpoint.get_absolute_url }}">{{ powerfeed.connected_endpoint.name }}</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Type</td>
+                            <td>{{ powerfeed.connected_endpoint.get_type_display|placeholder }}</td>
+                        </tr>
+                        <tr>
+                            <td>Description</td>
+                            <td>{{ powerfeed.connected_endpoint.description|placeholder }}</td>
+                        </tr>
+                        <tr>
+                            <td>Path Status</td>
+                            <td>
+                                {% if powerfeed.path.is_active %}
+                                    <span class="label label-success">Reachable</span>
+                                {% else %}
+                                    <span class="label label-danger">Not Reachable</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                </table>
+            {% else %}
+                <div class="panel-body text-muted">
+                    {% if perms.dcim.add_cable %}
+                        <a href="{% url 'dcim:powerfeed_connect' termination_a_id=powerfeed.pk termination_b_type='power-port' %}?return_url={{ powerfeed.get_absolute_url }}" class="btn btn-primary btn-sm pull-right">
+                            <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span> Connect
+                        </a>
+                    {% endif %}
+                    Not connected
+                </div>
+            {% endif %}
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">

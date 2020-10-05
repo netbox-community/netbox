@@ -385,5 +385,6 @@ urlpatterns = [
     path('power-feeds/<int:pk>/delete/', views.PowerFeedDeleteView.as_view(), name='powerfeed_delete'),
     path('power-feeds/<int:pk>/trace/', views.PathTraceView.as_view(), name='powerfeed_trace', kwargs={'model': PowerFeed}),
     path('power-feeds/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='powerfeed_changelog', kwargs={'model': PowerFeed}),
+    path('power-feeds/<int:termination_a_id>/connect/<str:termination_b_type>/', views.CableCreateView.as_view(), name='powerfeed_connect', kwargs={'termination_a_type': PowerFeed}),
 
 ]

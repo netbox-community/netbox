@@ -151,6 +151,10 @@ class PathEndpoint(models.Model):
         return list(zip(*[iter(path)] * 3))
 
     @property
+    def path(self):
+        return self._path
+
+    @property
     def connected_endpoint(self):
         """
         Caching accessor for the attached CablePath's destination (if any)
