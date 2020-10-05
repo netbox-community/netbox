@@ -1714,11 +1714,6 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'max_utilization': 50,
             'comments': 'New comments',
             'tags': [t.pk for t in tags],
-
-            # Connection
-            'cable': None,
-            'connected_endpoint': None,
-            'connection_status': None,
         }
 
         cls.csv_data = (

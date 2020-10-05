@@ -62,8 +62,8 @@ class ChoiceFieldInspector(FieldInspector):
             value_schema = openapi.Schema(type=openapi.TYPE_STRING, enum=choice_value)
 
             if set([None] + choice_value) == {None, True, False}:
-                # DeviceType.subdevice_role, Device.face and InterfaceConnection.connection_status all need to be
-                # differentiated since they each have subtly different values in their choice keys.
+                # DeviceType.subdevice_role and Device.face need to be differentiated since they each have
+                # subtly different values in their choice keys.
                 # - subdevice_role and connection_status are booleans, although subdevice_role includes None
                 # - face is an integer set {0, 1} which is easily confused with {False, True}
                 schema_type = openapi.TYPE_STRING

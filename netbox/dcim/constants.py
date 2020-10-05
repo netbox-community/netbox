@@ -59,12 +59,6 @@ POWERFEED_MAX_UTILIZATION_DEFAULT = 80  # Percentage
 # Cabling and connections
 #
 
-# Console/power/interface connection statuses
-CONNECTION_STATUS_CHOICES = [
-    [False, 'Not Connected'],
-    [True, 'Connected'],
-]
-
 # Cable endpoint types
 CABLE_TERMINATION_MODELS = Q(
     Q(app_label='circuits', model__in=(

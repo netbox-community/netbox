@@ -61,10 +61,16 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 ### REST API Changes
 
 * Added support for `PUT`, `PATCH`, and `DELETE` operations on list endpoints
+* circuits.CircuitTermination: Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
 * dcim.Cable: Added `custom_fields`
+* dcim.ConsolePort: Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+* dcim.ConsoleServerPort: Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
 * dcim.FrontPort: Removed the `trace` endpoint
+* dcim.Interface: Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
 * dcim.InventoryItem: The `_depth` field has been added to reflect MPTT positioning
+* dcim.PowerOutlet: Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
 * dcim.PowerPanel: Added `custom_fields`
+* dcim.PowerPort: Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
 * dcim.RackReservation: Added `custom_fields`
 * dcim.RearPort: Removed the `trace` endpoint
 * dcim.VirtualChassis: Added `custom_fields`
