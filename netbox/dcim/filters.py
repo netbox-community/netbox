@@ -760,11 +760,7 @@ class PathEndpointFilterSet(django_filters.FilterSet):
     )
 
     def filter_is_connected(self, queryset, name, value):
-        kwargs = {'connected_paths': 1 if value else 0}
-        # TODO: Boolean rather than Count()?
-        return queryset.annotate(
-            connected_paths=Count('_paths', filter=Q(_paths__is_connected=True))
-        ).filter(**kwargs)
+        return queryset.filter(_path__is_connected=True)
 
 
 class ConsolePortFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpointFilterSet):
@@ -1169,7 +1165,7 @@ class ConsoleConnectionFilterSet(BaseFilterSet):
 
     class Meta:
         model = ConsolePort
-        fields = ['name', 'connection_status']
+        fields = ['name']
 
     # TODO: Fix filters
     # def filter_site(self, queryset, name, value):
@@ -1201,7 +1197,7 @@ class PowerConnectionFilterSet(BaseFilterSet):
 
     class Meta:
         model = PowerPort
-        fields = ['name', 'connection_status']
+        fields = ['name']
 
     # TODO: Fix filters
     # def filter_site(self, queryset, name, value):
@@ -1233,7 +1229,7 @@ class InterfaceConnectionFilterSet(BaseFilterSet):
 
     class Meta:
         model = Interface
-        fields = ['connection_status']
+        fields = []
 
     # TODO: Fix filters
     # def filter_site(self, queryset, name, value):

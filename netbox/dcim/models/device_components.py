@@ -175,11 +175,6 @@ class ConsolePort(CableTermination, PathEndpoint, ComponentModel):
         blank=True,
         help_text='Physical port type'
     )
-    connection_status = models.BooleanField(
-        choices=CONNECTION_STATUS_CHOICES,
-        blank=True,
-        null=True
-    )
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'label', 'type', 'description']
@@ -215,11 +210,6 @@ class ConsoleServerPort(CableTermination, PathEndpoint, ComponentModel):
         choices=ConsolePortTypeChoices,
         blank=True,
         help_text='Physical port type'
-    )
-    connection_status = models.BooleanField(
-        choices=CONNECTION_STATUS_CHOICES,
-        blank=True,
-        null=True
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -268,11 +258,6 @@ class PowerPort(CableTermination, PathEndpoint, ComponentModel):
         null=True,
         validators=[MinValueValidator(1)],
         help_text="Allocated power draw (watts)"
-    )
-    connection_status = models.BooleanField(
-        choices=CONNECTION_STATUS_CHOICES,
-        blank=True,
-        null=True
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -368,11 +353,6 @@ class PowerOutlet(CableTermination, PathEndpoint, ComponentModel):
         blank=True,
         help_text="Phase (for three-phase feeds)"
     )
-    connection_status = models.BooleanField(
-        choices=CONNECTION_STATUS_CHOICES,
-        blank=True,
-        null=True
-    )
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description']
@@ -447,11 +427,6 @@ class Interface(CableTermination, PathEndpoint, ComponentModel, BaseInterface):
         naturalize_function=naturalize_interface,
         max_length=100,
         blank=True
-    )
-    connection_status = models.BooleanField(
-        choices=CONNECTION_STATUS_CHOICES,
-        blank=True,
-        null=True
     )
     lag = models.ForeignKey(
         to='self',

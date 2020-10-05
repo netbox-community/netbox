@@ -26,7 +26,7 @@ def trace_path(node):
     position_stack = []
     is_connected = True
 
-    if node.cable is None:
+    if node is None or node.cable is None:
         return [], None, False
 
     while node.cable is not None:

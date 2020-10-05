@@ -88,11 +88,6 @@ class PowerFeed(ChangeLoggedModel, PathEndpoint, CableTermination, CustomFieldMo
         blank=True,
         null=True
     )
-    connection_status = models.BooleanField(
-        choices=CONNECTION_STATUS_CHOICES,
-        blank=True,
-        null=True
-    )
     name = models.CharField(
         max_length=50
     )

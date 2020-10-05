@@ -33,8 +33,8 @@ class ConnectedEndpointSerializer(ValidatedModelSerializer):
     connection_status = serializers.SerializerMethodField(read_only=True)
 
     def get_connected_endpoint_type(self, obj):
-        if obj.path is not None:
-            return f'{obj.connected_endpoint._meta.app_label}.{obj.connected_endpoint._meta.model_name}'
+        if obj._path is not None and obj._path.destination is not None:
+            return f'{obj._path.destination._meta.app_label}.{obj._path.destination._meta.model_name}'
         return None
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)
@@ -42,17 +42,17 @@ class ConnectedEndpointSerializer(ValidatedModelSerializer):
         """
         Return the appropriate serializer for the type of connected object.
         """
-        if obj.path is not None:
-            serializer = get_serializer_for_model(obj.connected_endpoint, prefix='Nested')
+        if obj._path is not None and obj._path.destination is not None:
+            serializer = get_serializer_for_model(obj._path.destination, prefix='Nested')
             context = {'request': self.context['request']}
-            return serializer(obj.path.destination, context=context).data
+            return serializer(obj._path.destination, context=context).data
         return None
 
     # TODO: Tweak the representation for this field
     @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
     def get_connection_status(self, obj):
-        if obj.path is not None:
-            return obj.path.is_connected
+        if obj._path is not None:
+            return obj._path.is_connected
         return None
 
 
@@ -716,7 +716,7 @@ class TracedCableSerializer(serializers.ModelSerializer):
 class InterfaceConnectionSerializer(ValidatedModelSerializer):
     interface_a = serializers.SerializerMethodField()
     interface_b = NestedInterfaceSerializer(source='connected_endpoint')
-    connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, required=False)
+    # connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, required=False)
 
     class Meta:
         model = Interface
