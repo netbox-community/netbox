@@ -34,10 +34,11 @@ from .constants import NONCONNECTABLE_IFACE_TYPES
 from .models import (
     Cable, CablePath, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
-    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
+    InventoryItem, Manufacturer, PathEndpoint, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel,
+    PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
+from .utils import object_to_path_node
 
 
 class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
@@ -1965,17 +1966,36 @@ class PathTraceView(ObjectView):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, pk):
-
         obj = get_object_or_404(self.queryset, pk=pk)
-        path = obj.trace()
-        total_length = sum(
-            [entry[1]._abs_length for entry in path if entry[1] and entry[1]._abs_length]
-        )
+        related_paths = []
+
+        # If tracing a PathEndpoint, locate the CablePath (if one exists) by its origin
+        if isinstance(obj, PathEndpoint):
+            path = obj._path
+        # Otherwise, find all CablePaths which traverse the specified object
+        else:
+            related_paths = CablePath.objects.filter(
+                path__contains=[object_to_path_node(obj)]
+            ).prefetch_related('origin')
+            # Check for specification of a particular path (when tracing pass-through ports)
+            try:
+                path_id = int(request.GET.get('cablepath_id'))
+            except TypeError:
+                path_id = None
+            if path_id in list(related_paths.values_list('pk', flat=True)):
+                path = CablePath.objects.get(pk=path_id)
+            else:
+                path = related_paths.first()
+
+        # total_length = sum(
+        #     [entry[1]._abs_length for entry in path if entry[1] and entry[1]._abs_length]
+        # )
 
         return render(request, 'dcim/cable_trace.html', {
             'obj': obj,
-            'trace': path,
-            'total_length': total_length,
+            'path': path,
+            'related_paths': related_paths,
+            # 'total_length': total_length,
         })
 
 
