@@ -58,4 +58,52 @@ class Migration(migrations.Migration):
             name='_path',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.cablepath'),
         ),
+        migrations.RemoveField(
+            model_name='consoleport',
+            name='connected_endpoint',
+        ),
+        migrations.RemoveField(
+            model_name='consoleport',
+            name='connection_status',
+        ),
+        migrations.RemoveField(
+            model_name='consoleserverport',
+            name='connection_status',
+        ),
+        migrations.RemoveField(
+            model_name='interface',
+            name='_connected_circuittermination',
+        ),
+        migrations.RemoveField(
+            model_name='interface',
+            name='_connected_interface',
+        ),
+        migrations.RemoveField(
+            model_name='interface',
+            name='connection_status',
+        ),
+        migrations.RemoveField(
+            model_name='powerfeed',
+            name='connected_endpoint',
+        ),
+        migrations.RemoveField(
+            model_name='powerfeed',
+            name='connection_status',
+        ),
+        migrations.RemoveField(
+            model_name='poweroutlet',
+            name='connection_status',
+        ),
+        migrations.RemoveField(
+            model_name='powerport',
+            name='_connected_powerfeed',
+        ),
+        migrations.RemoveField(
+            model_name='powerport',
+            name='_connected_poweroutlet',
+        ),
+        migrations.RemoveField(
+            model_name='powerport',
+            name='connection_status',
+        ),
     ]

@@ -17,4 +17,12 @@ class Migration(migrations.Migration):
             name='_path',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.cablepath'),
         ),
+        migrations.RemoveField(
+            model_name='circuittermination',
+            name='connected_endpoint',
+        ),
+        migrations.RemoveField(
+            model_name='circuittermination',
+            name='connection_status',
+        ),
     ]
