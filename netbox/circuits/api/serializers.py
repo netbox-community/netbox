@@ -78,4 +78,5 @@ class CircuitTerminationSerializer(CableTerminationSerializer, ConnectedEndpoint
         fields = [
             'id', 'url', 'circuit', 'term_side', 'site', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
             'description', 'connected_endpoint_type', 'connected_endpoint', 'connected_endpoint_reachable', 'cable',
+            'cable_peer', 'cable_peer_type',
         ]
