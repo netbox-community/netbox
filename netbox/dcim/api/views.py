@@ -470,31 +470,35 @@ class DeviceViewSet(CustomFieldModelViewSet):
 #
 
 class ConsolePortViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = ConsolePort.objects.prefetch_related('device', '_path__destination', 'cable', 'tags')
+    queryset = ConsolePort.objects.prefetch_related('device', '_path__destination', 'cable', '_cable_peer', 'tags')
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filters.ConsolePortFilterSet
 
 
 class ConsoleServerPortViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = ConsoleServerPort.objects.prefetch_related('device', '_path__destination', 'cable', 'tags')
+    queryset = ConsoleServerPort.objects.prefetch_related(
+        'device', '_path__destination', 'cable', '_cable_peer', 'tags'
+    )
     serializer_class = serializers.ConsoleServerPortSerializer
     filterset_class = filters.ConsoleServerPortFilterSet
 
 
 class PowerPortViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = PowerPort.objects.prefetch_related('device', '_path__destination', 'cable', 'tags')
+    queryset = PowerPort.objects.prefetch_related('device', '_path__destination', 'cable', '_cable_peer', 'tags')
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filters.PowerPortFilterSet
 
 
 class PowerOutletViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = PowerOutlet.objects.prefetch_related('device', '_path__destination', 'cable', 'tags')
+    queryset = PowerOutlet.objects.prefetch_related('device', '_path__destination', 'cable', '_cable_peer', 'tags')
     serializer_class = serializers.PowerOutletSerializer
     filterset_class = filters.PowerOutletFilterSet
 
 
 class InterfaceViewSet(PathEndpointMixin, ModelViewSet):
-    queryset = Interface.objects.prefetch_related('device', '_path__destination', 'cable', 'ip_addresses', 'tags')
+    queryset = Interface.objects.prefetch_related(
+        'device', '_path__destination', 'cable', '_cable_peer', 'ip_addresses', 'tags'
+    )
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filters.InterfaceFilterSet
 
@@ -597,7 +601,9 @@ class PowerPanelViewSet(ModelViewSet):
 #
 
 class PowerFeedViewSet(CustomFieldModelViewSet):
-    queryset = PowerFeed.objects.prefetch_related('power_panel', 'rack', '_path__destination', 'cable', 'tags')
+    queryset = PowerFeed.objects.prefetch_related(
+        'power_panel', 'rack', '_path__destination', 'cable', '_cable_peer', 'tags'
+    )
     serializer_class = serializers.PowerFeedSerializer
     filterset_class = filters.PowerFeedFilterSet
 

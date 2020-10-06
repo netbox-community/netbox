@@ -60,20 +60,35 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 
 ### REST API Changes
 
-* Added support for `PUT`, `PATCH`, and `DELETE` operations on list endpoints
-* circuits.CircuitTermination: Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+* Added support for `PUT`, `PATCH`, and `DELETE` operations on list endpoints (bulk update and delete)
+* circuits.CircuitTermination:
+  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+  * Added `cable_peer`
 * dcim.Cable: Added `custom_fields`
-* dcim.ConsolePort: Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
-* dcim.ConsoleServerPort: Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
-* dcim.FrontPort: Removed the `trace` endpoint
-* dcim.Interface: Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+* dcim.ConsolePort:
+  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+  * Added `cable_peer`
+* dcim.ConsoleServerPort:
+  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+  * Added `cable_peer`
+* dcim.FrontPort:
+  * Removed the `trace` endpoint
+  * Added `cable_peer`
+* dcim.Interface:
+  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+  * Added `cable_peer`
 * dcim.InventoryItem: The `_depth` field has been added to reflect MPTT positioning
-* dcim.PowerFeed: Add fields `connected_endpoint`, `connected_endpoint_type`, and `connected_endpoint_reachable`
-* dcim.PowerOutlet: Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+* dcim.PowerFeed: Add fields `connected_endpoint`, `connected_endpoint_type`, `connected_endpoint_reachable`, and `cable_peer`
+* dcim.PowerOutlet:
+  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+  * Added `cable_peer`
 * dcim.PowerPanel: Added `custom_fields`
-* dcim.PowerPort: Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+* dcim.PowerPort
+  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+  * Added `cable_peer`
 * dcim.RackReservation: Added `custom_fields`
-* dcim.RearPort: Removed the `trace` endpoint
+* dcim.RearPort:
+  * Removed the `trace` endpoint
 * dcim.VirtualChassis: Added `custom_fields`
 * extras.ExportTemplate: The `template_language` field has been removed
 * extras.Graph: This API endpoint has been removed (see #4349)
