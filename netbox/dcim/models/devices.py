@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import F, ProtectedError
+from django.db.models import F, ProtectedError, Sum
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from taggit.managers import TaggableManager
@@ -15,7 +15,7 @@ from taggit.managers import TaggableManager
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
-from dcim.utils import path_node_to_object
+from dcim.utils import decompile_path_node, path_node_to_object
 from extras.models import ChangeLoggedModel, ConfigContextModel, CustomFieldModel, TaggedItem
 from extras.utils import extras_features
 from utilities.choices import ColorChoices
@@ -1227,6 +1227,16 @@ class CablePath(models.Model):
         # Record a direct reference to this CablePath on its originating object
         model = self.origin._meta.model
         model.objects.filter(pk=self.origin.pk).update(_path=self.pk)
+
+    def get_total_length(self):
+        """
+        Return the sum of the length of each cable in the path.
+        """
+        cable_ids = [
+            # Starting from the first element, every third element in the path should be a Cable
+            decompile_path_node(self.path[i])[1] for i in range(0, len(self.path), 3)
+        ]
+        return Cable.objects.filter(id__in=cable_ids).aggregate(total=Sum('_abs_length'))['total']
 
 
 #

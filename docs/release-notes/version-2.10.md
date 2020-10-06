@@ -71,7 +71,9 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 * dcim.ConsoleServerPort:
   * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
   * Added `cable_peer` and `cable_peer_type`
-* dcim.FrontPort: Added `cable_peer` and `cable_peer_type`
+* dcim.FrontPort:
+  * Removed the `/trace/` endpoint
+  * Added `cable_peer` and `cable_peer_type`
 * dcim.Interface:
   * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
   * Added `cable_peer` and `cable_peer_type`
@@ -85,7 +87,9 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
   * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
   * Added `cable_peer` and `cable_peer_type`
 * dcim.RackReservation: Added `custom_fields`
-* dcim.RearPort: Added `cable_peer` and `cable_peer_type`
+* dcim.RearPort:
+  * Removed the `/trace/` endpoint
+  * Added `cable_peer` and `cable_peer_type`
 * dcim.VirtualChassis: Added `custom_fields`
 * extras.ExportTemplate: The `template_language` field has been removed
 * extras.Graph: This API endpoint has been removed (see #4349)

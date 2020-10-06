@@ -1984,15 +1984,11 @@ class PathTraceView(ObjectView):
             else:
                 path = related_paths.first()
 
-        # total_length = sum(
-        #     [entry[1]._abs_length for entry in path if entry[1] and entry[1]._abs_length]
-        # )
-
         return render(request, 'dcim/cable_trace.html', {
             'obj': obj,
             'path': path,
             'related_paths': related_paths,
-            # 'total_length': total_length,
+            'total_length': path.get_total_length(),
         })
 
 
