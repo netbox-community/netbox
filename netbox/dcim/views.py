@@ -38,7 +38,6 @@ from .models import (
     PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
-from .utils import object_to_path_node
 
 
 class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
@@ -1974,9 +1973,7 @@ class PathTraceView(ObjectView):
             path = obj._path
         # Otherwise, find all CablePaths which traverse the specified object
         else:
-            related_paths = CablePath.objects.filter(
-                path__contains=[object_to_path_node(obj)]
-            ).prefetch_related('origin')
+            related_paths = CablePath.objects.filter(path__contains=obj).prefetch_related('origin')
             # Check for specification of a particular path (when tracing pass-through ports)
             try:
                 path_id = int(request.GET.get('cablepath_id'))

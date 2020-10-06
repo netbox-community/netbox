@@ -1,11 +1,11 @@
 from django.contrib.postgres.fields import ArrayField
-from django.contrib.postgres.validators import ArrayMaxLengthValidator
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from netaddr import AddrFormatError, EUI, mac_unix_expanded
 
 from ipam.constants import BGP_ASN_MAX, BGP_ASN_MIN
+from .lookups import PathContains
 
 
 class ASNField(models.BigIntegerField):
@@ -61,3 +61,6 @@ class PathField(ArrayField):
     def __init__(self, **kwargs):
         kwargs['base_field'] = models.CharField(max_length=40)
         super().__init__(**kwargs)
+
+
+PathField.register_lookup(PathContains)

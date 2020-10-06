@@ -4,7 +4,7 @@ from django.test import TestCase
 from circuits.models import *
 from dcim.choices import CableStatusChoices
 from dcim.models import *
-from dcim.utils import objects_to_path
+from dcim.utils import object_to_path_node
 
 
 class CablePathTestCase(TestCase):
@@ -146,7 +146,7 @@ class CablePathTestCase(TestCase):
             kwargs['destination_type__isnull'] = True
             kwargs['destination_id__isnull'] = True
         if path is not None:
-            kwargs['path'] = objects_to_path(*path)
+            kwargs['path'] = [object_to_path_node(obj) for obj in path]
         if is_active is not None:
             kwargs['is_active'] = is_active
         if msg is None:

@@ -8,10 +8,6 @@ def object_to_path_node(obj):
     return f'{obj._meta.model_name}:{obj.pk}'
 
 
-def objects_to_path(*obj_list):
-    return [object_to_path_node(obj) for obj in obj_list]
-
-
 def path_node_to_object(repr):
     model_name, object_id = repr.split(':')
     model_class = ContentType.objects.get(model=model_name).model_class()

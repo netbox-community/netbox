@@ -7,7 +7,7 @@ from django.dispatch import receiver
 
 from .choices import CableStatusChoices
 from .models import Cable, CablePath, Device, PathEndpoint, VirtualChassis
-from .utils import object_to_path_node, trace_path
+from .utils import trace_path
 
 
 def create_cablepath(node):
@@ -24,8 +24,7 @@ def rebuild_paths(obj):
     """
     Rebuild all CablePaths which traverse the specified node
     """
-    node = object_to_path_node(obj)
-    cable_paths = CablePath.objects.filter(path__contains=[node])
+    cable_paths = CablePath.objects.filter(path__contains=obj)
 
     with transaction.atomic():
         for cp in cable_paths:
@@ -86,7 +85,7 @@ def update_connected_endpoints(instance, created, **kwargs):
         # may change in the future.) However, we do need to capture status changes and update
         # any CablePaths accordingly.
         if instance.status != CableStatusChoices.STATUS_CONNECTED:
-            CablePath.objects.filter(path__contains=[object_to_path_node(instance)]).update(is_active=False)
+            CablePath.objects.filter(path__contains=instance).update(is_active=False)
         else:
             rebuild_paths(instance)
 
@@ -109,7 +108,7 @@ def nullify_connected_endpoints(instance, **kwargs):
         instance.termination_b.save()
 
     # Delete and retrace any dependent cable paths
-    for cablepath in CablePath.objects.filter(path__contains=[object_to_path_node(instance)]):
+    for cablepath in CablePath.objects.filter(path__contains=instance):
         path, destination, is_active = trace_path(cablepath.origin)
         if path:
             CablePath.objects.filter(pk=cablepath.pk).update(
