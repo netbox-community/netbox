@@ -59,7 +59,7 @@ class CircuitViewSet(CustomFieldModelViewSet):
 
 class CircuitTerminationViewSet(ModelViewSet):
     queryset = CircuitTermination.objects.prefetch_related(
-        'circuit', 'site', 'cable'
+        'circuit', 'site', '_path__destination', 'cable'
     )
     serializer_class = serializers.CircuitTerminationSerializer
     filterset_class = filters.CircuitTerminationFilterSet
