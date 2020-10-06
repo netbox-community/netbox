@@ -398,9 +398,11 @@ class CableTestCase(TestCase):
         When a new Cable is created, it must be cached on either termination point.
         """
         interface1 = Interface.objects.get(pk=self.interface1.pk)
-        self.assertEqual(self.cable.termination_a, interface1)
         interface2 = Interface.objects.get(pk=self.interface2.pk)
+        self.assertEqual(self.cable.termination_a, interface1)
+        self.assertEqual(interface1._cable_peer, interface2)
         self.assertEqual(self.cable.termination_b, interface2)
+        self.assertEqual(interface2._cable_peer, interface1)
 
     def test_cable_deletion(self):
         """
@@ -412,8 +414,10 @@ class CableTestCase(TestCase):
         self.assertNotEqual(str(self.cable), '#None')
         interface1 = Interface.objects.get(pk=self.interface1.pk)
         self.assertIsNone(interface1.cable)
+        self.assertIsNone(interface1._cable_peer)
         interface2 = Interface.objects.get(pk=self.interface2.pk)
         self.assertIsNone(interface2.cable)
+        self.assertIsNone(interface2._cable_peer)
 
     def test_cabletermination_deletion(self):
         """

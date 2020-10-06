@@ -1,4 +1,5 @@
-from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -99,6 +100,21 @@ class CableTermination(models.Model):
         blank=True,
         null=True
     )
+    _cable_peer_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    _cable_peer_id = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+    _cable_peer = GenericForeignKey(
+        ct_field='_cable_peer_type',
+        fk_field='_cable_peer_id'
+    )
 
     # Generic relations to Cable. These ensure that an attached Cable is deleted if the terminated object is deleted.
     _cabled_as_a = GenericRelation(
@@ -116,12 +132,7 @@ class CableTermination(models.Model):
         abstract = True
 
     def get_cable_peer(self):
-        if self.cable is None:
-            return None
-        if self._cabled_as_a.exists():
-            return self.cable.termination_b
-        if self._cabled_as_b.exists():
-            return self.cable.termination_a
+        return self._cable_peer
 
 
 class PathEndpoint(models.Model):

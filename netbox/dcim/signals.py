@@ -67,10 +67,12 @@ def update_connected_endpoints(instance, created, **kwargs):
     if instance.termination_a.cable != instance:
         logger.debug(f"Updating termination A for cable {instance}")
         instance.termination_a.cable = instance
+        instance.termination_a._cable_peer = instance.termination_b
         instance.termination_a.save()
     if instance.termination_b.cable != instance:
         logger.debug(f"Updating termination B for cable {instance}")
         instance.termination_b.cable = instance
+        instance.termination_b._cable_peer = instance.termination_a
         instance.termination_b.save()
 
     # Create/update cable paths
@@ -101,10 +103,12 @@ def nullify_connected_endpoints(instance, **kwargs):
     if instance.termination_a is not None:
         logger.debug(f"Nullifying termination A for cable {instance}")
         instance.termination_a.cable = None
+        instance.termination_a._cable_peer = None
         instance.termination_a.save()
     if instance.termination_b is not None:
         logger.debug(f"Nullifying termination B for cable {instance}")
         instance.termination_b.cable = None
+        instance.termination_b._cable_peer = None
         instance.termination_b.save()
 
     # Delete and retrace any dependent cable paths
