@@ -37,16 +37,19 @@
     </td>
 
     {# Cable #}
-    <td class="text-nowrap">
-        {% if po.cable %}
+    {% if po.cable %}
+        <td>
             <a href="{{ po.cable.get_absolute_url }}">{{ po.cable }}</a>
             <a href="{% url 'dcim:poweroutlet_trace' pk=po.pk %}" class="btn btn-primary btn-xs" title="Trace">
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
-        {% else %}
-            <span class="text-muted">&mdash;</span>
-        {% endif %}
-    </td>
+        </td>
+        {% include 'dcim/inc/cabletermination.html' with termination=po.get_cable_peer %}
+    {% else %}
+        <td colspan="3">
+            <span class="text-muted">Not connected</span>
+        </td>
+    {% endif %}
 
     {# Connection #}
     {% with path=po.path %}

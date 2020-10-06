@@ -32,22 +32,7 @@
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
         </td>
-        {% with far_end=frontport.get_cable_peer %}
-            <td>
-                {% if far_end.parent.provider %}
-                    <i class="fa fa-fw fa-globe" title="Circuit"></i>
-                    <a href="{{ far_end.parent.get_absolute_url }}">
-                        {{ far_end.parent.provider }}
-                        {{ far_end.parent }}
-                    </a>
-                {% else %}
-                    <a href="{{ far_end.parent.get_absolute_url }}">
-                        {{ far_end.parent }}
-                    </a>
-                {% endif %}
-            </td>
-            <td>{{ far_end }}</td>
-        {% endwith %}
+        {% include 'dcim/inc/cabletermination.html' with termination=frontport.get_cable_peer %}
     {% else %}
         <td colspan="3">
             <span class="text-muted">Not connected</span>

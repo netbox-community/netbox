@@ -45,19 +45,19 @@
     <td>{{ iface.get_mode_display|default:"&mdash;" }}</td>
 
     {# Cable #}
-    <td class="text-nowrap">
-        {% if iface.cable %}
+    {% if iface.cable %}
+        <td>
             <a href="{{ iface.cable.get_absolute_url }}">{{ iface.cable }}</a>
-            {% if iface.cable.color %}
-            <span class="inline-color-block" style="background-color: #{{ iface.cable.color }}">&nbsp;</span>
-            {% endif %}
             <a href="{% url 'dcim:interface_trace' pk=iface.pk %}" class="btn btn-primary btn-xs" title="Trace">
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
-        {% else %}
-            <span class="text-muted">&mdash;</span>
-        {% endif %}
-    </td>
+        </td>
+        {% include 'dcim/inc/cabletermination.html' with termination=iface.get_cable_peer %}
+    {% else %}
+        <td colspan="3">
+            <span class="text-muted">Not connected</span>
+        </td>
+    {% endif %}
 
     {# Connection or type #}
     {% if iface.is_lag %}

@@ -33,16 +33,19 @@
     </td>
 
     {# Cable #}
-    <td>
-        {% if pp.cable %}
+    {% if pp.cable %}
+        <td>
             <a href="{{ pp.cable.get_absolute_url }}">{{ pp.cable }}</a>
             <a href="{% url 'dcim:powerport_trace' pk=pp.pk %}" class="btn btn-primary btn-xs" title="Trace">
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
-        {% else %}
-            &mdash;
-        {% endif %}
-    </td>
+        </td>
+        {% include 'dcim/inc/cabletermination.html' with termination=pp.get_cable_peer %}
+    {% else %}
+        <td colspan="3">
+            <span class="text-muted">Not connected</span>
+        </td>
+    {% endif %}
 
     {# Connection #}
     {% include 'dcim/inc/endpoint_connection.html' with path=pp.path %}
