@@ -1162,7 +1162,27 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
 
 class CablePath(models.Model):
     """
-    An array of objects conveying the end-to-end path of one or more Cables.
+    A CablePath instance represents the physical path from an origin to a destination, including all intermediate
+    elements in the path. Every instance must specify an `origin`, whereas `destination` may be null (for paths which do
+    not terminate on a PathEndpoint).
+
+    `path` contains a list of nodes within the path, each represented by a tuple of (type, ID). The first element in the
+    path must be a Cable instance, followed by a pair of pass-through ports. For example, consider the following
+    topology:
+
+                     1                              2                              3
+        Interface A --- Front Port A | Rear Port A --- Rear Port B | Front Port B --- Interface B
+
+    This path would be expressed as:
+
+    CablePath(
+        origin = Interface A
+        destination = Interface B
+        path = [Cable 1, Front Port A, Rear Port A, Cable 2, Rear Port B, Front Port B, Cable 3]
+    )
+
+    `is_active` is set to True only if 1) `destination` is not null, and 2) every Cable within the path has a status of
+    "connected".
     """
     origin_type = models.ForeignKey(
         to=ContentType,

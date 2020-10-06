@@ -39,6 +39,9 @@ __all__ = (
 
 
 class ComponentModel(models.Model):
+    """
+    An abstract model inherited by any model which has a parent Device.
+    """
     device = models.ForeignKey(
         to='dcim.Device',
         on_delete=models.CASCADE,
@@ -93,6 +96,14 @@ class ComponentModel(models.Model):
 
 
 class CableTermination(models.Model):
+    """
+    An abstract model inherited by all models to which a Cable can terminate (certain device components, PowerFeed, and
+    CircuitTermination instances). The `cable` field indicates the Cable instance which is terminated to this instance.
+
+    `_cable_peer` is a GenericForeignKey used to cache the far-end CableTermination on the local instance; this is a
+    shortcut to referencing `cable.termination_b`, for example. `_cable_peer` is set or cleared by the receivers in
+    dcim.signals when a Cable instance is created or deleted, respectively.
+    """
     cable = models.ForeignKey(
         to='dcim.Cable',
         on_delete=models.SET_NULL,
@@ -137,7 +148,14 @@ class CableTermination(models.Model):
 
 class PathEndpoint(models.Model):
     """
-    Any object which may serve as the originating endpoint of a CablePath.
+    An abstract model inherited by any CableTermination subclass which represents the end of a CablePath; specifically,
+    these include ConsolePort, ConsoleServerPort, PowerPort, PowerOutlet, Interface, PowerFeed, and CircuitTermination.
+
+    `_path` references the CablePath originating from this instance, if any. It is set or cleared by the receivers in
+    dcim.signals in response to changes in the cable path, and complements the `origin` GenericForeignKey field on the
+    CablePath model. `_path` should not be accessed directly; rather, use the `path` property.
+
+    `connected_endpoint()` is a convenience method for returning the destination of the associated CablePath, if any.
     """
     _path = models.ForeignKey(
         to='dcim.CablePath',
