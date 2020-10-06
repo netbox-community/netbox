@@ -24,6 +24,7 @@ from .models import (
 
 __all__ = (
     'CableFilterSet',
+    'CableTerminationFilterSet',
     'ConsoleConnectionFilterSet',
     'ConsolePortFilterSet',
     'ConsolePortTemplateFilterSet',
@@ -41,6 +42,7 @@ __all__ = (
     'InterfaceTemplateFilterSet',
     'InventoryItemFilterSet',
     'ManufacturerFilterSet',
+    'PathEndpointFilterSet',
     'PlatformFilterSet',
     'PowerConnectionFilterSet',
     'PowerFeedFilterSet',
@@ -753,25 +755,30 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         )
 
 
-class PathEndpointFilterSet(django_filters.FilterSet):
-    is_connected = django_filters.BooleanFilter(
-        method='filter_is_connected',
-        label='Search',
-    )
-
-    def filter_is_connected(self, queryset, name, value):
-        return queryset.filter(_path__is_active=True)
-
-
-class ConsolePortFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpointFilterSet):
-    type = django_filters.MultipleChoiceFilter(
-        choices=ConsolePortTypeChoices,
-        null_value=None
-    )
+class CableTerminationFilterSet(django_filters.FilterSet):
     cabled = django_filters.BooleanFilter(
         field_name='cable',
         lookup_expr='isnull',
         exclude=True
+    )
+
+
+class PathEndpointFilterSet(django_filters.FilterSet):
+    connected = django_filters.BooleanFilter(
+        method='filter_connected'
+    )
+
+    def filter_connected(self, queryset, name, value):
+        if value:
+            return queryset.filter(_path__is_active=True)
+        else:
+            return queryset.filter(Q(_path__isnull=True) | Q(_path__is_active=False))
+
+
+class ConsolePortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=ConsolePortTypeChoices,
+        null_value=None
     )
 
     class Meta:
@@ -779,15 +786,15 @@ class ConsolePortFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpoint
         fields = ['id', 'name', 'description']
 
 
-class ConsoleServerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpointFilterSet):
+class ConsoleServerPortFilterSet(
+    BaseFilterSet,
+    DeviceComponentFilterSet,
+    CableTerminationFilterSet,
+    PathEndpointFilterSet
+):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
         null_value=None
-    )
-    cabled = django_filters.BooleanFilter(
-        field_name='cable',
-        lookup_expr='isnull',
-        exclude=True
     )
 
     class Meta:
@@ -795,15 +802,10 @@ class ConsoleServerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEn
         fields = ['id', 'name', 'description']
 
 
-class PowerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpointFilterSet):
+class PowerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerPortTypeChoices,
         null_value=None
-    )
-    cabled = django_filters.BooleanFilter(
-        field_name='cable',
-        lookup_expr='isnull',
-        exclude=True
     )
 
     class Meta:
@@ -811,15 +813,10 @@ class PowerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpointFi
         fields = ['id', 'name', 'maximum_draw', 'allocated_draw', 'description']
 
 
-class PowerOutletFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpointFilterSet):
+class PowerOutletFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerOutletTypeChoices,
         null_value=None
-    )
-    cabled = django_filters.BooleanFilter(
-        field_name='cable',
-        lookup_expr='isnull',
-        exclude=True
     )
 
     class Meta:
@@ -827,7 +824,7 @@ class PowerOutletFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpoint
         fields = ['id', 'name', 'feed_leg', 'description']
 
 
-class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpointFilterSet):
+class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -843,11 +840,6 @@ class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpointFi
         method='filter_device_id',
         field_name='pk',
         label='Device (ID)',
-    )
-    cabled = django_filters.BooleanFilter(
-        field_name='cable',
-        lookup_expr='isnull',
-        exclude=True
     )
     kind = django_filters.CharFilter(
         method='filter_kind',
@@ -925,24 +917,14 @@ class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet, PathEndpointFi
         }.get(value, queryset.none())
 
 
-class FrontPortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
-    cabled = django_filters.BooleanFilter(
-        field_name='cable',
-        lookup_expr='isnull',
-        exclude=True
-    )
+class FrontPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet):
 
     class Meta:
         model = FrontPort
         fields = ['id', 'name', 'type', 'description']
 
 
-class RearPortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
-    cabled = django_filters.BooleanFilter(
-        field_name='cable',
-        lookup_expr='isnull',
-        exclude=True
-    )
+class RearPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet):
 
     class Meta:
         model = RearPort
@@ -1266,7 +1248,13 @@ class PowerPanelFilterSet(BaseFilterSet):
         return queryset.filter(qs_filter)
 
 
-class PowerFeedFilterSet(BaseFilterSet, PathEndpointFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class PowerFeedFilterSet(
+    BaseFilterSet,
+    CableTerminationFilterSet,
+    PathEndpointFilterSet,
+    CustomFieldFilterSet,
+    CreatedUpdatedFilterSet
+):
     q = django_filters.CharFilter(
         method='search',
         label='Search',

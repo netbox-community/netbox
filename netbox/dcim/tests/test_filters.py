@@ -1514,9 +1514,11 @@ class ConsolePortTestCase(TestCase):
         params = {'description': ['First', 'Second']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_is_connected(self):
-        params = {'is_connected': True}
+    def test_connected(self):
+        params = {'connected': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'connected': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_region(self):
         regions = Region.objects.all()[:2]
@@ -1608,9 +1610,11 @@ class ConsoleServerPortTestCase(TestCase):
         params = {'description': ['First', 'Second']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_is_connected(self):
-        params = {'is_connected': True}
+    def test_connected(self):
+        params = {'connected': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'connected': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_region(self):
         regions = Region.objects.all()[:2]
@@ -1710,9 +1714,11 @@ class PowerPortTestCase(TestCase):
         params = {'allocated_draw': [50, 100]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_is_connected(self):
-        params = {'is_connected': True}
+    def test_connected(self):
+        params = {'connected': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'connected': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_region(self):
         regions = Region.objects.all()[:2]
@@ -1809,9 +1815,11 @@ class PowerOutletTestCase(TestCase):
         params = {'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_A}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    def test_is_connected(self):
-        params = {'is_connected': True}
+    def test_connected(self):
+        params = {'connected': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'connected': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_region(self):
         regions = Region.objects.all()[:2]
@@ -1896,9 +1904,11 @@ class InterfaceTestCase(TestCase):
         params = {'name': ['Interface 1', 'Interface 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_is_connected(self):
-        params = {'is_connected': True}
+    def test_connected(self):
+        params = {'connected': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'connected': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_enabled(self):
         params = {'enabled': 'true'}
@@ -2657,6 +2667,18 @@ class PowerFeedTestCase(TestCase):
         )
         PowerFeed.objects.bulk_create(power_feeds)
 
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model', slug='model')
+        device_role = DeviceRole.objects.create(name='Device Role', slug='device-role')
+        device = Device.objects.create(name='Device', device_type=device_type, device_role=device_role, site=sites[0])
+        power_ports = [
+            PowerPort(device=device, name='Power Port 1'),
+            PowerPort(device=device, name='Power Port 2'),
+        ]
+        PowerPort.objects.bulk_create(power_ports)
+        Cable(termination_a=power_feeds[0], termination_b=power_ports[0]).save()
+        Cable(termination_a=power_feeds[1], termination_b=power_ports[1]).save()
+
     def test_id(self):
         params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -2717,6 +2739,18 @@ class PowerFeedTestCase(TestCase):
         racks = Rack.objects.all()[:2]
         params = {'rack_id': [racks[0].pk, racks[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_cabled(self):
+        params = {'cabled': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'cabled': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_connected(self):
+        params = {'connected': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'connected': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 # TODO: Connection filters
