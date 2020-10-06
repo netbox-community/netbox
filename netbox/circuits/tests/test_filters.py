@@ -3,7 +3,7 @@ from django.test import TestCase
 from circuits.choices import *
 from circuits.filters import *
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
-from dcim.models import Region, Site
+from dcim.models import Cable, Region, Site
 from tenancy.models import Tenant, TenantGroup
 
 
@@ -286,6 +286,8 @@ class CircuitTerminationTestCase(TestCase):
         ))
         CircuitTermination.objects.bulk_create(circuit_terminations)
 
+        Cable(termination_a=circuit_terminations[0], termination_b=circuit_terminations[1]).save()
+
     def test_term_side(self):
         params = {'term_side': 'A'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
@@ -313,3 +315,7 @@ class CircuitTerminationTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'site': [sites[0].slug, sites[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_is_connected(self):
+        params = {'is_connected': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
