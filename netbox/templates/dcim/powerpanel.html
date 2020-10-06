@@ -58,7 +58,7 @@
 
 {% block content %}
 <div class="row">
-	<div class="col-md-3">
+	<div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Power Panel</strong>
@@ -82,17 +82,17 @@
                 </tr>
             </table>
         </div>
-        {% include 'inc/custom_fields_panel.html' with obj=powerpanel %}
-        {% include 'extras/inc/tags_panel.html' with tags=powerpanel.tags.all url='dcim:powerpanel_list' %}
         {% plugin_left_page powerpanel %}
     </div>
-	<div class="col-md-9">
-        {% include 'panel_table.html' with table=powerfeed_table heading='Connected Feeds' %}
+	<div class="col-md-6">
+        {% include 'inc/custom_fields_panel.html' with obj=powerpanel %}
+        {% include 'extras/inc/tags_panel.html' with tags=powerpanel.tags.all url='dcim:powerpanel_list' %}
         {% plugin_right_page powerpanel %}
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
+        {% include 'panel_table.html' with table=powerfeed_table heading='Connected Feeds' %}
         {% plugin_full_width_page powerpanel %}
     </div>
 </div>

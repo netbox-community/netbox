@@ -40,11 +40,8 @@
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
         </td>
-        {% include 'dcim/inc/cabletermination.html' with termination=pp.get_cable_peer %}
     {% else %}
-        <td colspan="3">
-            <span class="text-muted">Not connected</span>
-        </td>
+        <td><span class="text-muted">Not connected</span></td>
     {% endif %}
 
     {# Connection #}

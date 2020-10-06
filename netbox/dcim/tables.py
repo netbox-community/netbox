@@ -67,6 +67,19 @@ INTERFACE_TAGGED_VLANS = """
 {% endfor %}
 """
 
+POWERFEED_CABLE = """
+<a href="{{ value.get_absolute_url }}">{{ value }}</a>
+<a href="{% url 'dcim:powerfeed_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace">
+    <i class="fa fa-share-alt" aria-hidden="true"></i>
+</a>
+"""
+
+POWERFEED_CABLETERMINATION = """
+<a href="{{ value.parent.get_absolute_url }}">{{ value.parent }}</a>
+<i class="fa fa-caret-right"></i>
+<a href="{{ value.get_absolute_url }}">{{ value }}</a>
+"""
+
 
 #
 # Regions
@@ -977,6 +990,15 @@ class PowerFeedTable(BaseTable):
     max_utilization = tables.TemplateColumn(
         template_code="{{ value }}%"
     )
+    cable = tables.TemplateColumn(
+        template_code=POWERFEED_CABLE,
+        orderable=False
+    )
+    connection = tables.TemplateColumn(
+        accessor='get_cable_peer',
+        template_code=POWERFEED_CABLETERMINATION,
+        orderable=False
+    )
     available_power = tables.Column(
         verbose_name='Available power (VA)'
     )
@@ -988,8 +1010,9 @@ class PowerFeedTable(BaseTable):
         model = PowerFeed
         fields = (
             'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',
-            'max_utilization', 'available_power', 'tags',
+            'max_utilization', 'cable', 'connection', 'available_power', 'tags',
         )
         default_columns = (
-            'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',
+            'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase', 'cable',
+            'connection',
         )
