@@ -63,32 +63,29 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 * Added support for `PUT`, `PATCH`, and `DELETE` operations on list endpoints (bulk update and delete)
 * circuits.CircuitTermination:
   * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
-  * Added `cable_peer`
+  * Added `cable_peer` and `cable_peer_type`
 * dcim.Cable: Added `custom_fields`
 * dcim.ConsolePort:
   * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
-  * Added `cable_peer`
+  * Added `cable_peer` and `cable_peer_type`
 * dcim.ConsoleServerPort:
   * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
-  * Added `cable_peer`
-* dcim.FrontPort:
-  * Removed the `trace` endpoint
-  * Added `cable_peer`
+  * Added `cable_peer` and `cable_peer_type`
+* dcim.FrontPort: Added `cable_peer` and `cable_peer_type`
 * dcim.Interface:
   * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
-  * Added `cable_peer`
+  * Added `cable_peer` and `cable_peer_type`
 * dcim.InventoryItem: The `_depth` field has been added to reflect MPTT positioning
-* dcim.PowerFeed: Add fields `connected_endpoint`, `connected_endpoint_type`, `connected_endpoint_reachable`, and `cable_peer`
+* dcim.PowerFeed: Add fields `connected_endpoint`, `connected_endpoint_type`, `connected_endpoint_reachable`, `cable_peer`, and `cable_peer_type`
 * dcim.PowerOutlet:
   * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
-  * Added `cable_peer`
+  * Added `cable_peer` and `cable_peer_type`
 * dcim.PowerPanel: Added `custom_fields`
 * dcim.PowerPort
   * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
-  * Added `cable_peer`
+  * Added `cable_peer` and `cable_peer_type`
 * dcim.RackReservation: Added `custom_fields`
-* dcim.RearPort:
-  * Removed the `trace` endpoint
+* dcim.RearPort: Added `cable_peer` and `cable_peer_type`
 * dcim.VirtualChassis: Added `custom_fields`
 * extras.ExportTemplate: The `template_language` field has been removed
 * extras.Graph: This API endpoint has been removed (see #4349)
