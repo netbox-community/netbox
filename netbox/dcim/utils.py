@@ -5,12 +5,20 @@ from .exceptions import CableTraceSplit
 
 
 def object_to_path_node(obj):
-    return f'{obj._meta.model_name}:{obj.pk}'
+    """
+    Return a representation of an object suitable for inclusion in a CablePath path. Node representation is in the
+    form <ContentType ID>:<Object ID>.
+    """
+    ct = ContentType.objects.get_for_model(obj)
+    return f'{ct.pk}:{obj.pk}'
 
 
 def path_node_to_object(repr):
-    model_name, object_id = repr.split(':')
-    model_class = ContentType.objects.get(model=model_name).model_class()
+    """
+    Given a path node representation, return the corresponding object.
+    """
+    ct_id, object_id = repr.split(':')
+    model_class = ContentType.objects.get(pk=ct_id).model_class()
     return model_class.objects.get(pk=int(object_id))
 
 
