@@ -24,7 +24,7 @@
     {# Description #}
     <td>{{ frontport.description|placeholder }}</td>
 
-    {# Cable/connection #}
+    {# Cable #}
     {% if frontport.cable %}
         <td>
             <a href="{{ frontport.cable.get_absolute_url }}">{{ frontport.cable }}</a>

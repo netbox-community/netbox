@@ -23,7 +23,7 @@
     {# Description #}
     <td>{{ rearport.description|placeholder }}</td>
 
-    {# Cable/connection #}
+    {# Cable #}
     {% if rearport.cable %}
         <td>
             <a href="{{ rearport.cable.get_absolute_url }}">{{ rearport.cable }}</a>
