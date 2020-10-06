@@ -1117,7 +1117,7 @@ class DeviceLLDPNeighborsView(ObjectView):
     def get(self, request, pk):
 
         device = get_object_or_404(self.queryset, pk=pk)
-        interfaces = device.vc_interfaces.restrict(request.user, 'view').prefetch_related('_path').exclude(
+        interfaces = device.vc_interfaces.restrict(request.user, 'view').prefetch_related('_path__destination').exclude(
             type__in=NONCONNECTABLE_IFACE_TYPES
         )
 
@@ -2087,7 +2087,7 @@ class CableBulkDeleteView(BulkDeleteView):
 
 class ConsoleConnectionsListView(ObjectListView):
     queryset = ConsolePort.objects.prefetch_related(
-        'device', '_path__destination__device'
+        'device', '_path__destination'
     ).filter(_path__isnull=False).order_by('device')
     filterset = filters.ConsoleConnectionFilterSet
     filterset_form = forms.ConsoleConnectionFilterForm
@@ -2097,7 +2097,7 @@ class ConsoleConnectionsListView(ObjectListView):
     def queryset_to_csv(self):
         csv_data = [
             # Headers
-            ','.join(['console_server', 'port', 'device', 'console_port', 'connection_status'])
+            ','.join(['console_server', 'port', 'device', 'console_port', 'reachable'])
         ]
         for obj in self.queryset:
             csv = csv_format([
@@ -2105,7 +2105,7 @@ class ConsoleConnectionsListView(ObjectListView):
                 obj._path.destination.name if obj._path.destination else None,
                 obj.device.identifier,
                 obj.name,
-                'Reachable' if obj._path.is_active else 'Not Reachable',
+                obj._path.is_active
             ])
             csv_data.append(csv)
 
@@ -2114,7 +2114,7 @@ class ConsoleConnectionsListView(ObjectListView):
 
 class PowerConnectionsListView(ObjectListView):
     queryset = PowerPort.objects.prefetch_related(
-        'device', '_path__destination__device'
+        'device', '_path__destination'
     ).filter(_path__isnull=False).order_by('device')
     filterset = filters.PowerConnectionFilterSet
     filterset_form = forms.PowerConnectionFilterForm
@@ -2124,7 +2124,7 @@ class PowerConnectionsListView(ObjectListView):
     def queryset_to_csv(self):
         csv_data = [
             # Headers
-            ','.join(['pdu', 'outlet', 'device', 'power_port', 'connection_status'])
+            ','.join(['pdu', 'outlet', 'device', 'power_port', 'reachable'])
         ]
         for obj in self.queryset:
             csv = csv_format([
@@ -2132,7 +2132,7 @@ class PowerConnectionsListView(ObjectListView):
                 obj._path.destination.name if obj._path.destination else None,
                 obj.device.identifier,
                 obj.name,
-                'Reachable' if obj._path.is_active else 'Not Reachable',
+                obj._path.is_active
             ])
             csv_data.append(csv)
 
@@ -2141,7 +2141,7 @@ class PowerConnectionsListView(ObjectListView):
 
 class InterfaceConnectionsListView(ObjectListView):
     queryset = Interface.objects.prefetch_related(
-        'device', '_path__destination__device'
+        'device', '_path__destination'
     ).filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
         _path__isnull=False,
@@ -2156,7 +2156,7 @@ class InterfaceConnectionsListView(ObjectListView):
         csv_data = [
             # Headers
             ','.join([
-                'device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status'
+                'device_a', 'interface_a', 'device_b', 'interface_b', 'reachable'
             ])
         ]
         for obj in self.queryset:
@@ -2165,7 +2165,7 @@ class InterfaceConnectionsListView(ObjectListView):
                 obj._path.destination.name if obj._path.destination else None,
                 obj.device.identifier,
                 obj.name,
-                'Reachable' if obj._path.is_active else 'Not Reachable',
+                obj._path.is_active
             ])
             csv_data.append(csv)
 
