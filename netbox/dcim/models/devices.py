@@ -15,7 +15,6 @@ from taggit.managers import TaggableManager
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
-from dcim.managers import CablePathManager
 from dcim.utils import path_node_to_object
 from extras.models import ChangeLoggedModel, ConfigContextModel, CustomFieldModel, TaggedItem
 from extras.utils import extras_features
@@ -1194,8 +1193,6 @@ class CablePath(models.Model):
     is_active = models.BooleanField(
         default=False
     )
-
-    objects = CablePathManager()
 
     class Meta:
         unique_together = ('origin_type', 'origin_id')
