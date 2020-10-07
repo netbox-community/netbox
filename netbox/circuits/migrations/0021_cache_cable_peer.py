@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('circuits', '0021_cablepath'),
+        ('circuits', '0020_custom_field_data'),
     ]
 
     operations = [
