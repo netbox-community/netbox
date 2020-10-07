@@ -55,6 +55,11 @@ COMMAND="python3 netbox/manage.py migrate"
 echo "Applying database migrations ($COMMAND)..."
 eval $COMMAND || exit 1
 
+# Trace any missing cable paths (not typically needed)
+COMMAND="python3 netbox/manage.py trace_paths --no-input"
+echo "Checking for missing cable paths ($COMMAND)..."
+eval $COMMAND || exit 1
+
 # Collect static files
 COMMAND="python3 netbox/manage.py collectstatic --no-input"
 echo "Collecting static files ($COMMAND)..."
