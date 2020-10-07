@@ -8,7 +8,7 @@ except to report bugs or request features.
 
 We have established a Google Groups Mailing List for issues and general
 discussion. This is the best forum for obtaining assistance with NetBox
-installation. You can find us [here](https://groups.google.com/forum/#!forum/netbox-discuss).
+installation. You can find us [here](https://groups.google.com/g/netbox-discuss).
 
 ### Slack
 
@@ -164,7 +164,7 @@ overlooked.
 * Official channels for communication include:
 
     * GitHub issues/pull requests
-    * The [netbox-discuss](https://groups.google.com/forum/#!forum/netbox-discuss) mailing list
+    * The [netbox-discuss](https://groups.google.com/g/netbox-discuss) mailing list
     * The **#netbox** channel on [NetworkToCode Slack](https://networktocode.slack.com/)
 
 * Maintainers with no substantial recorded activity in a 60-day period will be

@@ -89,7 +89,3 @@ On the `develop` branch, update `VERSION` in `settings.py` to point to the next 
 ```
 VERSION = 'v2.3.5-dev'
 ```
-
-### Announce the Release
-
-Announce the release on the [mailing list](https://groups.google.com/forum/#!forum/netbox-discuss). Include a link to the release and the (HTML-formatted) release notes.

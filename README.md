@@ -12,7 +12,7 @@ complete list of requirements, see `requirements.txt`. The code is available [on
 
 The complete documentation for NetBox can be found at [Read the Docs](http://netbox.readthedocs.io/en/stable/).
 
-Questions? Comments? Please subscribe to [the netbox-discuss mailing list](https://groups.google.com/forum/#!forum/netbox-discuss),
+Questions? Comments? Please subscribe to [the netbox-discuss mailing list](https://groups.google.com/g/netbox-discuss),
 or join us in the #netbox Slack channel on [NetworkToCode](https://networktocode.slack.com/)!
 
 ### Build Status
@@ -44,7 +44,7 @@ and run `upgrade.sh`.
 
 Feature requests and bug reports must be submitted as GiHub issues. (Please be
 sure to use the [appropriate template](https://github.com/netbox-community/netbox/issues/new/choose).)
-For general discussion, please consider joining our [mailing list](https://groups.google.com/forum/#!forum/netbox-discuss).
+For general discussion, please consider joining our [mailing list](https://groups.google.com/g/netbox-discuss).
 
 If you are interested in contributing to the development of NetBox, please read
 our [contributing guide](CONTRIBUTING.md) prior to beginning any work.

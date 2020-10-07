@@ -11,7 +11,7 @@ about: Report a reproducible bug in the current release of NetBox
     NetBox installation, or if you have a general question, DO NOT open an
     issue. Instead, post to our mailing list:
 
-        https://groups.google.com/forum/#!forum/netbox-discuss
+        https://groups.google.com/g/netbox-discuss
 
     Please describe the environment in which you are running NetBox. Be sure
     that you are running an unmodified instance of the latest stable release

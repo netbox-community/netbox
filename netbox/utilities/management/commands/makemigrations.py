@@ -22,7 +22,7 @@ class Command(_Command):
                 "This command is available for development purposes only. It will\n"
                 "NOT resolve any issues with missing or unapplied migrations. For assistance,\n"
                 "please post to the NetBox mailing list:\n"
-                "    https://groups.google.com/forum/#!forum/netbox-discuss"
+                "    https://groups.google.com/g/netbox-discuss"
             )
 
         super().handle(*args, **kwargs)
