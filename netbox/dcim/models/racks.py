@@ -3,6 +3,7 @@ from collections import OrderedDict
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -22,6 +23,7 @@ from utilities.fields import ColorField, NaturalOrderingField
 from utilities.querysets import RestrictedQuerySet
 from utilities.mptt import TreeManager
 from utilities.utils import array_to_string, serialize_object
+from .device_components import PowerOutlet, PowerPort
 from .devices import Device
 from .power import PowerFeed
 
@@ -536,20 +538,22 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         """
         Determine the utilization rate of power in the rack and return it as a percentage.
         """
-        power_stats = PowerFeed.objects.filter(
-            rack=self
-        ).annotate(
-            allocated_draw_total=Sum('connected_endpoint__poweroutlets__connected_endpoint__allocated_draw'),
-        ).values(
-            'allocated_draw_total',
-            'available_power'
-        )
+        powerfeeds = PowerFeed.objects.filter(rack=self)
+        available_power_total = sum(pf.available_power for pf in powerfeeds)
+        if not available_power_total:
+            return 0
 
-        if power_stats:
-            allocated_draw_total = sum(x['allocated_draw_total'] or 0 for x in power_stats)
-            available_power_total = sum(x['available_power'] for x in power_stats)
-            return int(allocated_draw_total / available_power_total * 100) or 0
-        return 0
+        pf_powerports = PowerPort.objects.filter(
+            _cable_peer_type=ContentType.objects.get_for_model(PowerFeed),
+            _cable_peer_id__in=powerfeeds.values_list('id', flat=True)
+        )
+        poweroutlets = PowerOutlet.objects.filter(power_port_id__in=pf_powerports)
+        allocated_draw_total = PowerPort.objects.filter(
+            _cable_peer_type=ContentType.objects.get_for_model(PowerOutlet),
+            _cable_peer_id__in=poweroutlets.values_list('id', flat=True)
+        ).aggregate(Sum('allocated_draw'))['allocated_draw__sum'] or 0
+
+        return int(allocated_draw_total / available_power_total * 100)
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')
