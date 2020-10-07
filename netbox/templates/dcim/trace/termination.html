@@ -1,0 +1,9 @@
+{% load helpers %}
+<div class="panel panel-default">
+    <div class="panel-body">
+        {{ termination|meta:"verbose_name"|bettertitle }} <a href="{{ termination.get_absolute_url }}">{{ termination }}</a>
+        {% if termination.type %}
+            <br/>{{ termination.get_type_display }}
+        {% endif %}
+    </div>
+</div>
