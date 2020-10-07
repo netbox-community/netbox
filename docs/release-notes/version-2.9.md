@@ -13,6 +13,7 @@
 * [#5201](https://github.com/netbox-community/netbox/issues/5201) - Fix missing querystring when bulk editing/deleting VLAN Group VLANs when selecting "select all x items matching query"
 * [#5206](https://github.com/netbox-community/netbox/issues/5206) - Apply user pagination preferences to all paginated object lists
 * [#5217](https://github.com/netbox-community/netbox/issues/5217) - Prevent erroneous removal of prefetched GenericForeignKey data from tables
+* [#5218](https://github.com/netbox-community/netbox/issues/5218) - Raise validation error if a power port's `allocated_draw` exceeds its `maximum_draw`
 
 ---
 

@@ -405,6 +405,14 @@ class PowerPort(CableTermination, ComponentModel):
             self.description,
         )
 
+    def clean(self):
+
+        if self.maximum_draw is not None and self.allocated_draw is not None:
+            if self.allocated_draw > self.maximum_draw:
+                raise ValidationError({
+                    'allocated_draw': f"Allocated draw cannot exceed the maximum draw ({self.maximum_draw}W)."
+                })
+
     @property
     def connected_endpoint(self):
         """
