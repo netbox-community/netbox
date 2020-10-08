@@ -62,6 +62,7 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 
 * Added support for `PUT`, `PATCH`, and `DELETE` operations on list endpoints (bulk update and delete)
 * circuits.CircuitTermination:
+  * Added the `/trace/` endpoint
   * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
   * Added `cable_peer` and `cable_peer_type`
 * dcim.Cable: Added `custom_fields`
@@ -81,7 +82,9 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
   * Added `cable_peer` and `cable_peer_type`
   * Removed `connection_status` from nested serializer
 * dcim.InventoryItem: The `_depth` field has been added to reflect MPTT positioning
-* dcim.PowerFeed: Add fields `connected_endpoint`, `connected_endpoint_type`, `connected_endpoint_reachable`, `cable_peer`, and `cable_peer_type`
+* dcim.PowerFeed:
+  * Added the `/trace/` endpoint
+  * Added fields `connected_endpoint`, `connected_endpoint_type`, `connected_endpoint_reachable`, `cable_peer`, and `cable_peer_type`
 * dcim.PowerOutlet:
   * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
   * Added `cable_peer` and `cable_peer_type`

@@ -3,6 +3,7 @@ from rest_framework.routers import APIRootView
 
 from circuits import filters
 from circuits.models import Provider, CircuitTermination, CircuitType, Circuit
+from dcim.api.views import PathEndpointMixin
 from extras.api.views import CustomFieldModelViewSet
 from utilities.api import ModelViewSet
 from . import serializers
@@ -57,7 +58,7 @@ class CircuitViewSet(CustomFieldModelViewSet):
 # Circuit Terminations
 #
 
-class CircuitTerminationViewSet(ModelViewSet):
+class CircuitTerminationViewSet(PathEndpointMixin, ModelViewSet):
     queryset = CircuitTermination.objects.prefetch_related(
         'circuit', 'site', '_path__destination', 'cable'
     )

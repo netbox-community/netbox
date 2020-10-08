@@ -614,7 +614,7 @@ class PowerPanelViewSet(ModelViewSet):
 # Power feeds
 #
 
-class PowerFeedViewSet(CustomFieldModelViewSet):
+class PowerFeedViewSet(PathEndpointMixin, CustomFieldModelViewSet):
     queryset = PowerFeed.objects.prefetch_related(
         'power_panel', 'rack', '_path__destination', 'cable', '_cable_peer', 'tags'
     )
