@@ -14,6 +14,7 @@
 * [#5206](https://github.com/netbox-community/netbox/issues/5206) - Apply user pagination preferences to all paginated object lists
 * [#5217](https://github.com/netbox-community/netbox/issues/5217) - Prevent erroneous removal of prefetched GenericForeignKey data from tables
 * [#5218](https://github.com/netbox-community/netbox/issues/5218) - Raise validation error if a power port's `allocated_draw` exceeds its `maximum_draw`
+* [#5220](https://github.com/netbox-community/netbox/issues/5220) - Fix API patch request against IP Address endpoint with null assigned_object_type 
 * [#5221](https://github.com/netbox-community/netbox/issues/5221) - Fix bulk component creation for virtual machines
 
 ---
