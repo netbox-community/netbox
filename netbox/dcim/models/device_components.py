@@ -851,17 +851,16 @@ class FrontPort(CableTermination, ComponentModel):
 
         # Validate rear port assignment
         if self.rear_port.device != self.device:
-            raise ValidationError(
-                "Rear port ({}) must belong to the same device".format(self.rear_port)
-            )
+            raise ValidationError({
+                "rear_port": f"Rear port ({self.rear_port}) must belong to the same device"
+            })
 
         # Validate rear port position assignment
         if self.rear_port_position > self.rear_port.positions:
-            raise ValidationError(
-                "Invalid rear port position ({}); rear port {} has only {} positions".format(
-                    self.rear_port_position, self.rear_port.name, self.rear_port.positions
-                )
-            )
+            raise ValidationError({
+                "rear_port_position": f"Invalid rear port position ({self.rear_port_position}): Rear port "
+                                      f"{self.rear_port.name} has only {self.rear_port.positions} positions"
+            })
 
 
 @extras_features('webhooks')
@@ -890,6 +889,16 @@ class RearPort(CableTermination, ComponentModel):
 
     def get_absolute_url(self):
         return reverse('dcim:rearport', kwargs={'pk': self.pk})
+
+    def clean(self):
+
+        # Check that positions count is greater than or equal to the number of associated FrontPorts
+        frontport_count = self.frontports.count()
+        if self.positions < frontport_count:
+            raise ValidationError({
+                "positions": f"The number of positions cannot be less than the number of mapped front ports "
+                             f"({frontport_count})"
+            })
 
     def to_csv(self):
         return (

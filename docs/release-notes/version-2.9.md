@@ -16,6 +16,7 @@
 * [#5218](https://github.com/netbox-community/netbox/issues/5218) - Raise validation error if a power port's `allocated_draw` exceeds its `maximum_draw`
 * [#5220](https://github.com/netbox-community/netbox/issues/5220) - Fix API patch request against IP Address endpoint with null assigned_object_type 
 * [#5221](https://github.com/netbox-community/netbox/issues/5221) - Fix bulk component creation for virtual machines
+* [#5224](https://github.com/netbox-community/netbox/issues/5224) - Don't allow a rear port to have fewer positions than the number of mapped front ports
 
 ---
 
