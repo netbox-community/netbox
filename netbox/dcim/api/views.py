@@ -58,6 +58,9 @@ class PathEndpointMixin(object):
         path = []
 
         for near_end, cable, far_end in obj.trace():
+            if near_end is None:
+                # Split paths
+                break
 
             # Serialize each object
             serializer_a = get_serializer_for_model(near_end, prefix='Nested')
