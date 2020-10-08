@@ -487,8 +487,8 @@ class ConsoleServerPortSerializer(TaggedObjectSerializer, CableTerminationSerial
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'id', 'url', 'device', 'name', 'label', 'type', 'description', 'connected_endpoint_type',
-            'connected_endpoint', 'connected_endpoint_reachable', 'cable', 'cable_peer', 'cable_peer_type', 'tags',
+            'id', 'url', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'cable_peer_type',
+            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags',
         ]
 
 
@@ -505,8 +505,8 @@ class ConsolePortSerializer(TaggedObjectSerializer, CableTerminationSerializer, 
     class Meta:
         model = ConsolePort
         fields = [
-            'id', 'url', 'device', 'name', 'label', 'type', 'description', 'connected_endpoint_type',
-            'connected_endpoint', 'connected_endpoint_reachable', 'cable', 'cable_peer', 'cable_peer_type', 'tags',
+            'id', 'url', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'cable_peer_type',
+            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags',
         ]
 
 
@@ -533,9 +533,9 @@ class PowerOutletSerializer(TaggedObjectSerializer, CableTerminationSerializer, 
     class Meta:
         model = PowerOutlet
         fields = [
-            'id', 'url', 'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
-            'connected_endpoint_type', 'connected_endpoint', 'connected_endpoint_reachable', 'cable', 'cable_peer',
-            'cable_peer_type', 'tags',
+            'id', 'url', 'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable',
+            'cable_peer', 'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type',
+            'connected_endpoint_reachable', 'tags',
         ]
 
 
@@ -552,9 +552,9 @@ class PowerPortSerializer(TaggedObjectSerializer, CableTerminationSerializer, Co
     class Meta:
         model = PowerPort
         fields = [
-            'id', 'url', 'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description',
-            'connected_endpoint_type', 'connected_endpoint', 'connected_endpoint_reachable', 'cable', 'cable_peer',
-            'cable_peer_type', 'tags',
+            'id', 'url', 'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable',
+            'cable_peer', 'cable_peer_type', 'connected_endpoint', 'connected_endpoint_type',
+            'connected_endpoint_reachable', 'tags',
         ]
 
 
@@ -578,8 +578,9 @@ class InterfaceSerializer(TaggedObjectSerializer, CableTerminationSerializer, Co
         model = Interface
         fields = [
             'id', 'url', 'device', 'name', 'label', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only',
-            'description', 'connected_endpoint_type', 'connected_endpoint', 'connected_endpoint_reachable', 'cable',
-            'cable_peer', 'cable_peer_type', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags', 'count_ipaddresses',
+            'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'cable', 'cable_peer', 'cable_peer_type',
+            'connected_endpoint', 'connected_endpoint_type', 'connected_endpoint_reachable', 'tags',
+            'count_ipaddresses',
         ]
 
     # TODO: This validation should be handled by Interface.clean()
@@ -872,7 +873,7 @@ class PowerFeedSerializer(
         model = PowerFeed
         fields = [
             'id', 'url', 'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage',
-            'max_utilization', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
-            'connected_endpoint_type', 'connected_endpoint', 'connected_endpoint_reachable', 'cable', 'cable_peer',
-            'cable_peer_type',
+            'max_utilization', 'comments', 'cable', 'cable_peer', 'cable_peer_type', 'connected_endpoint',
+            'connected_endpoint_type', 'connected_endpoint_reachable', 'tags', 'custom_fields', 'created',
+            'last_updated',
         ]
