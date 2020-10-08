@@ -1,8 +1,7 @@
 from rest_framework import serializers
 
-from dcim.constants import CONNECTION_STATUS_CHOICES
 from dcim import models
-from utilities.api import ChoiceField, WritableNestedSerializer
+from utilities.api import WritableNestedSerializer
 
 __all__ = [
     'NestedCableSerializer',
@@ -228,51 +227,46 @@ class NestedDeviceSerializer(WritableNestedSerializer):
 class NestedConsoleServerPortSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleserverport-detail')
     device = NestedDeviceSerializer(read_only=True)
-    connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, read_only=True)
 
     class Meta:
         model = models.ConsoleServerPort
-        fields = ['id', 'url', 'device', 'name', 'cable', 'connection_status']
+        fields = ['id', 'url', 'device', 'name', 'cable']
 
 
 class NestedConsolePortSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleport-detail')
     device = NestedDeviceSerializer(read_only=True)
-    connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, read_only=True)
 
     class Meta:
         model = models.ConsolePort
-        fields = ['id', 'url', 'device', 'name', 'cable', 'connection_status']
+        fields = ['id', 'url', 'device', 'name', 'cable']
 
 
 class NestedPowerOutletSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:poweroutlet-detail')
     device = NestedDeviceSerializer(read_only=True)
-    connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, read_only=True)
 
     class Meta:
         model = models.PowerOutlet
-        fields = ['id', 'url', 'device', 'name', 'cable', 'connection_status']
+        fields = ['id', 'url', 'device', 'name', 'cable']
 
 
 class NestedPowerPortSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerport-detail')
     device = NestedDeviceSerializer(read_only=True)
-    connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, read_only=True)
 
     class Meta:
         model = models.PowerPort
-        fields = ['id', 'url', 'device', 'name', 'cable', 'connection_status']
+        fields = ['id', 'url', 'device', 'name', 'cable']
 
 
 class NestedInterfaceSerializer(WritableNestedSerializer):
     device = NestedDeviceSerializer(read_only=True)
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
-    connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, read_only=True)
 
     class Meta:
         model = models.Interface
-        fields = ['id', 'url', 'device', 'name', 'cable', 'connection_status']
+        fields = ['id', 'url', 'device', 'name', 'cable']
 
 
 class NestedRearPortSerializer(WritableNestedSerializer):

@@ -24,30 +24,22 @@
     </td>
 
     {# Cable #}
-    <td>
-        {% if cp.cable %}
+    {% if cp.cable %}
+        <td>
             <a href="{{ cp.cable.get_absolute_url }}">{{ cp.cable }}</a>
             <a href="{% url 'dcim:consoleport_trace' pk=cp.pk %}" class="btn btn-primary btn-xs" title="Trace">
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
-        {% else %}
-            &mdash;
-        {% endif %}
-    </td>
-
-    {# Connection #}
-    {% if cp.connected_endpoint %}
-        <td>
-            <a href="{% url 'dcim:device' pk=cp.connected_endpoint.device.pk %}">{{ cp.connected_endpoint.device }}</a>
         </td>
-        <td>
-            {{ cp.connected_endpoint }}
-        </td>
+        {% include 'dcim/inc/cabletermination.html' with termination=cp.get_cable_peer %}
     {% else %}
-        <td colspan="2">
+        <td colspan="3">
             <span class="text-muted">Not connected</span>
         </td>
     {% endif %}
+
+    {# Connection #}
+    {% include 'dcim/inc/endpoint_connection.html' with path=cp.path %}
 
     {# Actions #}
     <td class="text-right noprint">

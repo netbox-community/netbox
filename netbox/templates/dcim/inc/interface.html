@@ -45,19 +45,19 @@
     <td>{{ iface.get_mode_display|default:"&mdash;" }}</td>
 
     {# Cable #}
-    <td class="text-nowrap">
-        {% if iface.cable %}
+    {% if iface.cable %}
+        <td>
             <a href="{{ iface.cable.get_absolute_url }}">{{ iface.cable }}</a>
-            {% if iface.cable.color %}
-            <span class="inline-color-block" style="background-color: #{{ iface.cable.color }}">&nbsp;</span>
-            {% endif %}
             <a href="{% url 'dcim:interface_trace' pk=iface.pk %}" class="btn btn-primary btn-xs" title="Trace">
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
-        {% else %}
-            <span class="text-muted">&mdash;</span>
-        {% endif %}
-    </td>
+        </td>
+        {% include 'dcim/inc/cabletermination.html' with termination=iface.get_cable_peer %}
+    {% else %}
+        <td colspan="3">
+            <span class="text-muted">Not connected</span>
+        </td>
+    {% endif %}
 
     {# Connection or type #}
     {% if iface.is_lag %}
@@ -75,65 +75,8 @@
         <td colspan="2" class="text-muted">Virtual interface</td>
     {% elif iface.is_wireless %}
         <td colspan="2" class="text-muted">Wireless interface</td>
-    {% elif iface.connected_endpoint.name %}
-        {# Connected to an Interface #}
-        <td>
-            <a href="{% url 'dcim:device' pk=iface.connected_endpoint.device.pk %}">
-                {{ iface.connected_endpoint.device }}
-            </a>
-        </td>
-        <td>
-            <a href="{% url 'dcim:interface' pk=iface.connected_endpoint.pk %}">
-                <span title="{{ iface.connected_endpoint.get_type_display }}">
-                    {{ iface.connected_endpoint }}
-                </span>
-            </a>
-        </td>
-    {% elif iface.connected_endpoint.term_side %}
-        {# Connected to a CircuitTermination #}
-        {% with iface.connected_endpoint.get_peer_termination as peer_termination %}
-            {% if peer_termination %}
-                {% if peer_termination.connected_endpoint %}
-                    <td>
-                        <a href="{% url 'dcim:device' pk=peer_termination.connected_endpoint.device.pk %}">
-                            {{ peer_termination.connected_endpoint.device }}
-                        </a><br/>
-                        <small>via <i class="fa fa-fw fa-globe" title="Circuit"></i>
-                            <a href="{{ iface.connected_endpoint.circuit.get_absolute_url }}">
-                                {{ iface.connected_endpoint.circuit.provider }}
-                                {{ iface.connected_endpoint.circuit }}
-                            </a>
-                        </small>
-                    </td>
-                    <td>
-                        {{ peer_termination.connected_endpoint }}
-                    </td>
-                {% else %}
-                    <td colspan="2">
-                        <a href="{% url 'dcim:site' slug=peer_termination.site.slug %}">
-                            {{ peer_termination.site }}
-                        </a>
-                        via <i class="fa fa-fw fa-globe" title="Circuit"></i>
-                        <a href="{{ iface.connected_endpoint.circuit.get_absolute_url }}">
-                            {{ iface.connected_endpoint.circuit.provider }}
-                            {{ iface.connected_endpoint.circuit }}
-                        </a>
-                    </td>
-                {% endif %}
-            {% else %}
-                <td colspan="2">
-                    <i class="fa fa-fw fa-globe" title="Circuit"></i>
-                    <a href="{{ iface.connected_endpoint.circuit.get_absolute_url }}">
-                        {{ iface.connected_endpoint.circuit.provider }}
-                        {{ iface.connected_endpoint.circuit }}
-                    </a>
-                </td>
-            {% endif %}
-        {% endwith %}
     {% else %}
-        <td colspan="2">
-            <span class="text-muted">Not connected</span>
-        </td>
+        {% include 'dcim/inc/endpoint_connection.html' with path=iface.path %}
     {% endif %}
 
     {# Buttons #}

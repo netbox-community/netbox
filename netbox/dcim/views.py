@@ -32,10 +32,10 @@ from . import filters, forms, tables
 from .choices import DeviceFaceChoices
 from .constants import NONCONNECTABLE_IFACE_TYPES
 from .models import (
-    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    Cable, CablePath, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
-    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
+    InventoryItem, Manufacturer, PathEndpoint, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel,
+    PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
 
@@ -1018,32 +1018,31 @@ class DeviceView(ObjectView):
 
         # Console ports
         consoleports = ConsolePort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
-            'connected_endpoint__device', 'cable',
+            'cable', '_path__destination',
         )
 
         # Console server ports
         consoleserverports = ConsoleServerPort.objects.restrict(request.user, 'view').filter(
             device=device
         ).prefetch_related(
-            'connected_endpoint__device', 'cable',
+            'cable', '_path__destination',
         )
 
         # Power ports
         powerports = PowerPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
-            '_connected_poweroutlet__device', 'cable',
+            'cable', '_path__destination',
         )
 
         # Power outlets
         poweroutlets = PowerOutlet.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
-            'connected_endpoint__device', 'cable', 'power_port',
+            'cable', 'power_port', '_path__destination',
         )
 
         # Interfaces
         interfaces = device.vc_interfaces.restrict(request.user, 'view').prefetch_related(
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user)),
             Prefetch('member_interfaces', queryset=Interface.objects.restrict(request.user)),
-            'lag', '_connected_interface__device', '_connected_circuittermination__circuit', 'cable',
-            'cable__termination_a', 'cable__termination_b', 'tags'
+            'lag', 'cable', '_path__destination', 'tags',
         )
 
         # Front ports
@@ -1118,10 +1117,8 @@ class DeviceLLDPNeighborsView(ObjectView):
     def get(self, request, pk):
 
         device = get_object_or_404(self.queryset, pk=pk)
-        interfaces = device.vc_interfaces.restrict(request.user, 'view').exclude(
+        interfaces = device.vc_interfaces.restrict(request.user, 'view').prefetch_related('_path__destination').exclude(
             type__in=NONCONNECTABLE_IFACE_TYPES
-        ).prefetch_related(
-            '_connected_interface__device'
         )
 
         return render(request, 'dcim/device_lldp_neighbors.html', {
@@ -1479,8 +1476,6 @@ class InterfaceView(ObjectView):
 
         return render(request, 'dcim/interface.html', {
             'instance': interface,
-            'connected_interface': interface._connected_interface,
-            'connected_circuittermination': interface._connected_circuittermination,
             'ipaddress_table': ipaddress_table,
             'vlan_table': vlan_table,
         })
@@ -1957,9 +1952,9 @@ class CableView(ObjectView):
         })
 
 
-class CableTraceView(ObjectView):
+class PathTraceView(ObjectView):
     """
-    Trace a cable path beginning from the given termination.
+    Trace a cable path beginning from the given path endpoint (origin).
     """
     additional_permissions = ['dcim.view_cable']
 
@@ -1970,19 +1965,30 @@ class CableTraceView(ObjectView):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, pk):
-
         obj = get_object_or_404(self.queryset, pk=pk)
-        path, split_ends, position_stack = obj.trace()
-        total_length = sum(
-            [entry[1]._abs_length for entry in path if entry[1] and entry[1]._abs_length]
-        )
+        related_paths = []
+
+        # If tracing a PathEndpoint, locate the CablePath (if one exists) by its origin
+        if isinstance(obj, PathEndpoint):
+            path = obj._path
+        # Otherwise, find all CablePaths which traverse the specified object
+        else:
+            related_paths = CablePath.objects.filter(path__contains=obj).prefetch_related('origin')
+            # Check for specification of a particular path (when tracing pass-through ports)
+            try:
+                path_id = int(request.GET.get('cablepath_id'))
+            except TypeError:
+                path_id = None
+            if path_id in list(related_paths.values_list('pk', flat=True)):
+                path = CablePath.objects.get(pk=path_id)
+            else:
+                path = related_paths.first()
 
         return render(request, 'dcim/cable_trace.html', {
             'obj': obj,
-            'trace': path,
-            'split_ends': split_ends,
-            'position_stack': position_stack,
-            'total_length': total_length,
+            'path': path,
+            'related_paths': related_paths,
+            'total_length': path.get_total_length(),
         })
 
 
@@ -2077,12 +2083,8 @@ class CableBulkDeleteView(BulkDeleteView):
 
 class ConsoleConnectionsListView(ObjectListView):
     queryset = ConsolePort.objects.prefetch_related(
-        'device', 'connected_endpoint__device'
-    ).filter(
-        connected_endpoint__isnull=False
-    ).order_by(
-        'cable', 'connected_endpoint__device__name', 'connected_endpoint__name'
-    )
+        'device', '_path__destination'
+    ).filter(_path__isnull=False).order_by('device')
     filterset = filters.ConsoleConnectionFilterSet
     filterset_form = forms.ConsoleConnectionFilterForm
     table = tables.ConsoleConnectionTable
@@ -2091,15 +2093,15 @@ class ConsoleConnectionsListView(ObjectListView):
     def queryset_to_csv(self):
         csv_data = [
             # Headers
-            ','.join(['console_server', 'port', 'device', 'console_port', 'connection_status'])
+            ','.join(['console_server', 'port', 'device', 'console_port', 'reachable'])
         ]
         for obj in self.queryset:
             csv = csv_format([
-                obj.connected_endpoint.device.identifier if obj.connected_endpoint else None,
-                obj.connected_endpoint.name if obj.connected_endpoint else None,
+                obj._path.destination.device.identifier if obj._path.destination else None,
+                obj._path.destination.name if obj._path.destination else None,
                 obj.device.identifier,
                 obj.name,
-                obj.get_connection_status_display(),
+                obj._path.is_active
             ])
             csv_data.append(csv)
 
@@ -2108,12 +2110,8 @@ class ConsoleConnectionsListView(ObjectListView):
 
 class PowerConnectionsListView(ObjectListView):
     queryset = PowerPort.objects.prefetch_related(
-        'device', '_connected_poweroutlet__device'
-    ).filter(
-        _connected_poweroutlet__isnull=False
-    ).order_by(
-        'cable', '_connected_poweroutlet__device__name', '_connected_poweroutlet__name'
-    )
+        'device', '_path__destination'
+    ).filter(_path__isnull=False).order_by('device')
     filterset = filters.PowerConnectionFilterSet
     filterset_form = forms.PowerConnectionFilterForm
     table = tables.PowerConnectionTable
@@ -2122,15 +2120,15 @@ class PowerConnectionsListView(ObjectListView):
     def queryset_to_csv(self):
         csv_data = [
             # Headers
-            ','.join(['pdu', 'outlet', 'device', 'power_port', 'connection_status'])
+            ','.join(['pdu', 'outlet', 'device', 'power_port', 'reachable'])
         ]
         for obj in self.queryset:
             csv = csv_format([
-                obj.connected_endpoint.device.identifier if obj.connected_endpoint else None,
-                obj.connected_endpoint.name if obj.connected_endpoint else None,
+                obj._path.destination.device.identifier if obj._path.destination else None,
+                obj._path.destination.name if obj._path.destination else None,
                 obj.device.identifier,
                 obj.name,
-                obj.get_connection_status_display(),
+                obj._path.is_active
             ])
             csv_data.append(csv)
 
@@ -2139,14 +2137,12 @@ class PowerConnectionsListView(ObjectListView):
 
 class InterfaceConnectionsListView(ObjectListView):
     queryset = Interface.objects.prefetch_related(
-        'device', 'cable', '_connected_interface__device'
+        'device', '_path__destination'
     ).filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
-        _connected_interface__isnull=False,
-        pk__lt=F('_connected_interface')
-    ).order_by(
-        'device'
-    )
+        _path__isnull=False,
+        pk__lt=F('_path__destination_id')
+    ).order_by('device')
     filterset = filters.InterfaceConnectionFilterSet
     filterset_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
@@ -2156,16 +2152,16 @@ class InterfaceConnectionsListView(ObjectListView):
         csv_data = [
             # Headers
             ','.join([
-                'device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status'
+                'device_a', 'interface_a', 'device_b', 'interface_b', 'reachable'
             ])
         ]
         for obj in self.queryset:
             csv = csv_format([
-                obj.connected_endpoint.device.identifier if obj.connected_endpoint else None,
-                obj.connected_endpoint.name if obj.connected_endpoint else None,
+                obj._path.destination.device.identifier if obj._path.destination else None,
+                obj._path.destination.name if obj._path.destination else None,
                 obj.device.identifier,
                 obj.name,
-                obj.get_connection_status_display(),
+                obj._path.is_active
             ])
             csv_data.append(csv)
 

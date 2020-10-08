@@ -8,6 +8,7 @@ from .sites import *
 __all__ = (
     'BaseInterface',
     'Cable',
+    'CablePath',
     'CableTermination',
     'ConsolePort',
     'ConsolePortTemplate',

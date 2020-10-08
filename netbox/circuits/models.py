@@ -2,9 +2,8 @@ from django.db import models
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
-from dcim.constants import CONNECTION_STATUS_CHOICES
 from dcim.fields import ASNField
-from dcim.models import CableTermination
+from dcim.models import CableTermination, PathEndpoint
 from extras.models import ChangeLoggedModel, CustomFieldModel, ObjectChange, TaggedItem
 from extras.utils import extras_features
 from utilities.querysets import RestrictedQuerySet
@@ -232,7 +231,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         return self._get_termination('Z')
 
 
-class CircuitTermination(CableTermination):
+class CircuitTermination(PathEndpoint, CableTermination):
     circuit = models.ForeignKey(
         to='circuits.Circuit',
         on_delete=models.CASCADE,
@@ -247,18 +246,6 @@ class CircuitTermination(CableTermination):
         to='dcim.Site',
         on_delete=models.PROTECT,
         related_name='circuit_terminations'
-    )
-    connected_endpoint = models.OneToOneField(
-        to='dcim.Interface',
-        on_delete=models.SET_NULL,
-        related_name='+',
-        blank=True,
-        null=True
-    )
-    connection_status = models.BooleanField(
-        choices=CONNECTION_STATUS_CHOICES,
-        blank=True,
-        null=True
     )
     port_speed = models.PositiveIntegerField(
         verbose_name='Port speed (Kbps)'

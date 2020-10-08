@@ -7,13 +7,15 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import F, ProtectedError
+from django.db.models import F, ProtectedError, Sum
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.fields import PathField
+from dcim.utils import decompile_path_node, path_node_to_object
 from extras.models import ChangeLoggedModel, ConfigContextModel, CustomFieldModel, TaggedItem
 from extras.utils import extras_features
 from utilities.choices import ColorChoices
@@ -25,6 +27,7 @@ from .device_components import *
 
 __all__ = (
     'Cable',
+    'CablePath',
     'Device',
     'DeviceRole',
     'DeviceType',
@@ -976,6 +979,9 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
         # A copy of the PK to be used by __str__ in case the object is deleted
         self._pk = self.pk
 
+        # Cache the original status so we can check later if it's been changed
+        self._orig_status = self.status
+
     @classmethod
     def from_db(cls, db, field_names, values):
         """
@@ -1152,6 +1158,85 @@ class Cable(ChangeLoggedModel, CustomFieldModel):
         if self.termination_a is None:
             return
         return COMPATIBLE_TERMINATION_TYPES[self.termination_a._meta.model_name]
+
+
+class CablePath(models.Model):
+    """
+    A CablePath instance represents the physical path from an origin to a destination, including all intermediate
+    elements in the path. Every instance must specify an `origin`, whereas `destination` may be null (for paths which do
+    not terminate on a PathEndpoint).
+
+    `path` contains a list of nodes within the path, each represented by a tuple of (type, ID). The first element in the
+    path must be a Cable instance, followed by a pair of pass-through ports. For example, consider the following
+    topology:
+
+                     1                              2                              3
+        Interface A --- Front Port A | Rear Port A --- Rear Port B | Front Port B --- Interface B
+
+    This path would be expressed as:
+
+    CablePath(
+        origin = Interface A
+        destination = Interface B
+        path = [Cable 1, Front Port A, Rear Port A, Cable 2, Rear Port B, Front Port B, Cable 3]
+    )
+
+    `is_active` is set to True only if 1) `destination` is not null, and 2) every Cable within the path has a status of
+    "connected".
+    """
+    origin_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE,
+        related_name='+'
+    )
+    origin_id = models.PositiveIntegerField()
+    origin = GenericForeignKey(
+        ct_field='origin_type',
+        fk_field='origin_id'
+    )
+    destination_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    destination_id = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+    destination = GenericForeignKey(
+        ct_field='destination_type',
+        fk_field='destination_id'
+    )
+    path = PathField()
+    is_active = models.BooleanField(
+        default=False
+    )
+
+    class Meta:
+        unique_together = ('origin_type', 'origin_id')
+
+    def __str__(self):
+        path = ', '.join([str(path_node_to_object(node)) for node in self.path])
+        return f"Path #{self.pk}: {self.origin} to {self.destination} via ({path})"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # Record a direct reference to this CablePath on its originating object
+        model = self.origin._meta.model
+        model.objects.filter(pk=self.origin.pk).update(_path=self.pk)
+
+    def get_total_length(self):
+        """
+        Return the sum of the length of each cable in the path.
+        """
+        cable_ids = [
+            # Starting from the first element, every third element in the path should be a Cable
+            decompile_path_node(self.path[i])[1] for i in range(0, len(self.path), 3)
+        ]
+        return Cable.objects.filter(id__in=cable_ids).aggregate(total=Sum('_abs_length'))['total']
 
 
 #

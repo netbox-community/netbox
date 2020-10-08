@@ -977,7 +977,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
 
 class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsolePort
-    brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
+    brief_fields = ['cable', 'device', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1016,7 +1016,7 @@ class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
 
 class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsoleServerPort
-    brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
+    brief_fields = ['cable', 'device', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1055,7 +1055,7 @@ class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIView
 
 class PowerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerPort
-    brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
+    brief_fields = ['cable', 'device', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1094,7 +1094,7 @@ class PowerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
 
 class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerOutlet
-    brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
+    brief_fields = ['cable', 'device', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1133,7 +1133,7 @@ class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
 
 class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = Interface
-    brief_fields = ['cable', 'connection_status', 'device', 'id', 'name', 'url']
+    brief_fields = ['cable', 'device', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1189,7 +1189,7 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
         ]
 
 
-class FrontPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class FrontPortTest(APIViewTestCases.APIViewTestCase):
     model = FrontPort
     brief_fields = ['cable', 'device', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1247,7 +1247,7 @@ class FrontPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
         ]
 
 
-class RearPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class RearPortTest(APIViewTestCases.APIViewTestCase):
     model = RearPort
     brief_fields = ['cable', 'device', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1451,377 +1451,6 @@ class CableTest(APIViewTestCases.APIViewTestCase):
                 'label': 'Cable 6',
             },
         ]
-
-
-class ConnectionTest(APITestCase):
-
-    def setUp(self):
-
-        super().setUp()
-
-        self.site = Site.objects.create(
-            name='Test Site 1', slug='test-site-1'
-        )
-        manufacturer = Manufacturer.objects.create(
-            name='Test Manufacturer 1', slug='test-manufacturer-1'
-        )
-        devicetype = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
-        )
-        devicerole = DeviceRole.objects.create(
-            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
-        )
-        self.device1 = Device.objects.create(
-            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=self.site
-        )
-        self.device2 = Device.objects.create(
-            device_type=devicetype, device_role=devicerole, name='Test Device 2', site=self.site
-        )
-        self.panel1 = Device.objects.create(
-            device_type=devicetype, device_role=devicerole, name='Test Panel 1', site=self.site
-        )
-        self.panel2 = Device.objects.create(
-            device_type=devicetype, device_role=devicerole, name='Test Panel 2', site=self.site
-        )
-
-    def test_create_direct_console_connection(self):
-
-        consoleport1 = ConsolePort.objects.create(
-            device=self.device1, name='Test Console Port 1'
-        )
-        consoleserverport1 = ConsoleServerPort.objects.create(
-            device=self.device2, name='Test Console Server Port 1'
-        )
-
-        data = {
-            'termination_a_type': 'dcim.consoleport',
-            'termination_a_id': consoleport1.pk,
-            'termination_b_type': 'dcim.consoleserverport',
-            'termination_b_id': consoleserverport1.pk,
-        }
-
-        self.add_permissions('dcim.add_cable')
-        url = reverse('dcim-api:cable-list')
-        response = self.client.post(url, data, format='json', **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Cable.objects.count(), 1)
-
-        cable = Cable.objects.get(pk=response.data['id'])
-        consoleport1 = ConsolePort.objects.get(pk=consoleport1.pk)
-        consoleserverport1 = ConsoleServerPort.objects.get(pk=consoleserverport1.pk)
-
-        self.assertEqual(cable.termination_a, consoleport1)
-        self.assertEqual(cable.termination_b, consoleserverport1)
-        self.assertEqual(consoleport1.cable, cable)
-        self.assertEqual(consoleserverport1.cable, cable)
-        self.assertEqual(consoleport1.connected_endpoint, consoleserverport1)
-        self.assertEqual(consoleserverport1.connected_endpoint, consoleport1)
-
-    def test_create_patched_console_connection(self):
-
-        consoleport1 = ConsolePort.objects.create(
-            device=self.device1, name='Test Console Port 1'
-        )
-        consoleserverport1 = ConsoleServerPort.objects.create(
-            device=self.device2, name='Test Console Server Port 1'
-        )
-        rearport1 = RearPort.objects.create(
-            device=self.panel1, name='Test Rear Port 1', type=PortTypeChoices.TYPE_8P8C
-        )
-        frontport1 = FrontPort.objects.create(
-            device=self.panel1, name='Test Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport1
-        )
-        rearport2 = RearPort.objects.create(
-            device=self.panel2, name='Test Rear Port 2', type=PortTypeChoices.TYPE_8P8C
-        )
-        frontport2 = FrontPort.objects.create(
-            device=self.panel2, name='Test Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport2
-        )
-
-        self.add_permissions('dcim.add_cable')
-        url = reverse('dcim-api:cable-list')
-        cables = [
-            # Console port to panel1 front
-            {
-                'termination_a_type': 'dcim.consoleport',
-                'termination_a_id': consoleport1.pk,
-                'termination_b_type': 'dcim.frontport',
-                'termination_b_id': frontport1.pk,
-            },
-            # Panel1 rear to panel2 rear
-            {
-                'termination_a_type': 'dcim.rearport',
-                'termination_a_id': rearport1.pk,
-                'termination_b_type': 'dcim.rearport',
-                'termination_b_id': rearport2.pk,
-            },
-            # Panel2 front to console server port
-            {
-                'termination_a_type': 'dcim.frontport',
-                'termination_a_id': frontport2.pk,
-                'termination_b_type': 'dcim.consoleserverport',
-                'termination_b_id': consoleserverport1.pk,
-            },
-        ]
-
-        for data in cables:
-
-            response = self.client.post(url, data, format='json', **self.header)
-            self.assertHttpStatus(response, status.HTTP_201_CREATED)
-
-            cable = Cable.objects.get(pk=response.data['id'])
-            self.assertEqual(cable.termination_a.cable, cable)
-            self.assertEqual(cable.termination_b.cable, cable)
-
-        consoleport1 = ConsolePort.objects.get(pk=consoleport1.pk)
-        consoleserverport1 = ConsoleServerPort.objects.get(pk=consoleserverport1.pk)
-        self.assertEqual(consoleport1.connected_endpoint, consoleserverport1)
-        self.assertEqual(consoleserverport1.connected_endpoint, consoleport1)
-
-    def test_create_direct_power_connection(self):
-
-        powerport1 = PowerPort.objects.create(
-            device=self.device1, name='Test Power Port 1'
-        )
-        poweroutlet1 = PowerOutlet.objects.create(
-            device=self.device2, name='Test Power Outlet 1'
-        )
-
-        data = {
-            'termination_a_type': 'dcim.powerport',
-            'termination_a_id': powerport1.pk,
-            'termination_b_type': 'dcim.poweroutlet',
-            'termination_b_id': poweroutlet1.pk,
-        }
-
-        self.add_permissions('dcim.add_cable')
-        url = reverse('dcim-api:cable-list')
-        response = self.client.post(url, data, format='json', **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Cable.objects.count(), 1)
-
-        cable = Cable.objects.get(pk=response.data['id'])
-        powerport1 = PowerPort.objects.get(pk=powerport1.pk)
-        poweroutlet1 = PowerOutlet.objects.get(pk=poweroutlet1.pk)
-
-        self.assertEqual(cable.termination_a, powerport1)
-        self.assertEqual(cable.termination_b, poweroutlet1)
-        self.assertEqual(powerport1.cable, cable)
-        self.assertEqual(poweroutlet1.cable, cable)
-        self.assertEqual(powerport1.connected_endpoint, poweroutlet1)
-        self.assertEqual(poweroutlet1.connected_endpoint, powerport1)
-
-    # Note: Power connections via patch ports are not supported.
-
-    def test_create_direct_interface_connection(self):
-
-        interface1 = Interface.objects.create(
-            device=self.device1, name='Test Interface 1'
-        )
-        interface2 = Interface.objects.create(
-            device=self.device2, name='Test Interface 2'
-        )
-
-        data = {
-            'termination_a_type': 'dcim.interface',
-            'termination_a_id': interface1.pk,
-            'termination_b_type': 'dcim.interface',
-            'termination_b_id': interface2.pk,
-        }
-
-        self.add_permissions('dcim.add_cable')
-        url = reverse('dcim-api:cable-list')
-        response = self.client.post(url, data, format='json', **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Cable.objects.count(), 1)
-
-        cable = Cable.objects.get(pk=response.data['id'])
-        interface1 = Interface.objects.get(pk=interface1.pk)
-        interface2 = Interface.objects.get(pk=interface2.pk)
-
-        self.assertEqual(cable.termination_a, interface1)
-        self.assertEqual(cable.termination_b, interface2)
-        self.assertEqual(interface1.cable, cable)
-        self.assertEqual(interface2.cable, cable)
-        self.assertEqual(interface1.connected_endpoint, interface2)
-        self.assertEqual(interface2.connected_endpoint, interface1)
-
-    def test_create_patched_interface_connection(self):
-
-        interface1 = Interface.objects.create(
-            device=self.device1, name='Test Interface 1'
-        )
-        interface2 = Interface.objects.create(
-            device=self.device2, name='Test Interface 2'
-        )
-        rearport1 = RearPort.objects.create(
-            device=self.panel1, name='Test Rear Port 1', type=PortTypeChoices.TYPE_8P8C
-        )
-        frontport1 = FrontPort.objects.create(
-            device=self.panel1, name='Test Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport1
-        )
-        rearport2 = RearPort.objects.create(
-            device=self.panel2, name='Test Rear Port 2', type=PortTypeChoices.TYPE_8P8C
-        )
-        frontport2 = FrontPort.objects.create(
-            device=self.panel2, name='Test Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport2
-        )
-
-        self.add_permissions('dcim.add_cable')
-        url = reverse('dcim-api:cable-list')
-        cables = [
-            # Interface1 to panel1 front
-            {
-                'termination_a_type': 'dcim.interface',
-                'termination_a_id': interface1.pk,
-                'termination_b_type': 'dcim.frontport',
-                'termination_b_id': frontport1.pk,
-            },
-            # Panel1 rear to panel2 rear
-            {
-                'termination_a_type': 'dcim.rearport',
-                'termination_a_id': rearport1.pk,
-                'termination_b_type': 'dcim.rearport',
-                'termination_b_id': rearport2.pk,
-            },
-            # Panel2 front to interface2
-            {
-                'termination_a_type': 'dcim.frontport',
-                'termination_a_id': frontport2.pk,
-                'termination_b_type': 'dcim.interface',
-                'termination_b_id': interface2.pk,
-            },
-        ]
-
-        for data in cables:
-
-            response = self.client.post(url, data, format='json', **self.header)
-            self.assertHttpStatus(response, status.HTTP_201_CREATED)
-
-            cable = Cable.objects.get(pk=response.data['id'])
-            self.assertEqual(cable.termination_a.cable, cable)
-            self.assertEqual(cable.termination_b.cable, cable)
-
-        interface1 = Interface.objects.get(pk=interface1.pk)
-        interface2 = Interface.objects.get(pk=interface2.pk)
-        self.assertEqual(interface1.connected_endpoint, interface2)
-        self.assertEqual(interface2.connected_endpoint, interface1)
-
-    def test_create_direct_circuittermination_connection(self):
-
-        provider = Provider.objects.create(
-            name='Test Provider 1', slug='test-provider-1'
-        )
-        circuittype = CircuitType.objects.create(
-            name='Test Circuit Type 1', slug='test-circuit-type-1'
-        )
-        circuit = Circuit.objects.create(
-            provider=provider, type=circuittype, cid='Test Circuit 1'
-        )
-        interface1 = Interface.objects.create(
-            device=self.device1, name='Test Interface 1'
-        )
-        circuittermination1 = CircuitTermination.objects.create(
-            circuit=circuit, term_side='A', site=self.site, port_speed=10000
-        )
-
-        data = {
-            'termination_a_type': 'dcim.interface',
-            'termination_a_id': interface1.pk,
-            'termination_b_type': 'circuits.circuittermination',
-            'termination_b_id': circuittermination1.pk,
-        }
-
-        self.add_permissions('dcim.add_cable')
-        url = reverse('dcim-api:cable-list')
-        response = self.client.post(url, data, format='json', **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Cable.objects.count(), 1)
-
-        cable = Cable.objects.get(pk=response.data['id'])
-        interface1 = Interface.objects.get(pk=interface1.pk)
-        circuittermination1 = CircuitTermination.objects.get(pk=circuittermination1.pk)
-
-        self.assertEqual(cable.termination_a, interface1)
-        self.assertEqual(cable.termination_b, circuittermination1)
-        self.assertEqual(interface1.cable, cable)
-        self.assertEqual(circuittermination1.cable, cable)
-        self.assertEqual(interface1.connected_endpoint, circuittermination1)
-        self.assertEqual(circuittermination1.connected_endpoint, interface1)
-
-    def test_create_patched_circuittermination_connection(self):
-
-        provider = Provider.objects.create(
-            name='Test Provider 1', slug='test-provider-1'
-        )
-        circuittype = CircuitType.objects.create(
-            name='Test Circuit Type 1', slug='test-circuit-type-1'
-        )
-        circuit = Circuit.objects.create(
-            provider=provider, type=circuittype, cid='Test Circuit 1'
-        )
-        interface1 = Interface.objects.create(
-            device=self.device1, name='Test Interface 1'
-        )
-        circuittermination1 = CircuitTermination.objects.create(
-            circuit=circuit, term_side='A', site=self.site, port_speed=10000
-        )
-        rearport1 = RearPort.objects.create(
-            device=self.panel1, name='Test Rear Port 1', type=PortTypeChoices.TYPE_8P8C
-        )
-        frontport1 = FrontPort.objects.create(
-            device=self.panel1, name='Test Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport1
-        )
-        rearport2 = RearPort.objects.create(
-            device=self.panel2, name='Test Rear Port 2', type=PortTypeChoices.TYPE_8P8C
-        )
-        frontport2 = FrontPort.objects.create(
-            device=self.panel2, name='Test Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rearport2
-        )
-
-        self.add_permissions('dcim.add_cable')
-        url = reverse('dcim-api:cable-list')
-        cables = [
-            # Interface to panel1 front
-            {
-                'termination_a_type': 'dcim.interface',
-                'termination_a_id': interface1.pk,
-                'termination_b_type': 'dcim.frontport',
-                'termination_b_id': frontport1.pk,
-            },
-            # Panel1 rear to panel2 rear
-            {
-                'termination_a_type': 'dcim.rearport',
-                'termination_a_id': rearport1.pk,
-                'termination_b_type': 'dcim.rearport',
-                'termination_b_id': rearport2.pk,
-            },
-            # Panel2 front to circuit termination
-            {
-                'termination_a_type': 'dcim.frontport',
-                'termination_a_id': frontport2.pk,
-                'termination_b_type': 'circuits.circuittermination',
-                'termination_b_id': circuittermination1.pk,
-            },
-        ]
-
-        for data in cables:
-
-            response = self.client.post(url, data, format='json', **self.header)
-            self.assertHttpStatus(response, status.HTTP_201_CREATED)
-
-            cable = Cable.objects.get(pk=response.data['id'])
-            self.assertEqual(cable.termination_a.cable, cable)
-            self.assertEqual(cable.termination_b.cable, cable)
-
-        interface1 = Interface.objects.get(pk=interface1.pk)
-        circuittermination1 = CircuitTermination.objects.get(pk=circuittermination1.pk)
-        self.assertEqual(interface1.connected_endpoint, circuittermination1)
-        self.assertEqual(circuittermination1.connected_endpoint, interface1)
 
 
 class ConnectedDeviceTest(APITestCase):

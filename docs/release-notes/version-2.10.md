@@ -34,6 +34,12 @@ http://netbox/api/dcim/sites/ \
 --data '[{"id": 10, "description": "Foo"}, {"id": 11, "description": "Bar"}]'
 ```
 
+#### Improved Cable Trace Performance ([#4900](https://github.com/netbox-community/netbox/issues/4900))
+
+All end-to-end cable paths are now cached using the new CablePath model. This allows NetBox to now immediately return the complete path originating from any endpoint directly from the database, rather than having to trace each cable recursively. It also resolves some systemic validation issues with the original implementation.
+
+**Note:** As part of this change, cable traces will no longer traverse circuits: A circuit termination will be considered the origin or destination of an end-to-end path.
+
 ### Enhancements
 
 * [#1503](https://github.com/netbox-community/netbox/issues/1503) - Allow assigment of secrets to virtual machines
@@ -54,11 +60,44 @@ http://netbox/api/dcim/sites/ \
 
 ### REST API Changes
 
-* Added support for `PUT`, `PATCH`, and `DELETE` operations on list endpoints
+* Added support for `PUT`, `PATCH`, and `DELETE` operations on list endpoints (bulk update and delete)
+* circuits.CircuitTermination:
+  * Added the `/trace/` endpoint
+  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+  * Added `cable_peer` and `cable_peer_type`
 * dcim.Cable: Added `custom_fields`
+* dcim.ConsolePort:
+  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+  * Added `cable_peer` and `cable_peer_type`
+  * Removed `connection_status` from nested serializer
+* dcim.ConsoleServerPort:
+  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+  * Added `cable_peer` and `cable_peer_type`
+  * Removed `connection_status` from nested serializer
+* dcim.FrontPort:
+  * Replaced the `/trace/` endpoint with `/paths/`, which returns a list of cable paths
+  * Added `cable_peer` and `cable_peer_type`
+* dcim.Interface:
+  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+  * Added `cable_peer` and `cable_peer_type`
+  * Removed `connection_status` from nested serializer
 * dcim.InventoryItem: The `_depth` field has been added to reflect MPTT positioning
+* dcim.PowerFeed:
+  * Added the `/trace/` endpoint
+  * Added fields `connected_endpoint`, `connected_endpoint_type`, `connected_endpoint_reachable`, `cable_peer`, and `cable_peer_type`
+* dcim.PowerOutlet:
+  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+  * Added `cable_peer` and `cable_peer_type`
+  * Removed `connection_status` from nested serializer
 * dcim.PowerPanel: Added `custom_fields`
+* dcim.PowerPort
+  * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
+  * Added `cable_peer` and `cable_peer_type`
+  * Removed `connection_status` from nested serializer
 * dcim.RackReservation: Added `custom_fields`
+* dcim.RearPort:
+  * Replaced the `/trace/` endpoint with `/paths/`, which returns a list of cable paths
+  * Added `cable_peer` and `cable_peer_type`
 * dcim.VirtualChassis: Added `custom_fields`
 * extras.ExportTemplate: The `template_language` field has been removed
 * extras.Graph: This API endpoint has been removed (see #4349)

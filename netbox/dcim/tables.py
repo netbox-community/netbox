@@ -67,8 +67,17 @@ INTERFACE_TAGGED_VLANS = """
 {% endfor %}
 """
 
-CONNECTION_STATUS = """
-<span class="label label-{% if record.connection_status %}success{% else %}danger{% endif %}">{{ record.get_connection_status_display }}</span>
+POWERFEED_CABLE = """
+<a href="{{ value.get_absolute_url }}">{{ value }}</a>
+<a href="{% url 'dcim:powerfeed_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace">
+    <i class="fa fa-share-alt" aria-hidden="true"></i>
+</a>
+"""
+
+POWERFEED_CABLETERMINATION = """
+<a href="{{ value.parent.get_absolute_url }}">{{ value.parent }}</a>
+<i class="fa fa-caret-right"></i>
+<a href="{{ value.get_absolute_url }}">{{ value }}</a>
 """
 
 
@@ -812,13 +821,15 @@ class CableTable(BaseTable):
 #
 
 class ConsoleConnectionTable(BaseTable):
-    console_server = tables.LinkColumn(
-        viewname='dcim:device',
-        accessor=Accessor('connected_endpoint__device'),
-        args=[Accessor('connected_endpoint__device__pk')],
+    console_server = tables.Column(
+        accessor=Accessor('_path__destination__device'),
+        orderable=False,
+        linkify=True,
         verbose_name='Console Server'
     )
-    connected_endpoint = tables.Column(
+    console_server_port = tables.Column(
+        accessor=Accessor('_path__destination'),
+        orderable=False,
         linkify=True,
         verbose_name='Port'
     )
@@ -829,26 +840,28 @@ class ConsoleConnectionTable(BaseTable):
         linkify=True,
         verbose_name='Console Port'
     )
-    connection_status = tables.TemplateColumn(
-        template_code=CONNECTION_STATUS,
-        verbose_name='Status'
+    reachable = BooleanColumn(
+        accessor=Accessor('_path__is_active'),
+        verbose_name='Reachable'
     )
+
+    add_prefetch = False
 
     class Meta(BaseTable.Meta):
         model = ConsolePort
-        fields = ('console_server', 'connected_endpoint', 'device', 'name', 'connection_status')
+        fields = ('device', 'name', 'console_server', 'console_server_port', 'reachable')
 
 
 class PowerConnectionTable(BaseTable):
-    pdu = tables.LinkColumn(
-        viewname='dcim:device',
-        accessor=Accessor('connected_endpoint__device'),
-        args=[Accessor('connected_endpoint__device__pk')],
-        order_by='_connected_poweroutlet__device',
+    pdu = tables.Column(
+        accessor=Accessor('_path__destination__device'),
+        orderable=False,
+        linkify=True,
         verbose_name='PDU'
     )
     outlet = tables.Column(
-        accessor=Accessor('_connected_poweroutlet'),
+        accessor=Accessor('_path__destination'),
+        orderable=False,
         linkify=True,
         verbose_name='Outlet'
     )
@@ -859,51 +872,51 @@ class PowerConnectionTable(BaseTable):
         linkify=True,
         verbose_name='Power Port'
     )
-    connection_status = tables.TemplateColumn(
-        template_code=CONNECTION_STATUS,
-        verbose_name='Status'
+    reachable = BooleanColumn(
+        accessor=Accessor('_path__is_active'),
+        verbose_name='Reachable'
     )
+
+    add_prefetch = False
 
     class Meta(BaseTable.Meta):
         model = PowerPort
-        fields = ('pdu', 'outlet', 'device', 'name', 'connection_status')
+        fields = ('device', 'name', 'pdu', 'outlet', 'reachable')
 
 
 class InterfaceConnectionTable(BaseTable):
-    device_a = tables.LinkColumn(
-        viewname='dcim:device',
+    device_a = tables.Column(
         accessor=Accessor('device'),
-        args=[Accessor('device__pk')],
+        linkify=True,
         verbose_name='Device A'
     )
-    interface_a = tables.LinkColumn(
-        viewname='dcim:interface',
+    interface_a = tables.Column(
         accessor=Accessor('name'),
-        args=[Accessor('pk')],
+        linkify=True,
         verbose_name='Interface A'
     )
-    device_b = tables.LinkColumn(
-        viewname='dcim:device',
-        accessor=Accessor('_connected_interface__device'),
-        args=[Accessor('_connected_interface__device__pk')],
+    device_b = tables.Column(
+        accessor=Accessor('_path__destination__device'),
+        orderable=False,
+        linkify=True,
         verbose_name='Device B'
     )
-    interface_b = tables.LinkColumn(
-        viewname='dcim:interface',
-        accessor=Accessor('_connected_interface'),
-        args=[Accessor('_connected_interface__pk')],
+    interface_b = tables.Column(
+        accessor=Accessor('_path__destination'),
+        orderable=False,
+        linkify=True,
         verbose_name='Interface B'
     )
-    connection_status = tables.TemplateColumn(
-        template_code=CONNECTION_STATUS,
-        verbose_name='Status'
+    reachable = BooleanColumn(
+        accessor=Accessor('_path__is_active'),
+        verbose_name='Reachable'
     )
+
+    add_prefetch = False
 
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = (
-            'device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status',
-        )
+        fields = ('device_a', 'interface_a', 'device_b', 'interface_b', 'reachable')
 
 
 #
@@ -977,6 +990,15 @@ class PowerFeedTable(BaseTable):
     max_utilization = tables.TemplateColumn(
         template_code="{{ value }}%"
     )
+    cable = tables.TemplateColumn(
+        template_code=POWERFEED_CABLE,
+        orderable=False
+    )
+    connection = tables.TemplateColumn(
+        accessor='get_cable_peer',
+        template_code=POWERFEED_CABLETERMINATION,
+        orderable=False
+    )
     available_power = tables.Column(
         verbose_name='Available power (VA)'
     )
@@ -988,8 +1010,9 @@ class PowerFeedTable(BaseTable):
         model = PowerFeed
         fields = (
             'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',
-            'max_utilization', 'available_power', 'tags',
+            'max_utilization', 'cable', 'connection', 'available_power', 'tags',
         )
         default_columns = (
-            'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',
+            'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase', 'cable',
+            'connection',
         )

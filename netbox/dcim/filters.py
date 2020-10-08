@@ -1,5 +1,6 @@
 import django_filters
 from django.contrib.auth.models import User
+from django.db.models import Count
 
 from extras.filters import CustomFieldFilterSet, LocalConfigContextFilterSet, CreatedUpdatedFilterSet
 from tenancy.filters import TenancyFilterSet
@@ -23,6 +24,7 @@ from .models import (
 
 __all__ = (
     'CableFilterSet',
+    'CableTerminationFilterSet',
     'ConsoleConnectionFilterSet',
     'ConsolePortFilterSet',
     'ConsolePortTemplateFilterSet',
@@ -40,6 +42,7 @@ __all__ = (
     'InterfaceTemplateFilterSet',
     'InventoryItemFilterSet',
     'ManufacturerFilterSet',
+    'PathEndpointFilterSet',
     'PlatformFilterSet',
     'PowerConnectionFilterSet',
     'PowerFeedFilterSet',
@@ -752,71 +755,76 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         )
 
 
-class ConsolePortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
-    type = django_filters.MultipleChoiceFilter(
-        choices=ConsolePortTypeChoices,
-        null_value=None
-    )
+class CableTerminationFilterSet(django_filters.FilterSet):
     cabled = django_filters.BooleanFilter(
         field_name='cable',
         lookup_expr='isnull',
         exclude=True
+    )
+
+
+class PathEndpointFilterSet(django_filters.FilterSet):
+    connected = django_filters.BooleanFilter(
+        method='filter_connected'
+    )
+
+    def filter_connected(self, queryset, name, value):
+        if value:
+            return queryset.filter(_path__is_active=True)
+        else:
+            return queryset.filter(Q(_path__isnull=True) | Q(_path__is_active=False))
+
+
+class ConsolePortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=ConsolePortTypeChoices,
+        null_value=None
     )
 
     class Meta:
         model = ConsolePort
-        fields = ['id', 'name', 'description', 'connection_status']
+        fields = ['id', 'name', 'description']
 
 
-class ConsoleServerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
+class ConsoleServerPortFilterSet(
+    BaseFilterSet,
+    DeviceComponentFilterSet,
+    CableTerminationFilterSet,
+    PathEndpointFilterSet
+):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
         null_value=None
     )
-    cabled = django_filters.BooleanFilter(
-        field_name='cable',
-        lookup_expr='isnull',
-        exclude=True
-    )
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['id', 'name', 'description', 'connection_status']
+        fields = ['id', 'name', 'description']
 
 
-class PowerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
+class PowerPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerPortTypeChoices,
         null_value=None
     )
-    cabled = django_filters.BooleanFilter(
-        field_name='cable',
-        lookup_expr='isnull',
-        exclude=True
-    )
 
     class Meta:
         model = PowerPort
-        fields = ['id', 'name', 'maximum_draw', 'allocated_draw', 'description', 'connection_status']
+        fields = ['id', 'name', 'maximum_draw', 'allocated_draw', 'description']
 
 
-class PowerOutletFilterSet(BaseFilterSet, DeviceComponentFilterSet):
+class PowerOutletFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerOutletTypeChoices,
         null_value=None
     )
-    cabled = django_filters.BooleanFilter(
-        field_name='cable',
-        lookup_expr='isnull',
-        exclude=True
-    )
 
     class Meta:
         model = PowerOutlet
-        fields = ['id', 'name', 'feed_leg', 'description', 'connection_status']
+        fields = ['id', 'name', 'feed_leg', 'description']
 
 
-class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet):
+class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet, PathEndpointFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -832,11 +840,6 @@ class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet):
         method='filter_device_id',
         field_name='pk',
         label='Device (ID)',
-    )
-    cabled = django_filters.BooleanFilter(
-        field_name='cable',
-        lookup_expr='isnull',
-        exclude=True
     )
     kind = django_filters.CharFilter(
         method='filter_kind',
@@ -864,7 +867,7 @@ class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet):
 
     class Meta:
         model = Interface
-        fields = ['id', 'name', 'connection_status', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'description']
+        fields = ['id', 'name', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'description']
 
     def filter_device(self, queryset, name, value):
         try:
@@ -914,24 +917,14 @@ class InterfaceFilterSet(BaseFilterSet, DeviceComponentFilterSet):
         }.get(value, queryset.none())
 
 
-class FrontPortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
-    cabled = django_filters.BooleanFilter(
-        field_name='cable',
-        lookup_expr='isnull',
-        exclude=True
-    )
+class FrontPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet):
 
     class Meta:
         model = FrontPort
         fields = ['id', 'name', 'type', 'description']
 
 
-class RearPortFilterSet(BaseFilterSet, DeviceComponentFilterSet):
-    cabled = django_filters.BooleanFilter(
-        field_name='cable',
-        lookup_expr='isnull',
-        exclude=True
-    )
+class RearPortFilterSet(BaseFilterSet, DeviceComponentFilterSet, CableTerminationFilterSet):
 
     class Meta:
         model = RearPort
@@ -1139,7 +1132,20 @@ class CableFilterSet(BaseFilterSet):
         return queryset
 
 
-class ConsoleConnectionFilterSet(BaseFilterSet):
+class ConnectionFilterSet:
+
+    def filter_site(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(device__site__slug=value)
+
+    def filter_device(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(device_id__in=value)
+
+
+class ConsoleConnectionFilterSet(ConnectionFilterSet, BaseFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -1154,23 +1160,10 @@ class ConsoleConnectionFilterSet(BaseFilterSet):
 
     class Meta:
         model = ConsolePort
-        fields = ['name', 'connection_status']
-
-    def filter_site(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(connected_endpoint__device__site__slug=value)
-
-    def filter_device(self, queryset, name, value):
-        if not value:
-            return queryset
-        return queryset.filter(
-            Q(**{'{}__in'.format(name): value}) |
-            Q(**{'connected_endpoint__{}__in'.format(name): value})
-        )
+        fields = ['name']
 
 
-class PowerConnectionFilterSet(BaseFilterSet):
+class PowerConnectionFilterSet(ConnectionFilterSet, BaseFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -1185,23 +1178,10 @@ class PowerConnectionFilterSet(BaseFilterSet):
 
     class Meta:
         model = PowerPort
-        fields = ['name', 'connection_status']
-
-    def filter_site(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(_connected_poweroutlet__device__site__slug=value)
-
-    def filter_device(self, queryset, name, value):
-        if not value:
-            return queryset
-        return queryset.filter(
-            Q(**{'{}__in'.format(name): value}) |
-            Q(**{'_connected_poweroutlet__{}__in'.format(name): value})
-        )
+        fields = ['name']
 
 
-class InterfaceConnectionFilterSet(BaseFilterSet):
+class InterfaceConnectionFilterSet(ConnectionFilterSet, BaseFilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -1216,23 +1196,7 @@ class InterfaceConnectionFilterSet(BaseFilterSet):
 
     class Meta:
         model = Interface
-        fields = ['connection_status']
-
-    def filter_site(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(device__site__slug=value) |
-            Q(_connected_interface__device__site__slug=value)
-        )
-
-    def filter_device(self, queryset, name, value):
-        if not value:
-            return queryset
-        return queryset.filter(
-            Q(**{'{}__in'.format(name): value}) |
-            Q(**{'_connected_interface__{}__in'.format(name): value})
-        )
+        fields = []
 
 
 class PowerPanelFilterSet(BaseFilterSet):
@@ -1284,7 +1248,13 @@ class PowerPanelFilterSet(BaseFilterSet):
         return queryset.filter(qs_filter)
 
 
-class PowerFeedFilterSet(BaseFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):
+class PowerFeedFilterSet(
+    BaseFilterSet,
+    CableTerminationFilterSet,
+    PathEndpointFilterSet,
+    CustomFieldFilterSet,
+    CreatedUpdatedFilterSet
+):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
