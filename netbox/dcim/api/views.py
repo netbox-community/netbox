@@ -17,7 +17,7 @@ from rest_framework.viewsets import GenericViewSet, ViewSet
 from circuits.models import Circuit
 from dcim import filters
 from dcim.models import (
-    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    Cable, CablePath, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
     Manufacturer, InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
@@ -75,6 +75,20 @@ class PathEndpointMixin(object):
             path.append((x, y, z))
 
         return Response(path)
+
+
+class PassThroughPortMixin(object):
+
+    @action(detail=True, url_path='paths')
+    def paths(self, request, pk):
+        """
+        Return all CablePaths which traverse a given pass-through port.
+        """
+        obj = get_object_or_404(self.queryset, pk=pk)
+        cablepaths = CablePath.objects.filter(path__contains=obj).prefetch_related('origin', 'destination')
+        serializer = serializers.CablePathSerializer(cablepaths, context={'request': request}, many=True)
+
+        return Response(serializer.data)
 
 
 #
@@ -503,13 +517,13 @@ class InterfaceViewSet(PathEndpointMixin, ModelViewSet):
     filterset_class = filters.InterfaceFilterSet
 
 
-class FrontPortViewSet(ModelViewSet):
+class FrontPortViewSet(PassThroughPortMixin, ModelViewSet):
     queryset = FrontPort.objects.prefetch_related('device__device_type__manufacturer', 'rear_port', 'cable', 'tags')
     serializer_class = serializers.FrontPortSerializer
     filterset_class = filters.FrontPortFilterSet
 
 
-class RearPortViewSet(ModelViewSet):
+class RearPortViewSet(PassThroughPortMixin, ModelViewSet):
     queryset = RearPort.objects.prefetch_related('device__device_type__manufacturer', 'cable', 'tags')
     serializer_class = serializers.RearPortSerializer
     filterset_class = filters.RearPortFilterSet

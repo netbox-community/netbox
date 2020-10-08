@@ -7,12 +7,13 @@ from rest_framework.validators import UniqueTogetherValidator
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
-    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    Cable, CablePath, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceType, DeviceRole, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
     Manufacturer, InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
+from dcim.utils import decompile_path_node
 from extras.api.customfields import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
@@ -732,6 +733,50 @@ class TracedCableSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'url', 'type', 'status', 'label', 'color', 'length', 'length_unit',
         ]
+
+
+class CablePathSerializer(serializers.ModelSerializer):
+    origin_type = ContentTypeField(read_only=True)
+    origin = serializers.SerializerMethodField(read_only=True)
+    destination_type = ContentTypeField(read_only=True)
+    destination = serializers.SerializerMethodField(read_only=True)
+    path = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = CablePath
+        fields = [
+            'id', 'origin_type', 'origin', 'destination_type', 'destination', 'path', 'is_active',
+        ]
+
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    def get_origin(self, obj):
+        """
+        Return the appropriate serializer for the origin.
+        """
+        serializer = get_serializer_for_model(obj.origin, prefix='Nested')
+        context = {'request': self.context['request']}
+        return serializer(obj.origin, context=context).data
+
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
+    def get_destination(self, obj):
+        """
+        Return the appropriate serializer for the destination, if any.
+        """
+        if obj.destination_id is not None:
+            serializer = get_serializer_for_model(obj.destination, prefix='Nested')
+            context = {'request': self.context['request']}
+            return serializer(obj.destination, context=context).data
+        return None
+
+    @swagger_serializer_method(serializer_or_field=serializers.ListField)
+    def get_path(self, obj):
+        ret = []
+        for node in obj.path:
+            ct_id, object_id = decompile_path_node(node)
+            ct = ContentType.objects.get_for_id(ct_id)
+            # TODO: Return the object URL
+            ret.append(f'{ct.app_label}.{ct.model}:{object_id}')
+        return ret
 
 
 #
