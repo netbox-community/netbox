@@ -19,16 +19,17 @@
                 {% elif near_end.circuit %}
                     {% include 'dcim/trace/circuit.html' with circuit=near_end.circuit %}
                     {% include 'dcim/trace/termination.html' with termination=near_end %}
+                {% else %}
+                    <h3 class="text-danger text-center">Split Paths!</h3>
+                    {# TODO: Present the user with successive paths to choose from #}
                 {% endif %}
 
                 {# Cable #}
-                <div class="row">
-                    {% if cable %}
+                {% if cable %}
+                    <div class="row">
                         {% include 'dcim/trace/cable.html' %}
-                    {% else %}
-                        <h4>No cable</h4>
-                    {% endif %}
-                </div>
+                    </div>
+                {% endif %}
 
                 {# Far end #}
                 {% if far_end.device %}
@@ -45,15 +46,18 @@
                     {% endif %}
                 {% endif %}
 
+                {% if forloop.last and far_end %}
+                    <div class="row">
+                        <div class="text-center">
+                            <h3 class="text-success text-center">Trace completed!</h3>
+                            {% if total_length %}
+                                <h5>Total length: {{ total_length|floatformat:"-2" }} Meters<h5>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+
             {% endfor %}
-            <div class="row">
-                <div class="text-center">
-                    <h3 class="text-success text-center">Trace completed!</h3>
-                    {% if total_length %}
-                        <h5>Total length: {{ total_length|floatformat:"-2" }} Meters<h5>
-                    {% endif %}
-                </div>
-            </div>
 
         </div>
         <div class="col-md-7 col-sm-12">

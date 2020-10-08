@@ -172,9 +172,11 @@ class PathEndpoint(models.Model):
             return []
 
         # Construct the complete path
-        path = [self, *[path_node_to_object(obj) for obj in self._path.path], self._path.destination]
-        assert not len(path) % 3,\
-            f"Invalid path length for CablePath #{self.pk}: {len(self._path.path)} elements in path"
+        path = [self, *[path_node_to_object(obj) for obj in self._path.path]]
+        while (len(path) + 1) % 3:
+            # Pad to ensure we have complete three-tuples (e.g. for paths that end at a RearPort)
+            path.append(None)
+        path.append(self._path.destination)
 
         # Return the path as a list of three-tuples (A termination, cable, B termination)
         return list(zip(*[iter(path)] * 3))

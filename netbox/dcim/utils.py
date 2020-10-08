@@ -1,7 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 
 from .choices import CableStatusChoices
-from .exceptions import CableTraceSplit
 
 
 def compile_path_node(ct_id, object_id):
@@ -69,8 +68,8 @@ def trace_path(node):
                 node = FrontPort.objects.get(rear_port=peer_termination, rear_port_position=position)
                 path.append(object_to_path_node(node))
             else:
-                # No position indicated: path has split (probably invalid?)
-                raise CableTraceSplit(peer_termination)
+                # No position indicated: path has split, so we stop at the RearPort
+                break
 
         # Anything else marks the end of the path
         else:

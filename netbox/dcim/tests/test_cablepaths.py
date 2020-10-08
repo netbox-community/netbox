@@ -721,6 +721,63 @@ class CablePathTestCase(TestCase):
         self.assertEqual(CablePath.objects.filter(destination_id__isnull=True).count(), 4)
         self.assertEqual(CablePath.objects.filter(destination_id__isnull=False).count(), 0)
 
+    def test_206_unidirectional_split_paths(self):
+        """
+        [IF1] --C1-- [RP1] [FP1:1] --C2-- [IF2]
+                           [FP1:2] --C3-- [IF3]
+        """
+        self.interface1.refresh_from_db()
+        self.interface2.refresh_from_db()
+        self.interface3.refresh_from_db()
+
+        # Create cables 1
+        cable1 = Cable(termination_a=self.interface1, termination_b=self.rear_port1)
+        cable1.save()
+        self.assertPathExists(
+            origin=self.interface1,
+            destination=None,
+            path=(cable1, self.rear_port1),
+            is_active=False
+        )
+        self.assertEqual(CablePath.objects.count(), 1)
+
+        # Create cables 2-3
+        cable2 = Cable(termination_a=self.interface2, termination_b=self.front_port1_1)
+        cable2.save()
+        cable3 = Cable(termination_a=self.interface3, termination_b=self.front_port1_2)
+        cable3.save()
+        self.assertPathExists(
+            origin=self.interface2,
+            destination=self.interface1,
+            path=(cable2, self.front_port1_1, self.rear_port1, cable1),
+            is_active=True
+        )
+        self.assertPathExists(
+            origin=self.interface3,
+            destination=self.interface1,
+            path=(cable3, self.front_port1_2, self.rear_port1, cable1),
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 3)
+
+        # Delete cable 1
+        cable1.delete()
+
+        # Check that the partial path was deleted and the two complete paths are now partial
+        self.assertPathExists(
+            origin=self.interface2,
+            destination=None,
+            path=(cable2, self.front_port1_1, self.rear_port1),
+            is_active=False
+        )
+        self.assertPathExists(
+            origin=self.interface3,
+            destination=None,
+            path=(cable3, self.front_port1_2, self.rear_port1),
+            is_active=False
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+
     def test_301_create_path_via_existing_cable(self):
         """
         [IF1] --C1-- [FP5] [RP5] --C2-- [RP6] [FP6] --C3-- [IF2]
