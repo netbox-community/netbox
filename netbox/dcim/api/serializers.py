@@ -786,16 +786,22 @@ class CablePathSerializer(serializers.ModelSerializer):
 class InterfaceConnectionSerializer(ValidatedModelSerializer):
     interface_a = serializers.SerializerMethodField()
     interface_b = NestedInterfaceSerializer(source='connected_endpoint')
-    # connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, required=False)
+    connected_endpoint_reachable = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Interface
-        fields = ['interface_a', 'interface_b']
+        fields = ['interface_a', 'interface_b', 'connected_endpoint_reachable']
 
     @swagger_serializer_method(serializer_or_field=NestedInterfaceSerializer)
     def get_interface_a(self, obj):
         context = {'request': self.context['request']}
         return NestedInterfaceSerializer(instance=obj, context=context).data
+
+    @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
+    def get_connected_endpoint_reachable(self, obj):
+        if obj._path is not None:
+            return obj._path.is_active
+        return None
 
 
 #
