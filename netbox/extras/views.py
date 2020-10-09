@@ -1,5 +1,4 @@
 from django import template
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Prefetch, Q
@@ -13,7 +12,7 @@ from rq import Worker
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import ConfirmationForm
-from utilities.paginator import EnhancedPaginator
+from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.utils import copy_safe_request, shallow_compare_dict
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -258,7 +257,7 @@ class ObjectChangeLogView(View):
         # Apply the request context
         paginate = {
             'paginator_class': EnhancedPaginator,
-            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+            'per_page': get_paginate_count(request)
         }
         RequestConfig(request, paginate).configure(objectchanges_table)
 

@@ -186,6 +186,10 @@ class VirtualMachineFilterSet(
         field_name='interfaces__mac_address',
         label='MAC address',
     )
+    has_primary_ip = django_filters.BooleanFilter(
+        method='_has_primary_ip',
+        label='Has a primary IP',
+    )
     tag = TagFilter()
 
     class Meta:
@@ -199,6 +203,12 @@ class VirtualMachineFilterSet(
             Q(name__icontains=value) |
             Q(comments__icontains=value)
         )
+
+    def _has_primary_ip(self, queryset, name, value):
+        params = Q(primary_ip4__isnull=False) | Q(primary_ip6__isnull=False)
+        if value:
+            return queryset.filter(params)
+        return queryset.exclude(params)
 
 
 class VMInterfaceFilterSet(BaseFilterSet):

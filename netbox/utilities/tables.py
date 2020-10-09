@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import RelatedField
 from django.utils.safestring import mark_safe
@@ -63,7 +64,7 @@ class BaseTable(tables.Table):
                     field_path = column.accessor.split('.')
                     try:
                         model_field = model._meta.get_field(field_path[0])
-                        if isinstance(model_field, RelatedField):
+                        if isinstance(model_field, (RelatedField, GenericForeignKey)):
                             prefetch_fields.append('__'.join(field_path))
                     except FieldDoesNotExist:
                         pass

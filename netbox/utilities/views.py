@@ -1352,7 +1352,7 @@ class BulkComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, 
                         for obj in data['pk']:
 
                             names = data['name_pattern']
-                            labels = data['label_pattern']
+                            labels = data['label_pattern'] if 'label_pattern' in data else None
                             for i, name in enumerate(names):
                                 label = labels[i] if labels else None
 

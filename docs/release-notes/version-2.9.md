@@ -1,5 +1,31 @@
 # NetBox v2.9
 
+## v2.9.5 (2020-10-09)
+
+### Enhancements
+
+* [#5202](https://github.com/netbox-community/netbox/issues/5202) - Extend the available context data when rendering custom links
+
+### Bug Fixes
+
+* [#4523](https://github.com/netbox-community/netbox/issues/4523) - Populate site vlan list when bulk editing interfaces under certain circumstances
+* [#5174](https://github.com/netbox-community/netbox/issues/5174) - Ensure consistent alignment of rack elevations
+* [#5175](https://github.com/netbox-community/netbox/issues/5175) - Fix toggling of rack elevation order
+* [#5184](https://github.com/netbox-community/netbox/issues/5184) - Fix missing Power Utilization
+* [#5197](https://github.com/netbox-community/netbox/issues/5197) - Limit duplicate IPs shown on IP address view
+* [#5199](https://github.com/netbox-community/netbox/issues/5199) - Change default LDAP logging to INFO
+* [#5201](https://github.com/netbox-community/netbox/issues/5201) - Fix missing querystring when bulk editing/deleting VLAN Group VLANs when selecting "select all x items matching query"
+* [#5206](https://github.com/netbox-community/netbox/issues/5206) - Apply user pagination preferences to all paginated object lists
+* [#5211](https://github.com/netbox-community/netbox/issues/5211) - Add missing `has_primary_ip` filter for virtual machines
+* [#5217](https://github.com/netbox-community/netbox/issues/5217) - Prevent erroneous removal of prefetched GenericForeignKey data from tables
+* [#5218](https://github.com/netbox-community/netbox/issues/5218) - Raise validation error if a power port's `allocated_draw` exceeds its `maximum_draw`
+* [#5220](https://github.com/netbox-community/netbox/issues/5220) - Fix API patch request against IP Address endpoint with null assigned_object_type 
+* [#5221](https://github.com/netbox-community/netbox/issues/5221) - Fix bulk component creation for virtual machines
+* [#5224](https://github.com/netbox-community/netbox/issues/5224) - Don't allow a rear port to have fewer positions than the number of mapped front ports
+* [#5226](https://github.com/netbox-community/netbox/issues/5226) - Custom choice fields should be blank initially if no default choice has been designated
+
+---
+
 ## v2.9.4 (2020-09-23)
 
 **NOTE:** This release removes support for the `DEFAULT_TIMEOUT` parameter under `REDIS` database configuration. Set `RQ_DEFAULT_TIMEOUT` as a global configuration parameter instead.

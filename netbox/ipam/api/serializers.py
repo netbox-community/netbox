@@ -219,7 +219,8 @@ class IPAddressSerializer(TaggedObjectSerializer, CustomFieldModelSerializer):
     role = ChoiceField(choices=IPAddressRoleChoices, allow_blank=True, required=False)
     assigned_object_type = ContentTypeField(
         queryset=ContentType.objects.filter(IPADDRESS_ASSIGNMENT_MODELS),
-        required=False
+        required=False,
+        allow_null=True
     )
     assigned_object = serializers.SerializerMethodField(read_only=True)
     nat_inside = NestedIPAddressSerializer(required=False, allow_null=True)

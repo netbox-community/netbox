@@ -17,6 +17,18 @@ When viewing a device named Router4, this link would render as:
 
 Custom links appear as buttons at the top right corner of the page. Numeric weighting can be used to influence the ordering of links.
 
+## Context Data
+
+The following context data is available within the template when rendering a custom link's text or URL.
+
+| Variable | Description |
+|----------|-------------|
+| `obj`      | The NetBox object being displayed |
+| `debug`    | A boolean indicating whether debugging is enabled |
+| `request`  | The current WSGI request |
+| `user`     | The current user (if authenticated) |
+| `perms`    | The [permissions](https://docs.djangoproject.com/en/stable/topics/auth/default/#permissions) assigned to the user |
+
 ## Conditional Rendering
 
 Only links which render with non-empty text are included on the page. You can employ conditional Jinja2 logic to control the conditions under which a link gets rendered.
