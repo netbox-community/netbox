@@ -1,5 +1,13 @@
 # NetBox v2.9
 
+## v2.9.6 (2020-10-09)
+
+### Bug Fixes
+
+* [#5229](https://github.com/netbox-community/netbox/issues/5229) - Fix AttributeError exception when LDAP authentication is enabled
+
+---
+
 ## v2.9.5 (2020-10-09)
 
 ### Enhancements
