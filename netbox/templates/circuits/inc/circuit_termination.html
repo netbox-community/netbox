@@ -83,11 +83,13 @@
             <tr>
                 <td>Speed</td>
                 <td>
-                    {% if termination.upstream_speed %}
+                    {% if termination.port_speed and termination.upstream_speed %}
                         <i class="fa fa-arrow-down" title="Downstream"></i> {{ termination.port_speed|humanize_speed }} &nbsp;
                         <i class="fa fa-arrow-up" title="Upstream"></i> {{ termination.upstream_speed|humanize_speed }}
-                    {% else %}
+                    {% elif termination.port_speed %}
                         {{ termination.port_speed|humanize_speed }}
+                    {% else %}
+                        <span class="text-muted">&mdash;</span>
                     {% endif %}
                 </td>
             </tr>

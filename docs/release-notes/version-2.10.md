@@ -57,6 +57,7 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 * [#4360](https://github.com/netbox-community/netbox/issues/4360) - Remove support for the Django template language from export templates
 * [#4878](https://github.com/netbox-community/netbox/issues/4878) - Custom field data is now stored directly on each object
 * [#4941](https://github.com/netbox-community/netbox/issues/4941) - `commit` argument is now required argument in a custom script's `run()` method
+* [#5225](https://github.com/netbox-community/netbox/issues/5225) - Circuit termination port speed is now an optional field
 
 ### REST API Changes
 
@@ -65,6 +66,7 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
   * Added the `/trace/` endpoint
   * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
   * Added `cable_peer` and `cable_peer_type`
+  * `port_speed` may now be null
 * dcim.Cable: Added `custom_fields`
 * dcim.ConsolePort:
   * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)

@@ -234,9 +234,7 @@ class CablePathTestCase(TestCase):
         [IF1] --C1-- [CT1A]
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
-        circuittermination1 = CircuitTermination.objects.create(
-            circuit=self.circuit, site=self.site, term_side='A', port_speed=1000
-        )
+        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='A')
 
         # Create cable 1
         cable1 = Cable(termination_a=interface1, termination_b=circuittermination1)

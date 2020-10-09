@@ -390,8 +390,8 @@ class CableTestCase(TestCase):
         self.provider = Provider.objects.create(name='Provider 1', slug='provider-1')
         self.circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
         self.circuit = Circuit.objects.create(provider=self.provider, type=self.circuittype, cid='1')
-        self.circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=site, term_side='A', port_speed=1000)
-        self.circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, site=site, term_side='Z', port_speed=1000)
+        self.circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=site, term_side='A')
+        self.circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, site=site, term_side='Z')
 
     def test_cable_creation(self):
         """

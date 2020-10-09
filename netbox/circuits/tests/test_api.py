@@ -153,10 +153,10 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
         Circuit.objects.bulk_create(circuits)
 
         circuit_terminations = (
-            CircuitTermination(circuit=circuits[0], site=sites[0], port_speed=100000, term_side=SIDE_A),
-            CircuitTermination(circuit=circuits[0], site=sites[1], port_speed=100000, term_side=SIDE_Z),
-            CircuitTermination(circuit=circuits[1], site=sites[0], port_speed=100000, term_side=SIDE_A),
-            CircuitTermination(circuit=circuits[1], site=sites[1], port_speed=100000, term_side=SIDE_Z),
+            CircuitTermination(circuit=circuits[0], site=sites[0], term_side=SIDE_A),
+            CircuitTermination(circuit=circuits[0], site=sites[1], term_side=SIDE_Z),
+            CircuitTermination(circuit=circuits[1], site=sites[0], term_side=SIDE_A),
+            CircuitTermination(circuit=circuits[1], site=sites[1], term_side=SIDE_Z),
         )
         CircuitTermination.objects.bulk_create(circuit_terminations)
 

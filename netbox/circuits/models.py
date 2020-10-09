@@ -248,7 +248,9 @@ class CircuitTermination(PathEndpoint, CableTermination):
         related_name='circuit_terminations'
     )
     port_speed = models.PositiveIntegerField(
-        verbose_name='Port speed (Kbps)'
+        verbose_name='Port speed (Kbps)',
+        blank=True,
+        null=True
     )
     upstream_speed = models.PositiveIntegerField(
         blank=True,

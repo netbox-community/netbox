@@ -50,8 +50,8 @@ class ProviderTestCase(TestCase):
         Circuit.objects.bulk_create(circuits)
 
         CircuitTermination.objects.bulk_create((
-            CircuitTermination(circuit=circuits[0], site=sites[0], term_side='A', port_speed=1000),
-            CircuitTermination(circuit=circuits[1], site=sites[0], term_side='A', port_speed=1000),
+            CircuitTermination(circuit=circuits[0], site=sites[0], term_side='A'),
+            CircuitTermination(circuit=circuits[1], site=sites[0], term_side='A'),
         ))
 
     def test_id(self):
@@ -176,9 +176,9 @@ class CircuitTestCase(TestCase):
         Circuit.objects.bulk_create(circuits)
 
         circuit_terminations = ((
-            CircuitTermination(circuit=circuits[0], site=sites[0], term_side='A', port_speed=1000),
-            CircuitTermination(circuit=circuits[1], site=sites[1], term_side='A', port_speed=1000),
-            CircuitTermination(circuit=circuits[2], site=sites[2], term_side='A', port_speed=1000),
+            CircuitTermination(circuit=circuits[0], site=sites[0], term_side='A'),
+            CircuitTermination(circuit=circuits[1], site=sites[1], term_side='A'),
+            CircuitTermination(circuit=circuits[2], site=sites[2], term_side='A'),
         ))
         CircuitTermination.objects.bulk_create(circuit_terminations)
 
