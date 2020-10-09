@@ -2844,6 +2844,24 @@ class InterfaceBulkEditForm(
             self.fields['untagged_vlan'].widget.add_query_param('site_id', device.site.pk)
             self.fields['tagged_vlans'].widget.add_query_param('site_id', device.site.pk)
         else:
+            # See 4523
+            if 'pk' in self.initial:
+                site = None
+                interfaces = Interface.objects.filter(pk__in=self.initial['pk']).prefetch_related('device__site')
+
+                # Check interface sites.  First interface should set site, further interfaces will either continue the
+                # loop or reset back to no site and break the loop.
+                for interface in interfaces:
+                    if site is None:
+                        site = interface.device.site
+                    elif interface.device.site is not site:
+                        site = None
+                        break
+
+                if site is not None:
+                    self.fields['untagged_vlan'].widget.add_query_param('site_id', site.pk)
+                    self.fields['tagged_vlans'].widget.add_query_param('site_id', site.pk)
+
             self.fields['lag'].choices = ()
             self.fields['lag'].widget.attrs['disabled'] = True
 

@@ -11,7 +11,7 @@ about: Propose a new NetBox feature or enhancement
     If you have a general idea or question, please post to our mailing list
     instead of opening an issue:
 
-        https://groups.google.com/forum/#!forum/netbox-discuss
+        https://groups.google.com/g/netbox-discuss
 
     NOTE: Due to an excessive backlog of feature requests, we are not currently
     accepting any proposals which significantly extend NetBox's feature scope.
@@ -21,8 +21,8 @@ about: Propose a new NetBox feature or enhancement
     before submitting a bug report.
 -->
 ### Environment
-* Python version:  <!-- Example: 3.6.9 -->
-* NetBox version:  <!-- Example: 2.7.3 -->
+* Python version: 
+* NetBox version: 
 
 <!--
     Describe in detail the new functionality you are proposing. Include any

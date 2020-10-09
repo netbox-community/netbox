@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from dcim.models import DeviceRole, Platform, Region, Site
+from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
 from virtualization.choices import *
 from virtualization.filters import *
@@ -266,6 +267,15 @@ class VirtualMachineTestCase(TestCase):
         )
         VMInterface.objects.bulk_create(interfaces)
 
+        # Assign primary IPs for filtering
+        ipaddresses = (
+            IPAddress(address='192.0.2.1/24', assigned_object=interfaces[0]),
+            IPAddress(address='192.0.2.2/24', assigned_object=interfaces[1]),
+        )
+        IPAddress.objects.bulk_create(ipaddresses)
+        VirtualMachine.objects.filter(pk=vms[0].pk).update(primary_ip4=ipaddresses[0])
+        VirtualMachine.objects.filter(pk=vms[1].pk).update(primary_ip4=ipaddresses[1])
+
     def test_id(self):
         params = {'id': self.queryset.values_list('pk', flat=True)[:2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -343,6 +353,12 @@ class VirtualMachineTestCase(TestCase):
     def test_mac_address(self):
         params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_has_primary_ip(self):
+        params = {'has_primary_ip': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'has_primary_ip': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_local_context_data(self):
         params = {'local_context_data': 'true'}

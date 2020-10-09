@@ -3,6 +3,7 @@
 {% load custom_links %}
 {% load helpers %}
 {% load plugins %}
+{% load render_table from django_tables2 %}
 
 {% block header %}
     <div class="row noprint">
@@ -159,7 +160,24 @@
 	<div class="col-md-8">
         {% include 'panel_table.html' with table=parent_prefixes_table heading='Parent Prefixes' %}
         {% if duplicate_ips_table.rows %}
-            {% include 'panel_table.html' with table=duplicate_ips_table heading='Duplicate IP Addresses' panel_class='danger' %}
+            {# Custom version of panel_table.html #}
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <strong>Duplicate IP Addresses</strong>
+                    {% if more_duplicate_ips %}
+                    <div class="pull-right">
+                        <a type="button" class="btn btn-primary btn-xs"
+                        {% if ipaddress.vrf %}
+                        href="{% url 'ipam:ipaddress_list' %}?address={{ ipaddress.address.ip }}&vrf_id={{ ipaddress.vrf.pk }}"
+                        {% else %}
+                        href="{% url 'ipam:ipaddress_list' %}?address={{ ipaddress.address.ip }}&vrf_id=null"
+                        {% endif %}
+                        >Show all</a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% render_table duplicate_ips_table 'inc/table.html' %}
+            </div>
         {% endif %}
         {% include 'utilities/obj_table.html' with table=related_ips_table table_template='panel_table.html' heading='Related IP Addresses' panel_class='default noprint' %}
         {% plugin_right_page ipaddress %}

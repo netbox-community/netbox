@@ -175,13 +175,14 @@ class CustomField(models.Model):
         # Select
         elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
             choices = [(c, c) for c in self.choices]
+            default_choice = self.default if self.default in self.choices else None
 
-            if not required:
+            if not required or default_choice is None:
                 choices = add_blank_choice(choices)
 
             # Set the initial value to the first available choice (if any)
-            if set_initial and self.choices:
-                initial = self.choices[0]
+            if set_initial and default_choice:
+                initial = default_choice
 
             field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
             field = field_class(

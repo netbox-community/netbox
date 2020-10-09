@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Count
@@ -6,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django_tables2 import RequestConfig
 
 from utilities.forms import ConfirmationForm
-from utilities.paginator import EnhancedPaginator
+from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
@@ -43,7 +42,7 @@ class ProviderView(ObjectView):
 
         paginate = {
             'paginator_class': EnhancedPaginator,
-            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+            'per_page': get_paginate_count(request)
         }
         RequestConfig(request, paginate).configure(circuits_table)
 

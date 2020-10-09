@@ -231,6 +231,30 @@ An IPv4 or IPv6 network with a mask. Returns a `netaddr.IPNetwork` object. Two a
 * `min_prefix_length` - Minimum length of the mask
 * `max_prefix_length` - Maximum length of the mask
 
+## Running Custom Scripts
+
+!!! note
+    To run a custom script, a user must be assigned the `extras.run_script` permission. This is achieved by assigning the user (or group) a permission on the Script object and specifying the `run` action in the admin UI as shown below.
+
+    ![Adding the run action to a permission](../../media/admin_ui_run_permission.png)
+
+### Via the Web UI
+
+Custom scripts can be run via the web UI by navigating to the script, completing any required form data, and clicking the "run script" button.
+
+### Via the API
+
+To run a script via the REST API, issue a POST request to the script's endpoint specifying the form data and commitment. For example, to run a script named `example.MyReport`, we would make a request such as the following:
+
+```no-highlight
+curl -X POST \
+-H "Authorization: Token $TOKEN" \
+-H "Content-Type: application/json" \
+-H "Accept: application/json; indent=4" \
+http://netbox/api/extras/scripts/example.MyReport/ \
+--data '{"data": {"foo": "somevalue", "bar": 123}, "commit": true}'
+```
+
 ## Example
 
 Below is an example script that creates new objects for a planned site. The user is prompted for three variables:

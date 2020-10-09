@@ -1,6 +1,5 @@
 from collections import OrderedDict
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
@@ -19,7 +18,7 @@ from ipam.models import IPAddress, Prefix, Service, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from secrets.models import Secret
 from utilities.forms import ConfirmationForm
-from utilities.paginator import EnhancedPaginator
+from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
 from utilities.utils import csv_format, get_subquery
 from utilities.views import (
@@ -317,7 +316,7 @@ class RackElevationListView(ObjectListView):
             racks = racks.reverse()
 
         # Pagination
-        per_page = request.GET.get('per_page', settings.PAGINATE_COUNT)
+        per_page = get_paginate_count(request)
         page_number = request.GET.get('page', 1)
         paginator = EnhancedPaginator(racks, per_page)
         try:
