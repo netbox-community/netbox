@@ -2,6 +2,10 @@
 
 ## v2.9.5 (FUTURE)
 
+### Enhancements
+
+* [#5202](https://github.com/netbox-community/netbox/issues/5202) - Extend the available context data when rendering custom links
+
 ### Bug Fixes
 
 * [#4523](https://github.com/netbox-community/netbox/issues/4523) - Populate site vlan list when bulk editing interfaces under certain circumstances
