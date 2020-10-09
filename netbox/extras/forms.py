@@ -362,11 +362,14 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
             api_url='/api/users/users/',
         )
     )
-    changed_object_type_id = forms.ModelChoiceField(
-        queryset=ContentType.objects.order_by('app_label', 'model'),
+    changed_object_type_id = DynamicModelMultipleChoiceField(
+        queryset=ContentType.objects.all(),
         required=False,
-        widget=ContentTypeSelect(),
-        label='Object Type'
+        display_field='display_name',
+        label='Object Type',
+        widget=APISelectMultiple(
+            api_url='/api/extras/content-types/',
+        )
     )
 
 

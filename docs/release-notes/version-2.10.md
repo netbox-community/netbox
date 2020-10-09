@@ -49,6 +49,7 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 * [#4956](https://github.com/netbox-community/netbox/issues/4956) - Include inventory items on primary device view
 * [#5003](https://github.com/netbox-community/netbox/issues/5003) - CSV import now accepts slug values for choice fields
 * [#5146](https://github.com/netbox-community/netbox/issues/5146) - Add custom fields support for cables, power panels, rack reservations, and virtual chassis
+* [#5190](https://github.com/netbox-community/netbox/issues/5190) - Add a REST API endpoint for content types
 
 ### Other Changes
 
@@ -62,6 +63,7 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 ### REST API Changes
 
 * Added support for `PUT`, `PATCH`, and `DELETE` operations on list endpoints (bulk update and delete)
+* Added `/extras/content-types/` endpoint for Django ContentTypes
 * circuits.CircuitTermination:
   * Added the `/trace/` endpoint
   * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)

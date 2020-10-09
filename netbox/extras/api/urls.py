@@ -29,5 +29,8 @@ router.register('object-changes', views.ObjectChangeViewSet)
 # Job Results
 router.register('job-results', views.JobResultViewSet)
 
+# ContentTypes
+router.register('content-types', views.ContentTypeViewSet)
+
 app_name = 'extras-api'
 urlpatterns = router.urls

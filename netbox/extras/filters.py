@@ -13,6 +13,7 @@ from .models import ConfigContext, CustomField, ExportTemplate, ImageAttachment,
 
 __all__ = (
     'ConfigContextFilterSet',
+    'ContentTypeFilterSet',
     'CreatedUpdatedFilterSet',
     'CustomFieldFilter',
     'CustomFieldFilterSet',
@@ -313,3 +314,14 @@ class JobResultFilterSet(BaseFilterSet):
         return queryset.filter(
             Q(user__username__icontains=value)
         )
+
+
+#
+# ContentTypes
+#
+
+class ContentTypeFilterSet(django_filters.FilterSet):
+
+    class Meta:
+        model = ContentType
+        fields = ['id', 'app_label', 'model']

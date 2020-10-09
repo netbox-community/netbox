@@ -2,6 +2,7 @@ import datetime
 from unittest import skipIf
 
 from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django_rq.queues import get_connection
@@ -396,3 +397,21 @@ class CreatedUpdatedFilterTest(APITestCase):
 
         self.assertEqual(response.data['count'], 1)
         self.assertEqual(response.data['results'][0]['id'], self.rack2.pk)
+
+
+class ContentTypeTest(APITestCase):
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['contenttypes.contenttype'])
+    def test_list_objects(self):
+        contenttype_count = ContentType.objects.count()
+
+        response = self.client.get(reverse('extras-api:contenttype-list'), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], contenttype_count)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['contenttypes.contenttype'])
+    def test_get_object(self):
+        contenttype = ContentType.objects.first()
+
+        url = reverse('extras-api:contenttype-detail', kwargs={'pk': contenttype.pk})
+        self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_200_OK)

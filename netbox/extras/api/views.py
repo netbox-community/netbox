@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count
 from django.http import Http404
@@ -311,3 +309,18 @@ class JobResultViewSet(ReadOnlyModelViewSet):
     queryset = JobResult.objects.prefetch_related('user')
     serializer_class = serializers.JobResultSerializer
     filterset_class = filters.JobResultFilterSet
+
+
+#
+# ContentTypes
+#
+
+class ContentTypeViewSet(ReadOnlyModelViewSet):
+    """
+    Read-only list of ContentTypes. Limit results to ContentTypes pertinent to NetBox objects.
+    """
+    queryset = ContentType.objects.order_by('app_label', 'model').filter(app_label__in=(
+        'circuits', 'dcim', 'extras', 'ipam', 'secrets', 'tenancy', 'users', 'virtualization'
+    ))
+    serializer_class = serializers.ContentTypeSerializer
+    filterset_class = filters.ContentTypeFilterSet
