@@ -319,8 +319,6 @@ class ContentTypeViewSet(ReadOnlyModelViewSet):
     """
     Read-only list of ContentTypes. Limit results to ContentTypes pertinent to NetBox objects.
     """
-    queryset = ContentType.objects.order_by('app_label', 'model').filter(app_label__in=(
-        'circuits', 'dcim', 'extras', 'ipam', 'secrets', 'tenancy', 'users', 'virtualization'
-    ))
+    queryset = ContentType.objects.order_by('app_label', 'model')
     serializer_class = serializers.ContentTypeSerializer
     filterset_class = filters.ContentTypeFilterSet
