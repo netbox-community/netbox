@@ -17,6 +17,7 @@
 * [#5220](https://github.com/netbox-community/netbox/issues/5220) - Fix API patch request against IP Address endpoint with null assigned_object_type 
 * [#5221](https://github.com/netbox-community/netbox/issues/5221) - Fix bulk component creation for virtual machines
 * [#5224](https://github.com/netbox-community/netbox/issues/5224) - Don't allow a rear port to have fewer positions than the number of mapped front ports
+* [#5226](https://github.com/netbox-community/netbox/issues/5226) - Custom choice fields should be blank initially if no default choice has been designated
 
 ---
 

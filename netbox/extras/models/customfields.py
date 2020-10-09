@@ -200,15 +200,14 @@ class CustomField(models.Model):
         # Select
         elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
             choices = [(cfc.pk, cfc.value) for cfc in self.choices.all()]
+            default_choice = self.choices.filter(value=self.default).first()
 
-            if not required:
+            if not required or default_choice is None:
                 choices = add_blank_choice(choices)
 
             # Set the initial value to the PK of the default choice, if any
-            if set_initial:
-                default_choice = self.choices.filter(value=self.default).first()
-                if default_choice:
-                    initial = default_choice.pk
+            if set_initial and default_choice:
+                initial = default_choice.pk
 
             field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
             field = field_class(
