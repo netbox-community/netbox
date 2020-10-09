@@ -33,7 +33,7 @@ def custom_links(context, obj):
     # Pass select context data when rendering the CustomLink
     link_context = {
         'obj': obj,
-        'debug': context['debug'],  # django.template.context_processors.debug
+        'debug': context.get('debug', False),  # django.template.context_processors.debug
         'request': context['request'],  # django.template.context_processors.request
         'user': context['user'],  # django.contrib.auth.context_processors.auth
         'perms': context['perms'],  # django.contrib.auth.context_processors.auth

@@ -1,5 +1,13 @@
 # NetBox v2.9
 
+## v2.9.7 (FUTURE)
+
+### Bug Fixes
+
+* [#5231](https://github.com/netbox-community/netbox/issues/5231) - Fix KeyError exception when viewing object with custom link and debugging is disabled
+
+---
+
 ## v2.9.6 (2020-10-09)
 
 ### Bug Fixes
