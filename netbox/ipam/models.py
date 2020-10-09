@@ -30,6 +30,7 @@ __all__ = (
     'Prefix',
     'RIR',
     'Role',
+    'RouteTarget',
     'Service',
     'VLAN',
     'VLANGroup',
