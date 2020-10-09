@@ -1,6 +1,6 @@
 # NetBox v2.9
 
-## v2.9.6 (FUTURE)
+## v2.9.6 (2020-10-09)
 
 ### Bug Fixes
 
