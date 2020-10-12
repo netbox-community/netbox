@@ -2,11 +2,13 @@ import urllib.parse
 import uuid
 
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
 from django.urls import reverse
 
 from dcim.models import Site
 from extras.choices import ObjectChangeActionChoices
-from extras.models import ConfigContext, ObjectChange, Tag
+from extras.models import ConfigContext, CustomLink, ObjectChange, Tag
 from utilities.testing import ViewTestCases, TestCase
 
 
@@ -124,3 +126,24 @@ class ObjectChangeTestCase(TestCase):
         objectchange = ObjectChange.objects.first()
         response = self.client.get(objectchange.get_absolute_url())
         self.assertHttpStatus(response, 200)
+
+
+class CustomLinkTest(TestCase):
+    user_permissions = ['dcim.view_site']
+
+    def test_view_object_with_custom_link(self):
+        customlink = CustomLink(
+            content_type=ContentType.objects.get_for_model(Site),
+            name='Test',
+            text='FOO {{ obj.name }} BAR',
+            url='http://example.com/?site={{ obj.slug }}',
+            new_window=False
+        )
+        customlink.save()
+
+        site = Site(name='Test Site', slug='test-site')
+        site.save()
+
+        response = self.client.get(site.get_absolute_url(), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(f'FOO {site.name} BAR', str(response.content))
