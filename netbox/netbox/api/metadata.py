@@ -1,6 +1,7 @@
-from rest_framework.metadata import SimpleMetadata
 from django.utils.encoding import force_str
-from utilities.api import ContentTypeField
+from rest_framework.metadata import SimpleMetadata
+
+from netbox.api import ContentTypeField
 
 
 class ContentTypeMetadata(SimpleMetadata):

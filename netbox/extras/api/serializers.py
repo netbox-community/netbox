@@ -13,13 +13,12 @@ from extras.models import (
     ConfigContext, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag,
 )
 from extras.utils import FeatureQuery
+from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer
+from netbox.api.exceptions import SerializerNotFound
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
 from users.api.nested_serializers import NestedUserSerializer
-from utilities.api import (
-    ChoiceField, ContentTypeField, get_serializer_for_model, SerializerNotFound, SerializedPKRelatedField,
-    ValidatedModelSerializer,
-)
+from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedClusterGroupSerializer, NestedClusterSerializer
 from virtualization.models import Cluster, ClusterGroup
 from .nested_serializers import *

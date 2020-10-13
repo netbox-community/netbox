@@ -9,10 +9,10 @@ from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ViewSet
 
+from netbox.api.views import ModelViewSet
 from secrets import filters
 from secrets.exceptions import InvalidKey
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
-from utilities.api import ModelViewSet
 from . import serializers
 
 ERR_USERKEY_MISSING = "No UserKey found for the current user."

@@ -25,11 +25,12 @@ from dcim.models import (
 )
 from extras.api.views import CustomFieldModelViewSet
 from ipam.models import Prefix, VLAN
-from utilities.api import (
-    get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, ModelViewSet, ServiceUnavailable,
-)
+from netbox.api.views import ModelViewSet
+from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
+from netbox.api.exceptions import ServiceUnavailable
+from netbox.api.metadata import ContentTypeMetadata
+from utilities.api import get_serializer_for_model
 from utilities.utils import get_subquery
-from utilities.metadata import ContentTypeMetadata
 from virtualization.models import VirtualMachine
 from . import serializers
 from .exceptions import MissingFilterException

@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 from extras import choices, models
+from netbox.api import ChoiceField, WritableNestedSerializer
 from users.api.nested_serializers import NestedUserSerializer
-from utilities.api import ChoiceField, WritableNestedSerializer
 
 __all__ = [
     'NestedConfigContextSerializer',

@@ -11,7 +11,7 @@ from rest_framework.routers import APIRootView
 from extras.api.views import CustomFieldModelViewSet
 from ipam import filters
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
-from utilities.api import ModelViewSet
+from netbox.api.views import ModelViewSet
 from utilities.constants import ADVISORY_LOCK_KEYS
 from utilities.utils import get_subquery
 from . import serializers

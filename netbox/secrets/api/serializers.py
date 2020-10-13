@@ -6,7 +6,8 @@ from extras.api.customfields import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
 from secrets.constants import SECRET_ASSIGNMENT_MODELS
 from secrets.models import Secret, SecretRole
-from utilities.api import ContentTypeField, ValidatedModelSerializer, get_serializer_for_model
+from netbox.api import ContentTypeField, ValidatedModelSerializer
+from utilities.api import get_serializer_for_model
 from .nested_serializers import *
 
 

@@ -18,12 +18,13 @@ from extras.api.customfields import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
 from ipam.models import VLAN
+from netbox.api import (
+    ChoiceField, ContentTypeField, SerializedPKRelatedField, TimeZoneField, ValidatedModelSerializer,
+    WritableNestedSerializer,
+)
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from users.api.nested_serializers import NestedUserSerializer
-from utilities.api import (
-    ChoiceField, ContentTypeField, SerializedPKRelatedField, TimeZoneField, ValidatedModelSerializer,
-    WritableNestedSerializer, get_serializer_for_model,
-)
+from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedClusterSerializer
 from .nested_serializers import *
 

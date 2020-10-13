@@ -7,8 +7,8 @@ from extras.api.customfields import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
 from ipam.models import VLAN
+from netbox.api import ChoiceField, SerializedPKRelatedField, ValidatedModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
-from utilities.api import ChoiceField, SerializedPKRelatedField, ValidatedModelSerializer
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from .nested_serializers import *

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from ipam import models
-from utilities.api import WritableNestedSerializer
+from netbox.api import WritableNestedSerializer
 
 __all__ = [
     'NestedAggregateSerializer',

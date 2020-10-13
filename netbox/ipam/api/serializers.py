@@ -11,10 +11,9 @@ from extras.api.serializers import TaggedObjectSerializer
 from ipam.choices import *
 from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Service, VLAN, VLANGroup, VRF
+from netbox.api import ChoiceField, ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
-from utilities.api import (
-    ChoiceField, ContentTypeField, SerializedPKRelatedField, ValidatedModelSerializer, get_serializer_for_model,
-)
+from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedVirtualMachineSerializer
 from .nested_serializers import *
 

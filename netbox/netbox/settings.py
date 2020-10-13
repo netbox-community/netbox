@@ -461,18 +461,18 @@ REST_FRAMEWORK = {
     'ALLOWED_VERSIONS': [REST_FRAMEWORK_VERSION],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
-        'netbox.api.TokenAuthentication',
+        'netbox.api.authentication.TokenAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'netbox.api.OptionalLimitOffsetPagination',
+    'DEFAULT_PAGINATION_CLASS': 'netbox.api.pagination.OptionalLimitOffsetPagination',
     'DEFAULT_PERMISSION_CLASSES': (
-        'netbox.api.TokenPermissions',
+        'netbox.api.authentication.TokenPermissions',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        'netbox.api.FormlessBrowsableAPIRenderer',
+        'netbox.api.renderers.FormlessBrowsableAPIRenderer',
     ),
     'DEFAULT_VERSION': REST_FRAMEWORK_VERSION,
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
@@ -484,7 +484,7 @@ REST_FRAMEWORK = {
         # Custom operations
         'bulk_destroy': 'bulk_delete',
     },
-    'VIEW_NAME_FUNCTION': 'netbox.api.get_view_name',
+    'VIEW_NAME_FUNCTION': 'utilities.api.get_view_name',
 }
 
 

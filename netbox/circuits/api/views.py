@@ -5,7 +5,7 @@ from circuits import filters
 from circuits.models import Provider, CircuitTermination, CircuitType, Circuit
 from dcim.api.views import PathEndpointMixin
 from extras.api.views import CustomFieldModelViewSet
-from utilities.api import ModelViewSet
+from netbox.api.views import ModelViewSet
 from . import serializers
 
 

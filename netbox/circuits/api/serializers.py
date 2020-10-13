@@ -6,8 +6,8 @@ from dcim.api.nested_serializers import NestedCableSerializer, NestedInterfaceSe
 from dcim.api.serializers import CableTerminationSerializer, ConnectedEndpointSerializer
 from extras.api.customfields import CustomFieldModelSerializer
 from extras.api.serializers import TaggedObjectSerializer
+from netbox.api import ChoiceField, ValidatedModelSerializer, WritableNestedSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
-from utilities.api import ChoiceField, ValidatedModelSerializer, WritableNestedSerializer
 from .nested_serializers import *
 
 

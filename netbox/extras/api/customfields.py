@@ -6,7 +6,7 @@ from rest_framework.fields import CreateOnlyDefault, Field
 
 from extras.choices import *
 from extras.models import CustomField
-from utilities.api import ValidatedModelSerializer
+from netbox.api import ValidatedModelSerializer
 
 
 #

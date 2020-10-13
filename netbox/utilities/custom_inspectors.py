@@ -6,7 +6,7 @@ from rest_framework.fields import ChoiceField
 from rest_framework.relations import ManyRelatedField
 
 from extras.api.customfields import CustomFieldsDataField
-from utilities.api import ChoiceField, SerializedPKRelatedField, WritableNestedSerializer
+from netbox.api import ChoiceField, SerializedPKRelatedField, WritableNestedSerializer
 
 
 class NetBoxSwaggerAutoSchema(SwaggerAutoSchema):

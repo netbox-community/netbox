@@ -15,9 +15,10 @@ from extras.choices import JobResultStatusChoices
 from extras.models import ConfigContext, ExportTemplate, ImageAttachment, ObjectChange, JobResult, Tag
 from extras.reports import get_report, get_reports, run_report
 from extras.scripts import get_script, get_scripts, run_script
-from utilities.api import IsAuthenticatedOrLoginNotRequired, ModelViewSet
+from netbox.api.views import ModelViewSet
+from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
+from netbox.api.metadata import ContentTypeMetadata
 from utilities.exceptions import RQWorkerNotRunningException
-from utilities.metadata import ContentTypeMetadata
 from utilities.utils import copy_safe_request
 from . import serializers
 
