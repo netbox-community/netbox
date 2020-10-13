@@ -6,6 +6,7 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
 from extras.plugins.urls import plugin_admin_patterns, plugin_patterns, plugin_api_patterns
+from netbox.api.views import StatusView
 from netbox.views import APIRootView, HomeView, StaticMediaFailureView, SearchView
 from users.views import LoginView, LogoutView
 from .admin import admin_site
@@ -55,6 +56,7 @@ _patterns = [
     path('api/tenancy/', include('tenancy.api.urls')),
     path('api/users/', include('users.api.urls')),
     path('api/virtualization/', include('virtualization.api.urls')),
+    path('api/status/', StatusView.as_view(), name='api-status'),
     path('api/docs/', schema_view.with_ui('swagger'), name='api_docs'),
     path('api/redoc/', schema_view.with_ui('redoc'), name='api_redocs'),
     re_path(r'^api/swagger(?P<format>.json|.yaml)$', schema_view.without_ui(), name='schema_swagger'),

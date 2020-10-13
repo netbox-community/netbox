@@ -1,11 +1,18 @@
 import logging
+import platform
 
+from django import __version__ as DJANGO_VERSION
+from django.apps import apps
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.db.models import ProtectedError
+from django_rq.queues import get_connection
 from rest_framework import mixins, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
+from rq.worker import Worker
 
 from netbox.api import BulkOperationSerializer
 from netbox.api.exceptions import SerializerNotFound
@@ -218,3 +225,42 @@ class ModelViewSet(mixins.CreateModelMixin,
         logger.info(f"Deleting {model._meta.verbose_name} {instance} (PK: {instance.pk})")
 
         return super().perform_destroy(instance)
+
+
+#
+# Views
+#
+
+class StatusView(APIView):
+    """
+    Provide a lightweight read-only endpoint for conveying NetBox's current operational status.
+    """
+    permission_classes = []
+
+    def get(self, request):
+        # Gather the version number from all installed Django apps
+        installed_apps = {}
+        for app_config in apps.get_app_configs():
+            app = app_config.module
+            version = getattr(app, 'VERSION', getattr(app, '__version__', None))
+            if version:
+                if type(version) is tuple:
+                    version = '.'.join(str(n) for n in version)
+                installed_apps[app_config.name] = version
+        installed_apps = {k: v for k, v in sorted(installed_apps.items())}
+
+        # Gather installed plugins
+        plugins = {}
+        for plugin_name in settings.PLUGINS:
+            plugin_config = apps.get_app_config(plugin_name)
+            plugins[plugin_name] = getattr(plugin_config, 'version', None)
+        plugins = {k: v for k, v in sorted(plugins.items())}
+
+        return Response({
+            'django-version': DJANGO_VERSION,
+            'installed-apps': installed_apps,
+            'netbox-version': settings.VERSION,
+            'plugins': plugins,
+            'python-version': platform.python_version(),
+            'rq-workers-running': Worker.count(get_connection('default')),
+        })

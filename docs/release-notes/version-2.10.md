@@ -46,6 +46,7 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 * [#1692](https://github.com/netbox-community/netbox/issues/1692) - Allow assigment of inventory items to parent items in web UI
 * [#2179](https://github.com/netbox-community/netbox/issues/2179) - Support the assignment of multiple port numbers for services
 * [#4897](https://github.com/netbox-community/netbox/issues/4897) - Allow filtering by content type identified as `<app>.<model>` string
+* [#4918](https://github.com/netbox-community/netbox/issues/4918) - Add a REST API endpoint (`/api/status/`) which returns NetBox's current operational status
 * [#4956](https://github.com/netbox-community/netbox/issues/4956) - Include inventory items on primary device view
 * [#5003](https://github.com/netbox-community/netbox/issues/5003) - CSV import now accepts slug values for choice fields
 * [#5146](https://github.com/netbox-community/netbox/issues/5146) - Add custom fields support for cables, power panels, rack reservations, and virtual chassis
@@ -63,7 +64,8 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 ### REST API Changes
 
 * Added support for `PUT`, `PATCH`, and `DELETE` operations on list endpoints (bulk update and delete)
-* Added `/extras/content-types/` endpoint for Django ContentTypes
+* Added the `/extras/content-types/` endpoint for Django ContentTypes
+* Added the `/status/` endpoint to convey NetBox's current status
 * circuits.CircuitTermination:
   * Added the `/trace/` endpoint
   * Replaced `connection_status` with `connected_endpoint_reachable` (boolean)
