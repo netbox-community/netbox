@@ -252,6 +252,7 @@ class StatusView(APIView):
         # Gather installed plugins
         plugins = {}
         for plugin_name in settings.PLUGINS:
+            plugin_name = plugin_name.rsplit('.', 1)[-1]
             plugin_config = apps.get_app_config(plugin_name)
             plugins[plugin_name] = getattr(plugin_config, 'version', None)
         plugins = {k: v for k, v in sorted(plugins.items())}
