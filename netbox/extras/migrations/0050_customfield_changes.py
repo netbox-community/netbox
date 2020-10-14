@@ -32,4 +32,10 @@ class Migration(migrations.Migration):
                 size=None
             ),
         ),
+        # Rename obj_type to content_types
+        migrations.RenameField(
+            model_name='customfield',
+            old_name='obj_type',
+            new_name='content_types',
+        ),
     ]

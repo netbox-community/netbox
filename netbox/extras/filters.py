@@ -65,9 +65,8 @@ class CustomFieldFilterSet(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        obj_type = ContentType.objects.get_for_model(self._meta.model)
         custom_fields = CustomField.objects.filter(
-            obj_type=obj_type
+            content_types=ContentType.objects.get_for_model(self._meta.model)
         ).exclude(
             filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED
         )

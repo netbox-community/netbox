@@ -25,7 +25,7 @@ class ChangeLogViewTest(ModelViewTestCase):
             required=False
         )
         cf.save()
-        cf.obj_type.set([ct])
+        cf.content_types.set([ct])
 
     def test_create_object(self):
         tags = self.create_tags('Tag 1', 'Tag 2')
@@ -131,7 +131,7 @@ class ChangeLogAPITest(APITestCase):
             required=False
         )
         cf.save()
-        cf.obj_type.set([ct])
+        cf.content_types.set([ct])
 
         # Create some tags
         tags = (

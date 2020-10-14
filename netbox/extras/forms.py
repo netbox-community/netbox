@@ -35,7 +35,7 @@ class CustomFieldModelForm(forms.ModelForm):
         Append form fields for all CustomFields assigned to this model.
         """
         # Append form fields; assign initial values if modifying and existing object
-        for cf in CustomField.objects.filter(obj_type=self.obj_type):
+        for cf in CustomField.objects.filter(content_types=self.obj_type):
             field_name = 'cf_{}'.format(cf.name)
             if self.instance.pk:
                 self.fields[field_name] = cf.to_form_field(set_initial=False)
@@ -60,7 +60,7 @@ class CustomFieldModelCSVForm(CSVModelForm, CustomFieldModelForm):
     def _append_customfield_fields(self):
 
         # Append form fields
-        for cf in CustomField.objects.filter(obj_type=self.obj_type):
+        for cf in CustomField.objects.filter(content_types=self.obj_type):
             field_name = 'cf_{}'.format(cf.name)
             self.fields[field_name] = cf.to_form_field(for_csv_import=True)
 
@@ -77,7 +77,7 @@ class CustomFieldBulkEditForm(BulkEditForm):
         self.obj_type = ContentType.objects.get_for_model(self.model)
 
         # Add all applicable CustomFields to the form
-        custom_fields = CustomField.objects.filter(obj_type=self.obj_type)
+        custom_fields = CustomField.objects.filter(content_types=self.obj_type)
         for cf in custom_fields:
             # Annotate non-required custom fields as nullable
             if not cf.required:
@@ -96,7 +96,7 @@ class CustomFieldFilterForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Add all applicable CustomFields to the form
-        custom_fields = CustomField.objects.filter(obj_type=self.obj_type).exclude(
+        custom_fields = CustomField.objects.filter(content_types=self.obj_type).exclude(
             filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED
         )
         for cf in custom_fields:

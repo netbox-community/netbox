@@ -79,7 +79,7 @@ class CustomFieldForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        order_content_types(self.fields['obj_type'])
+        order_content_types(self.fields['content_types'])
 
     def clean(self):
 
@@ -98,7 +98,7 @@ class CustomFieldAdmin(admin.ModelAdmin):
         'name', 'models', 'type', 'required', 'filter_logic', 'default', 'weight', 'description',
     ]
     list_filter = [
-        'type', 'required', 'obj_type',
+        'type', 'required', 'content_types',
     ]
     fieldsets = (
         ('Custom Field', {
@@ -106,7 +106,7 @@ class CustomFieldAdmin(admin.ModelAdmin):
         }),
         ('Assignment', {
             'description': 'A custom field must be assigned to one or more object types.',
-            'fields': ('obj_type',)
+            'fields': ('content_types',)
         }),
         ('Choices', {
             'description': 'A selection field must have two or more choices assigned to it.',
@@ -115,7 +115,7 @@ class CustomFieldAdmin(admin.ModelAdmin):
     )
 
     def models(self, obj):
-        return ', '.join([ct.name for ct in obj.obj_type.all()])
+        return ', '.join([ct.name for ct in obj.content_types.all()])
 
 
 #

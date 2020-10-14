@@ -8,7 +8,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
 from django.http import HttpResponse
-from django.template import Template, Context
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.utils.encoders import JSONEncoder
@@ -32,6 +31,7 @@ class Webhook(models.Model):
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
     Each Webhook can be limited to firing only on certain actions or certain object types.
     """
+    # TODO: Rename obj_type to content_types (see #4711)
     obj_type = models.ManyToManyField(
         to=ContentType,
         related_name='webhooks',

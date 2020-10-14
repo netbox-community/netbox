@@ -50,11 +50,11 @@ class CustomFieldManager(models.Manager):
         Return all CustomFields assigned to the given model.
         """
         content_type = ContentType.objects.get_for_model(model._meta.concrete_model)
-        return self.get_queryset().filter(obj_type=content_type)
+        return self.get_queryset().filter(content_types=content_type)
 
 
 class CustomField(models.Model):
-    obj_type = models.ManyToManyField(
+    content_types = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
         verbose_name='Object(s)',

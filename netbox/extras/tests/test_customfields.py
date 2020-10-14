@@ -39,7 +39,7 @@ class CustomFieldTest(TestCase):
             # Create a custom field
             cf = CustomField(type=data['field_type'], name='my_field', required=False)
             cf.save()
-            cf.obj_type.set([obj_type])
+            cf.content_types.set([obj_type])
             cf.save()
 
             # Assign a value to the first Site
@@ -72,7 +72,7 @@ class CustomFieldTest(TestCase):
             choices=['Option A', 'Option B', 'Option C']
         )
         cf.save()
-        cf.obj_type.set([obj_type])
+        cf.content_types.set([obj_type])
         cf.save()
 
         # Assign a value to the first Site
@@ -100,7 +100,7 @@ class CustomFieldManagerTest(TestCase):
         content_type = ContentType.objects.get_for_model(Site)
         custom_field = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='text_field', default='foo')
         custom_field.save()
-        custom_field.obj_type.set([content_type])
+        custom_field.content_types.set([content_type])
 
     def test_get_for_model(self):
         self.assertEqual(CustomField.objects.get_for_model(Site).count(), 1)
@@ -116,33 +116,33 @@ class CustomFieldAPITest(APITestCase):
         # Text custom field
         cls.cf_text = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='text_field', default='foo')
         cls.cf_text.save()
-        cls.cf_text.obj_type.set([content_type])
+        cls.cf_text.content_types.set([content_type])
 
         # Integer custom field
         cls.cf_integer = CustomField(type=CustomFieldTypeChoices.TYPE_INTEGER, name='number_field', default=123)
         cls.cf_integer.save()
-        cls.cf_integer.obj_type.set([content_type])
+        cls.cf_integer.content_types.set([content_type])
 
         # Boolean custom field
         cls.cf_boolean = CustomField(type=CustomFieldTypeChoices.TYPE_BOOLEAN, name='boolean_field', default=False)
         cls.cf_boolean.save()
-        cls.cf_boolean.obj_type.set([content_type])
+        cls.cf_boolean.content_types.set([content_type])
 
         # Date custom field
         cls.cf_date = CustomField(type=CustomFieldTypeChoices.TYPE_DATE, name='date_field', default='2020-01-01')
         cls.cf_date.save()
-        cls.cf_date.obj_type.set([content_type])
+        cls.cf_date.content_types.set([content_type])
 
         # URL custom field
         cls.cf_url = CustomField(type=CustomFieldTypeChoices.TYPE_URL, name='url_field', default='http://example.com/1')
         cls.cf_url.save()
-        cls.cf_url.obj_type.set([content_type])
+        cls.cf_url.content_types.set([content_type])
 
         # Select custom field
         cls.cf_select = CustomField(type=CustomFieldTypeChoices.TYPE_SELECT, name='choice_field', choices=['Foo', 'Bar', 'Baz'])
         cls.cf_select.default = 'Foo'
         cls.cf_select.save()
-        cls.cf_select.obj_type.set([content_type])
+        cls.cf_select.content_types.set([content_type])
 
         # Create some sites
         cls.sites = (
@@ -429,7 +429,7 @@ class CustomFieldImportTest(TestCase):
         )
         for cf in custom_fields:
             cf.save()
-            cf.obj_type.set([ContentType.objects.get_for_model(Site)])
+            cf.content_types.set([ContentType.objects.get_for_model(Site)])
 
     def test_import(self):
         """
