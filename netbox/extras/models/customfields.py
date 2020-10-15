@@ -4,10 +4,12 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.serializers.json import DjangoJSONEncoder
-from django.core.validators import ValidationError
+from django.core.validators import RegexValidator, ValidationError
 from django.db import models
+from django.utils.safestring import mark_safe
 
 from utilities.forms import CSVChoiceField, DatePicker, LaxURLField, StaticSelect2, add_blank_choice
+from utilities.validators import validate_regex
 from extras.choices import *
 from extras.utils import FeatureQuery
 
@@ -101,6 +103,25 @@ class CustomField(models.Model):
         default=100,
         help_text='Fields with higher weights appear lower in a form.'
     )
+    validation_minimum = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name='Minimum value',
+        help_text='Minimum allowed value (for numeric fields)'
+    )
+    validation_maximum = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name='Maximum value',
+        help_text='Maximum allowed value (for numeric fields)'
+    )
+    validation_regex = models.CharField(
+        blank=True,
+        validators=[validate_regex],
+        max_length=500,
+        verbose_name='Validation regex',
+        help_text='Regular expression to enforce on text field values'
+    )
     choices = ArrayField(
         base_field=models.CharField(max_length=100),
         blank=True,
@@ -128,6 +149,22 @@ class CustomField(models.Model):
                 obj.save()
 
     def clean(self):
+        # Minimum/maximum values can be set only for numeric fields
+        if self.validation_minimum is not None and self.type != CustomFieldTypeChoices.TYPE_INTEGER:
+            raise ValidationError({
+                'validation_minimum': "A minimum value may be set only for numeric fields"
+            })
+        if self.validation_maximum is not None and self.type != CustomFieldTypeChoices.TYPE_INTEGER:
+            raise ValidationError({
+                'validation_maximum': "A maximum value may be set only for numeric fields"
+            })
+
+        # Regex validation can be set only for text fields
+        if self.validation_regex and self.type != CustomFieldTypeChoices.TYPE_TEXT:
+            raise ValidationError({
+                'validation_regex': "Regular expression validation is supported only for text and URL fields"
+            })
+
         # Choices can be set only on selection fields
         if self.choices and self.type != CustomFieldTypeChoices.TYPE_SELECT:
             raise ValidationError({
@@ -153,7 +190,12 @@ class CustomField(models.Model):
 
         # Integer
         if self.type == CustomFieldTypeChoices.TYPE_INTEGER:
-            field = forms.IntegerField(required=required, initial=initial)
+            field = forms.IntegerField(
+                required=required,
+                initial=initial,
+                min_value=self.validation_minimum,
+                max_value=self.validation_maximum
+            )
 
         # Boolean
         elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
@@ -196,6 +238,13 @@ class CustomField(models.Model):
         # Text
         else:
             field = forms.CharField(max_length=255, required=required, initial=initial)
+            if self.validation_regex:
+                field.validators = [
+                    RegexValidator(
+                        regex=self.validation_regex,
+                        message=mark_safe(f"Values must match this regex: <code>{self.validation_regex}</code>")
+                    )
+                ]
 
         field.model = self
         field.label = str(self)

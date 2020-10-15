@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 
 from django.contrib.contenttypes.models import ContentType
@@ -77,12 +78,21 @@ class CustomFieldsDataField(Field):
             # Data validation
             if value not in [None, '']:
 
+                # Validate text field
+                if cf.type == CustomFieldTypeChoices.TYPE_TEXT and cf.validation_regex:
+                    if not re.match(cf.validation_regex, value):
+                        raise ValidationError(f"{field_name}: Value must match regex {cf.validation_regex}")
+
                 # Validate integer
                 if cf.type == CustomFieldTypeChoices.TYPE_INTEGER:
                     try:
                         int(value)
                     except ValueError:
                         raise ValidationError(f"Invalid value for integer field {field_name}: {value}")
+                    if cf.validation_minimum is not None and value < cf.validation_minimum:
+                        raise ValidationError(f"{field_name}: Value must be at least {cf.validation_minimum}")
+                    if cf.validation_maximum is not None and value > cf.validation_maximum:
+                        raise ValidationError(f"{field_name}: Value must not exceed {cf.validation_maximum}")
 
                 # Validate boolean
                 if cf.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value not in [True, False, 1, 0]:

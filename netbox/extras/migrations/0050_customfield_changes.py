@@ -1,6 +1,8 @@
 import django.contrib.postgres.fields
+import django.core.validators
 from django.db import migrations, models
-import django.db.models.deletion
+
+import utilities.validators
 
 
 class Migration(migrations.Migration):
@@ -37,5 +39,21 @@ class Migration(migrations.Migration):
             model_name='customfield',
             old_name='obj_type',
             new_name='content_types',
+        ),
+        # Add validation fields
+        migrations.AddField(
+            model_name='customfield',
+            name='validation_maximum',
+            field=models.PositiveIntegerField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='customfield',
+            name='validation_minimum',
+            field=models.PositiveIntegerField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='customfield',
+            name='validation_regex',
+            field=models.CharField(blank=True, max_length=500, validators=[utilities.validators.validate_regex]),
         ),
     ]

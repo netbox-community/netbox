@@ -108,6 +108,9 @@ class CustomFieldAdmin(admin.ModelAdmin):
             'description': 'A custom field must be assigned to one or more object types.',
             'fields': ('content_types',)
         }),
+        ('Validation Rules', {
+            'fields': ('validation_minimum', 'validation_maximum', 'validation_regex')
+        }),
         ('Choices', {
             'description': 'A selection field must have two or more choices assigned to it.',
             'fields': ('choices',)

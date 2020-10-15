@@ -21,7 +21,6 @@ class CustomFieldTest(TestCase):
         ])
 
     def test_simple_fields(self):
-
         DATA = (
             {'field_type': CustomFieldTypeChoices.TYPE_TEXT, 'field_value': 'Foobar!', 'empty_value': ''},
             {'field_type': CustomFieldTypeChoices.TYPE_INTEGER, 'field_value': 0, 'empty_value': None},
@@ -40,7 +39,6 @@ class CustomFieldTest(TestCase):
             cf = CustomField(type=data['field_type'], name='my_field', required=False)
             cf.save()
             cf.content_types.set([obj_type])
-            cf.save()
 
             # Assign a value to the first Site
             site = Site.objects.first()
@@ -61,7 +59,6 @@ class CustomFieldTest(TestCase):
             cf.delete()
 
     def test_select_field(self):
-
         obj_type = ContentType.objects.get_for_model(Site)
 
         # Create a custom field
@@ -73,7 +70,6 @@ class CustomFieldTest(TestCase):
         )
         cf.save()
         cf.content_types.set([obj_type])
-        cf.save()
 
         # Assign a value to the first Site
         site = Site.objects.first()
@@ -408,6 +404,45 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(site.custom_field_data['date_field'], original_cfvs['date_field'])
         self.assertEqual(site.custom_field_data['url_field'], original_cfvs['url_field'])
         self.assertEqual(site.custom_field_data['choice_field'], original_cfvs['choice_field'])
+
+    def test_minimum_maximum_values_validation(self):
+        url = reverse('dcim-api:site-detail', kwargs={'pk': self.sites[1].pk})
+        self.add_permissions('dcim.change_site')
+
+        self.cf_integer.validation_minimum = 10
+        self.cf_integer.validation_maximum = 20
+        self.cf_integer.save()
+
+        data = {'custom_fields': {'number_field': 9}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        data = {'custom_fields': {'number_field': 21}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        data = {'custom_fields': {'number_field': 15}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_regex_validation(self):
+        url = reverse('dcim-api:site-detail', kwargs={'pk': self.sites[1].pk})
+        self.add_permissions('dcim.change_site')
+
+        self.cf_text.validation_regex = r'^[A-Z]{3}$'  # Three uppercase letters
+        self.cf_text.save()
+
+        data = {'custom_fields': {'text_field': 'ABC123'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        data = {'custom_fields': {'text_field': 'abc'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        data = {'custom_fields': {'text_field': 'ABC'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
 
 
 class CustomFieldImportTest(TestCase):
