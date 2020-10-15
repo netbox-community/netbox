@@ -1,5 +1,11 @@
 # NetBox v2.9
 
+## v2.9.8 (FUTURE)
+
+### Bug Fixes
+
+* [#5113](https://github.com/netbox-community/netbox/issues/5113) - Fix incorrect caching of permission object assignments to user groups in the admin panel
+
 ## v2.9.7 (2020-10-12)
 
 ### Bug Fixes
