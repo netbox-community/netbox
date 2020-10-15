@@ -47,9 +47,11 @@ class RackGroup(MPTTModel, ChangeLoggedModel):
     campus. If a Site instead represents a single building, a RackGroup might represent a single room or floor.
     """
     name = models.CharField(
-        max_length=50
+        max_length=100
     )
-    slug = models.SlugField()
+    slug = models.SlugField(
+        max_length=100
+    )
     site = models.ForeignKey(
         to='dcim.Site',
         on_delete=models.CASCADE,
@@ -118,10 +120,11 @@ class RackRole(ChangeLoggedModel):
     Racks can be organized by functional role, similar to Devices.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     color = ColorField(
@@ -161,7 +164,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     Each Rack is assigned to a Site and (optionally) a RackGroup.
     """
     name = models.CharField(
-        max_length=50
+        max_length=100
     )
     _name = NaturalOrderingField(
         target_field='name',

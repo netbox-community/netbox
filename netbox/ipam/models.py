@@ -46,7 +46,7 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
     are said to exist in the "global" table.)
     """
     name = models.CharField(
-        max_length=50
+        max_length=100
     )
     rd = models.CharField(
         max_length=VRF_RD_MAX_LENGTH,
@@ -168,10 +168,11 @@ class RIR(ChangeLoggedModel):
     space. This can be an organization like ARIN or RIPE, or a governing standard such as RFC 1918.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     is_private = models.BooleanField(
@@ -313,10 +314,11 @@ class Role(ChangeLoggedModel):
     "Management."
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     weight = models.PositiveSmallIntegerField(
@@ -826,9 +828,11 @@ class VLANGroup(ChangeLoggedModel):
     A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
     """
     name = models.CharField(
-        max_length=50
+        max_length=100
     )
-    slug = models.SlugField()
+    slug = models.SlugField(
+        max_length=100
+    )
     site = models.ForeignKey(
         to='dcim.Site',
         on_delete=models.PROTECT,
@@ -1021,7 +1025,7 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         blank=True
     )
     name = models.CharField(
-        max_length=30
+        max_length=100
     )
     protocol = models.CharField(
         max_length=50,

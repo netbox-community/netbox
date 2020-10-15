@@ -60,6 +60,7 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 * [#4360](https://github.com/netbox-community/netbox/issues/4360) - Remove support for the Django template language from export templates
 * [#4878](https://github.com/netbox-community/netbox/issues/4878) - Custom field data is now stored directly on each object
 * [#4941](https://github.com/netbox-community/netbox/issues/4941) - `commit` argument is now required argument in a custom script's `run()` method
+* [#5011](https://github.com/netbox-community/netbox/issues/5011) - Standardized name field lengths across all models
 * [#5225](https://github.com/netbox-community/netbox/issues/5225) - Circuit termination port speed is now an optional field
 
 ### REST API Changes

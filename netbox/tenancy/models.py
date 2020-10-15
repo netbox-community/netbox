@@ -21,10 +21,11 @@ class TenantGroup(MPTTModel, ChangeLoggedModel):
     An arbitrary collection of Tenants.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     parent = TreeForeignKey(
@@ -81,10 +82,11 @@ class Tenant(ChangeLoggedModel, CustomFieldModel):
     department.
     """
     name = models.CharField(
-        max_length=30,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     group = models.ForeignKey(

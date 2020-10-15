@@ -39,10 +39,11 @@ class Region(MPTTModel, ChangeLoggedModel):
         db_index=True
     )
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     description = models.CharField(
@@ -98,7 +99,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     _name = NaturalOrderingField(
@@ -107,6 +108,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         blank=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     status = models.CharField(

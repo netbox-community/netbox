@@ -35,10 +35,11 @@ class ClusterType(ChangeLoggedModel):
     A type of Cluster.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     description = models.CharField(
@@ -76,10 +77,11 @@ class ClusterGroup(ChangeLoggedModel):
     An organizational group of Clusters.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     description = models.CharField(

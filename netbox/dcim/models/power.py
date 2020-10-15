@@ -38,7 +38,7 @@ class PowerPanel(ChangeLoggedModel, CustomFieldModel):
         null=True
     )
     name = models.CharField(
-        max_length=50
+        max_length=100
     )
     tags = TaggableManager(through=TaggedItem)
 
@@ -89,7 +89,7 @@ class PowerFeed(ChangeLoggedModel, PathEndpoint, CableTermination, CustomFieldMo
         null=True
     )
     name = models.CharField(
-        max_length=50
+        max_length=100
     )
     status = models.CharField(
         max_length=50,

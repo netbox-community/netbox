@@ -41,10 +41,11 @@ class Manufacturer(ChangeLoggedModel):
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     description = models.CharField(
@@ -95,9 +96,11 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         related_name='device_types'
     )
     model = models.CharField(
-        max_length=50
+        max_length=100
     )
-    slug = models.SlugField()
+    slug = models.SlugField(
+        max_length=100
+    )
     part_number = models.CharField(
         max_length=50,
         blank=True,
@@ -340,10 +343,11 @@ class DeviceRole(ChangeLoggedModel):
     virtual machines as well.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     color = ColorField(
@@ -390,8 +394,8 @@ class Platform(ChangeLoggedModel):
         unique=True
     )
     slug = models.SlugField(
-        unique=True,
-        max_length=100
+        max_length=100,
+        unique=True
     )
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',

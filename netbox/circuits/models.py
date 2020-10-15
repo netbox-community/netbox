@@ -27,10 +27,11 @@ class Provider(ChangeLoggedModel, CustomFieldModel):
     stores information pertinent to the user's relationship with the Provider.
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     asn = ASNField(
@@ -98,10 +99,11 @@ class CircuitType(ChangeLoggedModel):
     "Long Haul," "Metro," or "Out-of-Band".
     """
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         unique=True
     )
     description = models.CharField(
@@ -138,7 +140,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
     in Kbps.
     """
     cid = models.CharField(
-        max_length=50,
+        max_length=100,
         verbose_name='Circuit ID'
     )
     provider = models.ForeignKey(
