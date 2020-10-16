@@ -240,13 +240,28 @@ class AggregateTestCase(TestCase):
         )
         RIR.objects.bulk_create(rirs)
 
+        tenant_groups = (
+            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+        )
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
+            Tenant(name='Tenant 2', slug='tenant-2', group=tenant_groups[1]),
+            Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[2]),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         aggregates = (
-            Aggregate(prefix='10.1.0.0/16', rir=rirs[0], date_added='2020-01-01'),
-            Aggregate(prefix='10.2.0.0/16', rir=rirs[0], date_added='2020-01-02'),
-            Aggregate(prefix='10.3.0.0/16', rir=rirs[1], date_added='2020-01-03'),
-            Aggregate(prefix='2001:db8:1::/48', rir=rirs[1], date_added='2020-01-04'),
-            Aggregate(prefix='2001:db8:2::/48', rir=rirs[2], date_added='2020-01-05'),
-            Aggregate(prefix='2001:db8:3::/48', rir=rirs[2], date_added='2020-01-06'),
+            Aggregate(prefix='10.1.0.0/16', rir=rirs[0], tenant=tenants[0], date_added='2020-01-01'),
+            Aggregate(prefix='10.2.0.0/16', rir=rirs[0], tenant=tenants[1], date_added='2020-01-02'),
+            Aggregate(prefix='10.3.0.0/16', rir=rirs[1], tenant=tenants[2], date_added='2020-01-03'),
+            Aggregate(prefix='2001:db8:1::/48', rir=rirs[1], tenant=tenants[0], date_added='2020-01-04'),
+            Aggregate(prefix='2001:db8:2::/48', rir=rirs[2], tenant=tenants[1], date_added='2020-01-05'),
+            Aggregate(prefix='2001:db8:3::/48', rir=rirs[2], tenant=tenants[2], date_added='2020-01-06'),
         )
         Aggregate.objects.bulk_create(aggregates)
 
@@ -272,6 +287,24 @@ class AggregateTestCase(TestCase):
         params = {'rir_id': [rirs[0].pk, rirs[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'rir': [rirs[0].slug, rirs[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_tenant(self):
+        tenants = Tenant.objects.all()[:2]
+        params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        print(self.filterset(params, self.queryset).qs.count())
+        params = {'tenant': [tenants[0].slug, tenants[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        print(self.filterset(params, self.queryset).qs.count())
+
+    def test_tenant_group(self):
+        tenant_groups = TenantGroup.objects.all()[:2]
+        params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
+        print(self.filterset(params, self.queryset).qs.count())
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
+        print(self.filterset(params, self.queryset).qs.count())
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 

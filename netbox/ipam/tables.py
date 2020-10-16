@@ -253,6 +253,9 @@ class AggregateTable(BaseTable):
     prefix = tables.LinkColumn(
         verbose_name='Aggregate'
     )
+    tenant = tables.TemplateColumn(
+        template_code=TENANT_LINK
+    )
     date_added = tables.DateColumn(
         format="Y-m-d",
         verbose_name='Added'
@@ -260,7 +263,7 @@ class AggregateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Aggregate
-        fields = ('pk', 'prefix', 'rir', 'date_added', 'description')
+        fields = ('pk', 'prefix', 'rir', 'tenant', 'date_added', 'description')
 
 
 class AggregateDetailTable(AggregateTable):
@@ -276,8 +279,8 @@ class AggregateDetailTable(AggregateTable):
     )
 
     class Meta(AggregateTable.Meta):
-        fields = ('pk', 'prefix', 'rir', 'child_count', 'utilization', 'date_added', 'description', 'tags')
-        default_columns = ('pk', 'prefix', 'rir', 'child_count', 'utilization', 'date_added', 'description')
+        fields = ('pk', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description', 'tags')
+        default_columns = ('pk', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description')
 
 
 #

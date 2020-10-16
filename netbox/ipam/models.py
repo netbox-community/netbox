@@ -222,6 +222,13 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         related_name='aggregates',
         verbose_name='RIR'
     )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='aggregates',
+        blank=True,
+        null=True
+    )
     date_added = models.DateField(
         blank=True,
         null=True
@@ -234,9 +241,9 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    csv_headers = ['prefix', 'rir', 'date_added', 'description']
+    csv_headers = ['prefix', 'rir', 'tenant', 'date_added', 'description']
     clone_fields = [
-        'rir', 'date_added', 'description',
+        'rir', 'tenant', 'date_added', 'description',
     ]
 
     class Meta:
@@ -289,6 +296,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         return (
             self.prefix,
             self.rir.name,
+            self.tenant.name if self.tenant else None,
             self.date_added,
             self.description,
         )

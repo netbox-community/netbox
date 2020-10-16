@@ -225,7 +225,7 @@ class RIRFilterForm(BootstrapMixin, forms.Form):
 # Aggregates
 #
 
-class AggregateForm(BootstrapMixin, CustomFieldModelForm):
+class AggregateForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all()
     )
@@ -237,7 +237,7 @@ class AggregateForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = Aggregate
         fields = [
-            'prefix', 'rir', 'date_added', 'description', 'tags',
+            'prefix', 'rir', 'date_added', 'description', 'tenant_group', 'tenant', 'tags',
         ]
         help_texts = {
             'prefix': "IPv4 or IPv6 network",
@@ -254,6 +254,12 @@ class AggregateCSVForm(CustomFieldModelCSVForm):
         to_field_name='name',
         help_text='Assigned RIR'
     )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned tenant'
+    )
 
     class Meta:
         model = Aggregate
@@ -269,6 +275,10 @@ class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         queryset=RIR.objects.all(),
         required=False,
         label='RIR'
+    )
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
     )
     date_added = forms.DateField(
         required=False
@@ -287,7 +297,7 @@ class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         }
 
 
-class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class AggregateFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Aggregate
     q = forms.CharField(
         required=False,
