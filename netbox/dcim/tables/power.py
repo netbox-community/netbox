@@ -42,6 +42,8 @@ class PowerPanelTable(BaseTable):
 # Power feeds
 #
 
+# We're not using PathEndpointTable for PowerFeed because power connections
+# cannot traverse pass-through ports.
 class PowerFeedTable(CableTerminationTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()

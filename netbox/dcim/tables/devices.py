@@ -215,29 +215,40 @@ class CableTerminationTable(BaseTable):
     )
 
 
-class ConsolePortTable(DeviceComponentTable, CableTerminationTable):
+class PathEndpointTable(CableTerminationTable):
+    connection = tables.TemplateColumn(
+        accessor='_path.destination',
+        template_code=CABLETERMINATION,
+        verbose_name='Connection',
+        orderable=False
+    )
+
+
+class ConsolePortTable(DeviceComponentTable, PathEndpointTable):
     tags = TagColumn(
         url_name='dcim:consoleport_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = ConsolePort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'tags')
+        fields = (
+            'pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags',
+        )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
-class ConsoleServerPortTable(DeviceComponentTable, CableTerminationTable):
+class ConsoleServerPortTable(DeviceComponentTable, PathEndpointTable):
     tags = TagColumn(
         url_name='dcim:consoleserverport_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = ConsoleServerPort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'tags')
+        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags')
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
-class PowerPortTable(DeviceComponentTable, CableTerminationTable):
+class PowerPortTable(DeviceComponentTable, PathEndpointTable):
     tags = TagColumn(
         url_name='dcim:powerport_list'
     )
@@ -246,12 +257,12 @@ class PowerPortTable(DeviceComponentTable, CableTerminationTable):
         model = PowerPort
         fields = (
             'pk', 'device', 'name', 'label', 'type', 'description', 'maximum_draw', 'allocated_draw', 'cable',
-            'cable_peer', 'tags',
+            'cable_peer', 'connection', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description')
 
 
-class PowerOutletTable(DeviceComponentTable, CableTerminationTable):
+class PowerOutletTable(DeviceComponentTable, PathEndpointTable):
     tags = TagColumn(
         url_name='dcim:poweroutlet_list'
     )
@@ -260,7 +271,7 @@ class PowerOutletTable(DeviceComponentTable, CableTerminationTable):
         model = PowerOutlet
         fields = (
             'pk', 'device', 'name', 'label', 'type', 'description', 'power_port', 'feed_leg', 'cable', 'cable_peer',
-            'tags',
+            'connection', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description')
 
@@ -280,7 +291,7 @@ class BaseInterfaceTable(BaseTable):
     )
 
 
-class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, CableTerminationTable):
+class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable):
     tags = TagColumn(
         url_name='dcim:interface_list'
     )
@@ -289,7 +300,7 @@ class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, CableTerminationT
         model = Interface
         fields = (
             'pk', 'device', 'name', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address',
-            'description', 'cable', 'cable_peer', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
+            'description', 'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'enabled', 'type', 'description')
 
