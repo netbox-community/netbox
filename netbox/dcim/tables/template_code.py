@@ -80,6 +80,7 @@ UTILIZATION_GRAPH = """
 
 CONSOLEPORT_BUTTONS = """
 {% if record.cable %}
+    <a href="{% url 'dcim:consoleport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="fa fa-share-alt"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
     <span class="dropdown">
@@ -97,6 +98,7 @@ CONSOLEPORT_BUTTONS = """
 
 CONSOLESERVERPORT_BUTTONS = """
 {% if record.cable %}
+    <a href="{% url 'dcim:consoleserverport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="fa fa-share-alt"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
     <span class="dropdown">
@@ -114,6 +116,7 @@ CONSOLESERVERPORT_BUTTONS = """
 
 POWERPORT_BUTTONS = """
 {% if record.cable %}
+    <a href="{% url 'dcim:powerport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="fa fa-share-alt"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
     <span class="dropdown">
@@ -130,6 +133,7 @@ POWERPORT_BUTTONS = """
 
 POWEROUTLET_BUTTONS = """
 {% if record.cable %}
+    <a href="{% url 'dcim:poweroutlet_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="fa fa-share-alt"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
     <a href="{% url 'dcim:poweroutlet_connect' termination_a_id=record.pk termination_b_type='power-port' %}?return_url={{ device.get_absolute_url }}" title="Connect" class="btn btn-success btn-xs">
@@ -144,27 +148,27 @@ INTERFACE_BUTTONS = """
         <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
     </a>
 {% endif %}
-{% if perms.dcim.change_interface %}
-    {% if record.cable %}
-        {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
-    {% elif record.is_connectable and perms.dcim.add_cable %}
-        <span class="dropdown">
-            <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-right">
-                <li><a href="{% url 'dcim:interface_connect' termination_a_id=record.pk termination_b_type='interface' %}?return_url={{ device.get_absolute_url }}">Interface</a></li>
-                <li><a href="{% url 'dcim:interface_connect' termination_a_id=record.pk termination_b_type='front-port' %}?return_url={{ device.get_absolute_url }}">Front Port</a></li>
-                <li><a href="{% url 'dcim:interface_connect' termination_a_id=record.pk termination_b_type='rear-port' %}?return_url={{ device.get_absolute_url }}">Rear Port</a></li>
-                <li><a href="{% url 'dcim:interface_connect' termination_a_id=record.pk termination_b_type='circuit-termination' %}?return_url={{ device.get_absolute_url }}">Circuit Termination</a></li>
-            </ul>
-        </span>
-    {% endif %}
+{% if record.cable %}
+    <a href="{% url 'dcim:interface_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="fa fa-share-alt"></i></a>
+    {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
+{% elif record.is_connectable and perms.dcim.add_cable %}
+    <span class="dropdown">
+        <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+            <li><a href="{% url 'dcim:interface_connect' termination_a_id=record.pk termination_b_type='interface' %}?return_url={{ device.get_absolute_url }}">Interface</a></li>
+            <li><a href="{% url 'dcim:interface_connect' termination_a_id=record.pk termination_b_type='front-port' %}?return_url={{ device.get_absolute_url }}">Front Port</a></li>
+            <li><a href="{% url 'dcim:interface_connect' termination_a_id=record.pk termination_b_type='rear-port' %}?return_url={{ device.get_absolute_url }}">Rear Port</a></li>
+            <li><a href="{% url 'dcim:interface_connect' termination_a_id=record.pk termination_b_type='circuit-termination' %}?return_url={{ device.get_absolute_url }}">Circuit Termination</a></li>
+        </ul>
+    </span>
 {% endif %}
 """
 
 FRONTPORT_BUTTONS = """
-{% if frontport.cable %}
+{% if record.cable %}
+    <a href="{% url 'dcim:frontport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="fa fa-share-alt"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
     <span class="dropdown">
@@ -185,6 +189,7 @@ FRONTPORT_BUTTONS = """
 
 REARPORT_BUTTONS = """
 {% if record.cable %}
+    <a href="{% url 'dcim:rearport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="fa fa-share-alt"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
     <span class="dropdown">
