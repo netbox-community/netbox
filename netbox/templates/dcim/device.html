@@ -125,7 +125,7 @@
                     <a href="#interfaces" role="tab" data-toggle="tab">Interfaces {% badge interfaces|length %}</a>
                 </li>
                 <li role="presentation">
-                    <a href="#frontports" role="tab" data-toggle="tab">Front Ports {% badge frontports|length %}</a>
+                    <a href="#frontports" role="tab" data-toggle="tab">Front Ports {% badge frontport_table.rows|length %}</a>
                 </li>
                 <li role="presentation">
                     <a href="#rearports" role="tab" data-toggle="tab">Rear Ports {% badge rearports|length %}</a>
@@ -542,8 +542,8 @@
                                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interfaces
                                         </a>
                                     </div>
-                                    <div class="clearfix"></div>
                                 {% endif %}
+                                <div class="clearfix"></div>
                              </div>
                         </div>
                     </form>
@@ -555,28 +555,7 @@
                             <div class="panel-heading">
                                 <strong>Front Ports</strong>
                             </div>
-                            <table class="table table-hover table-headings panel-body component-list">
-                                <thead>
-                                    <tr>
-                                        {% if perms.dcim.change_frontport or perms.dcim.delete_frontport %}
-                                            <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                                        {% endif %}
-                                        <th>Name</th>
-                                        <th>Type</th>
-                                        <th>Rear Port</th>
-                                        <th>Position</th>
-                                        <th>Description</th>
-                                        <th>Cable</th>
-                                        <th colspan="2">Cable Termination</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for frontport in frontports %}
-                                        {% include 'dcim/inc/frontport.html' %}
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'responsive_table.html' with table=frontport_table %}
                             <div class="panel-footer noprint">
                                 {% if frontports and perms.dcim.change_frontport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:frontport_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
@@ -600,8 +579,8 @@
                                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add front ports
                                         </a>
                                     </div>
-                                    <div class="clearfix"></div>
                                 {% endif %}
+                                <div class="clearfix"></div>
                             </div>
                         </div>
                     </form>
@@ -657,8 +636,8 @@
                                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add rear ports
                                         </a>
                                     </div>
-                                    <div class="clearfix"></div>
                                 {% endif %}
+                                <div class="clearfix"></div>
                             </div>
                         </div>
                     </form>
@@ -804,8 +783,8 @@
                                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power outlets
                                         </a>
                                     </div>
-                                    <div class="clearfix"></div>
                                 {% endif %}
+                                <div class="clearfix"></div>
                             </div>
                         </div>
                     </form>
@@ -857,8 +836,8 @@
                                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add device bays
                                         </a>
                                     </div>
-                                    <div class="clearfix"></div>
                                 {% endif %}
+                                <div class="clearfix"></div>
                              </div>
                         </div>
                     </form>

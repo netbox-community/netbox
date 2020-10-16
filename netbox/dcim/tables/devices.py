@@ -11,8 +11,8 @@ from utilities.tables import (
     TagColumn, ToggleColumn,
 )
 from .template_code import (
-    CABLETERMINATION, CONSOLEPORT_BUTTONS, CONSOLESERVERPORT_BUTTONS, DEVICE_LINK, INTERFACE_IPADDRESSES,
-    INTERFACE_TAGGED_VLANS, POWEROUTLET_BUTTONS, POWERPORT_BUTTONS,
+    CABLETERMINATION, CONSOLEPORT_BUTTONS, CONSOLESERVERPORT_BUTTONS, DEVICE_LINK, FRONTPORT_BUTTONS,
+    INTERFACE_IPADDRESSES, INTERFACE_TAGGED_VLANS, POWEROUTLET_BUTTONS, POWERPORT_BUTTONS,
 )
 
 __all__ = (
@@ -21,6 +21,7 @@ __all__ = (
     'DeviceBayTable',
     'DeviceConsolePortTable',
     'DeviceConsoleServerPortTable',
+    'DeviceFrontPortTable',
     'DeviceImportTable',
     'DevicePowerPortTable',
     'DevicePowerOutletTable',
@@ -418,6 +419,32 @@ class FrontPortTable(DeviceComponentTable, CableTerminationTable):
             'cable_peer', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description')
+
+
+class DeviceFrontPortTable(FrontPortTable):
+    name = tables.TemplateColumn(
+        template_code='<i class="fa fa-square{% if not record.cable %}-o{% endif %}"></i> '
+                      '<a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+    )
+    actions = ButtonsColumn(
+        model=FrontPort,
+        buttons=('edit', 'delete'),
+        prepend_template=FRONTPORT_BUTTONS
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = FrontPort
+        fields = (
+            'pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'cable_peer',
+            'connection', 'tags', 'actions',
+        )
+        default_columns = (
+            'pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'cable_peer',
+            'actions',
+        )
+        row_attrs = {
+            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+        }
 
 
 class RearPortTable(DeviceComponentTable, CableTerminationTable):
