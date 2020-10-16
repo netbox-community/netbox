@@ -293,18 +293,14 @@ class AggregateTestCase(TestCase):
         tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        print(self.filterset(params, self.queryset).qs.count())
         params = {'tenant': [tenants[0].slug, tenants[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        print(self.filterset(params, self.queryset).qs.count())
 
     def test_tenant_group(self):
         tenant_groups = TenantGroup.objects.all()[:2]
         params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
-        print(self.filterset(params, self.queryset).qs.count())
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
-        print(self.filterset(params, self.queryset).qs.count())
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
