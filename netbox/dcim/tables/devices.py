@@ -11,13 +11,15 @@ from utilities.tables import (
     TagColumn, ToggleColumn,
 )
 from .template_code import (
-    CABLETERMINATION, CONSOLEPORT_BUTTONS, DEVICE_LINK, INTERFACE_IPADDRESSES, INTERFACE_TAGGED_VLANS,
+    CABLETERMINATION, CONSOLEPORT_BUTTONS, CONSOLESERVERPORT_BUTTONS, DEVICE_LINK, INTERFACE_IPADDRESSES,
+    INTERFACE_TAGGED_VLANS,
 )
 
 __all__ = (
     'ConsolePortTable',
     'ConsoleServerPortTable',
     'DeviceConsolePortTable',
+    'DeviceConsoleServerPortTable',
     'DeviceImportTable',
     'DeviceTable',
     'DeviceBayTable',
@@ -270,6 +272,27 @@ class ConsoleServerPortTable(DeviceComponentTable, PathEndpointTable):
         model = ConsoleServerPort
         fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags')
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
+
+
+class DeviceConsoleServerPortTable(ConsoleServerPortTable):
+    name = tables.TemplateColumn(
+        template_code='<i class="fa fa-keyboard-o"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+    )
+    actions = ButtonsColumn(
+        model=ConsoleServerPort,
+        buttons=('edit', 'delete'),
+        prepend_template=CONSOLESERVERPORT_BUTTONS
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = ConsoleServerPort
+        fields = (
+            'pk', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags', 'actions'
+        )
+        default_columns = ('pk', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'actions')
+        row_attrs = {
+            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+        }
 
 
 class PowerPortTable(DeviceComponentTable, PathEndpointTable):

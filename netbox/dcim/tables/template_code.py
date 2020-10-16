@@ -94,3 +94,20 @@ CONSOLEPORT_BUTTONS = """
     </span>
 {% endif %}
 """
+
+CONSOLESERVERPORT_BUTTONS = """
+{% if record.cable %}
+    {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
+{% elif perms.dcim.add_cable %}
+    <span class="dropdown">
+        <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+            <li><a href="{% url 'dcim:consoleserverport_connect' termination_a_id=record.pk termination_b_type='console-port' %}?return_url={{ device.get_absolute_url }}">Console Port</a></li>
+            <li><a href="{% url 'dcim:consoleserverport_connect' termination_a_id=record.pk termination_b_type='front-port' %}?return_url={{ device.get_absolute_url }}">Front Port</a></li>
+            <li><a href="{% url 'dcim:consoleserverport_connect' termination_a_id=record.pk termination_b_type='rear-port' %}?return_url={{ device.get_absolute_url }}">Rear Port</a></li>
+        </ul>
+    </span>
+{% endif %}
+"""
