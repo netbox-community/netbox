@@ -12,7 +12,7 @@ from utilities.tables import (
 )
 from .template_code import (
     CABLETERMINATION, CONSOLEPORT_BUTTONS, CONSOLESERVERPORT_BUTTONS, DEVICE_LINK, FRONTPORT_BUTTONS,
-    INTERFACE_IPADDRESSES, INTERFACE_TAGGED_VLANS, POWEROUTLET_BUTTONS, POWERPORT_BUTTONS,
+    INTERFACE_IPADDRESSES, INTERFACE_TAGGED_VLANS, POWEROUTLET_BUTTONS, POWERPORT_BUTTONS, REARPORT_BUTTONS,
 )
 
 __all__ = (
@@ -25,6 +25,7 @@ __all__ = (
     'DeviceImportTable',
     'DevicePowerPortTable',
     'DevicePowerOutletTable',
+    'DeviceRearPortTable',
     'DeviceRoleTable',
     'DeviceTable',
     'FrontPortTable',
@@ -456,6 +457,31 @@ class RearPortTable(DeviceComponentTable, CableTerminationTable):
         model = RearPort
         fields = ('pk', 'device', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'tags')
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
+
+
+class DeviceRearPortTable(RearPortTable):
+    name = tables.TemplateColumn(
+        template_code='<i class="fa fa-square{% if not record.cable %}-o{% endif %}"></i> '
+                      '<a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+    )
+    actions = ButtonsColumn(
+        model=RearPort,
+        buttons=('edit', 'delete'),
+        prepend_template=REARPORT_BUTTONS
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = RearPort
+        fields = (
+            'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'connection', 'tags',
+            'actions',
+        )
+        default_columns = (
+            'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'actions',
+        )
+        row_attrs = {
+            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+        }
 
 
 class DeviceBayTable(DeviceComponentTable):

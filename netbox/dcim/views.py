@@ -1067,6 +1067,9 @@ class DeviceView(ObjectView):
 
         # Rear ports
         rearports = RearPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related('cable')
+        rearport_table = tables.DeviceRearPortTable(rearports, orderable=False)
+        if request.user.has_perm('dcim.change_rearport') or request.user.has_perm('dcim.delete_rearport'):
+            rearport_table.columns.show('pk')
 
         # Device bays
         devicebays = DeviceBay.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
@@ -1101,7 +1104,7 @@ class DeviceView(ObjectView):
             'poweroutlet_table': poweroutlet_table,
             'interfaces': interfaces,
             'frontport_table': frontport_table,
-            'rearports': rearports,
+            'rearport_table': rearport_table,
             'devicebays': devicebays,
             'inventoryitems': inventoryitems,
             'services': services,
