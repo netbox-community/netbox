@@ -1019,6 +1019,9 @@ class DeviceView(ObjectView):
         consoleports = ConsolePort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
             'cable', '_path__destination',
         )
+        consoleport_table = tables.DeviceConsolePortTable(consoleports, orderable=False)
+        if request.user.has_perm('dcim.change_consoleport') or request.user.has_perm('dcim.delete_consoleport'):
+            consoleport_table.columns.show('pk')
 
         # Console server ports
         consoleserverports = ConsoleServerPort.objects.restrict(request.user, 'view').filter(
@@ -1079,7 +1082,7 @@ class DeviceView(ObjectView):
 
         return render(request, 'dcim/device.html', {
             'device': device,
-            'consoleports': consoleports,
+            'consoleport_table': consoleport_table,
             'consoleserverports': consoleserverports,
             'powerports': powerports,
             'poweroutlets': poweroutlets,
