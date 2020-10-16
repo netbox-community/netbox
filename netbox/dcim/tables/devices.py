@@ -10,7 +10,7 @@ from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn,
     TagColumn, ToggleColumn,
 )
-from .template_code import DEVICE_LINK, INTERFACE_IPADDRESSES, INTERFACE_TAGGED_VLANS
+from .template_code import CABLETERMINATION, DEVICE_LINK, INTERFACE_IPADDRESSES, INTERFACE_TAGGED_VLANS
 
 __all__ = (
     'ConsolePortTable',
@@ -204,29 +204,40 @@ class DeviceComponentTable(BaseTable):
         order_by = ('device', 'name')
 
 
-class ConsolePortTable(DeviceComponentTable):
+class CableTerminationTable(BaseTable):
+    cable = tables.Column(
+        linkify=True
+    )
+    cable_peer = tables.TemplateColumn(
+        accessor='get_cable_peer',
+        template_code=CABLETERMINATION,
+        orderable=False
+    )
+
+
+class ConsolePortTable(DeviceComponentTable, CableTerminationTable):
     tags = TagColumn(
         url_name='dcim:consoleport_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = ConsolePort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'tags')
+        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'tags')
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
-class ConsoleServerPortTable(DeviceComponentTable):
+class ConsoleServerPortTable(DeviceComponentTable, CableTerminationTable):
     tags = TagColumn(
         url_name='dcim:consoleserverport_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = ConsoleServerPort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'tags')
+        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'tags')
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
-class PowerPortTable(DeviceComponentTable):
+class PowerPortTable(DeviceComponentTable, CableTerminationTable):
     tags = TagColumn(
         url_name='dcim:powerport_list'
     )
@@ -234,19 +245,23 @@ class PowerPortTable(DeviceComponentTable):
     class Meta(DeviceComponentTable.Meta):
         model = PowerPort
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'description', 'maximum_draw', 'allocated_draw', 'cable', 'tags',
+            'pk', 'device', 'name', 'label', 'type', 'description', 'maximum_draw', 'allocated_draw', 'cable',
+            'cable_peer', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description')
 
 
-class PowerOutletTable(DeviceComponentTable):
+class PowerOutletTable(DeviceComponentTable, CableTerminationTable):
     tags = TagColumn(
         url_name='dcim:poweroutlet_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = PowerOutlet
-        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'power_port', 'feed_leg', 'cable', 'tags')
+        fields = (
+            'pk', 'device', 'name', 'label', 'type', 'description', 'power_port', 'feed_leg', 'cable', 'cable_peer',
+            'tags',
+        )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description')
 
 
@@ -265,7 +280,7 @@ class BaseInterfaceTable(BaseTable):
     )
 
 
-class InterfaceTable(DeviceComponentTable, BaseInterfaceTable):
+class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, CableTerminationTable):
     tags = TagColumn(
         url_name='dcim:interface_list'
     )
@@ -274,12 +289,12 @@ class InterfaceTable(DeviceComponentTable, BaseInterfaceTable):
         model = Interface
         fields = (
             'pk', 'device', 'name', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address',
-            'description', 'cable', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
+            'description', 'cable', 'cable_peer', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'enabled', 'type', 'description')
 
 
-class FrontPortTable(DeviceComponentTable):
+class FrontPortTable(DeviceComponentTable, CableTerminationTable):
     rear_port_position = tables.Column(
         verbose_name='Position'
     )
@@ -290,19 +305,20 @@ class FrontPortTable(DeviceComponentTable):
     class Meta(DeviceComponentTable.Meta):
         model = FrontPort
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'tags',
+            'pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable',
+            'cable_peer', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description')
 
 
-class RearPortTable(DeviceComponentTable):
+class RearPortTable(DeviceComponentTable, CableTerminationTable):
     tags = TagColumn(
         url_name='dcim:rearport_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = RearPort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'positions', 'description', 'cable', 'tags')
+        fields = ('pk', 'device', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'tags')
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
