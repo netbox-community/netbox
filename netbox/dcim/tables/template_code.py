@@ -111,3 +111,19 @@ CONSOLESERVERPORT_BUTTONS = """
     </span>
 {% endif %}
 """
+
+POWERPORT_BUTTONS = """
+{% if record.cable %}
+    {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
+{% elif perms.dcim.add_cable %}
+    <span class="dropdown">
+        <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+            <li><a href="{% url 'dcim:powerport_connect' termination_a_id=record.pk termination_b_type='power-outlet' %}?return_url={{ device.get_absolute_url }}">Power Outlet</a></li>
+            <li><a href="{% url 'dcim:powerport_connect' termination_a_id=record.pk termination_b_type='power-feed' %}?return_url={{ device.get_absolute_url }}">Power Feed</a></li>
+        </ul>
+    </span>
+{% endif %}
+"""

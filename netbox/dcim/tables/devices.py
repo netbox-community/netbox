@@ -12,18 +12,19 @@ from utilities.tables import (
 )
 from .template_code import (
     CABLETERMINATION, CONSOLEPORT_BUTTONS, CONSOLESERVERPORT_BUTTONS, DEVICE_LINK, INTERFACE_IPADDRESSES,
-    INTERFACE_TAGGED_VLANS,
+    INTERFACE_TAGGED_VLANS, POWERPORT_BUTTONS,
 )
 
 __all__ = (
     'ConsolePortTable',
     'ConsoleServerPortTable',
+    'DeviceBayTable',
     'DeviceConsolePortTable',
     'DeviceConsoleServerPortTable',
     'DeviceImportTable',
-    'DeviceTable',
-    'DeviceBayTable',
+    'DevicePowerPortTable',
     'DeviceRoleTable',
+    'DeviceTable',
     'FrontPortTable',
     'InterfaceTable',
     'InventoryItemTable',
@@ -307,6 +308,31 @@ class PowerPortTable(DeviceComponentTable, PathEndpointTable):
             'cable_peer', 'connection', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description')
+
+
+class DevicePowerPortTable(PowerPortTable):
+    name = tables.TemplateColumn(
+        template_code='<i class="fa fa-bolt"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+    )
+    actions = ButtonsColumn(
+        model=PowerPort,
+        buttons=('edit', 'delete'),
+        prepend_template=POWERPORT_BUTTONS
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = PowerPort
+        fields = (
+            'pk', 'name', 'label', 'type', 'description', 'maximum_draw', 'allocated_draw', 'cable', 'cable_peer',
+            'connection', 'tags', 'actions',
+        )
+        default_columns = (
+            'pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable', 'cable_peer',
+            'actions',
+        )
+        row_attrs = {
+            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+        }
 
 
 class PowerOutletTable(DeviceComponentTable, PathEndpointTable):

@@ -1038,6 +1038,9 @@ class DeviceView(ObjectView):
         powerports = PowerPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
             'cable', '_path__destination',
         )
+        powerport_table = tables.DevicePowerPortTable(powerports, orderable=False)
+        if request.user.has_perm('dcim.change_powerport') or request.user.has_perm('dcim.delete_powerport'):
+            powerport_table.columns.show('pk')
 
         # Power outlets
         poweroutlets = PowerOutlet.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
@@ -1088,7 +1091,7 @@ class DeviceView(ObjectView):
             'device': device,
             'consoleport_table': consoleport_table,
             'consoleserverport_table': consoleserverport_table,
-            'powerports': powerports,
+            'powerport_table': powerport_table,
             'poweroutlets': poweroutlets,
             'interfaces': interfaces,
             'frontports': frontports,
