@@ -11,8 +11,9 @@ from utilities.tables import (
     TagColumn, ToggleColumn,
 )
 from .template_code import (
-    CABLETERMINATION, CONSOLEPORT_BUTTONS, CONSOLESERVERPORT_BUTTONS, DEVICE_LINK, FRONTPORT_BUTTONS, INTERFACE_BUTTONS,
-    INTERFACE_IPADDRESSES, INTERFACE_TAGGED_VLANS, POWEROUTLET_BUTTONS, POWERPORT_BUTTONS, REARPORT_BUTTONS,
+    CABLETERMINATION, CONSOLEPORT_BUTTONS, CONSOLESERVERPORT_BUTTONS, DEVICE_LINK, DEVICEBAY_BUTTONS, FRONTPORT_BUTTONS,
+    INTERFACE_BUTTONS, INTERFACE_IPADDRESSES, INTERFACE_TAGGED_VLANS, POWEROUTLET_BUTTONS, POWERPORT_BUTTONS,
+    REARPORT_BUTTONS,
 )
 
 __all__ = (
@@ -21,6 +22,7 @@ __all__ = (
     'DeviceBayTable',
     'DeviceConsolePortTable',
     'DeviceConsoleServerPortTable',
+    'DeviceDeviceBayTable',
     'DeviceFrontPortTable',
     'DeviceImportTable',
     'DeviceInterfaceTable',
@@ -464,7 +466,7 @@ class DeviceFrontPortTable(FrontPortTable):
         model = FrontPort
         fields = (
             'pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'cable_peer',
-            'connection', 'tags', 'actions',
+            'tags', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'cable_peer',
@@ -500,8 +502,7 @@ class DeviceRearPortTable(RearPortTable):
     class Meta(DeviceComponentTable.Meta):
         model = RearPort
         fields = (
-            'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'connection', 'tags',
-            'actions',
+            'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'tags', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'actions',
@@ -523,6 +524,27 @@ class DeviceBayTable(DeviceComponentTable):
         model = DeviceBay
         fields = ('pk', 'device', 'name', 'label', 'installed_device', 'description', 'tags')
         default_columns = ('pk', 'device', 'name', 'label', 'installed_device', 'description')
+
+
+class DeviceDeviceBayTable(DeviceBayTable):
+    name = tables.TemplateColumn(
+        template_code='<i class="fa fa-square{% if record.installed_device %}dot-circle-o{% else %}circle-o{% endif %}'
+                      '"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+    )
+    actions = ButtonsColumn(
+        model=DeviceBay,
+        buttons=('edit', 'delete'),
+        prepend_template=DEVICEBAY_BUTTONS
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = DeviceBay
+        fields = (
+            'pk', 'name', 'label', 'installed_device', 'description', 'tags', 'actions',
+        )
+        default_columns = (
+            'pk', 'name', 'label', 'installed_device', 'description', 'actions',
+        )
 
 
 class InventoryItemTable(DeviceComponentTable):

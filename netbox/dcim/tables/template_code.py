@@ -200,3 +200,17 @@ REARPORT_BUTTONS = """
     </span>
 {% endif %}
 """
+
+DEVICEBAY_BUTTONS = """
+{% if perms.dcim.change_devicebay %}
+    {% if record.installed_device %}
+        <a href="{% url 'dcim:devicebay_depopulate' pk=record.pk %}" class="btn btn-danger btn-xs">
+            <i class="glyphicon glyphicon-remove" aria-hidden="true" title="Remove device"></i>
+        </a>
+    {% else %}
+        <a href="{% url 'dcim:devicebay_populate' pk=record.pk %}" class="btn btn-success btn-xs">
+            <i class="glyphicon glyphicon-plus" aria-hidden="true" title="Install device"></i>
+        </a>
+    {% endif %}
+{% endif %}
+"""

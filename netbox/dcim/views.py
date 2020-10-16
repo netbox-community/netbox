@@ -1078,6 +1078,9 @@ class DeviceView(ObjectView):
         devicebays = DeviceBay.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
             'installed_device__device_type__manufacturer',
         )
+        devicebay_table = tables.DeviceDeviceBayTable(devicebays, orderable=False)
+        if request.user.has_perm('dcim.change_devicebay') or request.user.has_perm('dcim.delete_devicebay'):
+            devicebay_table.columns.show('pk')
 
         # Inventory items
         inventoryitems = InventoryItem.objects.restrict(request.user, 'view').filter(
@@ -1108,7 +1111,7 @@ class DeviceView(ObjectView):
             'interface_table': interface_table,
             'frontport_table': frontport_table,
             'rearport_table': rearport_table,
-            'devicebays': devicebays,
+            'devicebay_table': devicebay_table,
             'inventoryitems': inventoryitems,
             'services': services,
             'secrets': secrets,
