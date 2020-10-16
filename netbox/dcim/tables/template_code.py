@@ -127,3 +127,13 @@ POWERPORT_BUTTONS = """
     </span>
 {% endif %}
 """
+
+POWEROUTLET_BUTTONS = """
+{% if record.cable %}
+    {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
+{% elif perms.dcim.add_cable %}
+    <a href="{% url 'dcim:poweroutlet_connect' termination_a_id=record.pk termination_b_type='power-port' %}?return_url={{ device.get_absolute_url }}" title="Connect" class="btn btn-success btn-xs">
+        <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
+    </a>
+{% endif %}
+"""
