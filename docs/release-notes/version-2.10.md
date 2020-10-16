@@ -49,7 +49,7 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 * [#4897](https://github.com/netbox-community/netbox/issues/4897) - Allow filtering by content type identified as `<app>.<model>` string
 * [#4918](https://github.com/netbox-community/netbox/issues/4918) - Add a REST API endpoint (`/api/status/`) which returns NetBox's current operational status
 * [#4956](https://github.com/netbox-community/netbox/issues/4956) - Include inventory items on primary device view
-* [#4967](https://github.com/netbox-community/netbox/issues/4967) - Adds Tenancy to Aggregate model
+* [#4967](https://github.com/netbox-community/netbox/issues/4967) - Adds tenancy to Aggregate model
 * [#5003](https://github.com/netbox-community/netbox/issues/5003) - CSV import now accepts slug values for choice fields
 * [#5146](https://github.com/netbox-community/netbox/issues/5146) - Add custom fields support for cables, power panels, rack reservations, and virtual chassis
 * [#5190](https://github.com/netbox-community/netbox/issues/5190) - Add a REST API endpoint for content types
@@ -112,6 +112,7 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 * extras.Graph: This API endpoint has been removed (see #4349)
 * extras.ImageAttachment: Filtering by `content_type` now takes a string in the form `<app>.<model>`
 * extras.ObjectChange: Filtering by `changed_object_type` now takes a string in the form `<app>.<model>`
+* ipam.Aggregate: Added `tenant` field
 * ipam.RouteTarget: New endpoint
 * ipam.Service: Renamed `port` to `ports`; now holds a list of one or more port numbers
 * ipam.VRF: Added `import_targets` and `export_targets` fields
