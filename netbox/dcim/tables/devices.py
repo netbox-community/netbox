@@ -11,9 +11,9 @@ from utilities.tables import (
     TagColumn, ToggleColumn,
 )
 from .template_code import (
-    CABLETERMINATION, CONSOLEPORT_BUTTONS, CONSOLESERVERPORT_BUTTONS, DEVICE_LINK, DEVICEBAY_BUTTONS, FRONTPORT_BUTTONS,
-    INTERFACE_BUTTONS, INTERFACE_IPADDRESSES, INTERFACE_TAGGED_VLANS, POWEROUTLET_BUTTONS, POWERPORT_BUTTONS,
-    REARPORT_BUTTONS,
+    CABLETERMINATION, CONSOLEPORT_BUTTONS, CONSOLESERVERPORT_BUTTONS, DEVICE_LINK, DEVICEBAY_BUTTONS, DEVICEBAY_STATUS,
+    FRONTPORT_BUTTONS, INTERFACE_BUTTONS, INTERFACE_IPADDRESSES, INTERFACE_TAGGED_VLANS, POWEROUTLET_BUTTONS,
+    POWERPORT_BUTTONS, REARPORT_BUTTONS,
 )
 
 __all__ = (
@@ -343,6 +343,9 @@ class DevicePowerPortTable(PowerPortTable):
 
 
 class PowerOutletTable(DeviceComponentTable, PathEndpointTable):
+    power_port = tables.Column(
+        linkify=True
+    )
     tags = TagColumn(
         url_name='dcim:poweroutlet_list'
     )
@@ -415,6 +418,10 @@ class DeviceInterfaceTable(InterfaceTable):
                       '{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}exchange'
                       '{% endif %}"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
     )
+    lag = tables.Column(
+        linkify=True,
+        verbose_name='LAG'
+    )
     actions = ButtonsColumn(
         model=Interface,
         buttons=('edit', 'delete'),
@@ -424,11 +431,11 @@ class DeviceInterfaceTable(InterfaceTable):
     class Meta(DeviceComponentTable.Meta):
         model = Interface
         fields = (
-            'pk', 'name', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'description', 'cable',
-            'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans', 'actions',
+            'pk', 'name', 'label', 'enabled', 'lag', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'description',
+            'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'enabled', 'description', 'cable', 'cable_peer', 'actions',
+            'pk', 'name', 'label', 'enabled', 'lag', 'type', 'description', 'cable', 'cable_peer', 'actions',
         )
         row_attrs = {
             'class': lambda record: record.cable.get_status_class() if record.cable else ''
@@ -438,6 +445,9 @@ class DeviceInterfaceTable(InterfaceTable):
 class FrontPortTable(DeviceComponentTable, CableTerminationTable):
     rear_port_position = tables.Column(
         verbose_name='Position'
+    )
+    rear_port = tables.Column(
+        linkify=True
     )
     tags = TagColumn(
         url_name='dcim:frontport_list'
@@ -514,6 +524,9 @@ class DeviceRearPortTable(RearPortTable):
 
 
 class DeviceBayTable(DeviceComponentTable):
+    status = tables.TemplateColumn(
+        template_code=DEVICEBAY_STATUS
+    )
     installed_device = tables.Column(
         linkify=True
     )
@@ -523,8 +536,8 @@ class DeviceBayTable(DeviceComponentTable):
 
     class Meta(DeviceComponentTable.Meta):
         model = DeviceBay
-        fields = ('pk', 'device', 'name', 'label', 'installed_device', 'description', 'tags')
-        default_columns = ('pk', 'device', 'name', 'label', 'installed_device', 'description')
+        fields = ('pk', 'device', 'name', 'label', 'status', 'installed_device', 'description', 'tags')
+        default_columns = ('pk', 'device', 'name', 'label', 'status', 'installed_device', 'description')
 
 
 class DeviceDeviceBayTable(DeviceBayTable):
@@ -541,10 +554,10 @@ class DeviceDeviceBayTable(DeviceBayTable):
     class Meta(DeviceComponentTable.Meta):
         model = DeviceBay
         fields = (
-            'pk', 'name', 'label', 'installed_device', 'description', 'tags', 'actions',
+            'pk', 'name', 'label', 'status', 'installed_device', 'description', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'installed_device', 'description', 'actions',
+            'pk', 'name', 'label', 'status', 'installed_device', 'description', 'actions',
         )
 
 
@@ -580,7 +593,8 @@ class DeviceInventoryItemTable(DeviceBayTable):
     class Meta(DeviceComponentTable.Meta):
         model = InventoryItem
         fields = (
-            'pk', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'tags', 'actions',
+            'pk', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'discovered',
+            'tags', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'actions',

@@ -28,6 +28,16 @@ DEVICE_LINK = """
 </a>
 """
 
+DEVICEBAY_STATUS = """
+{% if record.installed_device_id %}
+    <span class="label label-{{ record.installed_device.get_status_class }}">
+        {{ record.installed_device.get_status_display }}
+    </span>
+{% else %}
+    <span class="label label-default">Vacant</span>
+{% endif %}
+"""
+
 INTERFACE_IPADDRESSES = """
 {% for ip in record.ip_addresses.unrestricted %}
     <a href="{{ ip.get_absolute_url }}">{{ ip }}</a><br />
