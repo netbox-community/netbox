@@ -1056,6 +1056,9 @@ class DeviceView(ObjectView):
             Prefetch('member_interfaces', queryset=Interface.objects.restrict(request.user)),
             'lag', 'cable', '_path__destination', 'tags',
         )
+        interface_table = tables.DeviceInterfaceTable(interfaces, orderable=False)
+        if request.user.has_perm('dcim.change_interface') or request.user.has_perm('dcim.delete_interface'):
+            interface_table.columns.show('pk')
 
         # Front ports
         frontports = FrontPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
@@ -1102,7 +1105,7 @@ class DeviceView(ObjectView):
             'consoleserverport_table': consoleserverport_table,
             'powerport_table': powerport_table,
             'poweroutlet_table': poweroutlet_table,
-            'interfaces': interfaces,
+            'interface_table': interface_table,
             'frontport_table': frontport_table,
             'rearport_table': rearport_table,
             'devicebays': devicebays,

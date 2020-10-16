@@ -11,7 +11,7 @@ from utilities.tables import (
     TagColumn, ToggleColumn,
 )
 from .template_code import (
-    CABLETERMINATION, CONSOLEPORT_BUTTONS, CONSOLESERVERPORT_BUTTONS, DEVICE_LINK, FRONTPORT_BUTTONS,
+    CABLETERMINATION, CONSOLEPORT_BUTTONS, CONSOLESERVERPORT_BUTTONS, DEVICE_LINK, FRONTPORT_BUTTONS, INTERFACE_BUTTONS,
     INTERFACE_IPADDRESSES, INTERFACE_TAGGED_VLANS, POWEROUTLET_BUTTONS, POWERPORT_BUTTONS, REARPORT_BUTTONS,
 )
 
@@ -23,6 +23,7 @@ __all__ = (
     'DeviceConsoleServerPortTable',
     'DeviceFrontPortTable',
     'DeviceImportTable',
+    'DeviceInterfaceTable',
     'DevicePowerPortTable',
     'DevicePowerOutletTable',
     'DeviceRearPortTable',
@@ -403,6 +404,32 @@ class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable
             'description', 'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'enabled', 'type', 'description')
+
+
+class DeviceInterfaceTable(InterfaceTable):
+    name = tables.TemplateColumn(
+        template_code='<i class="fa fa-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}align-justify'
+                      '{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}exchange'
+                      '{% endif %}"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+    )
+    actions = ButtonsColumn(
+        model=Interface,
+        buttons=('edit', 'delete'),
+        prepend_template=INTERFACE_BUTTONS
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = Interface
+        fields = (
+            'pk', 'name', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'description', 'cable',
+            'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans', 'actions',
+        )
+        default_columns = (
+            'pk', 'name', 'label', 'type', 'enabled', 'description', 'cable', 'cable_peer', 'actions',
+        )
+        row_attrs = {
+            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+        }
 
 
 class FrontPortTable(DeviceComponentTable, CableTerminationTable):

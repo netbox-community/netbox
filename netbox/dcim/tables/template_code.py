@@ -138,6 +138,31 @@ POWEROUTLET_BUTTONS = """
 {% endif %}
 """
 
+INTERFACE_BUTTONS = """
+{% if perms.ipam.add_ipaddress %}
+    <a href="{% url 'ipam:ipaddress_add' %}?interface={{ record.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-xs btn-success" title="Add IP address">
+        <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+    </a>
+{% endif %}
+{% if perms.dcim.change_interface %}
+    {% if record.cable %}
+        {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
+    {% elif record.is_connectable and perms.dcim.add_cable %}
+        <span class="dropdown">
+            <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+                <li><a href="{% url 'dcim:interface_connect' termination_a_id=record.pk termination_b_type='interface' %}?return_url={{ device.get_absolute_url }}">Interface</a></li>
+                <li><a href="{% url 'dcim:interface_connect' termination_a_id=record.pk termination_b_type='front-port' %}?return_url={{ device.get_absolute_url }}">Front Port</a></li>
+                <li><a href="{% url 'dcim:interface_connect' termination_a_id=record.pk termination_b_type='rear-port' %}?return_url={{ device.get_absolute_url }}">Rear Port</a></li>
+                <li><a href="{% url 'dcim:interface_connect' termination_a_id=record.pk termination_b_type='circuit-termination' %}?return_url={{ device.get_absolute_url }}">Circuit Termination</a></li>
+            </ul>
+        </span>
+    {% endif %}
+{% endif %}
+"""
+
 FRONTPORT_BUTTONS = """
 {% if frontport.cable %}
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}

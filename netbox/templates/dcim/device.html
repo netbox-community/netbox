@@ -122,7 +122,7 @@
                     <a href="#details" role="tab" data-toggle="tab">Details</a>
                 </li>
                 <li role="presentation">
-                    <a href="#interfaces" role="tab" data-toggle="tab">Interfaces {% badge interfaces|length %}</a>
+                    <a href="#interfaces" role="tab" data-toggle="tab">Interfaces {% badge interface_table.rows|length %}</a>
                 </li>
                 <li role="presentation">
                     <a href="#frontports" role="tab" data-toggle="tab">Front Ports {% badge frontport_table.rows|length %}</a>
@@ -494,29 +494,7 @@
                                     <input class="form-control interface-filter" type="text" placeholder="Filter" title="Filter text (regular expressions supported)" style="height: 23px" />
                                 </div>
                             </div>
-                            <table id="interfaces_table" class="table table-hover table-headings panel-body component-list">
-                                <thead>
-                                    <tr>
-                                        {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
-                                            <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                                        {% endif %}
-                                        <th>Name</th>
-                                        <th>LAG</th>
-                                        <th>Description</th>
-                                        <th>MTU</th>
-                                        <th>Mode</th>
-                                        <th>Cable</th>
-                                        <th colspan="2">Cable Termination</th>
-                                        <th colspan="2">Connection</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for iface in interfaces %}
-                                        {% include 'dcim/inc/interface.html' %}
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'responsive_table.html' with table=interface_table %}
                             <div class="panel-footer noprint">
                                 {% if interfaces and perms.dcim.change_interface %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:interface_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
