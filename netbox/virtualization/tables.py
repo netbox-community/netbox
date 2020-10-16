@@ -1,6 +1,6 @@
 import django_tables2 as tables
 
-from dcim.tables import BaseInterfaceTable
+from dcim.tables.devices import BaseInterfaceTable
 from tenancy.tables import COL_TENANT
 from utilities.tables import (
     BaseTable, ButtonsColumn, ChoiceFieldColumn, ColoredLabelColumn, LinkedCountColumn, TagColumn, ToggleColumn,
