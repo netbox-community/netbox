@@ -1086,6 +1086,9 @@ class DeviceView(ObjectView):
         inventoryitems = InventoryItem.objects.restrict(request.user, 'view').filter(
             device=device
         ).prefetch_related('manufacturer')
+        inventoryitem_table = tables.DeviceInventoryItemTable(inventoryitems, orderable=False)
+        if request.user.has_perm('dcim.change_inventoryitem') or request.user.has_perm('dcim.delete_inventoryitem'):
+            devicebay_table.columns.show('pk')
 
         # Services
         services = Service.objects.restrict(request.user, 'view').filter(device=device)
@@ -1112,7 +1115,7 @@ class DeviceView(ObjectView):
             'frontport_table': frontport_table,
             'rearport_table': rearport_table,
             'devicebay_table': devicebay_table,
-            'inventoryitems': inventoryitems,
+            'inventoryitem_table': inventoryitem_table,
             'services': services,
             'secrets': secrets,
             'vc_members': vc_members,

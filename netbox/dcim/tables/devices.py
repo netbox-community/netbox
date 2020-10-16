@@ -26,6 +26,7 @@ __all__ = (
     'DeviceFrontPortTable',
     'DeviceImportTable',
     'DeviceInterfaceTable',
+    'DeviceInventoryItemTable',
     'DevicePowerPortTable',
     'DevicePowerOutletTable',
     'DeviceRearPortTable',
@@ -564,6 +565,26 @@ class InventoryItemTable(DeviceComponentTable):
             'discovered', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag')
+
+
+class DeviceInventoryItemTable(DeviceBayTable):
+    name = tables.TemplateColumn(
+        template_code='<a href="{{ record.get_absolute_url }}" style="padding-left: {{ record.level }}0px">'
+                      '{{ value }}</a>'
+    )
+    actions = ButtonsColumn(
+        model=InventoryItem,
+        buttons=('edit', 'delete')
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = InventoryItem
+        fields = (
+            'pk', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'tags', 'actions',
+        )
+        default_columns = (
+            'pk', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'actions',
+        )
 
 
 #

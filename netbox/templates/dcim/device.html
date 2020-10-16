@@ -146,7 +146,7 @@
                     <a href="#devicebays" role="tab" data-toggle="tab">Device Bays {% badge devicebay_table.rows|length %}</a>
                 </li>
                 <li role="presentation">
-                    <a href="#inventoryitems" role="tab" data-toggle="tab">Inventory {% badge inventoryitems|length %}</a>
+                    <a href="#inventoryitems" role="tab" data-toggle="tab">Inventory {% badge inventoryitem_table.rows|length %}</a>
                 </li>
             </ul>
             <div class="tab-content">
@@ -785,28 +785,7 @@
                             <div class="panel-heading">
                                 <strong>Inventory Items</strong>
                             </div>
-                            <table class="table table-hover table-condensed panel-body" id="hardware">
-                                <thead>
-                                    <tr>
-                                        {% if perms.dcim.change_inventoryitem or perms.dcim.delete_inventoryitem %}
-                                            <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                                        {% endif %}
-                                        <th>Name</th>
-                                        <th>Manufacturer</th>
-                                        <th>Part ID</th>
-                                        <th>Serial Number</th>
-                                        <th>Asset Tag</th>
-                                        <th>Discovered</th>
-                                        <th>Description</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for item in inventoryitems %}
-                                        {% include 'dcim/inc/inventoryitem.html' %}
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'responsive_table.html' with table=inventoryitem_table %}
                             <div class="panel-footer noprint">
                                 {% if inventoryitems and perms.dcim.change_inventoryitem %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:inventoryitem_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
@@ -828,6 +807,7 @@
                                         </a>
                                     </div>
                                 {% endif %}
+                                <div class="clearfix"></div>
                             </div>
                         </div>
                     </form>
