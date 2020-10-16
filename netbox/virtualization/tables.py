@@ -7,6 +7,24 @@ from utilities.tables import (
 )
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
+__all__ = (
+    'ClusterTable',
+    'ClusterGroupTable',
+    'ClusterTypeTable',
+    'VirtualMachineDetailTable',
+    'VirtualMachineTable',
+    'VirtualMachineVMInterfaceTable',
+    'VMInterfaceTable',
+)
+
+VMINTERFACE_BUTTONS = """
+{% if perms.ipam.add_ipaddress %}
+    <a href="{% url 'ipam:ipaddress_add' %}?vminterface={{ record.pk }}&return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-xs btn-success" title="Add IP address">
+        <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+    </a>
+{% endif %}
+"""
+
 
 #
 # Cluster types
@@ -147,3 +165,19 @@ class VMInterfaceTable(BaseInterfaceTable):
             'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'virtual_machine', 'name', 'enabled', 'description')
+
+
+class VirtualMachineVMInterfaceTable(VMInterfaceTable):
+    actions = ButtonsColumn(
+        model=VMInterface,
+        buttons=('edit', 'delete'),
+        prepend_template=VMINTERFACE_BUTTONS
+    )
+
+    class Meta(BaseTable.Meta):
+        model = VMInterface
+        fields = (
+            'pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags', 'ip_addresses',
+            'untagged_vlan', 'tagged_vlans', 'actions',
+        )
+        default_columns = ('pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'actions')

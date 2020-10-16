@@ -244,11 +244,15 @@ class VirtualMachineView(ObjectView):
         virtualmachine = get_object_or_404(self.queryset, pk=pk)
 
         # Interfaces
-        interfaces = VMInterface.objects.restrict(request.user, 'view').filter(
+        vminterfaces = VMInterface.objects.restrict(request.user, 'view').filter(
             virtual_machine=virtualmachine
         ).prefetch_related(
             Prefetch('ip_addresses', queryset=IPAddress.objects.restrict(request.user))
         )
+        vminterface_table = tables.VirtualMachineVMInterfaceTable(vminterfaces, orderable=False)
+        if request.user.has_perm('virtualization.change_vminterface') or \
+                request.user.has_perm('virtualization.delete_vminterface'):
+            vminterface_table.columns.show('pk')
 
         # Services
         services = Service.objects.restrict(request.user, 'view').filter(
@@ -262,7 +266,7 @@ class VirtualMachineView(ObjectView):
 
         return render(request, 'virtualization/virtualmachine.html', {
             'virtualmachine': virtualmachine,
-            'interfaces': interfaces,
+            'vminterface_table': vminterface_table,
             'services': services,
             'secrets': secrets,
         })

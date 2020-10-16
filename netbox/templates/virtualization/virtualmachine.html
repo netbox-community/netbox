@@ -280,30 +280,7 @@
                     <input class="form-control interface-filter" type="text" placeholder="Filter" title="RegEx-enabled" style="height: 23px" />
                 </div>
             </div>
-            <table id="interfaces_table" class="table table-hover table-headings panel-body component-list">
-                <thead>
-                    <tr>
-                        {% if perms.virtualization.change_vminterface or perms.virtualization.delete_vminterface %}
-                            <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                        {% endif %}
-                        <th>Name</th>
-                        <th>MAC Address</th>
-                        <th>MTU</th>
-                        <th>Mode</th>
-                        <th>Description</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for iface in interfaces %}
-                        {% include 'virtualization/inc/vminterface.html' %}
-                    {% empty %}
-                        <tr>
-                            <td colspan="8" class="text-center text-muted">&mdash; No interfaces defined &mdash;</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {% include 'responsive_table.html' with table=vminterface_table %}
             {% if perms.virtualization.add_vminterface or perms.virtualization.delete_vminterface %}
                 <div class="panel-footer noprint">
                     {% if interfaces and perms.virtualization.change_vminterface %}
