@@ -39,7 +39,7 @@ DEVICEBAY_STATUS = """
 """
 
 INTERFACE_IPADDRESSES = """
-{% for ip in record.ip_addresses.unrestricted %}
+{% for ip in record.ip_addresses.all %}
     <a href="{{ ip.get_absolute_url }}">{{ ip }}</a><br />
 {% endfor %}
 """

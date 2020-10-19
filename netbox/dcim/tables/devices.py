@@ -265,7 +265,7 @@ class DeviceConsolePortTable(ConsolePortTable):
         fields = (
             'pk', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags', 'actions'
         )
-        default_columns = ('pk', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'actions')
+        default_columns = ('pk', 'name', 'label', 'type', 'description', 'cable', 'connection', 'actions')
         row_attrs = {
             'class': lambda record: record.cable.get_status_class() if record.cable else ''
         }
@@ -297,7 +297,7 @@ class DeviceConsoleServerPortTable(ConsoleServerPortTable):
         fields = (
             'pk', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags', 'actions'
         )
-        default_columns = ('pk', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'actions')
+        default_columns = ('pk', 'name', 'label', 'type', 'description', 'cable', 'connection', 'actions')
         row_attrs = {
             'class': lambda record: record.cable.get_status_class() if record.cable else ''
         }
@@ -330,11 +330,11 @@ class DevicePowerPortTable(PowerPortTable):
     class Meta(DeviceComponentTable.Meta):
         model = PowerPort
         fields = (
-            'pk', 'name', 'label', 'type', 'description', 'maximum_draw', 'allocated_draw', 'cable', 'cable_peer',
+            'pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable', 'cable_peer',
             'connection', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable', 'cable_peer',
+            'pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable', 'connection',
             'actions',
         )
         row_attrs = {
@@ -372,11 +372,11 @@ class DevicePowerOutletTable(PowerOutletTable):
     class Meta(DeviceComponentTable.Meta):
         model = PowerOutlet
         fields = (
-            'pk', 'name', 'label', 'type', 'description', 'power_port', 'feed_leg', 'cable', 'cable_peer', 'connection',
+            'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable', 'cable_peer', 'connection',
             'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'maximum_draw', 'power_port', 'feed_leg', 'cable', 'cable_peer', 'actions',
+            'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable', 'connection', 'actions',
         )
         row_attrs = {
             'class': lambda record: record.cable.get_status_class() if record.cable else ''
@@ -431,11 +431,12 @@ class DeviceInterfaceTable(InterfaceTable):
     class Meta(DeviceComponentTable.Meta):
         model = Interface
         fields = (
-            'pk', 'name', 'label', 'enabled', 'lag', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'description',
+            'pk', 'name', 'label', 'enabled', 'type', 'lag', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'description',
             'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'enabled', 'lag', 'type', 'description', 'cable', 'cable_peer', 'actions',
+            'pk', 'name', 'label', 'enabled', 'type', 'lag', 'mtu', 'mode', 'description', 'ip_addresses', 'cable',
+            'connection', 'actions',
         )
         row_attrs = {
             'class': lambda record: record.cable.get_status_class() if record.cable else ''
@@ -580,7 +581,7 @@ class InventoryItemTable(DeviceComponentTable):
         default_columns = ('pk', 'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag')
 
 
-class DeviceInventoryItemTable(DeviceBayTable):
+class DeviceInventoryItemTable(InventoryItemTable):
     name = tables.TemplateColumn(
         template_code='<a href="{{ record.get_absolute_url }}" style="padding-left: {{ record.level }}0px">'
                       '{{ value }}</a>'
@@ -597,7 +598,8 @@ class DeviceInventoryItemTable(DeviceBayTable):
             'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'actions',
+            'pk', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'discovered',
+            'actions',
         )
 
 
