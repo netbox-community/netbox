@@ -10,15 +10,28 @@ from utilities.tables import (
     BaseTable, BooleanColumn, ButtonsColumn, ChoiceFieldColumn, ColorColumn, ColoredLabelColumn, LinkedCountColumn,
     TagColumn, ToggleColumn,
 )
-from .template_code import DEVICE_LINK, INTERFACE_IPADDRESSES, INTERFACE_TAGGED_VLANS
+from .template_code import (
+    CABLETERMINATION, CONSOLEPORT_BUTTONS, CONSOLESERVERPORT_BUTTONS, DEVICE_LINK, DEVICEBAY_BUTTONS, DEVICEBAY_STATUS,
+    FRONTPORT_BUTTONS, INTERFACE_BUTTONS, INTERFACE_IPADDRESSES, INTERFACE_TAGGED_VLANS, POWEROUTLET_BUTTONS,
+    POWERPORT_BUTTONS, REARPORT_BUTTONS,
+)
 
 __all__ = (
     'ConsolePortTable',
     'ConsoleServerPortTable',
-    'DeviceImportTable',
-    'DeviceTable',
     'DeviceBayTable',
+    'DeviceConsolePortTable',
+    'DeviceConsoleServerPortTable',
+    'DeviceDeviceBayTable',
+    'DeviceFrontPortTable',
+    'DeviceImportTable',
+    'DeviceInterfaceTable',
+    'DeviceInventoryItemTable',
+    'DevicePowerPortTable',
+    'DevicePowerOutletTable',
+    'DeviceRearPortTable',
     'DeviceRoleTable',
+    'DeviceTable',
     'FrontPortTable',
     'InterfaceTable',
     'InventoryItemTable',
@@ -204,29 +217,93 @@ class DeviceComponentTable(BaseTable):
         order_by = ('device', 'name')
 
 
-class ConsolePortTable(DeviceComponentTable):
+class CableTerminationTable(BaseTable):
+    cable = tables.Column(
+        linkify=True
+    )
+    cable_peer = tables.TemplateColumn(
+        accessor='get_cable_peer',
+        template_code=CABLETERMINATION,
+        orderable=False
+    )
+
+
+class PathEndpointTable(CableTerminationTable):
+    connection = tables.TemplateColumn(
+        accessor='_path.destination',
+        template_code=CABLETERMINATION,
+        verbose_name='Connection',
+        orderable=False
+    )
+
+
+class ConsolePortTable(DeviceComponentTable, PathEndpointTable):
     tags = TagColumn(
         url_name='dcim:consoleport_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = ConsolePort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'tags')
+        fields = (
+            'pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags',
+        )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
-class ConsoleServerPortTable(DeviceComponentTable):
+class DeviceConsolePortTable(ConsolePortTable):
+    name = tables.TemplateColumn(
+        template_code='<i class="fa fa-keyboard-o"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+    )
+    actions = ButtonsColumn(
+        model=ConsolePort,
+        buttons=('edit', 'delete'),
+        prepend_template=CONSOLEPORT_BUTTONS
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = ConsolePort
+        fields = (
+            'pk', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags', 'actions'
+        )
+        default_columns = ('pk', 'name', 'label', 'type', 'description', 'cable', 'connection', 'actions')
+        row_attrs = {
+            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+        }
+
+
+class ConsoleServerPortTable(DeviceComponentTable, PathEndpointTable):
     tags = TagColumn(
         url_name='dcim:consoleserverport_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = ConsoleServerPort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'tags')
+        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags')
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
-class PowerPortTable(DeviceComponentTable):
+class DeviceConsoleServerPortTable(ConsoleServerPortTable):
+    name = tables.TemplateColumn(
+        template_code='<i class="fa fa-keyboard-o"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+    )
+    actions = ButtonsColumn(
+        model=ConsoleServerPort,
+        buttons=('edit', 'delete'),
+        prepend_template=CONSOLESERVERPORT_BUTTONS
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = ConsoleServerPort
+        fields = (
+            'pk', 'name', 'label', 'type', 'description', 'cable', 'cable_peer', 'connection', 'tags', 'actions'
+        )
+        default_columns = ('pk', 'name', 'label', 'type', 'description', 'cable', 'connection', 'actions')
+        row_attrs = {
+            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+        }
+
+
+class PowerPortTable(DeviceComponentTable, PathEndpointTable):
     tags = TagColumn(
         url_name='dcim:powerport_list'
     )
@@ -234,20 +311,76 @@ class PowerPortTable(DeviceComponentTable):
     class Meta(DeviceComponentTable.Meta):
         model = PowerPort
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'description', 'maximum_draw', 'allocated_draw', 'cable', 'tags',
+            'pk', 'device', 'name', 'label', 'type', 'description', 'maximum_draw', 'allocated_draw', 'cable',
+            'cable_peer', 'connection', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description')
 
 
-class PowerOutletTable(DeviceComponentTable):
+class DevicePowerPortTable(PowerPortTable):
+    name = tables.TemplateColumn(
+        template_code='<i class="fa fa-bolt"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+    )
+    actions = ButtonsColumn(
+        model=PowerPort,
+        buttons=('edit', 'delete'),
+        prepend_template=POWERPORT_BUTTONS
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = PowerPort
+        fields = (
+            'pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable', 'cable_peer',
+            'connection', 'tags', 'actions',
+        )
+        default_columns = (
+            'pk', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'cable', 'connection',
+            'actions',
+        )
+        row_attrs = {
+            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+        }
+
+
+class PowerOutletTable(DeviceComponentTable, PathEndpointTable):
+    power_port = tables.Column(
+        linkify=True
+    )
     tags = TagColumn(
         url_name='dcim:poweroutlet_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = PowerOutlet
-        fields = ('pk', 'device', 'name', 'label', 'type', 'description', 'power_port', 'feed_leg', 'cable', 'tags')
+        fields = (
+            'pk', 'device', 'name', 'label', 'type', 'description', 'power_port', 'feed_leg', 'cable', 'cable_peer',
+            'connection', 'tags',
+        )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description')
+
+
+class DevicePowerOutletTable(PowerOutletTable):
+    name = tables.TemplateColumn(
+        template_code='<i class="fa fa-bolt"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+    )
+    actions = ButtonsColumn(
+        model=PowerOutlet,
+        buttons=('edit', 'delete'),
+        prepend_template=POWEROUTLET_BUTTONS
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = PowerOutlet
+        fields = (
+            'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable', 'cable_peer', 'connection',
+            'tags', 'actions',
+        )
+        default_columns = (
+            'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable', 'connection', 'actions',
+        )
+        row_attrs = {
+            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+        }
 
 
 class BaseInterfaceTable(BaseTable):
@@ -265,7 +398,7 @@ class BaseInterfaceTable(BaseTable):
     )
 
 
-class InterfaceTable(DeviceComponentTable, BaseInterfaceTable):
+class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable):
     tags = TagColumn(
         url_name='dcim:interface_list'
     )
@@ -274,14 +407,48 @@ class InterfaceTable(DeviceComponentTable, BaseInterfaceTable):
         model = Interface
         fields = (
             'pk', 'device', 'name', 'label', 'enabled', 'type', 'mgmt_only', 'mtu', 'mode', 'mac_address',
-            'description', 'cable', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
+            'description', 'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'enabled', 'type', 'description')
 
 
-class FrontPortTable(DeviceComponentTable):
+class DeviceInterfaceTable(InterfaceTable):
+    name = tables.TemplateColumn(
+        template_code='<i class="fa fa-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}align-justify'
+                      '{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}exchange'
+                      '{% endif %}"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+    )
+    lag = tables.Column(
+        linkify=True,
+        verbose_name='LAG'
+    )
+    actions = ButtonsColumn(
+        model=Interface,
+        buttons=('edit', 'delete'),
+        prepend_template=INTERFACE_BUTTONS
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = Interface
+        fields = (
+            'pk', 'name', 'label', 'enabled', 'type', 'lag', 'mgmt_only', 'mtu', 'mode', 'mac_address', 'description',
+            'cable', 'cable_peer', 'connection', 'tags', 'ip_addresses', 'untagged_vlan', 'tagged_vlans', 'actions',
+        )
+        default_columns = (
+            'pk', 'name', 'label', 'enabled', 'type', 'lag', 'mtu', 'mode', 'description', 'ip_addresses', 'cable',
+            'connection', 'actions',
+        )
+        row_attrs = {
+            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+        }
+
+
+class FrontPortTable(DeviceComponentTable, CableTerminationTable):
     rear_port_position = tables.Column(
         verbose_name='Position'
+    )
+    rear_port = tables.Column(
+        linkify=True
     )
     tags = TagColumn(
         url_name='dcim:frontport_list'
@@ -290,23 +457,77 @@ class FrontPortTable(DeviceComponentTable):
     class Meta(DeviceComponentTable.Meta):
         model = FrontPort
         fields = (
-            'pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'tags',
+            'pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable',
+            'cable_peer', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description')
 
 
-class RearPortTable(DeviceComponentTable):
+class DeviceFrontPortTable(FrontPortTable):
+    name = tables.TemplateColumn(
+        template_code='<i class="fa fa-square{% if not record.cable %}-o{% endif %}"></i> '
+                      '<a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+    )
+    actions = ButtonsColumn(
+        model=FrontPort,
+        buttons=('edit', 'delete'),
+        prepend_template=FRONTPORT_BUTTONS
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = FrontPort
+        fields = (
+            'pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'cable_peer',
+            'tags', 'actions',
+        )
+        default_columns = (
+            'pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'cable_peer',
+            'actions',
+        )
+        row_attrs = {
+            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+        }
+
+
+class RearPortTable(DeviceComponentTable, CableTerminationTable):
     tags = TagColumn(
         url_name='dcim:rearport_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = RearPort
-        fields = ('pk', 'device', 'name', 'label', 'type', 'positions', 'description', 'cable', 'tags')
+        fields = ('pk', 'device', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'tags')
         default_columns = ('pk', 'device', 'name', 'label', 'type', 'description')
 
 
+class DeviceRearPortTable(RearPortTable):
+    name = tables.TemplateColumn(
+        template_code='<i class="fa fa-square{% if not record.cable %}-o{% endif %}"></i> '
+                      '<a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+    )
+    actions = ButtonsColumn(
+        model=RearPort,
+        buttons=('edit', 'delete'),
+        prepend_template=REARPORT_BUTTONS
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = RearPort
+        fields = (
+            'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'tags', 'actions',
+        )
+        default_columns = (
+            'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'cable_peer', 'actions',
+        )
+        row_attrs = {
+            'class': lambda record: record.cable.get_status_class() if record.cable else ''
+        }
+
+
 class DeviceBayTable(DeviceComponentTable):
+    status = tables.TemplateColumn(
+        template_code=DEVICEBAY_STATUS
+    )
     installed_device = tables.Column(
         linkify=True
     )
@@ -316,8 +537,29 @@ class DeviceBayTable(DeviceComponentTable):
 
     class Meta(DeviceComponentTable.Meta):
         model = DeviceBay
-        fields = ('pk', 'device', 'name', 'label', 'installed_device', 'description', 'tags')
-        default_columns = ('pk', 'device', 'name', 'label', 'installed_device', 'description')
+        fields = ('pk', 'device', 'name', 'label', 'status', 'installed_device', 'description', 'tags')
+        default_columns = ('pk', 'device', 'name', 'label', 'status', 'installed_device', 'description')
+
+
+class DeviceDeviceBayTable(DeviceBayTable):
+    name = tables.TemplateColumn(
+        template_code='<i class="fa fa-square{% if record.installed_device %}dot-circle-o{% else %}circle-o{% endif %}'
+                      '"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+    )
+    actions = ButtonsColumn(
+        model=DeviceBay,
+        buttons=('edit', 'delete'),
+        prepend_template=DEVICEBAY_BUTTONS
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = DeviceBay
+        fields = (
+            'pk', 'name', 'label', 'status', 'installed_device', 'description', 'tags', 'actions',
+        )
+        default_columns = (
+            'pk', 'name', 'label', 'status', 'installed_device', 'description', 'actions',
+        )
 
 
 class InventoryItemTable(DeviceComponentTable):
@@ -337,6 +579,28 @@ class InventoryItemTable(DeviceComponentTable):
             'discovered', 'tags',
         )
         default_columns = ('pk', 'device', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag')
+
+
+class DeviceInventoryItemTable(InventoryItemTable):
+    name = tables.TemplateColumn(
+        template_code='<a href="{{ record.get_absolute_url }}" style="padding-left: {{ record.level }}0px">'
+                      '{{ value }}</a>'
+    )
+    actions = ButtonsColumn(
+        model=InventoryItem,
+        buttons=('edit', 'delete')
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = InventoryItem
+        fields = (
+            'pk', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'discovered',
+            'tags', 'actions',
+        )
+        default_columns = (
+            'pk', 'name', 'label', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'discovered',
+            'actions',
+        )
 
 
 #

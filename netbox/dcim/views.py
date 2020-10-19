@@ -1019,6 +1019,9 @@ class DeviceView(ObjectView):
         consoleports = ConsolePort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
             'cable', '_path__destination',
         )
+        consoleport_table = tables.DeviceConsolePortTable(consoleports, orderable=False)
+        if request.user.has_perm('dcim.change_consoleport') or request.user.has_perm('dcim.delete_consoleport'):
+            consoleport_table.columns.show('pk')
 
         # Console server ports
         consoleserverports = ConsoleServerPort.objects.restrict(request.user, 'view').filter(
@@ -1026,16 +1029,26 @@ class DeviceView(ObjectView):
         ).prefetch_related(
             'cable', '_path__destination',
         )
+        consoleserverport_table = tables.DeviceConsoleServerPortTable(consoleserverports, orderable=False)
+        if request.user.has_perm('dcim.change_consoleserverport') or \
+                request.user.has_perm('dcim.delete_consoleserverport'):
+            consoleserverport_table.columns.show('pk')
 
         # Power ports
         powerports = PowerPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
             'cable', '_path__destination',
         )
+        powerport_table = tables.DevicePowerPortTable(powerports, orderable=False)
+        if request.user.has_perm('dcim.change_powerport') or request.user.has_perm('dcim.delete_powerport'):
+            powerport_table.columns.show('pk')
 
         # Power outlets
         poweroutlets = PowerOutlet.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
             'cable', 'power_port', '_path__destination',
         )
+        poweroutlet_table = tables.DevicePowerOutletTable(poweroutlets, orderable=False)
+        if request.user.has_perm('dcim.change_poweroutlet') or request.user.has_perm('dcim.delete_poweroutlet'):
+            poweroutlet_table.columns.show('pk')
 
         # Interfaces
         interfaces = device.vc_interfaces.restrict(request.user, 'view').prefetch_related(
@@ -1043,24 +1056,39 @@ class DeviceView(ObjectView):
             Prefetch('member_interfaces', queryset=Interface.objects.restrict(request.user)),
             'lag', 'cable', '_path__destination', 'tags',
         )
+        interface_table = tables.DeviceInterfaceTable(interfaces, orderable=False)
+        if request.user.has_perm('dcim.change_interface') or request.user.has_perm('dcim.delete_interface'):
+            interface_table.columns.show('pk')
 
         # Front ports
         frontports = FrontPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
             'rear_port', 'cable',
         )
+        frontport_table = tables.DeviceFrontPortTable(frontports, orderable=False)
+        if request.user.has_perm('dcim.change_frontport') or request.user.has_perm('dcim.delete_frontport'):
+            frontport_table.columns.show('pk')
 
         # Rear ports
         rearports = RearPort.objects.restrict(request.user, 'view').filter(device=device).prefetch_related('cable')
+        rearport_table = tables.DeviceRearPortTable(rearports, orderable=False)
+        if request.user.has_perm('dcim.change_rearport') or request.user.has_perm('dcim.delete_rearport'):
+            rearport_table.columns.show('pk')
 
         # Device bays
         devicebays = DeviceBay.objects.restrict(request.user, 'view').filter(device=device).prefetch_related(
             'installed_device__device_type__manufacturer',
         )
+        devicebay_table = tables.DeviceDeviceBayTable(devicebays, orderable=False)
+        if request.user.has_perm('dcim.change_devicebay') or request.user.has_perm('dcim.delete_devicebay'):
+            devicebay_table.columns.show('pk')
 
         # Inventory items
         inventoryitems = InventoryItem.objects.restrict(request.user, 'view').filter(
             device=device
         ).prefetch_related('manufacturer')
+        inventoryitem_table = tables.DeviceInventoryItemTable(inventoryitems, orderable=False)
+        if request.user.has_perm('dcim.change_inventoryitem') or request.user.has_perm('dcim.delete_inventoryitem'):
+            devicebay_table.columns.show('pk')
 
         # Services
         services = Service.objects.restrict(request.user, 'view').filter(device=device)
@@ -1079,15 +1107,15 @@ class DeviceView(ObjectView):
 
         return render(request, 'dcim/device.html', {
             'device': device,
-            'consoleports': consoleports,
-            'consoleserverports': consoleserverports,
-            'powerports': powerports,
-            'poweroutlets': poweroutlets,
-            'interfaces': interfaces,
-            'frontports': frontports,
-            'rearports': rearports,
-            'devicebays': devicebays,
-            'inventoryitems': inventoryitems,
+            'consoleport_table': consoleport_table,
+            'consoleserverport_table': consoleserverport_table,
+            'powerport_table': powerport_table,
+            'poweroutlet_table': poweroutlet_table,
+            'interface_table': interface_table,
+            'frontport_table': frontport_table,
+            'rearport_table': rearport_table,
+            'devicebay_table': devicebay_table,
+            'inventoryitem_table': inventoryitem_table,
             'services': services,
             'secrets': secrets,
             'vc_members': vc_members,

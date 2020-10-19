@@ -122,31 +122,31 @@
                     <a href="#details" role="tab" data-toggle="tab">Details</a>
                 </li>
                 <li role="presentation">
-                    <a href="#interfaces" role="tab" data-toggle="tab">Interfaces {% badge interfaces|length %}</a>
+                    <a href="#interfaces" role="tab" data-toggle="tab">Interfaces {% badge interface_table.rows|length %}</a>
                 </li>
                 <li role="presentation">
-                    <a href="#frontports" role="tab" data-toggle="tab">Front Ports {% badge frontports|length %}</a>
+                    <a href="#frontports" role="tab" data-toggle="tab">Front Ports {% badge frontport_table.rows|length %}</a>
                 </li>
                 <li role="presentation">
-                    <a href="#rearports" role="tab" data-toggle="tab">Rear Ports {% badge rearports|length %}</a>
+                    <a href="#rearports" role="tab" data-toggle="tab">Rear Ports {% badge rearport_table.rows|length %}</a>
                 </li>
                 <li role="presentation">
-                    <a href="#consoleports" role="tab" data-toggle="tab">Console Ports {% badge consoleports|length %}</a>
+                    <a href="#consoleports" role="tab" data-toggle="tab">Console Ports {% badge consoleport_table.rows|length %}</a>
                 </li>
                 <li role="presentation">
-                    <a href="#consoleserverports" role="tab" data-toggle="tab">Console Server Ports {% badge consoleserverports|length %}</a>
+                    <a href="#consoleserverports" role="tab" data-toggle="tab">Console Server Ports {% badge consoleserverport_table.rows|length %}</a>
                 </li>
                 <li role="presentation">
-                    <a href="#powerports" role="tab" data-toggle="tab">Power Ports {% badge powerports|length %}</a>
+                    <a href="#powerports" role="tab" data-toggle="tab">Power Ports {% badge powerport_table.rows|length %}</a>
                 </li>
                 <li role="presentation">
-                    <a href="#poweroutlets" role="tab" data-toggle="tab">Power Outlets {% badge poweroutlets|length %}</a>
+                    <a href="#poweroutlets" role="tab" data-toggle="tab">Power Outlets {% badge poweroutlet_table.rows|length %}</a>
                 </li>
                 <li role="presentation">
-                    <a href="#devicebays" role="tab" data-toggle="tab">Device Bays {% badge devicebays|length %}</a>
+                    <a href="#devicebays" role="tab" data-toggle="tab">Device Bays {% badge devicebay_table.rows|length %}</a>
                 </li>
                 <li role="presentation">
-                    <a href="#inventoryitems" role="tab" data-toggle="tab">Inventory {% badge inventoryitems|length %}</a>
+                    <a href="#inventoryitems" role="tab" data-toggle="tab">Inventory {% badge inventoryitem_table.rows|length %}</a>
                 </li>
             </ul>
             <div class="tab-content">
@@ -485,38 +485,11 @@
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <strong>Interfaces</strong>
-                                <div class="pull-right noprint">
-                                    <button class="btn btn-default btn-xs toggle-ips" selected="selected">
-                                        <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Show IPs
-                                    </button>
-                                </div>
                                 <div class="col-md-2 pull-right noprint">
                                     <input class="form-control interface-filter" type="text" placeholder="Filter" title="Filter text (regular expressions supported)" style="height: 23px" />
                                 </div>
                             </div>
-                            <table id="interfaces_table" class="table table-hover table-headings panel-body component-list">
-                                <thead>
-                                    <tr>
-                                        {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
-                                            <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                                        {% endif %}
-                                        <th>Name</th>
-                                        <th>LAG</th>
-                                        <th>Description</th>
-                                        <th>MTU</th>
-                                        <th>Mode</th>
-                                        <th>Cable</th>
-                                        <th colspan="2">Cable Termination</th>
-                                        <th colspan="2">Connection</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for iface in interfaces %}
-                                        {% include 'dcim/inc/interface.html' %}
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'responsive_table.html' with table=interface_table %}
                             <div class="panel-footer noprint">
                                 {% if interfaces and perms.dcim.change_interface %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:interface_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
@@ -542,8 +515,8 @@
                                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interfaces
                                         </a>
                                     </div>
-                                    <div class="clearfix"></div>
                                 {% endif %}
+                                <div class="clearfix"></div>
                              </div>
                         </div>
                     </form>
@@ -555,30 +528,9 @@
                             <div class="panel-heading">
                                 <strong>Front Ports</strong>
                             </div>
-                            <table class="table table-hover table-headings panel-body component-list">
-                                <thead>
-                                    <tr>
-                                        {% if perms.dcim.change_frontport or perms.dcim.delete_frontport %}
-                                            <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                                        {% endif %}
-                                        <th>Name</th>
-                                        <th>Type</th>
-                                        <th>Rear Port</th>
-                                        <th>Position</th>
-                                        <th>Description</th>
-                                        <th>Cable</th>
-                                        <th colspan="2">Cable Termination</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for frontport in frontports %}
-                                        {% include 'dcim/inc/frontport.html' %}
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'responsive_table.html' with table=frontport_table %}
                             <div class="panel-footer noprint">
-                                {% if frontports and perms.dcim.change_frontport %}
+                                {% if perms.dcim.change_frontport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:frontport_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
                                         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
                                     </button>
@@ -589,7 +541,7 @@
                                         <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
                                     </button>
                                 {% endif %}
-                                {% if frontports and perms.dcim.delete_frontport %}
+                                {% if perms.dcim.delete_frontport %}
                                     <button type="submit" formaction="{% url 'dcim:frontport_bulk_delete' %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
                                     </button>
@@ -600,8 +552,8 @@
                                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add front ports
                                         </a>
                                     </div>
-                                    <div class="clearfix"></div>
                                 {% endif %}
+                                <div class="clearfix"></div>
                             </div>
                         </div>
                     </form>
@@ -613,29 +565,9 @@
                             <div class="panel-heading">
                                 <strong>Rear Ports</strong>
                             </div>
-                            <table class="table table-hover table-headings panel-body component-list">
-                                <thead>
-                                    <tr>
-                                        {% if perms.dcim.change_rearport or perms.dcim.delete_rearport %}
-                                            <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                                        {% endif %}
-                                        <th>Name</th>
-                                        <th>Type</th>
-                                        <th>Positions</th>
-                                        <th>Description</th>
-                                        <th>Cable</th>
-                                        <th colspan="2">Cable Termination</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for rearport in rearports %}
-                                        {% include 'dcim/inc/rearport.html' %}
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'responsive_table.html' with table=rearport_table %}
                             <div class="panel-footer noprint">
-                                {% if rearports and perms.dcim.change_rearport %}
+                                {% if perms.dcim.change_rearport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:rearport_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
                                         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
                                     </button>
@@ -646,7 +578,7 @@
                                         <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
                                     </button>
                                 {% endif %}
-                                {% if rearports and perms.dcim.delete_rearport %}
+                                {% if perms.dcim.delete_rearport %}
                                     <button type="submit" formaction="{% url 'dcim:rearport_bulk_delete' %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
                                     </button>
@@ -657,8 +589,8 @@
                                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add rear ports
                                         </a>
                                     </div>
-                                    <div class="clearfix"></div>
                                 {% endif %}
+                                <div class="clearfix"></div>
                             </div>
                         </div>
                     </form>
@@ -670,27 +602,9 @@
                             <div class="panel-heading">
                                 <strong>Console Ports</strong>
                             </div>
-                            <table class="table table-hover panel-body component-list">
-                                <thead>
-                                    <tr>
-                                        {% if perms.dcim.change_consoleport or perms.dcim.delete_consoleport %}
-                                            <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                                        {% endif %}
-                                        <th>Name</th>
-                                        <th>Type</th>
-                                        <th>Description</th>
-                                        <th>Cable</th>
-                                        <th colspan="2">Cable Termination</th>
-                                        <th colspan="2">Connection</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                {% for cp in consoleports %}
-                                    {% include 'dcim/inc/consoleport.html' %}
-                                {% endfor %}
-                            </table>
+                            {% include 'responsive_table.html' with table=consoleport_table %}
                             <div class="panel-footer noprint">
-                                {% if consoleports and perms.dcim.change_consoleport %}
+                                {% if perms.dcim.change_consoleport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:consoleport_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
                                         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
                                     </button>
@@ -701,7 +615,7 @@
                                         <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
                                     </button>
                                 {% endif %}
-                                {% if consoleports and perms.dcim.delete_consoleport %}
+                                {% if perms.dcim.delete_consoleport %}
                                     <button type="submit" name="_delete" formaction="{% url 'dcim:consoleport_bulk_delete' %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
                                     </button>
@@ -713,6 +627,7 @@
                                         </a>
                                     </div>
                                 {% endif %}
+                                <div class="clearfix"></div>
                             </div>
                         </div>
                     </form>
@@ -724,29 +639,9 @@
                             <div class="panel-heading">
                                 <strong>Console Server Ports</strong>
                             </div>
-                            <table class="table table-hover table-headings panel-body component-list">
-                                <thead>
-                                    <tr>
-                                        {% if perms.dcim.change_consoleserverport or perms.dcim.delete_consoleserverport %}
-                                            <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                                        {% endif %}
-                                        <th>Name</th>
-                                        <th>Type</th>
-                                        <th>Description</th>
-                                        <th>Cable</th>
-                                        <th colspan="2">Cable Termination</th>
-                                        <th colspan="2">Connection</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for csp in consoleserverports %}
-                                        {% include 'dcim/inc/consoleserverport.html' %}
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'responsive_table.html' with table=consoleserverport_table %}
                             <div class="panel-footer noprint">
-                                {% if consoleserverports and perms.dcim.change_consoleport %}
+                                {% if perms.dcim.change_consoleport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:consoleserverport_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
                                         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
                                     </button>
@@ -757,7 +652,7 @@
                                         <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
                                     </button>
                                 {% endif %}
-                                {% if consoleserverports and perms.dcim.delete_consoleserverport %}
+                                {% if perms.dcim.delete_consoleserverport %}
                                     <button type="submit" formaction="{% url 'dcim:consoleserverport_bulk_delete' %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
                                     </button>
@@ -768,8 +663,8 @@
                                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console server ports
                                         </a>
                                     </div>
-                                    <div class="clearfix"></div>
                                 {% endif %}
+                                <div class="clearfix"></div>
                             </div>
                         </div>
                     </form>
@@ -781,27 +676,9 @@
                             <div class="panel-heading">
                                 <strong>Power Ports</strong>
                             </div>
-                            <table class="table table-hover panel-body component-list">
-                                <thead>
-                                    <tr>
-                                        {% if perms.dcim.change_consoleport or perms.dcim.delete_consoleport %}
-                                            <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                                        {% endif %}
-                                        <th>Name</th>
-                                        <th>Type</th>
-                                        <th>Draw</th>
-                                        <th>Description</th>
-                                        <th>Cable</th>
-                                        <th colspan="2">Connection</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                {% for pp in powerports %}
-                                    {% include 'dcim/inc/powerport.html' %}
-                                {% endfor %}
-                            </table>
+                            {% include 'responsive_table.html' with table=powerport_table %}
                             <div class="panel-footer noprint">
-                                {% if powerports and perms.dcim.change_powerport %}
+                                {% if perms.dcim.change_powerport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:powerport_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
                                         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
                                     </button>
@@ -812,7 +689,7 @@
                                         <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
                                     </button>
                                 {% endif %}
-                                {% if powerports and perms.dcim.delete_powerport %}
+                                {% if perms.dcim.delete_powerport %}
                                     <button type="submit" name="_delete" formaction="{% url 'dcim:powerport_bulk_delete' %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
                                     </button>
@@ -835,29 +712,9 @@
                             <div class="panel-heading">
                                 <strong>Power Outlets</strong>
                             </div>
-                            <table class="table table-hover table-headings panel-body component-list">
-                                <thead>
-                                    <tr>
-                                        {% if perms.dcim.change_poweroutlet or perms.dcim.delete_poweroutlet %}
-                                            <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                                        {% endif %}
-                                        <th>Name</th>
-                                    <th>Type</th>
-                                        <th>Input/Leg</th>
-                                        <th>Description</th>
-                                        <th>Cable</th>
-                                        <th colspan="3">Connection</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for po in poweroutlets %}
-                                        {% include 'dcim/inc/poweroutlet.html' %}
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'responsive_table.html' with table=poweroutlet_table %}
                             <div class="panel-footer noprint">
-                                {% if poweroutlets and perms.dcim.change_powerport %}
+                                {% if perms.dcim.change_powerport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:poweroutlet_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
                                         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
                                     </button>
@@ -868,7 +725,7 @@
                                         <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
                                     </button>
                                 {% endif %}
-                                {% if poweroutlets and perms.dcim.delete_poweroutlet %}
+                                {% if perms.dcim.delete_poweroutlet %}
                                     <button type="submit" formaction="{% url 'dcim:poweroutlet_bulk_delete' %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
                                     </button>
@@ -879,8 +736,8 @@
                                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power outlets
                                         </a>
                                     </div>
-                                    <div class="clearfix"></div>
                                 {% endif %}
+                                <div class="clearfix"></div>
                             </div>
                         </div>
                     </form>
@@ -892,36 +749,14 @@
                             <div class="panel-heading">
                                 <strong>Device Bays</strong>
                             </div>
-                            <table class="table table-hover table-headings panel-body component-list">
-                                <thead>
-                                    <tr>
-                                        {% if perms.dcim.change_devicebay or perms.dcim.delete_devicebay %}
-                                            <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                                        {% endif %}
-                                        <th>Name</th>
-                                        <th>Status</th>
-                                        <th>Description</th>
-                                        <th colspan="2">Installed Device</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for devicebay in devicebays %}
-                                        {% include 'dcim/inc/devicebay.html' %}
-                                    {% empty %}
-                                        <tr>
-                                            <td colspan="5" class="text-center text-muted">&mdash; No device bays defined &mdash;</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'responsive_table.html' with table=devicebay_table %}
                             <div class="panel-footer noprint">
-                                {% if devicebays and perms.dcim.change_devicebay %}
+                                {% if perms.dcim.change_devicebay %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:devicebay_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
                                         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
                                     </button>
                                 {% endif %}
-                                {% if devicebays and perms.dcim.delete_devicebay %}
+                                {% if perms.dcim.delete_devicebay %}
                                     <button type="submit" formaction="{% url 'dcim:devicebay_bulk_delete' %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete selected
                                     </button>
@@ -932,8 +767,8 @@
                                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add device bays
                                         </a>
                                     </div>
-                                    <div class="clearfix"></div>
                                 {% endif %}
+                                <div class="clearfix"></div>
                              </div>
                         </div>
                     </form>
@@ -945,28 +780,7 @@
                             <div class="panel-heading">
                                 <strong>Inventory Items</strong>
                             </div>
-                            <table class="table table-hover table-condensed panel-body" id="hardware">
-                                <thead>
-                                    <tr>
-                                        {% if perms.dcim.change_inventoryitem or perms.dcim.delete_inventoryitem %}
-                                            <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                                        {% endif %}
-                                        <th>Name</th>
-                                        <th>Manufacturer</th>
-                                        <th>Part ID</th>
-                                        <th>Serial Number</th>
-                                        <th>Asset Tag</th>
-                                        <th>Discovered</th>
-                                        <th>Description</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for item in inventoryitems %}
-                                        {% include 'dcim/inc/inventoryitem.html' %}
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'responsive_table.html' with table=inventoryitem_table %}
                             <div class="panel-footer noprint">
                                 {% if inventoryitems and perms.dcim.change_inventoryitem %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:inventoryitem_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
@@ -988,6 +802,7 @@
                                         </a>
                                     </div>
                                 {% endif %}
+                                <div class="clearfix"></div>
                             </div>
                         </div>
                     </form>

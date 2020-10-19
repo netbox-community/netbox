@@ -3,6 +3,7 @@ from django_tables2.utils import Accessor
 
 from dcim.models import PowerFeed, PowerPanel
 from utilities.tables import BaseTable, ChoiceFieldColumn, LinkedCountColumn, TagColumn, ToggleColumn
+from .devices import CableTerminationTable
 from .template_code import POWERFEED_CABLE, POWERFEED_CABLETERMINATION
 
 __all__ = (
@@ -41,7 +42,9 @@ class PowerPanelTable(BaseTable):
 # Power feeds
 #
 
-class PowerFeedTable(BaseTable):
+# We're not using PathEndpointTable for PowerFeed because power connections
+# cannot traverse pass-through ports.
+class PowerFeedTable(CableTerminationTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
     power_panel = tables.Column(
@@ -55,15 +58,6 @@ class PowerFeedTable(BaseTable):
     max_utilization = tables.TemplateColumn(
         template_code="{{ value }}%"
     )
-    cable = tables.TemplateColumn(
-        template_code=POWERFEED_CABLE,
-        orderable=False
-    )
-    connection = tables.TemplateColumn(
-        accessor='get_cable_peer',
-        template_code=POWERFEED_CABLETERMINATION,
-        orderable=False
-    )
     available_power = tables.Column(
         verbose_name='Available power (VA)'
     )
@@ -75,9 +69,9 @@ class PowerFeedTable(BaseTable):
         model = PowerFeed
         fields = (
             'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',
-            'max_utilization', 'cable', 'connection', 'available_power', 'tags',
+            'max_utilization', 'cable', 'cable_peer', 'connection', 'available_power', 'tags',
         )
         default_columns = (
             'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase', 'cable',
-            'connection',
+            'cable_peer',
         )

@@ -1,16 +1,3 @@
-// Toggle the display of IP addresses under interfaces
-$('button.toggle-ips').click(function() {
-    var selected = $(this).attr('selected');
-    if (selected) {
-        $('#interfaces_table tr.interface:visible + tr.ipaddresses').hide();
-    } else {
-        $('#interfaces_table tr.interface:visible + tr.ipaddresses').show();
-    }
-    $(this).attr('selected', !selected);
-    $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
-    return false;
-});
-
 // Inteface filtering
 $('input.interface-filter').on('input', function() {
     var filter = new RegExp(this.value);
