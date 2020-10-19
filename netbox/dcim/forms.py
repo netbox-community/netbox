@@ -370,6 +370,15 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
             'site', 'parent', 'name', 'slug', 'description',
         )
 
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+
+            # Limit parent queryset by assigned site
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
+
 
 class RackGroupCSVForm(CSVModelForm):
     site = CSVModelChoiceField(
