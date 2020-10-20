@@ -283,9 +283,6 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
             response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
             return response
 
-        # Provide a hook to tweak the queryset based on the request immediately prior to rendering the object list
-        self.queryset = self.alter_queryset(request)
-
         # Compile a dictionary indicating which permissions are available to the current user for this model
         permissions = {}
         for action in ('add', 'change', 'delete', 'view'):
@@ -336,10 +333,6 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
             messages.success(request, "Your preferences have been updated.")
 
         return redirect(request.get_full_path())
-
-    def alter_queryset(self, request):
-        # .all() is necessary to avoid caching queries
-        return self.queryset.all()
 
     def extra_context(self):
         return {}

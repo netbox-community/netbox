@@ -12,25 +12,6 @@ from .models import Aggregate, IPAddress, Prefix, RIR, Role, RouteTarget, Servic
 
 AVAILABLE_LABEL = mark_safe('<span class="label label-success">Available</span>')
 
-RIR_UTILIZATION = """
-<div class="progress">
-    {% if record.stats.total %}
-        <div class="progress-bar" role="progressbar" style="width: {{ record.stats.percentages.active }}%;">
-            <span class="sr-only">{{ record.stats.percentages.active }}%</span>
-        </div>
-        <div class="progress-bar progress-bar-info" role="progressbar" style="width: {{ record.stats.percentages.reserved }}%;">
-            <span class="sr-only">{{ record.stats.percentages.reserved }}%</span>
-        </div>
-        <div class="progress-bar progress-bar-danger" role="progressbar" style="width: {{ record.stats.percentages.deprecated }}%;">
-            <span class="sr-only">{{ record.stats.percentages.deprecated }}%</span>
-        </div>
-        <div class="progress-bar progress-bar-success" role="progressbar" style="width: {{ record.stats.percentages.available }}%;">
-            <span class="sr-only">{{ record.stats.percentages.available }}%</span>
-        </div>
-    {% endif %}
-</div>
-"""
-
 UTILIZATION_GRAPH = """
 {% load helpers %}
 {% if record.pk %}{% utilization_graph record.get_utilization %}{% else %}&mdash;{% endif %}
@@ -200,48 +181,6 @@ class RIRTable(BaseTable):
         model = RIR
         fields = ('pk', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'actions')
         default_columns = ('pk', 'name', 'is_private', 'aggregate_count', 'description', 'actions')
-
-
-class RIRDetailTable(RIRTable):
-    stats_total = tables.Column(
-        accessor='stats.total',
-        verbose_name='Total',
-        footer=lambda table: sum(r.stats['total'] for r in table.data)
-    )
-    stats_active = tables.Column(
-        accessor='stats.active',
-        verbose_name='Active',
-        footer=lambda table: sum(r.stats['active'] for r in table.data)
-    )
-    stats_reserved = tables.Column(
-        accessor='stats.reserved',
-        verbose_name='Reserved',
-        footer=lambda table: sum(r.stats['reserved'] for r in table.data)
-    )
-    stats_deprecated = tables.Column(
-        accessor='stats.deprecated',
-        verbose_name='Deprecated',
-        footer=lambda table: sum(r.stats['deprecated'] for r in table.data)
-    )
-    stats_available = tables.Column(
-        accessor='stats.available',
-        verbose_name='Available',
-        footer=lambda table: sum(r.stats['available'] for r in table.data)
-    )
-    utilization = tables.TemplateColumn(
-        template_code=RIR_UTILIZATION,
-        verbose_name='Utilization'
-    )
-
-    class Meta(RIRTable.Meta):
-        fields = (
-            'pk', 'name', 'slug', 'is_private', 'aggregate_count', 'stats_total', 'stats_active', 'stats_reserved',
-            'stats_deprecated', 'stats_available', 'utilization', 'actions',
-        )
-        default_columns = (
-            'pk', 'name', 'is_private', 'aggregate_count', 'stats_total', 'stats_active', 'stats_reserved',
-            'stats_deprecated', 'stats_available', 'utilization', 'actions',
-        )
 
 
 #
