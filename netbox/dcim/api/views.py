@@ -340,7 +340,18 @@ class DeviceViewSet(CustomFieldModelViewSet):
     queryset = Device.objects.prefetch_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'rack', 'parent_bay',
         'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'tags',
-    )
+    ).add_config_context_annotation()
+
+    #queryset = Device.objects.annotate(
+    #    config_contexts=Subquery(
+    #        ConfigContext.objects.filter(
+    #            Q(sites=OuterRef('site')) | Q(sites=None)
+    #        ).annotate(
+    #            _data=EmptyGroupByJSONBAgg('data')
+    #        ).values("_data")
+    #    )
+    #)
+
     filterset_class = filters.DeviceFilterSet
 
     def get_serializer_class(self):

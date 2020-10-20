@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
-from django.db.models import Q, QuerySet
+from django.contrib.postgres.aggregates import JSONBAgg
+from django.db.models import OuterRef, Subquery, Q, QuerySet
 
 from utilities.querysets import RestrictedQuerySet
 
@@ -57,3 +58,51 @@ class ConfigContextQuerySet(RestrictedQuerySet):
             Q(tags__slug__in=obj.tags.slugs()) | Q(tags=None),
             is_active=True,
         ).order_by('weight', 'name')
+
+
+class EmptyGroupByJSONBAgg(JSONBAgg):
+    contains_aggregate = False
+
+
+class ConfigContextQuerySetMixin(RestrictedQuerySet):
+
+    def add_config_context_annotation(self):
+        from extras.models import ConfigContext
+        return self.annotate(
+            config_contexts=Subquery(
+                ConfigContext.objects.filter(
+                    self._add_config_context_filters()
+                ).order_by(
+                    'weight',
+                    'name'
+                ).annotate(
+                    _data=EmptyGroupByJSONBAgg('data')
+                ).values("_data")
+            )
+        )
+
+    def _add_config_context_filters(self):
+
+
+        if self.model._meta.model_name == 'device':
+            return Q(
+                Q(sites=OuterRef('site')) | Q(sites=None),
+                Q(roles=OuterRef('device_role')) | Q(roles=None),
+                Q(platforms=OuterRef('platform')) | Q(platforms=None),
+                Q(tenant_groups=OuterRef('tenant__group')) | Q(tenant_groups=None),
+                Q(tenants=OuterRef('tenant')) | Q(tenants=None),
+                Q(tags=OuterRef('tags')) | Q(tags=None),
+                is_active=True,
+            )
+        else:
+            return Q(
+                Q(sites=OuterRef('site')) | Q(sites=None),
+                Q(roles=OuterRef('role')) | Q(roles=None),
+                Q(platforms=OuterRef('platform')) | Q(platforms=None),
+                Q(cluster_groups=OuterRef('cluster__group')) | Q(cluster_groups=None),
+                Q(clusters=OuterRef('cluster')) | Q(clusters=None),
+                Q(tenant_groups=OuterRef('tenant__group')) | Q(tenant_groups=None),
+                Q(tenants=OuterRef('tenant')) | Q(tenants=None),
+                Q(tags=OuterRef('tags')) | Q(tags=None),
+                is_active=True,
+            )

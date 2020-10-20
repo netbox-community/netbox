@@ -542,8 +542,11 @@ class ConfigContextModel(models.Model):
 
         # Compile all config data, overwriting lower-weight values with higher-weight values where a collision occurs
         data = OrderedDict()
-        for context in ConfigContext.objects.get_for_object(self):
-            data = deepmerge(data, context.data)
+        #for context in ConfigContext.objects.get_for_object(self):
+        #    data = deepmerge(data, context.data)
+
+        for context in self.config_contexts:
+            data = deepmerge(data, context)
 
         # If the object has local config context data defined, merge it last
         if self.local_context_data:
