@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load buttons %}
 {% load helpers %}
+{% load static %}
 
 {% block content %}
 <div class="pull-right noprint">
@@ -82,4 +83,8 @@
         </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'js/tableconfig.js' %}"></script>
 {% endblock %}

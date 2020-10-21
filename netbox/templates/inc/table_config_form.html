@@ -7,7 +7,7 @@
                 <h4 class="modal-title">Table Configuration</h4>
             </div>
             <div class="modal-body">
-                <form action="" method="post" class="form-horizontal">
+                <form action="" method="post" class="form-horizontal tableconfigform" data-table-name="{{ table_config_form.table_name }}">
                     {% csrf_token %}
                     {% render_form table_config_form %}
                     <div class="row">

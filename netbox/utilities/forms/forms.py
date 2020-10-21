@@ -168,8 +168,14 @@ class TableConfigForm(BootstrapMixin, forms.Form):
     )
 
     def __init__(self, table, *args, **kwargs):
+        self.table = table
+
         super().__init__(*args, **kwargs)
 
         # Initialize columns field based on table attributes
         self.fields['columns'].choices = table.configurable_columns
         self.fields['columns'].initial = table.visible_columns
+
+    @property
+    def table_name(self):
+        return self.table.__class__.__name__
