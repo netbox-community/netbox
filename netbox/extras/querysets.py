@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from django.contrib.postgres.aggregates import JSONBAgg
 from django.db.models import OuterRef, Subquery, Q, QuerySet
 
 from utilities.query_functions import EmptyGroupByJSONBAgg
@@ -24,9 +25,12 @@ class CustomFieldQueryset:
 
 class ConfigContextQuerySet(RestrictedQuerySet):
 
-    def get_for_object(self, obj):
+    def get_for_object(self, obj, aggregate_data=False):
         """
         Return all applicable ConfigContexts for a given object. Only active ConfigContexts will be included.
+
+        Args:
+          aggregate_data: If True, use the JSONBAgg aggregate function to return only the list of JSON data objects
         """
 
         # `device_role` for Device; `role` for VirtualMachine
@@ -46,7 +50,7 @@ class ConfigContextQuerySet(RestrictedQuerySet):
         else:
             regions = []
 
-        return self.filter(
+        queryset = self.filter(
             Q(regions__in=regions) | Q(regions=None),
             Q(sites=obj.site) | Q(sites=None),
             Q(roles=role) | Q(roles=None),
@@ -59,10 +63,28 @@ class ConfigContextQuerySet(RestrictedQuerySet):
             is_active=True,
         ).order_by('weight', 'name')
 
+        if aggregate_data:
+            queryset = queryset.aggregate(config_context_data=JSONBAgg('data'))['config_context_data']
+
+        return queryset
+
 
 class ConfigContextModelQuerySet(RestrictedQuerySet):
+    """
+    QuerySet manager used by models which support ConfigContext (device and virtual machine).
+
+    Includes a method which appends an annotation of aggregated config context JSON data objects. This is
+    implemented as a subquery which performs all the joins necessary to filter relevant config context objects.
+    This offers a substantial performance gain over ConfigContextQuerySet.get_for_object() when dealing with
+    multiple objects.
+
+    This allows the annotation to be entirely optional.
+    """
 
     def annotate_config_context_data(self):
+        """
+        Attach the subquery annotation to the base queryset
+        """
         from extras.models import ConfigContext
         return self.annotate(
             config_context_data=Subquery(
@@ -78,7 +100,7 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
         )
 
     def _get_config_context_filters(self):
-
+        # Construct the set of Q objects for the specific object types
         base_query = Q(
             Q(platforms=OuterRef('platform')) | Q(platforms=None),
             Q(tenant_groups=OuterRef('tenant__group')) | Q(tenant_groups=None),
