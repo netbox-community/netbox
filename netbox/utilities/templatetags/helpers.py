@@ -10,6 +10,7 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
+from utilities.forms import TableConfigForm
 from utilities.utils import foreground_color
 
 register = template.Library()
@@ -260,4 +261,12 @@ def badge(value, show_empty=False):
     return {
         'value': value,
         'show_empty': show_empty,
+    }
+
+
+@register.inclusion_tag('utilities/templatetags/table_config_form.html')
+def table_config_form(table, table_name=None):
+    return {
+        'table_name': table_name or table.__class__.__name__,
+        'table_config_form': TableConfigForm(table=table),
     }
