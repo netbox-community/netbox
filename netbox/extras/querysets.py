@@ -1,8 +1,8 @@
 from collections import OrderedDict
 
-from django.contrib.postgres.aggregates import JSONBAgg
 from django.db.models import OuterRef, Subquery, Q, QuerySet
 
+from utilities.query_functions import EmptyGroupByJSONBAgg
 from utilities.querysets import RestrictedQuerySet
 
 
@@ -60,18 +60,14 @@ class ConfigContextQuerySet(RestrictedQuerySet):
         ).order_by('weight', 'name')
 
 
-class EmptyGroupByJSONBAgg(JSONBAgg):
-    contains_aggregate = False
+class ConfigContextModelQuerySet(RestrictedQuerySet):
 
-
-class ConfigContextQuerySetMixin(RestrictedQuerySet):
-
-    def add_config_context_annotation(self):
+    def annotate_config_context_data(self):
         from extras.models import ConfigContext
         return self.annotate(
-            config_contexts=Subquery(
+            config_context_data=Subquery(
                 ConfigContext.objects.filter(
-                    self._add_config_context_filters()
+                    self._get_config_context_filters()
                 ).order_by(
                     'weight',
                     'name'
@@ -81,28 +77,42 @@ class ConfigContextQuerySetMixin(RestrictedQuerySet):
             )
         )
 
-    def _add_config_context_filters(self):
+    def _get_config_context_filters(self):
 
+        base_query = Q(
+            Q(platforms=OuterRef('platform')) | Q(platforms=None),
+            Q(tenant_groups=OuterRef('tenant__group')) | Q(tenant_groups=None),
+            Q(tenants=OuterRef('tenant')) | Q(tenants=None),
+            Q(tags=OuterRef('tags')) | Q(tags=None),
+            is_active=True,
+        )
 
         if self.model._meta.model_name == 'device':
-            return Q(
-                Q(sites=OuterRef('site')) | Q(sites=None),
-                Q(roles=OuterRef('device_role')) | Q(roles=None),
-                Q(platforms=OuterRef('platform')) | Q(platforms=None),
-                Q(tenant_groups=OuterRef('tenant__group')) | Q(tenant_groups=None),
-                Q(tenants=OuterRef('tenant')) | Q(tenants=None),
-                Q(tags=OuterRef('tags')) | Q(tags=None),
-                is_active=True,
+            base_query.add((Q(roles=OuterRef('device_role')) | Q(roles=None)), Q.AND)
+            base_query.add(
+                (Q(
+                    regions__tree_id=OuterRef('site__region__tree_id'),
+                    regions__level__lte=OuterRef('site__region__level'),
+                    regions__lft__lte=OuterRef('site__region__lft'),
+                    regions__rght__gte=OuterRef('site__region__rght'),
+                ) | Q(regions=None)),
+                Q.AND
             )
-        else:
-            return Q(
-                Q(sites=OuterRef('site')) | Q(sites=None),
-                Q(roles=OuterRef('role')) | Q(roles=None),
-                Q(platforms=OuterRef('platform')) | Q(platforms=None),
-                Q(cluster_groups=OuterRef('cluster__group')) | Q(cluster_groups=None),
-                Q(clusters=OuterRef('cluster')) | Q(clusters=None),
-                Q(tenant_groups=OuterRef('tenant__group')) | Q(tenant_groups=None),
-                Q(tenants=OuterRef('tenant')) | Q(tenants=None),
-                Q(tags=OuterRef('tags')) | Q(tags=None),
-                is_active=True,
+            base_query.add((Q(sites=OuterRef('site')) | Q(sites=None)), Q.AND)
+
+        elif self.model._meta.model_name == 'virtualmachine':
+            base_query.add((Q(roles=OuterRef('role')) | Q(roles=None)), Q.AND)
+            base_query.add((Q(cluster_groups=OuterRef('cluster__group')) | Q(cluster_groups=None)), Q.AND)
+            base_query.add((Q(clusters=OuterRef('cluster')) | Q(clusters=None)), Q.AND)
+            base_query.add(
+                (Q(
+                    regions__tree_id=OuterRef('cluster__site__region__tree_id'),
+                    regions__level__lte=OuterRef('cluster__site__region__level'),
+                    regions__lft__lte=OuterRef('cluster__site__region__lft'),
+                    regions__rght__gte=OuterRef('cluster__site__region__rght'),
+                ) | Q(regions=None)),
+                Q.AND
             )
+            base_query.add((Q(sites=OuterRef('cluster__site')) | Q(sites=None)), Q.AND)
+
+        return base_query

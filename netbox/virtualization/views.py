@@ -261,7 +261,7 @@ class VirtualMachineView(ObjectView):
 
 
 class VirtualMachineConfigContextView(ObjectConfigContextView):
-    queryset = VirtualMachine.objects.all()
+    queryset = VirtualMachine.objects.annotate_config_context_data()
     base_template = 'virtualization/virtualmachine.html'
 
 

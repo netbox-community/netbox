@@ -340,19 +340,23 @@ class DeviceViewSet(CustomFieldModelViewSet):
     queryset = Device.objects.prefetch_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'rack', 'parent_bay',
         'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'tags',
-    ).add_config_context_annotation()
-
-    #queryset = Device.objects.annotate(
-    #    config_contexts=Subquery(
-    #        ConfigContext.objects.filter(
-    #            Q(sites=OuterRef('site')) | Q(sites=None)
-    #        ).annotate(
-    #            _data=EmptyGroupByJSONBAgg('data')
-    #        ).values("_data")
-    #    )
-    #)
-
+    )
     filterset_class = filters.DeviceFilterSet
+
+    def get_queryset(self):
+        """
+        Build the proper queryset based on the request context
+
+        If the `brief` query param equates to True or the `exclude` query param
+        includes `config_context` as a value, return the base queryset.
+
+        Else, return the queryset annotated with config context data
+        """
+
+        request = self.get_serializer_context()['request']
+        if request.query_params.get('brief') or 'config_context' in request.query_params.get('exclude', []):
+            return self.queryset
+        return self.queryset.annotate_config_context_data()
 
     def get_serializer_class(self):
         """
