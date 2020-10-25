@@ -1,9 +1,9 @@
 from collections import OrderedDict
 
 from django.contrib.postgres.aggregates import JSONBAgg
-from django.db.models import OuterRef, Subquery, Q, QuerySet
+from django.db.models import OuterRef, Subquery, Q, QuerySet, OrderBy, F, ExpressionWrapper
 
-from utilities.query_functions import EmptyGroupByJSONBAgg
+from utilities.query_functions import EmptyGroupByJSONBAgg, OrderableJSONBAgg
 from utilities.querysets import RestrictedQuerySet
 
 
@@ -64,7 +64,9 @@ class ConfigContextQuerySet(RestrictedQuerySet):
         ).order_by('weight', 'name')
 
         if aggregate_data:
-            queryset = queryset.aggregate(config_context_data=JSONBAgg('data'))['config_context_data']
+            return queryset.aggregate(
+                config_context_data=OrderableJSONBAgg('data', ordering=['weight', 'name'])
+            )['config_context_data']
 
         return queryset
 
@@ -90,11 +92,8 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
             config_context_data=Subquery(
                 ConfigContext.objects.filter(
                     self._get_config_context_filters()
-                ).order_by(
-                    'weight',
-                    'name'
                 ).annotate(
-                    _data=EmptyGroupByJSONBAgg('data')
+                    _data=EmptyGroupByJSONBAgg('data', ordering=['weight', 'name'])
                 ).values("_data")
             )
         )
