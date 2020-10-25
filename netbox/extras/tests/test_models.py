@@ -317,7 +317,6 @@ class ConfigContextTest(TestCase):
         )
         cluster_context.clusters.add(cluster)
 
-
         virtual_machine = VirtualMachine.objects.create(
             name="VM 1",
             cluster=cluster,
