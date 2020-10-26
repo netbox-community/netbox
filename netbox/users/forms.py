@@ -13,7 +13,7 @@ class LoginForm(BootstrapMixin, AuthenticationForm):
         self.fields['username'].widget.attrs['placeholder'] = ''
         self.fields['password'].widget.attrs['placeholder'] = ''
         self.fields['username'].widget.attrs['autocomplete'] = 'off'
-        self.fields['password'].widget.attrs['autocomplete'] = 'off'
+        self.fields['password'].widget.attrs['autocomplete'] = 'new-password'
 
 
 class PasswordChangeForm(BootstrapMixin, DjangoPasswordChangeForm):
