@@ -6,6 +6,7 @@
 * [#3672](https://github.com/netbox-community/netbox/issues/3672) - Fix a caching issue causing incorrect related object counts in API responses
 * [#5113](https://github.com/netbox-community/netbox/issues/5113) - Fix incorrect caching of permission object assignments to user groups in the admin panel
 * [#5243](https://github.com/netbox-community/netbox/issues/5243) - Redirect user to appropriate tab after modifying device components
+* [#5273](https://github.com/netbox-community/netbox/issues/5273) - Fix exception when validating a new permission with no models selected
 
 ---
 

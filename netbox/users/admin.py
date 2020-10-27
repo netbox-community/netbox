@@ -185,7 +185,7 @@ class ObjectPermissionForm(forms.ModelForm):
 
         # Validate the specified model constraints by attempting to execute a query. We don't care whether the query
         # returns anything; we just want to make sure the specified constraints are valid.
-        if constraints:
+        if object_types and constraints:
             # Normalize the constraints to a list of dicts
             if type(constraints) is not list:
                 constraints = [constraints]
