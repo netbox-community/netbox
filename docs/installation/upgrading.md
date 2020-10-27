@@ -52,14 +52,14 @@ Also copy the LDAP configuration if using LDAP:
 Be sure to replicate your uploaded media as well. (The exact action necessary will depend on where you choose to store your media, but in general moving or copying the media directory will suffice.)
 
 ```no-highlight
-# cp -pr netbox-X.Y.Z/netbox/media/ netbox/netbox/
+# cp -pr netbox-X.Y.Z/netbox/media netbox/netbox/
 ```
 
 Also make sure to copy over any custom scripts and reports that you've made. Note that if these are stored outside the project root, you will not need to copy them. (Check the `SCRIPTS_ROOT` and `REPORTS_ROOT` parameters in the configuration file above if you're unsure.)
 
 ```no-highlight
-# cp -r /opt/netbox-X.Y.Z/netbox/scripts /opt/netbox/netbox/scripts/
-# cp -r /opt/netbox-X.Y.Z/netbox/reports /opt/netbox/netbox/reports/
+# cp -r /opt/netbox-X.Y.Z/netbox/scripts netbox/netbox/
+# cp -r /opt/netbox-X.Y.Z/netbox/reports netbox/netbox/
 ```
 
 If you followed the original installation guide to set up gunicorn, be sure to copy its configuration as well:
