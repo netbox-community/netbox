@@ -38,7 +38,7 @@ You can use the command `systemctl status netbox` to verify that the WSGI servic
 # systemctl status netbox.service
 ● netbox.service - NetBox WSGI Service
    Loaded: loaded (/etc/systemd/system/netbox.service; enabled; vendor preset: enabled)
-   Active: active (running) since sat 2020-10-24 19:23:40 UTC; 25s ago
+   Active: active (running) since Sat 2020-10-24 19:23:40 UTC; 25s ago
      Docs: https://netbox.readthedocs.io/en/stable/
  Main PID: 11993 (gunicorn)
     Tasks: 6 (limit: 2362)
