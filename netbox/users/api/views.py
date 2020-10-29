@@ -1,7 +1,5 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group, User
 from django.db.models import Count
-from django.utils.decorators import method_decorator
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
@@ -11,6 +9,7 @@ from netbox.api.views import ModelViewSet
 from users import filters
 from users.models import ObjectPermission, UserConfig
 from utilities.querysets import RestrictedQuerySet
+from utilities.utils import deepmerge
 from . import serializers
 
 
@@ -75,7 +74,7 @@ class UserConfigViewSet(ViewSet):
         """
         # TODO: How can we validate this data?
         userconfig = self.get_queryset().first()
-        userconfig.data.update(request.data)
+        userconfig.data = deepmerge(userconfig.data, request.data)
         userconfig.save()
 
         return Response(userconfig.data)
