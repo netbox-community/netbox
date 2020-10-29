@@ -201,26 +201,37 @@ class RandomAnimalView(View):
         })
 ```
 
-This view retrieves a random animal from the database and and passes it as a context variable when rendering a template named `animal.html`, which doesn't exist yet. To create this template, first create a directory named `templates/netbox_animal_sounds/` within the plugin source directory. (We use the plugin's name as a subdirectory to guard against naming collisions with other plugins.) Then, create `animal.html`:
+This view retrieves a random animal from the database and and passes it as a context variable when rendering a template named `animal.html`, which doesn't exist yet. To create this template, first create a directory named `templates/netbox_animal_sounds/` within the plugin source directory. (We use the plugin's name as a subdirectory to guard against naming collisions with other plugins.) Then, create a template named `animal.html` as described below.
+
+### Extending the Base Template
+
+NetBox provides a base template to ensure a consistent user experience, which plugins can extend with their own content. This template includes four content blocks:
+
+* `title` - The page title
+* `header` - The upper portion of the page
+* `content` - The main page body
+* `javascript` - A section at the end of the page for including Javascript code
+
+For more information on how template blocks work, consult the [Django documentation](https://docs.djangoproject.com/en/stable/ref/templates/builtins/#block).
 
 ```jinja2
 {% extends 'base.html' %}
 
 {% block content %}
-{% with config=settings.PLUGINS_CONFIG.netbox_animal_sounds %}
-<h2 class="text-center" style="margin-top: 200px">
-    {% if animal %}
-        The {{ animal.name|lower }} says
-        {% if config.loud %}
-            {{ animal.sound|upper }}!
-        {% else %}
-            {{ animal.sound }}
-        {% endif %}
-    {% else %}
-        No animals have been created yet!
-    {% endif %}
-</h2>
-{% endwith %}
+    {% with config=settings.PLUGINS_CONFIG.netbox_animal_sounds %}
+        <h2 class="text-center" style="margin-top: 200px">
+            {% if animal %}
+                The {{ animal.name|lower }} says
+                {% if config.loud %}
+                    {{ animal.sound|upper }}!
+                {% else %}
+                    {{ animal.sound }}
+                {% endif %}
+            {% else %}
+                No animals have been created yet!
+            {% endif %}
+        </h2>
+    {% endwith %}
 {% endblock %}
 
 ```
