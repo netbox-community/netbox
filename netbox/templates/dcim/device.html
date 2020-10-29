@@ -486,10 +486,12 @@
                             <div class="panel-heading">
                                 <strong>Interfaces</strong>
                                 <div class="pull-right noprint">
-                                    <input class="form-control interface-filter" type="text" placeholder="Filter" title="Filter text (regular expressions supported)" style="height: 23px" />
                                     {% if request.user.is_authenticated %}
                                         <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DeviceInterfaceTable_config" title="Configure table"><i class="fa fa-cog"></i> Configure</button>
                                     {% endif %}
+                                </div>
+                                <div class="pull-right col-md-2 noprint">
+                                    <input class="form-control interface-filter" type="text" placeholder="Filter" title="Filter text (regular expressions supported)" style="height: 23px" />
                                 </div>
                             </div>
                             {% include 'responsive_table.html' with table=interface_table %}
