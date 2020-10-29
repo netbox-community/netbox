@@ -161,6 +161,7 @@ class TableConfigForm(BootstrapMixin, forms.Form):
     """
     columns = forms.MultipleChoiceField(
         choices=[],
+        required=False,
         widget=forms.SelectMultiple(
             attrs={'size': 10}
         ),

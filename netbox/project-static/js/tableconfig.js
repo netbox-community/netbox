@@ -1,4 +1,9 @@
 $(document).ready(function() {
+    $('form.userconfigform input.reset').click(function(event) {
+        // Deselect all columns when the reset button is clicked
+        $('select[name="columns"]').val([]);
+    });
+
     $('form.userconfigform').submit(function(event) {
         event.preventDefault();
 
