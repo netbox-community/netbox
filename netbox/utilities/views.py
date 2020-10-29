@@ -289,12 +289,8 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
             perm_name = get_permission_for_model(model, action)
             permissions[action] = request.user.has_perm(perm_name)
 
-        # Construct the table based on the user's permissions
-        if request.user.is_authenticated:
-            columns = request.user.config.get(f"tables.{self.table.__name__}.columns")
-        else:
-            columns = None
-        table = self.table(self.queryset, columns=columns)
+        # Construct the objects table
+        table = self.table(self.queryset, user=request.user)
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
 
@@ -316,23 +312,6 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
         context.update(self.extra_context())
 
         return render(request, self.template_name, context)
-
-    @method_decorator(login_required)
-    def post(self, request):
-
-        # Update the user's table configuration
-        table = self.table(self.queryset)
-        form = TableConfigForm(table=table, data=request.POST)
-        preference_name = f"tables.{self.table.__name__}.columns"
-
-        if form.is_valid():
-            if 'set' in request.POST:
-                request.user.config.set(preference_name, form.cleaned_data['columns'], commit=True)
-            elif 'clear' in request.POST:
-                request.user.config.clear(preference_name, commit=True)
-            messages.success(request, "Your preferences have been updated.")
-
-        return redirect(request.get_full_path())
 
     def extra_context(self):
         return {}

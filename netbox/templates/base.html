@@ -96,6 +96,7 @@
         onerror="window.location='{% url 'media_failure' %}?filename=js/forms.js'"></script>
 <script type="text/javascript">
     var netbox_api_path = "/{{ settings.BASE_PATH }}api/";
+    var netbox_csrf_token = "{{ csrf_token }}";
     var loading = $(".loading");
     $(document).ajaxStart(function() {
         loading.show();

@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 {% load buttons %}
 {% load helpers %}
+{% load static %}
 
 {% block content %}
 <div class="pull-right noprint">
     {% block buttons %}{% endblock %}
     {% if request.user.is_authenticated and table_config_form %}
-        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#tableconfig" title="Configure table"><i class="fa fa-cog"></i> Configure</button>
+        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#ObjectTable_config" title="Configure table"><i class="fa fa-cog"></i> Configure</button>
     {% endif %}
     {% if permissions.add and 'add' in action_buttons %}
         {% add_button content_type.model_class|validated_viewname:"add" %}
@@ -71,9 +72,6 @@
         {% endwith %}
         {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
         <div class="clearfix"></div>
-        {% if table_config_form %}
-            {% include 'inc/table_config_form.html' %}
-        {% endif %}
     </div>
     {% if filter_form %}
         <div class="col-md-3 noprint">
@@ -82,4 +80,9 @@
         </div>
     {% endif %}
 </div>
+{% table_config_form table table_name="ObjectTable" %}
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'js/tableconfig.js' %}"></script>
 {% endblock %}

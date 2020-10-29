@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import RelatedField
@@ -11,10 +12,11 @@ class BaseTable(tables.Table):
     """
     Default table for object lists
 
-    :param add_prefetch: By default, modify the queryset passed to the table upon initialization to automatically
-      prefetch related data. Set this to False if it's necessary to avoid modifying the queryset (e.g. to
-      accommodate PrefixQuerySet.annotate_depth()).
+    :param user: Personalize table display for the given user (optional). Has no effect if AnonymousUser is passed.
     """
+    # By default, modify the queryset passed to the table upon initialization to automatically prefetch related
+    # data. Set this to False if it's necessary to avoid modifying the queryset (e.g. to accommodate
+    # PrefixQuerySet.annotate_depth()).
     add_prefetch = True
 
     class Meta:
@@ -22,7 +24,7 @@ class BaseTable(tables.Table):
             'class': 'table table-hover table-headings',
         }
 
-    def __init__(self, *args, columns=None, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Set default empty_text if none was provided
@@ -36,25 +38,27 @@ class BaseTable(tables.Table):
                 if column.name not in default_columns:
                     self.columns.hide(column.name)
 
-        # Apply custom column ordering
-        if columns is not None:
-            pk = self.base_columns.pop('pk', None)
-            actions = self.base_columns.pop('actions', None)
+        # Apply custom column ordering for user
+        if user is not None and not isinstance(user, AnonymousUser):
+            columns = user.config.get(f"tables.{self.__class__.__name__}.columns")
+            if columns:
+                pk = self.base_columns.pop('pk', None)
+                actions = self.base_columns.pop('actions', None)
 
-            for name, column in self.base_columns.items():
-                if name in columns:
-                    self.columns.show(name)
-                else:
-                    self.columns.hide(name)
-            self.sequence = [c for c in columns if c in self.base_columns]
+                for name, column in self.base_columns.items():
+                    if name in columns:
+                        self.columns.show(name)
+                    else:
+                        self.columns.hide(name)
+                self.sequence = [c for c in columns if c in self.base_columns]
 
-            # Always include PK and actions column, if defined on the table
-            if pk:
-                self.base_columns['pk'] = pk
-                self.sequence.insert(0, 'pk')
-            if actions:
-                self.base_columns['actions'] = actions
-                self.sequence.append('actions')
+                # Always include PK and actions column, if defined on the table
+                if pk:
+                    self.base_columns['pk'] = pk
+                    self.sequence.insert(0, 'pk')
+                if actions:
+                    self.base_columns['actions'] = actions
+                    self.sequence.append('actions')
 
         # Dynamically update the table's QuerySet to ensure related fields are pre-fetched
         if self.add_prefetch and isinstance(self.data, TableQuerysetData):

@@ -193,10 +193,6 @@ table.component-list td.subtable td {
     padding-bottom: 6px;
     padding-top: 6px;
 }
-table.interface-ips th {
-    font-size: 80%;
-    font-weight: normal;
-}
 
 /* Reports */
 table.reports td.method {
