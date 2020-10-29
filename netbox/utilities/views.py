@@ -289,12 +289,8 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
             perm_name = get_permission_for_model(model, action)
             permissions[action] = request.user.has_perm(perm_name)
 
-        # Construct the table based on the user's permissions
-        if request.user.is_authenticated:
-            columns = request.user.config.get(f"tables.{self.table.__name__}.columns")
-        else:
-            columns = None
-        table = self.table(self.queryset, columns=columns)
+        # Construct the objects table
+        table = self.table(self.queryset, user=request.user)
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
 
