@@ -147,7 +147,7 @@ class RegionBulkDeleteView(BulkDeleteView):
 #
 
 class SiteListView(ObjectListView):
-    queryset = Site.objects.prefetch_related('region', 'tenant')
+    queryset = Site.objects.all()
     filterset = filters.SiteFilterSet
     filterset_form = forms.SiteFilterForm
     table = tables.SiteTable
@@ -222,7 +222,7 @@ class RackGroupListView(ObjectListView):
         'group',
         'rack_count',
         cumulative=True
-    ).prefetch_related('site')
+    )
     filterset = filters.RackGroupFilterSet
     filterset_form = forms.RackGroupFilterForm
     table = tables.RackGroupTable
@@ -289,9 +289,7 @@ class RackRoleBulkDeleteView(BulkDeleteView):
 #
 
 class RackListView(ObjectListView):
-    queryset = Rack.objects.prefetch_related(
-        'site', 'group', 'tenant', 'role', 'devices__device_type'
-    ).annotate(
+    queryset = Rack.objects.annotate(
         device_count=Count('devices')
     ).order_by(*Rack._meta.ordering)
     filterset = filters.RackFilterSet
@@ -410,7 +408,7 @@ class RackBulkDeleteView(BulkDeleteView):
 #
 
 class RackReservationListView(ObjectListView):
-    queryset = RackReservation.objects.prefetch_related('rack__site')
+    queryset = RackReservation.objects.all()
     filterset = filters.RackReservationFilterSet
     filterset_form = forms.RackReservationFilterForm
     table = tables.RackReservationTable
@@ -514,7 +512,7 @@ class ManufacturerBulkDeleteView(BulkDeleteView):
 #
 
 class DeviceTypeListView(ObjectListView):
-    queryset = DeviceType.objects.prefetch_related('manufacturer').annotate(
+    queryset = DeviceType.objects.annotate(
         instance_count=Count('instances')
     ).order_by(*DeviceType._meta.ordering)
     filterset = filters.DeviceTypeFilterSet
@@ -989,9 +987,7 @@ class PlatformBulkDeleteView(BulkDeleteView):
 #
 
 class DeviceListView(ObjectListView):
-    queryset = Device.objects.prefetch_related(
-        'device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack', 'primary_ip4', 'primary_ip6'
-    )
+    queryset = Device.objects.all()
     filterset = filters.DeviceFilterSet
     filterset_form = forms.DeviceFilterForm
     table = tables.DeviceTable
@@ -1263,7 +1259,7 @@ class DeviceBulkDeleteView(BulkDeleteView):
 #
 
 class ConsolePortListView(ObjectListView):
-    queryset = ConsolePort.objects.prefetch_related('device', 'cable')
+    queryset = ConsolePort.objects.all()
     filterset = filters.ConsolePortFilterSet
     filterset_form = forms.ConsolePortFilterForm
     table = tables.ConsolePortTable
@@ -1323,7 +1319,7 @@ class ConsolePortBulkDeleteView(BulkDeleteView):
 #
 
 class ConsoleServerPortListView(ObjectListView):
-    queryset = ConsoleServerPort.objects.prefetch_related('device', 'cable')
+    queryset = ConsoleServerPort.objects.all()
     filterset = filters.ConsoleServerPortFilterSet
     filterset_form = forms.ConsoleServerPortFilterForm
     table = tables.ConsoleServerPortTable
@@ -1383,7 +1379,7 @@ class ConsoleServerPortBulkDeleteView(BulkDeleteView):
 #
 
 class PowerPortListView(ObjectListView):
-    queryset = PowerPort.objects.prefetch_related('device', 'cable')
+    queryset = PowerPort.objects.all()
     filterset = filters.PowerPortFilterSet
     filterset_form = forms.PowerPortFilterForm
     table = tables.PowerPortTable
@@ -1443,7 +1439,7 @@ class PowerPortBulkDeleteView(BulkDeleteView):
 #
 
 class PowerOutletListView(ObjectListView):
-    queryset = PowerOutlet.objects.prefetch_related('device', 'cable')
+    queryset = PowerOutlet.objects.all()
     filterset = filters.PowerOutletFilterSet
     filterset_form = forms.PowerOutletFilterForm
     table = tables.PowerOutletTable
@@ -1503,7 +1499,7 @@ class PowerOutletBulkDeleteView(BulkDeleteView):
 #
 
 class InterfaceListView(ObjectListView):
-    queryset = Interface.objects.prefetch_related('device', 'cable')
+    queryset = Interface.objects.all()
     filterset = filters.InterfaceFilterSet
     filterset_form = forms.InterfaceFilterForm
     table = tables.InterfaceTable
@@ -1593,7 +1589,7 @@ class InterfaceBulkDeleteView(BulkDeleteView):
 #
 
 class FrontPortListView(ObjectListView):
-    queryset = FrontPort.objects.prefetch_related('device', 'cable')
+    queryset = FrontPort.objects.all()
     filterset = filters.FrontPortFilterSet
     filterset_form = forms.FrontPortFilterForm
     table = tables.FrontPortTable
@@ -1653,7 +1649,7 @@ class FrontPortBulkDeleteView(BulkDeleteView):
 #
 
 class RearPortListView(ObjectListView):
-    queryset = RearPort.objects.prefetch_related('device', 'cable')
+    queryset = RearPort.objects.all()
     filterset = filters.RearPortFilterSet
     filterset_form = forms.RearPortFilterForm
     table = tables.RearPortTable
@@ -1713,7 +1709,7 @@ class RearPortBulkDeleteView(BulkDeleteView):
 #
 
 class DeviceBayListView(ObjectListView):
-    queryset = DeviceBay.objects.prefetch_related('device', 'installed_device')
+    queryset = DeviceBay.objects.all()
     filterset = filters.DeviceBayFilterSet
     filterset_form = forms.DeviceBayFilterForm
     table = tables.DeviceBayTable
@@ -1836,7 +1832,7 @@ class DeviceBayBulkDeleteView(BulkDeleteView):
 #
 
 class InventoryItemListView(ObjectListView):
-    queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer')
+    queryset = InventoryItem.objects.all()
     filterset = filters.InventoryItemFilterSet
     filterset_form = forms.InventoryItemFilterForm
     table = tables.InventoryItemTable
@@ -1994,9 +1990,7 @@ class DeviceBulkAddInventoryItemView(BulkComponentCreateView):
 #
 
 class CableListView(ObjectListView):
-    queryset = Cable.objects.prefetch_related(
-        'termination_a', 'termination_b'
-    )
+    queryset = Cable.objects.all()
     filterset = filters.CableFilterSet
     filterset_form = forms.CableFilterForm
     table = tables.CableTable
@@ -2145,9 +2139,7 @@ class CableBulkDeleteView(BulkDeleteView):
 #
 
 class ConsoleConnectionsListView(ObjectListView):
-    queryset = ConsolePort.objects.prefetch_related(
-        'device', '_path__destination'
-    ).filter(_path__isnull=False).order_by('device')
+    queryset = ConsolePort.objects.filter(_path__isnull=False).order_by('device')
     filterset = filters.ConsoleConnectionFilterSet
     filterset_form = forms.ConsoleConnectionFilterForm
     table = tables.ConsoleConnectionTable
@@ -2172,9 +2164,7 @@ class ConsoleConnectionsListView(ObjectListView):
 
 
 class PowerConnectionsListView(ObjectListView):
-    queryset = PowerPort.objects.prefetch_related(
-        'device', '_path__destination'
-    ).filter(_path__isnull=False).order_by('device')
+    queryset = PowerPort.objects.filter(_path__isnull=False).order_by('device')
     filterset = filters.PowerConnectionFilterSet
     filterset_form = forms.PowerConnectionFilterForm
     table = tables.PowerConnectionTable
@@ -2199,9 +2189,7 @@ class PowerConnectionsListView(ObjectListView):
 
 
 class InterfaceConnectionsListView(ObjectListView):
-    queryset = Interface.objects.prefetch_related(
-        'device', '_path__destination'
-    ).filter(
+    queryset = Interface.objects.filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
         _path__isnull=False,
         pk__lt=F('_path__destination_id')
@@ -2236,7 +2224,7 @@ class InterfaceConnectionsListView(ObjectListView):
 #
 
 class VirtualChassisListView(ObjectListView):
-    queryset = VirtualChassis.objects.prefetch_related('master').annotate(
+    queryset = VirtualChassis.objects.annotate(
         member_count=Count('members', distinct=True)
     ).order_by(*VirtualChassis._meta.ordering)
     table = tables.VirtualChassisTable
@@ -2466,9 +2454,7 @@ class VirtualChassisBulkDeleteView(BulkDeleteView):
 #
 
 class PowerPanelListView(ObjectListView):
-    queryset = PowerPanel.objects.prefetch_related(
-        'site', 'rack_group'
-    ).annotate(
+    queryset = PowerPanel.objects.annotate(
         powerfeed_count=Count('powerfeeds')
     ).order_by(*PowerPanel._meta.ordering)
     filterset = filters.PowerPanelFilterSet
@@ -2532,9 +2518,7 @@ class PowerPanelBulkDeleteView(BulkDeleteView):
 #
 
 class PowerFeedListView(ObjectListView):
-    queryset = PowerFeed.objects.prefetch_related(
-        'power_panel', 'rack'
-    )
+    queryset = PowerFeed.objects.all()
     filterset = filters.PowerFeedFilterSet
     filterset_form = forms.PowerFeedFilterForm
     table = tables.PowerFeedTable

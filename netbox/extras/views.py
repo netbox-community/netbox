@@ -173,7 +173,7 @@ class ObjectConfigContextView(ObjectView):
 #
 
 class ObjectChangeListView(ObjectListView):
-    queryset = ObjectChange.objects.prefetch_related('user', 'changed_object_type')
+    queryset = ObjectChange.objects.all()
     filterset = filters.ObjectChangeFilterSet
     filterset_form = forms.ObjectChangeFilterForm
     table = tables.ObjectChangeTable

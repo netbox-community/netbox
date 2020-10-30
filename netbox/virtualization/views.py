@@ -83,7 +83,7 @@ class ClusterGroupBulkDeleteView(BulkDeleteView):
 
 class ClusterListView(ObjectListView):
     permission_required = 'virtualization.view_cluster'
-    queryset = Cluster.objects.prefetch_related('type', 'group', 'site', 'tenant').annotate(
+    queryset = Cluster.objects.annotate(
         device_count=get_subquery(Device, 'cluster'),
         vm_count=get_subquery(VirtualMachine, 'cluster')
     )
@@ -230,7 +230,7 @@ class ClusterRemoveDevicesView(ObjectEditView):
 #
 
 class VirtualMachineListView(ObjectListView):
-    queryset = VirtualMachine.objects.prefetch_related('cluster', 'tenant', 'role', 'primary_ip4', 'primary_ip6')
+    queryset = VirtualMachine.objects.all()
     filterset = filters.VirtualMachineFilterSet
     filterset_form = forms.VirtualMachineFilterForm
     table = tables.VirtualMachineDetailTable
@@ -311,7 +311,7 @@ class VirtualMachineBulkDeleteView(BulkDeleteView):
 #
 
 class VMInterfaceListView(ObjectListView):
-    queryset = VMInterface.objects.prefetch_related('virtual_machine')
+    queryset = VMInterface.objects.all()
     filterset = filters.VMInterfaceFilterSet
     filterset_form = forms.VMInterfaceFilterForm
     table = tables.VMInterfaceTable

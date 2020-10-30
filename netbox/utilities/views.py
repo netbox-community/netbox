@@ -195,7 +195,8 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
     """
     List a series of objects.
 
-    queryset: The queryset of objects to display
+    queryset: The queryset of objects to display. Note: Prefetching related objects is not necessary, as the
+      table will prefetch objects as needed depending on the columns being displayed.
     filter: A django-filter FilterSet that is applied to the queryset
     filter_form: The form used to render filter options
     table: The django-tables2 Table used to render the objects list

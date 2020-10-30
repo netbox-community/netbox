@@ -124,7 +124,7 @@ class CircuitListView(ObjectListView):
 
 
 class CircuitView(ObjectView):
-    queryset = Circuit.objects.prefetch_related('provider', 'type', 'tenant__group')
+    queryset = Circuit.objects.all()
 
     def get(self, request, pk):
         circuit = get_object_or_404(self.queryset, pk=pk)

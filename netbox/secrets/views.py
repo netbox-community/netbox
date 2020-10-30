@@ -58,7 +58,7 @@ class SecretRoleBulkDeleteView(BulkDeleteView):
 #
 
 class SecretListView(ObjectListView):
-    queryset = Secret.objects.prefetch_related('role', 'tags')
+    queryset = Secret.objects.all()
     filterset = filters.SecretFilterSet
     filterset_form = forms.SecretFilterForm
     table = tables.SecretTable

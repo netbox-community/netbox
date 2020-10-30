@@ -25,7 +25,7 @@ from .utils import add_available_ipaddresses, add_available_prefixes, add_availa
 #
 
 class VRFListView(ObjectListView):
-    queryset = VRF.objects.prefetch_related('tenant')
+    queryset = VRF.objects.all()
     filterset = filters.VRFFilterSet
     filterset_form = forms.VRFFilterForm
     table = tables.VRFTable
@@ -90,7 +90,7 @@ class VRFBulkDeleteView(BulkDeleteView):
 #
 
 class RouteTargetListView(ObjectListView):
-    queryset = RouteTarget.objects.prefetch_related('tenant')
+    queryset = RouteTarget.objects.all()
     filterset = filters.RouteTargetFilterSet
     filterset_form = forms.RouteTargetFilterForm
     table = tables.RouteTargetTable
@@ -184,7 +184,7 @@ class RIRBulkDeleteView(BulkDeleteView):
 #
 
 class AggregateListView(ObjectListView):
-    queryset = Aggregate.objects.prefetch_related('rir').annotate(
+    queryset = Aggregate.objects.annotate(
         child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
     ).order_by(*Aggregate._meta.ordering)
     filterset = filters.AggregateFilterSet
@@ -320,7 +320,7 @@ class RoleBulkDeleteView(BulkDeleteView):
 #
 
 class PrefixListView(ObjectListView):
-    queryset = Prefix.objects.prefetch_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role').annotate_tree()
+    queryset = Prefix.objects.annotate_tree()
     filterset = filters.PrefixFilterSet
     filterset_form = forms.PrefixFilterForm
     table = tables.PrefixDetailTable
@@ -494,9 +494,7 @@ class PrefixBulkDeleteView(BulkDeleteView):
 #
 
 class IPAddressListView(ObjectListView):
-    queryset = IPAddress.objects.prefetch_related(
-        'vrf__tenant', 'tenant', 'nat_inside', 'assigned_object'
-    )
+    queryset = IPAddress.objects.all()
     filterset = filters.IPAddressFilterSet
     filterset_form = forms.IPAddressFilterForm
     table = tables.IPAddressDetailTable
@@ -653,7 +651,7 @@ class IPAddressBulkDeleteView(BulkDeleteView):
 #
 
 class VLANGroupListView(ObjectListView):
-    queryset = VLANGroup.objects.prefetch_related('site').annotate(
+    queryset = VLANGroup.objects.annotate(
         vlan_count=Count('vlans')
     ).order_by(*VLANGroup._meta.ordering)
     filterset = filters.VLANGroupFilterSet
@@ -728,9 +726,7 @@ class VLANGroupVLANsView(ObjectView):
 #
 
 class VLANListView(ObjectListView):
-    queryset = VLAN.objects.prefetch_related(
-        'site', 'group', 'tenant', 'role', 'prefixes'
-    )
+    queryset = VLAN.objects.all()
     filterset = filters.VLANFilterSet
     filterset_form = forms.VLANFilterForm
     table = tables.VLANDetailTable
@@ -830,7 +826,7 @@ class VLANBulkDeleteView(BulkDeleteView):
 #
 
 class ServiceListView(ObjectListView):
-    queryset = Service.objects.prefetch_related('device', 'virtual_machine')
+    queryset = Service.objects.all()
     filterset = filters.ServiceFilterSet
     filterset_form = forms.ServiceFilterForm
     table = tables.ServiceTable
