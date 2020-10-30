@@ -6,7 +6,7 @@ from rest_framework.routers import APIRootView
 
 from dcim.models import Device
 from extras.api.serializers import RenderedGraphSerializer
-from extras.api.views import CustomFieldModelViewSet
+from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet
 from extras.models import Graph
 from utilities.api import ModelViewSet
 from utilities.utils import get_subquery
@@ -58,26 +58,11 @@ class ClusterViewSet(CustomFieldModelViewSet):
 # Virtual machines
 #
 
-class VirtualMachineViewSet(CustomFieldModelViewSet):
+class VirtualMachineViewSet(CustomFieldModelViewSet, ConfigContextQuerySetMixin):
     queryset = VirtualMachine.objects.prefetch_related(
         'cluster__site', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'tags'
     )
     filterset_class = filters.VirtualMachineFilterSet
-
-    def get_queryset(self):
-        """
-        Build the proper queryset based on the request context
-
-        If the `brief` query param equates to True or the `exclude` query param
-        includes `config_context` as a value, return the base queryset.
-
-        Else, return the queryset annotated with config context data
-        """
-
-        request = self.get_serializer_context()['request']
-        if request.query_params.get('brief') or 'config_context' in request.query_params.get('exclude', []):
-            return self.queryset
-        return self.queryset.annotate_config_context_data()
 
     def get_serializer_class(self):
         """
