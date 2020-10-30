@@ -14,11 +14,6 @@ class BaseTable(tables.Table):
 
     :param user: Personalize table display for the given user (optional). Has no effect if AnonymousUser is passed.
     """
-    # By default, modify the queryset passed to the table upon initialization to automatically prefetch related
-    # data. Set this to False if it's necessary to avoid modifying the queryset (e.g. to accommodate
-    # PrefixQuerySet.annotate_depth()).
-    add_prefetch = True
-
     class Meta:
         attrs = {
             'class': 'table table-hover table-headings',
@@ -61,18 +56,28 @@ class BaseTable(tables.Table):
                     self.sequence.append('actions')
 
         # Dynamically update the table's QuerySet to ensure related fields are pre-fetched
-        if self.add_prefetch and isinstance(self.data, TableQuerysetData):
-            model = getattr(self.Meta, 'model')
+        if isinstance(self.data, TableQuerysetData):
             prefetch_fields = []
             for column in self.columns:
                 if column.visible:
-                    field_path = column.accessor.split('.')
-                    try:
-                        model_field = model._meta.get_field(field_path[0])
-                        if isinstance(model_field, (RelatedField, GenericForeignKey)):
-                            prefetch_fields.append('__'.join(field_path))
-                    except FieldDoesNotExist:
-                        pass
+                    model = getattr(self.Meta, 'model')
+                    accessor = column.accessor
+                    prefetch_path = []
+                    for field_name in accessor.split(accessor.SEPARATOR):
+                        try:
+                            field = model._meta.get_field(field_name)
+                        except FieldDoesNotExist:
+                            break
+                        if isinstance(field, RelatedField):
+                            # Follow ForeignKeys to the related model
+                            prefetch_path.append(field_name)
+                            model = field.remote_field.model
+                        elif isinstance(field, GenericForeignKey):
+                            # Can't prefetch beyond a GenericForeignKey
+                            prefetch_path.append(field_name)
+                            break
+                    if prefetch_path:
+                        prefetch_fields.append('__'.join(prefetch_path))
             self.data.data = self.data.data.prefetch_related(None).prefetch_related(*prefetch_fields)
 
     @property

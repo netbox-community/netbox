@@ -40,8 +40,6 @@ class ConsoleConnectionTable(BaseTable):
         verbose_name='Reachable'
     )
 
-    add_prefetch = False
-
     class Meta(BaseTable.Meta):
         model = ConsolePort
         fields = ('device', 'name', 'console_server', 'console_server_port', 'reachable')
@@ -71,8 +69,6 @@ class PowerConnectionTable(BaseTable):
         accessor=Accessor('_path__is_active'),
         verbose_name='Reachable'
     )
-
-    add_prefetch = False
 
     class Meta(BaseTable.Meta):
         model = PowerPort
@@ -106,8 +102,6 @@ class InterfaceConnectionTable(BaseTable):
         accessor=Accessor('_path__is_active'),
         verbose_name='Reachable'
     )
-
-    add_prefetch = False
 
     class Meta(BaseTable.Meta):
         model = Interface
