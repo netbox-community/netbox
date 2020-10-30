@@ -109,30 +109,24 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
 
         if self.model._meta.model_name == 'device':
             base_query.add((Q(roles=OuterRef('device_role')) | Q(roles=None)), Q.AND)
-            base_query.add(
-                (Q(
-                    regions__tree_id=OuterRef('site__region__tree_id'),
-                    regions__level__lte=OuterRef('site__region__level'),
-                    regions__lft__lte=OuterRef('site__region__lft'),
-                    regions__rght__gte=OuterRef('site__region__rght'),
-                ) | Q(regions=None)),
-                Q.AND
-            )
             base_query.add((Q(sites=OuterRef('site')) | Q(sites=None)), Q.AND)
+            region_field = 'site__region'
 
         elif self.model._meta.model_name == 'virtualmachine':
             base_query.add((Q(roles=OuterRef('role')) | Q(roles=None)), Q.AND)
             base_query.add((Q(cluster_groups=OuterRef('cluster__group')) | Q(cluster_groups=None)), Q.AND)
             base_query.add((Q(clusters=OuterRef('cluster')) | Q(clusters=None)), Q.AND)
-            base_query.add(
-                (Q(
-                    regions__tree_id=OuterRef('cluster__site__region__tree_id'),
-                    regions__level__lte=OuterRef('cluster__site__region__level'),
-                    regions__lft__lte=OuterRef('cluster__site__region__lft'),
-                    regions__rght__gte=OuterRef('cluster__site__region__rght'),
-                ) | Q(regions=None)),
-                Q.AND
-            )
             base_query.add((Q(sites=OuterRef('cluster__site')) | Q(sites=None)), Q.AND)
+            region_field = 'cluster__site__region'
+
+        base_query.add(
+            (Q(
+                regions__tree_id=OuterRef(f'{region_field}__tree_id'),
+                regions__level__lte=OuterRef(f'{region_field}__level'),
+                regions__lft__lte=OuterRef(f'{region_field}__lft'),
+                regions__rght__gte=OuterRef(f'{region_field}__rght'),
+            ) | Q(regions=None)),
+            Q.AND
+        )
 
         return base_query
