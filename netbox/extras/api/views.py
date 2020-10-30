@@ -26,6 +26,29 @@ from utilities.utils import copy_safe_request
 from . import serializers
 
 
+class ConfigContextQuerySetMixin:
+    """
+    Used by views that work with config context models (device and virtual machine).
+    Provides a get_queryset() method which deals with adding the config context
+    data annotation or not.
+    """
+
+    def get_queryset(self):
+        """
+        Build the proper queryset based on the request context
+
+        If the `brief` query param equates to True or the `exclude` query param
+        includes `config_context` as a value, return the base queryset.
+
+        Else, return the queryset annotated with config context data
+        """
+
+        request = self.get_serializer_context()['request']
+        if request.query_params.get('brief') or 'config_context' in request.query_params.get('exclude', []):
+            return self.queryset
+        return self.queryset.annotate_config_context_data()
+
+
 class ExtrasRootView(APIRootView):
     """
     Extras API root view
