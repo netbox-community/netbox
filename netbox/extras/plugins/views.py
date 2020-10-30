@@ -10,8 +10,6 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
-from extras.plugins.utils import import_object
-
 
 class InstalledPluginsAdminView(View):
     """
@@ -62,11 +60,7 @@ class PluginsAPIRootView(APIView):
     @staticmethod
     def _get_plugin_entry(plugin, app_config, request, format):
         # Check if the plugin specifies any API URLs
-        api_app_name = import_object(f"{plugin}.api.urls.app_name")
-        if api_app_name is None:
-            # Plugin does not expose an API
-            return None
-
+        api_app_name = f'{app_config.name}-api'
         try:
             entry = (getattr(app_config, 'base_url', app_config.label), reverse(
                 f"plugins-api:{api_app_name}:api-root",

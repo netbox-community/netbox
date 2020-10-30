@@ -24,14 +24,30 @@
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Components <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    {% if perms.dcim.add_consoleporttemplate %}<li><a href="{% url 'dcim:consoleporttemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}">Console Ports</a></li>{% endif %}
-                    {% if perms.dcim.add_consoleserverporttemplate %}<li><a href="{% url 'dcim:consoleserverporttemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}">Console Server Ports</a></li>{% endif %}
-                    {% if perms.dcim.add_powerporttemplate %}<li><a href="{% url 'dcim:powerporttemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}">Power Ports</a></li>{% endif %}
-                    {% if perms.dcim.add_poweroutlettemplate %}<li><a href="{% url 'dcim:poweroutlettemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}">Power Outlets</a></li>{% endif %}
-                    {% if perms.dcim.add_interfacetemplate %}<li><a href="{% url 'dcim:interfacetemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}">Interfaces</a></li>{% endif %}
-                    {% if perms.dcim.add_frontporttemplate %}<li><a href="{% url 'dcim:frontporttemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}">Front Ports</a></li>{% endif %}
-                    {% if perms.dcim.add_rearporttemplate %}<li><a href="{% url 'dcim:rearporttemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}">Rear Ports</a></li>{% endif %}
-                    {% if perms.dcim.add_devicebaytemplate %}<li><a href="{% url 'dcim:devicebaytemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}">Device Bays</a></li>{% endif %}
+                    {% if perms.dcim.add_consoleporttemplate %}
+                        <li><a href="{% url 'dcim:consoleporttemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_consoleports">Console Ports</a></li>
+                    {% endif %}
+                    {% if perms.dcim.add_consoleserverporttemplate %}
+                        <li><a href="{% url 'dcim:consoleserverporttemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_consoleserverports">Console Server Ports</a></li>
+                    {% endif %}
+                    {% if perms.dcim.add_powerporttemplate %}
+                        <li><a href="{% url 'dcim:powerporttemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_powerports">Power Ports</a></li>
+                    {% endif %}
+                    {% if perms.dcim.add_poweroutlettemplate %}
+                        <li><a href="{% url 'dcim:poweroutlettemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_poweroutlets">Power Outlets</a></li>
+                    {% endif %}
+                    {% if perms.dcim.add_interfacetemplate %}
+                        <li><a href="{% url 'dcim:interfacetemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_interfaces">Interfaces</a></li>
+                    {% endif %}
+                    {% if perms.dcim.add_frontporttemplate %}
+                        <li><a href="{% url 'dcim:frontporttemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_frontports">Front Ports</a></li>
+                    {% endif %}
+                    {% if perms.dcim.add_rearporttemplate %}
+                        <li><a href="{% url 'dcim:rearporttemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_rearports">Rear Ports</a></li>
+                    {% endif %}
+                    {% if perms.dcim.add_devicebaytemplate %}
+                        <li><a href="{% url 'dcim:devicebaytemplate_add' %}?device_type={{ devicetype.pk }}&return_url={{ devicetype.get_absolute_url }}%23tab_devicebays">Device Bays</a></li>
+                    {% endif %}
                 </ul>
             </div>
         {% endif %}
@@ -216,4 +232,18 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+// Redirect user to appropriate components tab if specified
+var hash = document.location.hash;
+var prefix = "tab_";
+if (hash) {
+    $('.nav-tabs a[href="'+hash.replace(prefix,"")+'"]').tab('show');
+}
+$('.nav-tabs a').on('shown.bs.tab', function (e) {
+    window.location.hash = e.target.hash.replace("#", "#" + prefix);
+});
+</script>
 {% endblock %}

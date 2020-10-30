@@ -24,7 +24,7 @@ from dcim.models import (
     VirtualChassis,
 )
 from extras.api.serializers import RenderedGraphSerializer
-from extras.api.views import CustomFieldModelViewSet
+from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet
 from extras.models import Graph
 from ipam.models import Prefix, VLAN
 from utilities.api import (
@@ -336,7 +336,7 @@ class PlatformViewSet(ModelViewSet):
 # Devices
 #
 
-class DeviceViewSet(CustomFieldModelViewSet):
+class DeviceViewSet(CustomFieldModelViewSet, ConfigContextQuerySetMixin):
     queryset = Device.objects.prefetch_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'rack', 'parent_bay',
         'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'tags',

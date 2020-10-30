@@ -22,7 +22,7 @@ class ObjectPermissionInline(admin.TabularInline):
     verbose_name_plural = 'Permissions'
 
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('objectpermission__object_types')
+        return super().get_queryset(request).prefetch_related('objectpermission__object_types').nocache()
 
     @staticmethod
     def object_types(instance):
@@ -185,7 +185,7 @@ class ObjectPermissionForm(forms.ModelForm):
 
         # Validate the specified model constraints by attempting to execute a query. We don't care whether the query
         # returns anything; we just want to make sure the specified constraints are valid.
-        if constraints:
+        if object_types and constraints:
             # Normalize the constraints to a list of dicts
             if type(constraints) is not list:
                 constraints = [constraints]

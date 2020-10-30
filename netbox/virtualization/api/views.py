@@ -6,7 +6,7 @@ from rest_framework.routers import APIRootView
 
 from dcim.models import Device
 from extras.api.serializers import RenderedGraphSerializer
-from extras.api.views import CustomFieldModelViewSet
+from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet
 from extras.models import Graph
 from utilities.api import ModelViewSet
 from utilities.utils import get_subquery
@@ -58,7 +58,7 @@ class ClusterViewSet(CustomFieldModelViewSet):
 # Virtual machines
 #
 
-class VirtualMachineViewSet(CustomFieldModelViewSet):
+class VirtualMachineViewSet(CustomFieldModelViewSet, ConfigContextQuerySetMixin):
     queryset = VirtualMachine.objects.prefetch_related(
         'cluster__site', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'tags'
     )
