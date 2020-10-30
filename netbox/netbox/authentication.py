@@ -172,9 +172,4 @@ class LDAPBackend:
         if getattr(ldap_config, 'LDAP_IGNORE_CERT_ERRORS', False):
             ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
 
-        # Enable logging for django_auth_ldap
-        ldap_logger = logging.getLogger('django_auth_ldap')
-        ldap_logger.addHandler(logging.StreamHandler())
-        ldap_logger.setLevel(logging.INFO)
-
         return obj
