@@ -66,7 +66,7 @@
                         <li><a href="{% url 'dcim:devicebay_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_devicebays">Device Bays</a></li>
                     {% endif %}
                     {% if perms.dcim.add_inventoryitem %}
-                        <li><a href="{% url 'dcim:inventoryitem_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}">Inventory Items</a></li>
+                        <li><a href="{% url 'dcim:inventoryitem_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_inventoryitems">Inventory Items</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -731,6 +731,7 @@
                                         </a>
                                     </div>
                                 {% endif %}
+                                <div class="clearfix"></div>
                             </div>
                         </div>
                     </form>
@@ -842,7 +843,7 @@
                                 {% endif %}
                                 {% if perms.dcim.add_inventoryitem %}
                                     <div class="pull-right">
-                                        <a href="{% url 'dcim:inventoryitem_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-primary btn-xs">
+                                        <a href="{% url 'dcim:inventoryitem_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_inventoryitems" class="btn btn-primary btn-xs">
                                             <span class="fa fa-plus" aria-hidden="true"></span> Add Inventory Item
                                         </a>
                                     </div>
@@ -873,7 +874,7 @@
 var hash = document.location.hash;
 var prefix = "tab_";
 if (hash) {
-    $('.nav-tabs a[href="'+hash.replace(prefix,"")+'"]').tab('show');
+    $('.nav-pills a[href="'+hash.replace(prefix,"")+'"]').tab('show');
 }
 $('.nav-tabs a').on('shown.bs.tab', function (e) {
     window.location.hash = e.target.hash.replace("#", "#" + prefix);

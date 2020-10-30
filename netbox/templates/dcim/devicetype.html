@@ -206,28 +206,28 @@
             </ul>
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="interfaces">
-                    {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' %}
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' tab='interfaces' %}
                 </div>
                 <div role="tabpanel" class="tab-pane" id="frontports">
-                    {% include 'dcim/inc/devicetype_component_table.html' with table=front_port_table title='Front Ports' %}
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=front_port_table title='Front Ports' tab='frontports' %}
                 </div>
                 <div role="tabpanel" class="tab-pane" id="rearports">
-                    {% include 'dcim/inc/devicetype_component_table.html' with table=rear_port_table title='Rear Ports' %}
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=rear_port_table title='Rear Ports' tab='rearports' %}
                 </div>
                 <div role="tabpanel" class="tab-pane" id="consoleports">
-                    {% include 'dcim/inc/devicetype_component_table.html' with table=consoleport_table title='Console Ports' %}
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=consoleport_table title='Console Ports' tab='consoleports' %}
                 </div>
                 <div role="tabpanel" class="tab-pane" id="consoleserverports">
-                    {% include 'dcim/inc/devicetype_component_table.html' with table=consoleserverport_table title='Console Server Ports' %}
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=consoleserverport_table title='Console Server Ports' tab='consoleserverports' %}
                 </div>
                 <div role="tabpanel" class="tab-pane" id="powerports">
-                    {% include 'dcim/inc/devicetype_component_table.html' with table=powerport_table title='Power Ports' %}
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=powerport_table title='Power Ports' tab='powerports' %}
                 </div>
                 <div role="tabpanel" class="tab-pane" id="poweroutlets">
-                    {% include 'dcim/inc/devicetype_component_table.html' with table=poweroutlet_table title='Power Outlets' %}
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=poweroutlet_table title='Power Outlets' tab='poweroutlets' %}
                 </div>
                 <div role="tabpanel" class="tab-pane" id="devicebays">
-                    {% include 'dcim/inc/devicetype_component_table.html' with table=devicebay_table title='Device Bays' %}
+                    {% include 'dcim/inc/devicetype_component_table.html' with table=devicebay_table title='Device Bays' tab='devicebays' %}
                 </div>
             </div>
         </div>
