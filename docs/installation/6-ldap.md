@@ -146,15 +146,14 @@ AUTH_LDAP_CACHE_TIMEOUT = 3600
 For troubleshooting LDAP user/group queries, add or merge the following [logging](/configuration/optional-settings.md#logging) configuration to `configuration.py`:
 
 ```python
-logfile = "/opt/netbox/logs/django-ldap-debug.log"
 LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
         'netbox_auth_log': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': logfile,
+            'filename': '/opt/netbox/logs/django-ldap-debug.log',
             'maxBytes': 1024 * 500,
             'backupCount': 5,
         },
