@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -9,7 +11,7 @@ from taggit.managers import TaggableManager
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
-from dcim.utils import decompile_path_node, path_node_to_object
+from dcim.utils import decompile_path_node
 from extras.models import ChangeLoggedModel, CustomFieldModel, TaggedItem
 from extras.utils import extras_features
 from utilities.fields import ColorField
@@ -366,8 +368,7 @@ class CablePath(models.Model):
         unique_together = ('origin_type', 'origin_id')
 
     def __str__(self):
-        path = ', '.join([str(path_node_to_object(node)) for node in self.path])
-        return f"Path #{self.pk}: {self.origin} to {self.destination} via ({path})"
+        return f"Path #{self.pk}: {self.origin} to {self.destination} ({len(self.path)} nodes)"
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -375,6 +376,35 @@ class CablePath(models.Model):
         # Record a direct reference to this CablePath on its originating object
         model = self.origin._meta.model
         model.objects.filter(pk=self.origin.pk).update(_path=self.pk)
+
+    def get_path(self):
+        """
+        Return the path as a list of prefetched objects.
+        """
+        # Compile a list of IDs to prefetch for each type of model in the path
+        to_prefetch = defaultdict(list)
+        for node in self.path:
+            ct_id, object_id = decompile_path_node(node)
+            to_prefetch[ct_id].append(object_id)
+
+        # Prefetch path objects using one query per model type. Prefetch related devices where appropriate.
+        prefetched = {}
+        for ct_id, object_ids in to_prefetch.items():
+            model_class = ContentType.objects.get_for_id(ct_id).model_class()
+            queryset = model_class.objects.filter(pk__in=object_ids)
+            if hasattr(model_class, 'device'):
+                queryset = queryset.prefetch_related('device')
+            prefetched[ct_id] = {
+                obj.id: obj for obj in queryset
+            }
+
+        # Replicate the path using the prefetched objects.
+        path = []
+        for node in self.path:
+            ct_id, object_id = decompile_path_node(node)
+            path.append(prefetched[ct_id][object_id])
+
+        return path
 
     def get_total_length(self):
         """

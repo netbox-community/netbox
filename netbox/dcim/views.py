@@ -2049,7 +2049,7 @@ class PathTraceView(ObjectView):
 
         return render(request, 'dcim/cable_trace.html', {
             'obj': obj,
-            'path': path,
+            'path': obj.trace(),
             'related_paths': related_paths,
             'total_length': path.get_total_length(),
         })

@@ -8,7 +8,7 @@
 {% block content %}
     <div class="row">
         <div class="col-md-5 col-sm-12 text-center">
-            {% for near_end, cable, far_end in path.origin.trace %}
+            {% for near_end, cable, far_end in path %}
 
                 {# Near end #}
                 {% if near_end.device %}
@@ -50,6 +50,7 @@
                     <div class="row">
                         <div class="text-center">
                             <h3 class="text-success text-center">Trace completed!</h3>
+                            <h5>Total segments: {{ path|length }}</h5>
                             {% if total_length %}
                                 <h5>Total length: {{ total_length|floatformat:"-2" }} Meters<h5>
                             {% endif %}

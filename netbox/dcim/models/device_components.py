@@ -11,7 +11,6 @@ from taggit.managers import TaggableManager
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField
-from dcim.utils import path_node_to_object
 from extras.models import ObjectChange, TaggedItem
 from extras.utils import extras_features
 from utilities.fields import NaturalOrderingField
@@ -172,7 +171,7 @@ class PathEndpoint(models.Model):
             return []
 
         # Construct the complete path
-        path = [self, *[path_node_to_object(obj) for obj in self._path.path]]
+        path = [self, *self._path.get_path()]
         while (len(path) + 1) % 3:
             # Pad to ensure we have complete three-tuples (e.g. for paths that end at a RearPort)
             path.append(None)

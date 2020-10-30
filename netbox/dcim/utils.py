@@ -21,15 +21,6 @@ def object_to_path_node(obj):
     return compile_path_node(ct.pk, obj.pk)
 
 
-def path_node_to_object(repr):
-    """
-    Given a path node representation, return the corresponding object.
-    """
-    ct_id, object_id = decompile_path_node(repr)
-    model_class = ContentType.objects.get(pk=ct_id).model_class()
-    return model_class.objects.get(pk=int(object_id))
-
-
 def trace_path(node):
     from .models import FrontPort, RearPort
 
