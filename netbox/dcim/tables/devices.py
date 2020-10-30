@@ -222,9 +222,10 @@ class CableTerminationTable(BaseTable):
         linkify=True
     )
     cable_peer = tables.TemplateColumn(
-        accessor='get_cable_peer',
+        accessor='_cable_peer',
         template_code=CABLETERMINATION,
-        orderable=False
+        orderable=False,
+        verbose_name='Cable Peer'
     )
 
 
