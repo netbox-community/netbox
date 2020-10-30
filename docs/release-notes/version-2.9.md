@@ -1,5 +1,22 @@
 # NetBox v2.9
 
+## v2.9.8 (2020-10-30)
+
+### Enhancements
+
+* [#4559](https://github.com/netbox-community/netbox/issues/4559) - Improve device/VM context data rendering performance
+
+### Bug Fixes
+
+* [#3672](https://github.com/netbox-community/netbox/issues/3672) - Fix a caching issue causing incorrect related object counts in API responses
+* [#5113](https://github.com/netbox-community/netbox/issues/5113) - Fix incorrect caching of permission object assignments to user groups in the admin panel
+* [#5243](https://github.com/netbox-community/netbox/issues/5243) - Redirect user to appropriate tab after modifying device components
+* [#5273](https://github.com/netbox-community/netbox/issues/5273) - Fix exception when validating a new permission with no models selected
+* [#5282](https://github.com/netbox-community/netbox/issues/5282) - Fix high CPU load when LDAP authentication is enabled
+* [#5285](https://github.com/netbox-community/netbox/issues/5285) - Plugins no longer need to define `app_name` for API URLs to be included in the root view
+
+---
+
 ## v2.9.7 (2020-10-12)
 
 ### Bug Fixes

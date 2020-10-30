@@ -8,6 +8,7 @@ from taggit.managers import TaggableManager
 from dcim.choices import InterfaceModeChoices
 from dcim.models import BaseInterface, Device
 from extras.models import ChangeLoggedModel, ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
+from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
 from utilities.fields import NaturalOrderingField
 from utilities.ordering import naturalize_interface
@@ -280,7 +281,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    objects = RestrictedQuerySet.as_manager()
+    objects = ConfigContextModelQuerySet.as_manager()
 
     csv_headers = [
         'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',

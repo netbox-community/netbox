@@ -93,7 +93,8 @@ class ComponentTemplateTable(BaseTable):
 class ConsolePortTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=ConsolePortTemplate,
-        buttons=('edit', 'delete')
+        buttons=('edit', 'delete'),
+        return_url_extra='%23tab_consoleports'
     )
 
     class Meta(BaseTable.Meta):
@@ -105,7 +106,8 @@ class ConsolePortTemplateTable(ComponentTemplateTable):
 class ConsoleServerPortTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=ConsoleServerPortTemplate,
-        buttons=('edit', 'delete')
+        buttons=('edit', 'delete'),
+        return_url_extra='%23tab_consoleserverports'
     )
 
     class Meta(BaseTable.Meta):
@@ -117,7 +119,8 @@ class ConsoleServerPortTemplateTable(ComponentTemplateTable):
 class PowerPortTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=PowerPortTemplate,
-        buttons=('edit', 'delete')
+        buttons=('edit', 'delete'),
+        return_url_extra='%23tab_powerports'
     )
 
     class Meta(BaseTable.Meta):
@@ -129,7 +132,8 @@ class PowerPortTemplateTable(ComponentTemplateTable):
 class PowerOutletTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=PowerOutletTemplate,
-        buttons=('edit', 'delete')
+        buttons=('edit', 'delete'),
+        return_url_extra='%23tab_poweroutlets'
     )
 
     class Meta(BaseTable.Meta):
@@ -144,7 +148,8 @@ class InterfaceTemplateTable(ComponentTemplateTable):
     )
     actions = ButtonsColumn(
         model=InterfaceTemplate,
-        buttons=('edit', 'delete')
+        buttons=('edit', 'delete'),
+        return_url_extra='%23tab_interfaces'
     )
 
     class Meta(BaseTable.Meta):
@@ -159,7 +164,8 @@ class FrontPortTemplateTable(ComponentTemplateTable):
     )
     actions = ButtonsColumn(
         model=FrontPortTemplate,
-        buttons=('edit', 'delete')
+        buttons=('edit', 'delete'),
+        return_url_extra='%23tab_frontports'
     )
 
     class Meta(BaseTable.Meta):
@@ -171,7 +177,8 @@ class FrontPortTemplateTable(ComponentTemplateTable):
 class RearPortTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=RearPortTemplate,
-        buttons=('edit', 'delete')
+        buttons=('edit', 'delete'),
+        return_url_extra='%23tab_rearports'
     )
 
     class Meta(BaseTable.Meta):
@@ -183,7 +190,8 @@ class RearPortTemplateTable(ComponentTemplateTable):
 class DeviceBayTemplateTable(ComponentTemplateTable):
     actions = ButtonsColumn(
         model=DeviceBayTemplate,
-        buttons=('edit', 'delete')
+        buttons=('edit', 'delete'),
+        return_url_extra='%23tab_devicebays'
     )
 
     class Meta(BaseTable.Meta):

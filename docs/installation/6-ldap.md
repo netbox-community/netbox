@@ -143,17 +143,28 @@ AUTH_LDAP_CACHE_TIMEOUT = 3600
 
 `systemctl restart netbox` restarts the Netbox service, and initiates any changes made to `ldap_config.py`. If there are syntax errors present, the NetBox process will not spawn an instance, and errors should be logged to `/var/log/messages`.
 
-For troubleshooting LDAP user/group queries, add the following lines to the start of `ldap_config.py` after `import ldap`.
+For troubleshooting LDAP user/group queries, add or merge the following [logging](/configuration/optional-settings.md#logging) configuration to `configuration.py`:
 
 ```python
-import logging, logging.handlers
-logfile = "/opt/netbox/logs/django-ldap-debug.log"
-my_logger = logging.getLogger('django_auth_ldap')
-my_logger.setLevel(logging.DEBUG)
-handler = logging.handlers.RotatingFileHandler(
-    logfile, maxBytes=1024 * 500, backupCount=5
-)
-my_logger.addHandler(handler)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'netbox_auth_log': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '/opt/netbox/logs/django-ldap-debug.log',
+            'maxBytes': 1024 * 500,
+            'backupCount': 5,
+        },
+    },
+    'loggers': {
+        'django_auth_ldap': {
+            'handlers': ['netbox_auth_log'],
+            'level': 'DEBUG',
+        },
+    },
+}
 ```
 
 Ensure the file and path specified in logfile exist and are writable and executable by the application service account. Restart the netbox service and attempt to log into the site to trigger log entries to this file.

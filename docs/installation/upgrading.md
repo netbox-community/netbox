@@ -28,44 +28,44 @@ Download and extract the latest version:
 # wget https://github.com/netbox-community/netbox/archive/vX.Y.Z.tar.gz
 # tar -xzf vX.Y.Z.tar.gz -C /opt
 # cd /opt/
-# ln -sfn netbox-X.Y.Z/ netbox
+# ln -sfn /opt/netbox-X.Y.Z/ /opt/netbox
 ```
 
 Copy the 'configuration.py' you created when first installing to the new version:
 
 ```no-highlight
-# cp netbox-X.Y.Z/netbox/netbox/configuration.py netbox/netbox/netbox/configuration.py
+# cp /opt/netbox-X.Y.Z/netbox/netbox/configuration.py /opt/netbox/netbox/netbox/configuration.py
 ```
 
 Copy your local requirements file if used:
 
 ```no-highlight
-# cp netbox-X.Y.Z/local_requirements.txt netbox/local_requirements.txt
+# cp /opt/netbox-X.Y.Z/local_requirements.txt /opt/netbox/local_requirements.txt
 ```
 
 Also copy the LDAP configuration if using LDAP:
 
 ```no-highlight
-# cp netbox-X.Y.Z/netbox/netbox/ldap_config.py netbox/netbox/netbox/ldap_config.py
+# cp /opt/netbox-X.Y.Z/netbox/netbox/ldap_config.py /opt/netbox/netbox/netbox/ldap_config.py
 ```
 
 Be sure to replicate your uploaded media as well. (The exact action necessary will depend on where you choose to store your media, but in general moving or copying the media directory will suffice.)
 
 ```no-highlight
-# cp -pr netbox-X.Y.Z/netbox/media/ netbox/netbox/
+# cp -pr /opt/netbox-X.Y.Z/netbox/media/ /opt/netbox/netbox/
 ```
 
 Also make sure to copy over any custom scripts and reports that you've made. Note that if these are stored outside the project root, you will not need to copy them. (Check the `SCRIPTS_ROOT` and `REPORTS_ROOT` parameters in the configuration file above if you're unsure.)
 
 ```no-highlight
-# cp -r /opt/netbox-X.Y.Z/netbox/scripts /opt/netbox/netbox/scripts/
-# cp -r /opt/netbox-X.Y.Z/netbox/reports /opt/netbox/netbox/reports/
+# cp -r /opt/netbox-X.Y.Z/netbox/scripts /opt/netbox/netbox/
+# cp -r /opt/netbox-X.Y.Z/netbox/reports /opt/netbox/netbox/
 ```
 
 If you followed the original installation guide to set up gunicorn, be sure to copy its configuration as well:
 
 ```no-highlight
-# cp netbox-X.Y.Z/gunicorn.py netbox/gunicorn.py
+# cp /opt/netbox-X.Y.Z/gunicorn.py /opt/netbox/gunicorn.py
 ```
 
 ### Option B: Clone the Git Repository

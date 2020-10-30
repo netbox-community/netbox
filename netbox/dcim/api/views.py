@@ -23,7 +23,7 @@ from dcim.models import (
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
-from extras.api.views import CustomFieldModelViewSet
+from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet
 from ipam.models import Prefix, VLAN
 from netbox.api.views import ModelViewSet
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
@@ -342,7 +342,7 @@ class PlatformViewSet(ModelViewSet):
 # Devices
 #
 
-class DeviceViewSet(CustomFieldModelViewSet):
+class DeviceViewSet(CustomFieldModelViewSet, ConfigContextQuerySetMixin):
     queryset = Device.objects.prefetch_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'rack', 'parent_bay',
         'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'tags',

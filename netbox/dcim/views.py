@@ -1206,7 +1206,7 @@ class DeviceConfigView(ObjectView):
 
 
 class DeviceConfigContextView(ObjectConfigContextView):
-    queryset = Device.objects.all()
+    queryset = Device.objects.annotate_config_context_data()
     base_template = 'dcim/device.html'
 
 

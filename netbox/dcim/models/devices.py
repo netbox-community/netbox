@@ -14,6 +14,7 @@ from taggit.managers import TaggableManager
 from dcim.choices import *
 from dcim.constants import *
 from extras.models import ChangeLoggedModel, ConfigContextModel, CustomFieldModel, TaggedItem
+from extras.querysets import ConfigContextModelQuerySet
 from extras.utils import extras_features
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
@@ -591,7 +592,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     )
     tags = TaggableManager(through=TaggedItem)
 
-    objects = RestrictedQuerySet.as_manager()
+    objects = ConfigContextModelQuerySet.as_manager()
 
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',

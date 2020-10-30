@@ -2,8 +2,7 @@ from django.db.models import Count
 from rest_framework.routers import APIRootView
 
 from dcim.models import Device
-from extras.api.views import CustomFieldModelViewSet
-from netbox.api.views import ModelViewSet
+from extras.api.views import ConfigContextQuerySetMixin, CustomFieldModelViewSet, ModelViewSet
 from utilities.utils import get_subquery
 from virtualization import filters
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -53,7 +52,7 @@ class ClusterViewSet(CustomFieldModelViewSet):
 # Virtual machines
 #
 
-class VirtualMachineViewSet(CustomFieldModelViewSet):
+class VirtualMachineViewSet(CustomFieldModelViewSet, ConfigContextQuerySetMixin):
     queryset = VirtualMachine.objects.prefetch_related(
         'cluster__site', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'tags'
     )
