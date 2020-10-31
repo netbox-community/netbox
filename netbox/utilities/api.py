@@ -113,7 +113,7 @@ class ChoiceField(serializers.Field):
         return super().validate_empty_values(data)
 
     def to_representation(self, obj):
-        if obj is '':
+        if obj == '':
             return None
         return OrderedDict([
             ('value', obj),
@@ -121,7 +121,7 @@ class ChoiceField(serializers.Field):
         ])
 
     def to_internal_value(self, data):
-        if data is '':
+        if data == '':
             if self.allow_blank:
                 return data
             raise ValidationError("This field may not be blank.")
