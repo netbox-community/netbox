@@ -230,6 +230,17 @@ class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Cre
         to_field_name='rd',
         label='VRF (RD)',
     )
+    present_in_vrf_id = django_filters.ModelChoiceFilter(
+        queryset=VRF.objects.all(),
+        method='filter_present_in_vrf',
+        label='VRF'
+    )
+    present_in_vrf = django_filters.ModelChoiceFilter(
+        queryset=VRF.objects.all(),
+        method='filter_present_in_vrf',
+        to_field_name='rd',
+        label='VRF (RD)',
+    )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -334,6 +345,14 @@ class PrefixFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, Cre
                 return queryset.filter(prefix__net_contains=str(netaddr.IPAddress(value)))
         except (AddrFormatError, ValueError):
             return queryset.none()
+
+    def filter_present_in_vrf(self, queryset, name, vrf):
+        if vrf is None:
+            return queryset.none
+        return queryset.filter(
+            Q(vrf=vrf) |
+            Q(vrf__export_targets__in=vrf.import_targets.all())
+        )
 
 
 class IPAddressFilterSet(BaseFilterSet, TenancyFilterSet, CustomFieldFilterSet, CreatedUpdatedFilterSet):

@@ -354,12 +354,22 @@ class PrefixTestCase(TestCase):
         )
         Site.objects.bulk_create(sites)
 
+        route_targets = (
+            RouteTarget(name='65000:100'),
+            RouteTarget(name='65000:200'),
+            RouteTarget(name='65000:300'),
+        )
+        RouteTarget.objects.bulk_create(route_targets)
+
         vrfs = (
             VRF(name='VRF 1', rd='65000:100'),
             VRF(name='VRF 2', rd='65000:200'),
             VRF(name='VRF 3', rd='65000:300'),
         )
         VRF.objects.bulk_create(vrfs)
+        vrfs[0].import_targets.add(route_targets[0], route_targets[1], route_targets[2])
+        vrfs[1].export_targets.add(route_targets[1])
+        vrfs[2].export_targets.add(route_targets[2])
 
         vlans = (
             VLAN(vid=1, name='VLAN 1'),
@@ -442,6 +452,14 @@ class PrefixTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'vrf': [vrfs[0].rd, vrfs[1].rd]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_present_in_vrf(self):
+        vrf1 = VRF.objects.get(name='VRF 1')
+        vrf2 = VRF.objects.get(name='VRF 2')
+        self.assertEqual(self.filterset({'present_in_vrf_id': vrf1.pk}, self.queryset).qs.count(), 6)
+        self.assertEqual(self.filterset({'present_in_vrf_id': vrf2.pk}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'present_in_vrf': vrf1.rd}, self.queryset).qs.count(), 6)
+        self.assertEqual(self.filterset({'present_in_vrf': vrf2.rd}, self.queryset).qs.count(), 2)
 
     def test_region(self):
         regions = Region.objects.all()[:2]

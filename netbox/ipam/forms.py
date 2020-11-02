@@ -519,8 +519,8 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Prefix
     field_order = [
-        'q', 'within_include', 'family', 'mask_length', 'vrf_id', 'status', 'region', 'site', 'role', 'tenant_group',
-        'tenant', 'is_pool', 'expand',
+        'q', 'within_include', 'family', 'mask_length', 'vrf_id', 'present_in_vrf_id', 'status', 'region', 'site',
+        'role', 'tenant_group', 'tenant', 'is_pool', 'expand',
     ]
     mask_length__lte = forms.IntegerField(
         widget=forms.HiddenInput()
@@ -553,8 +553,13 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF',
+        label='Assigned VRF',
         null_option='Global'
+    )
+    present_in_vrf_id = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label='Present in VRF'
     )
     status = forms.MultipleChoiceField(
         choices=PrefixStatusChoices,
