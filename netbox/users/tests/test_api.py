@@ -132,6 +132,10 @@ class ObjectPermissionTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        cls.bulk_update_data = {
+            'description': 'New description',
+        }
+
 
 class UserConfigTest(APITestCase):
 

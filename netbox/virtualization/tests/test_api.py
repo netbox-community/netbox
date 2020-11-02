@@ -84,6 +84,9 @@ class ClusterGroupTest(APIViewTestCases.APIViewTestCase):
 class ClusterTest(APIViewTestCases.APIViewTestCase):
     model = Cluster
     brief_fields = ['id', 'name', 'url', 'virtualmachine_count']
+    bulk_update_data = {
+        'comments': 'New comment',
+    }
 
     @classmethod
     def setUpTestData(cls):

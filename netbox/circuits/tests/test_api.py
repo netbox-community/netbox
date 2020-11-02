@@ -174,3 +174,7 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
                 'port_speed': 200000,
             },
         ]
+
+        cls.bulk_update_data = {
+            'port_speed': 123456
+        }

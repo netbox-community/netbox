@@ -36,6 +36,9 @@ class SecretRoleTest(APIViewTestCases.APIViewTestCase):
             'slug': 'secret-role-6',
         },
     ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -111,6 +114,10 @@ class SecretTest(APIViewTestCases.APIViewTestCase):
                 'plaintext': 'PQR',
             },
         ]
+
+        self.bulk_update_data = {
+            'role': secret_roles[1].pk,
+        }
 
     def prepare_instance(self, instance):
         # Unlock the plaintext prior to evaluation of the instance

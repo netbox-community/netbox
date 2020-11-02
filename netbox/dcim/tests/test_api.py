@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 
-from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
@@ -1539,10 +1538,13 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
             VirtualChassis(name='Virtual Chassis 3', master=devices[6], domain='domain-3'),
         )
         VirtualChassis.objects.bulk_create(virtual_chassis)
+        Device.objects.filter(pk=devices[0].pk).update(virtual_chassis=virtual_chassis[0], vc_position=1)
         Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis[0], vc_position=2)
         Device.objects.filter(pk=devices[2].pk).update(virtual_chassis=virtual_chassis[0], vc_position=3)
+        Device.objects.filter(pk=devices[3].pk).update(virtual_chassis=virtual_chassis[1], vc_position=1)
         Device.objects.filter(pk=devices[4].pk).update(virtual_chassis=virtual_chassis[1], vc_position=2)
         Device.objects.filter(pk=devices[5].pk).update(virtual_chassis=virtual_chassis[1], vc_position=3)
+        Device.objects.filter(pk=devices[6].pk).update(virtual_chassis=virtual_chassis[2], vc_position=1)
         Device.objects.filter(pk=devices[7].pk).update(virtual_chassis=virtual_chassis[2], vc_position=2)
         Device.objects.filter(pk=devices[8].pk).update(virtual_chassis=virtual_chassis[2], vc_position=3)
 
@@ -1567,6 +1569,10 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        cls.bulk_update_data = {
+            'domain': 'newdomain',
+        }
+
 
 class PowerPanelTest(APIViewTestCases.APIViewTestCase):
     model = PowerPanel
@@ -1574,38 +1580,47 @@ class PowerPanelTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        site = Site.objects.create(name='Site 1', slug='site-1')
+        sites = (
+            Site.objects.create(name='Site 1', slug='site-1'),
+            Site.objects.create(name='Site 2', slug='site-2'),
+        )
 
         rack_groups = (
-            RackGroup.objects.create(name='Rack Group 1', slug='rack-group-1', site=site),
-            RackGroup.objects.create(name='Rack Group 2', slug='rack-group-2', site=site),
-            RackGroup.objects.create(name='Rack Group 3', slug='rack-group-3', site=site),
+            RackGroup.objects.create(name='Rack Group 1', slug='rack-group-1', site=sites[0]),
+            RackGroup.objects.create(name='Rack Group 2', slug='rack-group-2', site=sites[0]),
+            RackGroup.objects.create(name='Rack Group 3', slug='rack-group-3', site=sites[0]),
+            RackGroup.objects.create(name='Rack Group 4', slug='rack-group-3', site=sites[1]),
         )
 
         power_panels = (
-            PowerPanel(site=site, rack_group=rack_groups[0], name='Power Panel 1'),
-            PowerPanel(site=site, rack_group=rack_groups[1], name='Power Panel 2'),
-            PowerPanel(site=site, rack_group=rack_groups[2], name='Power Panel 3'),
+            PowerPanel(site=sites[0], rack_group=rack_groups[0], name='Power Panel 1'),
+            PowerPanel(site=sites[0], rack_group=rack_groups[1], name='Power Panel 2'),
+            PowerPanel(site=sites[0], rack_group=rack_groups[2], name='Power Panel 3'),
         )
         PowerPanel.objects.bulk_create(power_panels)
 
         cls.create_data = [
             {
                 'name': 'Power Panel 4',
-                'site': site.pk,
+                'site': sites[0].pk,
                 'rack_group': rack_groups[0].pk,
             },
             {
                 'name': 'Power Panel 5',
-                'site': site.pk,
+                'site': sites[0].pk,
                 'rack_group': rack_groups[1].pk,
             },
             {
                 'name': 'Power Panel 6',
-                'site': site.pk,
+                'site': sites[0].pk,
                 'rack_group': rack_groups[2].pk,
             },
         ]
+
+        cls.bulk_update_data = {
+            'site': sites[1].pk,
+            'rack_group': rack_groups[3].pk
+        }
 
 
 class PowerFeedTest(APIViewTestCases.APIViewTestCase):
