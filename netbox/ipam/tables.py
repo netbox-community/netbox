@@ -59,6 +59,14 @@ VRF_LINK = """
 {% endif %}
 """
 
+VRF_TARGETS = """
+{% for rt in value.all %}
+    <a href="{{ rt.get_absolute_url }}">{{ rt }}</a>{% if not forloop.last %}<br />{% endif %}
+{% empty %}
+    &mdash;
+{% endfor %}
+"""
+
 VLAN_LINK = """
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}">{{ record.vid }}</a>
@@ -130,13 +138,23 @@ class VRFTable(BaseTable):
     enforce_unique = BooleanColumn(
         verbose_name='Unique'
     )
+    import_targets = tables.TemplateColumn(
+        template_code=VRF_TARGETS,
+        orderable=False
+    )
+    export_targets = tables.TemplateColumn(
+        template_code=VRF_TARGETS,
+        orderable=False
+    )
     tags = TagColumn(
         url_name='ipam:vrf_list'
     )
 
     class Meta(BaseTable.Meta):
         model = VRF
-        fields = ('pk', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'tags')
+        fields = (
+            'pk', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets', 'export_targets', 'tags',
+        )
         default_columns = ('pk', 'name', 'rd', 'tenant', 'description')
 
 
