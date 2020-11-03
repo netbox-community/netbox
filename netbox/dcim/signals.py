@@ -57,11 +57,14 @@ def clear_virtualchassis_members(instance, **kwargs):
 
 
 @receiver(post_save, sender=Cable)
-def update_connected_endpoints(instance, created, **kwargs):
+def update_connected_endpoints(instance, created, raw=False, **kwargs):
     """
     When a Cable is saved, check for and update its two connected endpoints
     """
     logger = logging.getLogger('netbox.dcim.cable')
+    if raw:
+        logger.debug(f"Skipping endpoint updates for imported cable {instance}")
+        return
 
     # Cache the Cable on its two termination points
     if instance.termination_a.cable != instance:
