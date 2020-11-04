@@ -4282,7 +4282,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
         queryset=Site.objects.all(),
         required=False,
         initial_params={
-            'powerpanel_set': '$power_panel'
+            'powerpanel': '$power_panel'
         }
     )
     power_panel = DynamicModelChoiceField(
