@@ -309,7 +309,8 @@ class DynamicModelChoiceMixin:
                 value = form.initial.get(child_field.lstrip('$'))
                 if value:
                     filter_kwargs[kwarg] = value
-            self.initial = self.queryset.filter(**filter_kwargs).first()
+            if filter_kwargs:
+                self.initial = self.queryset.filter(**filter_kwargs).first()
 
         # Modify the QuerySet of the field before we return it. Limit choices to any data already bound: Options
         # will be populated on-demand via the APISelect widget.

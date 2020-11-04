@@ -4280,7 +4280,10 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
 class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        initial_params={
+            'powerpanel_set': '$power_panel'
+        }
     )
     power_panel = DynamicModelChoiceField(
         queryset=PowerPanel.objects.all(),
@@ -4314,14 +4317,6 @@ class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
             'supply': StaticSelect2(),
             'phase': StaticSelect2(),
         }
-
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-
-        # Initialize site field
-        if self.instance and hasattr(self.instance, 'power_panel'):
-            self.initial['site'] = self.instance.power_panel.site
 
 
 class PowerFeedCSVForm(CustomFieldModelCSVForm):

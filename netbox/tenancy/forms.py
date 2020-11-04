@@ -119,7 +119,10 @@ class TenancyForm(forms.Form):
     tenant_group = DynamicModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
-        null_option='None'
+        null_option='None',
+        initial_params={
+            'tenants': '$tenant'
+        }
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -128,17 +131,6 @@ class TenancyForm(forms.Form):
             'group_id': '$tenant_group'
         }
     )
-
-    def __init__(self, *args, **kwargs):
-
-        # Initialize helper selector
-        instance = kwargs.get('instance')
-        if instance and instance.tenant is not None:
-            initial = kwargs.get('initial', {}).copy()
-            initial['tenant_group'] = instance.tenant.group
-            kwargs['initial'] = initial
-
-        super().__init__(*args, **kwargs)
 
 
 class TenancyFilterForm(forms.Form):
