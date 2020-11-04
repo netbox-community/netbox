@@ -1672,7 +1672,10 @@ class PlatformCSVForm(CSVModelForm):
 class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
-        required=False
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
@@ -1686,6 +1689,9 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         display_field='display_name',
         query_params={
             'site_id': '$site'
+        },
+        initial_params={
+            'racks': '$rack'
         }
     )
     rack = DynamicModelChoiceField(
@@ -1711,7 +1717,10 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     )
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
-        required=False
+        required=False,
+        initial_params={
+            'device_types': '$device_type'
+        }
     )
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),
@@ -1733,7 +1742,10 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
-        null_option='None'
+        null_option='None',
+        initial_params={
+            'clusters': '$cluster'
+        }
     )
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
@@ -1772,27 +1784,6 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-
-        # Initialize helper selectors
-        instance = kwargs.get('instance')
-        if 'initial' not in kwargs:
-            kwargs['initial'] = {}
-        # Using hasattr() instead of "is not None" to avoid RelatedObjectDoesNotExist on required field
-        if instance and hasattr(instance, 'device_type'):
-            kwargs['initial']['manufacturer'] = instance.device_type.manufacturer
-        if instance and instance.cluster is not None:
-            kwargs['initial']['cluster_group'] = instance.cluster.group
-
-        if 'device_type' in kwargs['initial'] and 'manufacturer' not in kwargs['initial']:
-            device_type_id = kwargs['initial']['device_type']
-            manufacturer_id = DeviceType.objects.filter(pk=device_type_id).values_list('manufacturer__pk', flat=True).first()
-            kwargs['initial']['manufacturer'] = manufacturer_id
-
-        if 'cluster' in kwargs['initial'] and 'cluster_group' not in kwargs['initial']:
-            cluster_id = kwargs['initial']['cluster']
-            cluster_group_id = Cluster.objects.filter(pk=cluster_id).values_list('group__pk', flat=True).first()
-            kwargs['initial']['cluster_group'] = cluster_group_id
-
         super().__init__(*args, **kwargs)
 
         if self.instance.pk:
@@ -4289,7 +4280,10 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
 class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        initial_params={
+            'powerpanel': '$power_panel'
+        }
     )
     power_panel = DynamicModelChoiceField(
         queryset=PowerPanel.objects.all(),
@@ -4323,14 +4317,6 @@ class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
             'supply': StaticSelect2(),
             'phase': StaticSelect2(),
         }
-
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-
-        # Initialize site field
-        if self.instance and hasattr(self.instance, 'power_panel'):
-            self.initial['site'] = self.instance.power_panel.site
 
 
 class PowerFeedCSVForm(CustomFieldModelCSVForm):
