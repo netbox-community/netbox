@@ -7,7 +7,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 
 from .api import is_api_request
-from .views import server_error
+from .views import server_error, rest_api_server_error
 
 
 class LoginRequiredMiddleware(object):
@@ -85,6 +85,10 @@ class ExceptionHandlingMiddleware(object):
         # Ignore Http404s (defer to Django's built-in 404 handling)
         if isinstance(exception, Http404):
             return
+
+        # Handle exceptions that occur from REST API requests
+        if is_api_request(request):
+            return rest_api_server_error(request)
 
         # Determine the type of exception. If it's a common issue, return a custom error page with instructions.
         custom_template = None

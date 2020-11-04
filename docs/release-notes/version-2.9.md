@@ -2,6 +2,10 @@
 
 ## v2.9.9 (FUTURE)
 
+### Enhancements
+
+* [#5304](https://github.com/netbox-community/netbox/issues/5304) - Return server error messages as JSON when handling REST API requests
+
 ### Bug Fixes
 
 * [#5271](https://github.com/netbox-community/netbox/issues/5271) - Fix auto-population of region field when editing a device
