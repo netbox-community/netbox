@@ -253,10 +253,20 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         label='VRF',
         display_field='display_name'
     )
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        null_option='None'
+        null_option='None',
+        query_params={
+            'region_id': '$region'
+        }
     )
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
@@ -369,9 +379,17 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         queryset=Prefix.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        to_field_name='slug'
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'region': '$region'
+        }
     )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
@@ -529,10 +547,21 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldModel
         label='VRF',
         display_field='display_name'
     )
+    nat_region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        label='Region',
+        initial_params={
+            'sites': '$nat_site'
+        }
+    )
     nat_site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        label='Site'
+        label='Site',
+        query_params={
+            'region_id': '$nat_region'
+        }
     )
     nat_rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
@@ -924,16 +953,26 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
 #
 
 class VLANGroupForm(BootstrapMixin, forms.ModelForm):
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'region_id': '$region'
+        }
     )
     slug = SlugField()
 
     class Meta:
         model = VLANGroup
         fields = [
-            'site', 'name', 'slug', 'description',
+            'region', 'site', 'name', 'slug', 'description',
         ]
 
 
@@ -973,10 +1012,20 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
 #
 
 class VLANForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        null_option='None'
+        null_option='None',
+        query_params={
+            'region_id': '$region'
+        }
     )
     group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
@@ -1065,9 +1114,17 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         queryset=VLAN.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        to_field_name='slug'
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'region': '$region'
+        }
     )
     group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),

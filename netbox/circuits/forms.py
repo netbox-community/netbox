@@ -303,14 +303,24 @@ class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm
 #
 
 class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
-        queryset=Site.objects.all()
+        queryset=Site.objects.all(),
+        query_params={
+            'region_id': '$region'
+        }
     )
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'term_side', 'site', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description',
+            'term_side', 'region', 'site', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description',
         ]
         help_texts = {
             'port_speed': "Physical circuit speed",

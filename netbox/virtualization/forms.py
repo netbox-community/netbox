@@ -79,9 +79,19 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=ClusterGroup.objects.all(),
         required=False
     )
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'region_id': '$region'
+        }
     )
     comments = CommentField()
     tags = DynamicModelMultipleChoiceField(
@@ -92,7 +102,7 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'tenant', 'site', 'comments', 'tags',
+            'name', 'type', 'group', 'tenant', 'region', 'site', 'comments', 'tags',
         )
 
 
@@ -143,9 +153,17 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         queryset=Tenant.objects.all(),
         required=False
     )
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        to_field_name='slug'
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'region': '$region'
+        }
     )
     comments = CommentField(
         widget=SmallTextarea,
