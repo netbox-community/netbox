@@ -241,6 +241,7 @@ class DynamicModelChoiceMixin:
     """
     :param display_field: The name of the attribute of an API response object to display in the selection list
     :param query_params: A dictionary of additional key/value pairs to attach to the API request
+    :param initial_params: A dictionary of child field references to use for selecting a parent field's initial value
     :param null_option: The string used to represent a null selection (if any)
     :param disabled_indicator: The name of the field which, if populated, will disable selection of the
         choice (optional)
@@ -249,10 +250,11 @@ class DynamicModelChoiceMixin:
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
 
-    def __init__(self, display_field='name', query_params=None, null_option=None, disabled_indicator=None,
-                 brief_mode=True, *args, **kwargs):
+    def __init__(self, display_field='name', query_params=None, initial_params=None, null_option=None,
+                 disabled_indicator=None, brief_mode=True, *args, **kwargs):
         self.display_field = display_field
         self.query_params = query_params or {}
+        self.initial_params = initial_params or {}
         self.null_option = null_option
         self.disabled_indicator = disabled_indicator
         self.brief_mode = brief_mode
@@ -292,6 +294,16 @@ class DynamicModelChoiceMixin:
 
     def get_bound_field(self, form, field_name):
         bound_field = BoundField(form, self, field_name)
+
+        # Set initial value based on prescribed child fields (if not already set)
+        if not self.initial and self.initial_params:
+            filter_kwargs = {}
+            for kwarg, child_field in self.initial_params.items():
+                value = form.initial.get(child_field.lstrip('$'))
+                if value:
+                    filter_kwargs[kwarg] = value
+            if filter_kwargs:
+                self.initial = self.queryset.filter(**filter_kwargs).first()
 
         # Modify the QuerySet of the field before we return it. Limit choices to any data already bound: Options
         # will be populated on-demand via the APISelect widget.

@@ -352,8 +352,18 @@ class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
 #
 
 class RackGroupForm(BootstrapMixin, forms.ModelForm):
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
-        queryset=Site.objects.all()
+        queryset=Site.objects.all(),
+        query_params={
+            'region_id': '$region'
+        }
     )
     parent = DynamicModelChoiceField(
         queryset=RackGroup.objects.all(),
@@ -367,7 +377,7 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = RackGroup
         fields = (
-            'site', 'parent', 'name', 'slug', 'description',
+            'region', 'site', 'parent', 'name', 'slug', 'description',
         )
 
 
@@ -447,14 +457,17 @@ class RackRoleCSVForm(CSVModelForm):
 #
 
 class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
-    site = DynamicModelChoiceField(
-        queryset=Site.objects.all()
-    )
-    group = DynamicModelChoiceField(
-        queryset=RackGroup.objects.all(),
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
         required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
         query_params={
-            'site_id': '$site'
+            'region_id': '$region'
         }
     )
     role = DynamicModelChoiceField(
@@ -470,8 +483,9 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     class Meta:
         model = Rack
         fields = [
-            'site', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial', 'asset_tag',
-            'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments', 'tags',
+            'region', 'site', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial',
+            'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+            'comments', 'tags',
         ]
         help_texts = {
             'site': "The site at which the rack exists",
@@ -548,9 +562,19 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         queryset=Rack.objects.all(),
         widget=forms.MultipleHiddenInput
     )
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'region_id': '$region'
+        }
     )
     group = DynamicModelChoiceField(
         queryset=RackGroup.objects.all(),
@@ -691,9 +715,19 @@ class RackElevationFilterForm(RackFilterForm):
 #
 
 class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'region_id': '$region'
+        }
     )
     rack_group = DynamicModelChoiceField(
         queryset=RackGroup.objects.all(),
@@ -707,7 +741,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         display_field='display_name',
         query_params={
             'site_id': '$site',
-            'group_id': 'rack',
+            'group_id': '$rack',
         }
     )
     units = NumericArrayField(
@@ -809,15 +843,23 @@ class RackReservationBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditFor
 
 class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
     model = RackReservation
-    field_order = ['q', 'site', 'group_id', 'tenant_group', 'tenant']
+    field_order = ['q', 'region', 'site', 'group_id', 'tenant_group', 'tenant']
     q = forms.CharField(
         required=False,
         label='Search'
     )
+    region = DynamicModelMultipleChoiceField(
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        required=False
+    )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        required=False
+        required=False,
+        query_params={
+            'region': '$region'
+        }
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=RackGroup.objects.prefetch_related('site'),
@@ -1672,7 +1714,10 @@ class PlatformCSVForm(CSVModelForm):
 class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     region = DynamicModelChoiceField(
         queryset=Region.objects.all(),
-        required=False
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
@@ -1686,6 +1731,9 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         display_field='display_name',
         query_params={
             'site_id': '$site'
+        },
+        initial_params={
+            'racks': '$rack'
         }
     )
     rack = DynamicModelChoiceField(
@@ -1711,7 +1759,10 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     )
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
-        required=False
+        required=False,
+        initial_params={
+            'device_types': '$device_type'
+        }
     )
     device_type = DynamicModelChoiceField(
         queryset=DeviceType.objects.all(),
@@ -1733,7 +1784,10 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
-        null_option='None'
+        null_option='None',
+        initial_params={
+            'clusters': '$cluster'
+        }
     )
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
@@ -1772,27 +1826,6 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-
-        # Initialize helper selectors
-        instance = kwargs.get('instance')
-        if 'initial' not in kwargs:
-            kwargs['initial'] = {}
-        # Using hasattr() instead of "is not None" to avoid RelatedObjectDoesNotExist on required field
-        if instance and hasattr(instance, 'device_type'):
-            kwargs['initial']['manufacturer'] = instance.device_type.manufacturer
-        if instance and instance.cluster is not None:
-            kwargs['initial']['cluster_group'] = instance.cluster.group
-
-        if 'device_type' in kwargs['initial'] and 'manufacturer' not in kwargs['initial']:
-            device_type_id = kwargs['initial']['device_type']
-            manufacturer_id = DeviceType.objects.filter(pk=device_type_id).values_list('manufacturer__pk', flat=True).first()
-            kwargs['initial']['manufacturer'] = manufacturer_id
-
-        if 'cluster' in kwargs['initial'] and 'cluster_group' not in kwargs['initial']:
-            cluster_id = kwargs['initial']['cluster']
-            cluster_group_id = Cluster.objects.filter(pk=cluster_id).values_list('group__pk', flat=True).first()
-            kwargs['initial']['cluster_group'] = cluster_group_id
-
         super().__init__(*args, **kwargs)
 
         if self.instance.pk:
@@ -3441,10 +3474,18 @@ class ConnectCableToDeviceForm(BootstrapMixin, forms.ModelForm):
     """
     Base form for connecting a Cable to a Device component
     """
+    termination_b_region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        label='Region',
+        required=False
+    )
     termination_b_site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         label='Site',
-        required=False
+        required=False,
+        query_params={
+            'region_id': '$termination_b_region'
+        }
     )
     termination_b_rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
@@ -3470,8 +3511,8 @@ class ConnectCableToDeviceForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Cable
         fields = [
-            'termination_b_site', 'termination_b_rack', 'termination_b_device', 'termination_b_id', 'type', 'status',
-            'label', 'color', 'length', 'length_unit',
+            'termination_b_region', 'termination_b_site', 'termination_b_rack', 'termination_b_device',
+            'termination_b_id', 'type', 'status', 'label', 'color', 'length', 'length_unit',
         ]
         widgets = {
             'status': StaticSelect2,
@@ -3568,10 +3609,18 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         label='Provider',
         required=False
     )
+    termination_b_region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        label='Region',
+        required=False
+    )
     termination_b_site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         label='Site',
-        required=False
+        required=False,
+        query_params={
+            'region_id': '$termination_b_region'
+        }
     )
     termination_b_circuit = DynamicModelChoiceField(
         queryset=Circuit.objects.all(),
@@ -3595,8 +3644,8 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Cable
         fields = [
-            'termination_b_provider', 'termination_b_site', 'termination_b_circuit', 'termination_b_id', 'type',
-            'status', 'label', 'color', 'length', 'length_unit',
+            'termination_b_provider', 'termination_b_region', 'termination_b_site', 'termination_b_circuit',
+            'termination_b_id', 'type', 'status', 'label', 'color', 'length', 'length_unit',
         ]
 
     def clean_termination_b_id(self):
@@ -3605,11 +3654,18 @@ class ConnectCableToCircuitTerminationForm(BootstrapMixin, forms.ModelForm):
 
 
 class ConnectCableToPowerFeedForm(BootstrapMixin, forms.ModelForm):
+    termination_b_region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        label='Region',
+        required=False
+    )
     termination_b_site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         label='Site',
         required=False,
-        display_field='cid'
+        query_params={
+            'region_id': '$termination_b_region'
+        }
     )
     termination_b_rackgroup = DynamicModelChoiceField(
         queryset=RackGroup.objects.all(),
@@ -3851,10 +3907,18 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Search'
     )
+    region = DynamicModelMultipleChoiceField(
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        required=False
+    )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        required=False
+        required=False,
+        query_params={
+            'region': '$region'
+        }
     )
     tenant = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
@@ -3903,10 +3967,18 @@ class CableFilterForm(BootstrapMixin, forms.Form):
 #
 
 class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
+    region = DynamicModelMultipleChoiceField(
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        required=False
+    )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        required=False
+        required=False,
+        query_params={
+            'region': '$region'
+        }
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
@@ -3919,10 +3991,18 @@ class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
 
 
 class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
+    region = DynamicModelMultipleChoiceField(
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        required=False
+    )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        required=False
+        required=False,
+        query_params={
+            'region': '$region'
+        }
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
@@ -3935,10 +4015,18 @@ class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
 
 
 class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
+    region = DynamicModelMultipleChoiceField(
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        required=False
+    )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        required=False
+        required=False,
+        query_params={
+            'region': '$region'
+        }
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
@@ -3962,9 +4050,19 @@ class DeviceSelectionForm(forms.Form):
 
 
 class VirtualChassisCreateForm(BootstrapMixin, CustomFieldModelForm):
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'region_id': '$region'
+        }
     )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
@@ -3997,7 +4095,7 @@ class VirtualChassisCreateForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = VirtualChassis
         fields = [
-            'name', 'domain', 'site', 'rack', 'members', 'initial_position', 'tags',
+            'name', 'domain', 'region', 'site', 'rack', 'members', 'initial_position', 'tags',
         ]
 
     def save(self, *args, **kwargs):
@@ -4094,9 +4192,19 @@ class DeviceVCMembershipForm(forms.ModelForm):
 
 
 class VCMemberSelectForm(BootstrapMixin, forms.Form):
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'region_id': '$region'
+        }
     )
     rack = DynamicModelChoiceField(
         queryset=Rack.objects.all(),
@@ -4195,8 +4303,18 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
 #
 
 class PowerPanelForm(BootstrapMixin, CustomFieldModelForm):
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
-        queryset=Site.objects.all()
+        queryset=Site.objects.all(),
+        query_params={
+            'region_id': '$region'
+        }
     )
     rack_group = DynamicModelChoiceField(
         queryset=RackGroup.objects.all(),
@@ -4213,7 +4331,7 @@ class PowerPanelForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = PowerPanel
         fields = [
-            'site', 'rack_group', 'name', 'tags',
+            'region', 'site', 'rack_group', 'name', 'tags',
         ]
 
 
@@ -4248,9 +4366,19 @@ class PowerPanelBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         queryset=PowerPanel.objects.all(),
         widget=forms.MultipleHiddenInput
     )
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'region_id': '$region'
+        }
     )
     rack_group = DynamicModelChoiceField(
         queryset=RackGroup.objects.all(),
@@ -4302,9 +4430,22 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
 #
 
 class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites__powerpanel': '$power_panel'
+        }
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        initial_params={
+            'powerpanel': '$power_panel'
+        },
+        query_params={
+            'region_id': '$region'
+        }
     )
     power_panel = DynamicModelChoiceField(
         queryset=PowerPanel.objects.all(),
@@ -4329,7 +4470,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
     class Meta:
         model = PowerFeed
         fields = [
-            'site', 'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage',
+            'region', 'site', 'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage',
             'max_utilization', 'comments', 'tags',
         ]
         widgets = {
@@ -4338,14 +4479,6 @@ class PowerFeedForm(BootstrapMixin, CustomFieldModelForm):
             'supply': StaticSelect2(),
             'phase': StaticSelect2(),
         }
-
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-
-        # Initialize site field
-        if self.instance and hasattr(self.instance, 'power_panel'):
-            self.initial['site'] = self.instance.power_panel.site
 
 
 class PowerFeedCSVForm(CustomFieldModelCSVForm):

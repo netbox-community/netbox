@@ -13,7 +13,7 @@ from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured, Obje
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
 from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
-from django.http import HttpResponse, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseServerError, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
@@ -27,6 +27,7 @@ from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME
 from django.views.generic import View
 from django_tables2 import RequestConfig
+from rest_framework import status
 
 from extras.models import CustomField, ExportTemplate
 from utilities.exceptions import AbortTransaction
@@ -1367,8 +1368,22 @@ def server_error(request, template_name=ERROR_500_TEMPLATE_NAME):
     type_, error, traceback = sys.exc_info()
 
     return HttpResponseServerError(template.render({
-        'python_version': platform.python_version(),
-        'netbox_version': settings.VERSION,
-        'exception': str(type_),
         'error': error,
+        'exception': str(type_),
+        'netbox_version': settings.VERSION,
+        'python_version': platform.python_version(),
     }))
+
+
+def rest_api_server_error(request, *args, **kwargs):
+    """
+    Handle exceptions and return a useful error message for REST API requests.
+    """
+    type_, error, traceback = sys.exc_info()
+    data = {
+        'error': str(error),
+        'exception': type_.__name__,
+        'netbox_version': settings.VERSION,
+        'python_version': platform.python_version(),
+    }
+    return JsonResponse(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
