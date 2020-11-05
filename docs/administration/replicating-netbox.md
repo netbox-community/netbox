@@ -73,8 +73,9 @@ tar -xf netbox_media.tar.gz
 
 ## Cache Invalidation
 
-If you are migrating your instance of NetBox to a different machine, be sure to first invalidate the cache by performing this command:
+If you are migrating your instance of NetBox to a different machine, be sure to first invalidate the cache on the original instance by issuing the `invalidate all` management command (within the Python virtual environment):
 
 ```no-highlight
-python3 manage.py invalidate all
+# source /opt/netbox/venv/bin/activate
+(venv) # python3 manage.py invalidate all
 ```
