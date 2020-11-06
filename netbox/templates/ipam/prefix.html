@@ -104,8 +104,7 @@
                         <td>
                             {% if prefix.tenant %}
                                 {% if prefix.tenant.group %}
-                                    <a href="{{ prefix.tenant.group.get_absolute_url }}">{{ prefix.tenant.group }}</a>
-                                    <i class="mdi mdi-chevron-right"></i>
+                                    <a href="{{ prefix.tenant.group.get_absolute_url }}">{{ prefix.tenant.group }}</a> /
                                 {% endif %}
                                 <a href="{{ prefix.tenant.get_absolute_url }}">{{ prefix.tenant }}</a>
                             {% else %}
@@ -128,8 +127,7 @@
                         <td>
                             {% if prefix.site %}
                                 {% if prefix.site.region %}
-                                    <a href="{{ prefix.site.region.get_absolute_url }}">{{ prefix.site.region }}</a>
-                                    <i class="mdi mdi-chevron-right"></i>
+                                    <a href="{{ prefix.site.region.get_absolute_url }}">{{ prefix.site.region }}</a> /
                                 {% endif %}
                                 <a href="{% url 'dcim:site' slug=prefix.site.slug %}">{{ prefix.site }}</a>
                             {% else %}
@@ -142,8 +140,7 @@
                         <td>
                             {% if prefix.vlan %}
                                 {% if prefix.vlan.group %}
-                                    <a href="{{ prefix.vlan.group.get_absolute_url }}">{{ prefix.vlan.group }}</a>
-                                    <i class="mdi mdi-chevron-right"></i>
+                                    <a href="{{ prefix.vlan.group.get_absolute_url }}">{{ prefix.vlan.group }}</a> /
                                 {% endif %}
                                 <a href="{% url 'ipam:vlan' pk=prefix.vlan.pk %}">{{ prefix.vlan.display_name }}</a>
                             {% else %}

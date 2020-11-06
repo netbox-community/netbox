@@ -162,8 +162,7 @@
                                         <td>Site</td>
                                         <td>
                                             {% if device.site.region %}
-                                                <a href="{{ device.site.region.get_absolute_url }}">{{ device.site.region }}</a>
-                                                <i class="mdi mdi-chevron-right"></i>
+                                                <a href="{{ device.site.region.get_absolute_url }}">{{ device.site.region }}</a> /
                                             {% endif %}
                                             <a href="{% url 'dcim:site' slug=device.site.slug %}">{{ device.site }}</a>
                                         </td>
@@ -173,8 +172,7 @@
                                         <td>
                                             {% if device.rack %}
                                                 {% if device.rack.group %}
-                                                    <a href="{{ device.rack.group.get_absolute_url }}">{{ device.rack.group }}</a>
-                                                    <i class="mdi mdi-chevron-right"></i>
+                                                    <a href="{{ device.rack.group.get_absolute_url }}">{{ device.rack.group }}</a> /
                                                 {% endif %}
                                                 <a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack }}</a>
                                             {% else %}
@@ -187,7 +185,7 @@
                                         <td>
                                             {% if device.parent_bay %}
                                                 {% with device.parent_bay.device as parent %}
-                                                    <a href="{{ parent.get_absolute_url }}">{{ parent }}</a> <i class="mdi mdi-chevron-right"></i> {{ device.parent_bay }}
+                                                    <a href="{{ parent.get_absolute_url }}">{{ parent }}</a> / {{ device.parent_bay }}
                                                     {% if parent.position %}
                                                         (U{{ parent.position }} / {{ parent.get_face_display }})
                                                     {% endif %}
@@ -206,8 +204,7 @@
                                         <td>
                                             {% if device.tenant %}
                                                 {% if device.tenant.group %}
-                                                    <a href="{{ device.tenant.group.get_absolute_url }}">{{ device.tenant.group }}</a>
-                                                    <i class="mdi mdi-chevron-right"></i>
+                                                    <a href="{{ device.tenant.group.get_absolute_url }}">{{ device.tenant.group }}</a> /
                                                 {% endif %}
                                                 <a href="{{ device.tenant.get_absolute_url }}">{{ device.tenant }}</a>
                                             {% else %}
@@ -323,8 +320,7 @@
                                             <td>Cluster</td>
                                             <td>
                                                 {% if device.cluster.group %}
-                                                    <a href="{{ device.cluster.group.get_absolute_url }}">{{ device.cluster.group }}</a>
-                                                    <i class="mdi mdi-chevron-right"></i>
+                                                    <a href="{{ device.cluster.group.get_absolute_url }}">{{ device.cluster.group }}</a> /
                                                 {% endif %}
                                                 <a href="{{ device.cluster.get_absolute_url }}">{{ device.cluster }}</a>
                                             </td>

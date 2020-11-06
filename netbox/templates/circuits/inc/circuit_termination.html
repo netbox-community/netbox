@@ -30,8 +30,7 @@
                 <td>Site</td>
                 <td>
                     {% if termination.site.region %}
-                        <a href="{{ termination.site.region.get_absolute_url }}">{{ termination.site.region }}</a>
-                        <i class="mdi mdi-chevron-right"></i>
+                        <a href="{{ termination.site.region.get_absolute_url }}">{{ termination.site.region }}</a> /
                     {% endif %}
                     <a href="{% url 'dcim:site' slug=termination.site.slug %}">{{ termination.site }}</a>
                 </td>

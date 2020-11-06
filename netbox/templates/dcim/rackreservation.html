@@ -66,8 +66,7 @@
                         <td>Site</td>
                         <td>
                             {% if rack.site.region %}
-                                <a href="{{ rack.site.region.get_absolute_url }}">{{ rack.site.region }}</a>
-                                <i class="mdi mdi-chevron-right"></i>
+                                <a href="{{ rack.site.region.get_absolute_url }}">{{ rack.site.region }}</a> /
                             {% endif %}
                             <a href="{% url 'dcim:site' slug=rack.site.slug %}">{{ rack.site }}</a>
                         </td>
@@ -105,8 +104,7 @@
                     <td>
                         {% if rackreservation.tenant %}
                             {% if rackreservation.tenant.group %}
-                                <a href="{{ rackreservation.tenant.group.get_absolute_url }}">{{ rackreservation.tenant.group }}</a>
-                                <i class="mdi mdi-chevron-right"></i>
+                                <a href="{{ rackreservation.tenant.group.get_absolute_url }}">{{ rackreservation.tenant.group }}</a> /
                             {% endif %}
                             <a href="{{ rackreservation.tenant.get_absolute_url }}">{{ rackreservation.tenant }}</a>
                         {% else %}

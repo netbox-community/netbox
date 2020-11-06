@@ -110,8 +110,7 @@
                     <td>
                         {% if virtualmachine.tenant %}
                             {% if virtualmachine.tenant.group %}
-                                <a href="{{ virtualmachine.tenant.group.get_absolute_url }}">{{ virtualmachine.tenant.group }}</a>
-                                <i class="mdi mdi-chevron-right"></i>
+                                <a href="{{ virtualmachine.tenant.group.get_absolute_url }}">{{ virtualmachine.tenant.group }}</a> /
                             {% endif %}
                             <a href="{{ virtualmachine.tenant.get_absolute_url }}">{{ virtualmachine.tenant }}</a>
                         {% else %}
@@ -177,8 +176,7 @@
                     <td>Cluster</td>
                     <td>
                         {% if virtualmachine.cluster.group %}
-                            <a href="{{ virtualmachine.cluster.group.get_absolute_url }}">{{ virtualmachine.cluster.group }}</a>
-                            <i class="mdi mdi-chevron-right"></i>
+                            <a href="{{ virtualmachine.cluster.group.get_absolute_url }}">{{ virtualmachine.cluster.group }}</a> /
                         {% endif %}
                         <a href="{{ virtualmachine.cluster.get_absolute_url }}">{{ virtualmachine.cluster }}</a>
                     </td>

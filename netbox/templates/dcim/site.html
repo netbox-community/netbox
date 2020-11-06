@@ -81,8 +81,7 @@
                     <td>
                         {% if site.region %}
                             {% for region in site.region.get_ancestors %}
-                                <a href="{{ region.get_absolute_url }}">{{ region }}</a>
-                                <i class="mdi mdi-chevron-right"></i>
+                                <a href="{{ region.get_absolute_url }}">{{ region }}</a> /
                             {% endfor %}
                             <a href="{{ site.region.get_absolute_url }}">{{ site.region }}</a>
                         {% else %}
@@ -95,8 +94,7 @@
                     <td>
                         {% if site.tenant %}
                             {% if site.tenant.group %}
-                                <a href="{{ site.tenant.group.get_absolute_url }}">{{ site.tenant.group }}</a>
-                                <i class="mdi mdi-chevron-right"></i>
+                                <a href="{{ site.tenant.group.get_absolute_url }}">{{ site.tenant.group }}</a> /
                             {% endif %}
                             <a href="{{ site.tenant.get_absolute_url }}">{{ site.tenant }}</a>
                         {% else %}

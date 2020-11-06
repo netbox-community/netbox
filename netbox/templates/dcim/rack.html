@@ -83,8 +83,7 @@
                     <td>Site</td>
                     <td>
                         {% if rack.site.region %}
-                            <a href="{{ rack.site.region.get_absolute_url }}">{{ rack.site.region }}</a>
-                            <i class="mdi mdi-chevron-right"></i>
+                            <a href="{{ rack.site.region.get_absolute_url }}">{{ rack.site.region }}</a> /
                         {% endif %}
                         <a href="{% url 'dcim:site' slug=rack.site.slug %}">{{ rack.site }}</a>
                     </td>
@@ -94,7 +93,7 @@
                     <td>
                         {% if rack.group %}
                             {% for group in rack.group.get_ancestors %}
-                                <a href="{{ group.get_absolute_url }}">{{ group }}</a> <i class="mdi mdi-chevron-right"></i>
+                                <a href="{{ group.get_absolute_url }}">{{ group }}</a> /
                             {% endfor %}
                             <a href="{{ rack.group.get_absolute_url }}">{{ rack.group }}</a>
                         {% else %}
@@ -111,8 +110,7 @@
                     <td>
                         {% if rack.tenant %}
                             {% if rack.tenant.group %}
-                                <a href="{{ rack.tenant.group.get_absolute_url }}">{{ rack.tenant.group }}</a>
-                                <i class="mdi mdi-chevron-right"></i>
+                                <a href="{{ rack.tenant.group.get_absolute_url }}">{{ rack.tenant.group }}</a> /
                             {% endif %}
                             <a href="{{ rack.tenant.get_absolute_url }}">{{ rack.tenant }}</a>
                         {% else %}

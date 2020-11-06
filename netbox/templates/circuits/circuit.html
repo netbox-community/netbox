@@ -90,8 +90,7 @@
                     <td>
                         {% if circuit.tenant %}
                             {% if circuit.tenant.group %}
-                                <a href="{{ circuit.tenant.group.get_absolute_url }}">{{ circuit.tenant.group }}</a>
-                                <i class="mdi mdi-chevron-right"></i>
+                                <a href="{{ circuit.tenant.group.get_absolute_url }}">{{ circuit.tenant.group }}</a> /
                             {% endif %}
                             <a href="{{ circuit.tenant.get_absolute_url }}">{{ circuit.tenant }}</a>
                         {% else %}

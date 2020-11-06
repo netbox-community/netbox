@@ -79,8 +79,7 @@
                         <td>
                             {% if vlan.site %}
                                 {% if vlan.site.region %}
-                                    <a href="{{ vlan.site.region.get_absolute_url }}">{{ vlan.site.region }}</a>
-                                    <i class="mdi mdi-chevron-right"></i>
+                                    <a href="{{ vlan.site.region.get_absolute_url }}">{{ vlan.site.region }}</a> /
                                 {% endif %}
                                 <a href="{% url 'dcim:site' slug=vlan.site.slug %}">{{ vlan.site }}</a>
                             {% else %}
@@ -111,8 +110,7 @@
                         <td>
                             {% if vlan.tenant %}
                                 {% if vlan.tenant.group %}
-                                    <a href="{{ vlan.tenant.group.get_absolute_url }}">{{ vlan.tenant.group }}</a>
-                                    <i class="mdi mdi-chevron-right"></i>
+                                    <a href="{{ vlan.tenant.group.get_absolute_url }}">{{ vlan.tenant.group }}</a> /
                                 {% endif %}
                                 <a href="{{ vlan.tenant.get_absolute_url }}">{{ vlan.tenant }}</a>
                             {% else %}
