@@ -19,7 +19,7 @@ UTILIZATION_GRAPH = """
 
 PREFIX_LINK = """
 {% if record.children %}
-    <span class="text-nowrap" style="padding-left: {{ record.parents }}0px "><i class="fa fa-caret-right"></i></a>
+    <span class="text-nowrap" style="padding-left: {{ record.parents }}0px "><i class="mdi mdi-chevron-right"></i></a>
 {% else %}
     <span class="text-nowrap" style="padding-left: {{ record.parents }}9px">
 {% endif %}
@@ -105,9 +105,9 @@ VLANGROUP_ADD_VLAN = """
 
 VLAN_MEMBER_TAGGED = """
 {% if record.untagged_vlan_id == vlan.pk %}
-    <span class="text-danger"><i class="fa fa-close"></i></span>
+    <span class="text-danger"><i class="mdi mdi-close-thick"></i></span>
 {% else %}
-    <span class="text-success"><i class="fa fa-check"></i></span>
+    <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
 {% endif %}
 """
 

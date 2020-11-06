@@ -15,7 +15,7 @@ from .models import (
 
 MPTT_LINK = """
 {% if record.get_children %}
-    <span style="padding-left: {{ record.get_ancestors|length }}0px "><i class="fa fa-caret-right"></i>
+    <span style="padding-left: {{ record.get_ancestors|length }}0px "><i class="mdi mdi-chevron-right"></i>
 {% else %}
     <span style="padding-left: {{ record.get_ancestors|length }}9px">
 {% endif %}
@@ -44,7 +44,7 @@ DEVICE_LINK = """
 
 RACKGROUP_ELEVATIONS = """
 <a href="{% url 'dcim:rack_elevation_list' %}?site={{ record.site.slug }}&group_id={{ record.pk }}" class="btn btn-xs btn-primary" title="View elevations">
-    <i class="fa fa-eye"></i>
+    <i class="mdi mdi-server"></i>
 </a>
 """
 
@@ -58,7 +58,7 @@ DEVICE_COUNT = """
 
 RACKRESERVATION_ACTIONS = """
 <a href="{% url 'dcim:rackreservation_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
+    <i class="mdi mdi-history"></i>
 </a>
 {% if perms.dcim.change_rackreservation %}
     <a href="{% url 'dcim:rackreservation_edit' pk=record.pk %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="mdi mdi-pencil" aria-hidden="true"></i></a>
@@ -67,7 +67,7 @@ RACKRESERVATION_ACTIONS = """
 
 MANUFACTURER_ACTIONS = """
 <a href="{% url 'dcim:manufacturer_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
+    <i class="mdi mdi-history"></i>
 </a>
 {% if perms.dcim.change_manufacturer %}
     <a href="{% url 'dcim:manufacturer_edit' slug=record.slug %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="mdi mdi-pencil" aria-hidden="true"></i></a>
@@ -84,7 +84,7 @@ DEVICEROLE_VM_COUNT = """
 
 DEVICEROLE_ACTIONS = """
 <a href="{% url 'dcim:devicerole_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Change log">
-    <i class="fa fa-history"></i>
+    <i class="mdi mdi-history"></i>
 </a>
 {% if perms.dcim.change_devicerole %}
     <a href="{% url 'dcim:devicerole_edit' slug=record.slug %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="mdi mdi-pencil" aria-hidden="true"></i></a>

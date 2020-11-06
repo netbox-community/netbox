@@ -1,7 +1,7 @@
 CABLETERMINATION = """
 {% if value %}
     <a href="{{ value.parent.get_absolute_url }}">{{ value.parent }}</a>
-    <i class="fa fa-caret-right"></i>
+    <i class="mdi mdi-chevron-right"></i>
     <a href="{{ value.get_absolute_url }}">{{ value }}</a>
 {% else %}
     &mdash;
@@ -52,7 +52,7 @@ INTERFACE_TAGGED_VLANS = """
 
 MPTT_LINK = """
 {% if record.get_children %}
-    <span style="padding-left: {{ record.get_ancestors|length }}0px "><i class="fa fa-caret-right"></i>
+    <span style="padding-left: {{ record.get_ancestors|length }}0px "><i class="mdi mdi-chevron-right"></i>
 {% else %}
     <span style="padding-left: {{ record.get_ancestors|length }}9px">
 {% endif %}
@@ -63,19 +63,19 @@ MPTT_LINK = """
 POWERFEED_CABLE = """
 <a href="{{ value.get_absolute_url }}">{{ value }}</a>
 <a href="{% url 'dcim:powerfeed_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace">
-    <i class="fa fa-share-alt" aria-hidden="true"></i>
+    <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
 </a>
 """
 
 POWERFEED_CABLETERMINATION = """
 <a href="{{ value.parent.get_absolute_url }}">{{ value.parent }}</a>
-<i class="fa fa-caret-right"></i>
+<i class="mdi mdi-chevron-right"></i>
 <a href="{{ value.get_absolute_url }}">{{ value }}</a>
 """
 
 RACKGROUP_ELEVATIONS = """
 <a href="{% url 'dcim:rack_elevation_list' %}?site={{ record.site.slug }}&group_id={{ record.pk }}" class="btn btn-xs btn-primary" title="View elevations">
-    <i class="fa fa-eye"></i>
+    <i class="mdi mdi-server"></i>
 </a>
 """
 
@@ -90,7 +90,7 @@ UTILIZATION_GRAPH = """
 
 CONSOLEPORT_BUTTONS = """
 {% if record.cable %}
-    <a href="{% url 'dcim:consoleport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="fa fa-share-alt"></i></a>
+    <a href="{% url 'dcim:consoleport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
     <span class="dropdown">
@@ -108,7 +108,7 @@ CONSOLEPORT_BUTTONS = """
 
 CONSOLESERVERPORT_BUTTONS = """
 {% if record.cable %}
-    <a href="{% url 'dcim:consoleserverport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="fa fa-share-alt"></i></a>
+    <a href="{% url 'dcim:consoleserverport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
     <span class="dropdown">
@@ -126,7 +126,7 @@ CONSOLESERVERPORT_BUTTONS = """
 
 POWERPORT_BUTTONS = """
 {% if record.cable %}
-    <a href="{% url 'dcim:powerport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="fa fa-share-alt"></i></a>
+    <a href="{% url 'dcim:powerport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
     <span class="dropdown">
@@ -143,7 +143,7 @@ POWERPORT_BUTTONS = """
 
 POWEROUTLET_BUTTONS = """
 {% if record.cable %}
-    <a href="{% url 'dcim:poweroutlet_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="fa fa-share-alt"></i></a>
+    <a href="{% url 'dcim:poweroutlet_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
     <a href="{% url 'dcim:poweroutlet_connect' termination_a_id=record.pk termination_b_type='power-port' %}?return_url={{ device.get_absolute_url }}" title="Connect" class="btn btn-success btn-xs">
@@ -159,7 +159,7 @@ INTERFACE_BUTTONS = """
     </a>
 {% endif %}
 {% if record.cable %}
-    <a href="{% url 'dcim:interface_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="fa fa-share-alt"></i></a>
+    <a href="{% url 'dcim:interface_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif record.is_connectable and perms.dcim.add_cable %}
     <span class="dropdown">
@@ -178,7 +178,7 @@ INTERFACE_BUTTONS = """
 
 FRONTPORT_BUTTONS = """
 {% if record.cable %}
-    <a href="{% url 'dcim:frontport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="fa fa-share-alt"></i></a>
+    <a href="{% url 'dcim:frontport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
     <span class="dropdown">
@@ -199,7 +199,7 @@ FRONTPORT_BUTTONS = """
 
 REARPORT_BUTTONS = """
 {% if record.cable %}
-    <a href="{% url 'dcim:rearport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="fa fa-share-alt"></i></a>
+    <a href="{% url 'dcim:rearport_trace' pk=record.pk %}" class="btn btn-primary btn-xs" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
     <span class="dropdown">
