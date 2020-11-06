@@ -305,11 +305,11 @@
                         {% with action=change.get_action_display|lower %}
                             <div class="list-group-item">
                                 {% if action == 'created' %}
-                                    <span class="label label-success"><i class="mdi mdi-plus-thick"></i></span>
+                                    <span class="label label-success">Created</span>
                                 {% elif action == 'updated' %}
-                                    <span class="label label-warning"><i class="mdi mdi-pencil"></i></span>
+                                    <span class="label label-warning">Modified</span>
                                 {% elif action == 'deleted' %}
-                                    <span class="label label-danger"><i class="mdi mdi-trash-can-outline"></i></span>
+                                    <span class="label label-danger">Deleted</span>
                                 {% endif %}
                                 {{ change.changed_object_type.name|bettertitle }}
                                 {% if change.changed_object.get_absolute_url %}

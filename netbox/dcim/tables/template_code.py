@@ -164,7 +164,7 @@ INTERFACE_BUTTONS = """
 {% elif record.is_connectable and perms.dcim.add_cable %}
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="mdi mdi-lan-connect" aria-hidden="true"></span>
+            <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'dcim:interface_connect' termination_a_id=record.pk termination_b_type='interface' %}?return_url={{ device.get_absolute_url }}">Interface</a></li>
