@@ -10,6 +10,7 @@
 ### Bug Fixes
 
 * [#5271](https://github.com/netbox-community/netbox/issues/5271) - Fix auto-population of region field when editing a device
+* [#5314](https://github.com/netbox-community/netbox/issues/5314) - Fix config context rendering when multiple tags are assgined to an object
 
 
 ---
