@@ -8,9 +8,6 @@
           href="{% static 'bootstrap-3.4.1-dist/css/bootstrap.min.css' %}"
           onerror="window.location='{% url 'media_failure' %}?filename=bootstrap-3.4.1-dist/css/bootstrap.min.css'">
     <link rel="stylesheet"
-          href="{% static 'font-awesome-4.7.0/css/font-awesome.min.css' %}"
-          onerror="window.location='{% url 'media_failure' %}?filename=font-awesome-4.7.0/css/font-awesome.min.css'">
-    <link rel="stylesheet"
           href="{% static 'materialdesignicons-5.4.55/css/materialdesignicons.min.css' %}"
           onerror="window.location='{% url 'media_failure' %}?filename=materialdesignicons-5.4.55/css/materialdesignicons.min.css'">
     <link rel="stylesheet"
@@ -42,7 +39,7 @@
         {% endif %}
         {% if settings.MAINTENANCE_MODE %}
             <div class="alert alert-warning text-center" role="alert">
-                <h4><i class="fa fa-exclamation-triangle"></i> Maintenance Mode</h4>
+                <h4><i class="mdi mdi-alert"></i> Maintenance Mode</h4>
                 <p>NetBox is currently in maintenance mode. Functionality may be limited.</p>
             </div>
         {% endif %}
@@ -74,10 +71,10 @@
                 </div>
                 <div class="col-xs-4 text-right noprint">
                     <p class="text-muted">
-                        <i class="fa fa-fw fa-book text-primary"></i> <a href="http://netbox.readthedocs.io/">Docs</a> &middot;
-                        <i class="fa fa-fw fa-cloud text-primary"></i> <a href="{% url 'api_docs' %}">API</a> &middot;
-                        <i class="fa fa-fw fa-code text-primary"></i> <a href="https://github.com/netbox-community/netbox">Code</a> &middot;
-                        <i class="fa fa-fw fa-support text-primary"></i> <a href="https://github.com/netbox-community/netbox/wiki">Help</a>
+                        <i class="mdi mdi-book-open-page-variant text-primary"></i> <a href="http://netbox.readthedocs.io/">Docs</a> &middot;
+                        <i class="mdi mdi-cloud-braces text-primary"></i> <a href="{% url 'api_docs' %}">API</a> &middot;
+                        <i class="mdi mdi-xml text-primary"></i> <a href="https://github.com/netbox-community/netbox">Code</a> &middot;
+                        <i class="mdi mdi-lifebuoy text-primary"></i> <a href="https://github.com/netbox-community/netbox/wiki">Help</a>
                     </p>
                 </div>
             </div>

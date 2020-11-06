@@ -351,11 +351,9 @@ textarea {
     font-family: Consolas, Lucida Console, monospace;
 }
 
-
-
 /* MDI icons */
 .mdi::before {
-    font-size: 24px;
+    font-size: 20px;
     line-height: 14px;
 }
 .btn .mdi::before {

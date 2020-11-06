@@ -5,20 +5,20 @@
         <div class="pull-right">
             {% if not termination and perms.circuits.add_circuittermination %}
                 <a href="{% url 'circuits:circuittermination_add' circuit=circuit.pk %}?term_side={{ side }}" class="btn btn-xs btn-success">
-                    <span class="fa fa-plus" aria-hidden="true"></span> Add
+                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add
                 </a>
             {% endif %}
             {% if termination and perms.circuits.change_circuittermination %}
                 <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}" class="btn btn-xs btn-warning">
-                    <span class="fa fa-pencil" aria-hidden="true"></span> Edit
+                    <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                 </a>
                 <a href="{% url 'circuits:circuit_terminations_swap' pk=circuit.pk %}" class="btn btn-xs btn-primary">
-                    <span class="fa fa-refresh" aria-hidden="true"></span> Swap
+                    <span class="mdi mdi-swap-vertical" aria-hidden="true"></span> Swap
                 </a>
             {% endif %}
             {% if termination and perms.circuits.delete_circuittermination %}
                 <a href="{% url 'circuits:circuittermination_delete' pk=termination.pk %}?return_url={{ circuit.get_absolute_url }}" class="btn btn-xs btn-danger">
-                    <span class="fa fa-trash" aria-hidden="true"></span> Delete
+                    <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
                 </a>
             {% endif %}
         </div>
@@ -31,7 +31,7 @@
                 <td>
                     {% if termination.site.region %}
                         <a href="{{ termination.site.region.get_absolute_url }}">{{ termination.site.region }}</a>
-                        <i class="fa fa-angle-right"></i>
+                        <i class="mdi mdi-chevron-right"></i>
                     {% endif %}
                     <a href="{% url 'dcim:site' slug=termination.site.slug %}">{{ termination.site }}</a>
                 </td>
@@ -49,7 +49,7 @@
                         {% endif %}
                         <a href="{{ termination.cable.get_absolute_url }}">{{ termination.cable }}</a>
                         <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary btn-xs" title="Trace">
-                            <i class="fa fa-share-alt" aria-hidden="true"></i>
+                            <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                         </a>
                         {% with peer=termination.get_cable_peer %}
                             to
@@ -84,8 +84,8 @@
                 <td>Speed</td>
                 <td>
                     {% if termination.port_speed and termination.upstream_speed %}
-                        <i class="fa fa-arrow-down" title="Downstream"></i> {{ termination.port_speed|humanize_speed }} &nbsp;
-                        <i class="fa fa-arrow-up" title="Upstream"></i> {{ termination.upstream_speed|humanize_speed }}
+                        <i class="mdi mdi-arrow-down-bold" title="Downstream"></i> {{ termination.port_speed|humanize_speed }} &nbsp;
+                        <i class="mdi mdi-arrow-up-bold" title="Upstream"></i> {{ termination.upstream_speed|humanize_speed }}
                     {% elif termination.port_speed %}
                         {{ termination.port_speed|humanize_speed }}
                     {% else %}

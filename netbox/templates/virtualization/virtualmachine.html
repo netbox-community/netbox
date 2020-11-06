@@ -21,7 +21,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search virtual machines" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search"></span>
+                            <span class="mdi mdi-magnify"></span>
                         </button>
                     </span>
                 </div>
@@ -111,7 +111,7 @@
                         {% if virtualmachine.tenant %}
                             {% if virtualmachine.tenant.group %}
                                 <a href="{{ virtualmachine.tenant.group.get_absolute_url }}">{{ virtualmachine.tenant.group }}</a>
-                                <i class="fa fa-angle-right"></i>
+                                <i class="mdi mdi-chevron-right"></i>
                             {% endif %}
                             <a href="{{ virtualmachine.tenant.get_absolute_url }}">{{ virtualmachine.tenant }}</a>
                         {% else %}
@@ -178,7 +178,7 @@
                     <td>
                         {% if virtualmachine.cluster.group %}
                             <a href="{{ virtualmachine.cluster.group.get_absolute_url }}">{{ virtualmachine.cluster.group }}</a>
-                            <i class="fa fa-angle-right"></i>
+                            <i class="mdi mdi-chevron-right"></i>
                         {% endif %}
                         <a href="{{ virtualmachine.cluster.get_absolute_url }}">{{ virtualmachine.cluster }}</a>
                     </td>
@@ -195,11 +195,11 @@
             </div>
             <table class="table table-hover panel-body attr-table">
                 <tr>
-                    <td><i class="fa fa-tachometer"></i> Virtual CPUs</td>
+                    <td><i class="mdi mdi-gauge"></i> Virtual CPUs</td>
                     <td>{{ virtualmachine.vcpus|placeholder }}</td>
                 </tr>
                 <tr>
-                    <td><i class="fa fa-microchip"></i> Memory</td>
+                    <td><i class="mdi mdi-chip"></i> Memory</td>
                     <td>
                         {% if virtualmachine.memory %}
                             {{ virtualmachine.memory }} MB
@@ -209,7 +209,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><i class="fa fa-hdd-o"></i> Disk Space</td>
+                    <td><i class="mdi mdi-harddisk"></i> Disk Space</td>
                     <td>
                         {% if virtualmachine.disk %}
                             {{ virtualmachine.disk }} GB

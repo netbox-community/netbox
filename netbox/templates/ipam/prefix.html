@@ -21,7 +21,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search prefixes" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -32,12 +32,12 @@
         {% plugin_buttons prefix %}
         {% if perms.ipam.add_prefix and active_tab == 'prefixes' and first_available_prefix %}
             <a href="{% url 'ipam:prefix_add' %}?prefix={{ first_available_prefix }}&vrf={{ prefix.vrf.pk }}&site={{ prefix.site.pk }}&tenant_group={{ prefix.tenant.group.pk }}&tenant={{ prefix.tenant.pk }}" class="btn btn-success">
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Child Prefix
+                <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Child Prefix
             </a>
         {% endif %}
         {% if perms.ipam.add_ipaddress and active_tab == 'ip-addresses' and first_available_ip %}
             <a href="{% url 'ipam:ipaddress_add' %}?address={{ first_available_ip }}&vrf={{ prefix.vrf.pk }}&tenant_group={{ prefix.tenant.group.pk }}&tenant={{ prefix.tenant.pk }}" class="btn btn-success">
-                <span class="fa fa-plus" aria-hidden="true"></span>
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                 Add an IP Address
             </a>
         {% endif %}
@@ -105,7 +105,7 @@
                             {% if prefix.tenant %}
                                 {% if prefix.tenant.group %}
                                     <a href="{{ prefix.tenant.group.get_absolute_url }}">{{ prefix.tenant.group }}</a>
-                                    <i class="fa fa-angle-right"></i>
+                                    <i class="mdi mdi-chevron-right"></i>
                                 {% endif %}
                                 <a href="{{ prefix.tenant.get_absolute_url }}">{{ prefix.tenant }}</a>
                             {% else %}
@@ -129,7 +129,7 @@
                             {% if prefix.site %}
                                 {% if prefix.site.region %}
                                     <a href="{{ prefix.site.region.get_absolute_url }}">{{ prefix.site.region }}</a>
-                                    <i class="fa fa-angle-right"></i>
+                                    <i class="mdi mdi-chevron-right"></i>
                                 {% endif %}
                                 <a href="{% url 'dcim:site' slug=prefix.site.slug %}">{{ prefix.site }}</a>
                             {% else %}
@@ -143,7 +143,7 @@
                             {% if prefix.vlan %}
                                 {% if prefix.vlan.group %}
                                     <a href="{{ prefix.vlan.group.get_absolute_url }}">{{ prefix.vlan.group }}</a>
-                                    <i class="fa fa-angle-right"></i>
+                                    <i class="mdi mdi-chevron-right"></i>
                                 {% endif %}
                                 <a href="{% url 'ipam:vlan' pk=prefix.vlan.pk %}">{{ prefix.vlan.display_name }}</a>
                             {% else %}

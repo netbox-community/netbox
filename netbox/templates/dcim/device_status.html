@@ -46,19 +46,19 @@
                 <div class="panel-heading"><strong>Environment</strong></div>
                 <table class="table panel-body">
                     <tr id="cpu">
-                        <th colspan="2"><i class="fa fa-tachometer"></i> CPU</th>
+                        <th colspan="2"><i class="mdi mdi-gauge"></i> CPU</th>
                     </tr>
                     <tr id="memory">
-                        <th colspan="2"><i class="fa fa-microchip"></i> Memory</th>
+                        <th colspan="2"><i class="mdi mdi-chip"></i> Memory</th>
                     </tr>
                     <tr id="temperature">
-                        <th colspan="2"><i class="fa fa-thermometer"></i> Temperature</th>
+                        <th colspan="2"><i class="mdi mdi-thermometer"></i> Temperature</th>
                     </tr>
                     <tr id="fans">
-                        <th colspan="2"><i class="fa fa-superpowers"></i> Fans</th>
+                        <th colspan="2"><i class="mdi mdi-fan"></i> Fans</th>
                     </tr>
                     <tr id="power">
-                        <th colspan="2"><i class="fa fa-bolt"></i> Power</th>
+                        <th colspan="2"><i class="mdi mdi-power"></i> Power</th>
                     </tr>
                 </table>
             </div>
@@ -112,18 +112,18 @@ $(document).ready(function() {
                 $.each(json['get_environment']['fans'], function(name, obj) {
                     var row;
                     if (obj['status']) {
-                        row="<tr class=\"success\"><td>" + name + "</td><td><i class=\"fa fa-check text-success\"></i></td></tr>";
+                        row="<tr class=\"success\"><td>" + name + "</td><td><i class=\"mdi mdi-check-bold text-success\"></i></td></tr>";
                     } else {
-                        row="<tr class=\"error\"><td>" + name + "</td><td><i class=\"fa fa-close text-error\"></i></td></tr>";
+                        row="<tr class=\"error\"><td>" + name + "</td><td><i class=\"mdi mdi-close text-error\"></i></td></tr>";
                     }
                     $("#fans").after(row)
                 });
                 $.each(json['get_environment']['power'], function(name, obj) {
                     var row;
                     if (obj['status']) {
-                        row="<tr class=\"success\"><td>" + name + "</td><td><i class=\"fa fa-check text-success\"></i></td></tr>";
+                        row="<tr class=\"success\"><td>" + name + "</td><td><i class=\"mdi mdi-check-bold text-success\"></i></td></tr>";
                     } else {
-                        row="<tr class=\"danger\"><td>" + name + "</td><td><i class=\"fa fa-close text-danger\"></i></td></tr>";
+                        row="<tr class=\"danger\"><td>" + name + "</td><td><i class=\"mdi mdi-close text-danger\"></i></td></tr>";
                     }
                     $("#power").after(row)
                 });

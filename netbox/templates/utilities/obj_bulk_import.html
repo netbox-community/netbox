@@ -53,7 +53,7 @@
                                         </td>
                                         <td>
                                             {% if field.required %}
-                                                <i class="fa fa-check text-success" title="Required"></i>
+                                                <i class="mdi mdi-check-bold text-success" title="Required"></i>
                                             {% else %}
                                                 <span class="text-muted">&mdash;</span>
                                             {% endif %}
@@ -68,7 +68,7 @@
                                         <td>
                                             {% if field.STATIC_CHOICES %}
                                                 <button type="button" class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#{{ name }}_choices">
-                                                    <i class="fa fa-question"></i>
+                                                    <i class="mdi mdi-help-circle"></i>
                                                 </button>
                                                 <div class="modal fade" id="{{ name }}_choices" tabindex="-1" role="dialog">
                                                     <div class="modal-dialog" role="document">
@@ -103,11 +103,11 @@
                             </table>
                         </div>
                         <p class="small text-muted">
-                            <i class="fa fa-check"></i> Required fields <strong>must</strong> be specified for all
+                            <i class="mdi mdi-check-bold"></i> Required fields <strong>must</strong> be specified for all
                             objects.
                         </p>
                         <p class="small text-muted">
-                            <i class="fa fa-info-circle"></i> Related objects may be referenced by any unique attribute.
+                            <i class="mdi mdi-information-outline"></i> Related objects may be referenced by any unique attribute.
                             For example, <code>vrf.rd</code> would identify a VRF by its route distinguisher.
                         </p>
                     {% endif %}

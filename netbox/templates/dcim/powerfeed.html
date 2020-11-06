@@ -24,7 +24,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search power feeds" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -166,7 +166,7 @@
                         <td>
                             <a href="{{ powerfeed.cable.get_absolute_url }}">{{ powerfeed.cable }}</a>
                             <a href="{% url 'dcim:consoleport_trace' pk=powerfeed.pk %}" class="btn btn-primary btn-xs" title="Trace">
-                                <i class="fa fa-share-alt" aria-hidden="true"></i>
+                                <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                             </a>
                         </td>
                     </tr>

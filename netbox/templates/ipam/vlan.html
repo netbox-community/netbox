@@ -24,7 +24,7 @@
                 <input type="text" name="q" class="form-control" placeholder="Search VLANs" />
                 <span class="input-group-btn">
                     <button type="submit" class="btn btn-primary">
-                        <span class="fa fa-search" aria-hidden="true"></span>
+                        <span class="mdi mdi-magnify" aria-hidden="true"></span>
                     </button>
                 </span>
             </div>
@@ -80,7 +80,7 @@
                             {% if vlan.site %}
                                 {% if vlan.site.region %}
                                     <a href="{{ vlan.site.region.get_absolute_url }}">{{ vlan.site.region }}</a>
-                                    <i class="fa fa-angle-right"></i>
+                                    <i class="mdi mdi-chevron-right"></i>
                                 {% endif %}
                                 <a href="{% url 'dcim:site' slug=vlan.site.slug %}">{{ vlan.site }}</a>
                             {% else %}
@@ -112,7 +112,7 @@
                             {% if vlan.tenant %}
                                 {% if vlan.tenant.group %}
                                     <a href="{{ vlan.tenant.group.get_absolute_url }}">{{ vlan.tenant.group }}</a>
-                                    <i class="fa fa-angle-right"></i>
+                                    <i class="mdi mdi-chevron-right"></i>
                                 {% endif %}
                                 <a href="{{ vlan.tenant.get_absolute_url }}">{{ vlan.tenant }}</a>
                             {% else %}

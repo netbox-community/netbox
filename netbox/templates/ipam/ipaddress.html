@@ -22,7 +22,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search IPs" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -86,7 +86,7 @@
                         {% if ipaddress.tenant %}
                             {% if ipaddress.tenant.group %}
                                 <a href="{{ ipaddress.tenant.group.get_absolute_url }}">{{ ipaddress.tenant.group }}</a>
-                                <i class="fa fa-angle-right"></i>
+                                <i class="mdi mdi-chevron-right"></i>
                             {% endif %}
                             <a href="{{ ipaddress.tenant.get_absolute_url }}">{{ ipaddress.tenant }}</a>
                         {% else %}

@@ -24,7 +24,7 @@
                     <input type="text" name="q" class="form-control" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -88,10 +88,10 @@
                     <strong>Difference</strong>
                     <div class="btn-group btn-group-xs pull-right noprint">
                         <a {% if prev_change %}href="{% url 'extras:objectchange' pk=prev_change.pk %}"{% else %}disabled{% endif %} class="btn btn-default">
-                            <span class="fa fa-chevron-left" aria-hidden="true"></span> Previous
+                            <span class="mdi mdi-chevron-left" aria-hidden="true"></span> Previous
                         </a>
                         <a {% if next_change %}href="{% url 'extras:objectchange' pk=next_change.pk %}"{% else %}disabled{% endif %} class="btn btn-default">
-                            Next <span class="fa fa-chevron-right" aria-hidden="true"></span>
+                            Next <span class="mdi mdi-chevron-right" aria-hidden="true"></span>
                         </a>
                     </div>
                 </div>

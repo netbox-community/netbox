@@ -1,5 +1,5 @@
 <div class="col-md-6 col-md-offset-3">
-    <h4><i class="fa fa-arrow-up"></i></h4>
+    <h4><i class="mdi mdi-arrow-up-bold"></i></h4>
     <h4>
         <a href="{% url 'dcim:cable' pk=cable.pk %}">
             {% if cable.label %}<code>{{ cable.label }}</code>{% else %}Cable #{{ cable.pk }}{% endif %}
@@ -11,5 +11,5 @@
     {% if cable.color %}
         <span class="label color-block center-block" style="background-color: #{{ cable.color }}">&nbsp;</span>
     {% endif %}
-    <h4><i class="fa fa-arrow-down"></i></h4>
+    <h4><i class="mdi mdi-arrow-down-bold"></i></h4>
 </div>

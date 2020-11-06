@@ -32,9 +32,9 @@
                         <td>Enabled</td>
                         <td>
                             {% if instance.enabled %}
-                                <span class="text-success"><i class="fa fa-check"></i></span>
+                                <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
                             {% else %}
-                                <span class="text-danger"><i class="fa fa-close"></i></span>
+                                <span class="text-danger"><i class="mdi mdi-close"></i></span>
                             {% endif %}
                         </td>
                     </tr>
@@ -82,7 +82,7 @@
                                 <td>
                                     <a href="{{ instance.cable.get_absolute_url }}">{{ instance.cable }}</a>
                                     <a href="{% url 'dcim:interface_trace' pk=instance.pk %}" class="btn btn-primary btn-xs" title="Trace">
-                                        <i class="fa fa-share-alt" aria-hidden="true"></i>
+                                        <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                                     </a>
                                 </td>
                             </tr>
@@ -108,9 +108,9 @@
                                         <td>Enabled</td>
                                         <td>
                                             {% if iface.enabled %}
-                                                <span class="text-success"><i class="fa fa-check"></i></span>
+                                                <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
                                             {% else %}
-                                                <span class="text-danger"><i class="fa fa-close"></i></span>
+                                                <span class="text-danger"><i class="mdi mdi-close"></i></span>
                                             {% endif %}
                                         </td>
                                     </tr>

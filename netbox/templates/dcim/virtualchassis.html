@@ -21,7 +21,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search virtual chassis" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -100,7 +100,7 @@
                             <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
                         </td>
                         <td><span class="badge badge-default">{{ vc_member.vc_position }}</span></td>
-                        <td>{% if virtualchassis.master == vc_member %}<i class="fa fa-check text-success"></i>{% endif %}</td>
+                        <td>{% if virtualchassis.master == vc_member %}<i class="mdi mdi-check-bold text-success"></i>{% endif %}</td>
                         <td>{{ vc_member.vc_priority|placeholder }}</td>
                     </tr>
                 {% endfor %}

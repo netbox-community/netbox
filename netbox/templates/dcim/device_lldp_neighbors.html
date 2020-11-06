@@ -32,7 +32,7 @@
                         {% elif iface.connected_endpoint.circuit %}
                             {% with circuit=iface.connected_endpoint.circuit %}
                                 <td colspan="2">
-                                    <i class="fa fa-fw fa-globe" title="Circuit"></i>
+                                    <i class="mdi mdi-lightning-bolt" title="Circuit"></i>
                                     <a href="{{ circuit.get_absolute_url }}">{{ circuit.provider }} {{ circuit }}</a>
                                 </td>
                             {% endwith %}

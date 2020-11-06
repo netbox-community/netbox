@@ -26,7 +26,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search racks" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -36,10 +36,10 @@
     <div class="pull-right noprint">
         {% plugin_buttons rack %}
         <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
-            <span class="fa fa-chevron-left" aria-hidden="true"></span> Previous Rack
+            <span class="mdi mdi-chevron-left" aria-hidden="true"></span> Previous Rack
         </a>
         <a {% if next_rack %}href="{% url 'dcim:rack' pk=next_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
-            <span class="fa fa-chevron-right" aria-hidden="true"></span> Next Rack
+            <span class="mdi mdi-chevron-right" aria-hidden="true"></span> Next Rack
         </a>
         {% if perms.dcim.add_rack %}
             {% clone_button rack %}
@@ -84,7 +84,7 @@
                     <td>
                         {% if rack.site.region %}
                             <a href="{{ rack.site.region.get_absolute_url }}">{{ rack.site.region }}</a>
-                            <i class="fa fa-angle-right"></i>
+                            <i class="mdi mdi-chevron-right"></i>
                         {% endif %}
                         <a href="{% url 'dcim:site' slug=rack.site.slug %}">{{ rack.site }}</a>
                     </td>
@@ -94,7 +94,7 @@
                     <td>
                         {% if rack.group %}
                             {% for group in rack.group.get_ancestors %}
-                                <a href="{{ group.get_absolute_url }}">{{ group }}</a> <i class="fa fa-caret-right"></i>
+                                <a href="{{ group.get_absolute_url }}">{{ group }}</a> <i class="mdi mdi-chevron-right"></i>
                             {% endfor %}
                             <a href="{{ rack.group.get_absolute_url }}">{{ rack.group }}</a>
                         {% else %}
@@ -112,7 +112,7 @@
                         {% if rack.tenant %}
                             {% if rack.tenant.group %}
                                 <a href="{{ rack.tenant.group.get_absolute_url }}">{{ rack.tenant.group }}</a>
-                                <i class="fa fa-angle-right"></i>
+                                <i class="mdi mdi-chevron-right"></i>
                             {% endif %}
                             <a href="{{ rack.tenant.get_absolute_url }}">{{ rack.tenant }}</a>
                         {% else %}
