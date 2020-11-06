@@ -140,7 +140,7 @@
                         {% if site.physical_address %}
                             <div class="pull-right noprint">
                                 <a href="http://maps.google.com/?q={{ site.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-xs">
-                                    <i class="glyphicon glyphicon-map-marker"></i> Map it
+                                    <i class="mdi mdi-map-marker"></i> Map it
                                 </a>
                             </div>
                             <span>{{ site.physical_address|linebreaksbr }}</span>
@@ -159,7 +159,7 @@
                         {% if site.latitude and site.longitude %}
                             <div class="pull-right noprint">
                                 <a href="http://maps.google.com/?q={{ site.latitude }},{{ site.longitude }}" target="_blank" class="btn btn-primary btn-xs">
-                                    <i class="glyphicon glyphicon-map-marker"></i> Map it
+                                    <i class="mdi mdi-map-marker"></i> Map it
                                 </a>
                             </div>
                             <span>{{ site.latitude }}, {{ site.longitude }}</span>
@@ -277,7 +277,7 @@
             {% if perms.extras.add_imageattachment %}
                 <div class="panel-footer text-right noprint">
                     <a href="{% url 'dcim:site_add_image' object_id=site.pk %}" class="btn btn-primary btn-xs">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                         Attach an image
                     </a>
                 </div>

@@ -97,7 +97,7 @@ VLANGROUP_ADD_VLAN = """
 {% with next_vid=record.get_next_available_vid %}
     {% if next_vid and perms.ipam.add_vlan %}
         <a href="{% url 'ipam:vlan_add' %}?site={{ record.site_id }}&group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-xs btn-success">
-            <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+            <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
         </a>
     {% endif %}
 {% endwith %}

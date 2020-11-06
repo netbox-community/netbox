@@ -108,7 +108,7 @@
             {% if perms.dcim.change_virtualchassis %}
                 <div class="panel-footer text-right noprint">
                     <a href="{% url 'dcim:virtualchassis_add_member' pk=virtualchassis.pk %}?site={{ virtualchassis.master.site.pk }}&rack={{ virtualchassis.master.rack.pk }}" class="btn btn-primary btn-xs">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Member
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Member
                     </a>
                 </div>
             {% endif %}

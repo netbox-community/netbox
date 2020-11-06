@@ -99,7 +99,7 @@
                         Not connected
                         {% if perms.dcim.add_cable %}
                             <a href="{% url 'dcim:poweroutlet_connect' termination_a_id=instance.pk termination_b_type='power-port' %}?return_url={{ instance.get_absolute_url }}" title="Connect" class="btn btn-primary btn-sm pull-right">
-                                <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i> Connect
+                                <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> Connect
                             </a>
                         {% endif %}
                     </div>

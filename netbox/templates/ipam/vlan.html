@@ -155,7 +155,7 @@
                 {% if perms.ipam.add_prefix %}
                     <div class="panel-footer text-right noprint">
                         <a href="{% url 'ipam:prefix_add' %}?{% if vlan.tenant %}tenant={{ vlan.tenant.pk }}&{% endif %}site={{ vlan.site.pk }}&vlan={{ vlan.pk }}" class="btn btn-primary btn-xs">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                             Add a prefix
                         </a>
                     </div>

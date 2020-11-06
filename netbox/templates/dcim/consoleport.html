@@ -92,7 +92,7 @@
                         {% if perms.dcim.add_cable %}
                             <span class="dropdown pull-right">
                                 <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span> Connect
+                                    <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li><a href="{% url 'dcim:consoleport_connect' termination_a_id=instance.pk termination_b_type='console-server-port' %}?return_url={{ instance.get_absolute_url }}">Console Server Port</a></li>

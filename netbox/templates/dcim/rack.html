@@ -55,7 +55,7 @@
     {% include 'inc/created_updated.html' with obj=rack %}
     <div class="pull-right noprint">
         <button class="btn btn-sm btn-default toggle-images" selected="selected">
-            <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Show Images
+            <span class="mdi mdi-check-bold" aria-hidden="true"></span> Show Images
         </button>
         {% custom_links rack %}
     </div>
@@ -266,7 +266,7 @@
             {% if perms.extras.add_imageattachment %}
                 <div class="panel-footer text-right noprint">
                     <a href="{% url 'dcim:rack_add_image' object_id=rack.pk %}" class="btn btn-primary btn-xs">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                         Attach an image
                     </a>
                 </div>
@@ -303,12 +303,12 @@
                             <td class="text-right noprint">
                                 {% if perms.dcim.change_rackreservation %}
                                     <a href="{% url 'dcim:rackreservation_edit' pk=resv.pk %}?return_url={{ rack.get_absolute_url }}" class="btn btn-warning btn-xs" title="Edit reservation">
-                                        <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+                                        <i class="mdi mdi-pencil" aria-hidden="true"></i>
                                     </a>
                                 {% endif %}
                                 {% if perms.dcim.delete_rackreservation %}
                                     <a href="{% url 'dcim:rackreservation_delete' pk=resv.pk %}?return_url={{ rack.get_absolute_url }}" class="btn btn-danger btn-xs" title="Delete reservation">
-                                        <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+                                        <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
                                     </a>
                                 {% endif %}
                             </td>
@@ -321,7 +321,7 @@
             {% if perms.dcim.add_rackreservation %}
                 <div class="panel-footer text-right noprint">
                     <a href="{% url 'dcim:rackreservation_add' %}?rack={{ rack.pk }}&return_url={{ rack.get_absolute_url }}" class="btn btn-primary btn-xs">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                         Add a reservation
                     </a>
                 </div>
@@ -374,7 +374,7 @@
             {% if perms.dcim.add_device %}
                 <div class="panel-footer text-right noprint">
                     <a href="{% url 'dcim:device_add' %}?site={{ rack.site.pk }}&rack={{ rack.pk }}" class="btn btn-primary btn-xs">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                         Add a non-racked device
                     </a>
                 </div>

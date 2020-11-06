@@ -95,7 +95,7 @@ CONSOLEPORT_BUTTONS = """
 {% elif perms.dcim.add_cable %}
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
+            <span class="mdi mdi-lan-connect" aria-hidden="true"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'dcim:consoleport_connect' termination_a_id=record.pk termination_b_type='console-server-port' %}?return_url={{ device.get_absolute_url }}">Console Server Port</a></li>
@@ -113,7 +113,7 @@ CONSOLESERVERPORT_BUTTONS = """
 {% elif perms.dcim.add_cable %}
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
+            <span class="mdi mdi-lan-connect" aria-hidden="true"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'dcim:consoleserverport_connect' termination_a_id=record.pk termination_b_type='console-port' %}?return_url={{ device.get_absolute_url }}">Console Port</a></li>
@@ -131,7 +131,7 @@ POWERPORT_BUTTONS = """
 {% elif perms.dcim.add_cable %}
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
+            <span class="mdi mdi-lan-connect" aria-hidden="true"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'dcim:powerport_connect' termination_a_id=record.pk termination_b_type='power-outlet' %}?return_url={{ device.get_absolute_url }}">Power Outlet</a></li>
@@ -147,7 +147,7 @@ POWEROUTLET_BUTTONS = """
     {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
 {% elif perms.dcim.add_cable %}
     <a href="{% url 'dcim:poweroutlet_connect' termination_a_id=record.pk termination_b_type='power-port' %}?return_url={{ device.get_absolute_url }}" title="Connect" class="btn btn-success btn-xs">
-        <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
+        <i class="mdi mdi-lan-connect" aria-hidden="true"></i>
     </a>
 {% endif %}
 """
@@ -155,7 +155,7 @@ POWEROUTLET_BUTTONS = """
 INTERFACE_BUTTONS = """
 {% if perms.ipam.add_ipaddress %}
     <a href="{% url 'ipam:ipaddress_add' %}?interface={{ record.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-xs btn-success" title="Add IP address">
-        <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+        <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
     </a>
 {% endif %}
 {% if record.cable %}
@@ -164,7 +164,7 @@ INTERFACE_BUTTONS = """
 {% elif record.is_connectable and perms.dcim.add_cable %}
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
+            <span class="mdi mdi-lan-connect" aria-hidden="true"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'dcim:interface_connect' termination_a_id=record.pk termination_b_type='interface' %}?return_url={{ device.get_absolute_url }}">Interface</a></li>
@@ -183,7 +183,7 @@ FRONTPORT_BUTTONS = """
 {% elif perms.dcim.add_cable %}
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
+            <span class="mdi mdi-lan-connect" aria-hidden="true"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'dcim:frontport_connect' termination_a_id=record.pk termination_b_type='interface' %}?return_url={{ device.get_absolute_url }}">Interface</a></li>
@@ -204,7 +204,7 @@ REARPORT_BUTTONS = """
 {% elif perms.dcim.add_cable %}
     <span class="dropdown">
         <button type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
+            <span class="mdi mdi-lan-connect" aria-hidden="true"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'dcim:rearport_connect' termination_a_id=record.pk termination_b_type='interface' %}?return_url={{ device.get_absolute_url }}">Interface</a></li>
@@ -220,11 +220,11 @@ DEVICEBAY_BUTTONS = """
 {% if perms.dcim.change_devicebay %}
     {% if record.installed_device %}
         <a href="{% url 'dcim:devicebay_depopulate' pk=record.pk %}" class="btn btn-danger btn-xs">
-            <i class="glyphicon glyphicon-remove" aria-hidden="true" title="Remove device"></i>
+            <i class="mdi mdi-close-thick" aria-hidden="true" title="Remove device"></i>
         </a>
     {% else %}
         <a href="{% url 'dcim:devicebay_populate' pk=record.pk %}" class="btn btn-success btn-xs">
-            <i class="glyphicon glyphicon-plus" aria-hidden="true" title="Install device"></i>
+            <i class="mdi mdi-plus-thick" aria-hidden="true" title="Install device"></i>
         </a>
     {% endif %}
 {% endif %}

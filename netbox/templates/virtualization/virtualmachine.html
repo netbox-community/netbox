@@ -31,7 +31,7 @@
     <div class="pull-right noprint">
         {% if perms.virtualization.add_vminterface %}
             <a href="{% url 'virtualization:vminterface_add' %}?virtual_machine={{ virtualmachine.pk }}&return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-primary">
-                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Interfaces
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Interfaces
             </a>
         {% endif %}
         {% plugin_buttons virtualmachine %}
@@ -229,7 +229,7 @@
                 {% if perms.secrets.add_secret %}
                     <div class="panel-footer text-right noprint">
                         <a href="{% url 'secrets:secret_add' %}?virtual_machine={{ virtualmachine.pk }}&return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-xs btn-primary">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add secret
+                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add secret
                         </a>
                     </div>
                 {% endif %}
@@ -253,7 +253,7 @@
             {% if perms.ipam.add_service %}
                 <div class="panel-footer text-right noprint">
                     <a href="{% url 'virtualization:virtualmachine_service_assign' virtualmachine=virtualmachine.pk %}" class="btn btn-xs btn-primary">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Assign service
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign service
                     </a>
                 </div>
             {% endif %}
@@ -285,21 +285,21 @@
                 <div class="panel-footer noprint">
                     {% if interfaces and perms.virtualization.change_vminterface %}
                         <button type="submit" name="_rename" formaction="{% url 'virtualization:vminterface_bulk_rename' %}?return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-warning btn-xs">
-                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                            <span class="mdi mdi-pencil" aria-hidden="true"></span> Rename
                         </button>
                         <button type="submit" name="_edit" formaction="{% url 'virtualization:vminterface_bulk_edit' %}?return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-warning btn-xs">
-                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit
+                            <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                         </button>
                     {% endif %}
                     {% if interfaces and perms.virtualization.delete_vminterface %}
                         <button type="submit" name="_delete" formaction="{% url 'virtualization:vminterface_bulk_delete' %}?return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-danger btn-xs">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+                            <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
                         </button>
                     {% endif %}
                     {% if perms.virtualization.add_vminterface %}
                         <div class="pull-right">
                             <a href="{% url 'virtualization:vminterface_add' %}?virtual_machine={{ virtualmachine.pk }}&return_url={{ virtualmachine.get_absolute_url }}" class="btn btn-primary btn-xs">
-                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interfaces
+                                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add interfaces
                             </a>
                         </div>
                         <div class="clearfix"></div>
