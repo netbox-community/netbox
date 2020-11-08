@@ -190,7 +190,7 @@ class TestPrefix(TestCase):
             [IPAddress(address=netaddr.IPNetwork('10.0.0.{}/24'.format(i))) for i in range(1, 33)]
         )
         self.assertEqual(prefix.get_utilization()[0], 12)  # ~= 12%
-        self.assertEqual(prefix.get_utilization(), (12, 30, 256))
+        self.assertEqual(prefix.get_utilization(), (12, 32, 254))
 
     #
     # Uniqueness enforcement tests
