@@ -234,6 +234,13 @@ def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):
     """
     Display a horizontal bar graph indicating a percentage of utilization.
     """
+    if isinstance(utilization, int):
+        return {
+            'utilization': utilization,
+            'warning_threshold': warning_threshold,
+            'danger_threshold': danger_threshold,
+        }
+
     return {
         'utilization': utilization[0],
         'warning_threshold': warning_threshold,
