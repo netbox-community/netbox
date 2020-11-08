@@ -559,14 +559,14 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
                 vrf=self.vrf
             )
             child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
-            return int(float(child_prefixes.size) / self.prefix.size * 100)
+            return (int(float(child_prefixes.size) / self.prefix.size * 100), child_prefixes.size, self.prefix.size)
         else:
             # Compile an IPSet to avoid counting duplicate IPs
             child_count = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()]).size
             prefix_size = self.prefix.size
             if self.prefix.version == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
                 prefix_size -= 2
-            return int(float(child_count) / prefix_size * 100)
+            return (int(float(child_count) / prefix_size * 100), child_count, prefix_size)
 
 
 @extras_features('custom_fields', 'custom_links', 'export_templates', 'webhooks')

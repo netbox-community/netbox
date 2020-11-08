@@ -179,7 +179,8 @@ class TestPrefix(TestCase):
             Prefix(prefix=netaddr.IPNetwork('10.0.0.0/26')),
             Prefix(prefix=netaddr.IPNetwork('10.0.0.128/26')),
         ))
-        self.assertEqual(prefix.get_utilization(), 50)
+        self.assertEqual(prefix.get_utilization()[0], 50)
+        self.assertEqual(prefix.get_utilization(), (50, 128, 256))
 
         # Non-container Prefix
         prefix.status = PrefixStatusChoices.STATUS_ACTIVE
@@ -188,7 +189,8 @@ class TestPrefix(TestCase):
             # Create 32 IPAddresses within the Prefix
             [IPAddress(address=netaddr.IPNetwork('10.0.0.{}/24'.format(i))) for i in range(1, 33)]
         )
-        self.assertEqual(prefix.get_utilization(), 12)  # ~= 12%
+        self.assertEqual(prefix.get_utilization()[0], 12)  # ~= 12%
+        self.assertEqual(prefix.get_utilization(), (12, 30, 256))
 
     #
     # Uniqueness enforcement tests
