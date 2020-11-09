@@ -5,7 +5,7 @@ This documentation provides example configurations for both [nginx](https://www.
 !!! info
     For the sake of brevity, only Ubuntu 18.04 instructions are provided here, these tasks not unique to NetBox and should carry over to other distributions with mininal changes. Please consult your distribution's documentation for assistance if needed.
 
-## Obtain an SSL Certificate
+## Obtain a Self-Signed SSL Certificate
 
 To enable HTTPS access to NetBox, you'll need a valid SSL certificate. You can purchase one from a trusted commercial provider, obtain one for free from [Let's Encrypt](https://letsencrypt.org/getting-started/), or generate your own (although self-signed certificates are generally untrusted). Both the public certificate and private key files need to be installed on your NetBox server in a location that is readable by the `netbox` user.
 
@@ -93,3 +93,29 @@ If you are able to connect but receive a 502 (bad gateway) error, check the foll
 * The WSGI worker processes (gunicorn) are running (`systemctl status netbox` should show a status of "active (running)")
 * nginx/Apache is configured to connect to the port on which gunicorn is listening (default is 8001).
 * SELinux is not preventing the reverse proxy connection. You may need to allow HTTP network connections with the command `setsebool -P httpd_can_network_connect 1`
+
+## Obtain a Let's Encrypt Certificate for nginx
+
+First, add the repository:
+
+```no-highlight
+# sudo add-apt-repository ppa:certbot/certbot
+```
+
+Install Certbot’s nginx package with apt:
+
+```no-highlight
+* sudo apt install python-certbot-nginx
+```
+
+Obtain SSL Certificate
+
+```no-highlight
+* sudo certbot --nginx -d netbox.example.com
+```
+
+Enter requested information by Let's Encrypt and generate certificate. If you receive the "Unable to install the certificate" error upon Certificate generation, go onto the next step.
+
+Copy the `/etc/letsencrypt/live/netbox.example.com/fullchain.pem` and the `/etc/letsencrypt/live/netbox.example.com/privkey.pem`
+
+Open `/etc/nginx/sites-available` and paste the correct directy path into the `ssl_certifcate` and `ssl_certificate-path` fields
