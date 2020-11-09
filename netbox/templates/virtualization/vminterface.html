@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load helpers %}
+{% load plugins %}
 
 {% block header %}
     <div class="row noprint">
@@ -12,6 +13,7 @@
         </div>
     </div>
     <div class="pull-right noprint">
+        {% plugin_buttons vminterface %}
         {% if perms.virtualization.change_vminterface %}
             <a href="{% url 'virtualization:vminterface_edit' pk=vminterface.pk %}" class="btn btn-warning">
                 <span class="fa fa-pencil" aria-hidden="true"></span> Edit
@@ -82,9 +84,11 @@
                 </tr>
             </table>
         </div>
+          {% plugin_left_page vminterface %}
     </div>
     <div class="col-md-6">
         {% include 'extras/inc/tags_panel.html' with tags=vminterface.tags.all %}
+          {% plugin_right_page vminterface %}
     </div>
 </div>
 <div class="row">
@@ -97,4 +101,9 @@
         {% include 'panel_table.html' with table=vlan_table heading="VLANs" %}
     </div>
 </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% plugin_full_width_page vminterface %}
+        </div>
+    </div>
 {% endblock %}
