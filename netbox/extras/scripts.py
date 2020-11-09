@@ -441,8 +441,11 @@ def run_script(data, request, commit=True, *args, **kwargs):
             f"with NetBox v2.10."
         )
 
-    with change_logging(request):
-
+    def _run_script():
+        """
+        Core script execution task. We capture this within a subfunction to allow for conditionally wrapping it with
+        the change_logging context manager (which is bypassed if commit == False).
+        """
         try:
             with transaction.atomic():
                 script.output = script.run(**kwargs)
@@ -468,6 +471,14 @@ def run_script(data, request, commit=True, *args, **kwargs):
             job_result.save()
 
         logger.info(f"Script completed in {job_result.duration}")
+
+    # Execute the script. If commit is True, wrap it with the change_logging context manager to ensure we process
+    # change logging, webhooks, etc.
+    if commit:
+        with change_logging(request):
+            _run_script()
+    else:
+        _run_script()
 
     # Delete any previous terminal state results
     JobResult.objects.filter(

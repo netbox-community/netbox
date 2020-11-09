@@ -11,6 +11,7 @@
 
 * [#5271](https://github.com/netbox-community/netbox/issues/5271) - Fix auto-population of region field when editing a device
 * [#5314](https://github.com/netbox-community/netbox/issues/5314) - Fix config context rendering when multiple tags are assigned to an object
+* [#5316](https://github.com/netbox-community/netbox/issues/5316) - Dry running scripts should not trigger webhooks
 * [#5324](https://github.com/netbox-community/netbox/issues/5324) - Add missing template extension tags for plugins for VM interface view
 * [#5328](https://github.com/netbox-community/netbox/issues/5328) - Fix CreatedUpdatedFilterTest when running in non-UTC timezone
 * [#5331](https://github.com/netbox-community/netbox/issues/5331) - Fix filtering of sites by null region
