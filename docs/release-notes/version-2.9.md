@@ -6,6 +6,7 @@
 
 * [#5304](https://github.com/netbox-community/netbox/issues/5304) - Return server error messages as JSON when handling REST API requests
 * [#5310](https://github.com/netbox-community/netbox/issues/5310) - Link to rack groups within rack list table
+* [#5327](https://github.com/netbox-community/netbox/issues/5327) - Be more strict when capturing anticipated ImportError exceptions
 
 ### Bug Fixes
 
