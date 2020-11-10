@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load render_table from django_tables2 %}
 {% load buttons %}
 {% load static %}
 {% load helpers %}
@@ -490,7 +491,7 @@
                                     <input class="form-control interface-filter" type="text" placeholder="Filter" title="Filter text (regular expressions supported)" style="height: 23px" />
                                 </div>
                             </div>
-                            {% include 'responsive_table.html' with table=interface_table %}
+                            {% render_table interface_table 'inc/table.html' %}
                             <div class="panel-footer noprint">
                                 {% if perms.dcim.change_interface %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:interface_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_interfaces" class="btn btn-warning btn-xs">
@@ -532,7 +533,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            {% include 'responsive_table.html' with table=frontport_table %}
+                            {% render_table frontport_table 'inc/table.html' %}
                             <div class="panel-footer noprint">
                                 {% if perms.dcim.change_frontport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:frontport_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_frontports" class="btn btn-warning btn-xs">
@@ -574,7 +575,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            {% include 'responsive_table.html' with table=rearport_table %}
+                            {% render_table rearport_table 'inc/table.html' %}
                             <div class="panel-footer noprint">
                                 {% if perms.dcim.change_rearport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:rearport_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_rearports" class="btn btn-warning btn-xs">
@@ -616,7 +617,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            {% include 'responsive_table.html' with table=consoleport_table %}
+                            {% render_table consoleport_table 'inc/table.html' %}
                             <div class="panel-footer noprint">
                                 {% if perms.dcim.change_consoleport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:consoleport_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_consoleports" class="btn btn-warning btn-xs">
@@ -658,7 +659,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            {% include 'responsive_table.html' with table=consoleserverport_table %}
+                            {% render_table consoleserverport_table 'inc/table.html' %}
                             <div class="panel-footer noprint">
                                 {% if perms.dcim.change_consoleserverport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:consoleserverport_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_consoleserverports" class="btn btn-warning btn-xs">
@@ -700,7 +701,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            {% include 'responsive_table.html' with table=powerport_table %}
+                            {% render_table powerport_table 'inc/table.html' %}
                             <div class="panel-footer noprint">
                                 {% if perms.dcim.change_powerport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:powerport_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_powerports" class="btn btn-warning btn-xs">
@@ -742,7 +743,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            {% include 'responsive_table.html' with table=poweroutlet_table %}
+                            {% render_table poweroutlet_table 'inc/table.html' %}
                             <div class="panel-footer noprint">
                                 {% if perms.dcim.change_powerport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:poweroutlet_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_poweroutlets" class="btn btn-warning btn-xs">
@@ -784,7 +785,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            {% include 'responsive_table.html' with table=devicebay_table %}
+                            {% render_table devicebay_table 'inc/table.html' %}
                             <div class="panel-footer noprint">
                                 {% if perms.dcim.change_devicebay %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:devicebay_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_devicebays" class="btn btn-warning btn-xs">
@@ -823,7 +824,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            {% include 'responsive_table.html' with table=inventoryitem_table %}
+                            {% render_table inventoryitem_table 'inc/table.html' %}
                             <div class="panel-footer noprint">
                                 {% if perms.dcim.change_inventoryitem %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:inventoryitem_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_inventoryitems" class="btn btn-warning btn-xs">
