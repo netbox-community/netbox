@@ -309,11 +309,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'utilities.middleware.ExceptionHandlingMiddleware',
-    'utilities.middleware.RemoteUserMiddleware',
-    'utilities.middleware.LoginRequiredMiddleware',
-    'utilities.middleware.APIVersionMiddleware',
-    'extras.middleware.ObjectChangeMiddleware',
+    'netbox.middleware.ExceptionHandlingMiddleware',
+    'netbox.middleware.RemoteUserMiddleware',
+    'netbox.middleware.LoginRequiredMiddleware',
+    'netbox.middleware.APIVersionMiddleware',
+    'netbox.middleware.ObjectChangeMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
