@@ -11,10 +11,6 @@ html, body {
 body {
     padding-top: 70px;
 }
-.container {
-    width: auto;
-    max-width: 1600px;
-}
 .wrapper {
     min-height: 100%;
     height: auto !important;

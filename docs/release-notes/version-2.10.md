@@ -52,6 +52,7 @@ All end-to-end cable paths are now cached using the new CablePath model. This al
 * [#4967](https://github.com/netbox-community/netbox/issues/4967) - Adds tenancy to Aggregate model
 * [#5003](https://github.com/netbox-community/netbox/issues/5003) - CSV import now accepts slug values for choice fields
 * [#5146](https://github.com/netbox-community/netbox/issues/5146) - Add custom fields support for cables, power panels, rack reservations, and virtual chassis
+* [#5154](https://github.com/netbox-community/netbox/issues/5154) - Utilize all horizontal space for web UI
 * [#5190](https://github.com/netbox-community/netbox/issues/5190) - Add a REST API endpoint for content types
 
 ### Other Changes

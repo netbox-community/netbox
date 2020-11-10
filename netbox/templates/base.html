@@ -31,7 +31,7 @@
 </head>
 <body>
     {% include 'inc/nav_menu.html' %}
-    <div class="container wrapper">
+    <div class="container-fluid wrapper">
         {% if settings.BANNER_TOP %}
             <div class="alert alert-info text-center" role="alert">
                 {{ settings.BANNER_TOP|safe }}
@@ -61,7 +61,7 @@
         {% endif %}
     </div>
     <footer class="footer">
-        <div class="container">
+        <div class="container-fluid">
             <div class="row">
                 <div class="col-xs-4">
                     <p class="text-muted">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
