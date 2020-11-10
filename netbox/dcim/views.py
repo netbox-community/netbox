@@ -1120,7 +1120,7 @@ class DeviceView(ObjectView):
             orderable=False
         )
         if request.user.has_perm('dcim.change_inventoryitem') or request.user.has_perm('dcim.delete_inventoryitem'):
-            devicebay_table.columns.show('pk')
+            inventoryitem_table.columns.show('pk')
 
         # Services
         services = Service.objects.restrict(request.user, 'view').filter(device=device)
