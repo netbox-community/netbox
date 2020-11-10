@@ -6,20 +6,18 @@ from copy import deepcopy
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.mixins import AccessMixin
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
 from django.forms import Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
-from django.http import HttpResponse, HttpResponseServerError, JsonResponse
+from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
-from django.utils.decorators import method_decorator
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
@@ -27,7 +25,6 @@ from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME
 from django.views.generic import View
 from django_tables2 import RequestConfig
-from rest_framework import status
 
 from extras.models import CustomField, ExportTemplate
 from utilities.exceptions import AbortTransaction
@@ -1373,17 +1370,3 @@ def server_error(request, template_name=ERROR_500_TEMPLATE_NAME):
         'netbox_version': settings.VERSION,
         'python_version': platform.python_version(),
     }))
-
-
-def rest_api_server_error(request, *args, **kwargs):
-    """
-    Handle exceptions and return a useful error message for REST API requests.
-    """
-    type_, error, traceback = sys.exc_info()
-    data = {
-        'error': str(error),
-        'exception': type_.__name__,
-        'netbox_version': settings.VERSION,
-        'python_version': platform.python_version(),
-    }
-    return JsonResponse(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

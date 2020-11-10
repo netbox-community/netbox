@@ -8,8 +8,8 @@ from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 
 from extras.context_managers import change_logging
-from utilities.api import is_api_request
-from utilities.views import server_error, rest_api_server_error
+from utilities.api import is_api_request, rest_api_server_error
+from utilities.views import server_error
 
 
 class LoginRequiredMiddleware(object):
