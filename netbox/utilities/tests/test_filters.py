@@ -23,7 +23,8 @@ class TreeNodeMultipleChoiceFilterTest(TestCase):
     class SiteFilterSet(django_filters.FilterSet):
         region = TreeNodeMultipleChoiceFilter(
             queryset=Region.objects.all(),
-            field_name='region__in',
+            field_name='region',
+            lookup_expr='in',
             to_field_name='slug',
         )
 

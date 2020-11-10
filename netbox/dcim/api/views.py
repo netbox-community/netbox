@@ -391,9 +391,7 @@ class DeviceViewSet(CustomFieldModelViewSet, ConfigContextQuerySetMixin):
         if device.platform is None:
             raise ServiceUnavailable("No platform is configured for this device.")
         if not device.platform.napalm_driver:
-            raise ServiceUnavailable("No NAPALM driver is configured for this device's platform {}.".format(
-                device.platform
-            ))
+            raise ServiceUnavailable(f"No NAPALM driver is configured for this device's platform: {device.platform}.")
 
         # Check for primary IP address from NetBox object
         if device.primary_ip:
@@ -402,21 +400,25 @@ class DeviceViewSet(CustomFieldModelViewSet, ConfigContextQuerySetMixin):
             # Raise exception for no IP address and no Name if device.name does not exist
             if not device.name:
                 raise ServiceUnavailable(
-                    "This device does not have a primary IP address or device name to lookup configured.")
+                    "This device does not have a primary IP address or device name to lookup configured."
+                )
             try:
                 # Attempt to complete a DNS name resolution if no primary_ip is set
                 host = socket.gethostbyname(device.name)
             except socket.gaierror:
                 # Name lookup failure
                 raise ServiceUnavailable(
-                    f"Name lookup failure, unable to resolve IP address for {device.name}. Please set Primary IP or setup name resolution.")
+                    f"Name lookup failure, unable to resolve IP address for {device.name}. Please set Primary IP or "
+                    f"setup name resolution.")
 
         # Check that NAPALM is installed
         try:
             import napalm
             from napalm.base.exceptions import ModuleImportError
-        except ImportError:
-            raise ServiceUnavailable("NAPALM is not installed. Please see the documentation for instructions.")
+        except ModuleNotFoundError as e:
+            if getattr(e, 'name') == 'napalm':
+                raise ServiceUnavailable("NAPALM is not installed. Please see the documentation for instructions.")
+            raise e
 
         # Validate the configured driver
         try:

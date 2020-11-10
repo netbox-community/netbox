@@ -38,10 +38,12 @@ if platform.python_version_tuple() < ('3', '6'):
 # Import configuration parameters
 try:
     from netbox import configuration
-except ImportError:
-    raise ImproperlyConfigured(
-        "Configuration file is not present. Please define netbox/netbox/configuration.py per the documentation."
-    )
+except ModuleNotFoundError as e:
+    if getattr(e, 'name') == 'configuration':
+        raise ImproperlyConfigured(
+            "Configuration file is not present. Please define netbox/netbox/configuration.py per the documentation."
+        )
+    raise
 
 # Enforce required configuration parameters
 for parameter in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS']:
@@ -165,11 +167,13 @@ if STORAGE_BACKEND is not None:
 
         try:
             import storages.utils
-        except ImportError:
-            raise ImproperlyConfigured(
-                "STORAGE_BACKEND is set to {} but django-storages is not present. It can be installed by running 'pip "
-                "install django-storages'.".format(STORAGE_BACKEND)
-            )
+        except ModuleNotFoundError as e:
+            if getattr(e, 'name') == 'storages':
+                raise ImproperlyConfigured(
+                    f"STORAGE_BACKEND is set to {STORAGE_BACKEND} but django-storages is not present. It can be "
+                    f"installed by running 'pip install django-storages'."
+                )
+            raise e
 
         # Monkey-patch django-storages to fetch settings from STORAGE_CONFIG
         def _setting(name, default=None):
@@ -587,11 +591,13 @@ for plugin_name in PLUGINS:
     # Import plugin module
     try:
         plugin = importlib.import_module(plugin_name)
-    except ImportError:
-        raise ImproperlyConfigured(
-            "Unable to import plugin {}: Module not found. Check that the plugin module has been installed within the "
-            "correct Python environment.".format(plugin_name)
-        )
+    except ModuleNotFoundError as e:
+        if getattr(e, 'name') == plugin_name:
+            raise ImproperlyConfigured(
+                "Unable to import plugin {}: Module not found. Check that the plugin module has been installed within the "
+                "correct Python environment.".format(plugin_name)
+            )
+        raise e
 
     # Determine plugin config and add to INSTALLED_APPS.
     try:

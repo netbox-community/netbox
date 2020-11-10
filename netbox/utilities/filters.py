@@ -70,9 +70,9 @@ class TreeNodeMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
     Filters for a set of Models, including all descendant models within a Tree.  Example: [<Region: R1>,<Region: R2>]
     """
     def get_filter_predicate(self, v):
-        # null value filtering
+        # Null value filtering
         if v is None:
-            return {self.field_name.replace('in', 'isnull'): True}
+            return {f"{self.field_name}__isnull": True}
         return super().get_filter_predicate(v)
 
     def filter(self, qs, value):

@@ -1,15 +1,21 @@
 # NetBox v2.9
 
-## v2.9.9 (FUTURE)
+## v2.9.9 (2020-11-09)
 
 ### Enhancements
 
 * [#5304](https://github.com/netbox-community/netbox/issues/5304) - Return server error messages as JSON when handling REST API requests
 * [#5310](https://github.com/netbox-community/netbox/issues/5310) - Link to rack groups within rack list table
+* [#5327](https://github.com/netbox-community/netbox/issues/5327) - Be more strict when capturing anticipated ImportError exceptions
 
 ### Bug Fixes
 
 * [#5271](https://github.com/netbox-community/netbox/issues/5271) - Fix auto-population of region field when editing a device
+* [#5314](https://github.com/netbox-community/netbox/issues/5314) - Fix config context rendering when multiple tags are assigned to an object
+* [#5316](https://github.com/netbox-community/netbox/issues/5316) - Dry running scripts should not trigger webhooks
+* [#5324](https://github.com/netbox-community/netbox/issues/5324) - Add missing template extension tags for plugins for VM interface view
+* [#5328](https://github.com/netbox-community/netbox/issues/5328) - Fix CreatedUpdatedFilterTest when running in non-UTC timezone
+* [#5331](https://github.com/netbox-community/netbox/issues/5331) - Fix filtering of sites by null region
 
 
 ---
