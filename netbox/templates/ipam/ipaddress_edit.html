@@ -62,6 +62,7 @@
             </ul>
             <div class="tab-content">
                 <div class="tab-pane active" id="by_device">
+                    {% render_field form.nat_region %}
                     {% render_field form.nat_site %}
                     {% render_field form.nat_rack %}
                     {% render_field form.nat_device %}

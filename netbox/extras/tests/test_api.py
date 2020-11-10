@@ -3,7 +3,7 @@ from unittest import skipIf
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
-from django.utils import timezone
+from django.utils.timezone import make_aware
 from django_rq.queues import get_connection
 from rest_framework import status
 from rq import Worker
@@ -369,8 +369,8 @@ class CreatedUpdatedFilterTest(APITestCase):
 
         # change the created and last_updated of one
         Rack.objects.filter(pk=self.rack2.pk).update(
-            last_updated=datetime.datetime(2001, 2, 3, 1, 2, 3, 4, tzinfo=timezone.utc),
-            created=datetime.datetime(2001, 2, 3)
+            last_updated=make_aware(datetime.datetime(2001, 2, 3, 1, 2, 3, 4)),
+            created=make_aware(datetime.datetime(2001, 2, 3))
         )
 
     def test_get_rack_created(self):

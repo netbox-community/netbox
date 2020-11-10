@@ -79,9 +79,19 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         queryset=ClusterGroup.objects.all(),
         required=False
     )
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        initial_params={
+            'sites': '$site'
+        }
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'region_id': '$region'
+        }
     )
     comments = CommentField()
     tags = DynamicModelMultipleChoiceField(
@@ -92,7 +102,7 @@ class ClusterForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'tenant', 'site', 'comments', 'tags',
+            'name', 'type', 'group', 'tenant', 'region', 'site', 'comments', 'tags',
         )
 
 
@@ -143,9 +153,17 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         queryset=Tenant.objects.all(),
         required=False
     )
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        to_field_name='slug'
+    )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            'region': '$region'
+        }
     )
     comments = CommentField(
         widget=SmallTextarea,
@@ -266,7 +284,10 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     cluster_group = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
-        null_option='None'
+        null_option='None',
+        initial_params={
+            'clusters': '$cluster'
+        }
     )
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all(),
@@ -311,14 +332,6 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-
-        # Initialize helper selector
-        instance = kwargs.get('instance')
-        if instance.pk and instance.cluster is not None:
-            initial = kwargs.get('initial', {}).copy()
-            initial['cluster_group'] = instance.cluster.group
-            kwargs['initial'] = initial
-
         super().__init__(*args, **kwargs)
 
         if self.instance.pk:

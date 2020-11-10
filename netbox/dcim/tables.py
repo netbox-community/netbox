@@ -262,12 +262,15 @@ class RackRoleTable(BaseTable):
 
 class RackTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(
-        order_by=('_name',)
+    name = tables.Column(
+        order_by=('_name',),
+        linkify=True
     )
-    site = tables.LinkColumn(
-        viewname='dcim:site',
-        args=[Accessor('site__slug')]
+    group = tables.Column(
+        linkify=True
+    )
+    site = tables.Column(
+        linkify=True
     )
     tenant = tables.TemplateColumn(
         template_code=COL_TENANT
