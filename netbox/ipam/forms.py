@@ -227,7 +227,8 @@ class RIRFilterForm(BootstrapMixin, forms.Form):
 
 class AggregateForm(BootstrapMixin, TenancyForm, CustomFieldModelForm):
     rir = DynamicModelChoiceField(
-        queryset=RIR.objects.all()
+        queryset=RIR.objects.all(),
+        label='RIR'
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
