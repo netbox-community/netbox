@@ -2485,6 +2485,7 @@ class PowerPanelView(ObjectView):
 class PowerPanelEditView(ObjectEditView):
     queryset = PowerPanel.objects.all()
     model_form = forms.PowerPanelForm
+    template_name = 'dcim/powerpanel_edit.html'
 
 
 class PowerPanelDeleteView(ObjectDeleteView):
