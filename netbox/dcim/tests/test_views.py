@@ -51,10 +51,10 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,slug,description",
-            "Region 4,region-4,Fourth region",
-            "Region 5,region-5,Fifth region",
-            "Region 6,region-6,Sixth region",
+            "name,slug,status,description",
+            "Region 4,region-4,reserved,Fourth region",
+            "Region 5,region-5,available,Fifth region",
+            "Region 6,region-6,planned,Sixth region",
         )
 
 
@@ -101,10 +101,10 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,slug",
-            "Site 4,site-4",
-            "Site 5,site-5",
-            "Site 6,site-6",
+            "name,slug,status",
+            "Site 4,site-4,planned",
+            "Site 5,site-5,active",
+            "Site 6,site-6,staging",
         )
 
         cls.bulk_edit_data = {
