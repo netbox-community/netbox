@@ -15,6 +15,7 @@ from rest_framework.viewsets import GenericViewSet
 from rq.worker import Worker
 
 from netbox.api import BulkOperationSerializer
+from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.exceptions import SerializerNotFound
 from utilities.api import get_serializer_for_model
 
@@ -233,12 +234,12 @@ class ModelViewSet(mixins.CreateModelMixin,
 
 class StatusView(APIView):
     """
-    Provide a lightweight read-only endpoint for conveying NetBox's current operational status.
+    A lightweight read-only endpoint for conveying NetBox's current operational status.
     """
-    permission_classes = []
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
 
     def get(self, request):
-        # Gather the version number from all installed Django apps
+        # Gather the version numbers from all installed Django apps
         installed_apps = {}
         for app_config in apps.get_app_configs():
             app = app_config.module
