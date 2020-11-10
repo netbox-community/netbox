@@ -26,7 +26,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search devices" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -38,7 +38,7 @@
         {% if perms.dcim.change_device %}
             <div class="btn-group">
                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Components <span class="caret"></span>
+                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Components <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
                     {% if perms.dcim.add_consoleport %}
@@ -162,8 +162,7 @@
                                         <td>Site</td>
                                         <td>
                                             {% if device.site.region %}
-                                                <a href="{{ device.site.region.get_absolute_url }}">{{ device.site.region }}</a>
-                                                <i class="fa fa-angle-right"></i>
+                                                <a href="{{ device.site.region.get_absolute_url }}">{{ device.site.region }}</a> /
                                             {% endif %}
                                             <a href="{% url 'dcim:site' slug=device.site.slug %}">{{ device.site }}</a>
                                         </td>
@@ -173,8 +172,7 @@
                                         <td>
                                             {% if device.rack %}
                                                 {% if device.rack.group %}
-                                                    <a href="{{ device.rack.group.get_absolute_url }}">{{ device.rack.group }}</a>
-                                                    <i class="fa fa-angle-right"></i>
+                                                    <a href="{{ device.rack.group.get_absolute_url }}">{{ device.rack.group }}</a> /
                                                 {% endif %}
                                                 <a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack }}</a>
                                             {% else %}
@@ -187,7 +185,7 @@
                                         <td>
                                             {% if device.parent_bay %}
                                                 {% with device.parent_bay.device as parent %}
-                                                    <a href="{{ parent.get_absolute_url }}">{{ parent }}</a> <i class="fa fa-angle-right"></i> {{ device.parent_bay }}
+                                                    <a href="{{ parent.get_absolute_url }}">{{ parent }}</a> / {{ device.parent_bay }}
                                                     {% if parent.position %}
                                                         (U{{ parent.position }} / {{ parent.get_face_display }})
                                                     {% endif %}
@@ -206,8 +204,7 @@
                                         <td>
                                             {% if device.tenant %}
                                                 {% if device.tenant.group %}
-                                                    <a href="{{ device.tenant.group.get_absolute_url }}">{{ device.tenant.group }}</a>
-                                                    <i class="fa fa-angle-right"></i>
+                                                    <a href="{{ device.tenant.group.get_absolute_url }}">{{ device.tenant.group }}</a> /
                                                 {% endif %}
                                                 <a href="{{ device.tenant.get_absolute_url }}">{{ device.tenant }}</a>
                                             {% else %}
@@ -249,14 +246,14 @@
                                                     <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
                                                 </td>
                                                 <td><span class="badge badge-default">{{ vc_member.vc_position }}</span></td>
-                                                <td>{% if device.virtual_chassis.master == vc_member %}<i class="fa fa-check"></i>{% endif %}</td>
+                                                <td>{% if device.virtual_chassis.master == vc_member %}<i class="mdi mdi-check-bold"></i>{% endif %}</td>
                                                 <td>{{ vc_member.vc_priority|default:"" }}</td>
                                             </tr>
                                         {% endfor %}
                                     </table>
                                     <div class="panel-footer text-right noprint">
                                         <a href="{{ device.virtual_chassis.get_absolute_url }}" class="btn btn-primary btn-xs">
-                                            <span class="fa fa-arrow-right" aria-hidden="true"></span> View Virtual Chassis
+                                            <span class="mdi mdi-arrow-right-bold" aria-hidden="true"></span> View Virtual Chassis
                                         </a>
                                     </div>
                                 </div>
@@ -323,8 +320,7 @@
                                             <td>Cluster</td>
                                             <td>
                                                 {% if device.cluster.group %}
-                                                    <a href="{{ device.cluster.group.get_absolute_url }}">{{ device.cluster.group }}</a>
-                                                    <i class="fa fa-angle-right"></i>
+                                                    <a href="{{ device.cluster.group.get_absolute_url }}">{{ device.cluster.group }}</a> /
                                                 {% endif %}
                                                 <a href="{{ device.cluster.get_absolute_url }}">{{ device.cluster }}</a>
                                             </td>
@@ -401,7 +397,7 @@
                                     {% if perms.secrets.add_secret %}
                                         <div class="panel-footer text-right noprint">
                                             <a href="{% url 'secrets:secret_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-xs btn-primary">
-                                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add secret
+                                                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add secret
                                             </a>
                                         </div>
                                     {% endif %}
@@ -425,7 +421,7 @@
                                 {% if perms.ipam.add_service %}
                                     <div class="panel-footer text-right noprint">
                                         <a href="{% url 'dcim:device_service_assign' device=device.pk %}" class="btn btn-xs btn-primary">
-                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Assign service
+                                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign service
                                         </a>
                                     </div>
                                 {% endif %}
@@ -438,7 +434,7 @@
                                 {% if perms.extras.add_imageattachment %}
                                     <div class="panel-footer text-right noprint">
                                         <a href="{% url 'dcim:device_add_image' object_id=device.pk %}" class="btn btn-primary btn-xs">
-                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                                             Attach an image
                                         </a>
                                     </div>
@@ -487,7 +483,7 @@
                                 <strong>Interfaces</strong>
                                 <div class="pull-right noprint">
                                     {% if request.user.is_authenticated %}
-                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DeviceInterfaceTable_config" title="Configure table"><i class="fa fa-cog"></i> Configure</button>
+                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DeviceInterfaceTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
                                     {% endif %}
                                 </div>
                                 <div class="pull-right col-md-2 noprint">
@@ -498,26 +494,26 @@
                             <div class="panel-footer noprint">
                                 {% if interfaces and perms.dcim.change_interface %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:interface_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_interfaces" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Rename
                                     </button>
                                     <button type="submit" name="_edit" formaction="{% url 'dcim:interface_bulk_edit' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_interfaces" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                                     </button>
                                 {% endif %}
                                 {% if interfaces and perms.dcim.change_interface %}
                                     <button type="submit" name="_disconnect" formaction="{% url 'dcim:interface_bulk_disconnect' %}?return_url={{ device.get_absolute_url }}%23tab_interfaces" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
+                                        <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
                                     </button>
                                 {% endif %}
                                 {% if interfaces and perms.dcim.delete_interface %}
                                     <button type="submit" name="_delete" formaction="{% url 'dcim:interface_bulk_delete' %}?return_url={{ device.get_absolute_url }}%23tab_interfaces" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+                                        <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
                                     </button>
                                 {% endif %}
                                 {% if perms.dcim.add_interface %}
                                     <div class="pull-right">
                                         <a href="{% url 'dcim:interface_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_interfaces" class="btn btn-primary btn-xs">
-                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interfaces
+                                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add interfaces
                                         </a>
                                     </div>
                                 {% endif %}
@@ -534,7 +530,7 @@
                                 <strong>Front Ports</strong>
                                 <div class="pull-right noprint">
                                     {% if request.user.is_authenticated %}
-                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DeviceFrontPortTable_config" title="Configure table"><i class="fa fa-cog"></i> Configure</button>
+                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DeviceFrontPortTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
                                     {% endif %}
                                 </div>
                             </div>
@@ -542,24 +538,24 @@
                             <div class="panel-footer noprint">
                                 {% if frontports and perms.dcim.change_frontport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:frontport_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_frontports" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Rename
                                     </button>
                                     <button type="submit" name="_edit" formaction="{% url 'dcim:frontport_bulk_edit' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_frontports" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                                     </button>
                                     <button type="submit" name="_disconnect" formaction="{% url 'dcim:frontport_bulk_disconnect' %}?return_url={{ device.get_absolute_url }}%23tab_frontports" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
+                                        <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
                                     </button>
                                 {% endif %}
                                 {% if frontports and perms.dcim.delete_frontport %}
                                     <button type="submit" formaction="{% url 'dcim:frontport_bulk_delete' %}?return_url={{ device.get_absolute_url }}%23tab_frontports" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+                                        <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
                                     </button>
                                 {% endif %}
                                 {% if perms.dcim.add_frontport %}
                                     <div class="pull-right">
                                         <a href="{% url 'dcim:frontport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_frontports" class="btn btn-primary btn-xs">
-                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add front ports
+                                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add front ports
                                         </a>
                                     </div>
                                 {% endif %}
@@ -576,7 +572,7 @@
                                 <strong>Rear Ports</strong>
                                 <div class="pull-right noprint">
                                     {% if request.user.is_authenticated %}
-                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DeviceRearPortTable_config" title="Configure table"><i class="fa fa-cog"></i> Configure</button>
+                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DeviceRearPortTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
                                     {% endif %}
                                 </div>
                             </div>
@@ -584,24 +580,24 @@
                             <div class="panel-footer noprint">
                                 {% if rearports and perms.dcim.change_rearport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:rearport_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_rearports" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Rename
                                     </button>
                                     <button type="submit" name="_edit" formaction="{% url 'dcim:rearport_bulk_edit' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_rearports" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                                     </button>
                                     <button type="submit" name="_disconnect" formaction="{% url 'dcim:rearport_bulk_disconnect' %}?return_url={{ device.get_absolute_url }}%23tab_rearports" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
+                                        <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
                                     </button>
                                 {% endif %}
                                 {% if rearports and perms.dcim.delete_rearport %}
                                     <button type="submit" formaction="{% url 'dcim:rearport_bulk_delete' %}?return_url={{ device.get_absolute_url }}%23tab_rearports" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+                                        <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
                                     </button>
                                 {% endif %}
                                 {% if perms.dcim.add_rearport %}
                                     <div class="pull-right">
                                         <a href="{% url 'dcim:rearport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_rearports" class="btn btn-primary btn-xs">
-                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add rear ports
+                                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add rear ports
                                         </a>
                                     </div>
                                 {% endif %}
@@ -618,7 +614,7 @@
                                 <strong>Console Ports</strong>
                                 <div class="pull-right noprint">
                                     {% if request.user.is_authenticated %}
-                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DeviceConsolePortTable_config" title="Configure table"><i class="fa fa-cog"></i> Configure</button>
+                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DeviceConsolePortTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
                                     {% endif %}
                                 </div>
                             </div>
@@ -626,24 +622,24 @@
                             <div class="panel-footer noprint">
                                 {% if consoleports and perms.dcim.change_consoleport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:consoleport_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_consoleports" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Rename
                                     </button>
                                     <button type="submit" name="_edit" formaction="{% url 'dcim:consoleport_bulk_edit' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_consoleports" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                                     </button>
                                     <button type="submit" name="_disconnect" formaction="{% url 'dcim:consoleport_bulk_disconnect' %}?return_url={{ device.get_absolute_url }}%23tab_consoleports" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
+                                        <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
                                     </button>
                                 {% endif %}
                                 {% if consoleports and perms.dcim.delete_consoleport %}
                                     <button type="submit" name="_delete" formaction="{% url 'dcim:consoleport_bulk_delete' %}?return_url={{ device.get_absolute_url }}%23tab_consoleports" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+                                        <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
                                     </button>
                                 {% endif %}
                                 {% if perms.dcim.add_consoleport %}
                                     <div class="pull-right">
                                         <a href="{% url 'dcim:consoleport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_consoleports" class="btn btn-xs btn-primary">
-                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console port
+                                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add console port
                                         </a>
                                     </div>
                                 {% endif %}
@@ -660,7 +656,7 @@
                                 <strong>Console Server Ports</strong>
                                 <div class="pull-right noprint">
                                     {% if request.user.is_authenticated %}
-                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DeviceConsoleServerPortTable_config" title="Configure table"><i class="fa fa-cog"></i> Configure</button>
+                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DeviceConsoleServerPortTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
                                     {% endif %}
                                 </div>
                             </div>
@@ -668,24 +664,24 @@
                             <div class="panel-footer noprint">
                                 {% if consoleserverports and perms.dcim.change_consoleserverport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:consoleserverport_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_consoleserverports" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Rename
                                     </button>
                                     <button type="submit" name="_edit" formaction="{% url 'dcim:consoleserverport_bulk_edit' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_consoleserverports" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                                     </button>
                                     <button type="submit" name="_disconnect" formaction="{% url 'dcim:consoleserverport_bulk_disconnect' %}?return_url={{ device.get_absolute_url }}%23tab_consoleserverports" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
+                                        <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
                                     </button>
                                 {% endif %}
                                 {% if consoleserverports and perms.dcim.delete_consoleserverport %}
                                     <button type="submit" formaction="{% url 'dcim:consoleserverport_bulk_delete' %}?return_url={{ device.get_absolute_url }}%23tab_consoleserverports" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+                                        <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
                                     </button>
                                 {% endif %}
                                 {% if perms.dcim.add_consoleserverport %}
                                     <div class="pull-right">
                                         <a href="{% url 'dcim:consoleserverport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_consoleserverports" class="btn btn-primary btn-xs">
-                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console server ports
+                                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add console server ports
                                         </a>
                                     </div>
                                 {% endif %}
@@ -702,7 +698,7 @@
                                 <strong>Power Ports</strong>
                                 <div class="pull-right noprint">
                                     {% if request.user.is_authenticated %}
-                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DevicePowerPortTable_config" title="Configure table"><i class="fa fa-cog"></i> Configure</button>
+                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DevicePowerPortTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
                                     {% endif %}
                                 </div>
                             </div>
@@ -710,24 +706,24 @@
                             <div class="panel-footer noprint">
                                 {% if powerports and perms.dcim.change_powerport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:powerport_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_powerports" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Rename
                                     </button>
                                     <button type="submit" name="_edit" formaction="{% url 'dcim:powerport_bulk_edit' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_powerports" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                                     </button>
                                     <button type="submit" name="_disconnect" formaction="{% url 'dcim:powerport_bulk_disconnect' %}?return_url={{ device.get_absolute_url }}%23tab_powerports" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
+                                        <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
                                     </button>
                                 {% endif %}
                                 {% if powerports and perms.dcim.delete_powerport %}
                                     <button type="submit" name="_delete" formaction="{% url 'dcim:powerport_bulk_delete' %}?return_url={{ device.get_absolute_url }}%23tab_powerports" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+                                        <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
                                     </button>
                                 {% endif %}
                                 {% if perms.dcim.add_powerport %}
                                     <div class="pull-right">
                                         <a href="{% url 'dcim:powerport_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_powerports" class="btn btn-xs btn-primary">
-                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power port
+                                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add power port
                                         </a>
                                     </div>
                                 {% endif %}
@@ -744,7 +740,7 @@
                                 <strong>Power Outlets</strong>
                                 <div class="pull-right noprint">
                                     {% if request.user.is_authenticated %}
-                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DevicePowerOutletTable_config" title="Configure table"><i class="fa fa-cog"></i> Configure</button>
+                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DevicePowerOutletTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
                                     {% endif %}
                                 </div>
                             </div>
@@ -752,24 +748,24 @@
                             <div class="panel-footer noprint">
                                 {% if poweroutlets and perms.dcim.change_powerport %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:poweroutlet_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_poweroutlets" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Rename
                                     </button>
                                     <button type="submit" name="_edit" formaction="{% url 'dcim:poweroutlet_bulk_edit' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_poweroutlets" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                                     </button>
                                     <button type="submit" name="_disconnect" formaction="{% url 'dcim:poweroutlet_bulk_disconnect' %}?return_url={{ device.get_absolute_url }}%23tab_poweroutlets" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
+                                        <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
                                     </button>
                                 {% endif %}
                                 {% if poweroutlets and perms.dcim.delete_poweroutlet %}
                                     <button type="submit" formaction="{% url 'dcim:poweroutlet_bulk_delete' %}?return_url={{ device.get_absolute_url }}%23tab_poweroutlets" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+                                        <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
                                     </button>
                                 {% endif %}
                                 {% if perms.dcim.add_poweroutlet %}
                                     <div class="pull-right">
                                         <a href="{% url 'dcim:poweroutlet_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_poweroutlets" class="btn btn-primary btn-xs">
-                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power outlets
+                                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add power outlets
                                         </a>
                                     </div>
                                 {% endif %}
@@ -786,7 +782,7 @@
                                 <strong>Device Bays</strong>
                                 <div class="pull-right noprint">
                                     {% if request.user.is_authenticated %}
-                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DeviceDeviceBayTable_config" title="Configure table"><i class="fa fa-cog"></i> Configure</button>
+                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DeviceDeviceBayTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
                                     {% endif %}
                                 </div>
                             </div>
@@ -794,18 +790,18 @@
                             <div class="panel-footer noprint">
                                 {% if devicebays and perms.dcim.change_devicebay %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:devicebay_bulk_rename' %}?return_url={{ device.get_absolute_url }}%23tab_devicebays" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Rename
                                     </button>
                                 {% endif %}
                                 {% if devicebays and perms.dcim.delete_devicebay %}
                                     <button type="submit" formaction="{% url 'dcim:devicebay_bulk_delete' %}?return_url={{ device.get_absolute_url }}%23tab_devicebays" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete selected
+                                        <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete selected
                                     </button>
                                 {% endif %}
                                 {% if perms.dcim.add_devicebay %}
                                     <div class="pull-right">
                                         <a href="{% url 'dcim:devicebay_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_devicebays" class="btn btn-primary btn-xs">
-                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add device bays
+                                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add device bays
                                         </a>
                                     </div>
                                 {% endif %}
@@ -822,7 +818,7 @@
                                 <strong>Inventory Items</strong>
                                 <div class="pull-right noprint">
                                     {% if request.user.is_authenticated %}
-                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DeviceInventoryItemTable_config" title="Configure table"><i class="fa fa-cog"></i> Configure</button>
+                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#DeviceInventoryItemTable_config" title="Configure table"><i class="mdi mdi-cog"></i> Configure</button>
                                     {% endif %}
                                 </div>
                             </div>
@@ -830,21 +826,21 @@
                             <div class="panel-footer noprint">
                                 {% if inventoryitems and perms.dcim.change_inventoryitem %}
                                     <button type="submit" name="_rename" formaction="{% url 'dcim:inventoryitem_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Rename
                                     </button>
                                     <button type="submit" name="_edit" formaction="{% url 'dcim:inventoryitem_bulk_edit' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit
+                                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
                                     </button>
                                 {% endif %}
                                 {% if inventoryitems and perms.dcim.delete_inventoryitem %}
                                     <button type="submit" name="_delete" formaction="{% url 'dcim:inventoryitem_bulk_delete' %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
-                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+                                        <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
                                     </button>
                                 {% endif %}
                                 {% if perms.dcim.add_inventoryitem %}
                                     <div class="pull-right">
                                         <a href="{% url 'dcim:inventoryitem_add' %}?device={{ device.pk }}&return_url={{ device.get_absolute_url }}%23tab_inventoryitems" class="btn btn-primary btn-xs">
-                                            <span class="fa fa-plus" aria-hidden="true"></span> Add Inventory Item
+                                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Inventory Item
                                         </a>
                                     </div>
                                 {% endif %}
@@ -898,7 +894,7 @@ function toggleConnection(elem) {
                 elem.parents('tr').removeClass('success').addClass('info');
                 elem.removeClass('connected btn-warning').addClass('btn-success');
                 elem.attr('title', 'Mark installed');
-                elem.children('i').removeClass('glyphicon glyphicon-ban-circle').addClass('fa fa-plug')
+                elem.children('i').removeClass('mdi mdi-lan-disconnect').addClass('mdi mdi-lan-connect')
             }
         });
     } else {
@@ -917,7 +913,7 @@ function toggleConnection(elem) {
                 elem.parents('tr').removeClass('info').addClass('success');
                 elem.removeClass('btn-success').addClass('connected btn-warning');
                 elem.attr('title', 'Mark planned');
-                elem.children('i').removeClass('fa fa-plug').addClass('glyphicon glyphicon-ban-circle')
+                elem.children('i').removeClass('mdi mdi-lan-connect').addClass('mdi mdi-lan-disconnect')
             }
         });
     }

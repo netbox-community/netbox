@@ -24,7 +24,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search power feeds" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -166,7 +166,7 @@
                         <td>
                             <a href="{{ powerfeed.cable.get_absolute_url }}">{{ powerfeed.cable }}</a>
                             <a href="{% url 'dcim:consoleport_trace' pk=powerfeed.pk %}" class="btn btn-primary btn-xs" title="Trace">
-                                <i class="fa fa-share-alt" aria-hidden="true"></i>
+                                <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                             </a>
                         </td>
                     </tr>
@@ -207,7 +207,7 @@
                 <div class="panel-body text-muted">
                     {% if perms.dcim.add_cable %}
                         <a href="{% url 'dcim:powerfeed_connect' termination_a_id=powerfeed.pk termination_b_type='power-port' %}?return_url={{ powerfeed.get_absolute_url }}" class="btn btn-primary btn-sm pull-right">
-                            <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span> Connect
+                            <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
                         </a>
                     {% endif %}
                     Not connected

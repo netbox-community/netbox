@@ -126,11 +126,11 @@ class BooleanColumn(tables.Column):
     """
     def render(self, value):
         if value:
-            rendered = '<span class="text-success"><i class="fa fa-check"></i></span>'
+            rendered = '<span class="text-success"><i class="mdi mdi-check-bold"></i></span>'
         elif value is None:
             rendered = '<span class="text-muted">&mdash;</span>'
         else:
-            rendered = '<span class="text-danger"><i class="fa fa-close"></i></span>'
+            rendered = '<span class="text-danger"><i class="mdi mdi-close-thick"></i></span>'
         return mark_safe(rendered)
 
 
@@ -148,17 +148,17 @@ class ButtonsColumn(tables.TemplateColumn):
     template_code = """
     {{% if "changelog" in buttons %}}
         <a href="{{% url '{app_label}:{model_name}_changelog' {pk_field}=record.{pk_field} %}}" class="btn btn-default btn-xs" title="Change log">
-            <i class="fa fa-history"></i>
+            <i class="mdi mdi-history"></i>
         </a>
     {{% endif %}}
     {{% if "edit" in buttons and perms.{app_label}.change_{model_name} %}}
         <a href="{{% url '{app_label}:{model_name}_edit' {pk_field}=record.{pk_field} %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-xs btn-warning" title="Edit">
-            <i class="fa fa-pencil"></i>
+            <i class="mdi mdi-pencil"></i>
         </a>
     {{% endif %}}
     {{% if "delete" in buttons and perms.{app_label}.delete_{model_name} %}}
         <a href="{{% url '{app_label}:{model_name}_delete' {pk_field}=record.{pk_field} %}}?return_url={{{{ request.path }}}}{{{{ return_url_extra }}}}" class="btn btn-xs btn-danger" title="Delete">
-            <i class="fa fa-trash"></i>
+            <i class="mdi mdi-trash-can-outline"></i>
         </a>
     {{% endif %}}
     """

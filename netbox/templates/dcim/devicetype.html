@@ -21,7 +21,7 @@
         {% if perms.dcim.change_devicetype %}
             <div class="btn-group">
                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Components <span class="caret"></span>
+                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Components <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
                     {% if perms.dcim.add_consoleporttemplate %}
@@ -109,9 +109,9 @@
                         <td>Full Depth</td>
                         <td>
                             {% if devicetype.is_full_depth %}
-                                <i class="glyphicon glyphicon-ok text-success" title="Yes"></i>
+                                <i class="mdi mdi-check-bold text-success" title="Yes"></i>
                             {% else %}
-                                <i class="glyphicon glyphicon-remove text-danger" title="No"></i>
+                                <i class="mdi mdi-close-thick text-danger" title="No"></i>
                             {% endif %}
                         </td>
                     </tr>

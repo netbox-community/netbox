@@ -21,7 +21,7 @@
                     <input type="text" name="q" class="form-control" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -90,8 +90,7 @@
                     <td>
                         {% if circuit.tenant %}
                             {% if circuit.tenant.group %}
-                                <a href="{{ circuit.tenant.group.get_absolute_url }}">{{ circuit.tenant.group }}</a>
-                                <i class="fa fa-angle-right"></i>
+                                <a href="{{ circuit.tenant.group.get_absolute_url }}">{{ circuit.tenant.group }}</a> /
                             {% endif %}
                             <a href="{{ circuit.tenant.get_absolute_url }}">{{ circuit.tenant }}</a>
                         {% else %}

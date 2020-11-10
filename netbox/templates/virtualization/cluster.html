@@ -21,7 +21,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search clusters" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -139,12 +139,12 @@
                 <div class="panel-footer noprint">
                     <div class="pull-right">
                         <a href="{% url 'virtualization:cluster_add_devices' pk=cluster.pk %}?site={{ cluster.site.pk }}" class="btn btn-primary btn-xs">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                             Add devices
                         </a>
                     </div>
                     <button type="submit" name="_remove" class="btn btn-danger primary btn-xs">
-                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
                         Remove devices
                     </button>
                 </div>

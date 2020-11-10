@@ -24,7 +24,7 @@
                 <input type="text" name="q" class="form-control" placeholder="Search VLANs" />
                 <span class="input-group-btn">
                     <button type="submit" class="btn btn-primary">
-                        <span class="fa fa-search" aria-hidden="true"></span>
+                        <span class="mdi mdi-magnify" aria-hidden="true"></span>
                     </button>
                 </span>
             </div>
@@ -79,8 +79,7 @@
                         <td>
                             {% if vlan.site %}
                                 {% if vlan.site.region %}
-                                    <a href="{{ vlan.site.region.get_absolute_url }}">{{ vlan.site.region }}</a>
-                                    <i class="fa fa-angle-right"></i>
+                                    <a href="{{ vlan.site.region.get_absolute_url }}">{{ vlan.site.region }}</a> /
                                 {% endif %}
                                 <a href="{% url 'dcim:site' slug=vlan.site.slug %}">{{ vlan.site }}</a>
                             {% else %}
@@ -111,8 +110,7 @@
                         <td>
                             {% if vlan.tenant %}
                                 {% if vlan.tenant.group %}
-                                    <a href="{{ vlan.tenant.group.get_absolute_url }}">{{ vlan.tenant.group }}</a>
-                                    <i class="fa fa-angle-right"></i>
+                                    <a href="{{ vlan.tenant.group.get_absolute_url }}">{{ vlan.tenant.group }}</a> /
                                 {% endif %}
                                 <a href="{{ vlan.tenant.get_absolute_url }}">{{ vlan.tenant }}</a>
                             {% else %}
@@ -155,7 +153,7 @@
                 {% if perms.ipam.add_prefix %}
                     <div class="panel-footer text-right noprint">
                         <a href="{% url 'ipam:prefix_add' %}?{% if vlan.tenant %}tenant={{ vlan.tenant.pk }}&{% endif %}site={{ vlan.site.pk }}&vlan={{ vlan.pk }}" class="btn btn-primary btn-xs">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                             Add a prefix
                         </a>
                     </div>

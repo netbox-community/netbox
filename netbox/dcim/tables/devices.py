@@ -253,7 +253,7 @@ class ConsolePortTable(DeviceComponentTable, PathEndpointTable):
 
 class DeviceConsolePortTable(ConsolePortTable):
     name = tables.TemplateColumn(
-        template_code='<i class="fa fa-keyboard-o"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+        template_code='<i class="mdi mdi-console"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
     )
     actions = ButtonsColumn(
         model=ConsolePort,
@@ -285,7 +285,7 @@ class ConsoleServerPortTable(DeviceComponentTable, PathEndpointTable):
 
 class DeviceConsoleServerPortTable(ConsoleServerPortTable):
     name = tables.TemplateColumn(
-        template_code='<i class="fa fa-keyboard-o"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+        template_code='<i class="mdi mdi-console-network-outline"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
     )
     actions = ButtonsColumn(
         model=ConsoleServerPort,
@@ -320,7 +320,7 @@ class PowerPortTable(DeviceComponentTable, PathEndpointTable):
 
 class DevicePowerPortTable(PowerPortTable):
     name = tables.TemplateColumn(
-        template_code='<i class="fa fa-bolt"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+        template_code='<i class="mdi mdi-power-plug-outline"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
     )
     actions = ButtonsColumn(
         model=PowerPort,
@@ -362,7 +362,7 @@ class PowerOutletTable(DeviceComponentTable, PathEndpointTable):
 
 class DevicePowerOutletTable(PowerOutletTable):
     name = tables.TemplateColumn(
-        template_code='<i class="fa fa-bolt"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
+        template_code='<i class="mdi mdi-power-socket"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
     )
     actions = ButtonsColumn(
         model=PowerOutlet,
@@ -415,8 +415,8 @@ class InterfaceTable(DeviceComponentTable, BaseInterfaceTable, PathEndpointTable
 
 class DeviceInterfaceTable(InterfaceTable):
     name = tables.TemplateColumn(
-        template_code='<i class="fa fa-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}align-justify'
-                      '{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}exchange'
+        template_code='<i class="mdi mdi-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}drag-horizontal-variant'
+                      '{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}ethernet'
                       '{% endif %}"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
     )
     lag = tables.Column(
@@ -466,7 +466,7 @@ class FrontPortTable(DeviceComponentTable, CableTerminationTable):
 
 class DeviceFrontPortTable(FrontPortTable):
     name = tables.TemplateColumn(
-        template_code='<i class="fa fa-square{% if not record.cable %}-o{% endif %}"></i> '
+        template_code='<i class="mdi mdi-square-rounded{% if not record.cable %}-outline{% endif %}"></i> '
                       '<a href="{{ record.get_absolute_url }}">{{ value }}</a>'
     )
     actions = ButtonsColumn(
@@ -503,7 +503,7 @@ class RearPortTable(DeviceComponentTable, CableTerminationTable):
 
 class DeviceRearPortTable(RearPortTable):
     name = tables.TemplateColumn(
-        template_code='<i class="fa fa-square{% if not record.cable %}-o{% endif %}"></i> '
+        template_code='<i class="fmdi mdi-square-rounded{% if not record.cable %}-outline{% endif %}"></i> '
                       '<a href="{{ record.get_absolute_url }}">{{ value }}</a>'
     )
     actions = ButtonsColumn(
@@ -544,7 +544,7 @@ class DeviceBayTable(DeviceComponentTable):
 
 class DeviceDeviceBayTable(DeviceBayTable):
     name = tables.TemplateColumn(
-        template_code='<i class="fa fa-square{% if record.installed_device %}dot-circle-o{% else %}circle-o{% endif %}'
+        template_code='<i class="mdi mdi-circle{% if record.installed_device %}slice-8{% else %}outline{% endif %}'
                       '"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>'
     )
     actions = ButtonsColumn(

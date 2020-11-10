@@ -14,12 +14,12 @@
     <div class="pull-right noprint">
         {% if perms.virtualization.change_vminterface %}
             <a href="{% url 'virtualization:vminterface_edit' pk=vminterface.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span> Edit
+                <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
             </a>
         {% endif %}
         {% if perms.virtualization.delete_vminterface %}
             <a href="{% url 'virtualization:vminterface_delete' pk=vminterface.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span> Delete
+                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
             </a>
         {% endif %}
     </div>
@@ -58,9 +58,9 @@
                     <td>Enabled</td>
                     <td>
                         {% if vminterface.enabled %}
-                            <span class="text-success"><i class="fa fa-check"></i></span>
+                            <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
                         {% else %}
-                            <span class="text-danger"><i class="fa fa-close"></i></span>
+                            <span class="text-danger"><i class="mdi mdi-close"></i></span>
                         {% endif %}
                     </td>
                 </tr>

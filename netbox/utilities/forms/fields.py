@@ -193,7 +193,7 @@ class CommentField(forms.CharField):
     widget = forms.Textarea
     default_label = ''
     # TODO: Port Markdown cheat sheet to internal documentation
-    default_helptext = '<i class="fa fa-info-circle"></i> '\
+    default_helptext = '<i class="mdi mdi-information-outline"></i> '\
                        '<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">'\
                        'Markdown</a> syntax is supported'
 

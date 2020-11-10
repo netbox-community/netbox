@@ -21,7 +21,7 @@
                     <input type="text" name="q" class="form-control" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -124,7 +124,7 @@
             {% if perms.circuits.add_circuit %}
                 <div class="panel-footer text-right noprint">
                     <a href="{% url 'circuits:circuit_add' %}?provider={{ provider.pk }}" class="btn btn-xs btn-primary">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add circuit
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add circuit
                     </a>
                 </div>
             {% endif %}

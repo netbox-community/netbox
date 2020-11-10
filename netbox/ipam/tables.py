@@ -19,7 +19,7 @@ UTILIZATION_GRAPH = """
 
 PREFIX_LINK = """
 {% if record.children %}
-    <span class="text-nowrap" style="padding-left: {{ record.parents }}0px "><i class="fa fa-caret-right"></i></a>
+    <span class="text-nowrap" style="padding-left: {{ record.parents }}0px "><i class="mdi mdi-chevron-right"></i></a>
 {% else %}
     <span class="text-nowrap" style="padding-left: {{ record.parents }}9px">
 {% endif %}
@@ -97,7 +97,7 @@ VLANGROUP_ADD_VLAN = """
 {% with next_vid=record.get_next_available_vid %}
     {% if next_vid and perms.ipam.add_vlan %}
         <a href="{% url 'ipam:vlan_add' %}?site={{ record.site_id }}&group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-xs btn-success">
-            <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+            <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
         </a>
     {% endif %}
 {% endwith %}
@@ -105,9 +105,9 @@ VLANGROUP_ADD_VLAN = """
 
 VLAN_MEMBER_TAGGED = """
 {% if record.untagged_vlan_id == vlan.pk %}
-    <span class="text-danger"><i class="fa fa-close"></i></span>
+    <span class="text-danger"><i class="mdi mdi-close-thick"></i></span>
 {% else %}
-    <span class="text-success"><i class="fa fa-check"></i></span>
+    <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
 {% endif %}
 """
 

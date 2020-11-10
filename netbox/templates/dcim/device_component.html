@@ -18,12 +18,12 @@
         {% plugin_buttons instance %}
         {% if request.user|can_change:instance %}
             <a href="{% url instance|viewname:"edit" pk=instance.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span> Edit
+                <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
             </a>
         {% endif %}
         {% if request.user|can_delete:instance %}
             <a href="{% url instance|viewname:"delete" pk=instance.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span> Delete
+                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
             </a>
         {% endif %}
     </div>

@@ -26,7 +26,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search sites" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -81,8 +81,7 @@
                     <td>
                         {% if site.region %}
                             {% for region in site.region.get_ancestors %}
-                                <a href="{{ region.get_absolute_url }}">{{ region }}</a>
-                                <i class="fa fa-angle-right"></i>
+                                <a href="{{ region.get_absolute_url }}">{{ region }}</a> /
                             {% endfor %}
                             <a href="{{ site.region.get_absolute_url }}">{{ site.region }}</a>
                         {% else %}
@@ -95,8 +94,7 @@
                     <td>
                         {% if site.tenant %}
                             {% if site.tenant.group %}
-                                <a href="{{ site.tenant.group.get_absolute_url }}">{{ site.tenant.group }}</a>
-                                <i class="fa fa-angle-right"></i>
+                                <a href="{{ site.tenant.group.get_absolute_url }}">{{ site.tenant.group }}</a> /
                             {% endif %}
                             <a href="{{ site.tenant.get_absolute_url }}">{{ site.tenant }}</a>
                         {% else %}
@@ -140,7 +138,7 @@
                         {% if site.physical_address %}
                             <div class="pull-right noprint">
                                 <a href="http://maps.google.com/?q={{ site.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-xs">
-                                    <i class="glyphicon glyphicon-map-marker"></i> Map it
+                                    <i class="mdi mdi-map-marker"></i> Map it
                                 </a>
                             </div>
                             <span>{{ site.physical_address|linebreaksbr }}</span>
@@ -159,7 +157,7 @@
                         {% if site.latitude and site.longitude %}
                             <div class="pull-right noprint">
                                 <a href="http://maps.google.com/?q={{ site.latitude }},{{ site.longitude }}" target="_blank" class="btn btn-primary btn-xs">
-                                    <i class="glyphicon glyphicon-map-marker"></i> Map it
+                                    <i class="mdi mdi-map-marker"></i> Map it
                                 </a>
                             </div>
                             <span>{{ site.latitude }}, {{ site.longitude }}</span>
@@ -249,21 +247,21 @@
             <table class="table table-hover panel-body">
                 {% for rg in rack_groups %}
                     <tr>
-                        <td style="padding-left: {{ rg.level }}8px"><i class="fa fa-fw fa-folder-o"></i> <a href="{{ rg.get_absolute_url }}">{{ rg }}</a></td>
+                        <td style="padding-left: {{ rg.level }}8px"><i class="mdi mdi-folder-open"></i> <a href="{{ rg.get_absolute_url }}">{{ rg }}</a></td>
                         <td>{{ rg.rack_count }}</td>
                         <td class="text-right noprint">
                             <a href="{% url 'dcim:rack_elevation_list' %}?group_id={{ rg.pk }}" class="btn btn-xs btn-primary" title="View elevations">
-                                <i class="fa fa-eye"></i>
+                                <i class="mdi mdi-server"></i>
                             </a>
                         </td>
                     </tr>
                 {% endfor %}
                 <tr>
-                    <td><i class="fa fa-fw fa-folder-o"></i> All racks</td>
+                    <td><i class="mdi mdi-folder-open"></i> All racks</td>
                     <td>{{ stats.rack_count }}</td>
                     <td class="text-right noprint">
                         <a href="{% url 'dcim:rack_elevation_list' %}?site={{ site.slug }}" class="btn btn-xs btn-primary" title="View elevations">
-                            <i class="fa fa-eye"></i>
+                            <i class="mdi mdi-server"></i>
                         </a>
                     </td>
                 </tr>
@@ -277,7 +275,7 @@
             {% if perms.extras.add_imageattachment %}
                 <div class="panel-footer text-right noprint">
                     <a href="{% url 'dcim:site_add_image' object_id=site.pk %}" class="btn btn-primary btn-xs">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
                         Attach an image
                     </a>
                 </div>
