@@ -70,7 +70,8 @@ class CustomField(models.Model):
     )
     name = models.CharField(
         max_length=50,
-        unique=True
+        unique=True,
+        help_text='Internal field name'
     )
     label = models.CharField(
         max_length=50,
@@ -120,7 +121,8 @@ class CustomField(models.Model):
         validators=[validate_regex],
         max_length=500,
         verbose_name='Validation regex',
-        help_text='Regular expression to enforce on text field values'
+        help_text='Regular expression to enforce on text field values. Use ^ and $ to force matching of entire string. '
+                  'For example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.'
     )
     choices = ArrayField(
         base_field=models.CharField(max_length=100),

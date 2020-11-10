@@ -75,6 +75,14 @@ class CustomFieldForm(forms.ModelForm):
     class Meta:
         model = CustomField
         exclude = []
+        widgets = {
+            'validation_regex': forms.Textarea(
+                attrs={
+                    'cols': 80,
+                    'rows': 3,
+                }
+            )
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -109,7 +117,8 @@ class CustomFieldAdmin(admin.ModelAdmin):
             'fields': ('content_types',)
         }),
         ('Validation Rules', {
-            'fields': ('validation_minimum', 'validation_maximum', 'validation_regex')
+            'fields': ('validation_minimum', 'validation_maximum', 'validation_regex'),
+            'classes': ('monospace',)
         }),
         ('Choices', {
             'description': 'A selection field must have two or more choices assigned to it.',
