@@ -1314,7 +1314,7 @@ class ServiceForm(BootstrapMixin, CustomFieldModelForm):
             min_value=SERVICE_PORT_MIN,
             max_value=SERVICE_PORT_MAX
         ),
-        help_text="Comma-separated list of numeric unit IDs. A range may be specified using a hyphen."
+        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen."
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
