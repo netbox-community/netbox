@@ -1747,7 +1747,7 @@ class DeviceBayPopulateView(ObjectEditView):
         return render(request, 'dcim/devicebay_populate.html', {
             'device_bay': device_bay,
             'form': form,
-            'return_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
+            'return_url': self.get_return_url(request, device_bay),
         })
 
     def post(self, request, pk):
@@ -1765,7 +1765,7 @@ class DeviceBayPopulateView(ObjectEditView):
         return render(request, 'dcim/devicebay_populate.html', {
             'device_bay': device_bay,
             'form': form,
-            'return_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
+            'return_url': self.get_return_url(request, device_bay),
         })
 
 
@@ -1773,18 +1773,16 @@ class DeviceBayDepopulateView(ObjectEditView):
     queryset = DeviceBay.objects.all()
 
     def get(self, request, pk):
-
         device_bay = get_object_or_404(self.queryset, pk=pk)
         form = ConfirmationForm()
 
         return render(request, 'dcim/devicebay_depopulate.html', {
             'device_bay': device_bay,
             'form': form,
-            'return_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
+            'return_url': self.get_return_url(request, device_bay),
         })
 
     def post(self, request, pk):
-
         device_bay = get_object_or_404(self.queryset, pk=pk)
         form = ConfirmationForm(request.POST)
 
@@ -1800,7 +1798,7 @@ class DeviceBayDepopulateView(ObjectEditView):
         return render(request, 'dcim/devicebay_depopulate.html', {
             'device_bay': device_bay,
             'form': form,
-            'return_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
+            'return_url': self.get_return_url(request, device_bay),
         })
 
 
