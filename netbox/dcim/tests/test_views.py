@@ -51,10 +51,10 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,slug,status,description",
-            "Region 4,region-4,reserved,Fourth region",
-            "Region 5,region-5,available,Fifth region",
-            "Region 6,region-6,planned,Sixth region",
+            "name,slug,description",
+            "Region 4,region-4,Fourth region",
+            "Region 5,region-5,Fifth region",
+            "Region 6,region-6,Sixth region",
         )
 
 
