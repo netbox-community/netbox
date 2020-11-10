@@ -5,14 +5,14 @@
 <div class="pull-right noprint">
     {% export_button content_type %}
 </div>
-<h1>{% block title %}Console Connections{% endblock %}</h1>
+<h1>{% block title %}{{ title }}{% endblock %}</h1>
 <div class="row">
-	<div class="col-md-9">
+	  <div class="col-md-12">
+        <div class="col-md-3 pull-right right-side-panel noprint">
+            {% include 'inc/search_panel.html' %}
+        </div>
         {% include 'responsive_table.html' %}
         {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
-    </div>
-    <div class="col-md-3 noprint">
-		{% include 'inc/search_panel.html' %}
     </div>
 </div>
 {% endblock %}

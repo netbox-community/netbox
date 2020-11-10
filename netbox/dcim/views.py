@@ -2144,7 +2144,7 @@ class ConsoleConnectionsListView(ObjectListView):
     filterset = filters.ConsoleConnectionFilterSet
     filterset_form = forms.ConsoleConnectionFilterForm
     table = tables.ConsoleConnectionTable
-    template_name = 'dcim/console_connections_list.html'
+    template_name = 'dcim/connections_list.html'
 
     def queryset_to_csv(self):
         csv_data = [
@@ -2163,13 +2163,18 @@ class ConsoleConnectionsListView(ObjectListView):
 
         return '\n'.join(csv_data)
 
+    def extra_context(self):
+        return {
+            'title': 'Console Connections'
+        }
+
 
 class PowerConnectionsListView(ObjectListView):
     queryset = PowerPort.objects.filter(_path__isnull=False).order_by('device')
     filterset = filters.PowerConnectionFilterSet
     filterset_form = forms.PowerConnectionFilterForm
     table = tables.PowerConnectionTable
-    template_name = 'dcim/power_connections_list.html'
+    template_name = 'dcim/connections_list.html'
 
     def queryset_to_csv(self):
         csv_data = [
@@ -2188,6 +2193,11 @@ class PowerConnectionsListView(ObjectListView):
 
         return '\n'.join(csv_data)
 
+    def extra_context(self):
+        return {
+            'title': 'Power Connections'
+        }
+
 
 class InterfaceConnectionsListView(ObjectListView):
     queryset = Interface.objects.filter(
@@ -2198,7 +2208,7 @@ class InterfaceConnectionsListView(ObjectListView):
     filterset = filters.InterfaceConnectionFilterSet
     filterset_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
-    template_name = 'dcim/interface_connections_list.html'
+    template_name = 'dcim/connections_list.html'
 
     def queryset_to_csv(self):
         csv_data = [
@@ -2218,6 +2228,11 @@ class InterfaceConnectionsListView(ObjectListView):
             csv_data.append(csv)
 
         return '\n'.join(csv_data)
+
+    def extra_context(self):
+        return {
+            'title': 'Interface Connections'
+        }
 
 
 #

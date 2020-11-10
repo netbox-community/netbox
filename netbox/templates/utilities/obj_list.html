@@ -21,7 +21,13 @@
 </div>
 <h1>{% block title %}{{ content_type.model_class|meta:"verbose_name_plural"|bettertitle }}{% endblock %}</h1>
 <div class="row">
-    <div class="col-md-{% if filter_form %}9{% else %}12{% endif %}">
+    <div class="col-md-12">
+        {% if filter_form %}
+            <div class="col-md-3 pull-right right-side-panel noprint">
+                {% include 'inc/search_panel.html' %}
+                {% block sidebar %}{% endblock %}
+            </div>
+        {% endif %}
         {% with bulk_edit_url=content_type.model_class|validated_viewname:"bulk_edit" bulk_delete_url=content_type.model_class|validated_viewname:"bulk_delete" %}
         {% if permissions.change or permissions.delete %}
             <form method="post" class="form form-horizontal">
@@ -73,12 +79,6 @@
         {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
         <div class="clearfix"></div>
     </div>
-    {% if filter_form %}
-        <div class="col-md-3 noprint">
-            {% include 'inc/search_panel.html' %}
-            {% block sidebar %}{% endblock %}
-        </div>
-    {% endif %}
 </div>
 {% table_config_form table table_name="ObjectTable" %}
 {% endblock %}
