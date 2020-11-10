@@ -81,6 +81,19 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Tenant</td>
+                    <td>
+                        {% if aggregate.tenant %}
+                            {% if prefix.aggregate.group %}
+                                <a href="{{ aggregate.tenant.group.get_absolute_url }}">{{ aggregate.tenant.group }}</a> /
+                            {% endif %}
+                            <a href="{{ aggregate.tenant.get_absolute_url }}">{{ aggregate.tenant }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Date Added</td>
                     <td>{{ aggregate.date_added|placeholder }}</td>
                 </tr>
