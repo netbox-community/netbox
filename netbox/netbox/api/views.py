@@ -1,5 +1,6 @@
 import logging
 import platform
+from collections import OrderedDict
 
 from django import __version__ as DJANGO_VERSION
 from django.apps import apps
@@ -10,6 +11,7 @@ from django.db.models import ProtectedError
 from django_rq.queues import get_connection
 from rest_framework import mixins, status
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rq.worker import Worker
@@ -231,6 +233,33 @@ class ModelViewSet(mixins.CreateModelMixin,
 #
 # Views
 #
+
+class APIRootView(APIView):
+    """
+    This is the root of NetBox's REST API. API endpoints are arranged by app and model name; e.g. `/api/dcim/sites/`.
+    """
+    _ignore_model_permissions = True
+    exclude_from_schema = True
+    swagger_schema = None
+
+    def get_view_name(self):
+        return "API Root"
+
+    def get(self, request, format=None):
+
+        return Response(OrderedDict((
+            ('circuits', reverse('circuits-api:api-root', request=request, format=format)),
+            ('dcim', reverse('dcim-api:api-root', request=request, format=format)),
+            ('extras', reverse('extras-api:api-root', request=request, format=format)),
+            ('ipam', reverse('ipam-api:api-root', request=request, format=format)),
+            ('plugins', reverse('plugins-api:api-root', request=request, format=format)),
+            ('secrets', reverse('secrets-api:api-root', request=request, format=format)),
+            ('status', reverse('api-status', request=request, format=format)),
+            ('tenancy', reverse('tenancy-api:api-root', request=request, format=format)),
+            ('users', reverse('users-api:api-root', request=request, format=format)),
+            ('virtualization', reverse('virtualization-api:api-root', request=request, format=format)),
+        )))
+
 
 class StatusView(APIView):
     """

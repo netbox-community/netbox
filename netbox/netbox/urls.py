@@ -6,8 +6,8 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
 from extras.plugins.urls import plugin_admin_patterns, plugin_patterns, plugin_api_patterns
-from netbox.api.views import StatusView
-from netbox.views import APIRootView, HomeView, StaticMediaFailureView, SearchView
+from netbox.api.views import APIRootView, StatusView
+from netbox.views import HomeView, StaticMediaFailureView, SearchView
 from users.views import LoginView, LogoutView
 from .admin import admin_site
 
