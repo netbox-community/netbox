@@ -10,14 +10,12 @@ from django_tables2 import RequestConfig
 from rq import Worker
 
 from dcim.models import DeviceRole, Platform, Region, Site
+from netbox.views import generic
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.utils import copy_safe_request, shallow_compare_dict
-from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ObjectView, ObjectDeleteView, ObjectEditView, ObjectListView,
-    ContentTypePermissionRequiredMixin,
-)
+from utilities.views import ContentTypePermissionRequiredMixin
 from virtualization.models import Cluster, ClusterGroup
 from . import filters, forms, tables
 from .choices import JobResultStatusChoices
@@ -30,7 +28,7 @@ from .scripts import get_scripts, run_script
 # Tags
 #
 
-class TagListView(ObjectListView):
+class TagListView(generic.ObjectListView):
     queryset = Tag.objects.annotate(
         items=Count('extras_taggeditem_items')
     ).order_by(*Tag._meta.ordering)
@@ -39,23 +37,23 @@ class TagListView(ObjectListView):
     table = tables.TagTable
 
 
-class TagEditView(ObjectEditView):
+class TagEditView(generic.ObjectEditView):
     queryset = Tag.objects.all()
     model_form = forms.TagForm
     template_name = 'extras/tag_edit.html'
 
 
-class TagDeleteView(ObjectDeleteView):
+class TagDeleteView(generic.ObjectDeleteView):
     queryset = Tag.objects.all()
 
 
-class TagBulkImportView(BulkImportView):
+class TagBulkImportView(generic.BulkImportView):
     queryset = Tag.objects.all()
     model_form = forms.TagCSVForm
     table = tables.TagTable
 
 
-class TagBulkEditView(BulkEditView):
+class TagBulkEditView(generic.BulkEditView):
     queryset = Tag.objects.annotate(
         items=Count('extras_taggeditem_items')
     ).order_by(*Tag._meta.ordering)
@@ -63,7 +61,7 @@ class TagBulkEditView(BulkEditView):
     form = forms.TagBulkEditForm
 
 
-class TagBulkDeleteView(BulkDeleteView):
+class TagBulkDeleteView(generic.BulkDeleteView):
     queryset = Tag.objects.annotate(
         items=Count('extras_taggeditem_items')
     ).order_by(*Tag._meta.ordering)
@@ -74,7 +72,7 @@ class TagBulkDeleteView(BulkDeleteView):
 # Config contexts
 #
 
-class ConfigContextListView(ObjectListView):
+class ConfigContextListView(generic.ObjectListView):
     queryset = ConfigContext.objects.all()
     filterset = filters.ConfigContextFilterSet
     filterset_form = forms.ConfigContextFilterForm
@@ -82,7 +80,7 @@ class ConfigContextListView(ObjectListView):
     action_buttons = ('add',)
 
 
-class ConfigContextView(ObjectView):
+class ConfigContextView(generic.ObjectView):
     queryset = ConfigContext.objects.all()
 
     def get(self, request, pk):
@@ -116,29 +114,29 @@ class ConfigContextView(ObjectView):
         })
 
 
-class ConfigContextEditView(ObjectEditView):
+class ConfigContextEditView(generic.ObjectEditView):
     queryset = ConfigContext.objects.all()
     model_form = forms.ConfigContextForm
     template_name = 'extras/configcontext_edit.html'
 
 
-class ConfigContextBulkEditView(BulkEditView):
+class ConfigContextBulkEditView(generic.BulkEditView):
     queryset = ConfigContext.objects.all()
     filterset = filters.ConfigContextFilterSet
     table = tables.ConfigContextTable
     form = forms.ConfigContextBulkEditForm
 
 
-class ConfigContextDeleteView(ObjectDeleteView):
+class ConfigContextDeleteView(generic.ObjectDeleteView):
     queryset = ConfigContext.objects.all()
 
 
-class ConfigContextBulkDeleteView(BulkDeleteView):
+class ConfigContextBulkDeleteView(generic.BulkDeleteView):
     queryset = ConfigContext.objects.all()
     table = tables.ConfigContextTable
 
 
-class ObjectConfigContextView(ObjectView):
+class ObjectConfigContextView(generic.ObjectView):
     base_template = None
 
     def get(self, request, pk):
@@ -172,7 +170,7 @@ class ObjectConfigContextView(ObjectView):
 # Change logging
 #
 
-class ObjectChangeListView(ObjectListView):
+class ObjectChangeListView(generic.ObjectListView):
     queryset = ObjectChange.objects.all()
     filterset = filters.ObjectChangeFilterSet
     filterset_form = forms.ObjectChangeFilterForm
@@ -181,7 +179,7 @@ class ObjectChangeListView(ObjectListView):
     action_buttons = ('export',)
 
 
-class ObjectChangeView(ObjectView):
+class ObjectChangeView(generic.ObjectView):
     queryset = ObjectChange.objects.all()
 
     def get(self, request, pk):
@@ -283,7 +281,7 @@ class ObjectChangeLogView(View):
 # Image attachments
 #
 
-class ImageAttachmentEditView(ObjectEditView):
+class ImageAttachmentEditView(generic.ObjectEditView):
     queryset = ImageAttachment.objects.all()
     model_form = forms.ImageAttachmentForm
 
@@ -298,7 +296,7 @@ class ImageAttachmentEditView(ObjectEditView):
         return imageattachment.parent.get_absolute_url()
 
 
-class ImageAttachmentDeleteView(ObjectDeleteView):
+class ImageAttachmentDeleteView(generic.ObjectDeleteView):
     queryset = ImageAttachment.objects.all()
 
     def get_return_url(self, request, imageattachment):

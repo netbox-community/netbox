@@ -94,4 +94,4 @@ urlpatterns = [
     path('{}'.format(settings.BASE_PATH), include(_patterns))
 ]
 
-handler500 = 'utilities.views.server_error'
+handler500 = 'netbox.views.server_error'
