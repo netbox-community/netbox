@@ -12,6 +12,18 @@ from netbox.api import ChoiceField, SerializedPKRelatedField, WritableNestedSeri
 class NetBoxSwaggerAutoSchema(SwaggerAutoSchema):
     writable_serializers = {}
 
+    def get_operation_id(self, operation_keys=None):
+        operation_keys = operation_keys or self.operation_keys
+        operation_id = self.overrides.get('operation_id', '')
+        if not operation_id:
+            # Overwrite the action for bulk update/bulk delete views to ensure they get an operation ID that's
+            # unique from their single-object counterparts (see #3436)
+            if operation_keys[-1] in ('delete', 'partial_update', 'update') and not self.view.detail:
+                operation_keys[-1] = f'bulk_{operation_keys[-1]}'
+            operation_id = '_'.join(operation_keys)
+
+        return operation_id
+
     def get_request_serializer(self):
         serializer = super().get_request_serializer()
 
