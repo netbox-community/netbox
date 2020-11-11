@@ -226,6 +226,9 @@ class APIViewTestCases:
             self.assertEqual(len(response.data), len(self.create_data))
             self.assertEqual(self._get_queryset().count(), initial_count + len(self.create_data))
             for i, obj in enumerate(response.data):
+                for field in self.create_data[i]:
+                    self.assertIn(field, obj, f"Bulk create field '{field}' missing from object {i} in response")
+            for i, obj in enumerate(response.data):
                 self.assertInstanceEqual(
                     self._get_queryset().get(pk=obj['id']),
                     self.create_data[i],
@@ -292,6 +295,9 @@ class APIViewTestCases:
 
             response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
+            for i, obj in enumerate(response.data):
+                for field in self.bulk_update_data:
+                    self.assertIn(field, obj, f"Bulk update field '{field}' missing from object {i} in response")
             for instance in self._get_queryset().filter(pk__in=id_list):
                 self.assertInstanceEqual(instance, self.bulk_update_data, api=True)
 

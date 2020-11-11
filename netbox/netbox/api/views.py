@@ -67,17 +67,21 @@ class BulkUpdateModelMixin:
             obj.pop('id'): obj for obj in request.data
         }
 
-        self.perform_bulk_update(qs, update_data, partial=partial)
+        data = self.perform_bulk_update(qs, update_data, partial=partial)
 
-        return Response(status=status.HTTP_200_OK)
+        return Response(data, status=status.HTTP_200_OK)
 
     def perform_bulk_update(self, objects, update_data, partial):
         with transaction.atomic():
+            data_list = []
             for obj in objects:
                 data = update_data.get(obj.id)
                 serializer = self.get_serializer(obj, data=data, partial=partial)
                 serializer.is_valid(raise_exception=True)
                 self.perform_update(serializer)
+                data_list.append(serializer.data)
+
+            return data_list
 
     def bulk_partial_update(self, request, *args, **kwargs):
         kwargs['partial'] = True
