@@ -2026,6 +2026,7 @@ class PathTraceView(ObjectView):
         # If tracing a PathEndpoint, locate the CablePath (if one exists) by its origin
         if isinstance(obj, PathEndpoint):
             path = obj._path
+
         # Otherwise, find all CablePaths which traverse the specified object
         else:
             related_paths = CablePath.objects.filter(path__contains=obj).prefetch_related('origin')
@@ -2041,9 +2042,9 @@ class PathTraceView(ObjectView):
 
         return render(request, 'dcim/cable_trace.html', {
             'obj': obj,
-            'path': obj.trace(),
+            'path': path,
             'related_paths': related_paths,
-            'total_length': path.get_total_length(),
+            'total_length': path.get_total_length() if path else None,
         })
 
 

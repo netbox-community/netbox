@@ -8,58 +8,59 @@
 {% block content %}
     <div class="row">
         <div class="col-md-5 col-sm-12 text-center">
-            {% for near_end, cable, far_end in path %}
+            {% with traced_path=path.origin.trace %}
+                {% for near_end, cable, far_end in traced_path %}
 
-                {# Near end #}
-                {% if near_end.device %}
-                    {% include 'dcim/trace/device.html' with device=near_end.device %}
-                    {% include 'dcim/trace/termination.html' with termination=near_end %}
-                {% elif near_end.power_panel %}
-                    {% include 'dcim/trace/powerfeed.html' with powerfeed=near_end %}
-                {% elif near_end.circuit %}
-                    {% include 'dcim/trace/circuit.html' with circuit=near_end.circuit %}
-                    {% include 'dcim/trace/termination.html' with termination=near_end %}
-                {% else %}
-                    <h3 class="text-danger text-center">Split Paths!</h3>
-                    {# TODO: Present the user with successive paths to choose from #}
-                {% endif %}
-
-                {# Cable #}
-                {% if cable %}
-                    <div class="row">
-                        {% include 'dcim/trace/cable.html' %}
-                    </div>
-                {% endif %}
-
-                {# Far end #}
-                {% if far_end.device %}
-                    {% include 'dcim/trace/termination.html' with termination=far_end %}
-                    {% if forloop.last %}
-                        {% include 'dcim/trace/device.html' with device=far_end.device %}
+                    {# Near end #}
+                    {% if near_end.device %}
+                        {% include 'dcim/trace/device.html' with device=near_end.device %}
+                        {% include 'dcim/trace/termination.html' with termination=near_end %}
+                    {% elif near_end.power_panel %}
+                        {% include 'dcim/trace/powerfeed.html' with powerfeed=near_end %}
+                    {% elif near_end.circuit %}
+                        {% include 'dcim/trace/circuit.html' with circuit=near_end.circuit %}
+                        {% include 'dcim/trace/termination.html' with termination=near_end %}
+                    {% else %}
+                        <h3 class="text-danger text-center">Split Paths!</h3>
+                        {# TODO: Present the user with successive paths to choose from #}
                     {% endif %}
-                {% elif far_end.power_panel %}
-                    {% include 'dcim/trace/powerfeed.html' with powerfeed=far_end %}
-                {% elif far_end.circuit %}
-                    {% include 'dcim/trace/termination.html' with termination=far_end %}
-                    {% if forloop.last %}
-                        {% include 'dcim/trace/circuit.html' with circuit=far_end.circuit %}
-                    {% endif %}
-                {% endif %}
 
-                {% if forloop.last and far_end %}
-                    <div class="row">
-                        <div class="text-center">
-                            <h3 class="text-success text-center">Trace completed!</h3>
-                            <h5>Total segments: {{ path|length }}</h5>
-                            {% if total_length %}
-                                <h5>Total length: {{ total_length|floatformat:"-2" }} Meters<h5>
-                            {% endif %}
+                    {# Cable #}
+                    {% if cable %}
+                        <div class="row">
+                            {% include 'dcim/trace/cable.html' %}
                         </div>
-                    </div>
-                {% endif %}
+                    {% endif %}
 
-            {% endfor %}
+                    {# Far end #}
+                    {% if far_end.device %}
+                        {% include 'dcim/trace/termination.html' with termination=far_end %}
+                        {% if forloop.last %}
+                            {% include 'dcim/trace/device.html' with device=far_end.device %}
+                        {% endif %}
+                    {% elif far_end.power_panel %}
+                        {% include 'dcim/trace/powerfeed.html' with powerfeed=far_end %}
+                    {% elif far_end.circuit %}
+                        {% include 'dcim/trace/termination.html' with termination=far_end %}
+                        {% if forloop.last %}
+                            {% include 'dcim/trace/circuit.html' with circuit=far_end.circuit %}
+                        {% endif %}
+                    {% endif %}
 
+                    {% if forloop.last and far_end %}
+                        <div class="row">
+                            <div class="text-center">
+                                <h3 class="text-success text-center">Trace completed!</h3>
+                                <h5>Total segments: {{ traced_path|length }}</h5>
+                                {% if total_length %}
+                                    <h5>Total length: {{ total_length|floatformat:"-2" }} Meters<h5>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                {% endfor %}
+            {% endwith %}
         </div>
         <div class="col-md-7 col-sm-12">
 
