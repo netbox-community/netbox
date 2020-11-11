@@ -89,14 +89,6 @@ class CustomFieldForm(forms.ModelForm):
 
         order_content_types(self.fields['content_types'])
 
-    def clean(self):
-
-        # Validate selection choices
-        if self.cleaned_data['type'] == CustomFieldTypeChoices.TYPE_SELECT and len(self.cleaned_data['choices']) < 2:
-            raise forms.ValidationError({
-                'choices': 'Selection fields must specify at least two choices.'
-            })
-
 
 @admin.register(CustomField)
 class CustomFieldAdmin(admin.ModelAdmin):

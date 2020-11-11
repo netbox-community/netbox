@@ -170,7 +170,13 @@ class CustomField(models.Model):
         # Choices can be set only on selection fields
         if self.choices and self.type != CustomFieldTypeChoices.TYPE_SELECT:
             raise ValidationError({
-                'choices': "Choices may be set only for selection-type custom fields."
+                'choices': "Choices may be set only for custom selection fields."
+            })
+
+        # A selection field must have at least two choices defined
+        if self.type == CustomFieldTypeChoices.TYPE_SELECT and len(self.choices) < 2:
+            raise ValidationError({
+                'choices': "Selection fields must specify at least two choices."
             })
 
         # A selection field's default (if any) must be present in its available choices
