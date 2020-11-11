@@ -670,21 +670,21 @@ class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Front Port Template 4',
                 'type': PortTypeChoices.TYPE_8P8C,
                 'rear_port': rear_port_templates[3].pk,
-                'position': 1,
+                'rear_port_position': 1,
             },
             {
                 'device_type': devicetype.pk,
                 'name': 'Front Port Template 5',
                 'type': PortTypeChoices.TYPE_8P8C,
                 'rear_port': rear_port_templates[4].pk,
-                'position': 1,
+                'rear_port_position': 1,
             },
             {
                 'device_type': devicetype.pk,
                 'name': 'Front Port Template 6',
                 'type': PortTypeChoices.TYPE_8P8C,
                 'rear_port': rear_port_templates[5].pk,
-                'position': 1,
+                'rear_port_position': 1,
             },
         ]
 
