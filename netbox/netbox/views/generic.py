@@ -74,7 +74,7 @@ class ObjectListView(ObjectPermissionRequiredMixin, View):
     filterset = None
     filterset_form = None
     table = None
-    template_name = 'utilities/obj_list.html'
+    template_name = 'generic/object_list.html'
     action_buttons = ('add', 'import', 'export')
 
     def get_required_permission(self):
@@ -196,7 +196,7 @@ class ObjectEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     """
     queryset = None
     model_form = None
-    template_name = 'utilities/obj_edit.html'
+    template_name = 'generic/object_edit.html'
 
     def get_required_permission(self):
         # self._permission_action is set by dispatch() to either "add" or "change" depending on whether
@@ -308,7 +308,7 @@ class ObjectDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     template_name: The name of the template
     """
     queryset = None
-    template_name = 'utilities/obj_delete.html'
+    template_name = 'generic/object_delete.html'
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'delete')
@@ -482,7 +482,7 @@ class ObjectImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     queryset = None
     model_form = None
     related_object_forms = dict()
-    template_name = 'utilities/obj_import.html'
+    template_name = 'generic/object_import.html'
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
@@ -615,7 +615,7 @@ class BulkImportView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     queryset = None
     model_form = None
     table = None
-    template_name = 'utilities/obj_bulk_import.html'
+    template_name = 'generic/object_bulk_import.html'
     widget_attrs = {}
 
     def _import_form(self, *args, **kwargs):
@@ -720,7 +720,7 @@ class BulkEditView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     filterset = None
     table = None
     form = None
-    template_name = 'utilities/obj_bulk_edit.html'
+    template_name = 'generic/object_bulk_edit.html'
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'change')
@@ -857,7 +857,7 @@ class BulkRenameView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     An extendable view for renaming objects in bulk.
     """
     queryset = None
-    template_name = 'utilities/obj_bulk_rename.html'
+    template_name = 'generic/object_bulk_rename.html'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -944,7 +944,7 @@ class BulkDeleteView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View):
     filterset = None
     table = None
     form = None
-    template_name = 'utilities/obj_bulk_delete.html'
+    template_name = 'generic/object_bulk_delete.html'
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'delete')
@@ -1127,7 +1127,7 @@ class BulkComponentCreateView(GetReturnURLMixin, ObjectPermissionRequiredMixin, 
     model_form = None
     filterset = None
     table = None
-    template_name = 'utilities/obj_bulk_add_component.html'
+    template_name = 'generic/object_bulk_add_component.html'
 
     def get_required_permission(self):
         return f'dcim.add_{self.queryset.model._meta.model_name}'

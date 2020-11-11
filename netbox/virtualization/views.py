@@ -184,7 +184,7 @@ class ClusterAddDevicesView(generic.ObjectEditView):
 class ClusterRemoveDevicesView(generic.ObjectEditView):
     queryset = Cluster.objects.all()
     form = forms.ClusterRemoveDevicesForm
-    template_name = 'utilities/obj_bulk_remove.html'
+    template_name = 'generic/object_bulk_remove.html'
 
     def post(self, request, pk):
 
