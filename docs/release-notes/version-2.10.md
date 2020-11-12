@@ -4,6 +4,8 @@
 
 **NOTE:** This release completely removes support for embedded graphs.
 
+**NOTE:** The Django templating language (DTL) is no longer supported for export templates. Ensure that all export templates use Jinja2 before upgrading.
+
 ### New Features
 
 #### Route Targets ([#259](https://github.com/netbox-community/netbox/issues/259))
