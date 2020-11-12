@@ -227,6 +227,42 @@ table.report th a {
     margin-bottom: 0;
 }
 
+/* Cable tracing */
+.cable-trace {
+    max-width: 600px;
+    text-align: center;
+}
+.cable-trace .node {
+    background-color: #f0f0f0;
+    border: 1px solid #909090;
+    border-radius: 8px;
+    padding: 24px 16px;
+    position: relative;
+    z-index: 1;
+}
+.cable-trace .termination {
+    background-color: #f7f7f7;
+    border: 1px solid #909090;
+    border-radius: 4px;
+    margin: -16px auto;
+    padding: 12px;
+    position: relative;
+    width: 60%;
+    z-index: 2;
+}
+.cable-trace .cable {
+    border-left-style: solid;
+    border-left-width: 4px;
+    margin: 12px 0 12px 50%;
+    padding: 24px;
+    text-align: left;
+    width: 50%;
+}
+.cable-trace .trace-end {
+    margin-top: 48px;
+    text-align: center;
+}
+
 /* Admonition (docs) */
 .admonition {
     margin-bottom: 10px;

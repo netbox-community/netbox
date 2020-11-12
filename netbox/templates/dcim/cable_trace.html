@@ -2,12 +2,12 @@
 {% load helpers %}
 
 {% block header %}
-    <h1>{% block title %}Cable Trace for {{ obj }}{% endblock %}</h1>
+    <h1>{% block title %}Cable Trace for {{ obj|meta:"verbose_name"|bettertitle }} {{ obj }}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
     <div class="row">
-        <div class="col-md-5 col-sm-12 text-center">
+        <div class="col-md-5 col-sm-12 cable-trace">
             {% with traced_path=path.origin.trace %}
                 {% for near_end, cable, far_end in traced_path %}
 
@@ -16,7 +16,8 @@
                         {% include 'dcim/trace/device.html' with device=near_end.device %}
                         {% include 'dcim/trace/termination.html' with termination=near_end %}
                     {% elif near_end.power_panel %}
-                        {% include 'dcim/trace/powerfeed.html' with powerfeed=near_end %}
+                        {% include 'dcim/trace/powerpanel.html' with powerpanel=near_end.power_panel %}
+                        {% include 'dcim/trace/termination.html' with termination=far_end%}
                     {% elif near_end.circuit %}
                         {% include 'dcim/trace/circuit.html' with circuit=near_end.circuit %}
                         {% include 'dcim/trace/termination.html' with termination=near_end %}
@@ -27,9 +28,7 @@
 
                     {# Cable #}
                     {% if cable %}
-                        <div class="row">
-                            {% include 'dcim/trace/cable.html' %}
-                        </div>
+                        {% include 'dcim/trace/cable.html' %}
                     {% endif %}
 
                     {# Far end #}
@@ -39,7 +38,8 @@
                             {% include 'dcim/trace/device.html' with device=far_end.device %}
                         {% endif %}
                     {% elif far_end.power_panel %}
-                        {% include 'dcim/trace/powerfeed.html' with powerfeed=far_end %}
+                        {% include 'dcim/trace/termination.html' with termination=far_end %}
+                        {% include 'dcim/trace/powerpanel.html' with powerpanel=far_end.power_panel %}
                     {% elif far_end.circuit %}
                         {% include 'dcim/trace/termination.html' with termination=far_end %}
                         {% if forloop.last %}
@@ -47,15 +47,17 @@
                         {% endif %}
                     {% endif %}
 
-                    {% if forloop.last and far_end %}
-                        <div class="row">
-                            <div class="text-center">
-                                <h3 class="text-success text-center">Trace completed!</h3>
-                                <h5>Total segments: {{ traced_path|length }}</h5>
+                    {% if forloop.last %}
+                        <div class="trace-end">
+                            <h3{% if far_end %} class="text-success"{% endif %}>Trace completed</h3>
+                            <h5>Total segments: {{ traced_path|length }}</h5>
+                            <h5>Total length:
                                 {% if total_length %}
-                                    <h5>Total length: {{ total_length|floatformat:"-2" }} Meters<h5>
+                                    {{ total_length|floatformat:"-2" }} Meters
+                                {% else %}
+                                    <span class="text-muted">N/A</span>
                                 {% endif %}
-                            </div>
+                            <h5>
                         </div>
                     {% endif %}
 

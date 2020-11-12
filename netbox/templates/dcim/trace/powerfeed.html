@@ -1,9 +1,0 @@
-<div class="panel panel-danger">
-    <div class="panel-heading">
-        <strong>Power Feed <a href="{{ powerfeed.get_absolute_url }}">{{ powerfeed }}</a></strong><br />
-        <a href="{{ powerfeed.power_panel.get_absolute_url }}">{{ powerfeed.power_panel }}</a>
-        {% if powerfeed.rack %}
-            / <a href="{{ powerfeed.rack.get_absolute_url }}">{{ powerfeed.rack }}</a>
-        {% endif %}
-    </div>
-</div>
